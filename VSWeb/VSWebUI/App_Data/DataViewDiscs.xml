@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Discs>
+  <Disc ID="69" Title="Consequence of Chaos" Year="2006" Price="$14.99" Decade="2000s"/>
+  <Disc ID="42" Title="Revisited" Year="2003" Price="$4.95" Decade="2000s"/>
+  <Disc ID="44" Title="Derek Sherinian Black Utopia" Year="2003" Price="$16.98" Decade="2000s"/>
+  <Disc ID="1" Title="Flesh on Flesh" Year="2002" Price="$18.98" Decade="2000s"/>
+  <Disc ID="2" Title="Fugata" Year="2002" Price="Coming soon!" Decade="2000s"/>
+  <Disc ID="46" Title="Liona Boyd Camino Latino" Year="2002" Price="$15.98" Decade="2000s"/>
+  <Disc ID="37" Title="Man Doki Soulmates" Year="2001" Price="$30.49" Decade="2000s"/>
+  <Disc ID="47" Title="George Dalaras The Running Roads" Year="2001" Price="$13.98" Decade="2000s"/>
+  <Disc ID="3" Title="The Grande Passion" Year="2000" Price="$18.98" Decade="2000s"/>
+  <Disc ID="26" Title="Anthology" Year="2000" Price="$24.98" Decade="2000s"/>
+  <Disc ID="32" Title="Nylon &amp; Steel" Year="2000" Price="$16.98" Decade="2000s"/>
+  <Disc ID="11" Title="Winter Nights" Year="1999" Price="$11.98" Decade="1990s"/>
+  <Disc ID="27" Title="The Infinite Desire" Year="1998" Price="$11.98 " Decade="1990s"/>
+  <Disc ID="43" Title="The Collection" Year="1998" Price="$11.95" Decade="1990s"/>
+  <Disc ID="56" Title="The New Tango Project" Year="1997" Price="Coming soon!" Decade="1990s"/>
+  <Disc ID="25" Title="This Is Jazz, Vol. 31" Year="1997" Price="$5.72" Decade="1990s"/>
+  <Disc ID="19" Title="Di Meola Plays Piazzolla" Year="1996" Price="" Decade="1990s"/>
+  <Disc ID="34" Title="The Guitar Trio" Year="1996" Price="$13.99" Decade="1990s"/>
+  <Disc ID="40" Title="John McLauglin The Promise" Year="1996" Price="$14.98" Decade="1990s"/>
+  <Disc ID="41" Title="Aziza Mustafa Zadeh Dance of Fire" Year="1995" Price="Coming soon!" Decade="1990s"/>
+  <Disc ID="39" Title="David Broza" Year="1995" Price="$3.49" Decade="1990s"/>
+  <Disc ID="33" Title="The Rite of Strings" Year="1995" Price="$16.98" Decade="1990s"/>
+  <Disc ID="4" Title="Electric Anthology" Year="1995" Price="$3.98" Decade="1990s"/>
+  <Disc ID="8" Title="Acoustic Anthology" Year="1995" Price="$32.99" Decade="1990s"/>
+  <Disc ID="20" Title="Orange and Blue" Year="1994" Price="$17.98" Decade="1990s"/>
+  <Disc ID="31" Title="Heart of the Immigrants" Year="1993" Price="$17.98" Decade="1990s"/>
+  <Disc ID="23" Title="Manhattan Years" Year="1992" Price="$15.98" Decade="1990s"/>
+  <Disc ID="5" Title="World Sinfonia" Year="1990" Price="$7.35" Decade="1990s"/>
+  <Disc ID="22" Title="Greatest Hits" Year="1990" Price="$42.60" Decade="1990s"/>
+  <Disc ID="21" Title="Tirami Su" Year="1987" Price="Currently unavailable" Decade="1980s"/>
+  <Disc ID="17" Title="Cielo e Terra" Year="1985" Price="$63.89" Decade="1980s"/>
+  <Disc ID="18" Title="Soaring Through a Dream" Year="1985" Price="$27.50" Decade="1980s"/>
+  <Disc ID="16" Title="Scenario" Year="1983" Price="$19.00" Decade="1980s"/>
+  <Disc ID="35" Title="Reunion 1983" Year="Reunion 1983" Price="Currently unavailable" Decade="1980s"/>
+  <Disc ID="36" Title="Passion Grace &amp; Fire" Year="1983" Price="$29.49" Decade="1980s"/>
+  <Disc ID="15" Title="Tour De Force: Live" Year="1982" Price="$9.98" Decade="1980s"/>
+  <Disc ID="48" Title="Touchstone" Year="1982" Price="$11.98" Decade="1980s"/>
+  <Disc ID="14" Title="Electric Rendezvous" Year="1981" Price="$9.98" Decade="1980s"/>
+  <Disc ID="13" Title="Friday Night in San-Francisco" Year="1980" Price="$19.00" Decade="1980s"/>
+  <Disc ID="12" Title="Casino" Year="1977" Price="$9.98" Decade="1970s"/>
+  <Disc ID="6" Title="Elegant Gypsy" Year="1976" Price="$30.99" Decade="1970s"/>
+  <Disc ID="7" Title="Land of the Midnight Sun" Year="1976" Price="$9.98" Decade="1970s"/>
+  <Disc ID="29" Title="No Mystery" Year="1975" Price="$11.98" Decade="1970s"/>
+  <Disc ID="28" Title="Where Have I Known You Before" Year="1974" Price="$11.98" Decade="1970s"/>
+</Discs>

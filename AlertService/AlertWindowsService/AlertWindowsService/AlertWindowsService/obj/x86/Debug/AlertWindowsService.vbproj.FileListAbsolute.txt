@@ -1,0 +1,80 @@
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.AlertService.resources
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.Resources.resources
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.ProjectInstaller.resources
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\bin\Debug\AlertWindowsService.exe
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\bin\Debug\AlertWindowsService.pdb
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\bin\Debug\AlertWindowsService.xml
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.exe
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.xml
+D:\Raju\VSWEB_25-06-2012\Practice\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.pdb
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.exe
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.xml
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.pdb
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.AlertService.resources
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.Resources.resources
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.ProjectInstaller.resources
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\AlertWindowsService.exe
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\AlertWindowsService.pdb
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\AlertWindowsService.xml
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\AlertLibrary.dll
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\VSFramework.dll
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\AlertLibrary.pdb
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\AlertLibrary.xml
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\VSFramework.pdb
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\VSFramework.xml
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\ChilkatDotNet.dll
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\ChilkatDotNet2.dll
+D:\Vsweb_Alerts\AlertWindowsService\AlertWindowsService\bin\Debug\Ping.dll
+D:\Mukund\Projects\CurrentProjects\VitalSigns\VSTrunk\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.exe
+D:\Mukund\Projects\CurrentProjects\VitalSigns\VSTrunk\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.xml
+D:\Mukund\Projects\CurrentProjects\VitalSigns\VSTrunk\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.pdb
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.exe
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.xml
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.pdb
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\ResolveAssemblyReference.cache
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.AlertService.resources
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.Resources.resources
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.ProjectInstaller.resources
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\GenerateResource.read.1.tlog
+E:\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\nsoftware.IPWorks.dll
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\nsoftware.System.dll
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\nsoftware.IPWorks.xml
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\VSFramework.pdb
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\VSFramework.xml
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.vbprojResolveAssemblyReference.cache
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.vbproj.GenerateResource.Cache
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\VitalSignsAlertService.exe.config
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\VitalSignsAlertService.exe
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\VitalSignsAlertService.pdb
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\VitalSignsAlertService.xml
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.VitalSignsAlertService.resources
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.Resources.resources
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.ProjectInstaller.resources
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.exe
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.xml
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.pdb
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsAlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\bin\Debug\ChilkatDotNet4.dll
+C:\Products\VS\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.Resources.resources
+C:\Products\VS\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.ProjectInstaller.resources
+C:\Products\VS\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.AlertDefinition.resources
+C:\Products\VS\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.exe
+C:\Products\VS\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.pdb
+C:\Products\VS\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.vbprojResolveAssemblyReference.cache
+C:\Products\VS\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.vbproj.GenerateResource.Cache
+C:\Builds\Services\VitalSignsAlertService.exe.config
+C:\Builds\Services\VitalSignsAlertService.exe
+C:\Builds\Services\VitalSignsAlertService.pdb
+C:\VSTrunk\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.vbprojResolveAssemblyReference.cache
+C:\VSTrunk\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.AlertDefinition.resources
+C:\VSTrunk\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.Resources.resources
+C:\VSTrunk\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.ProjectInstaller.resources
+C:\VSTrunk\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\AlertWindowsService.vbproj.GenerateResource.Cache
+C:\VSTrunk\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.exe
+C:\VSTrunk\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\obj\x86\Debug\VitalSignsAlertService.pdb

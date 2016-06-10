@@ -1,0 +1,96 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Main.Master.cs" Inherits="VSWebUI.Main" %>
+
+<%@ Register Assembly="DevExpress.Web.v14.2, Version=14.2.7.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
+    Namespace="DevExpress.Web" TagPrefix="dx" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title></title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+    <link rel="shortcut icon" href="images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/control.css" />
+    <link rel="stylesheet" type="text/css" href="css/vswebforms.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+<body id="Body1" runat="server">
+<form id="form1" runat="server">
+    <div class="wrapper">
+        <div id="header">
+            <div id="topbar">
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="100%" height="22" align="right" valign="top">
+                    
+                        <div id="welcome">
+                    <p class="one">    
+                                            Welcome to 
+                                            <asp:Label ID="CompanyLabel1" runat="server" Text="Label"></asp:Label>
+                                            &nbsp;&nbsp;
+                         
+                            
+                        </p>                            
+                        </div>
+                        
+                        
+                        <div id="welcome2">
+                        <p class="one">
+                         <asp:Image ID="logo1" runat="server" Width="150px" Height="45px" />   
+                        </p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        </div>
+        
+        <div id="holder">
+        <div id="content">
+            <center>
+                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td align="left" valign="top">
+                            &nbsp;</td>
+                        <td valign="top">
+                       <table class="contentplaceholder">
+                       <tr>
+                       <td valign="top">
+                           &nbsp;</td>
+                       </tr>
+                       <tr><td  bgcolor="#F8F8C0"  align="left" valign="top">
+                            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                               
+                            </asp:ContentPlaceHolder>
+                            </td></tr></table>
+                        </td>
+                    </tr>
+                </table>
+                <script>
+                    //To avoid changing values in the Textbox by Mouse Scrolling
+                    ASPxClientTextEdit.prototype.OnMouseWheel = function () { };
+                </script>
+            </center>
+        </div>
+        
+    </div>
+        <div class="push"></div>
+    </div>
+    <div class="footer"  style="background-color:#C9D0E0;">
+            <div id="leftnav">
+                <p class="two">
+                    Copyright <script language="JavaScript" type="text/javascript">
+                                  now = new Date
+                                  theYear = now.getYear()
+                                  if (theYear < 1900)
+                                      theYear = theYear + 1900
+                                  document.write(theYear)
+                            </script>, RPR Wyatt, Inc. All rights reserved.</p>
+            </div>
+            <div id="rightnav">
+                &nbsp;</div>
+        </div>
+    </form>
+</body>
+</html>

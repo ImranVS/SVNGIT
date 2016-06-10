@@ -1,0 +1,921 @@
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.ServiceProcess;
+using System.Text;
+
+using System.Data.SqlClient;
+using System.Security;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
+using System.Management.Automation.Remoting;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
+using System.Threading;
+
+using VSFramework;
+using System;
+
+namespace VitalSignsMicrosoftClasses
+{
+	class ExchangeDAG
+    {
+	   // string sqlcon = "";
+	   //SqlConnection con;
+       VSFramework.VSAdaptor myAdapter = new VSFramework.VSAdaptor();
+       VSFramework.XMLOperation myxmlAdapter = new VSFramework.XMLOperation();
+
+
+       public ExchangeDAG()
+        { 
+            //InitializeComponent();
+			//sqlcon = myxmlAdapter.GetDBConnectionString("VitalSigns");
+			//con = new SqlConnection(sqlcon);
+        }
+
+       public void CheckServer(MonitoredItems.ExchangeServer myServer, ref TestResults AllTestResults)
+	   {
+
+		   RemoveOldDAGs(myServer, AllTestResults);
+           //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In  ExchangeDAG CheckServer  ", Common.LogLevel.Normal);
+		   string cmdlets = "-CommandName Get-DatabaseAvailabilityGroup, Test-ReplicationHealth, Get-MailboxDatabase, Get-MailboxDatabaseCopyStatus";
+		   ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGPrimaryUserName, myServer.DAGPrimaryPassword, myServer.ServerType, myServer.DAGPrimaryIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGPrimaryAuthenticationType);
+		   string IPAddress = myServer.DAGPrimaryIPAddress;
+		   if (results.Connected == false)
+		   {
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to primary server.  Will attempt backup",commonEnums.ServerRoles.Empty,Common.LogLevel.Normal);
+			   results.Dispose();
+			   results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGBackupUserName, myServer.DAGBackupPassword, myServer.ServerType, myServer.DAGBackupIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGBackupAuthenticationType);
+			   IPAddress = myServer.DAGBackupIPAddress;
+		   }
+		   if (results.Connected == false)
+		   {
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to Backup server.  Will stop current scan", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   SQLBuild sql = new SQLBuild();
+			   sql.ifExistsSQLSelect = "Select * from DAGStatus where DAGName='" + myServer.Name + "'";
+			   sql.onTrueDML = "UPDATE DAGStatus set Status='Failed', TotalMailboxes=0, TotalDatabases=0, FileWitnessSereverName='', FileWitnessServerStatus=null WHERE DAGNAME='" + myServer.Name + "'";
+			   sql.onFalseDML = "INSERT INTO [vitalsigns].[dbo].[DAGStatus]([DAGName], [Status]) VALUES ('" + myServer.Name + "', 'Failed')";
+			   //string sql = "INSERT INTO [vitalsigns].[dbo].[DAGStatus]([DAGName], [Status]) VALUES ('" + myServer.Name + "', 'Failed')";
+			   AllTestResults.SQLStatements.Add(new SQLstatements { SQL = sql.GetSQL(sql), DatabaseName = "vitalsigns" });
+               Common.makeAlert(false, myServer, commonEnums.AlertType.Not_Responding, ref AllTestResults, "DAG");
+			   results.Dispose();
+			   return;
+		   }
+		   else
+		   {
+			   SQLBuild sql = new SQLBuild();
+			   sql.ifExistsSQLSelect = "Select * from DAGStatus where DAGName='" + myServer.Name + "'";
+			   sql.onTrueDML = "UPDATE DAGStatus set Status='', TotalMailboxes=0, TotalDatabases=0, FileWitnessSereverName='', FileWitnessServerStatus=null WHERE DAGNAME='" + myServer.Name + "'";
+			   sql.onFalseDML = "INSERT INTO [vitalsigns].[dbo].[DAGStatus]([DAGName]) VALUES ('" + myServer.Name + "')";
+			   //string sql = "INSERT INTO [vitalsigns].[dbo].[DAGStatus]([DAGName]) VALUES ('" + myServer.Name + "')";
+			   AllTestResults.SQLStatements.Add(new SQLstatements { SQL = sql.GetSQL(sql), DatabaseName = "vitalsigns" });
+		   }
+
+           Common.makeAlert(true, myServer, commonEnums.AlertType.Not_Responding, ref AllTestResults, "DAG");
+
+		   using (results)
+		   {
+
+			   results.PS.Streams.Error.Clear();
+			   results.PS.Commands.Clear();
+			   results.PS.Commands.Clear();
+			   results.PS.Streams.Error.Clear();
+			   string strDAGName = myServer.Name;//GetDAGName(powerShellObjects.PS, powerShellObjects.runspace, myServer.Name, myServer.IPAddress, ref  AllTestResults);
+			   string FileWitnessServer = GetDAGWitnessServer(results.PS, ref  AllTestResults, myServer);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Finished getting the DAG witness Server", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   //Get Dagname for other functions.
+			   results.PS.Commands.Clear();
+			   results.PS.Streams.Error.Clear();
+
+			   checkFileWitnessServer(results.PS, ref  AllTestResults, myServer, FileWitnessServer);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Finished checking the DAG witness Server", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   //Get Dagname for other functions.
+			   results.PS.Commands.Clear();
+			   results.PS.Streams.Error.Clear();
+
+			   DAGHealthMemberReport(results.PS, ref AllTestResults, myServer);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Finished getting all the DAG members", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   results.PS.Commands.Clear();
+			   results.PS.Streams.Error.Clear();
+			   DAGHealthCopyStatus(results.PS, ref  AllTestResults, myServer);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Finished getting the DAG datebase information", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   results.PS.Commands.Clear();
+			   results.PS.Streams.Error.Clear();
+			   DAGActionPreferences(results.PS, ref  AllTestResults, myServer);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Finished getting the DAG Action Preferences", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   results.PS.Commands.Clear();
+			   results.PS.Streams.Error.Clear();
+			   DAGOverallStatus(results.PS, ref  AllTestResults, strDAGName, myServer);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Set the DAG overall status", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   
+			   results.PS.Commands.Clear();
+			   results.PS.Streams.Error.Clear();
+			   DAGBackupDetails(results.PS, ref  AllTestResults, myServer);
+			   
+			   results.PS.Commands.Clear();
+			   
+			   GC.Collect();
+
+		   }
+           //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending thread for ExchangeDAG", Common.LogLevel.Normal);
+		   //Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, DateTime.Now.ToString() + " Ending thread for DAG.", Common.LogLevel.Normal);
+        }
+
+	   public string GetDAGWitnessServer(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer)
+       {
+		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In GetDAGWitnessServer.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+          
+           //AllTestsList.Add(new TestList() { Details = "Service answered with   at " + System.DateTime.Now.ToShortTimeString(), TestName = servername+ " " + strAction, Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Pass });
+           try
+           {
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In GetDAGWitnessServer", Common.LogLevel.Normal);
+               System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+
+			   String str = "Get-DatabaseAvailabilityGroup | Where{$_.Name -eq '" + myServer.Name + "'} | Select-Object -Property WitnessServer";
+               powershell.Streams.Error.Clear();
+
+               powershell.AddScript(str);
+               results = powershell.Invoke();
+
+               if (powershell.Streams.Error.Count > 51)
+               {
+                   foreach (ErrorRecord er in powershell.Streams.Error)
+                       Console.WriteLine(er.ErrorDetails);
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "GetDAGWitnessServer received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+               }
+               else
+               {
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "GetDAGWitnessServer output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                   foreach (PSObject ps in results)
+                   {
+
+                       string strWitnessServer = ps.Properties["WitnessServer"].Value == null ? "" : ps.Properties["WitnessServer"].Value.ToString();
+
+					   string sqlQuery = "Update [vitalsigns].[dbo].[DAGStatus] set [FileWitnessSereverName]='" + strWitnessServer + "' where DAGName='" + myServer.Name + "'";
+                       AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+
+					   return strWitnessServer;
+                   }
+               }
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for GetDAGWitnessServer", Common.LogLevel.Normal);
+
+           }
+           catch (Exception ex)
+           {
+
+			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in GetDAGWitnessServer: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+           }
+           finally
+           {
+               // dispose the runspace and enable garbage collection
+               //runspace.Dispose();
+               //runspace = null;
+           }
+		   return "";
+       }
+
+	   public void checkFileWitnessServer(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer, string WitnessServer)
+	   {
+		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In checkFileWitnessServer.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+		   try
+		   {
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In checkFileWitnessServer", Common.LogLevel.Normal);
+			   System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+
+			   String str = "Test-Connection " + WitnessServer + " -Count 1";
+			   powershell.Streams.Error.Clear();
+
+			   powershell.AddScript(str);
+			   results = powershell.Invoke();
+
+			   if (powershell.Streams.Error.Count > 51)
+			   {
+				   foreach (ErrorRecord er in powershell.Streams.Error)
+					   Console.WriteLine(er.ErrorDetails);
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "checkFileWitnessServer received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   }
+			   else
+			   {
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "checkFileWitnessServer output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+				   if (results.Count == 1)
+				   {
+					   string sqlQuery = "Update [vitalsigns].[dbo].[DAGStatus] set [FileWitnessServerStatus]='OK' where DAGName='" + myServer.Name + "'";
+					   AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+				   }
+				   else
+				   {
+					   string sqlQuery = "Update [vitalsigns].[dbo].[DAGStatus] set [FileWitnessServerStatus]='Not Responding' where DAGName='" + myServer.Name + "'";
+					   AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+				   }
+			   }
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for checkFileWitnessServer", Common.LogLevel.Normal);
+
+		   }
+		   catch (Exception ex)
+		   {
+
+			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in checkFileWitnessServer: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+		   }
+	   }
+
+
+	   /*public string GetDAGName(PowerShell powershell, Runspace runspace, string servername, string IPAddress, ref TestResults AllTestsList)
+{
+   string strDAGName = "";
+   Common.WriteDeviceHistoryEntry("Exchange", DAGServer.Name, "In GetDAGName.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		  
+   //AllTestsList.Add(new TestList() { Details = "Service answered with   at " + System.DateTime.Now.ToShortTimeString(), TestName = servername+ " " + strAction, Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Pass });
+   try
+   {
+	   System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+	   //Change the Path to the Script to suit your needs
+	   System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_GetDAGName.ps1");
+	   String str = sr.ReadToEnd();
+	   powershell.Streams.Error.Clear();
+
+	   powershell.AddScript(str);
+	   results = powershell.Invoke();
+
+	   if (powershell.Streams.Error.Count > 51)
+	   {
+		   foreach (ErrorRecord er in powershell.Streams.Error)
+			   Console.WriteLine(er.ErrorDetails);
+		   Common.WriteDeviceHistoryEntry("Exchange", DAGServer.Name, "GetDAGName received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   AllTestsList.StatusDetails.Add(new TestList() { TestName = "DAG", Details = "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), Result = commonEnums.ServerResult.Fail });
+	   }
+	   else
+	   {
+		   Common.WriteDeviceHistoryEntry("Exchange", DAGServer.Name, "EX_GetDAGName output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+		   foreach (PSObject ps in results)
+		   {
+
+			   string strName = ps.Properties["Name"].Value == null ? "" : ps.Properties["Name"].Value.ToString();
+			   string strWitnessServer = ps.Properties["WitnessServer"].Value == null ? "" : ps.Properties["WitnessServer"].Value.ToString();
+			   //IF EXISTS UPDATE??
+			   //string sqlQuery = " IF EXISTS (SELECT * FROM [vitalsigns].[dbo].[DAGStatus] where DAGName='" + strName + "')" +
+			   //                   " begin"+
+			   //                   " update [vitalsigns].[dbo].[DAGStatus] set [FileWitnessSereverName]='" + strWitnessServer + "' where DAGName='" + strName + "'" +
+			   //                   " end "+
+			   //                    " else " +
+			   //                   " begin" +
+			   //                   " INSERT INTO [vitalsigns].[dbo].[DAGStatus]([DAGName],[FileWitnessSereverName]) VALUES ('" + strName + "','" + strWitnessServer + "')" +
+			   //                   " end";
+
+			   //===============================
+			   //IF EXISTS Code Snippet
+			   SQLBuild objSQL = new SQLBuild();
+			   objSQL.ifExistsSQLSelect ="SELECT * FROM [vitalsigns].[dbo].[DAGStatus] where DAGName='" + strName + "'";
+                       
+			   //If above query returns data, pass update statement
+			   objSQL.onTrueDML = " Update [vitalsigns].[dbo].[DAGStatus] set [FileWitnessSereverName]='" + strWitnessServer + "' where DAGName='" + strName + "'";
+                       
+			   //If above query does not return data, pass insert statement
+			   objSQL.onFalseDML = " INSERT INTO [vitalsigns].[dbo].[DAGStatus]([DAGName],[FileWitnessSereverName]) VALUES ('" + strName + "','" + strWitnessServer + "')";
+                       
+			   string sqlQuery = objSQL.GetSQL(objSQL);
+			   //Above GetSQL combines the given statements and returns a SQL string, which is to be passed to below List.
+			   AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+			   //===============================
+
+			   strDAGName += strName + ",";
+		   }
+	   }
+	   Common.WriteDeviceHistoryEntry("Exchange", DAGServer.Name, "In GetDAGName. DAG Names:" + strDAGName, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+   }
+   catch (Exception ex)
+   {
+
+	   Common.WriteDeviceHistoryEntry("Exchange", DAGServer.Name, "Error in GetDAGName: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+   }
+   finally
+   {
+	   // dispose the runspace and enable garbage collection
+	   //runspace.Dispose();
+	   //runspace = null;
+   }
+   return strDAGName;
+
+}
+		*/
+       public void DAGHealthMemberReport(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer)
+       {
+		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In DAGHealthMemberReport.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+		   string serverErrors = "";
+		   string testErrors = "";
+		   int countErrors = 0;
+		   string DAGName = myServer.Name;
+		   try
+		   {
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In DAGHealthMemberReport", Common.LogLevel.Normal);
+			   System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+			   //Change the Path to the Script to suit your needs
+			   System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_DAGHealth_MemberReport.ps1");
+			   String str = "$dagname='" + DAGName + "'\n\n" + sr.ReadToEnd();
+			   powershell.Commands.Clear();
+			   powershell.Streams.ClearStreams();
+			   powershell.AddScript(str);
+			   results = powershell.Invoke();
+
+			   if (powershell.Streams.Error.Count > 51)
+			   {
+				   foreach (ErrorRecord er in powershell.Streams.Error)
+					   Console.WriteLine(er.ErrorDetails);
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "DAGHealthMemberReport received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   //AllTestsList.StatusDetails.Add(new TestList() { TestName="DAG", Details = "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), Result = commonEnums.ServerResult.Fail });
+				   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "Member Report");
+			   }
+			   else
+			   {
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "EX_DAGHealth_MemberReport output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+				   foreach (PSObject ps in results)
+				   {
+
+					   string strServer = ps.Properties["Server"].Value == null ? "" : ps.Properties["Server"].Value.ToString();
+					   string strClusterService = (ps.Properties["ClusterService"] == null || ps.Properties["ClusterService"].Value == null) ? "Fail" : ps.Properties["ClusterService"].Value.ToString();
+					   string strReplayService = (ps.Properties["ReplayService"] == null || ps.Properties["ReplayService"].Value == null) ? "Fail" : ps.Properties["ReplayService"].Value.ToString();
+					   string strActiveManager = (ps.Properties["ActiveManager"] == null || ps.Properties["ActiveManager"].Value == null) ? "Fail" : ps.Properties["ActiveManager"].Value.ToString();
+					   string strTasksRpcListener = (ps.Properties["TasksRpcListener"] == null || ps.Properties["TasksRpcListener"].Value == null) ? "Fail" : ps.Properties["TasksRpcListener"].Value.ToString();
+					   string strTcpListener = (ps.Properties["TcpListener"] == null || ps.Properties["TcpListener"].Value == null) ? "Fail" : ps.Properties["TcpListener"].Value.ToString();
+					   string strDagMembersUp = (ps.Properties["DagMembersUp"] == null || ps.Properties["DagMembersUp"].Value == null) ? "Fail" : ps.Properties["DagMembersUp"].Value.ToString();
+					   string strClusterNetwork = (ps.Properties["ClusterNetwork"] == null || ps.Properties["ClusterNetwork"].Value == null) ? "Fail" : ps.Properties["ClusterNetwork"].Value.ToString();
+					   string strQuorumGroup = (ps.Properties["QuorumGroup"] == null || ps.Properties["QuorumGroup"].Value == null) ? "Fail" : ps.Properties["QuorumGroup"].Value.ToString();
+					   string strFileShareQuorum = (ps.Properties["FileShareQuorum"] == null || ps.Properties["FileShareQuorum"].Value == null) ? "Fail" : ps.Properties["FileShareQuorum"].Value.ToString();
+					   string strDBCopySuspended = (ps.Properties["DBCopySuspended"] == null || ps.Properties["DBCopySuspended"].Value == null) ? "Fail" : ps.Properties["DBCopySuspended"].Value.ToString();
+					   string strDBDisconnected = (ps.Properties["DBDisconnected"] == null || ps.Properties["DBDisconnected"].Value == null) ? "Fail" : ps.Properties["DBDisconnected"].Value.ToString();
+					   string strDBLogCopyKeepingUp = (ps.Properties["DBLogCopyKeepingUp"] == null || ps.Properties["DBLogCopyKeepingUp"].Value == null) ? "Fail" : ps.Properties["DBLogCopyKeepingUp"].Value.ToString();
+					   string strDBLogReplayKeepingUp = (ps.Properties["DBLogReplayKeepingUp"] == null || ps.Properties["DBLogReplayKeepingUp"].Value == null) ? "Fail" : ps.Properties["DBLogReplayKeepingUp"].Value.ToString();
+
+					   if (strClusterService == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "Cluster Service,";
+					   }
+					   if (strReplayService == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "Replay Service,";
+					   }
+					   if (strActiveManager == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "Active Manager,";
+					   }
+					   if (strTasksRpcListener == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "Tasks RPC Listener,";
+					   }
+					   if (strTcpListener == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "TCP Listener,";
+					   }
+					   if (strDagMembersUp == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "DAG Memebers Up,";
+					   }
+					   if (strClusterNetwork == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "Cluster Network,";
+					   }
+					   if (strQuorumGroup == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "Quorum Group,";
+					   }
+					   if (strFileShareQuorum == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "File Share Quorum,";
+					   }
+					   if (strDBCopySuspended == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "DB Copy Suspend,";
+					   }
+					   if (strDBDisconnected == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "DB Disconnected,";
+					   }
+					   if (strDBLogCopyKeepingUp == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "DB Log Copy Keeping Up,";
+					   }
+					   if (strDBLogReplayKeepingUp == "Fail")
+					   {
+						   countErrors++;
+						   serverErrors += strServer + ",";
+						   testErrors += "DB Log Replay Keeping Up,";
+					   }
+
+					   SQLBuild objSQL = new SQLBuild();
+					   objSQL.ifExistsSQLSelect = "SELECT * FROM [vitalsigns].[dbo].[DAGMembers] WHERE ServerName='" + strServer + "' and DAGID=(select id from [vitalsigns].[dbo].[DAGStatus] where DAGName='" + DAGName + "')";
+
+					   objSQL.onTrueDML = " update [vitalsigns].[dbo].[DAGMembers] set [ClusterService]='" + strClusterService + "',[RelayService]='" + strReplayService + "',[ActiveMgr]='" + strActiveManager + "',[TasksRPCListener]='" + strTasksRpcListener +
+									   "',[TPCListner]='" + strTcpListener + "',[DAGMembersUP]='" + strDagMembersUp + "',[ClusterNetwork]='" + strClusterNetwork + "',[QuorumGroup]='" + strQuorumGroup + "'," +
+									   "[FileShareQuorum]='" + strFileShareQuorum + "',[DBCopySuspend]='" + strDBCopySuspended + "',[DBDisconnected]='" + strDBDisconnected + "',[DBLogCopyKeepingUP]='" + strDBLogCopyKeepingUp + "',[DBLogReplayKeepingUP]='" + strDBLogReplayKeepingUp +
+									   "'  WHERE ServerName='" + strServer + "' and DAGID=(select id from [vitalsigns].[dbo].[DAGStatus] where DAGName='" + DAGName + "')";
+
+					   objSQL.onFalseDML = " INSERT INTO [vitalsigns].[dbo].[DAGMembers]([ServerName],[DAGID],[ClusterService],[RelayService],[ActiveMgr],[TasksRPCListener],[TPCListner],[DAGMembersUP],[ClusterNetwork],[QuorumGroup]," +
+									   "[FileShareQuorum],[DBCopySuspend],[DBDisconnected],[DBLogCopyKeepingUP],[DBLogReplayKeepingUP]) VALUES ('" + strServer + "',(select id from [vitalsigns].[dbo].[DAGStatus] where DAGName='" + DAGName + "'), " +
+									   "'" + strClusterService + "','" + strReplayService + "','" + strActiveManager + "','" + strTasksRpcListener + "','" + strTcpListener + "','" + strDagMembersUp + "','" + strClusterNetwork + "','" +
+									   strQuorumGroup + "','" + strFileShareQuorum + "','" + strDBCopySuspended + "','" + strDBDisconnected + "','" + strDBLogCopyKeepingUp + "','" + strDBLogReplayKeepingUp + "')";
+
+					   string sqlQuery = objSQL.GetSQL(objSQL);
+
+					   AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+				   }
+			   }
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for DAGHealthMemberReport", Common.LogLevel.Normal);
+
+		   }
+		   catch (Exception ex)
+		   {
+
+			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGHealthMemberReport: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+		   }
+       
+
+
+		   try
+		   {
+			   if (countErrors == 0)
+			   {
+				   Common.makeAlert(true, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "No errors were found for Member Report.", "Member Report");
+			   }
+			   else
+			   {
+				   string strTestErrors = testErrors.Remove(testErrors.Length - 1);
+				   string strServerErros = serverErrors.Remove(serverErrors.Length - 1);
+				   if (countErrors == 1)
+				   {
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "The test " + strTestErrors + " failed on server " + strServerErros + ".", "Member Report");
+				   }
+				   else if (new HashSet<string>(serverErrors.Split(',').ToArray()).Count == 1)
+				   {
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "Multiple tests failed on server " + strServerErros.Substring(0, strServerErros.IndexOf(',')) + ".", "Member Report");
+				   }
+				   else
+				   {
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "More than one test failed for this DAG. Please visit the VitalSigns dashboard for more details.", "Member Report");
+				   }
+			   }
+		   }
+		   catch (Exception ex)
+		   {
+			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error making alert for DAG Member Report. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   }
+       }
+
+       public void DAGHealthCopyStatus(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer)
+       {
+		   int replyThresh;
+		   int copyThresh;
+		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In DAGHealthCopyStatus.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+           //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In DAGHealthCopyStatus", Common.LogLevel.Normal);
+		   string SqlStr = "select ServerName, DatabaseName, ReplayQueueThreshold, CopyQueueThreshold from DAGQueueThresholds where DAGName='" + myServer.Name + "'";
+		   CommonDB db = new CommonDB();
+		   DataTable dt = db.GetData(SqlStr);
+
+		   string serverErrors = "";
+		   string replyErrors = "";
+		   string copyErrors = "";
+		   string DAGName = myServer.Name;
+		   try
+		   {
+			   System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+			   //Change the Path to the Script to suit your needs
+			   System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_DAGHealth_CopyStatus.ps1");
+			   String str = "$dagname='" + DAGName + "'\n\n" + sr.ReadToEnd();
+			   powershell.Commands.Clear();
+			   powershell.Streams.ClearStreams();
+			   powershell.AddScript(str);
+			   results = powershell.Invoke();
+
+			   if (powershell.Streams.Error.Count > 51)
+			   {
+				   foreach (ErrorRecord er in powershell.Streams.Error)
+					   Console.WriteLine(er.ErrorDetails);
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "DAGHealthCopyStatus received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+				   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "Database");
+			   }
+			   else
+			   {
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "EX_DAGHealth_CopyStatus output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+				   foreach (PSObject ps in results)
+				   {
+
+					   string strServer = ps.Properties["MailboxServer"].Value == null ? "" : ps.Properties["MailboxServer"].Value.ToString();
+
+					   string strDatabaseName = ps.Properties["DatabaseName"].Value == null ? "" : ps.Properties["DatabaseName"].Value.ToString();
+					   //string strActivationPreference = ps.Properties["ActivationPreference"].Value == null ? "" : ps.Properties["ActivationPreference"].Value.ToString();
+					   string strCopyQueue = ps.Properties["CopyQueueLength"].Value == null ? "" : ps.Properties["CopyQueueLength"].Value.ToString();
+					   string strReplayQueue = ps.Properties["ReplayQueueLength"].Value == null ? "" : ps.Properties["ReplayQueueLength"].Value.ToString();
+					   string strReplayLagged = ps.Properties["ReplayLagged"].Value == null ? "" : ps.Properties["ReplayLagged"].Value.ToString();
+					   string strTruncationLagged = ps.Properties["TruncationLagged"].Value == null ? "" : ps.Properties["TruncationLagged"].Value.ToString();
+					   string strContendIndex = ps.Properties["Content Index"].Value == null ? "" : ps.Properties["Content Index"].Value.ToString();
+
+					   SQLBuild objSQL = new SQLBuild();
+					   objSQL.ifExistsSQLSelect = "SELECT * FROM [vitalsigns].[dbo].[DAGDatabase] WHERE DatabaseName='" + strDatabaseName + "' and DAGMemberId=(SELECT id FROM [vitalsigns].[dbo].[DAGMembers] WHERE ServerName='" + strServer + "' and DAGID=(select id from [vitalsigns].[dbo].[DAGStatus] where DAGName='" + DAGName + "'))";
+					   objSQL.onTrueDML = " update [vitalsigns].[dbo].[DAGDatabase] set [CopyQueue]='" + strCopyQueue + "',[ReplayQueue]='" + strReplayQueue +
+									   "',[ReplayLagged]='" + strReplayLagged + "',[TruncationLagged]='" + strTruncationLagged + "',[ContendIndex]='" + strContendIndex +
+									   "'  WHERE [DatabaseName]='" + strDatabaseName + "' and DAGMemberId=(SELECT id FROM [vitalsigns].[dbo].[DAGMembers] WHERE ServerName='" + strServer + "' and DAGID=(select id from [vitalsigns].[dbo].[DAGStatus] where DAGName='" + DAGName + "'))";
+
+					   objSQL.onFalseDML = " INSERT INTO [vitalsigns].[dbo].[DAGDatabase]([DAGMemberId],[DatabaseName],[CopyQueue],[ReplayQueue],[ReplayLagged],[TruncationLagged],[ContendIndex]) VALUES (" +
+									   "(SELECT id FROM [vitalsigns].[dbo].[DAGMembers] WHERE ServerName='" + strServer + "' and DAGID=(select id from [vitalsigns].[dbo].[DAGStatus] where DAGName='" + DAGName + "')), " +
+									   "'" + strDatabaseName + "','" + strCopyQueue + "','" + strReplayQueue + "','" + strReplayLagged + "','" + strTruncationLagged + "','" + strContendIndex + "')";
+					   string sqlQuery = objSQL.GetSQL(objSQL);
+					   AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+
+					   if (strContendIndex != "Healthy")
+					   {
+						   serverErrors += strDatabaseName + ",";
+					   }
+
+					   DataRow[] rows = dt.Select("(ServerName='" + strServer + "' or ServerName='AllDatabases') AND (DatabaseName='" + strDatabaseName + "' or DatabaseName='AllDatabases')");
+
+					   if (rows.Count() != 0)
+					   {
+						   copyThresh = int.Parse(rows[0]["CopyQueueThreshold"].ToString());
+						   replyThresh = int.Parse(rows[0]["ReplayQueueThreshold"].ToString());
+						   if (strCopyQueue != "")
+							   if (Convert.ToDouble(strCopyQueue) > copyThresh && copyThresh != 0)
+								   copyErrors += strDatabaseName + ",";
+						   if (strReplayQueue != "")
+							   if (Convert.ToDouble(strReplayQueue) > replyThresh && replyThresh != 0)
+								   replyErrors += strDatabaseName + ",";
+					   }
+				   }
+			   }
+
+		   }
+		   catch (Exception ex)
+		   {
+
+			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGHealthCopyStatus: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   }
+
+			try
+			{
+				if (serverErrors != "")
+				{
+					serverErrors = serverErrors.Remove(serverErrors.Length - 1);
+					if (serverErrors.Contains(','))
+					{
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "Multiple databases(" + serverErrors + ") are marked as unhealthy.", "Database");
+					}
+					else
+					{
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is marked as unhealthy.", "Database");
+					}
+				}
+				else
+				{
+					Common.makeAlert(true, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "All databases are marked as Healthy.", "Database");
+				}
+
+				if (replyErrors != "")
+				{
+					if (replyErrors.Contains(','))
+					{
+						   
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Replay_Queue, ref AllTestsList, "Multiple databases(" + serverErrors + ") are over their replay queue limits.", "Database");
+					}
+					else
+					{
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Replay_Queue, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is over the replay queue limit.", "Database");
+					}
+				}
+				else
+				{
+					Common.makeAlert(true, myServer, commonEnums.AlertType.DAG_Replay_Queue, ref AllTestsList, "All databases are with in their replay limits.", "Database");
+				}
+
+				if (copyErrors != "")
+				{
+					if (copyErrors.Contains(','))
+					{
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Copy_Queue, ref AllTestsList, "Multiple databases(" + serverErrors + ") are over their copy queue limits.", "Database");
+					}
+					else
+					{
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Copy_Queue, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is over the copy queue limit.", "Database");
+					}
+				}
+				else
+				{
+					Common.makeAlert(true, myServer, commonEnums.AlertType.DAG_Copy_Queue, ref AllTestsList, "All databases are with in their copy limits.", "Database");
+				}
+
+			}
+			catch (Exception ex)
+			{
+				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error making alert for DAG Database Health. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			}
+            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for DAGHealthCopyStatus", Common.LogLevel.Normal);
+       }
+
+	   public void DAGActionPreferences(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer)
+	   {
+
+		   string serverErrors = "";
+		   string DAGErrors = "";
+
+		   try
+		   {
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In DAGActionPreferences", Common.LogLevel.Normal);
+			   System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+
+			   string DAGName = myServer.Name;
+
+			   string str = "$dagname='" + DAGName + "' \n" +
+						   "Get-MailboxDatabase -IncludePreExchange" + myServer.VersionNo + " -status | Where-Object {$_.MasterServerOrAvailabilityGroup -like $dagname} | Foreach-Object{New-Object PSObject -Property @{ \n" +
+						   "Name=$_.Name \n" +
+						   "activationpreference=$_.activationpreference \n" +
+						   "mountedonserver=$_.mountedonserver \n" +
+						   "}}";
+
+
+			   powershell.Commands.Clear();
+			   powershell.Streams.ClearStreams();
+			   powershell.AddScript(str);
+			   results = powershell.Invoke();
+
+			   if (powershell.Streams.Error.Count > 51)
+			   {
+				   foreach (ErrorRecord er in powershell.Streams.Error)
+					   Console.WriteLine(er.ErrorDetails);
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "DAGActivationPref&mounted received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   //AllTestsList.StatusDetails.Add(new TestList() { TestName = "DAG", Details = "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), Result = commonEnums.ServerResult.Fail });
+				   //success = false;
+				   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "Activation Preference");
+			   }
+			   else
+			   {
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "EX_DAG_activationPref&mounted output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+				   foreach (PSObject ps in results)
+				   {
+					   string name = ps.Properties["Name"].Value.ToString();
+					   string tempActivation2 = ps.Properties["activationpreference"].Value.ToString().Replace(" ", "");
+					   string[] list = tempActivation2.Split(new char[] { '[', ']' });
+					   System.Collections.ArrayList arrString = new System.Collections.ArrayList();
+					   System.Collections.ArrayList arrInt = new System.Collections.ArrayList();
+					   foreach (string s in list)
+					   {
+						   if (s != null && s != "")
+						   {
+							   string p = s.Substring(0, s.IndexOf(','));
+							   arrString.Add(s.Substring(0, s.IndexOf(',')));
+							   p = s.Substring(s.IndexOf(',') + 1);
+							   arrInt.Add(s.Substring(s.IndexOf(',') + 1));
+						   }
+					   }
+					   string moutnedOn = ps.Properties["mountedonserver"].Value.ToString();
+
+					   for (int i = 0; i < arrString.Count; i++)
+					   {
+						   string isActive;
+						   if (moutnedOn.Contains(arrString[i].ToString()))
+							   isActive = "Active";
+						   else
+							   isActive = "Passive";
+
+						   string sql = "UPDATE [vitalsigns].[dbo].[DAGDatabase] set [Activation Preference]='" + arrInt[i].ToString() + "'," +
+						   "[IsActive]='" + isActive + "' where DagMemberId=" +
+						   "(select dm.ID from DagMembers dm, DagDatabase db where db.DagMemberId=dm.ID and " +
+						   "db.DatabaseName='" + name + "' and ServerName='" + arrString[i].ToString() + "') " +
+						   "AND [DatabaseName] = '" + name + "'";
+
+						   AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql, DatabaseName = "vitalsigns" });
+
+						   if (arrInt[i].ToString() == "1")
+						   {
+							   if (isActive != "Active")
+							   {
+								   serverErrors += arrString[i].ToString() + ",";
+								   DAGErrors += DAGName + ",";
+							   }
+						   }
+
+					   }
+				   }
+			   }
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for  DAGActionPreferences", Common.LogLevel.Normal);
+
+		   }
+		   catch (Exception ex)
+		   {
+
+			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGHealthCopyStatus: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   //success = false;
+
+		   }
+		   finally
+		   {
+		   }
+
+		   try
+		   {
+			   if (serverErrors != "")
+			   {
+				   if (serverErrors.Contains(','))
+				   {
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, "Multiple DAGs are not mounted on their first preference. Please visit the VitalSigns dashboard for more details.", "Activation Preference");
+				   }
+				   else
+				   {
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, DAGErrors.Replace(",", "") + " is not mounted on its first preference, server " + serverErrors.Replace(",", ""), "Activation Preference");
+				   }
+			   }
+			   else
+			   {
+				   Common.makeAlert(true, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, "All DAGS are mounted on their first preference.", "Activation Preference");
+			   }
+		   }
+		   catch (Exception ex)
+		   {
+			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error making alert for DAG Activation Preferences. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   }
+
+	   }
+
+       public void DAGOverallStatus(PowerShell powershell, ref TestResults AllTestsList, string strDAGNames, MonitoredItems.ExchangeServer myServer)
+       {
+		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In DAGOverallStatus.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   String DAGName = myServer.Name;
+			try
+			{
+				//update Status
+				string sqlQuery = "update [vitalsigns].[dbo].[DAGStatus]  set Status= "+
+				"(Select top 1 Status from  (select distinct 'OK' Status,DAGID, 1 as ranking from [vitalsigns].[dbo].[DAGMembers] where " +
+				"[ClusterService] = 'Passed' and [RelayService] = 'Passed' and [ActiveMgr] = 'Passed' and [TasksRPCListener] = 'Passed' and [TPCListner] = 'Passed' " +
+				"and [DAGMembersUP] = 'Passed' and [ClusterNetwork] = 'Passed' and [QuorumGroup] = 'Passed' and [FileShareQuorum] = 'Passed' and [DBCopySuspend] = 'Passed' " +
+				"and [DBDisconnected] = 'Passed' and [DBLogCopyKeepingUP] = 'Passed' and [DBLogReplayKeepingUP] = 'Passed' " +
+
+				"union  select distinct 'Failed' Status,DAGID, 3 as ranking from [vitalsigns].[dbo].[DAGMembers] where " +
+				"[ClusterService] = 'Failed' or [RelayService] = 'Failed' or [ActiveMgr] = 'Failed' or [TasksRPCListener] = 'Failed' or [TPCListner] = 'Failed' " +
+				"or [DAGMembersUP] = 'Failed' or [ClusterNetwork] = 'Failed' or [QuorumGroup] = 'Failed' or [FileShareQuorum] = 'Failed' or [DBCopySuspend] = 'Failed' " +
+				"or [DBDisconnected] = 'Failed' or [DBLogCopyKeepingUP] = 'Failed' or [DBLogReplayKeepingUP] = 'Failed' " +
+
+				"union select distinct 'Issue' Status,DAGID, 2 as ranking from [vitalsigns].[dbo].[DAGMembers] where  " +
+				"([ClusterService] = 'Failed' and [ClusterService] <> 'Passed') or ([RelayService] <> 'Failed' and [RelayService] <> 'Passed') " +
+				"or ([ActiveMgr] <> 'Failed' and [ActiveMgr] <> 'Passed') or ([TasksRPCListener] <> 'Failed' and [TasksRPCListener] <> 'Passed') " +
+				"or ([TPCListner] <> 'Failed' and [TPCListner] <> 'Passed') or ([DAGMembersUP] <> 'Failed' and [DAGMembersUP] <> 'Passed') " +
+				"or ([ClusterNetwork] <> 'Failed' and [ClusterNetwork] <> 'Passed') or ([QuorumGroup] <> 'Failed' and [QuorumGroup] <> 'Passed') " +
+				"or ([FileShareQuorum] <> 'Failed' and [FileShareQuorum] <> 'Passed')  or ([DBCopySuspend] <> 'Failed' and [DBCopySuspend] <> 'Passed') " +
+				"or ([DBDisconnected] <> 'Failed' and [DBDisconnected] <> 'Passed') or ([DBLogCopyKeepingUP] <> 'Failed' and [DBLogCopyKeepingUP] <> 'Passed') " +
+				"or ([DBLogReplayKeepingUP] <> 'Failed' and [DBLogReplayKeepingUP] <> 'Passed')" +
+				
+				" union select distinct 'Issue' Status, DAGID, 2 as ranking " +
+				" from [DAGDatabase] inner join DagMembers on DAGDatabase.DAGMemberID=DAGMembers.ID where [Activation Preference] = 1 AND IsActive <> 'Active' " + 
+				
+				") as DAGServerStatus " +
+				"where DAGID=(select id from [vitalsigns].[dbo].[DAGStatus] where DAGName='" + DAGName + "') order by ranking desc) "+
+				"where DAGName='" + DAGName + "'";
+                    
+				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+
+				//update TotalMailBoxes
+				sqlQuery = "update [vitalsigns].[dbo].[DAGStatus]  set TotalMailBoxes= "+
+				"(select Sum(mh.ConnectedMailboxes) from [vitalsigns].[dbo].[ExchangeMailboxOverview]  mh, [vitalsigns].[dbo].[DAGMembers] dm," +
+				"[vitalsigns].[dbo].[DAGStatus] ds where mh.ServerName=dm.ServerName and dm.DAGID=ds.ID and ds.DAGName='" + DAGName + "')" +
+				"where DAGName='" + DAGName + "'";
+
+				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+
+				//update TotalDatabases
+				sqlQuery = "update [vitalsigns].[dbo].[DAGStatus]  set TotalDatabases= " +
+				"( select count(distinct mh.DatabaseName) from [vitalsigns].[dbo].[ExgMailHealthDetails]  mh, [vitalsigns].[dbo].[DAGMembers] dm,"+
+				"[vitalsigns].[dbo].[DAGStatus] ds where mh.ServerName=dm.ServerName and dm.DAGID=ds.ID and ds.DAGName='" + DAGName + "')" +
+				"where DAGName='" + DAGName + "'";
+
+				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+			}
+			catch (Exception ex)
+			{
+
+				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGOverallStatus: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+			}
+       }
+
+	   public void RemoveOldDAGs(MonitoredItems.ExchangeServer myServer, TestResults AllTestResults)
+	   {
+
+			AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.DAGDatabaseDetails where DagId=(select ID from DagStatus where DagName='" + myServer.Name + "')", DatabaseName = "vitalsigns" });
+			AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.DagDatabase where DagMemberId in (select distinct Id from DagMembers where DagId=(select ID from DagStatus where DagName='" + myServer.Name + "'))", DatabaseName = "vitalsigns" });
+			AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.DagMembers where DagId=(select ID from DagStatus where DagName='" + myServer.Name + "')", DatabaseName = "vitalsigns" });
+			//AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.DagStatus WHERE DagName='" + myServer.Name + "'" , DatabaseName = "vitalsigns" });
+
+	   }
+
+	   public void DAGBackupDetails(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer)
+	   {
+		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "in DAGBackupDetails", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+		   try
+		   {
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In DAGBackupDetails", Common.LogLevel.Normal);
+			   System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+			   //Change the Path to the Script to suit your needs
+			   System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_DAG_Database_Backups.ps1");
+			   String str = "$dagname='" + myServer.Name + "'\n\n" + sr.ReadToEnd();
+			   powershell.Commands.Clear();
+			   powershell.Streams.ClearStreams();
+			   powershell.AddScript(str);
+			   results = powershell.Invoke();
+
+			   if (powershell.Streams.Error.Count > 51)
+			   {
+				   foreach (ErrorRecord er in powershell.Streams.Error)
+					   Console.WriteLine(er.ErrorDetails);
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "DAGBackupDetails received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "Database");
+			   }
+			   else
+			   {
+				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "EX_DAG_Database_Backups output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   string sql = "INSERT INTO DagDatabaseDetails (DAGID, DatabaseName, StorageGroup, Mounted, BackupInProgress, OnlineMaintInProg, LastFullBackup, LastIncrementalBackup," +
+									" LastDifferentialBackup, LastCopyBackup) VALUES ";
+				   foreach (PSObject ps in results)
+				   {
+
+					   string strDatabase = ps.Properties["Name"].Value == null ? "" : ps.Properties["Name"].Value.ToString();
+					   string strStorageGroup = ps.Properties["StorageGroup"].Value == null ? "" : ps.Properties["StorageGroup"].Value.ToString();
+					   string strMounted = ps.Properties["Mounted"].Value == null ? "False" : ps.Properties["Mounted"].Value.ToString();
+					   string strBackupInProgress = ps.Properties["BackupInProgress"].Value == null ? "False" : ps.Properties["BackupInProgress"].Value.ToString();
+					   string strOnlineMaintenanceInProgress = ps.Properties["OnlineMaintenanceInProgress"].Value == null ? "False" : ps.Properties["OnlineMaintenanceInProgress"].Value.ToString();
+
+					   //datetime stamp
+					   string strLastFullBackup = ps.Properties["LastFullBackup"].Value == null ? "null" : "'" + ps.Properties["LastFullBackup"].Value.ToString() + "'";
+					   string strLastIncrementalBackup = ps.Properties["LastIncrementalBackup"].Value == null ? "null" : "'" + ps.Properties["LastIncrementalBackup"].Value.ToString() + "'";
+					   string strLastDifferentialBackup = ps.Properties["LastDifferentialBackup"].Value == null ? "null" : "'" + ps.Properties["LastDifferentialBackup"].Value.ToString() + "'";
+					   string strLastCopyBackup = ps.Properties["LastCopyBackup"].Value == null ? "null" : "'" + ps.Properties["LastCopyBackup"].Value.ToString() + "'";
+
+					   //days ago
+					   string strLastFullBackupDaysAgo = ps.Properties["LastFullBackupDaysAgo"].Value == null ? "Never" : ps.Properties["LastFullBackupDaysAgo"].Value.ToString();
+					   string strLastIncrementalBackupDaysAgo = ps.Properties["LastIncrementalBackupDaysAgo"].Value == null ? "Never" : ps.Properties["LastIncrementalBackupDaysAgo"].Value.ToString();
+					   string strLastDifferentialBackupDaysAgo = ps.Properties["LastDifferentialBackupDaysAgo"].Value == null ? "Never" : ps.Properties["LastDifferentialBackupDaysAgo"].Value.ToString();
+					   string strLastCopyBackupDaysAgo = ps.Properties["LastCopyBackupDaysAgo"].Value == null ? "Never" : ps.Properties["LastCopyBackupDaysAgo"].Value.ToString();
+
+					    sql += " ((SELECT ID FROM DagStatus WHERE DAGName='" + myServer.Name + "'), '" + strDatabase + "','" + strStorageGroup + "','" + strMounted + "','" + strBackupInProgress + "'," +
+									" '" + strOnlineMaintenanceInProgress + "'," + strLastFullBackup + "," + strLastIncrementalBackup + "," + strLastDifferentialBackup + "," + strLastCopyBackup + "),";
+					   
+
+				   }
+
+				   if (results.Count > 0) 
+					   AllTestsList.SQLStatements.Add(new SQLstatements { DatabaseName = "vitalsigns", SQL = sql.Substring(0,sql.Length-1) });
+			   }
+               //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for DAGBackupDetails", Common.LogLevel.Normal);
+		   }
+		   catch (Exception ex)
+		   {
+
+			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGBackupDetails: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   //success = false;
+
+		   }
+		   finally
+		   {
+
+		   }
+	   }
+
+
+    }
+}

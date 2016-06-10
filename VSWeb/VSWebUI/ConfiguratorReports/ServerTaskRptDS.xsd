@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ServerTaskRptDS" targetNamespace="http://tempuri.org/ServerTaskRptDS.xsd" xmlns:mstns="http://tempuri.org/ServerTaskRptDS.xsd" xmlns="http://tempuri.org/ServerTaskRptDS.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections>
+          <Connection AppSettingsObjectName="Web.config" AppSettingsPropertyName="VitalSignsConnectionString" ConnectionStringObject="" IsAppSettingsProperty="true" Modifier="Assembly" Name="VitalSignsConnectionString (Web.config)" ParameterPrefix="@" PropertyReference="AppConfig.System.Configuration.ConfigurationManager.0.ConnectionStrings.VitalSignsConnectionString.ConnectionString" Provider="System.Data.SqlClient" />
+        </Connections>
+        <Tables>
+          <TableAdapter BaseClass="System.ComponentModel.Component" DataAccessorModifier="AutoLayout, AnsiClass, Class, Public" DataAccessorName="ServerTasksTableAdapter" GeneratorDataComponentClassName="ServerTasksTableAdapter" Name="ServerTasks" UserDataComponentName="ServerTasksTableAdapter">
+            <MainSource>
+              <DbSource ConnectionRef="VitalSignsConnectionString (Web.config)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="Fill" GenerateMethods="Both" GenerateShortCommands="false" GeneratorGetMethodName="GetData" GeneratorSourceName="Fill" GetMethodModifier="Public" GetMethodName="GetData" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="false" UserGetMethodName="GetData" UserSourceName="Fill">
+                <SelectCommand>
+                  <DbCommand CommandType="Text" ModifiedByUser="true">
+                    <CommandText>SELECT        t2.TaskName, t3.ServerName, t1.Enabled, t1.RestartOffHours, t2.RetryCount, t2.MaxBusyTime, t4.ServerType
+FROM            ServerTaskSettings AS t1 INNER JOIN
+                         DominoServerTasks AS t2 ON t1.TaskID = t2.TaskID INNER JOIN
+                         Servers AS t3 ON t1.ServerID = t3.ID INNER JOIN
+                         ServerTypes AS t4 ON t3.ServerTypeID = t4.ID</CommandText>
+                    <Parameters />
+                  </DbCommand>
+                </SelectCommand>
+              </DbSource>
+            </MainSource>
+            <Mappings>
+              <Mapping SourceColumn="TaskName" DataSetColumn="TaskName" />
+              <Mapping SourceColumn="ServerName" DataSetColumn="ServerName" />
+              <Mapping SourceColumn="Enabled" DataSetColumn="Enabled" />
+              <Mapping SourceColumn="RestartOffHours" DataSetColumn="RestartOffHours" />
+              <Mapping SourceColumn="RetryCount" DataSetColumn="RetryCount" />
+              <Mapping SourceColumn="MaxBusyTime" DataSetColumn="MaxBusyTime" />
+              <Mapping SourceColumn="ServerType" DataSetColumn="ServerType" />
+            </Mappings>
+            <Sources />
+          </TableAdapter>
+        </Tables>
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="ServerTaskRptDS" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="ServerTaskRptDS" msprop:Generator_UserDSName="ServerTaskRptDS">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="ServerTasks" msprop:Generator_TableClassName="ServerTasksDataTable" msprop:Generator_TableVarName="tableServerTasks" msprop:Generator_TablePropName="ServerTasks" msprop:Generator_RowDeletingName="ServerTasksRowDeleting" msprop:Generator_UserTableName="ServerTasks" msprop:Generator_RowChangingName="ServerTasksRowChanging" msprop:Generator_RowEvHandlerName="ServerTasksRowChangeEventHandler" msprop:Generator_RowDeletedName="ServerTasksRowDeleted" msprop:Generator_RowEvArgName="ServerTasksRowChangeEvent" msprop:Generator_RowChangedName="ServerTasksRowChanged" msprop:Generator_RowClassName="ServerTasksRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="TaskName" msprop:Generator_ColumnVarNameInTable="columnTaskName" msprop:Generator_ColumnPropNameInRow="TaskName" msprop:Generator_ColumnPropNameInTable="TaskNameColumn" msprop:Generator_UserColumnName="TaskName" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="100" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="ServerName" msprop:Generator_ColumnVarNameInTable="columnServerName" msprop:Generator_ColumnPropNameInRow="ServerName" msprop:Generator_ColumnPropNameInTable="ServerNameColumn" msprop:Generator_UserColumnName="ServerName">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="100" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Enabled" msprop:Generator_ColumnVarNameInTable="columnEnabled" msprop:Generator_ColumnPropNameInRow="Enabled" msprop:Generator_ColumnPropNameInTable="EnabledColumn" msprop:Generator_UserColumnName="Enabled" type="xs:boolean" minOccurs="0" />
+              <xs:element name="RestartOffHours" msprop:Generator_ColumnVarNameInTable="columnRestartOffHours" msprop:Generator_ColumnPropNameInRow="RestartOffHours" msprop:Generator_ColumnPropNameInTable="RestartOffHoursColumn" msprop:Generator_UserColumnName="RestartOffHours" type="xs:boolean" minOccurs="0" />
+              <xs:element name="RetryCount" msprop:Generator_ColumnVarNameInTable="columnRetryCount" msprop:Generator_ColumnPropNameInRow="RetryCount" msprop:Generator_ColumnPropNameInTable="RetryCountColumn" msprop:Generator_UserColumnName="RetryCount" type="xs:int" minOccurs="0" />
+              <xs:element name="MaxBusyTime" msprop:Generator_ColumnVarNameInTable="columnMaxBusyTime" msprop:Generator_ColumnPropNameInRow="MaxBusyTime" msprop:Generator_ColumnPropNameInTable="MaxBusyTimeColumn" msprop:Generator_UserColumnName="MaxBusyTime" type="xs:int" minOccurs="0" />
+              <xs:element name="ServerType" msprop:Generator_ColumnVarNameInTable="columnServerType" msprop:Generator_ColumnPropNameInRow="ServerType" msprop:Generator_ColumnPropNameInTable="ServerTypeColumn" msprop:Generator_UserColumnName="ServerType">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

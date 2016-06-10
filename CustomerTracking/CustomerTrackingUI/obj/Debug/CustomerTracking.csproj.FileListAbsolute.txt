@@ -1,0 +1,14 @@
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\CustomerTracking.dll
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\CustomerTracking.pdb
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\CustomerServiceBL.dll
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\CustomerTrackingDO.dll
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\VSFramework.dll
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\CustomerTrackingDL.dll
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\VSFramework.pdb
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\CustomerServiceBL.pdb
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\CustomerTrackingDO.pdb
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\bin\CustomerTrackingDL.pdb
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\obj\Debug\CustomerTracking.csprojResolveAssemblyReference.cache
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\obj\Debug\CustomerTracking.dll.licenses
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\obj\Debug\CustomerTracking.dll
+C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingUI\obj\Debug\CustomerTracking.pdb

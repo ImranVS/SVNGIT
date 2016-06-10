@@ -1,0 +1,46 @@
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\Interop.DAO.dll
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.vbproj.ResolveComReference.cache
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.exe
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.pdb
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.xml
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\Interop.DAO.dll
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\ServiceInstaller.frmServiceController.resources
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\ServiceInstaller.Resources.resources
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.vbproj.GenerateResource.Cache
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.exe
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.xml
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.pdb
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\Interop.DAO.dll
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.vbproj.ResolveComReference.cache
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.exe
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.xml
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.pdb
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.exe
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.pdb
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.xml
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\Interop.DAO.dll
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\ServiceInstaller.frmServiceController.resources
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\ServiceInstaller.Resources.resources
+C:\Documents and Settings\Alan\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.vbproj.GenerateResource.Cache
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.vbproj.ResolveComReference.cache
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.exe
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.xml
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.pdb
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.exe
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.pdb
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.xml
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\ServiceInstaller.frmServiceController.resources
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\ServiceInstaller.Resources.resources
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\ResGen.read.1.tlog
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\ResGen.write.1.tlog
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.exe.manifest
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\bin\VitalSignsServiceInstaller.application
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.TrustInfo.xml
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.exe.manifest
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\obj\Debug\VitalSignsServiceInstaller.application
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\bin\DevComponents.DotNetBar2.dll
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\bin\DevComponents.DotNetBar2.xml
+C:\Users\Alan\Documents\VitalSigns Development\VitalSignsServiceInstaller\bin\dao.dll

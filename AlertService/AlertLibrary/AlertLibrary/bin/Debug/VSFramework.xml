@@ -1,0 +1,83 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+VSFramework
+</name>
+</assembly>
+<members>
+<member name="M:VSFramework.XMLOperation.GetNodeCount(System.String)">
+	<summary>
+ get number of nodes in a parent node
+ </summary>
+	<param name="strNode"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:VSFramework.XMLOperation.ReadFromXML(System.String,System.String)">
+	<summary>
+ Read Value or Data Type from XML based on Setting Name
+ </summary>
+	<param name="strSetting">Setting Name</param>
+	<param name="strNode">Value/Type</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:VSFramework.XMLOperation.WriteToXML(System.String,System.Object)">
+	<summary>
+ Write To XML file at the end- Setting name, value
+ If Byte Array object is sent, it will convert to comma seperated string
+ </summary>
+	<param name="strSetting">Name</param>
+	<param name="strValue">Value</param>
+	<remarks></remarks>
+</member><member name="M:VSFramework.XMLOperation.ModifyNode(System.String,System.String,System.String)">
+	<summary>
+ Modify Setting - Name, Value, DataType
+ </summary>
+	<param name="strSetting">Setting Name</param>
+	<param name="strNode">Name/Value/Type</param>
+	<param name="strData">Data to be modified</param>
+	<remarks></remarks>
+</member><member name="M:VSFramework.XMLOperation.NodeExists(System.String)">
+	<summary>
+ Find if node exists
+ </summary>
+	<param name="strNodeValue"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:VSFramework.XMLOperation.GetChildNodeValue(System.String,System.String)">
+	<param name="strChild"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:VSFramework.RegistryHandler.WriteToRegistry(System.String,System.Object)">
+	<summary>
+ WriteToRegistry Call from existing application
+ internally it will write to XML
+ </summary>
+	<param name="KeyName"></param>
+	<param name="KeyValue"></param>
+	<remarks></remarks>
+</member><member name="M:VSFramework.RegistryHandler.ReadFromRegistry(System.String)">
+	<summary>
+ Checks if registry has the keyname. 
+ If exists, takes the value, creates a setting in xml file, deletes registry key,returns value
+ If does not exist in registry, checks in settings.xml, if exists , returns value
+ </summary>
+	<param name="KeyName"></param>
+	<returns>value</returns>
+	<remarks></remarks>
+</member><member name="P:VSFramework.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:VSFramework.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:VSFramework.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+</members>
+</doc>

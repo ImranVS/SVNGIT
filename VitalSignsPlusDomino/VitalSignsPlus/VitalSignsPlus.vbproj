@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>
+    </SchemaVersion>
+    <ProjectGuid>{113BF36B-8669-4F8C-8219-E38485A13733}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>VitalSignsPlus.VitalSignsPlusDomino</StartupObject>
+    <RootNamespace>VitalSignsPlus</RootNamespace>
+    <AssemblyName>VitalSignsPlusDomino</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <MyType>Console</MyType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>..\..\..\..\..\..\..\Builds\Services\</OutputPath>
+    <DocumentationFile>VitalSignsPlusDomino.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\Builds\Services\</OutputPath>
+    <DocumentationFile>VitalSignsPlusDomino.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>VitalSigns.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AlertLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Builds\Services\AlertLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="ChilkatDotNet4">
+      <HintPath>..\..\..\builds\services\ChilkatDotNet4.dll</HintPath>
+    </Reference>
+    <Reference Include="DateUtils">
+      <HintPath>..\..\DateUtils\DateUtils\bin\Release\DateUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.Data.DB2, Version=9.7.4.4, Culture=neutral, PublicKeyToken=7c307b91aa13d208, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Referenced DLLs\IBM.Data.DB2.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.Domino, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\..\..\Builds\Services\Interop.Domino.dll</HintPath>
+    </Reference>
+    <Reference Include="MaintenanceDLL, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Builds\Services\MaintenanceDLL.dll</HintPath>
+    </Reference>
+    <Reference Include="MonitoredItems, Version=1.0.5059.37600, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Builds\Services\MonitoredItems.dll</HintPath>
+    </Reference>
+    <Reference Include="nsoftware.ipworks">
+      <HintPath>..\Referenced DLLs\nsoftware.ipworks.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectInstaller.Designer.vb">
+      <DependentUpon>ProjectInstaller.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectInstaller.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="VitalSignsDomino.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="VitalSignsDomino.Designer.vb">
+      <DependentUpon>VitalSignsDomino.vb</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="vssCollections.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="vssDatabaseOperations.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="vssDominoClusterMonitoring.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="vssDominoMonitoring.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="vssNotedDatabaseMonitoring.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="vssNotesMailMonitoring.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="vssNotesTravelerMonitoring.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="vssURLMonitoring.vb">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProjectInstaller.resx">
+      <DependentUpon>ProjectInstaller.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="VitalSigns.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\LogUtils\LogUtils\LogUtils.csproj">
+      <Project>{1CB45D92-7551-4699-B6A2-215E1EC9599B}</Project>
+      <Name>LogUtils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VSFramework\VSFramework\VSFramework.vbproj">
+      <Project>{6C0FFC43-9F5B-4832-820B-D274D0FBAC09}</Project>
+      <Name>VSFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VSServices\RPRWyatt.VitalSigns.Services.csproj">
+      <Project>{B88FA958-5E33-42F8-92ED-0B8F5521433C}</Project>
+      <Name>RPRWyatt.VitalSigns.Services</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

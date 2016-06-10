@@ -1,0 +1,137 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="CustomerTracking.SiteMaster" %>
+
+<%@ Register Assembly="DevExpress.Web.v13.2, Version=13.2.9.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
+    Namespace="DevExpress.Web.ASPxNavBar" TagPrefix="dx" %>
+
+<%@ Register assembly="DevExpress.Web.v13.2, Version=13.2.9.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" namespace="DevExpress.Web.ASPxTabControl" tagprefix="dx" %>
+
+<%@ Register assembly="DevExpress.Web.v13.2, Version=13.2.9.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" namespace="DevExpress.Web.ASPxClasses" tagprefix="dx" %>
+
+<%@ Register assembly="DevExpress.Web.v13.2, Version=13.2.9.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" namespace="DevExpress.Web.ASPxMenu" tagprefix="dx" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head runat="server">
+    <title></title>
+    
+    <link rel="shortcut icon" href="images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/control.css" />
+    <link rel="stylesheet" type="text/css" href="css/vswebforms.css" />
+    <link rel="stylesheet" type="text/css" href="css/menu_style.css" />
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server">
+    </asp:ContentPlaceHolder>
+    <style type="text/css">
+        .style1
+        {
+            width: 129px;
+        }
+    </style>
+</head>
+<body id="Body1" runat="server">
+<form id="form1" runat="server">
+    <div class="wrapper">
+        <div id="header">
+            <div id="topbar">
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="100%" height="22" align="right" valign="top">
+                    
+                        <div id="welcome">
+                    <p class="one">    
+                                            Welcome to 
+                                            <asp:Label ID="CompanyLabel1" runat="server" Text="Label"></asp:Label>
+                                            &nbsp;&nbsp;
+                         
+                            
+                        </p>                            
+                        </div>
+                        
+                        
+                        <div id="welcome2">
+                        <p class="one">
+                         <asp:Image ID="logo1" runat="server" Width="150px" Height="45px" />   
+                        </p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        </div>
+        
+        <div id="holder">
+        <div id="content">
+            <center>
+                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td align="left" valign="top" class="style1">
+                            <dx:ASPxNavBar ID="CustomerMenu" runat="server" AutoCollapse="True" CssFilePath="~/App_Themes/PlasticBlue/{0}/styles.css"
+                             CssPostfix="PlasticBlue" SpriteCssFilePath="~/App_Themes/PlasticBlue/{0}/sprite.css"
+                              AutoPostBack="True" onitemclick="CustomerMenu_ItemClick"
+                              onheaderclick="CustomerMenu_HeaderClick" Font-Bold="True" 
+                                AllowSelectItem="True" Font-Size="Large" >
+                            
+                            <LoadingPanelImage Url="~/App_Themes/PlasticBlue/Web/nbLoading.gif">
+                                            </LoadingPanelImage>
+                                              <GroupHeaderStyle Font-Names="microsoft sans serif, 9.5pt" Font-Size="9.5pt">
+                                              </GroupHeaderStyle>
+                                            <ItemStyle Font-Names="Microsoft Sans Serif" 
+                                                Font-Size="9.5pt" ForeColor="#15428B" ></ItemStyle>
+                                           <Groups>
+                <dx:NavBarGroup Text="Customer Info">
+                    <Items>
+                        <dx:NavBarItem  Name="Customer.aspx" Text="Customers" NavigateUrl="Customer.aspx">
+                            
+                        </dx:NavBarItem>
+                        <dx:NavBarItem Text="Contacts" NavigateUrl="ContactSearch.aspx">
+                            
+                        </dx:NavBarItem>
+                        <dx:NavBarItem Text="Notes" NavigateUrl="NotesSearch.aspx">
+                            
+                        </dx:NavBarItem>
+                        <dx:NavBarItem Text="Tickets" NavigateUrl="TicketsSearch.aspx">
+                            
+                        </dx:NavBarItem>
+                        <dx:NavBarItem Text="VersionInfo" NavigateUrl="VersionInfoSearch.aspx">
+                            
+                        </dx:NavBarItem>
+                    </Items>
+                </dx:NavBarGroup>
+                </Groups>
+                                              
+                                               
+                                              </dx:ASPxNavBar>
+                        </td>
+                        <td valign="top">
+                       <table class="contentplaceholder">
+                       <tr><td  bgcolor="#F8F8C0"  align="left" valign="top">
+                            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                               
+                            </asp:ContentPlaceHolder>
+                            </td></tr></table>
+                        </td>
+                    </tr>
+                </table>
+            </center>
+        </div>
+        
+    </div>
+        <div class="push"></div>
+    </div>
+    <div class="footer"  style="background-color:#C9D0E0;">
+            <div id="leftnav">
+                <p class="two">
+                    Copyright <script language="JavaScript" type="text/javascript">
+                                  now = new Date
+                                  theYear = now.getYear()
+                                  if (theYear < 1900)
+                                      theYear = theYear + 1900
+                                  document.write(theYear)
+                            </script>, RPR Wyatt, Inc. All rights reserved.</p>
+            </div>
+            <div id="rightnav">
+                &nbsp;</div>
+        </div>
+    </form>
+</body>
+</html>
