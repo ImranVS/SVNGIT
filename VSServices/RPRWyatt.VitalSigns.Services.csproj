@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VSServices</RootNamespace>
     <AssemblyName>VSServices</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -62,6 +65,14 @@
     <ProjectReference Include="..\VSFramework\VSFramework\VSFramework.vbproj">
       <Project>{6C0FFC43-9F5B-4832-820B-D274D0FBAC09}</Project>
       <Name>VSFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VSNext.Mongo\VSNext.Mongo.Entities\VSNext.Mongo.Entities.csproj">
+      <Project>{b6e35de1-edf3-40e3-879f-e65d87c03b85}</Project>
+      <Name>VSNext.Mongo.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VSNext.Mongo\VSNext.Mongo.Repository\VSNext.Mongo.Repository.csproj">
+      <Project>{155e4118-6435-461f-93e0-542f9936d328}</Project>
+      <Name>VSNext.Mongo.Repository</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -25,7 +25,7 @@
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <MyType>Console</MyType>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>0.0</OldToolsVersion>
@@ -49,6 +49,7 @@
     <NoWarn>42016,42017,42018,42019,42032,42353,42354,42355</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>..\..\Builds\Services\</OutputPath>
@@ -68,6 +69,7 @@
     <NoWarn>42016,42017,42018,42019,42032,42353,42354,42355</NoWarn>
     <DebugType>none</DebugType>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AlertLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -165,6 +167,14 @@
     <ProjectReference Include="..\VSFramework\VSFramework\VSFramework.vbproj">
       <Project>{6C0FFC43-9F5B-4832-820B-D274D0FBAC09}</Project>
       <Name>VSFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VSNext.Mongo\VSNext.Mongo.Entities\VSNext.Mongo.Entities.csproj">
+      <Project>{b6e35de1-edf3-40e3-879f-e65d87c03b85}</Project>
+      <Name>VSNext.Mongo.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VSNext.Mongo\VSNext.Mongo.Repository\VSNext.Mongo.Repository.csproj">
+      <Project>{155e4118-6435-461f-93e0-542f9936d328}</Project>
+      <Name>VSNext.Mongo.Repository</Name>
     </ProjectReference>
     <ProjectReference Include="..\VSServices\RPRWyatt.VitalSigns.Services.csproj">
       <Project>{B88FA958-5E33-42F8-92ED-0B8F5521433C}</Project>
