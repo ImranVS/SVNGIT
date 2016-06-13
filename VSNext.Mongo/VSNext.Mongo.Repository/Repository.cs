@@ -53,6 +53,12 @@ namespace VSNext.Mongo.Repository
         {
             return Collection.Find(filter);
         }
+
+        private IFindFluent<T, T> Query(FilterDefinition<T> filter)
+        {
+            return Collection.Find(filter);
+        }
+
         #endregion MongoSpecific
 
         #region CRUD
@@ -62,6 +68,11 @@ namespace VSNext.Mongo.Repository
         }
 
         public virtual IEnumerable<T> Find(Expression<Func<T, bool>> filter)
+        {
+            return Query(filter).ToEnumerable();
+        }
+
+        public virtual IEnumerable<T> Find(FilterDefinition<T> filter)
         {
             return Query(filter).ToEnumerable();
         }
@@ -122,7 +133,7 @@ namespace VSNext.Mongo.Repository
 
         public bool Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
         {
-            return Collection.UpdateMany(filter, update.CurrentDate(i => i.ModifiedOn)).IsAcknowledged;
+            return Collection.UpdateMany(filter, update.CurrentDate(i => i.ModifiedOn)).ModifiedCount>0; 
         }
 
         public void Delete(T entity)
@@ -138,6 +149,16 @@ namespace VSNext.Mongo.Repository
         public void Delete(Expression<Func<T, bool>> filter)
         {
             Collection.DeleteMany(filter);
+        }
+
+        public void Delete(FilterDefinition<T> filter)
+        {
+            Collection.DeleteMany(filter);
+        }
+
+        public void Upsert(FilterDefinition<T> filter, UpdateDefinition<T> update)
+        {
+            Collection.UpdateOne(filter, update, new UpdateOptions { IsUpsert = true});
         }
         #endregion CRUD
 

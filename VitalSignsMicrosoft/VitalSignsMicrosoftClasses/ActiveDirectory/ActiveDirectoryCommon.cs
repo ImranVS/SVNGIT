@@ -19,6 +19,10 @@ using System.Globalization;
 using VSFramework;
 using System;
 
+using VSNext.Mongo.Entities;
+using VSNext.Mongo.Repository;
+using MongoDB.Driver;
+
 namespace VitalSignsMicrosoftClasses
 {
 	class ActiveDirectoryCommon
@@ -69,7 +73,7 @@ namespace VitalSignsMicrosoftClasses
 				+ DateTime.Now.ToString() + "')";
 			sql.onTrueDML = " UPDATE ActiveDirectoryTest SET LogonTest = '" + Server.ADLogonTest + "', QueryTest = '" + Server.ADQueryTest + "', LDApPortTest = '" + Server.ADPortTest + "',"
 				+ " LastScanDate = '" + DateTime.Now.ToString() + "' WHERE ServerId=" + Server.ServerId;
-			AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sql.GetSQL(sql), DatabaseName = "VitalSigns" });
+			//AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sql.GetSQL(sql), DatabaseName = "VitalSigns" });
 
 			//AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.ActiveDirectoryTest where ServerId=" + Server.ServerId, DatabaseName = "vitalsigns" });
 			//string sSQL = " INSERT INTO DBO.ActiveDirectoryTest(ServerId,LogonTest,QueryTest,LDApPortTest,Advertising,FrsSysVol,Replications,Services,DNS,FsmoCheck,LastScanDate) values(" 
@@ -78,6 +82,14 @@ namespace VitalSignsMicrosoftClasses
 			//    + Server.ADDNSTest + "','" + Server.ADFsmoCheckTest + "','"+ DateTime.Now.ToString() +"')";
 			//AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sSQL, DatabaseName = "vitalsigns" });
 
+			MongoStatementsUpdate<VSNext.Mongo.Entities.Status> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+            updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
+            updateStatement.updateDef = updateStatement.repo.Updater
+                .Set(i => i.LogonTest, Server.ADLogonTest)
+                .Set(i => i.QueryTest, Server.ADQueryTest)
+                .Set(i => i.LdapPortTest, Server.ADPortTest);
+
+            AllTestResults.MongoEntity.Add(updateStatement);
 		}
 		private void checkActiveDirectoryAvailability(MonitoredItems.ActiveDirectoryServer myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
 		{
@@ -110,7 +122,7 @@ namespace VitalSignsMicrosoftClasses
 
 						//**********************************************************ADD SQL STATEMENT*************************************************************************\\
 						string sql = "";
-						AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql });
+						//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql });
 
 						//*******************************************************ALERTS???*****************************************************************\\
 						if (Response == "Open")
@@ -182,10 +194,12 @@ namespace VitalSignsMicrosoftClasses
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "AD_QueryLatency Results: Forest:" + forest, Common.LogLevel.Normal);
 						myServer.ADQueryTest = "Pass";
 						//**********************************************************ADD SQL STATEMENT*************************************************************************\\
-						string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
+                        string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 								+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','AD@QueryLatency'" + " ," + seconds.ToString() +
 							   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "AD@QueryLatency", seconds.ToString()));
 
 						//*******************************************************ALERTS???*****************************************************************\\
 
@@ -348,9 +362,10 @@ namespace VitalSignsMicrosoftClasses
 					string sLogonTest = results[0].ToString();
 
 					//**********************************************************ADD SQL STATEMENT*************************************************************************\\
-					string sql = "";
+					/*
+                    string sql = "";
 					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql });
-
+                    */
 					//*******************************************************ALERTS???*****************************************************************\\
 					if (sLogonTest == "False")
 					{
@@ -520,6 +535,9 @@ namespace VitalSignsMicrosoftClasses
 
 		public void parseRepSummary(Collection<PSObject> arr, MonitoredItems.ActiveDirectoryServer myServer, ref TestResults AllTestsList)
 		{
+
+            List<VSNext.Mongo.Entities.ActiveDirectoryReplicationStatus> list = new List<VSNext.Mongo.Entities.ActiveDirectoryReplicationStatus>();
+
 			string sql = "INSERT INTO [vitalsigns].[dbo].[ActiveDirectoryReplicationSummary] ([ServerName],[SourceServer],[LargestDelta],[Fails],[DirectoryPartitions],[LastScanTime]) VALUES ";
 			string failsServerList = "";
 			try
@@ -569,10 +587,23 @@ namespace VitalSignsMicrosoftClasses
 
 					if (fails != "0")
 						failsServerList += serverName + ",";
+
+                    VSNext.Mongo.Entities.ActiveDirectoryReplicationStatus AdRepStatus = new VSNext.Mongo.Entities.ActiveDirectoryReplicationStatus();
+                    AdRepStatus.DirectoryPartitions = total;
+                    AdRepStatus.Fails = fails;
+                    AdRepStatus.LargestDelta = largestDelta;
+                    AdRepStatus.SoureServer = serverName;
+
+                    list.Add(AdRepStatus);
+
 				}
 
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName="vitalsigns", SQL="DELETE FROM ActiveDirectoryReplicationSummary WHERE ServerName='" + myServer.Name + "'"});
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql.Substring(0, sql.Length - 1) });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName="vitalsigns", SQL="DELETE FROM ActiveDirectoryReplicationSummary WHERE ServerName='" + myServer.Name + "'"});
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql.Substring(0, sql.Length - 1) });                
+				
+				MongoStatementsUpdate<VSNext.Mongo.Entities.Status> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+                updateStatement.updateDef = updateStatement.repo.Updater.Set(i => i.ActiveDirectoryReplicationStatus, list.ToArray());
 
 				if(failsServerList != "")
 					if(failsServerList.Length < 50)

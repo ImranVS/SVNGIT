@@ -19,6 +19,9 @@ using System.Configuration;
 using MaintenanceDLL;
 using VSFramework;
 using System;
+
+using MongoDB.Driver;
+
 namespace VitalSignsMicrosoftClasses
 {
 	public class ActiveDirectoryMAIN
@@ -75,7 +78,7 @@ namespace VitalSignsMicrosoftClasses
 				{
 					Common.WriteDeviceHistoryEntry("All", serverType, "Server is marked for scanning so will start Server Related Tasks", Common.LogLevel.Normal);
 					CreateActiveDirectoryServersCollection();
-					InitStatusTable(myActiveDirectoryServers);
+					Common.InitStatusTable(myActiveDirectoryServers);
 					StartADThreads();
 					//CreateSharepointCollection();
 					//InitStatusTable(myExchangeServers);
@@ -446,6 +449,20 @@ namespace VitalSignsMicrosoftClasses
 								string sql = "UPDATE WindowsServices SET Monitored=1, ServerRequired=1 WHERE ServerName='" + thisServer.Name + "' AND DisplayName like '%Active Directory%'";
 								AllTestResults.SQLStatements.Add(new SQLstatements { DatabaseName = "vitalsigns", SQL = sql });
 							}
+
+							VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
+                            if(ServerRepo.Find(i => i.ServerName == thisServer.Name && i.ServerType == thisServer.ServerType).Count() == 0)
+                            {
+                                MongoStatementsUpdate<VSNext.Mongo.Entities.Server> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
+                                updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.ServerName == thisServer.Name && i.ServerType == thisServer.ServerType)
+                                    & updateStatement.repo.Filter.ElemMatch("windows_services", updateStatement.repo.Filter.Regex("display_name", "Microsoft") & updateStatement.repo.Filter.Eq("server_required", false));
+                                updateStatement.updateDef = updateStatement.repo.Updater
+                                    .Set(i => i.WindowServices[-1].Monitored, true)
+                                    .Set(i => i.WindowServices[-1].ServerRequired, true);
+                                updateStatement.embeddedDocument = true;
+
+                                AllTestResults.MongoEntity.Add(updateStatement);
+                            }
 							DB.UpdateAllTests(AllTestResults, thisServer, thisServer.ServerType);
 							thisServer.IsBeingScanned = false;
 						}
@@ -662,6 +679,7 @@ namespace VitalSignsMicrosoftClasses
 			return MyADServer;
 		}
 
+        /*
 		protected void InitStatusTable(MonitoredItems.ActiveDirectoryServersCollection collection)
 		{
 			try
@@ -692,7 +710,7 @@ namespace VitalSignsMicrosoftClasses
 			}
 
 		}
-
+        */
 		public void RefreshActiveDirectoryCollection()
 		{
 			if (c != null)
@@ -796,7 +814,19 @@ namespace VitalSignsMicrosoftClasses
                                 + " LastScanDate = '" + DateTime.Now.ToString() + "' WHERE ServerId=" + Server.ServerId;
 
 
-                            AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sql.GetSQL(sql), DatabaseName = "VitalSigns" });
+                            //AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sql.GetSQL(sql), DatabaseName = "VitalSigns" });
+
+                            
+                            MongoStatementsUpdate<VSNext.Mongo.Entities.Status> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                            updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
+                            updateStatement.updateDef = updateStatement.repo.Updater
+                                .Set(i => i.AdvertisingTest, Server.ADAdvertisingTest)
+                                .Set(i => i.FrsSysVolTest, Server.ADFrsSysVolTest)
+                                .Set(i => i.ReplicationTest, Server.ADReplicationsTest)
+                                .Set(i => i.ServicesTest, Server.ADServicesTest)
+                                .Set(i => i.DnsTest, Server.ADDNSTest)
+                                .Set(i => i.FsmoCheckTest, Server.ADFsmoCheckTest);
+                            AllTestResults.MongoEntity.Add(updateStatement);
 
                             Common.SetHourlyAlertsToObject(AllTestResults, myActiveDirectoryServers);
                             

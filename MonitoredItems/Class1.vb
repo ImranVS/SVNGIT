@@ -766,6 +766,17 @@ Public Class MicrosoftServer
     Public Property FastScan As Boolean
     Public Property HourlyAlerts As System.Collections.Generic.List(Of HourlyAlert)
 
+    Public Property TypeANDName As String
+        Get
+            Return Name & "-" & ServerType
+        End Get
+        Set(value As String)
+            TypeANDName = value
+        End Set
+    End Property
+
+    Public Property ListOfRequiredServices As New Collections.Generic.List(Of String)
+
     Public Class HourlyAlert
         Public Property AlertType As String
         Public Property AlertRaised As Boolean
@@ -813,8 +824,9 @@ Public Class ExchangeServer
 	Public Property DAGBackupPassword As String
 	Public Property DAGBackupAuthenticationType As String
 	Public Property DAGReplyQueueThreshold As Integer
-	Public Property DAGCopyQueueThreshold As Integer
+    Public Property DAGCopyQueueThreshold As Integer
 
+    Public Property DAGStatus As String
 
 	' Dim mDiskPlatformStatistics As DominoDiskPlatformStatisticsCollection
 	Dim mAvailabilityIndex, mAvailabilityThreshold As Integer

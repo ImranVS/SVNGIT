@@ -57,10 +57,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DailyStatistics.cs" />
+    <Compile Include="Mailbox.cs" />
+    <Compile Include="MobileDevices.cs" />
     <Compile Include="O365Heath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Status.cs" />
+    <Compile Include="SumamryStatistics.cs" />
     <Compile Include="Tenant.cs" />
   </ItemGroup>
   <ItemGroup>

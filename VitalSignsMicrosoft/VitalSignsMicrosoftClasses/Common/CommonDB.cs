@@ -7,6 +7,7 @@ using VSFramework;
 using System.Data;
 using System.Threading;
 using System.Globalization;
+using MongoDB.Driver;
 namespace VitalSignsMicrosoftClasses
 {
 	class CommonDB
@@ -164,15 +165,45 @@ namespace VitalSignsMicrosoftClasses
 			return iresults;
 			}
 
+        public string GetMongoConnectionString()
+        {
+            return "mongodb://localhost/local";
+        }
+
 		public void UpdateAllTests(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server, string ServerType)
 		{
 			
 				//drs
 				ProcessStatusDetails(AllTestsList, Server, ServerType);
-				ProcessSQLStatements(AllTestsList, Server, ServerType);
+				//ProcessSQLStatements(AllTestsList, Server, ServerType);
+                ProcessMongoStatements(AllTestsList, Server, ServerType);
 				ProcessAlerts(AllTestsList, Server, ServerType);
 
 			}
+        private void ProcessMongoStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server, string ServerType)
+        {
+            try
+            {
+                // TODO: Start transaction
+
+                //Loop through all the different Entity types. Must make a new Repo for each type.
+                foreach (MongoStatements mongoStatement in AllTestsList.MongoEntity)
+                {
+                    mongoStatement.Execute();
+                }
+            }
+            catch (Exception ex)
+            {
+                Common.WriteTestResults(ServerType, Server.Name, "Exception", "Exception", ex.Message.ToString());
+            }
+            // TODO: End transaction
+            finally
+            {
+                Common.WriteDeviceHistoryEntry(ServerType, Server.Name, "End of SQL Statement");
+            }
+
+
+        }
 
 		public void UpdateSQLStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server)
 		{
@@ -310,11 +341,11 @@ namespace VitalSignsMicrosoftClasses
 				if(Server.GetType() == typeof(MonitoredItems.ExchangeServer))
 				{
 					MonitoredItems.ExchangeServer exServer = Server as MonitoredItems.ExchangeServer;
-                    if (OverallStatus == "OK" && (exServer.OWAUsers > 2140000000 || exServer.RPCClientAccesUsers > 2140000000))
+					if (OverallStatus == "OK" && (exServer.OWAUsers > 2140000000 || exServer.RPCClientAccesUsers > 2140000000))
                     {
                         OverallStatus = "Issue";
-                        Details += ". The user count is unreasonably high, and this condition is due to an IIS bug. The count can be reset to the correct value by restarting either IIS or the server itself.";
-                    }
+						Details += ". The user count is unreasonably high, and this condition is due to an IIS bug. The count can be reset to the correct value by restarting either IIS or the server itself.";
+				}
 				}
 
 				bool  isExist = DB.RecordExists(strSQL);
@@ -375,6 +406,27 @@ namespace VitalSignsMicrosoftClasses
 
 					}
                     DB.Execute(strSQL);
+
+                    MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
+                    mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
+                    mongoStatement.updateDef = mongoStatement.repo.Updater
+                        .Set(i => i.Name, Server.Name)
+                        .Set(i => i.CurrentStatus, Server.Status)
+                        .Set(i => i.StatusCode, Server.StatusCode)
+                        .Set(i => i.LastUpdated, DateTime.Now)
+                        .Set(i => i.NextScan, Server.NextScan)
+                        .Set(i => i.Type, Server.ServerType)
+                        .Set(i => i.Location, Server.Location)
+                        .Set(i => i.Category, Server.Category)
+                        .Set(i => i.TypeAndName, Server.TypeANDName)
+                        .Set(i => i.Description, "Microsoft")
+                        .Set(i => i.UserCount, int.Parse(Server.UserCount.ToString()))
+                        .Set(i => i.ResponseTime, int.Parse(Server.ResponseTime.ToString()))
+                        .Set(i => i.ResponseThreshold, int.Parse(Server.ResponseThreshold.ToString()))
+                        //.Set(i => i.Name, Server.Namejuhbhkb)
+                        .Set(i => i.OperatingSystem, Server.OperatingSystem)
+                        .Set(i => i.Details, Details);
+
                 }
 
                 int TestFailures = 0;

@@ -13,6 +13,9 @@ using System.Threading;
 using System.Collections;
 using System.Data;
 using VSFramework;
+using VSNext.Mongo.Repository;
+using VSNext.Mongo.Entities;
+using MongoDB.Driver;
 
 namespace VitalSignsMicrosoftClasses
 {
@@ -1437,8 +1440,8 @@ namespace VitalSignsMicrosoftClasses
                             {
                                 //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for PrereqForExchange in SetupServer  ", Common.LogLevel.Normal);
                                 //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In PrereqForExchangeWin in SetupServer  ", Common.LogLevel.Normal);
-                        
-                                using (results = Common.PrereqForWindows(myServer.Name, myServer.UserName, myServer.Password, myServer.ServerType, myServer.IPAddress, commonEnums.ServerRoles.Empty))
+
+                        using (results = Common.PrereqForWindows(myServer.Name, myServer.UserName, myServer.Password, myServer.ServerType, myServer.IPAddress, commonEnums.ServerRoles.Empty))
                                 {
 
 
@@ -1890,40 +1893,42 @@ namespace VitalSignsMicrosoftClasses
 				string sqlStr = "";
 				DateTime now = DateTime.Now;
 				int weekNum = GetWeekNumber(now);
-				
+                //////////////////////////////////////////////////////////////////////
+				//DO NOT INCLUDE ANY THE UP TIME STATS IN MONGO. DISCUSSED WITH ALAN//
+                //////////////////////////////////////////////////////////////////////
 				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
 					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyDownTimeMinutes', '" + (myServer.DownMinutes > 60 ? 60 : myServer.DownMinutes) + 
 					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
 
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
 
 
 				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
 					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyOnTargetPercent', '" + (myServer.OnTargetPercent * 100) +
 					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
 
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
 				
 
 				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
 					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyUpPercent', '" + (myServer.UpPercentCount * 100) +
 					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
 
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
 
 
 				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
 					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyUpTimePercent', '" + (myServer.UpPercentMinutes * 100) +
 					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
 				
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
 
 
 				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
 					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyBusinessHoursOnTargetPercent', '" + (myServer.BusinessHoursOnTargetPercent * 100) +
 					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
 
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
 
 				myServer.ResetUpandDownCounts();
 
@@ -1956,6 +1961,34 @@ namespace VitalSignsMicrosoftClasses
 
 		 }
 
+         public static MongoStatementsInsert<DailyStatistics> GetInsertIntoDailyStats(MonitoredItems.MicrosoftServer server, string StatName, string StatValue, string Details = "")
+         {
+
+             DailyStatistics dailyStatistics = new DailyStatistics();
+             dailyStatistics.DeviceId = int.Parse(server.ServerId);
+             dailyStatistics.StatName = StatName;
+             dailyStatistics.StatValue = double.Parse(StatValue);
+
+             MongoStatementsInsert<DailyStatistics> msi = new MongoStatementsInsert<DailyStatistics>();
+             msi.listOfEntities.Add(dailyStatistics);
+             return msi;
+
+         }
+
+         public static MongoStatementsInsert<SummaryStatistics> GetInsertIntoSummaryStats(MonitoredItems.MicrosoftServer server, string StatName, string StatValue, string Details = "")
+         {
+
+             SummaryStatistics dailyStatistics = new SummaryStatistics();
+             dailyStatistics.DeviceId = int.Parse(server.ServerId);
+             dailyStatistics.StatName = StatName;
+             dailyStatistics.StatValue = double.Parse(StatValue);
+
+             MongoStatementsInsert<SummaryStatistics> msi = new MongoStatementsInsert<SummaryStatistics>();
+             msi.listOfEntities.Add(dailyStatistics);
+             return msi;
+
+         }
+
 		 public static void InsertInsufficentLicenses(MonitoredItems.MicrosoftServersCollection servers)
 		 {
 			 if (servers.Count > 0)
@@ -1973,6 +2006,7 @@ namespace VitalSignsMicrosoftClasses
 		 {
 			 try
 			 {
+                 TestResults testsList = new TestResults();
 				 String type = "";
 				 CommonDB db = new CommonDB();
 				 if (collection.Count > 0)
@@ -1980,6 +2014,12 @@ namespace VitalSignsMicrosoftClasses
 
 				 if (type != "")
 				 {
+                     VSNext.Mongo.Repository.Repository<Status> repo = new VSNext.Mongo.Repository.Repository<Status>(db.GetMongoConnectionString());
+                     List<Status> list = repo.Find(i => i.Type == type).ToList();
+
+                     MongoStatementsInsert<Status> insertStatement = new MongoStatementsInsert<Status>();
+
+
 					 foreach (MonitoredItems.MicrosoftServer server in collection)
 					 {
 						 String sql = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + server.Name + "-" + type + "') BEGIN " +
@@ -1988,7 +2028,29 @@ namespace VitalSignsMicrosoftClasses
 							 "'Microsoft " + type + " Server', '" + server.Name + "-" + type + "', '" + server.StatusCode + "') END";
 
 						 db.Execute(sql);
+
+                         if(list.Where(i => i.Name == server.Name).Count() == 0)
+                         {
+                             insertStatement.listOfEntities.Add(new Status()
+                             {
+                                 Type = type,
+                                 Location = server.Location,
+                                 Category = server.Category,
+                                 Name = server.Name,
+                                 CurrentStatus = server.Status,
+                                 Details = "This server has not yet been scanned.",
+                                 TypeAndName = server.TypeANDName,
+                                 StatusCode = server.StatusCode
+                             });
+                             
+                         }
+                         
+                         
+                         
 					 }
+
+                     insertStatement.Execute();
+
 					 Common.WriteDeviceHistoryEntry("All", type, type + " Servers are marked as Not Scanned", Common.LogLevel.Normal);
 
 				 }
@@ -2058,27 +2120,34 @@ namespace VitalSignsMicrosoftClasses
                          string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
                                  + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'NoOfMailBoxes" + "'" + " ," + NoOfMailBoxes +
                                 "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 
                          sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
                                  + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'SizeOfMailBoxes" + "'" + " ," + TotalItemCount +
                                 "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 
                          sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
                                  + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'TotalNoOfItems" + "'" + " ," + TotalItemSizeInMB +
                                 "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 
                          sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
                                  + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'AvgSizeOfMailBoxes" + "'" + " ," + AvgSizeOfMailBox +
                                 "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 
                          sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
                                  + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'AvgCountOfItems" + "'" + " ," + AvgCountOfItems +
                                 "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+
+                         AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "NoOfMailBoxes", NoOfMailBoxes));
+                         AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "SizeOfMailBoxes", TotalItemCount));
+                         AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "TotalNoOfItems", TotalItemSizeInMB));
+                         AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "AvgSizeOfMailBoxes", AvgSizeOfMailBox));
+                         AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "AvgCountOfItems", AvgCountOfItems));
+                         
 
                      }
                  }
@@ -2143,6 +2212,18 @@ namespace VitalSignsMicrosoftClasses
          
          }
 
+         public static string GetMongoBsonEntityElementName(string entityName, string attributeName)
+         {
+             //Call like GetMongoBsonEntityElementName("Status", "FileWitnessServerName").  This will return file_witness_server_name.  
+             //You pass it the C# Object class and attribute and it returned the bson equivelent
+
+             System.ComponentModel.PropertyDescriptorCollection property_descriptor = System.ComponentModel.TypeDescriptor.GetProperties(Type.GetType("VSNext.Mongo.Entities." + entityName + ", VSNext.Mongo.Entities"));
+             System.ComponentModel.AttributeCollection attributes = property_descriptor[attributeName].Attributes;
+             MongoDB.Bson.Serialization.Attributes.BsonElementAttribute element = attributes[Type.GetType("MongoDB.Bson.Serialization.Attributes.BsonElementAttribute, MongoDB.Bson")] as MongoDB.Bson.Serialization.Attributes.BsonElementAttribute;
+             return element.ElementName;
+         }
+
+         
 
 		#region HelperClasses
 		 //This region is responsible for making calls to the VitalSignsMicrosoft functions
@@ -2192,6 +2273,8 @@ namespace VitalSignsMicrosoftClasses
          public List<TestList> StatusDetails = new List<TestList>();
          public List<Alerting> AlertDetails= new List<Alerting>();
          public List<SQLstatements> SQLStatements = new List<SQLstatements>();
+         public List<MongoStatements> MongoEntity = new List<MongoStatements>();
+
      }
     
      public class TestList
@@ -2220,6 +2303,184 @@ namespace VitalSignsMicrosoftClasses
 		 public string Category;
        
      }
+
+     public abstract class MongoStatements
+     {
+
+         public abstract bool Execute();
+         
+     }
+
+     public abstract class MongoStatementsWrapper<T> : MongoStatements where T : IEntity
+     {
+         CommonDB db = new CommonDB();
+         string connString;
+
+         public VSNext.Mongo.Repository.Repository<T> repo;// = new Repository<T>();
+
+         public MongoStatementsWrapper()
+         {
+             CommonDB db = new CommonDB();
+             connString = db.GetMongoConnectionString();
+             repo = new VSNext.Mongo.Repository.Repository<T>(connString);
+             
+         }
+
+         //            public abstract bool Execute();
+
+     }
+
+     public class MongoStatementsInsert<T> : MongoStatementsWrapper<T> where T : IEntity
+     {
+         public List<T> listOfEntities = new List<T>();
+
+         public override bool Execute()
+         {
+             try
+             {
+                 repo.Insert(listOfEntities);
+                 return true;
+             }
+             catch (Exception ex)
+             {
+                 return false;
+             }
+
+         }
+     }
+
+     public class MongoStatementsDelete<T> : MongoStatementsWrapper<T> where T : IEntity
+     {
+
+         public FilterDefinition<T> filterDef { get; set;}
+
+         public override bool Execute()
+         {
+             try
+             {
+                 repo.Delete(filterDef);
+                 return true;
+             }
+             catch (Exception ex)
+             {
+                 return false;
+             }
+
+         }
+
+     }
+
+     public class MongoStatementsUpdate<T> : MongoStatementsWrapper<T> where T : IEntity
+     {
+         public FilterDefinition<T> filterDef;
+         public UpdateDefinition<T> updateDef;
+
+         /// <summary>
+         /// Set to true if updating values inside an embedded document
+         /// </summary>
+         public bool embeddedDocument = false;
+
+         public override bool Execute()
+         {
+             try
+             {
+                 if (embeddedDocument)
+                 {
+                     while (repo.Update(filterDef, updateDef))
+                     { }
+                     return true;
+                 }
+                 return repo.Update(filterDef, updateDef);
+             }
+             catch (Exception ex)
+             {
+                 return false;
+             }
+
+         }
+     }
+
+     public class MongoStatementsReplace<T> : MongoStatementsWrapper<T> where T : IEntity
+     {
+         public FilterDefinition<T> filterDef;
+         public UpdateDefinition<T> updateDef;
+
+         public override bool Execute()
+         {
+             try
+             {
+                 //return repo.Replace(filterDef, T);
+                 return true;
+             }
+             catch (Exception ex)
+             {
+                 return false;
+             }
+
+         }
+     }
+
+     public class MongoStatementsUpsert<T> : MongoStatementsWrapper<T> where T : IEntity
+     {
+         public FilterDefinition<T> filterDef;
+         public UpdateDefinition<T> updateDef;
+
+         public override bool Execute()
+         {
+             try
+             {
+                 repo.Upsert(filterDef, updateDef);
+                 return true;
+             }
+             catch (Exception ex)
+             {
+                 return false;
+             }
+
+         }
+     }
+
+    public class MongoStatementsArrayElements<T> : MongoStatementsWrapper<T> where T : IEntity
+    {
+        //This will mostly be used for arrays
+        public FilterDefinition<T> searchFilterDef;
+
+        public FilterDefinition<T> updateFilterDef;
+        public UpdateDefinition<T> updateUpdaterDef;
+
+        public UpdateDefinition<T> insertUpdaterDef;
+        public FilterDefinition<T> insertFilterDef;
+
+        public override bool Execute()
+        {
+            try
+            {
+                if(repo.Find(searchFilterDef).Count() > 0)
+                {
+                    
+                    repo.Update(updateFilterDef, updateUpdaterDef);
+                }
+                else
+                {
+                    repo.Update(insertFilterDef, insertUpdaterDef);
+                }
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+    }
+
+
+
+
+
+
 
 	 public class ReturnPowerShellObjects : IDisposable
 	 {

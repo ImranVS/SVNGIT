@@ -17,6 +17,7 @@ using System.IO;
 using System.Threading;
 
 using VSFramework;
+using MongoDB.Driver;
 using System;
 
 namespace VitalSignsMicrosoftClasses
@@ -114,6 +115,15 @@ namespace VitalSignsMicrosoftClasses
 			CommonDB db = new CommonDB();
 			DataTable dt = db.GetData(sql);
 
+            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(db.GetMongoConnectionString());
+            List<VSNext.Mongo.Entities.Server> listOfServers = ServerRepo.Find(i => i.ServerName == "EX13-1.jnittech.com").ToList();
+            List<VSNext.Mongo.Entities.WindowServices> windowsServicesExistingList;
+            List<VSNext.Mongo.Entities.WindowServices> windowsServicesNewList = new List<VSNext.Mongo.Entities.WindowServices>();
+            if (listOfServers.Count > 0 && listOfServers[0].WindowServices.Count > 0)
+                windowsServicesExistingList = listOfServers[0].WindowServices;
+            else
+                windowsServicesExistingList = new List<VSNext.Mongo.Entities.WindowServices>();
+
 			string downServices = "";
             string getdownservices = "";
 			try
@@ -140,8 +150,33 @@ namespace VitalSignsMicrosoftClasses
                             downServices += ps.Properties["Caption"].Value.ToString() + ",";
                             getdownservices += ps.Properties["Name"].Value.ToString() + ",";
                         }
+
+                        VSNext.Mongo.Entities.WindowServices winService = windowsServicesExistingList.Find(i => i.ServiceName == ps.Properties["Name"].Value.ToString());
+                        if (winService != null)
+                        {
+                            winService.DisplayName = ps.Properties["Name"].Value.ToString();
+                            winService.Status = ps.Properties["State"].Value.ToString();
+                            winService.StartupMode = ps.Properties["StartMode"].Value.ToString();
+                            winService.DisplayName = ps.Properties["Caption"].Value.ToString();
+                        }
+                        else
+                        {
+                            winService.ServiceName = ps.Properties["Name"].Value.ToString();
+                            winService.Status = ps.Properties["State"].Value.ToString();
+                            winService.StartupMode = ps.Properties["StartMode"].Value.ToString();
+                            winService.DisplayName = ps.Properties["Caption"].Value.ToString();
+                            winService.Monitored = false;
+                            winService.ServerRequired = false;
+                        }
+
+                        windowsServicesNewList.Add(winService);
+
                        
 					}
+                    MongoStatementsUpdate<VSNext.Mongo.Entities.Server> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType);
+                    mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.WindowServices, windowsServicesNewList);
+                    AllTestsList.MongoEntity.Add(mongoUpdate);
 			                  
 					if (downServices != "")
 					{
@@ -208,22 +243,25 @@ namespace VitalSignsMicrosoftClasses
 					int weekNumber = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
                     if (Convert.ToInt32(ps.Properties["RPC Client Access"].Value.ToString()) < 1000000)
                     {
-                        string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-                              + " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','CAS@RPCClient#User.Count','" + ps.Properties["RPC Client Access"].Value.ToString() +
-                              "'," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
+					    string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
+                            + " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','CAS@RPCClient#User.Count','" + ps.Properties["RPC Client Access"].Value.ToString() +
+                            "'," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
 
-                        //DB.Execute(sqlQuery);
-                        AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+					    //DB.Execute(sqlQuery);
+					    //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CAS@RPCClient#User.Count", ps.Properties["RPC Client Access"].ToString()));
+
                     }
                     if (Convert.ToInt32(ps.Properties["Outlook Web App"].Value.ToString()) < 1000000)
                     {
-                        string sqlQuery2 = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-                             + " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','CAS@OWAClient#User.Count','" + ps.Properties["Outlook Web App"].Value.ToString() +
-                             "'," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-                        AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery2, DatabaseName = "VSS_Statistics" });
+					    string sqlQuery2 = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
+						    + " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','CAS@OWAClient#User.Count','" + ps.Properties["Outlook Web App"].Value.ToString() +
+						    "'," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
+					    //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery2, DatabaseName = "VSS_Statistics" });
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CAS@OWAClient#User.Count", ps.Properties["Outlook Web App"].ToString()));
                     }
 					server.OWAUsers = long.Parse(ps.Properties["Outlook Web App"].Value.ToString());
-					server.RPCClientAccesUsers = long.Parse(ps.Properties["RPC Client Access"].Value.ToString()); 
+					server.RPCClientAccesUsers = long.Parse(ps.Properties["RPC Client Access"].Value.ToString());
 				}
 			}
 			catch (Exception ex)
@@ -270,6 +308,14 @@ namespace VitalSignsMicrosoftClasses
 
 					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = CommonDB.DB_VSS_STATISTICS });
 					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlStatusUpdate, DatabaseName = CommonDB.DB_VITALSIGNS });
+
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Mem.PercentAvailable", (ActualVal * 100).ToString()));
+                    
+                    MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+                    mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.Memory, percentUsed);
+                    AllTestsList.MongoEntity.Add(mongoUpdate);
+
 					//AllTestsList.StatusDetails.Add(new TestList() { Details = ps.Properties["PercentMemoryFree"].Value.ToString() + "% free at " + System.DateTime.Now.ToShortTimeString(), TestName = "Memory", Category = commonEnums.ServerRoles.Windows, Result = commonEnums.ServerResult.Pass });
 
 					string alertMessage = "The Memory is at " + (ActualVal*100).ToString() + "% and the threshold is set at " + myServer.Memory_Threshold.ToString() + "%";
@@ -323,6 +369,15 @@ namespace VitalSignsMicrosoftClasses
 
 					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlStatusUpdate });
+
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Platform.System.PctCombinedCpuUtil", (ActualVal * 100).ToString()));
+
+                    MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+                    mongoUpdate.updateDef = mongoUpdate.repo.Updater
+                        .Set(i => i.CPU, ActualVal)
+                        .Set(i => i.CPUthreshold, myServer.CPU_Threshold);
+                    AllTestsList.MongoEntity.Add(mongoUpdate);
 
 					//AllTestsList.StatusDetails.Add(new TestList() { Details = cpuLevel + "% at " + System.DateTime.Now.ToShortTimeString(), TestName = "CPU", Category = commonEnums.ServerRoles.Windows, Result = commonEnums.ServerResult.Pass });
 
@@ -435,6 +490,10 @@ namespace VitalSignsMicrosoftClasses
                                  "'," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ",'')";
 
                             AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+
+                            AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Disk." + ps.Properties["DeviceID"].Value.ToString() + ".Free", Math.Round(Double.Parse(ps.Properties["FreeSpace"].Value.ToString()) * 1024 * 1024 * 1024, 0).ToString()));
+
+                            /////////////////////////////ADD IN DISKSPACE TO STATUS OR SERVERS COLLECTION. NOT DECIDED WHERE///////////////////////////////////////
                         }
 
                         catch (Exception ex)
@@ -580,6 +639,12 @@ namespace VitalSignsMicrosoftClasses
 					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "UPDATE Status SET ElapsedDays='" + days + "' WHERE TypeANDName='" + myServer.Name + "-" + myServer.ServerType + "'", DatabaseName = "VitalSigns" });
 
 
+                    MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+                    mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.ElapsedDays, int.Parse(days));
+                    AllTestsList.MongoEntity.Add(mongoUpdate);
+
+
 					if (Convert.ToInt32(myServer.ServerDaysAlert) > 0 && Convert.ToInt32(myServer.ServerDaysAlert) < Convert.ToInt32(days))
 					{
 						Common.makeAlert(false, myServer, commonEnums.AlertType.Reboot_Overdue, ref AllTestsList, " This server is due for a reboot", "Windows");
@@ -646,6 +711,9 @@ namespace VitalSignsMicrosoftClasses
 						string sqlQuery = "INSERT INTO dbo.MicrosoftDailyStats ( ServerName, ServerTypeId, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber, Details)"
 							+ " VALUES ('" + myServer.Name + "','" + myServer.ServerTypeId + "', '" + dtNow.ToString() + "', 'ResponseTime', '" + myServer.ResponseTime + "', '" + weekNumber + "', '" + dtNow.Month.ToString() + "', '" + DateTime.Now.Year + "', '" + dtNow.Day.ToString() + "', '')";
 						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "ResponseTime", myServer.ResponseTime.ToString()));
+
 						Common.makeAlert(myServer.ResponseTime, myServer.ResponseThreshold, myServer, commonEnums.AlertType.Response_Time, ref AllTestsList, "Windows");
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getResponseTime returned a time of " + myServer.ResponseTime.ToString() + " ms", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
 					}
