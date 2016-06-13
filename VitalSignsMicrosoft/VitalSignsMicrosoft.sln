@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VitalSignsMicrosoft", "Vita
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VitalSignsMicrosoftClasses", "VitalSignsMicrosoftClasses\VitalSignsMicrosoftClasses.csproj", "{FF4B986D-B112-433C-B1BF-482F3BF62694}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServicesFlags", "..\ServicesFlags\ServicesFlags\ServicesFlags.csproj", "{3A79F870-96F5-4218-87D0-059BA32EE9A7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPRWyatt.VitalSigns.Services", "..\VSServices\RPRWyatt.VitalSigns.Services.csproj", "{B88FA958-5E33-42F8-92ED-0B8F5521433C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogUtils", "..\LogUtils\LogUtils\LogUtils.csproj", "{1CB45D92-7551-4699-B6A2-215E1EC9599B}"
@@ -103,16 +101,6 @@ Global
 		{FF4B986D-B112-433C-B1BF-482F3BF62694}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{FF4B986D-B112-433C-B1BF-482F3BF62694}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FF4B986D-B112-433C-B1BF-482F3BF62694}.Release|x86.ActiveCfg = Release|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{3A79F870-96F5-4218-87D0-059BA32EE9A7}.Release|x86.ActiveCfg = Release|Any CPU
 		{B88FA958-5E33-42F8-92ED-0B8F5521433C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B88FA958-5E33-42F8-92ED-0B8F5521433C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B88FA958-5E33-42F8-92ED-0B8F5521433C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
