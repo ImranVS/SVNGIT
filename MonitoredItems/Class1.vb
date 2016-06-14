@@ -768,7 +768,12 @@ Public Class MicrosoftServer
 
     Public Property TypeANDName As String
         Get
-            Return Name & "-" & ServerType
+            If ServerType = "Office365" Then
+                Return Name & "-" & Location
+            Else
+                Return Name & "-" & ServerType
+            End If
+
         End Get
         Set(value As String)
             TypeANDName = value

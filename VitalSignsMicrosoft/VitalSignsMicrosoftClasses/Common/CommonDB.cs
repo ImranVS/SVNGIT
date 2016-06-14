@@ -407,27 +407,32 @@ namespace VitalSignsMicrosoftClasses
 					}
                     DB.Execute(strSQL);
 
-                    MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
-                    mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
-                    mongoStatement.updateDef = mongoStatement.repo.Updater
-                        .Set(i => i.Name, Server.Name)
-                        .Set(i => i.CurrentStatus, Server.Status)
-                        .Set(i => i.StatusCode, Server.StatusCode)
-                        .Set(i => i.LastUpdated, DateTime.Now)
-                        .Set(i => i.NextScan, Server.NextScan)
-                        .Set(i => i.Type, Server.ServerType)
-                        .Set(i => i.Location, Server.Location)
-                        .Set(i => i.Category, Server.Category)
-                        .Set(i => i.TypeAndName, Server.TypeANDName)
-                        .Set(i => i.Description, "Microsoft")
-                        .Set(i => i.UserCount, int.Parse(Server.UserCount.ToString()))
-                        .Set(i => i.ResponseTime, int.Parse(Server.ResponseTime.ToString()))
-                        .Set(i => i.ResponseThreshold, int.Parse(Server.ResponseThreshold.ToString()))
-                        //.Set(i => i.Name, Server.Namejuhbhkb)
-                        .Set(i => i.OperatingSystem, Server.OperatingSystem)
-                        .Set(i => i.Details, Details);
+                    
 
                 }
+
+
+                MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
+                mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
+                mongoStatement.updateDef = mongoStatement.repo.Updater
+                    .Set(i => i.Name, Server.Name)
+                    .Set(i => i.CurrentStatus, Server.Status)
+                    .Set(i => i.StatusCode, Server.StatusCode)
+                    .Set(i => i.LastUpdated, DateTime.Now)
+                    .Set(i => i.NextScan, Server.NextScan)
+                    .Set(i => i.Type, Server.ServerType)
+                    .Set(i => i.Location, Server.Location)
+                    .Set(i => i.Category, Server.Category)
+                    .Set(i => i.TypeAndName, Server.TypeANDName)
+                    .Set(i => i.Description, "Microsoft")
+                    .Set(i => i.UserCount, int.Parse(Server.UserCount.ToString()))
+                    .Set(i => i.ResponseTime, int.Parse(Server.ResponseTime.ToString()))
+                    .Set(i => i.ResponseThreshold, int.Parse(Server.ResponseThreshold.ToString()))
+                    .Set(i => i.SoftwareVersion, Server.VersionNo)
+                    .Set(i => i.OperatingSystem, Server.OperatingSystem)
+                    .Set(i => i.Details, Details);
+
+                mongoStatement.Execute();
 
                 int TestFailures = 0;
                 foreach (TestList T in AllTestsList.StatusDetails)
@@ -454,7 +459,7 @@ namespace VitalSignsMicrosoftClasses
                     //}
                     try
                     {
-                        DB.Execute(strSQL);
+                       // DB.Execute(strSQL);
                     }
                     catch (Exception ex)
                     {

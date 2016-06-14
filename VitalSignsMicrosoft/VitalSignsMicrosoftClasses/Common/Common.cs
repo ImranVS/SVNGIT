@@ -1048,7 +1048,7 @@ namespace VitalSignsMicrosoftClasses
 					PSObj.ErrorMessage = "The Active Directory Module was not able to be located";
 				}
 
-				/*
+				
 				command = new PSCommand();
 				command.AddScript("Import-PSSession -Session $ra -module ActiveDirectory");
 				powershell.Commands = command;
@@ -1061,7 +1061,7 @@ namespace VitalSignsMicrosoftClasses
 				}
 
 				WriteDeviceHistoryEntry(ServerType, ServerName, "Imported the PSSession.", role, LogLevel.Normal);
-				*/
+				
 				PSObj.PS = powershell;
 				//PSObj.runspace = runspace;
 				PSObj.Connected = true;

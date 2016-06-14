@@ -116,7 +116,7 @@ namespace VitalSignsMicrosoftClasses
 			DataTable dt = db.GetData(sql);
 
             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(db.GetMongoConnectionString());
-            List<VSNext.Mongo.Entities.Server> listOfServers = ServerRepo.Find(i => i.ServerName == "EX13-1.jnittech.com").ToList();
+            List<VSNext.Mongo.Entities.Server> listOfServers = ServerRepo.Find(i => i.ServerName == myServer.Name).ToList();
             List<VSNext.Mongo.Entities.WindowServices> windowsServicesExistingList;
             List<VSNext.Mongo.Entities.WindowServices> windowsServicesNewList = new List<VSNext.Mongo.Entities.WindowServices>();
             if (listOfServers.Count > 0 && listOfServers[0].WindowServices.Count > 0)
@@ -161,6 +161,7 @@ namespace VitalSignsMicrosoftClasses
                         }
                         else
                         {
+                            winService = new VSNext.Mongo.Entities.WindowServices();
                             winService.ServiceName = ps.Properties["Name"].Value.ToString();
                             winService.Status = ps.Properties["State"].Value.ToString();
                             winService.StartupMode = ps.Properties["StartMode"].Value.ToString();
