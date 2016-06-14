@@ -156,9 +156,9 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string OperatingSystem { get; set; }
         [DataMember]
-        [BsonElement("version")]
+        [BsonElement("software_version")]
         [BsonIgnoreIfNullAttribute]
-        public string version { get; set; }
+        public string SoftwareVersion { get; set; }
 
         [DataMember]
         [BsonElement("cpu")]
