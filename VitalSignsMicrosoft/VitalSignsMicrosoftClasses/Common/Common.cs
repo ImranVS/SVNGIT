@@ -1889,49 +1889,7 @@ namespace VitalSignsMicrosoftClasses
 			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Starting Recording of Up and Down Times.", Common.LogLevel.Normal);
 			try
 			{
-
-				string sqlStr = "";
-				DateTime now = DateTime.Now;
-				int weekNum = GetWeekNumber(now);
-                //////////////////////////////////////////////////////////////////////
-				//DO NOT INCLUDE ANY THE UP TIME STATS IN MONGO. DISCUSSED WITH ALAN//
-                //////////////////////////////////////////////////////////////////////
-				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
-					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyDownTimeMinutes', '" + (myServer.DownMinutes > 60 ? 60 : myServer.DownMinutes) + 
-					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
-
-				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
-
-
-				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
-					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyOnTargetPercent', '" + (myServer.OnTargetPercent * 100) +
-					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
-
-				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
-				
-
-				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
-					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyUpPercent', '" + (myServer.UpPercentCount * 100) +
-					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
-
-				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
-
-
-				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
-					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyUpTimePercent', '" + (myServer.UpPercentMinutes * 100) +
-					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
-				
-				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
-
-
-				sqlStr = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" +
-					" VALUES ('" + myServer.ServerType + "', '" + myServer.Name + "', '" + now.ToString() + "', 'HourlyBusinessHoursOnTargetPercent', '" + (myServer.BusinessHoursOnTargetPercent * 100) +
-					"', '" + weekNum + "', '" + now.Month + "', '" + now.Year + "', '" + now.Day + "')";
-
-				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlStr });
-
 				myServer.ResetUpandDownCounts();
-
 			}
 			catch (Exception ex)
 			{
@@ -2083,19 +2041,8 @@ namespace VitalSignsMicrosoftClasses
                          string ItemCount = DR["ItemCount"].ToString();
                          string TotalItemSizeInMB = DR["TotalItemSizeInMB"].ToString();
 
-
-                         DateTime dtNow = DateTime.Now;
-                         //no. of mailboxes
-                         int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-                         string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
-                                 + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'Mailbox." + DisplayName + ".TotalItems.SizeMb" + "'" + " ," + TotalItemSizeInMB +
-                                "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-                         sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
-                                 + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'Mailbox." + DisplayName + ".TotalItems.Count" + "'" + " ," + ItemCount +
-                                "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                         AllTestsList.MongoEntity.Add(Common.GetInsertIntoSummaryStats(myServer, "Mailbox." + DisplayName + ".TotalItems.SizeMb", TotalItemSizeInMB));
+                         AllTestsList.MongoEntity.Add(Common.GetInsertIntoSummaryStats(myServer, "Mailbox." + DisplayName + ".TotalItems.Count", ItemCount));
                      }
                  }
                   SqlQuery = "select COUNT(DisplayName) NoOfMailBoxes,SUM(itemcount) TotalItemCount,SUM(totalitemsizeinmb) TotalItemSizeInMB,round(AVG(totalitemsizeinmb),2) AvgSizeOfMailBox,round(AVG(itemcount),2) AvgCountOfItems from ExchangeMailFiles Where Server='" + myServer.Name + "'";
@@ -2113,34 +2060,6 @@ namespace VitalSignsMicrosoftClasses
                          string TotalItemSizeInMB = DR["TotalItemSizeInMB"].ToString();
                          string AvgSizeOfMailBox = DR["AvgSizeOfMailBox"].ToString();
                          string AvgCountOfItems = DR["AvgCountOfItems"].ToString();
-
-                         DateTime dtNow = DateTime.Now;
-                         //no. of mailboxes
-                         int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-                         string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
-                                 + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'NoOfMailBoxes" + "'" + " ," + NoOfMailBoxes +
-                                "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-                         sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
-                                 + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'SizeOfMailBoxes" + "'" + " ," + TotalItemCount +
-                                "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-                         sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
-                                 + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'TotalNoOfItems" + "'" + " ," + TotalItemSizeInMB +
-                                "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-                         sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
-                                 + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'AvgSizeOfMailBoxes" + "'" + " ," + AvgSizeOfMailBox +
-                                "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-                         sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
-                                 + " values('" + myServer.Name + "'," + myServer.ServerTypeId + ",GetDate(),'AvgCountOfItems" + "'" + " ," + AvgCountOfItems +
-                                "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 
                          AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "NoOfMailBoxes", NoOfMailBoxes));
                          AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "SizeOfMailBoxes", TotalItemCount));
@@ -2222,6 +2141,51 @@ namespace VitalSignsMicrosoftClasses
              MongoDB.Bson.Serialization.Attributes.BsonElementAttribute element = attributes[Type.GetType("MongoDB.Bson.Serialization.Attributes.BsonElementAttribute, MongoDB.Bson")] as MongoDB.Bson.Serialization.Attributes.BsonElementAttribute;
              return element.ElementName;
          }
+
+         public static void ServerInMaintenance(MonitoredItems.MicrosoftServer myServer)
+         {
+             CommonDB db = new CommonDB();
+             /*
+             SQLBuild objSQL = new SQLBuild();
+             objSQL.ifExistsSQLSelect = "SELECT * FROM Status WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
+             objSQL.onFalseDML = "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, SecondaryRole,ResponseThreshold, " +
+                         "DominoVersion, OperatingSystem, NextScan, Details, CPU, Memory) VALUES ('" + myServer.Name + "', 'Maintenance', 'Maintenance', '" + DateTime.Now.ToString() + "','" + ServerType + "','" +
+                         myServer.Location + "','" + myServer.Category + "','" + myServer.Name + "-" + ServerType + "', 'Microsoft " + ServerType + " Server', 0, 0, '', " +
+                         "'" + myServer.ResponseThreshold + "', '" + serverType + "', '" + myServer.OperatingSystem + "', '" + myServer.NextScan + "', " +
+                         "'This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.', 0, 0 )";
+
+             objSQL.onTrueDML = "UPDATE Status set Status='Maintenance', StatusCode='Maintenance', LastUpdate='" + DateTime.Now + "', Details='This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.'," +
+                 " UserCount=0, CPU=0, Memory=0 WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
+
+             string sqlQuery = objSQL.GetSQL(objSQL);
+             db.Execute(sqlQuery);
+             */
+
+             MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
+             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+             mongoStatement.updateDef = mongoStatement.repo.Updater
+                 .Set(i => i.Name, myServer.Name)
+                 .Set(i => i.CurrentStatus, "Maintenance")
+                 .Set(i => i.StatusCode, "Maintenance")
+                 .Set(i => i.LastUpdated, DateTime.Now)
+                 .Set(i => i.NextScan, myServer.NextScan)
+                 .Set(i => i.Type, myServer.ServerType)
+                 .Set(i => i.Location, myServer.Location)
+                 .Set(i => i.Category, myServer.Category)
+                 .Set(i => i.TypeAndName, myServer.TypeANDName)
+                 .Set(i => i.Description, "Microsoft")
+                 .Set(i => i.UserCount, 0)
+                 .Set(i => i.ResponseTime, 0)
+                 .Set(i => i.ResponseThreshold, int.Parse(myServer.ResponseThreshold.ToString()))
+                 .Set(i => i.SoftwareVersion, Convert.ToDouble(myServer.VersionNo))
+                 .Set(i => i.OperatingSystem, myServer.OperatingSystem)
+                 .Set(i => i.Details, "This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.")
+                 .Set(i => i.CPU, 0)
+                 .Set(i => i.Memory, 0);
+
+             mongoStatement.Execute();
+         }
+
 
          
 

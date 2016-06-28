@@ -16,6 +16,8 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 
+using MongoDB.Driver;
+
 using VSFramework;
 using System;
 
@@ -34,10 +36,8 @@ namespace VitalSignsMicrosoftClasses
 			PowerShell powershell = powershellobj.PS;
 
 			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In getServiceHealth ", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
-          
 			try
 			{
-                  //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In getServiceHealth ", Common.LogLevel.Normal);
 				String str = "Test-ServiceHealth";
 				powershell.Streams.Error.Clear();
 
@@ -99,37 +99,21 @@ namespace VitalSignsMicrosoftClasses
 						CommonDB db = new CommonDB();
 
 
-						//if a row exists, then dont change the monitored tag...else set it to 1
-						if (db.GetData("SELECT * FROM [WindowsServices] WHERE ServerName='" + myServer.Name + "' AND ServerRequired=1").Rows.Count > 0)
-						{
-							foreach (string service in ListOfServices.Where(w => !string.IsNullOrEmpty(w)))
-							{
-								SQLBuild objSQL = new SQLBuild();
-								objSQL.ifExistsSQLSelect = "SELECT * FROM [vitalsigns].[dbo].[WindowsServices] WHERE ServerName='" + myServer.Name + "' and Service_Name='" + service + "'";
-								objSQL.onTrueDML = "update [vitalsigns].[dbo].[WindowsServices] set " +
-													"[DateStamp]='" + DateTime.Now + "', ServerRequired='1',ServerTypeId=" + myServer.ServerTypeId.ToString() +" WHERE [ServerName]='" + myServer.Name + "' and [Service_Name]='" + service + "'";
+                        VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(db.GetMongoConnectionString());
+                        if (ServerRepo.Find(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType).Where(j => j.WindowServices != null && j.WindowServices.Where(k => k.ServerRequired).Count() > 0).Count() == 0)
+                        {
+                            foreach (string service in ListOfServices.Where(w => !string.IsNullOrEmpty(w)))
+                            {
+                                MongoStatementsUpdate<VSNext.Mongo.Entities.Server> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
+                                updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType)
+                                    & updateStatement.repo.Filter.ElemMatch("windows_services", updateStatement.repo.Filter.Eq("service_name", service) & updateStatement.repo.Filter.Eq("server_required", false));
+                                updateStatement.updateDef = updateStatement.repo.Updater
+                                    .Set(i => i.WindowServices[-1].Monitored, true)
+                                    .Set(i => i.WindowServices[-1].ServerRequired, true);
 
-								objSQL.onFalseDML = "Insert into WindowsServices(ServerName,Service_Name,Monitored,DateStamp,ServerRequired,ServertypeId) "
-												+ " values('" + myServer.Name + "','" + service + "', 1,'" + DateTime.Now + "', '1'," + myServer.ServerTypeId.ToString() + ")";
-								string sqlQuery = objSQL.GetSQL(objSQL);
-								AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-							}
-						}
-						else
-						{
-							foreach (string service in ListOfServices.Where(w => !string.IsNullOrEmpty(w)))
-							{
-								SQLBuild objSQL = new SQLBuild();
-								objSQL.ifExistsSQLSelect = "SELECT * FROM [vitalsigns].[dbo].[WindowsServices] WHERE ServerName='" + myServer.Name + "' and Service_Name='" + service + "'";
-								objSQL.onTrueDML = "update [vitalsigns].[dbo].[WindowsServices] set " +
-													"[DateStamp]='" + DateTime.Now + "', ServerRequired='1', Monitored='1',ServerTypeId=" + myServer.ServerTypeId.ToString() + " WHERE [ServerName]='" + myServer.Name + "' and [Service_Name]='" + service + "'";
-
-								objSQL.onFalseDML = "Insert into WindowsServices(ServerName,Service_Name,Monitored,DateStamp,ServerRequired,ServertypeId) "
-												+ " values('" + myServer.Name + "','" + service + "', 1,'" + DateTime.Now + "', '1'," + myServer.ServerTypeId.ToString() + ")";
-								string sqlQuery = objSQL.GetSQL(objSQL);
-								AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-							}
-						}
+                                AllTestsList.MongoEntity.Add(updateStatement);
+                            }
+                        }
 					}
 
 					if (ServerRoles != "")
@@ -166,7 +150,6 @@ namespace VitalSignsMicrosoftClasses
 
 					}
 				}
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ended getServiceHealth ", Common.LogLevel.Normal);
 
 			}
 			catch (Exception ex)
@@ -175,7 +158,6 @@ namespace VitalSignsMicrosoftClasses
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in getServicesHealth: " + ex.Message, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
 
 			}
-                 
 			finally
 			{
 

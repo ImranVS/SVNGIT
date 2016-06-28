@@ -146,7 +146,7 @@ namespace VitalSignsMicrosoftClasses
 				SqlCommand myCommand = new SqlCommand();
 				myCommand.Connection = con;
 				myCommand.CommandText = SqlQuery;
-				iresults = myCommand.ExecuteNonQuery();
+				//iresults = myCommand.ExecuteNonQuery();
 				myCommand.Dispose();
 				//con.Close();
 				
@@ -167,7 +167,7 @@ namespace VitalSignsMicrosoftClasses
 
         public string GetMongoConnectionString()
         {
-            return "mongodb://localhost/local";
+            return "mongodb://localhost/VitalSigns";
         }
 
 		public void UpdateAllTests(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server, string ServerType)
@@ -207,8 +207,9 @@ namespace VitalSignsMicrosoftClasses
 
 		public void UpdateSQLStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server)
 		{
-				ProcessSQLStatements(AllTestsList, Server);
-				ProcessAlerts(AllTestsList, Server);
+			//ProcessSQLStatements(AllTestsList, Server);
+            ProcessMongoStatements(AllTestsList, Server, Server.ServerType);
+			ProcessAlerts(AllTestsList, Server);
 		}
 
 		private void ProcessStatusDetails(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server)
@@ -428,7 +429,7 @@ namespace VitalSignsMicrosoftClasses
                     .Set(i => i.UserCount, int.Parse(Server.UserCount.ToString()))
                     .Set(i => i.ResponseTime, int.Parse(Server.ResponseTime.ToString()))
                     .Set(i => i.ResponseThreshold, int.Parse(Server.ResponseThreshold.ToString()))
-                    .Set(i => i.SoftwareVersion, Server.VersionNo)
+                    .Set(i => i.SoftwareVersion, Convert.ToDouble(Server.VersionNo))
                     .Set(i => i.OperatingSystem, Server.OperatingSystem)
                     .Set(i => i.Details, Details);
 
@@ -722,7 +723,27 @@ namespace VitalSignsMicrosoftClasses
                     DB.Execute(strSQL);
                 }
 
+                MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
+                mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
+                mongoStatement.updateDef = mongoStatement.repo.Updater
+                    .Set(i => i.Name, Server.Name)
+                    .Set(i => i.CurrentStatus, NotResponding)
+                    .Set(i => i.StatusCode, NotResponding)
+                    .Set(i => i.LastUpdated, DateTime.Now)
+                    .Set(i => i.NextScan, Server.NextScan)
+                    .Set(i => i.Type, Server.ServerType)
+                    .Set(i => i.Location, Server.Location)
+                    .Set(i => i.Category, Server.Category)
+                    .Set(i => i.TypeAndName, Server.TypeANDName)
+                    .Set(i => i.Description, "Microsoft")
+                    .Set(i => i.UserCount, 0)
+                    .Set(i => i.ResponseTime, 0)
+                    .Set(i => i.ResponseThreshold, int.Parse(Server.ResponseThreshold.ToString()))
+                    .Set(i => i.SoftwareVersion, Convert.ToDouble(Server.VersionNo))
+                    .Set(i => i.OperatingSystem, Server.OperatingSystem)
+                    .Set(i => i.Details, Details);
 
+                mongoStatement.Execute();
                
 
 

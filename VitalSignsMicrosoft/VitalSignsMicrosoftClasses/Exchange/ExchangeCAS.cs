@@ -22,6 +22,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Text.RegularExpressions;
+using MongoDB.Driver;
 namespace VitalSignsMicrosoftClasses
 {
     class ExchangeCAS : IServerRole
@@ -595,10 +596,9 @@ namespace VitalSignsMicrosoftClasses
 			Common.WriteDeviceHistoryEntry("Exchange", servername, "In TestRPC ", commonEnums.ServerRoles.CAS, Common.LogLevel.Normal);
             string FailedDatabase = "";
             string FailedError = "";
-            
+
             try
             {
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In TestRPC", Common.LogLevel.Normal);
                 System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
                 //Change the Path to the Script to suit your needs
                 String str = "Test-MAPIConnectivity -Server " + servername;
@@ -655,7 +655,6 @@ namespace VitalSignsMicrosoftClasses
                                 Common.WriteDeviceHistoryEntry("Exchange", servername, "Exception parsing error: " + ex.Message, Common.LogLevel.Normal);
                             }
                             FailedError = Error;
-                            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ended TestRPC", Common.LogLevel.Normal);
 						}
                     }
 					if (results.Count > 0)
@@ -720,7 +719,7 @@ namespace VitalSignsMicrosoftClasses
 					pwd = myServer.ActiveSyncPassword;
 				}
 
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In TestActiveSync", Common.LogLevel.Normal);
+
 				System.Security.SecureString securePassword = Common.String2SecureString(pwd);
 
 				PSCredential creds = new PSCredential(userId, securePassword);
@@ -787,7 +786,6 @@ namespace VitalSignsMicrosoftClasses
                             FailedError = strError;
 
                         }
-                        //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ended TestActiveSync", Common.LogLevel.Normal);
 
                         //AllTestsList.StatusDetails.Add(new TestList() { Details = strResult + " at " + System.DateTime.Now.ToShortTimeString(), TestName = "ActiveSync - " + strScenario, Category = commonEnums.ServerRoles.CAS, Result = myResult });
                         //Common.makeAlert(false, myServer, commonEnums.AlertType.Active_Sync, ref AllTestsList, strResult + " at " + System.DateTime.Now.ToShortTimeString());
@@ -834,7 +832,7 @@ namespace VitalSignsMicrosoftClasses
                 //$cred=New-object -typename System.Management.Automation.PSCredential -argumentlist $uname,$secpasswd;
 
                 //Test-ActiveSyncConnectivity -ClientAccessServer JNITTECH-EXCHG1 -TrustAnySSLCertificate  -MailboxCredential $cred 
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Testing ActiveSync", Common.LogLevel.Normal);
+
                 System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
                 PowerShell powershell = pso.PS;
 
@@ -876,7 +874,6 @@ namespace VitalSignsMicrosoftClasses
 
                     }
                 }
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ended ActiveSync", Common.LogLevel.Normal);
 
             }
             catch (Exception ex)
@@ -924,7 +921,6 @@ namespace VitalSignsMicrosoftClasses
         {
             string servername = myServer.Name;
 			Common.WriteDeviceHistoryEntry("Exchange", servername, "In GetActiveSyncDevices.", commonEnums.ServerRoles.CAS, Common.LogLevel.Normal);
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In GetActiveSyncDevices.",  Common.LogLevel.Normal);
             try
             {
 
@@ -989,52 +985,47 @@ namespace VitalSignsMicrosoftClasses
 					   Common.WriteDeviceHistoryEntry("Exchange", servername, "Device OS : " + myDevice.DeviceOS, commonEnums.ServerRoles.CAS);
 					   Common.WriteDeviceHistoryEntry("Exchange", servername, "DeviceUserAgent: " + myDevice.DeviceUserAgent, commonEnums.ServerRoles.CAS);
 
-						strSQL = "IF EXISTS ( " +
-									"SELECT * FROM [vitalsigns].[dbo].[Traveler_Devices] where " +
-									"DeviceID='" + myDevice.DeviceID + "') " +
-									"begin " +
+                        MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
+                        mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == "Exchange");
+                        mongoStatement.updateDef = mongoStatement.repo.Updater
+                            .Set(i => i.UserName, myDevice.User)
+                            .Set(i => i.SecurityPolicy, myDevice.DevicePolicyApplied)
+                            .Set(i => i.DeviceName, myDevice.DeviceFriendlyName)
+                            .Set(i => i.ConnectionState, myDevice.Status)
+                            .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?) DateTime.Parse(myDevice.LastSuccessSync))
+                            .Set(i => i.OSType, myDevice.DeviceOS)
+                            .Set(i => i.ClientBuild, myDevice.DeviceActiveSyncVersion)
+                            .Set(i => i.DeviceType, myDevice.DeviceType)
+                            .Set(i => i.Access, myDevice.DeviceAccessState)
+                            .Set(i => i.IsActive, true)
+                            .Set(i => i.SyncType, "ActiveSync");
 
-									"update [vitalsigns].[dbo].[Traveler_Devices] set " +
-									"[UserName]='" + myDevice.User + "',  [Security_Policy]='" + myDevice.DevicePolicyApplied + "', [DeviceName]='" + myDevice.DeviceFriendlyName +"', [ConnectionState]='" + myDevice.Status +"', " +
-									"[LastSyncTime]='" + myDevice.LastSuccessSync +"', [OS_Type]= '" + myDevice.DeviceOS + "', [Client_Build]='" + myDevice.DeviceActiveSyncVersion + "', [device_type]='" + myDevice.DeviceType + "', " +
-									"[ServerName]='Exchange', [Access]='" + myDevice.DeviceAccessState + "', [DeviceID]='" + myDevice.DeviceID + "', [LastUpdated]='" + DateTime.Now + "', [IsActive]='1', [SyncType]='ActiveSync' " +
-									"where DeviceID='" + myDevice.DeviceID + "' " +
+                        AllTestsList.MongoEntity.Add(mongoStatement);
 
-									"end  else " +
-
-									"begin " +
-									"INSERT INTO vitalsigns.dbo.Traveler_Devices (UserName, Security_Policy, DeviceName, ConnectionState, LastSyncTime, OS_Type, Client_Build, device_type, ServerName, Access, DeviceID, LastUpdated, IsActive, SyncType) " +
-									" VALUES ('" + myDevice.User + "', '" + myDevice.DevicePolicyApplied + "', '" + myDevice.DeviceFriendlyName + "', '" + myDevice.Status + "', '" + myDevice.LastSuccessSync + "', '" + myDevice.DeviceOS + "', '" +
-									myDevice.DeviceActiveSyncVersion + "', '" + myDevice.DeviceType + "', 'Exchange', '" + myDevice.DeviceAccessState + "', '" + myDevice.DeviceID + "', '" + DateTime.Now + "', '1', 'ActiveSync') end";
-
-                        AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL + strSQLValues });
 
                     }
 
 					myServer.UserCount = results.Count();
-					DateTime dtNow = DateTime.Now;
-					int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-					  + " values('" + servername + "','" + myServer.ServerTypeId + "','" + dtNow + "','CAS@ActiveSync#User.Count','" + results.Count().ToString() +"'" +
-					 "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 
-                    AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "DELETE FROM vitalsigns.dbo.Traveler_Devices WHERE [ServerName]='Exchange' AND DATEDIFF(day, GetDate(),LastUpdated) <= -1" , DatabaseName = "VitalSigns" });
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CAS@ActiveSync#User.Count", results.Count().ToString()));
+
+                    MongoStatementsDelete<VSNext.Mongo.Entities.MobileDevices> mongoDeleteStatement = new MongoStatementsDelete<VSNext.Mongo.Entities.MobileDevices>();
+                    mongoDeleteStatement.filterDef = mongoDeleteStatement.repo.Filter.Where(i => i.ServerName == "Exchange" && i.ModifiedOn < DateTime.Now.AddDays(-1));
+                    AllTestsList.MongoEntity.Add(mongoDeleteStatement);
+
 
 					//AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = commonEnums.AlertDevice.Exchange, DeviceName = myServer.Name, AlertType = commonEnums.AlertType.ActiveSyncDevices, Details = "The ActiveSyncDevices is OK, detected at " + DateTime.Now.ToString(), Location = myServer.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes });
 					Common.makeAlert(true, myServer, commonEnums.AlertType.Active_Sync_Devices, ref AllTestsList,"There was no issue gathering Active Sync Devices", "CAS");
                 }
 
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ended GetActiveSyncDevices.", Common.LogLevel.Normal);
-            }
 
+            }
             catch (Exception ex)
             {
 
 				Common.WriteDeviceHistoryEntry("Exchange", servername, "Error in GetActiveSyncDevices: " + ex.Message, commonEnums.ServerRoles.CAS, Common.LogLevel.Normal);
 
             }
-                
             finally
             {
                 // dispose the runspace and enable garbage collection

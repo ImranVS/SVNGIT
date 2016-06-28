@@ -415,7 +415,7 @@ namespace VitalSignsMicrosoftClasses
 					MaintenanceDll maintenance = new MaintenanceDll();
 					if (maintenance.InMaintenance(thisServer.ServerType , thisServer.Name))
 					{
-						ServerInMaintenance(thisServer.ServerType, thisServer);
+						Common.ServerInMaintenance(thisServer);
 						goto CleanUp;
 					}
 
@@ -438,17 +438,14 @@ namespace VitalSignsMicrosoftClasses
 						if (!notResponding)
 						{
 
+                            MicrosoftCommon MSCommon = new MicrosoftCommon();
+                            MSCommon.PrereqForWindows(thisServer, AllTestResults, PSO);
+
 							if (!thisServer.FastScan)
 							{
 								ADCommon.checkServer(thisServer, ref AllTestResults, ref notResponding);
 							}
-							MicrosoftCommon MSCommon = new MicrosoftCommon();
-							MSCommon.PrereqForWindows(thisServer, AllTestResults, PSO);
-							if (DB.GetData("SELECT * FROM WindowsServices WHERE ServerName='" + thisServer.Name + "'").Rows.Count == 0)
-							{
-								string sql = "UPDATE WindowsServices SET Monitored=1, ServerRequired=1 WHERE ServerName='" + thisServer.Name + "' AND DisplayName like '%Active Directory%'";
-								AllTestResults.SQLStatements.Add(new SQLstatements { DatabaseName = "vitalsigns", SQL = sql });
-							}
+							
 
 							VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
                             if(ServerRepo.Find(i => i.ServerName == thisServer.Name && i.ServerType == thisServer.ServerType).Where(j => j.WindowServices != null && j.WindowServices.Where(k => k.ServerRequired).Count() > 0).Count() == 0)
@@ -503,27 +500,6 @@ namespace VitalSignsMicrosoftClasses
 				Thread.Sleep(1000 * 5);
 				//break;
 			}
-
-		}
-
-
-		private void ServerInMaintenance(string ServerType, MonitoredItems.ActiveDirectoryServer myServer)
-		{
-			CommonDB db = new CommonDB();
-
-			SQLBuild objSQL = new SQLBuild();
-			objSQL.ifExistsSQLSelect = "SELECT * FROM Status WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-			objSQL.onFalseDML = "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, SecondaryRole,ResponseThreshold, " +
-						"DominoVersion, OperatingSystem, NextScan, Details, CPU, Memory) VALUES ('" + myServer.Name + "', 'Maintenance', 'Maintenance', '" + DateTime.Now.ToString() + "','" + ServerType + "','" +
-						myServer.Location + "','" + myServer.Category + "','" + myServer.Name + "-" + ServerType + "', 'Microsoft " + ServerType + " Server', 0, 0, '', " +
-						"'" + myServer.ResponseThreshold + "', '" + serverType +"', '" + myServer.OperatingSystem + "', '" + myServer.NextScan + "', " +
-						"'This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.', 0, 0 )";
-
-			objSQL.onTrueDML = "UPDATE Status set Status='Maintenance', StatusCode='Maintenance', LastUpdate='" + DateTime.Now + "', Details='This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.'," +
-				" UserCount=0, CPU=0, Memory=0 WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-
-			string sqlQuery = objSQL.GetSQL(objSQL);
-			db.Execute(sqlQuery);
 
 		}
 
@@ -800,22 +776,6 @@ namespace VitalSignsMicrosoftClasses
 
 
                             DiagnoseTest(Server, ref AllTestResults);
-
-
-                            SQLBuild sql = new SQLBuild();
-                            sql.ifExistsSQLSelect = "Select * from ActiveDirectoryTest Where ServerID = " + Server.ServerId + "";
-                            sql.onFalseDML = " INSERT INTO DBO.ActiveDirectoryTest(ServerId,Advertising,FrsSysVol,Replications,Services,DNS,FsmoCheck,LastScanDate) values("
-                                + Server.ServerId + ",'" + Server.ADAdvertisingTest + "','" + Server.ADFrsSysVolTest + "','" + Server.ADReplicationsTest + "','" + Server.ADServicesTest + "','"
-                                + Server.ADDNSTest + "','" + Server.ADFsmoCheckTest + "','"
-                                + DateTime.Now.ToString() + "')";
-                            sql.onTrueDML = " UPDATE ActiveDirectoryTest SET Advertising = '" + Server.ADAdvertisingTest + "', FrsSysVol = '" + Server.ADFrsSysVolTest
-                                + "', Replications = '" + Server.ADReplicationsTest + "', Services = '" + Server.ADServicesTest
-                                + "', DNS = '" + Server.ADDNSTest + "', FsmoCheck = '" + Server.ADFsmoCheckTest + "',"
-                                + " LastScanDate = '" + DateTime.Now.ToString() + "' WHERE ServerId=" + Server.ServerId;
-
-
-                            //AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sql.GetSQL(sql), DatabaseName = "VitalSigns" });
-
                             
                             MongoStatementsUpdate<VSNext.Mongo.Entities.Status> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
                             updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
@@ -832,12 +792,6 @@ namespace VitalSignsMicrosoftClasses
                             
                             db.UpdateSQLStatements(AllTestResults, Server);
 
-                            //AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.ActiveDirectoryTest where ServerId=" + Server.ServerId, DatabaseName = "vitalsigns" });
-                            //string sSQL = " INSERT INTO DBO.ActiveDirectoryTest(ServerId,LogonTest,QueryTest,LDApPortTest,Advertising,FrsSysVol,Replications,Services,DNS,FsmoCheck,LastScanDate) values(" 
-                            //    + Server.ServerId + ",'" + Server.ADLogonTest + "','" + Server.ADQueryTest + "','" + Server.ADPortTest + "','" 
-                            //    + Server.ADAdvertisingTest + "','" + Server.ADFrsSysVolTest + "','" + Server.ADReplicationsTest + "','" + Server.ADServicesTest + "','" 
-                            //    + Server.ADDNSTest + "','" + Server.ADFsmoCheckTest + "','"+ DateTime.Now.ToString() +"')";
-                            //AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sSQL, DatabaseName = "vitalsigns" });
                         }
                         catch (Exception ex)
                         {
@@ -911,8 +865,6 @@ namespace VitalSignsMicrosoftClasses
 					}
 					results = trimmedResults;
 					DiagnoseTestParse(results, myServer, ref AllTestsList);
-
-					//AllTestsList.SQLStatements(
 
 				}
 				else

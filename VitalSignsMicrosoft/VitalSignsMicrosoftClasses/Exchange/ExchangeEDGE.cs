@@ -46,7 +46,6 @@ namespace VitalSignsMicrosoftClasses
 			Common.WriteDeviceHistoryEntry("Exchange", servername, "In QueuesBasedOnIdentity: " + strAction, commonEnums.ServerRoles.Edge, Common.LogLevel.Normal);
 			try
 			{
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In Edge QueuesBasedOnIdentity:", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//Change the Path to the Script to suit your needs
 				System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\ex_QueuesBasedOnIdentity.ps1");
@@ -119,7 +118,7 @@ namespace VitalSignsMicrosoftClasses
 
 					}
 				}
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for EDge QueuesBasedOnIdentity:", Common.LogLevel.Normal);//}
+				//}
 			}
 			catch (Exception ex)
 			{

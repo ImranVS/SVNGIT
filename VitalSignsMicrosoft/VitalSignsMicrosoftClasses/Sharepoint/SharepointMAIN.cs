@@ -20,6 +20,8 @@ using MaintenanceDLL;
 using VSFramework;
 using System;
 
+using MongoDB.Driver;
+
 namespace VitalSignsMicrosoftClasses
 {
 	public class SharepointMAIN
@@ -32,6 +34,7 @@ namespace VitalSignsMicrosoftClasses
 		MonitoredItems.SharepointServersCollection mySharepointServers;
 
 		string serverType = "SharePoint";
+        string SharePointFarmServerType = "SharePoint Farm";
 		public void StartProcess(dynamic MicrosoftHelperObj)
 		{
 			try
@@ -76,7 +79,7 @@ namespace VitalSignsMicrosoftClasses
 				{
 					Common.WriteDeviceHistoryEntry("All", serverType, "Server is marked for scanning so will start Server Related Tasks", Common.LogLevel.Normal);
 					CreateSharepointServersCollection();
-					InitStatusTable(mySharepointServers);
+					Common.InitStatusTable(mySharepointServers);
 					StartSPThreads();
 
 					Thread.Sleep(60 * 1000 * 1);
@@ -432,7 +435,7 @@ namespace VitalSignsMicrosoftClasses
 						MaintenanceDll maintenance = new MaintenanceDll();
 						if (maintenance.InMaintenance(thisServer.ServerType, thisServer.Name))
 						{
-							ServerInMaintenance(thisServer.ServerType, thisServer);
+							Common.ServerInMaintenance(thisServer);
 							goto CleanUp;
 						}
 
@@ -454,7 +457,10 @@ namespace VitalSignsMicrosoftClasses
 								//if(thisServer.Name == "sp-app1.jnittech.com")
 								//if (thisServer.Role == null || thisServer.Role == "")
 
-							if (!thisServer.FastScan)
+                                MicrosoftCommon MSCommon = new MicrosoftCommon();
+                                MSCommon.PrereqForWindows(thisServer, AllTestResults, PSO);
+
+							    if (!thisServer.FastScan)
 								{
 									GetRoles(thisServer, ref AllTestResults);
 
@@ -462,8 +468,7 @@ namespace VitalSignsMicrosoftClasses
 									SPCommon.checkServer(thisServer, ref AllTestResults, PSO);
 
 								}
-								MicrosoftCommon MSCommon = new MicrosoftCommon();
-								MSCommon.PrereqForWindows(thisServer, AllTestResults, PSO);
+								
 
 								DB.UpdateAllTests(AllTestResults, thisServer, thisServer.ServerType);
 							}
@@ -510,27 +515,6 @@ namespace VitalSignsMicrosoftClasses
 					Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Error in MonitorSP: " + ex.Message, commonEnums.ServerRoles.SharePoint, Common.LogLevel.Normal);
 				}
 			}
-
-		}
-
-
-		private void ServerInMaintenance(string ServerType, MonitoredItems.SharepointServer myServer)
-		{
-			CommonDB db = new CommonDB();
-
-			SQLBuild objSQL = new SQLBuild();
-			objSQL.ifExistsSQLSelect = "SELECT * FROM Status WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-			objSQL.onFalseDML = "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, SecondaryRole,ResponseThreshold, " +
-						"DominoVersion, OperatingSystem, NextScan, Details, CPU, Memory) VALUES ('" + myServer.Name + "', 'Maintenance', 'Maintenance', '" + DateTime.Now.ToString() + "','" + ServerType + "','" +
-						myServer.Location + "','" + myServer.Category + "','" + myServer.Name + "-" + ServerType + "', 'Microsoft " + ServerType + " Server', 0, 0, '', " +
-						"'" + myServer.ResponseThreshold + "', '" + serverType + "', '" + myServer.OperatingSystem + "', '" + myServer.NextScan + "', " +
-						"'This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.', 0, 0 )";
-
-			objSQL.onTrueDML = "UPDATE Status set Status='Maintenance', StatusCode='Maintenance', LastUpdate='" + DateTime.Now + "', Details='This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.'," +
-				" UserCount=0, CPU=0, Memory=0 WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-
-			string sqlQuery = objSQL.GetSQL(objSQL);
-			db.Execute(sqlQuery);
 
 		}
 
@@ -686,39 +670,6 @@ namespace VitalSignsMicrosoftClasses
 			return MySPServer;
 		}
 
-
-		protected void InitStatusTable(MonitoredItems.SharepointServersCollection collection)
-		{
-			try
-			{
-				String type = "";
-				CommonDB db = new CommonDB();
-				if (collection.Count > 0)
-					type = collection.get_Item(0).ServerType;
-
-				if (type != "")
-				{
-					foreach (MonitoredItems.SharepointServer server in collection)
-					{
-						String sql = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + server.Name + "-" + type + "') BEGIN " +
-							"INSERT INTO Status ( Type, Location, Category, Name, Status, Details, Description, TypeANDName, StatusCode ) VALUES " +
-							" ('" + type + "', '" + server.Location + "', '" + server.Category + "', '" + server.Name + "', '" + server.Status + "', 'This server has not yet been scanned.', " +
-							"'Microsoft " + type + " Server', '" + server.Name + "-" + type + "', '" + server.StatusCode + "') END";
-
-						db.Execute(sql);
-					}
-
-					Common.WriteDeviceHistoryEntry("All", serverType, type + " Servers are marked as Not Scanned", Common.LogLevel.Normal);
-
-				}
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry("All", serverType, "Error in init status.  Error: " + ex.Message, Common.LogLevel.Normal);
-			}
-
-		}
-
 		public void RefreshSharePointCollection()
 		{
 			if (c != null)
@@ -746,7 +697,6 @@ namespace VitalSignsMicrosoftClasses
 					}
 				}
 
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VitalSigns", SQL = "Delete from SharePointFarms where Convert(date, LastUpdated) < Convert(date,GetDate()-2)" });
 				using (PSO)
 				{
 					if (myServer.Role != "Database")
@@ -772,32 +722,33 @@ namespace VitalSignsMicrosoftClasses
 							{
 								currServer.Role = Role;
 
-
-								SQLBuild sql = new SQLBuild();
-								sql.ifExistsSQLSelect = "Select * from ServerRoles where ServerID=" + currServer.ServerId + "";
-								sql.onFalseDML = "Insert into ServerRoles (ServerId, RoleId) values (" + currServer.ServerId + ", (Select Id from RolesMaster where RoleName='" + Role + "'))";
-								sql.onTrueDML = "Update ServerRoles set RoleId=(Select Id from RolesMaster where RoleName='" + Role + "') where ServerId=" + currServer.ServerId + "";
-
-								AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VitalSigns", SQL = sql.GetSQL(sql) });
+                                MongoStatementsUpdate<VSNext.Mongo.Entities.Server> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
+                                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.ServerName == currServer.Name && i.ServerType == currServer.ServerType);
+                                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.ServerRoles, new List<String>() { Role });
+                                AllTestsList.MongoEntity.Add(mongoUpdate);
 
 								if (Role != "Database")
 								{
 									currServer.Farm = Farm;
-									sql = new SQLBuild();
-									sql.ifExistsSQLSelect = "Select * from SharePointFarms where ServerId=" + currServer.ServerId + "";
-									sql.onFalseDML = "Insert into SharePointFarms (ServerId, Farm, LastUpdated) values (" + currServer.ServerId + ",'" + Farm + "','" + DateTime.Now + "')";
-									sql.onTrueDML = "Update SharePointFarms set Farm='" + Farm + "', LastUpdated='" + DateTime.Now + "' where ServerId=" + currServer.ServerId + "";
 								}
 								else
 								{
 									if(!currServer.Farm.Contains(Farm + ','))
 										currServer.Farm += Farm + ',';
-									sql = new SQLBuild();
-									sql.ifExistsSQLSelect = "Select * from SharePointFarms where ServerId=" + currServer.ServerId + " and Farm='" + Farm + "'";
-									sql.onFalseDML = "Insert into SharePointFarms (ServerId, Farm, LastUpdated) values (" + currServer.ServerId + ",'" + Farm + "','" + DateTime.Now + "')";
-									sql.onTrueDML = "Update SharePointFarms set LastUpdated='" + DateTime.Now + "' where ServerId=" + currServer.ServerId + " and Farm='" + Farm + "'";
 								}
-								AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VitalSigns", SQL = sql.GetSQL(sql) });
+
+                                MongoStatementsUpsert<VSNext.Mongo.Entities.Server> mongoUpsertServer = new MongoStatementsUpsert<VSNext.Mongo.Entities.Server>();
+                                mongoUpsertServer.filterDef = mongoUpsertServer.repo.Filter.Where(i => i.ServerName == Farm && i.ServerType == SharePointFarmServerType);
+                                mongoUpsertServer.updateDef = mongoUpsertServer.repo.Updater.AddToSet(i => i.FarmServers, currServer.Name);
+                                AllTestsList.MongoEntity.Add(mongoUpsertServer);
+
+                                MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoUpsertStatus = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
+                                mongoUpsertStatus.filterDef = mongoUpsertStatus.repo.Filter.Where(i => i.TypeAndName == Farm + "-" + SharePointFarmServerType);
+                                mongoUpsertStatus.updateDef = mongoUpsertStatus.repo.Updater
+                                    .Set(i => i.Type, SharePointFarmServerType)
+                                    .Set(i => i.Name, Farm);
+                                AllTestsList.MongoEntity.Add(mongoUpsertStatus);
+
 							}
 						}
 
@@ -973,6 +924,7 @@ namespace VitalSignsMicrosoftClasses
 						ContentDatabases(myServer, AllTestsList, powershellobj, DummyServerForLogs);
 						TestSiteCollCreationAndFileUplaod(myServer, AllTestsList, powershellobj, DummyServerForLogs);
 						TestSiteCollectionSize(myServer, AllTestsList, powershellobj, DummyServerForLogs);
+                        CheckTimerJobs(myServer, AllTestsList, powershellobj, DummyServerForLogs);
 						//GetUserAndSiteActivity(myServer, AllTestsList, powershellobj, DummyServerForLogs);
 
 						CommonDB db = new CommonDB();
@@ -1065,6 +1017,8 @@ namespace VitalSignsMicrosoftClasses
 
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "SP_EnumContentDatabases Results: " + results.Count, Common.LogLevel.Normal);
 				
+                List<VSNext.Mongo.Entities.SharePointWebApplication> listOfWebApps = new List<VSNext.Mongo.Entities.SharePointWebApplication>();
+
 				foreach (PSObject ps in results)
 				{
 					string WebApplicationName = ps.Properties["WebApplicationName"].Value == null ? "" : ps.Properties["WebApplicationName"].Value.ToString();
@@ -1073,7 +1027,7 @@ namespace VitalSignsMicrosoftClasses
 					string DatabaseSiteCount = ps.Properties["DatabaseSiteCount"].Value == null ? "0" : ps.Properties["DatabaseSiteCount"].Value.ToString();
 					string MaxSiteCountThreshold = ps.Properties["MaxSiteCountThreshold"].Value == null ? "0" : ps.Properties["MaxSiteCountThreshold"].Value.ToString();
 					string WarningSiteCountThreshold = ps.Properties["WarningSiteCountThreshold"].Value == null ? "0" : ps.Properties["WarningSiteCountThreshold"].Value.ToString();
-					string IsContentDBReadOnly = ps.Properties["IsContentDBReadOnly"].Value == null ? "" : ps.Properties["IsContentDBReadOnly"].Value.ToString();
+					string IsContentDBReadOnly = ps.Properties["IsContentDBReadOnly"].Value == null ? "False" : ps.Properties["IsContentDBReadOnly"].Value.ToString();
 					string WhoIsDBServer = ps.Properties["WhoIsDBServer"].Value == null ? "" : ps.Properties["WhoIsDBServer"].Value.ToString();
 
 					MonitoredItems.SharepointServer currServer = mySharepointServers.SearchByName(WhoIsDBServer);
@@ -1082,6 +1036,18 @@ namespace VitalSignsMicrosoftClasses
 					
 					sql += "('" + WebApplicationName + "','" + ContentDatabaseName + "','" + ContentDatabaseID + "','" + DatabaseSiteCount + "','" + MaxSiteCountThreshold + "','" + 
 									WarningSiteCountThreshold  + "','" + IsContentDBReadOnly + "','" + WhoIsDBServer + "'),";
+
+                    listOfWebApps.Add(new VSNext.Mongo.Entities.SharePointWebApplication()
+                    {
+                        ContentDatabaseId = ContentDatabaseID,
+                        ContentDBReadOnly = Boolean.Parse(IsContentDBReadOnly),
+                        DatabaseServer = WhoIsDBServer,
+                        MaxSiteCountThreshold = Convert.ToInt32(MaxSiteCountThreshold),
+                        WarningSiteCountThreshold = Convert.ToInt32(WarningSiteCountThreshold),
+                        WebApplicationName = WebApplicationName,
+                        ContentDatabaseName = ContentDatabaseName,
+                        DatabaseSiteCount = Convert.ToInt32(DatabaseSiteCount)
+                    });
 
 					int dbSize = Convert.ToInt32(DatabaseSiteCount);
 					int warningSize = Convert.ToInt32(WarningSiteCountThreshold);
@@ -1103,8 +1069,11 @@ namespace VitalSignsMicrosoftClasses
 
 				}
 
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VitalSigns", SQL = "Delete from SharePointDatabaseDetails" });
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName="VitalSigns", SQL=sql.Substring(0,sql.Length-1)});
+                MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.Farm + "-" + SharePointFarmServerType);
+                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.SharePointWebApplications, listOfWebApps);
+                AllTestsList.MongoEntity.Add(mongoUpdate);
+                
 
 				Common.WriteDeviceHistoryEntry("All", DummyServerForLogs.ServerType, "Finished Hourly Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "Finished Hourly Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
@@ -1206,17 +1175,6 @@ namespace VitalSignsMicrosoftClasses
 				if (dt.Rows.Count == 0)
 				{
 					Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "There are no configured options for farm so will not do collection and file upload test", Common.LogLevel.Normal);
-
-					SQLBuild sql = new SQLBuild();
-					sql.ifExistsSQLSelect = "select * from SharePointFarmHealth where FarmName='" + myServer.Farm + "'";
-					sql.onFalseDML = "insert into SharePointFarmHealth (FarmName, LogOnTest, UploadTest, SiteCollectionTest) values ('" + myServer.Farm + "'," +
-						"null,null,null)";
-					sql.onTrueDML = "update SharePointFarmHealth " +
-						"set LogOnTest=null, UploadTest=null, SiteCollectionTest=null " +
-						" where FarmName='" + myServer.Farm + "'";
-
-					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql.GetSQL(sql) });
-
 					return;
 				}
 
@@ -1227,18 +1185,7 @@ namespace VitalSignsMicrosoftClasses
 
 				if (webAppName == "" || (!LogOnTestSetting && !SiteCreationTestSetting && !FileUploadTestSetting))
 				{
-					Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "There are no configured options for farm so will not do collection and file upload test", Common.LogLevel.Normal);
-
-					SQLBuild sql = new SQLBuild();
-					sql.ifExistsSQLSelect = "select * from SharePointFarmHealth where FarmName='" + myServer.Farm + "'";
-					sql.onFalseDML = "insert into SharePointFarmHealth (FarmName, LogOnTest, UploadTest, SiteCollectionTest) values ('" + myServer.Farm + "'," +
-						"null,null,null)";
-					sql.onTrueDML = "update SharePointFarmHealth " +
-						"set LogOnTest=null, UploadTest=null, SiteCollectionTest=null " +
-						" where FarmName='" + myServer.Farm + "'";
-
-					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql.GetSQL(sql) });
-					
+					Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "There are no configured options for farm so will not do collection and file upload test", Common.LogLevel.Normal);				
 					return;
 				}
 				string scriptPath = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SP_TestSiteCollCreationAndFileUpload.ps1";
@@ -1253,19 +1200,7 @@ namespace VitalSignsMicrosoftClasses
 
 				if (results.Count == 0)
 				{
-					SQLBuild sql = new SQLBuild();
-					sql.ifExistsSQLSelect = "select * from SharePointFarmHealth where FarmName='" + myServer.Farm + "'";
-					sql.onFalseDML = "insert into SharePointFarmHealth (FarmName, LogOnTest, UploadTest, SiteCollectionTest) values ('" + myServer.Farm + "'," +
-						(LogOnTestSetting ? "'False'," : "null,") +
-						(FileUploadTestSetting ? "'False'," : "null,") +
-						(SiteCreationTestSetting ? "'False')" : "null)");
-					sql.onTrueDML = "update SharePointFarmHealth " +
-						"set LogOnTest=" + (LogOnTestSetting ? "'False'," : "null,") +
-						" UploadTest=" + (FileUploadTestSetting ? "'False'," : "null,") +
-						" SiteCollectionTest=" + (SiteCreationTestSetting ? "'False'" : "null") +
-						" where FarmName='" + myServer.Farm + "'";
 
-					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql.GetSQL(sql) });
 				}
 
 				foreach (PSObject ps in results)
@@ -1273,23 +1208,38 @@ namespace VitalSignsMicrosoftClasses
 					string SiteCreation = ps.Properties["SiteCreation"].Value == null ? "False" : ps.Properties["SiteCreation"].Value.ToString();
 					string FileUpload = ps.Properties["FileUpload"].Value == null ? "False" : ps.Properties["FileUpload"].Value.ToString();
 
-					bool SiteCreationBool = Convert.ToBoolean(SiteCreation);
-					bool FileUploadBool = Convert.ToBoolean(FileUpload);
-					bool LogOnTest = powershellobj.Connected == false ? false : true;
+					string LogOnTest = powershellobj.Connected == false ? "Fail" : "Pass";
 
-					SQLBuild sql = new SQLBuild();
-					sql.ifExistsSQLSelect = "select * from SharePointFarmHealth where FarmName='" + myServer.Farm + "'";
-					sql.onFalseDML = "insert into SharePointFarmHealth (FarmName, LogOnTest, UploadTest, SiteCollectionTest) values ('" + myServer.Farm + "'," +
-						(LogOnTestSetting ? "'" + LogOnTest + "'," : "null,") +
-						(FileUploadTestSetting ? "'" + FileUpload + "'," : "null,") +
-						(SiteCreationTestSetting ? "'" + SiteCreation + "')" : "null)");
-					sql.onTrueDML = "update SharePointFarmHealth " +
-						"set LogOnTest=" + (LogOnTestSetting ? "'" + LogOnTest + "'," : "null,") +
-						" UploadTest=" + (FileUploadTestSetting ? "'" + FileUpload + "'," : "null,") +
-						" SiteCollectionTest=" + (SiteCreationTestSetting ? "'" + SiteCreation + "'" : "null") +
-						" where FarmName='" + myServer.Farm + "'";
+                    MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.Farm + "-" + SharePointFarmServerType);
+                    if (LogOnTestSetting)
+                    {
+                        mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.LogonTest, LogOnTest);
+                    }
+                    else
+                    {
+                        mongoUpdate.updateDef = mongoUpdate.repo.Updater.Unset(i => i.LogonTest);
+                    }
 
-					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql.GetSQL(sql) });
+                    if (FileUploadTestSetting)
+                    {
+                        mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.FileUploadTest, FileUpload);
+                    }
+                    else
+                    {
+                        mongoUpdate.updateDef = mongoUpdate.repo.Updater.Unset(i => i.FileUploadTest);
+                    }
+
+                    if (SiteCreationTestSetting)
+                    {
+                        mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.SiteCreationTest, SiteCreation);
+                    }
+                    else
+                    {
+                        mongoUpdate.updateDef = mongoUpdate.repo.Updater.Unset(i => i.SiteCreationTest);
+                    }
+                    
+                    AllTestsList.MongoEntity.Add(mongoUpdate);
 
 				}
 			}
@@ -1326,23 +1276,35 @@ namespace VitalSignsMicrosoftClasses
 						Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SP_SiteCollectionSize Error: " + powershellobj.PS.Streams.Error[i].ErrorDetails, Common.LogLevel.Normal);
 						Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SP_SiteCollectionSize Error: " + powershellobj.PS.Streams.Error[i].Exception, Common.LogLevel.Normal);
 					}
-				string sql = "Delete from SharePointSiteCollections where [Date] < DateAdd(day, -1, getDate()) or FarmName in (Select Farm from SharePointFarms where ServerID in (" + listOfIds + "))";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VitalSigns", SQL = sql });
+                List<VSNext.Mongo.Entities.SharePointSiteCollection> siteColList = new List<VSNext.Mongo.Entities.SharePointSiteCollection>();
 
-
-				sql = "Insert into SharePointSiteCollections (SiteCollection, SizeMB, SiteCount, Owner, FarmName, Date) Values ";
 				foreach (PSObject ps in results)
 				{
 					string URL = ps.Properties["URL"].Value == null ? "" : ps.Properties["URL"].Value.ToString();
 					string SizeMB = ps.Properties["SizeMB"].Value == null ? "0" : ps.Properties["SizeMB"].Value.ToString();
                     string Owner = ps.Properties["Owner"].Value == null ? "" : ps.Properties["Owner"].Value.ToString();
                     string NumOfSites = ps.Properties["NumOfSites"].Value == null ? "0" : ps.Properties["NumOfSites"].Value.ToString();
+                    string WebApplication = ps.Properties["WebApplication"].Value == null ? "" : ps.Properties["WebApplication"].Value.ToString();
 
-                    sql += "('" + URL + "','" + SizeMB + "','" + NumOfSites + "','" + Owner + "','" + myServer.Farm + "',GetDate()),";
+                    siteColList.Add(new VSNext.Mongo.Entities.SharePointSiteCollection()
+                    {
+                        Owner = Owner,
+                        URL = URL,
+                        SiteCount = int.Parse(NumOfSites),
+                        SizeMB = double.Parse(SizeMB),
+                        WebApplication = WebApplication
+                    });
+
 					
 
+
 				}
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VitalSigns", SQL = sql.Substring(0,sql.Length-1) });
+
+                MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.Farm + "-" + SharePointFarmServerType);
+                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.SharePointSiteCollections, siteColList);
+                AllTestsList.MongoEntity.Add(mongoUpdate);
+
 
 			}
 			catch (Exception ex)
@@ -1390,9 +1352,7 @@ namespace VitalSignsMicrosoftClasses
 					List<String> list = new List<String>();
 					List<String> listForCounts = new List<String>();
 
-					string sqlForURLs = "INSERT INTO VSS_Statistics.dbo.SharePointSiteRelativeUrl (ServerRelativeUrl) SELECT Name FROM (";
-					string sqlForUsers = "INSERT INTO VSS_Statistics.dbo.SharePointUsers (UserName) SELECT Name FROM (";
-					string sqlForCounts = "INSERT INTO VSS_Statistics.dbo.SharePointWebTrafficDailyStats (ServerName, UrlId, UserId, StatValue, Date, WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber) VALUES";
+                    List<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics> listOfWebTraffic = new List<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics>();
 
                     if (results[0].Properties["path"] != null)
                     {
@@ -1402,14 +1362,17 @@ namespace VitalSignsMicrosoftClasses
                             {
                                 string Url = paths.Properties["Name"].Value.ToString();
                                 string Count = paths.Properties["Count"].Value.ToString();
-                                list.Add("SELECT '" + Url + "' Name");
-                                listForCounts.Add("('" + myServer.Name + "',(SELECT ID FROM SharePointSiteRelativeUrl WHERE ServerRelativeUrl = '" + Url + "'), null, '" + Count + "', '" + dateTime + "', '"
-                                    + Common.GetWeekNumber(dateTime) + "', '" + dateTime.Month + "', '" + dateTime.Year + "', '" + dateTime.Day + "', '" + dateTime.Hour + "')");
+
+                                listOfWebTraffic.Add(new VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics()
+                                {
+                                    StatValue = Convert.ToInt32(Count),
+                                    ServerName = myServer.Name,
+                                    RelativeUrl = Url
+                                });
+
 
                             }
 
-                            sqlForURLs += String.Join(" union ", list) + ")tbl where tbl.Name not in (select ServerRelativeUrl from SharePointSiteRelativeUrl)";
-                            list.Clear();
                         }
 
                     if (results[0].Properties["users"] != null)
@@ -1420,17 +1383,21 @@ namespace VitalSignsMicrosoftClasses
                             {
                                 string User = paths.Properties["Name"].Value.ToString();
                                 string Count = paths.Properties["Count"].Value.ToString();
-                                list.Add("SELECT '" + User + "' Name");
-                                listForCounts.Add("('" + myServer.Name + "',null, (SELECT ID FROM SharePointUsers WHERE UserName = '" + User + "'), '" + Count + "', '" + dateTime + "', '"
-                                    + Common.GetWeekNumber(dateTime) + "', '" + dateTime.Month + "', '" + dateTime.Year + "', '" + dateTime.Day + "', '" + dateTime.Hour + "')");
+
+                                listOfWebTraffic.Add(new VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics()
+                                {
+                                    StatValue = Convert.ToInt32(Count),
+                                    ServerName = myServer.Name,
+                                    UserName = User
+                                });
                             }
-                            sqlForUsers += String.Join(" union ", list) + ")tbl where tbl.Name not in (select UserName from SharePointUsers)";
-                            sqlForCounts += String.Join(",", listForCounts);
+
                         }
 
-					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlForURLs });
-					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlForUsers });
-					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlForCounts });
+                    MongoStatementsInsert<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics> mongoInsert = new MongoStatementsInsert<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics>();
+                    mongoInsert.listOfEntities = listOfWebTraffic;
+                    AllTestsList.MongoEntity.Add(mongoInsert);
+
 				}
 
 
@@ -1443,6 +1410,89 @@ namespace VitalSignsMicrosoftClasses
 
 
 		}
+
+        private void CheckTimerJobs(MonitoredItems.SharepointServer myServer, TestResults AllTestsList, ReturnPowerShellObjects powershellobj, MonitoredItems.SharepointServer DummyServerForLogs)
+        {
+            //runspace = powershellobj.runspace;
+            PowerShell powershell = powershellobj.PS;
+
+            Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "In CheckTimerJobs ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+            try
+            {
+                String sr = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SP_TimedJobs.ps1";
+                String str = "Invoke-Command -Session $ra -FilePath '" + sr + "'";
+                powershell.Streams.Error.Clear();
+
+                powershell.AddScript(str);
+
+                Collection<PSObject> results = powershell.Invoke();
+
+                foreach (ErrorRecord er in powershell.Streams.Error)
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, er.Exception.ToString(), Common.LogLevel.Normal);
+
+                Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "CheckTimerJobs output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                List<string> FarmNames = new List<string>();
+                List<string> JobDefInserts = new List<string>();
+
+                Dictionary<string, List<VSNext.Mongo.Entities.SharePointTimerJob>> dictOfJobs = new Dictionary<string, List<VSNext.Mongo.Entities.SharePointTimerJob>>();
+
+                foreach (PSObject ps in results)
+                {
+
+                    //JobDefinitionTitle, WebApplicationName, ServerName, Status, StartTime, EndTime, DatabaseName, ErrorMessage
+                    string JobDefinitionTitle = ps.Properties["JobDefinitionTitle"].Value == null ? "" : ps.Properties["JobDefinitionTitle"].Value.ToString();
+                    string WebApplicationName = ps.Properties["WebApplicationName"].Value == null ? "" : ps.Properties["WebApplicationName"].Value.ToString();
+                    string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
+                    string Status = ps.Properties["Status"].Value == null ? "" : ps.Properties["Status"].Value.ToString();
+                    string StartTime = ps.Properties["StartTime"].Value == null ? "" : ps.Properties["StartTime"].Value.ToString();
+                    string EndTime = ps.Properties["EndTime"].Value == null ? "" : ps.Properties["EndTime"].Value.ToString();
+                    string DatabaseName = ps.Properties["DatabaseName"].Value == null ? "" : ps.Properties["DatabaseName"].Value.ToString();
+                    string ErrorMessage = ps.Properties["ErrorMessage"].Value == null ? "" : ps.Properties["ErrorMessage"].Value.ToString();
+                    string Schedule = ps.Properties["Schedule"].Value == null ? "" : ps.Properties["Schedule"].Value.ToString();
+                    string Farm = ps.Properties["Farm"].Value == null ? "" : ps.Properties["Farm"].Value.ToString();
+
+                    if(!dictOfJobs.ContainsKey(Farm))
+                        dictOfJobs.Add(Farm, new List<VSNext.Mongo.Entities.SharePointTimerJob>());
+
+                    dictOfJobs[Farm].Add(new VSNext.Mongo.Entities.SharePointTimerJob()
+                    {
+                        DatabaseName = DatabaseName,
+                        EndTime = EndTime == "" ? null : (DateTime?)Convert.ToDateTime(EndTime),
+                        ErrorMessage = ErrorMessage,
+                        JobDefinitionTitle = JobDefinitionTitle,
+                        Schedule = Schedule,
+                        ServerName = ServerName,
+                        StartTime = StartTime == "" ? null : (DateTime?)Convert.ToDateTime(StartTime),
+                        Status = Status,
+                        WebApplicationName = WebApplicationName
+                    });
+
+                }
+
+                foreach(string FarmName in dictOfJobs.Keys)
+                {
+                    MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == FarmName + "-" + SharePointFarmServerType);
+                    mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.SharePointTimerJobs, dictOfJobs[FarmName]);
+                    AllTestsList.MongoEntity.Add(mongoUpdate);
+                }
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "Error in CheckTimerJobs: " + ex.Message, commonEnums.ServerRoles.SharePoint, Common.LogLevel.Normal);
+
+            }
+            finally
+            {
+
+            }
+        }
 
 
 		#endregion

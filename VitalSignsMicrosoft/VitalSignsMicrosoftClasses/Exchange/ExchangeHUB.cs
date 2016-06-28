@@ -45,7 +45,6 @@ namespace VitalSignsMicrosoftClasses
         {
 			Common.WriteDeviceHistoryEntry("Exchange", servername, "In QueuesBasedOnIdentity: " + strAction , commonEnums.ServerRoles.HUB, Common.LogLevel.Normal);
 			string strAlertDetail = "";
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In Hub QueuesBasedOnIdentity:", Common.LogLevel.Normal);
             try
             {
                 System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
@@ -114,13 +113,11 @@ namespace VitalSignsMicrosoftClasses
 						Common.makeAlert(true, myServer, (commonEnums.AlertType)System.Enum.Parse(typeof(commonEnums.AlertType), strAction), ref AllTestsList, strAlertDetail, "Hub");
 					}
                 }
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In  HUb QueuesBasedOnIdentity:", Common.LogLevel.Normal);
             }
             catch (Exception ex)
             {
 				Common.WriteDeviceHistoryEntry("Exchange", servername, "Error in QueuesBasedOnIdentity: " +strAction + " " + ex.Message, commonEnums.ServerRoles.HUB, Common.LogLevel.Normal);
             }
-                
             finally
             {
                 // dispose the runspace and enable garbage collection

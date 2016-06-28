@@ -15,14 +15,11 @@ namespace VSNext.Mongo.Entities
     {
         public Mailbox()
         {
-            DisplayName = null;
-            IssueWarningQuota = null;
-            ProhibitSendQuota = null;
-            ProhibitSendReceiveQuota = null;
-            TotalItemSizeMb = null;
-            ItemCount = null;
-            StorageLimitStatus = null;
-            DatabaseName = null;
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
         }
 
         [DataMember]
@@ -65,18 +62,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string DatabaseName { get; set; }
 
-        /*[DataMember]
-        [BsonElement("server")]
-        public class Server {
-            [DataMember]
-            [BsonElement("$ref")]
-            public string ServerRef { get; set; }
-
-            [DataMember]
-            [BsonElement("$id")]
-            public string IdRef { get; set; }
-        }
-         * */
+        [DataMember]
+        [BsonElement("server_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string ServerName { get; set; }
+        
     }
 
 }

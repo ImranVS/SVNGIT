@@ -16,6 +16,8 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 
+using MongoDB.Driver;
+
 using VSFramework;
 using System;
 namespace VitalSignsMicrosoftClasses
@@ -56,8 +58,8 @@ namespace VitalSignsMicrosoftClasses
 
 		public void getQueueCounts(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer, commonEnums.ServerRoles ServerRole, string role)
 		{
+			
 
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In  getQueueCount", Common.LogLevel.Normal);
 			Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In getQueueCount", ServerRole, Common.LogLevel.Normal);
 			try
 			{
@@ -75,7 +77,6 @@ namespace VitalSignsMicrosoftClasses
 				powershell.AddScript(str);
 				results = powershell.Invoke();
 				DateTime dtNow = DateTime.Now;
-				string sqlQuery = "";
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "getQueueCount: output results: " + results.Count.ToString(), ServerRole, Common.LogLevel.Normal);
 				//first get submission and shadow results
@@ -126,30 +127,27 @@ namespace VitalSignsMicrosoftClasses
 				string shadowAlertDetail = getAlertDetail("Shadow", myServer.ThresholdSetting.ShadowQThreshold, shadowCount);
 				
 
-				sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName, ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-						+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','" + role + "@Unreachable#Queues','" + unreachableCount.ToString() +
-					"'," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+				
 				Common.makeAlert(unreachableCount, myServer.ThresholdSetting.UnReachableQThreshold, myServer, commonEnums.AlertType.Unreachable, ref AllTestsList, unreachableAlertDetail, role);
-
-				sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName, ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-					+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','" + role + "@Submission#Queues','" + subCount +
-					"'," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Submission Count: " + subCount, ServerRole, Common.LogLevel.Normal);
 				Common.makeAlert(subCount, myServer.ThresholdSetting.SubQThreshold, myServer, commonEnums.AlertType.Submission, ref AllTestsList, subAlertDetail,role);
-
-				sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName, ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-					+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','" + role + "@Shadow#Queues','" + shadowCount +
-					"'," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Shadow Count: " + shadowCount, ServerRole, Common.LogLevel.Normal);
 				Common.makeAlert(shadowCount, myServer.ThresholdSetting.ShadowQThreshold, myServer, commonEnums.AlertType.Shadow, ref AllTestsList, shadowAlertDetail,role);
 
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, role + "@Unreachable#Queues", unreachableCount.ToString()));
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, role + "@Submission#Queues", subCount.ToString()));
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, role + "@Shadow#Queues", shadowCount.ToString()));
 
-                String sql = "Update Status Set PendingMail='" + subCount.ToString() + "', DeadMail='" + unreachableCount.ToString() + "', HeldMail='" + shadowCount.ToString() + "', PendingThreshold='" + myServer.ThresholdSetting.SubQThreshold + "', DeadThreshold='" + myServer.ThresholdSetting.UnReachableQThreshold + "',HeldMailThreshold='" + myServer.ThresholdSetting.ShadowQThreshold + "' WHERE TYPEANDNAME='" + myServer.Name + "-" + myServer.ServerType + "'";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VitalSigns", SQL = sql });
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ended for getQueueCount", Common.LogLevel.Normal);
+                MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+                mongoUpdate.updateDef = mongoUpdate.repo.Updater
+                    .Set(i => i.UnreachableQueueCount, Convert.ToInt32(unreachableCount))
+                    .Set(i => i.UnreachableQueueThreshold, myServer.ThresholdSetting.UnReachableQThreshold)
+                    .Set(i => i.ShadowQueueCount, Convert.ToInt32(shadowCount))
+                    .Set(i => i.ShadowQueueThreshold, myServer.ThresholdSetting.ShadowQThreshold)
+                    .Set(i => i.SubmissionQueueCount, Convert.ToInt32(subCount))
+                    .Set(i => i.SubmissionQueueThreshold, myServer.ThresholdSetting.SubQThreshold);
+
+                AllTestsList.MongoEntity.Add(mongoUpdate);
+
 
 			}
 			catch (Exception ex)

@@ -20,6 +20,8 @@ using MaintenanceDLL;
 using VSFramework;
 using System;
 
+using MongoDB.Driver;
+
 namespace VitalSignsMicrosoftClasses
 {
 	
@@ -101,6 +103,14 @@ namespace VitalSignsMicrosoftClasses
 					DeleteOldDagDataOnStart();
 					StartDAGThreads();
 
+                    Thread ExchangeDevices = new Thread(new ThreadStart(ExchangeDevicesLoop));
+                    ExchangeDevices.CurrentCulture = c;
+                    ExchangeDevices.IsBackground = true;
+                    ExchangeDevices.Priority = ThreadPriority.Normal;
+                    ExchangeDevices.Name = "Exchange Devices Main Thread - Exchange";
+                    ExchangeDevices.Start();
+                    Thread.Sleep(2000);
+
 				}
 				else
 				{
@@ -149,14 +159,6 @@ namespace VitalSignsMicrosoftClasses
 				DailyTasksThread.Name = "DailyTasks - Exchange";
 				DailyTasksThread.Start();
 				Thread.Sleep(2000);
-
-                Thread ExchangeDevices = new Thread(new ThreadStart(ExchangeDevicesLoop));
-                ExchangeDevices.CurrentCulture = c;
-                ExchangeDevices.IsBackground = true;
-                ExchangeDevices.Priority = ThreadPriority.Normal;
-                ExchangeDevices.Name = "Exchange Devices Main Thread - Exchange";
-                ExchangeDevices.Start();
-                Thread.Sleep(2000);
 
 				Common.WriteDeviceHistoryEntry("All", "Exchange", "All Processes are started in startProcess", Common.LogLevel.Normal);
 			}
@@ -698,7 +700,6 @@ namespace VitalSignsMicrosoftClasses
 
             //  Common.WriteDeviceHistoryEntry("All", "Exchange", "Thread  Count  " + threadNum);
             Common.WriteDeviceHistoryEntry("All", "Exchange", "Thread  Count  " + threadNum + "", Common.LogLevel.Normal);
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Thread  Count  " + threadNum + "at" + DateTime.Now.ToString() + " ", Common.LogLevel.Normal);
 			//Runspace runspace = RunspaceFactory.CreateRunspace();
 			//runspace.Open();
 			while (true)
@@ -726,15 +727,14 @@ namespace VitalSignsMicrosoftClasses
 				if(thisServer != null)
 				{
 					Common.WriteDeviceHistoryEntry("All", "Exchange", "Scanning Server " + thisServer.Name + " on thread " + threadNum);
-                    //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Scanning Server " + thisServer.Name + " on thread at"  + DateTime.Now.ToString() + " ", Common.LogLevel.Normal);
 					thisServer.IsBeingScanned = true;
 
 					MaintenanceDll maintenance = new MaintenanceDll();
 					if (maintenance.InMaintenance("Exchange", thisServer.Name))
 					{
-						ServerInMaintenance("Exchange", thisServer);
+						Common.ServerInMaintenance(thisServer);
 						goto CleanUp;
-					}                  
+					}
                     Common.SetupServer(thisServer, thisServer.ServerType);
 					TestResults AllTestResults = new TestResults();
 					//IServerRole ServerRole = null;
@@ -749,9 +749,8 @@ namespace VitalSignsMicrosoftClasses
 
 					if (thisServer.StatusCode == "Maintenance")
 					{
-						Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Doing a fast scan since it is in maintenance", Common.LogLevel.Normal);
-                        Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", thisServer.Name + "Doing a fast scan since it is in maintenance", Common.LogLevel.Normal);
-                        thisServer.FastScan = true;
+						Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Doing a fast scan sicne it is in maintenance", Common.LogLevel.Normal);
+						thisServer.FastScan = true;
 					}
 
 					using(Common.TestRepsonding(thisServer, ref notResponding, ref AllTestResults, AuthenticationType: thisServer.AuthenticationType))
@@ -910,7 +909,7 @@ namespace VitalSignsMicrosoftClasses
 				CleanUp:
 
 					Common.WriteDeviceHistoryEntry("All", "Exchange", "Stopping scan on  Server " + thisServer.Name + " on thread " + threadNum,Common.LogLevel.Normal);
-                Common.WriteDeviceHistoryEntry("All", "Exchange", "Stopping scan on  Server " + thisServer.Name + " on thread " + threadNum, Common.LogLevel.Normal);
+
 					AliveThreads = null;
 
 					AllTestResults = null;
@@ -1023,7 +1022,6 @@ namespace VitalSignsMicrosoftClasses
 				if (ServerOne.Name == ScanASAP && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
 				{
 					Common.WriteDeviceHistoryEntry("All", "Exchange", ScanASAP + " was marked 'Scan ASAP' so it will be scanned next.");
-                    //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "" + ScanASAP + " was marked 'Scan ASAP' so it will be scanned next." , Common.LogLevel.Normal);
 					myRegistry.WriteToRegistry("ScanExchangeASAP", "n/a");
 
 					//ServerOne.ScanASAP = true;
@@ -1044,7 +1042,6 @@ namespace VitalSignsMicrosoftClasses
 					if (DateTime.Compare(tNow, tScheduled) > 0)
 					{
 						Common.WriteDeviceHistoryEntry("All", "Exchange", "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".  Next scheduled scan is at " + tScheduled.ToString());
-                        Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".  Next scheduled scan is at " + tScheduled.ToString()+"", Common.LogLevel.Normal);
 						return ServerOne;
 					}
 				}
@@ -1058,8 +1055,7 @@ namespace VitalSignsMicrosoftClasses
                 if ((ServerOne.Status == "Not Scanned" || ServerOne.Status == "Master Service Stopped.") && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
 				{
 					Common.WriteDeviceHistoryEntry("All", "Exchange", "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".");
-                    Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".", Common.LogLevel.Normal);
-                    return ServerOne;
+					return ServerOne;
 				}
 			}
 
@@ -1192,8 +1188,7 @@ namespace VitalSignsMicrosoftClasses
 			initialExchangeThreadCount = exchangeThreadCount;
 					
 			Common.WriteDeviceHistoryEntry("All", "Exchange", "There are " + exchangeThreadCount + " threads open", Common.LogLevel.Normal);
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "There are " + exchangeThreadCount + " threads open at " + DateTime.Now.ToString() + " for StartExchangeThreads  ", Common.LogLevel.Normal); 
-            if (c == null)
+			if (c == null)
 				c = new CultureInfo("en-US");
 
 			for (int i = startThreads; i < exchangeThreadCount; i++)
@@ -1259,12 +1254,8 @@ namespace VitalSignsMicrosoftClasses
 
 
 				Common.WriteDeviceHistoryEntry("Exchange", thisServer.Name, "Starting thread for " + ClassName.Split('.')[1].ToString() + ".", Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Starting thread for " + ClassName.Split('.')[1].ToString() + ".", Common.LogLevel.Normal);
-
 				results = Common.PrereqForExchangeWithCmdlets(thisServer.Name, thisServer.UserName, thisServer.Password, "Exchange", thisServer.IPAddress, roleEnum, cmdlets, thisServer.AuthenticationType);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ended thread for " + ClassName.Split('.')[1].ToString() + ".", Common.LogLevel.Normal);
-	
-            }
+				}
 			catch (Exception ex)
 			{
 				Common.WriteDeviceHistoryEntry("Exchange", thisServer.Name, "Error in RoleMonitoring 1st half.  Error: " + ex.Message, Common.LogLevel.Normal);
@@ -1289,28 +1280,14 @@ namespace VitalSignsMicrosoftClasses
 			}
 			GC.Collect();
 			Thread.Sleep(2000);
-			
+			Common.WriteDeviceHistoryEntry("Exchange", thisServer.Name, "Ending thread for " + ClassName.Split('.')[1].ToString() + ".", Common.LogLevel.Normal);
+
+
 		}
 
 		private void startWindowsMonitoring(MonitoredItems.ExchangeServer myServer,  ref TestResults AllTestResults)
 		{
-			string cmdlets = "-CommandName Test-ServiceHealth";
-
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In  startWindowsMonitoring  ", Common.LogLevel.Normal);
-			using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.UserName, myServer.Password, "Exchange", myServer.IPAddress, commonEnums.ServerRoles.Windows, cmdlets, myServer.AuthenticationType))
-			{
-				try
-				{
-					ExchangeCommon EC = new ExchangeCommon();
-					EC.PrereqForWindows(myServer, ref AllTestResults, results);
-				}
-				catch
-				{
-				}
-			}
-
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for startWindowsMonitoring  ", Common.LogLevel.Normal);
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In startWindowsMonitoring for PrereqForWindows  ", Common.LogLevel.Normal);
+			
 			using(ReturnPowerShellObjects results = Common.PrereqForWindows(myServer.IPAddress.Replace("https://","").Replace("http://",""), myServer.UserName, myServer.Password, myServer.ServerType, myServer.IPAddress, commonEnums.ServerRoles.Windows))
 			{
 				try
@@ -1323,27 +1300,22 @@ namespace VitalSignsMicrosoftClasses
 				{
 				}
 			}
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending startWindowsMonitoring for PrereqForWindows  ", Common.LogLevel.Normal);
-		}
 
-		private void ServerInMaintenance(string ServerType, MonitoredItems.ExchangeServer myServer)
-		{
-			CommonDB db = new CommonDB();
+            string cmdlets = "-CommandName Test-ServiceHealth";
 
-			SQLBuild objSQL = new SQLBuild();
-			objSQL.ifExistsSQLSelect = "SELECT * FROM Status WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-			objSQL.onFalseDML = "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, SecondaryRole,ResponseThreshold, " +
-						"DominoVersion, OperatingSystem, NextScan, Details, CPU, Memory) VALUES ('" + myServer.Name + "', 'Maintenance', 'Maintenance', '" + DateTime.Now.ToString() + "','" + ServerType + "','" +
-						myServer.Location + "','" + myServer.Category + "','" + myServer.Name + "-" + ServerType + "', 'Microsoft " + ServerType + " Server', 0, 0, '', " +
-						"'" + myServer.ResponseThreshold + "', 'Exchange " + myServer.VersionNo + "', '" + myServer.OperatingSystem + "', '" + myServer.NextScan + "', " +
-						"'This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.', 0, 0 )";
 
-			objSQL.onTrueDML = "UPDATE Status set Status='Maintenance', StatusCode='Maintenance', LastUpdate='" + DateTime.Now + "', Details='This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.'," +
-				" UserCount=0, CPU=0, Memory=0 WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-
-			string sqlQuery = objSQL.GetSQL(objSQL);
-			db.Execute(sqlQuery);
-
+            using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.UserName, myServer.Password, "Exchange", myServer.IPAddress, commonEnums.ServerRoles.Windows, cmdlets, myServer.AuthenticationType))
+            {
+                try
+                {
+                    ExchangeCommon EC = new ExchangeCommon();
+                    EC.PrereqForWindows(myServer, ref AllTestResults, results);
+                }
+                catch
+                {
+                }
+            }
+			
 		}
 
 		public MonitoredItems.ExchangeServer findServerToScanBasedOnlyOnTime()
@@ -1393,8 +1365,7 @@ namespace VitalSignsMicrosoftClasses
 		{
 
 			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "No roles are assigned so will find roles for the server", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In getServerRolesAndVersion at"+DateTime.Now.ToString()+"", Common.LogLevel.Normal);
+			
 
 			//Runspace runspace = PSO.runspace;
 			//PowerShell powershell = PSO.PS;
@@ -1446,15 +1417,11 @@ namespace VitalSignsMicrosoftClasses
 							myServer.Role = ServerRoles.Remove(ServerRoles.Length - 1).Replace("'", "").Split(new char[] { ',' });
 							myServer.VersionNo = Version;
 
-							string strSQL = "UPDATE ExchangeSettings SET VersionNo='" + Version + "' WHERE ServerID=(Select ID from Servers WHERE ServerName='" + myServer.Name + "' AND ServerTypeID = (select id from servertypes where servertype='Exchange'))";
-							AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = strSQL });
-
-
-							strSQL = "DELETE FROM ServerRoles WHERE ServerID=(Select ID from Servers WHERE ServerName='" + myServer.Name + "' AND ServerTypeID = (select id from servertypes where servertype='Exchange'))";
-							AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = strSQL });
-
-							strSQL = "INSERT INTO ServerRoles (ServerID, RoleID)  select (select id from servers where servername='" + myServer.Name + "' AND ServerTypeID = (select id from servertypes where servertype='Exchange')),id from RolesMaster where RoleName in (" + ServerRoles.Remove(ServerRoles.Length - 1) + ")";
-							AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = strSQL });
+                            MongoStatementsUpdate<VSNext.Mongo.Entities.Server> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
+                            mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType);
+                            mongoUpdate.updateDef = mongoUpdate.repo.Updater
+                                .Set(i => i.SoftwareVersion, Convert.ToDouble(Version))
+                                .Set(i => i.ServerRoles, myServer.Role.ToList());
 
 							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Roles: " + ServerRoles + "...Version: " + Version, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
@@ -1473,7 +1440,6 @@ namespace VitalSignsMicrosoftClasses
 
 				}
 			}
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ended finding getServerRolesAndVersion at" + DateTime.Now.ToString() + "", Common.LogLevel.Normal);
 
 			GC.Collect();
 			Thread.Sleep(2000);
@@ -1517,13 +1483,11 @@ namespace VitalSignsMicrosoftClasses
             do
             {
 
-                Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In GetExchangeDevices  ", Common.LogLevel.Normal);
                 if(server.StatusCode != "Not Responding")
                 {
                     using(ReturnPowerShellObjects pso = Common.PrereqForExchangeWithCmdlets(server.Name, server.UserName, server.Password, server.ServerType, server.IPAddress, commonEnums.ServerRoles.CAS, cmdNames, server.AuthenticationType))
                     {
                         TestResults AllTestsResults = new TestResults();
-
                         ExchangeCAS ex = new ExchangeCAS();
 
                         ex.GetActiveSyncDevices(pso.PS, server, ref AllTestsResults);
@@ -1535,7 +1499,8 @@ namespace VitalSignsMicrosoftClasses
                     
 
                 }
-                Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending for GetExchangeDevices  ", Common.LogLevel.Normal);
+
+
 
                 Thread.Sleep(1000 * 60 * server.ScanInterval);
 
@@ -1916,7 +1881,7 @@ namespace VitalSignsMicrosoftClasses
 					MaintenanceDll maintenance = new MaintenanceDll();
 					if (maintenance.InMaintenance("Skype for Business", thisServer.Name))
 					{
-						ServerInMaintenance("Skype for Business", thisServer);
+						Common.ServerInMaintenance(thisServer);
 						goto CleanUp;
 					}
 
@@ -2014,7 +1979,6 @@ namespace VitalSignsMicrosoftClasses
 
 
 			Common.WriteDeviceHistoryEntry("All", "Exchange", "Time to do Daily Tasks for Exchange.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-            Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Time to do Daily Tasks for Exchange.",  Common.LogLevel.Normal);
 
 			try
 			{
@@ -2024,95 +1988,23 @@ namespace VitalSignsMicrosoftClasses
                 MonitoredItems.ExchangeServer testServer = null;
                 int newestVersion = 0;
                 if (myExchangeServers != null)
-                {
                     foreach (MonitoredItems.ExchangeServer server in myExchangeServers)
                     {
                         if (Convert.ToInt32(server.VersionNo) > newestVersion)
                         {
                             newestVersion = Convert.ToInt32(server.VersionNo);
                             testServer = server;
-                            //Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
-                            //CommonDB DB = new CommonDB();
-                            //DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
                         }
-                        
                     }
-                    Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
-                    CommonDB DB = new CommonDB();
-                    DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
-                }
-				//WS COMMENTED OUT DUE TO BEING EMPTY AND SO NO WASTE OF TIME TO CONNECT/DISCONNECT
-
-				/*
-				int newestVersion = 0;
-				MonitoredItems.ExchangeServer testServer = null;
-				if (myExchangeServers != null)
-					foreach (MonitoredItems.ExchangeServer server in myExchangeServers)
-					{
-						if (Convert.ToInt32(server.VersionNo) > newestVersion)
-						{
-							newestVersion = Convert.ToInt32(server.VersionNo);
-							testServer = server;
-						}
-					}
-
-				Runspace runspace = RunspaceFactory.CreateRunspace();
-
-				if (testServer != null)
-				{
-
-					Common.WriteDeviceHistoryEntry("All", "Exchange", "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-					Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-
-					TestResults AllTestResults = new TestResults();
-					ReturnPowerShellObjects results = Common.PrereqForExchange(DummyServerForLogs.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty);
-					using (results.runspace)
-					{
-
-						//getMailboxDatabaseDetails(testServer, results.PS, results.runspace, ref AllTestResults, DummyServerForLogs);
-
-						//getIndividualMailboxes(testServer, results.PS, results.runspace, ref AllTestResults, DummyServerForLogs);
-
-						CommonDB DB = new CommonDB();
-
-						DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
 
 
-						results.PS.Commands.Clear();
 
 
-						if (results.Session != null)
-						{
-							Command cmd = new Command("remove-pssession");
 
-							cmd.Parameters.Add("id", results.Session.Id);
-							try
-							{
-								results.PS.Commands.Clear();
-								results.PS.Commands.AddCommand(cmd);
-								results.PS.Invoke();
-								results.Session.Runspace.Close();
 
-							}
-							catch (Exception ex)
-							{
-								Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Error disposing pssession: Error " + ex.Message, Common.LogLevel.Normal);
-							}
-						}
-						if (results.runspace.RunspaceStateInfo.State == RunspaceState.Opened)
-							results.runspace.Close();
-					}
-					GC.Collect();
-					Thread.Sleep(2000);
-				}
-				else
-				{
-					//no server was found to be used to scan
-				}
-				*/
 				Common.WriteDeviceHistoryEntry("All", "Exchange", "Finished Daily Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Finished Daily Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Finished Daily Tasks.", Common.LogLevel.Normal);
 
 			}
 			catch (Exception ex)
@@ -2245,58 +2137,157 @@ namespace VitalSignsMicrosoftClasses
 					Common.WriteDeviceHistoryEntry("All", DummyServerForLogs.ServerType, "Error setting OffHours.  Error: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				}
 
-				int newestVersion = -1;
-				MonitoredItems.ExchangeServer testServer = null;
-				if (myExchangeServers != null)
-					foreach (MonitoredItems.ExchangeServer server in myExchangeServers)
-					{
-						if (Convert.ToInt32(server.VersionNo) > newestVersion && server.Status != "Not Responding" && server.Status != "Maintenance" && server.Enabled)
-						{
-							newestVersion = Convert.ToInt32(server.VersionNo);
-							testServer = server;
-						}
-					}
+                List<Thread> listOfThreads = new List<Thread>();
 
-				//Runspace runspace = RunspaceFactory.CreateRunspace();
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In Hourly Tasks Thread  ", Common.LogLevel.Normal);
-				if (testServer != null)
-				{
-					
-					Common.WriteDeviceHistoryEntry("All", "Exchange", "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-					Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-					TestResults AllTestResults = new TestResults();
-					ExchangeMB EMB = new ExchangeMB();
 
-					string cmdlets = "-CommandName Get-ExchangeServer, Get-MailboxDatabase, Get-MailboxStatistics, Get-Mailbox, Get-MessageTrackingLog, ";
-					cmdlets += "Get-OWAVirtualDirectory, Get-ECPVirtualDirectory, Get-OABVirtualDirectory, Get-WebServicesVirtualDirectory, Get-MAPIVirtualDirectory, Get-ActiveSyncVirtualDirectory, ";
-                    cmdlets += "Get-OutlookAnywhere, Get-ClientAccessServer, Get-TransportServer, Get-MailboxRepairRequest, New-MailboxRepairRequest";
-                   
-                  
+                Thread ExchangeHourly = new Thread(() =>
+                {
+                    int newestVersion = -1;
+                    MonitoredItems.ExchangeServer testServer = null;
+                    if (myExchangeServers != null)
+                        foreach (MonitoredItems.ExchangeServer server in myExchangeServers)
+                        {
+                            if (Convert.ToInt32(server.VersionNo) > newestVersion && server.Status != "Not Responding" && server.Status != "Maintenance" && server.Enabled)
+                            {
+                                newestVersion = Convert.ToInt32(server.VersionNo);
+                                testServer = server;
+                            }
+                        }
 
-					using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
-					{
-                        Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
-						checkHealthCheckPages(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
-						EMB.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myExchangeServers, results);
-                        TestDatabaseCorruptionStatus(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS, DBCorruptionTest);
-					}
+                    //Runspace runspace = RunspaceFactory.CreateRunspace();
 
-					GC.Collect();
+                    if (testServer != null)
+                    {
 
-                    Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
+                        Common.WriteDeviceHistoryEntry("All", "Exchange", "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-					CommonDB DB = new CommonDB();
-					DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
-                    //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending Thread for Hourly Tasks  ", Common.LogLevel.Normal);
+                        TestResults AllTestResults = new TestResults();
+                        ExchangeMB EMB = new ExchangeMB();
 
-	
-				}
+                        string cmdlets = "-CommandName Get-ExchangeServer, Get-MailboxDatabase, Get-MailboxStatistics, Get-Mailbox, Get-MessageTrackingLog, ";
+                        cmdlets += "Get-OWAVirtualDirectory, Get-ECPVirtualDirectory, Get-OABVirtualDirectory, Get-WebServicesVirtualDirectory, Get-MAPIVirtualDirectory, Get-ActiveSyncVirtualDirectory, ";
+                        cmdlets += "Get-OutlookAnywhere, Get-ClientAccessServer, Get-TransportServer, Get-MailboxRepairRequest, New-MailboxRepairRequest";
 
-  			else
-				{
-					//no server was found to be used to scan
-				}
+                        using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
+                        {
+                            Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                            checkHealthCheckPages(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                            EMB.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myExchangeServers, results);
+                            TestDatabaseCorruptionStatus(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS, DBCorruptionTest);
+                        }
+
+                        GC.Collect();
+
+                        Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
+
+                        CommonDB DB = new CommonDB();
+                        DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                    }
+                    else
+                    {
+                        //no server was found to be used to scan
+                    }
+                });
+                ExchangeHourly.CurrentCulture = c;
+                ExchangeHourly.IsBackground = true;
+                ExchangeHourly.Priority = ThreadPriority.Normal;
+                ExchangeHourly.Name = "HourlyTaskWorkerThread - Exchange Specific Tests";
+                ExchangeHourly.Start();
+
+                listOfThreads.Add(ExchangeHourly);
+
+
+
+
+                Thread DAGHourly = new Thread(() =>
+                {
+
+                    int newestVersion = -1;
+                    MonitoredItems.ExchangeServer myServer = null;
+                    if (myDagCollection != null)
+                    {
+                        foreach (MonitoredItems.ExchangeServer server in myDagCollection)
+                        {
+                            if(server.Status == "Not Responding")
+                                continue;
+
+                            MonitoredItems.ExchangeServer primaryServer = myExchangeServers.SearchByIPAddress(server.DAGPrimaryIPAddress);
+                            MonitoredItems.ExchangeServer secondaryServer = myExchangeServers.SearchByIPAddress(server.DAGBackupIPAddress);
+
+                            if (primaryServer != null && Convert.ToInt32(primaryServer.VersionNo) > newestVersion && primaryServer.Status != "Not Responding" && primaryServer.Status != "Maintenance")
+                            {
+                                newestVersion = Convert.ToInt32(primaryServer.VersionNo);
+                                myServer = server;
+                            }
+
+                            if (secondaryServer != null && Convert.ToInt32(secondaryServer.VersionNo) > newestVersion && secondaryServer.Status != "Not Responding" && secondaryServer.Status != "Maintenance")
+                            {
+                                newestVersion = Convert.ToInt32(secondaryServer.VersionNo);
+                                myServer = server;
+                            }
+                        }
+                    }
+
+                    if (myServer != null)
+                    {
+                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + myServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                        TestResults AllTestResults = new TestResults();
+                        string Version = "";
+
+                        string cmdlets = "-CommandName ";//g;
+		                ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGPrimaryUserName, myServer.DAGPrimaryPassword, myServer.ServerType, myServer.DAGPrimaryIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGPrimaryAuthenticationType);
+                        Version = myExchangeServers.SearchByIPAddress(myServer.DAGPrimaryIPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(myServer.DAGPrimaryIPAddress).VersionNo;
+		                string IPAddress = myServer.DAGPrimaryIPAddress;
+                        if (results.Connected == false)
+		                {
+			                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to primary server.  Will attempt backup",commonEnums.ServerRoles.Empty,Common.LogLevel.Normal);
+			                results.Dispose();
+			                results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGBackupUserName, myServer.DAGBackupPassword, myServer.ServerType, myServer.DAGBackupIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGBackupAuthenticationType);
+			                IPAddress = myServer.DAGBackupIPAddress;
+                            Version = myExchangeServers.SearchByIPAddress(myServer.DAGBackupIPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(myServer.DAGBackupIPAddress).VersionNo;
+		                }
+                        if (results.Connected == false)
+                        {
+                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to backup server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                            results.Dispose();
+                            return;
+                        }
+                        else
+                        {
+                            //getMailboxDatabaseDetails(myServer, results.PS, ref AllTestResults, Version, DummyServerForLogs.Name)
+                        }
+
+
+                        GC.Collect();
+
+                        Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
+
+                        CommonDB DB = new CommonDB();
+                        DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                    }
+                    else
+                    {
+                        //no server was found to be used to scan
+                    }
+                });
+                DAGHourly.CurrentCulture = c;
+                DAGHourly.IsBackground = true;
+                DAGHourly.Priority = ThreadPriority.Normal;
+                DAGHourly.Name = "HourlyTaskWorkerThread - DAG Specific Tests";
+                DAGHourly.Start();
+
+                listOfThreads.Add(DAGHourly);
+
+
+                while (listOfThreads.Where(i => i.IsAlive).Count() > 0)
+                {
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Waiting on threads " + String.Join(",", listOfThreads.Where(i => i.IsAlive == false).Select(i => i.Name)), commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                    Thread.Sleep(new TimeSpan(0, 0, 30));
+                }
+
 
 				Common.WriteDeviceHistoryEntry("All", "Exchange", "Finished Hourly Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Finished Hourly Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
@@ -2403,11 +2394,181 @@ namespace VitalSignsMicrosoftClasses
 
 		#endregion
 
+        #region DAG
+
+        private void getMailboxDatabaseDetails(MonitoredItems.ExchangeServer Server, PowerShell powershell, ref TestResults AllTestResults, string serverVersionNo, string DummyServerName, MonitoredItems.ExchangeServersCollection MyExchangeServers)
+        {
+            try
+            {
+                bool overallDBSizeAlert;
+                bool overallWhitespaceAlert;
+                string SqlStr = "select ServerName, DatabaseName, DatabaseSizeThreshold, WhiteSpaceThreshold from ExchangeDatabaseSettings";
+                CommonDB db = new CommonDB();
+                DataTable dt = db.GetData(SqlStr);
+
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "In getMailboxDatabaseDetails.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                string ServerNames = "'" + String.Join("','", MyExchangeServers.Cast<MonitoredItems.ExchangeServer>().ToArray().Select(s => s.Name).ToList()) + "'";
+
+                System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+                System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_MailBoxReportByTotalSize&Count.ps1");
+                string startOfScript = "$databases = Get-MailboxDatabase -IncludePreExchange" + serverVersionNo + " -status | sort name\n";
+                String str = startOfScript + sr.ReadToEnd();
+                powershell.Streams.Error.Clear();
+
+                powershell.AddScript(str);
+                results = powershell.Invoke();
+
+                if (powershell.Streams.Error.Count > 51)
+                {
+
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "getMailboxDatabaseDetails received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                }
+                else
+                {
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "getMailboxDatabaseDetails output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                    Dictionary<MonitoredItems.ExchangeServer, String> dict = new Dictionary<MonitoredItems.ExchangeServer, string>();
+                    foreach (PSObject ps in results)
+                    {
+
+                        string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
+                        string DatabaseName = ps.Properties["DataBaseName"].Value == null ? "" : ps.Properties["DataBaseName"].Value.ToString();
+                        string SizeMB = ps.Properties["SizeMB"].Value == null ? "0" : ps.Properties["SizeMB"].Value.ToString();
+                        string WhiteSpaceMB = ps.Properties["WhiteSpaceMB"].Value == null ? "0" : ps.Properties["WhiteSpaceMB"].Value.ToString();
+                        string MBXs = ps.Properties["MBXs"].Value == null ? "0" : ps.Properties["MBXs"].Value.ToString();
+                        string MBXsdisc = ps.Properties["MBXsdisc"].Value == null ? "0" : ps.Properties["MBXsdisc"].Value.ToString();
+                        string Mbcount = ps.Properties["Mbcount"].Value == null ? "0" : ps.Properties["Mbcount"].Value.ToString();
+                        string DagName = ps.Properties["DagName"].Value == null ? "" : ps.Properties["DagName"].Value.ToString();
+
+
+
+                        MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Regex(i => i.Name, DagName) & mongoUpdate.repo.Filter.Ne("dag_database.database_name", DatabaseName);
+                        VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases() { 
+                            DatabaseName = DatabaseName                    
+                        };
+                        mongoUpdate.updateDef = mongoUpdate.repo.Updater.Push(i => i.DagDatabases, dbg);
+                        AllTestResults.MongoEntity.Add(mongoUpdate);
+
+                        mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.Name == DagName) & mongoUpdate.repo.Filter.Eq("dag_database.database_name", DatabaseName);
+                        mongoUpdate.updateDef = mongoUpdate.repo.Updater
+                            .Set(i => i.DagDatabases[-1].ConnectedMailboxCount, Convert.ToInt32(Mbcount))
+                            .Set(i => i.DagDatabases[-1].DatabaseName, DatabaseName)
+                            .Set(i => i.DagDatabases[-1].DisconnectedMailboxCount, Convert.ToInt32(MBXsdisc))
+                            .Set(i => i.DagDatabases[-1].MailboxCount, Convert.ToInt32(MBXs))
+                            .Set(i => i.DagDatabases[-1].SizeMB, Convert.ToDouble(SizeMB))
+                            .Set(i => i.DagDatabases[-1].WhiteSpaceMB, Convert.ToDouble(WhiteSpaceMB))
+                            .Set(i => i.DagDatabases[-1].ServerName, ServerName);
+                        AllTestResults.MongoEntity.Add(mongoUpdate);
+                        
+                        if(myDagCollection.SearchByName(DagName) != null)
+                            AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(myDagCollection.SearchByName(DagName), "ExDatabaseSizeMb." + DatabaseName, SizeMB));
+
+
+                        //alerts
+                        if (dt.Rows.Count > 0 && dt.Rows[0]["DatabaseName"].ToString() != "NoAlerts")
+                        {
+                            DataRow[] curr;
+                            curr = dt.Select("ServerName='" + DagName + "' AND (DatabaseName='" + DatabaseName + "' or DatabaseName='AllDatabases')");
+                            
+                            if (curr.Count() > 0)
+                            {
+                                try
+                                {
+                                    MonitoredItems.ExchangeServer currServer = MyExchangeServers.SearchByName(ServerName);
+
+                                    if (currServer != null)
+                                    {
+                                        if (!dict.ContainsKey(currServer))
+                                            dict.Add(currServer, "");
+                                        DataRow row = curr[0];
+                                        string sizeThreshold = row["DatabaseSizeThreshold"].ToString();
+                                        string whitespaceThreshold = row["WhiteSpaceThreshold"].ToString();
+
+                                        double dblWhiteSpace;
+                                        double dblSize;
+
+                                        bool boolWhiteSpace = Double.TryParse(WhiteSpaceMB, out dblWhiteSpace);
+                                        bool boolSize = Double.TryParse(SizeMB, out dblSize);
+
+                                        if (boolWhiteSpace)
+                                            boolWhiteSpace = Double.Parse(WhiteSpaceMB) > Double.Parse(whitespaceThreshold) && Double.Parse(whitespaceThreshold) != 0;
+                                        if (boolSize)
+                                            boolSize = Double.Parse(SizeMB) > Double.Parse(sizeThreshold) && Double.Parse(sizeThreshold) != 0;
+
+                                        if (boolSize && boolWhiteSpace)
+                                        {
+                                            //details = "The whtiespace and the size of database " + DatabaseName + " excedes the thresholds";
+                                            dict[currServer] += "The whitespace and the size of database " + DatabaseName + " excedes the thresholds. ";
+                                            overallDBSizeAlert = false;
+                                            overallWhitespaceAlert = false;
+                                        }
+                                        else if (boolSize)
+                                        {
+                                            //details = "The size of database " + DatabaseName + " excedes the threshold limit of " + Double.Parse(sizeThreshold);
+                                            dict[currServer] += "The size of database " + DatabaseName + "  is " + Math.Round(Double.Parse(SizeMB), 2) + " MB and excedes the threshold of " + sizeThreshold + " MB. ";
+                                            overallDBSizeAlert = false;
+                                        }
+                                        else if (boolWhiteSpace)
+                                        {
+                                            //details = "The size of the whitespace of database " + DatabaseName + " excedes the threshold of " + Double.Parse(whitespaceThreshold);
+                                            dict[currServer] += "The whitespace of database " + DatabaseName + " is " + Math.Round(Double.Parse(WhiteSpaceMB), 2) + " MB and  excedes the threshold of " + whitespaceThreshold + " MB. ";
+                                            overallWhitespaceAlert = false;
+                                        }
+                                        else
+                                        {
+                                            //details = "Database " + DatabaseName + " is within thresholds";
+                                        }
+                                        /*
+                                        if (boolSize || boolWhiteSpace)
+                                            Common.makeAlert(false, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
+                                        else
+                                            Common.makeAlert(true, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
+                                         */
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                }
+                            }
+                        }
+
+
+
+
+                    }
+                    foreach (MonitoredItems.ExchangeServer currServer in dict.Keys)
+                    {
+
+                        string details = dict[currServer];
+
+                        if (dict[currServer] == "")
+                            Common.makeAlert(false, Server, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
+                        else
+                            Common.makeAlert(true, Server, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, "The size and whitespace of all databases are below their threshold values.", "MailBox");
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "Error in getMailboxDatabaseDetails : " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+            }
+
+        }
+
+
+        #endregion
+
         public Collection<PSObject> TestDatabaseCorruptionQueue(MonitoredItems.ExchangeServer myServer, ref TestResults AllTestsList, string DummyServernameForLogs, PowerShell powershell)
         {
 
             Collection<PSObject> results = null;
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In TestDatabaseCorruptionQueue  ", Common.LogLevel.Normal);
+
             Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "In TestDatabaseCorruptionQueue ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
             try
             {
@@ -2420,7 +2581,7 @@ namespace VitalSignsMicrosoftClasses
                 results = powershell.Invoke();
 
                 Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "EX_DatabaseCorruptionCheck_Queue output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending For EX_DatabaseCorruptionCheck_Queue output results: " + results.Count.ToString() , Common.LogLevel.Normal);
+
             }
             catch (Exception ex)
             {
@@ -2439,7 +2600,7 @@ namespace VitalSignsMicrosoftClasses
 
         public void TestDatabaseCorruptionStatus(MonitoredItems.ExchangeServer myServer, ref TestResults AllTestsList, string DummyServernameForLogs, PowerShell powershell, Collection<PSObject> input)
         {
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In TestDatabaseCorruptionStatus", Common.LogLevel.Normal);
+
             Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "In TestDatabaseCorruptionStatus ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
             try
             {
@@ -2456,7 +2617,7 @@ namespace VitalSignsMicrosoftClasses
 
                 Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "EX_DatabaseCorruptionCheck_Status output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "EX_DatabaseCorruptionCheck_Status output results: " + results.Count.ToString(), Common.LogLevel.Normal);
+
 
 
                 if (results.Count > 0)

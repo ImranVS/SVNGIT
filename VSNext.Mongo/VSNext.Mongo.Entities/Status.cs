@@ -158,7 +158,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("software_version")]
         [BsonIgnoreIfNullAttribute]
-        public string SoftwareVersion { get; set; }
+        public double SoftwareVersion { get; set; }
 
         [DataMember]
         [BsonElement("cpu")]
@@ -166,7 +166,7 @@ namespace VSNext.Mongo.Entities
         public double? CPU { get; set; }
 
         [DataMember]
-        [BsonElement("Cpu_threshold")]
+        [BsonElement("cpu_threshold")]
         [BsonIgnoreIfNullAttribute]
         public double? CPUthreshold { get; set; }
 
@@ -200,6 +200,44 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public DateTime? ExjournalDate { get; set; }
 
+        [DataMember]
+        [BsonElement("disks")]
+        [BsonIgnoreIfNull]
+        public List<Disk> Disks { get; set; }
+
+        #region Exchange
+
+        [DataMember]
+        [BsonElement("submission_queue_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? SubmissionQueueCount { get; set; }
+
+        [DataMember]
+        [BsonElement("submission_queue_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? SubmissionQueueThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("unreachable_queue_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? UnreachableQueueCount { get; set; }
+
+        [DataMember]
+        [BsonElement("unreachable_queue_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? UnreachableQueueThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("shadow_queue_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? ShadowQueueCount { get; set; }
+
+        [DataMember]
+        [BsonElement("shadow_queue_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? ShadowQueueThreshold { get; set; }
+
+        #endregion
 
         #region ActiveDirectory
 
@@ -295,6 +333,98 @@ namespace VSNext.Mongo.Entities
 
 
         #endregion
+
+        #region SharePoint
+
+        [DataMember]
+        [BsonElement("site_collections")]
+        [BsonIgnoreIfNullAttribute]
+        public List<SharePointSiteCollection> SharePointSiteCollections;
+
+        [DataMember]
+        [BsonElement("web_applications")]
+        [BsonIgnoreIfNullAttribute]
+        public List<SharePointWebApplication> SharePointWebApplications;
+
+        [DataMember]
+        [BsonElement("timer_jobs")]
+        [BsonIgnoreIfNullAttribute]
+        public List<SharePointTimerJob> SharePointTimerJobs;
+
+        [DataMember]
+        [BsonElement("file_upload_test")]
+        [BsonIgnoreIfNullAttribute]
+        public string FileUploadTest;
+
+        [DataMember]
+        [BsonElement("site_creation_test")]
+        [BsonIgnoreIfNullAttribute]
+        public string SiteCreationTest;
+
+
+        #region Stats
+
+        [DataMember]
+        [BsonElement("ASP.NET Version")]
+        [BsonIgnoreIfNullAttribute]
+        public string AspNetVersion;
+
+        [DataMember]
+        [BsonElement("iis_service_state")]
+        [BsonIgnoreIfNullAttribute]
+        public string IISServiceState;
+
+        [DataMember]
+        [BsonElement("iis_version")]
+        [BsonIgnoreIfNullAttribute]
+        public string IISVersion;
+
+        [DataMember]
+        [BsonElement("iis_app_requests")]
+        [BsonIgnoreIfNullAttribute]
+        public string IISAppRequests;
+
+        [DataMember]
+        [BsonElement("iis_app_requests_rejected")]
+        [BsonIgnoreIfNullAttribute]
+        public string IISAppRequestsRejected;
+
+        [DataMember]
+        [BsonElement("iis_current_connections")]
+        [BsonIgnoreIfNullAttribute]
+        public string IISCurrentConnections;
+
+        [DataMember]
+        [BsonElement("network_bytes_received")]
+        [BsonIgnoreIfNullAttribute]
+        public string NetworkBytesReceived;
+
+        [DataMember]
+        [BsonElement("network_bytes_sent")]
+        [BsonIgnoreIfNullAttribute]
+        public string NetworkBytesSent;
+
+        [DataMember]
+        [BsonElement("web_services_bytes_received")]
+        [BsonIgnoreIfNullAttribute]
+        public string WebServiceBytesReceived;
+
+        [DataMember]
+        [BsonElement("web_services_bytes_sent")]
+        [BsonIgnoreIfNullAttribute]
+        public string WebServiceBytesSent;
+
+        #endregion
+
+
+        #endregion
+
+
+
+
+
+
+
     }
 
 
@@ -470,8 +600,79 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string DatabaseName { get; set; }
 
-        
+        [DataMember]
+        [BsonElement("server_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string ServerName { get; set; }
 
+        [DataMember]
+        [BsonElement("size_mb")]
+        [BsonIgnoreIfNullAttribute]
+        public double? SizeMB { get; set; }
+
+        [DataMember]
+        [BsonElement("white_space_mb")]
+        [BsonIgnoreIfNullAttribute]
+        public double? WhiteSpaceMB { get; set; }
+
+        [DataMember]
+        [BsonElement("mailbox_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? MailboxCount { get; set; }
+
+        [DataMember]
+        [BsonElement("disconnected_mailbox_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? DisconnectedMailboxCount { get; set; }
+
+        [DataMember]
+        [BsonElement("connected_mailbox_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? ConnectedMailboxCount { get; set; }
+
+
+        #region DatabaseBackupDetails
+        [DataMember]
+        [BsonElement("storage_group")]
+        [BsonIgnoreIfNullAttribute]
+        public String StorageGroup { get; set; }
+
+        [DataMember]
+        [BsonElement("mounted")]
+        [BsonIgnoreIfNullAttribute]
+        public bool? Mounted { get; set; }
+
+        [DataMember]
+        [BsonElement("backup_in_progress")]
+        [BsonIgnoreIfNullAttribute]
+        public bool? BackupInProgress { get; set; }
+
+        [DataMember]
+        [BsonElement("online_maintenance_in_progress")]
+        [BsonIgnoreIfNullAttribute]
+        public bool? OnlineMaintenanceInProgress { get; set; }
+
+        [DataMember]
+        [BsonElement("last_full_backup_date")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? LastFullBackupDate { get; set; }
+
+        [DataMember]
+        [BsonElement("last_incremental_backup_date")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? LastIncrementalBackupDate { get; set; }
+
+        [DataMember]
+        [BsonElement("last_differential_backup_date")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? LastDifferentialBackupDate { get; set; }
+
+        [DataMember]
+        [BsonElement("last_copy_backup_date")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? LastCopyBackupDate { get; set; }
+
+        #endregion
     }
 
     public class DagServerDatabases : Entity
@@ -531,6 +732,222 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string ContendIndex { get; set; }
 
+
+    }
+
+    public class SharePointWebApplication : Entity
+    {
+
+        public SharePointWebApplication()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("web_application_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string WebApplicationName { get; set; }
+
+        [DataMember]
+        [BsonElement("content_database_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string ContentDatabaseName { get; set; }
+
+        [DataMember]
+        [BsonElement("content_database_id")]
+        [BsonIgnoreIfNullAttribute]
+        public string ContentDatabaseId { get; set; }
+
+        [DataMember]
+        [BsonElement("database_site_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? DatabaseSiteCount { get; set; }
+
+        [DataMember]
+        [BsonElement("max_site_count_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? MaxSiteCountThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("warning_site_count_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? WarningSiteCountThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("content_database_read_only")]
+        [BsonIgnoreIfNullAttribute]
+        public bool? ContentDBReadOnly { get; set; }
+
+        [DataMember]
+        [BsonElement("database_server")]
+        [BsonIgnoreIfNullAttribute]
+        public string DatabaseServer { get; set; }
+
+        
+    }
+
+
+    public class SharePointSiteCollection : Entity
+    {
+
+        public SharePointSiteCollection()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("url")]
+        [BsonIgnoreIfNullAttribute]
+        public string URL { get; set; }
+
+        [DataMember]
+        [BsonElement("size_mb")]
+        [BsonIgnoreIfNullAttribute]
+        public double? SizeMB { get; set; }
+
+        [DataMember]
+        [BsonElement("owner")]
+        [BsonIgnoreIfNullAttribute]
+        public string Owner { get; set; }
+
+        [DataMember]
+        [BsonElement("site_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? SiteCount { get; set; }
+
+        [DataMember]
+        [BsonElement("web_application")]
+        [BsonIgnoreIfNullAttribute]
+        public string WebApplication { get; set; }
+
+    }
+
+
+    public class SharePointTimerJob : Entity
+    {
+        public SharePointTimerJob()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("job_definition_title")]
+        [BsonIgnoreIfNullAttribute]
+        public string JobDefinitionTitle { get; set; }
+
+        [DataMember]
+        [BsonElement("web_application_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string WebApplicationName { get; set; }
+
+        [DataMember]
+        [BsonElement("server_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string ServerName { get; set; }
+
+        [DataMember]
+        [BsonElement("status")]
+        [BsonIgnoreIfNullAttribute]
+        public string Status { get; set; }
+
+        [DataMember]
+        [BsonElement("start_time")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? StartTime { get; set; }
+
+        [DataMember]
+        [BsonElement("end_time")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? EndTime { get; set; }
+
+        [DataMember]
+        [BsonElement("database_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string DatabaseName { get; set; }
+
+        [DataMember]
+        [BsonElement("error_message")]
+        [BsonIgnoreIfNullAttribute]
+        public string ErrorMessage { get; set; }
+
+        [DataMember]
+        [BsonElement("schedule")]
+        [BsonIgnoreIfNullAttribute]
+        public string Schedule { get; set; }
+    }
+
+    public class SharePointSiteActivity : Entity
+    {
+        public SharePointSiteActivity()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("server_relative_url")]
+        [BsonIgnoreIfNullAttribute]
+        public string ServerRelativeUrl { get; set; }
+
+        [DataMember]
+        [BsonElement("user_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string UserName { get; set; }
+
+        [DataMember]
+        [BsonElement("hit_count")]
+        [BsonIgnoreIfNullAttribute]
+        public string HitCount { get; set; }
+
+    }
+
+
+
+    public class Disk : Entity
+    {
+        public Disk()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("disk_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string DiskName { get; set; }
+
+        [DataMember]
+        [BsonElement("disk_free")]
+        [BsonIgnoreIfNullAttribute]
+        public double? DiskFree { get; set; }
+
+        [DataMember]
+        [BsonElement("disk_size")]
+        [BsonIgnoreIfNullAttribute]
+        public double? DiskSize { get; set; }
+
+        [DataMember]
+        [BsonElement("percent_free")]
+        [BsonIgnoreIfNullAttribute]
+        public double? PercentFree { get; set; }
 
     }
 

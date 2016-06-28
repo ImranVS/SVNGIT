@@ -16,6 +16,8 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 
+using MongoDB.Driver;
+
 using VSFramework;
 using System;
 
@@ -125,7 +127,7 @@ namespace VitalSignsMicrosoftClasses
 						GetVersion(Server, ref AllTestsList, results);
 						GetSPConfigurationStats(Server, ref AllTestsList, results);
 						GetRequiredServices(Server, ref AllTestsList, results);
-						CheckTimerJobs(Server, ref AllTestsList, results);
+						//CheckTimerJobs(Server, ref AllTestsList, results);
 						break;
 
 				}
@@ -168,8 +170,7 @@ namespace VitalSignsMicrosoftClasses
 					string Site = ps.Properties["Site"].Value == null ? "" : ps.Properties["Site"].Value.ToString();
 
 					//**********************************************************ADD SQL STATEMENT*************************************************************************\\
-					string sql = "";
-					AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "vitalsigns", SQL = sql });
+
 
 
 					//*******************************************************ALERTS???*****************************************************************\\
@@ -207,6 +208,11 @@ namespace VitalSignsMicrosoftClasses
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSpStats Results: " + results.Count, Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
+
+                MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.TypeAndName, myServer.TypeANDName);
+
 				foreach (PSObject ps in results)
 				{
 					string statName = tableVals.IndexOf(',') > 0 ? tableVals.Substring(0, tableVals.IndexOf(',')) : tableVals;
@@ -216,10 +222,8 @@ namespace VitalSignsMicrosoftClasses
 
 
 					//**********************************************************ADD SQL STATEMENT*************************************************************************\\
-					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-									+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','SP@" + statName + "'" + " ," + propValue.ToString() +
-								   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "SP@" + statName, propValue.ToString()));
 
 					if( (new String[] {"TotalBytesReceivedPerSec", "ActiveSessions", "RequestsRejected", "TotalRequests", "NetworkBytesSentPerSec","NetworkBytesReceivedPerSec", "TotalBytesSentPerSec"}).Contains(statName))
 					{
@@ -228,44 +232,41 @@ namespace VitalSignsMicrosoftClasses
 						{
 							case "TotalBytesReceivedPerSec":
 								newStatName = "WebServices Bytes Received";
+                                mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.WebServiceBytesReceived, propValue.ToString());
 								break;
 							
 							case "ActiveSessions":
 								newStatName = "IISCurrent Connections";
+                                mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.IISCurrentConnections, propValue.ToString());
 								break;
 
 							case "RequestsRejected":
 								newStatName = "IISAppRequests Rejected";
+                                mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.IISAppRequestsRejected, propValue.ToString());
 								break;
 
 							case "TotalRequests":
 								newStatName = "IISAppRequests";
+                                mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.IISAppRequests, propValue.ToString());
 								break;
 
 							case "TotalBytesSentPerSec":
 								newStatName = "WebServices Bytes Sent";
+                                mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.WebServiceBytesSent, propValue.ToString());
 								break;
 							
 							default:
 								newStatName="";
 								break;
 						}
-
-						SQLBuild sql = new SQLBuild();
-						sql.ifExistsSQLSelect = "SELECT * FROM WindowsStatus WHERE ServerID = '" + myServer.ServerId + "' AND SName = '" + newStatName + "'";
-						sql.onFalseDML = "INSERT INTO WindowsStatus (ServerID, SName, SValue) VALUES ('" + myServer.ServerId + "','" + newStatName + "','" + propValue.ToString() + "')";
-						sql.onTrueDML = "UPDATE WindowsStatus set SValue='" + propValue.ToString() + "' WHERE ServerID='" + myServer.ServerId + "' AND SName='" + newStatName + "'";
-
-
-						AllTestsList.SQLStatements.Add(new SQLstatements() {
-							DatabaseName="VitalSigns", 
-							SQL=sql.GetSQL(sql)
-						});
+                        
 					}
 
 
 					//*******************************************************ALERTS???*****************************************************************\\
 				}
+
+                AllTestsList.MongoEntity.Add(mongoUpdate);
 
 			
 			}
@@ -305,10 +306,8 @@ namespace VitalSignsMicrosoftClasses
 
 
 					//**********************************************************ADD SQL STATEMENT*************************************************************************\\
-					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStatsTempForSpDb(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-									+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "','" + dtNow + "','SP@" + path + "'" + " ," + propValue.ToString() +
-								   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "SP@" + path, propValue.ToString()));
 
 
 					//*******************************************************ALERTS???*****************************************************************\\
@@ -355,6 +354,11 @@ namespace VitalSignsMicrosoftClasses
 
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
+
+                MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.TypeAndName, myServer.TypeANDName);
+
 				foreach (PSObject ps in results)
 				{
 					string statName = tableVals.IndexOf(',') > 0 ? tableVals.Substring(0, tableVals.IndexOf(',')) : tableVals;
@@ -362,10 +366,7 @@ namespace VitalSignsMicrosoftClasses
 					string propValue = ps.Properties["CookedValue"].Value == null ? "" : ps.Properties["CookedValue"].Value.ToString();
 					string path = ps.Properties["Path"].Value == null ? "" : ps.Properties["Path"].Value.ToString();  //site collection
 
-					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-									+ " values('sp-db1.jnittech.com','" + myServer.ServerTypeId + "','" + dtNow + "','SP@" + statName + "'" + " ," + propValue.ToString() +
-								   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "SP@" + statName, propValue));
 
 					
 					if( (new String[] {  "NetworkBytesSentPerSec","NetworkBytesReceivedPerSec"}).Contains(statName))
@@ -375,30 +376,25 @@ namespace VitalSignsMicrosoftClasses
 						{
 							case "NetworkBytesSentPerSec":
 								newStatName = "NetworkBytesSent";
+                                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.NetworkBytesSent, propValue.ToString());
 								break;
 							
 							case "NetworkBytesReceivedPerSec":
 								newStatName = "NetworkBytes Received";
+                                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.NetworkBytesReceived, propValue.ToString());
 								break;
 							
 							default:
 								newStatName="";
 								break;
 						}
-
-						SQLBuild sql = new SQLBuild();
-						sql.ifExistsSQLSelect = "SELECT * FROM WindowsStatus WHERE ServerID = '" + myServer.ServerId + "' AND SName = '" + newStatName + "'";
-						sql.onFalseDML = "INSERT INTO WindowsStatus (ServerID, SName, SValue) VALUES ('" + myServer.ServerId + "','" + newStatName + "','" + propValue.ToString() + "')";
-						sql.onTrueDML = "UPDATE WindowsStatus set SValue='" + propValue.ToString() + "' WHERE ServerID='" + myServer.ServerId + "' AND SName='" + newStatName + "'";
-
-						AllTestsList.SQLStatements.Add(new SQLstatements() {
-							DatabaseName="VitalSigns", 
-							SQL=sql.GetSQL(sql)
-						});
 					}
 
 					//*******************************************************ALERTS???*****************************************************************\\
 				}
+
+                AllTestsList.MongoEntity.Add(mongoUpdate);
+
 			}
 			catch (Exception ex)
 			{
@@ -542,24 +538,20 @@ namespace VitalSignsMicrosoftClasses
 
 				foreach (PSObject ps in results)
 				{
-					string ISS_Version = ps.Properties["ISS_Version"].Value == null ? "" : ps.Properties["ISS_Version"].Value.ToString();
-					string ISS_Status = ps.Properties["ISS_Status"].Value == null ? "" : ps.Properties["ISS_Status"].Value.ToString();
+					string IIS_Version = ps.Properties["ISS_Version"].Value == null ? "" : ps.Properties["ISS_Version"].Value.ToString();
+					string IIS_Status = ps.Properties["ISS_Status"].Value == null ? "" : ps.Properties["ISS_Status"].Value.ToString();
 					string ASPNetVersions = ps.Properties["ASPNetVersions"].Value == null ? "" : ps.Properties["ASPNetVersions"].Value.ToString();
 
-					string[] value = { ISS_Version, ISS_Status, ASPNetVersions };
+					string[] value = { IIS_Version, IIS_Status, ASPNetVersions };
 					string[] name = { "IIS Version", "IIS Service State", "ASP.NET Version" };
 
-					SQLBuild sql;
-					//string sql = "INSERT INTO WindowsStatus (ServerID, SName, SValue) VALUES ";
-					for (int i = 0; i < value.Length; i++)
-					{
-						sql = new SQLBuild();
-						sql.ifExistsSQLSelect = "SELECT * FROM WindowsStatus WHERE ServerID = '" + myServer.ServerId + "' AND SName = '" + name[i].ToString() + "'";
-						sql.onFalseDML = "INSERT INTO WindowsStatus (ServerID, SName, SValue) VALUES ('" + myServer.ServerId + "','" + name[i].ToString() + "','" + value[i].ToString() + "')";
-						sql.onTrueDML = "UPDATE WindowsStatus set SValue='" + value[i].ToString() + "' WHERE ServerID='" + myServer.ServerId + "' AND SName='" + name[i].ToString() + "'";					
-					
-						AllTestsList.SQLStatements.Add(new SQLstatements() {DatabaseName="VitalSigns", SQL=sql.GetSQL(sql) });
-					}
+					MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
+                    mongoUpdate.updateDef = mongoUpdate.repo.Updater
+                        .Set(i => i.IISVersion, IIS_Version)
+                        .Set(i => i.IISServiceState, IIS_Status)
+                        .Set(i => i.AspNetVersion, ASPNetVersions);
+
 
 				}
 
@@ -597,6 +589,8 @@ namespace VitalSignsMicrosoftClasses
 					string Name = ps.Properties["Name"].Value == null ? "" : ps.Properties["Name"].Value.ToString();
 					string Status = ps.Properties["Status"].Value == null ? "" : ps.Properties["Status"].Value.ToString();
 
+                    if (!myServer.ListOfRequiredServices.Contains(Name)) myServer.ListOfRequiredServices.Add(Name);
+
 					dict.Add(Name, Status);
 				}
 				
@@ -620,41 +614,24 @@ namespace VitalSignsMicrosoftClasses
 
 				CommonDB db = new CommonDB();
 
-				if (db.GetData("SELECT * FROM [WindowsServices] WHERE ServerName='" + myServer.Name + "' AND ServerRequired=1").Rows.Count > 0)
-				{
-					foreach(string key in dict.Keys)
-					{
-						string service = key;
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(db.GetMongoConnectionString());
+                if (ServerRepo.Find(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType).Where(j => j.WindowServices != null && j.WindowServices.Where(k => k.ServerRequired).Count() > 0).Count() == 0)
+                {
+                    foreach (string service in dict.Keys)
+                    {
+                        MongoStatementsUpdate<VSNext.Mongo.Entities.Server> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
+                        updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType)
+                            & updateStatement.repo.Filter.ElemMatch("windows_services", updateStatement.repo.Filter.Eq("service_name", service) & updateStatement.repo.Filter.Eq("server_required", false));
+                        updateStatement.updateDef = updateStatement.repo.Updater
+                            .Set(i => i.WindowServices[-1].Monitored, true)
+                            .Set(i => i.WindowServices[-1].ServerRequired, true);
 
-						SQLBuild objSQL = new SQLBuild();
-						objSQL.ifExistsSQLSelect = "SELECT * FROM [vitalsigns].[dbo].[WindowsServices] WHERE ServerName='" + myServer.Name + "' and Service_Name='" + service + "'";
-						objSQL.onTrueDML = "update [vitalsigns].[dbo].[WindowsServices] set " +
-											"[DateStamp]='" + DateTime.Now + "', ServerRequired='1',ServerTypeId=" + myServer.ServerTypeId.ToString() + " WHERE [ServerName]='" + myServer.Name + "' and [Service_Name]='" + service + "'";
+                        AllTestsList.MongoEntity.Add(updateStatement);
+                    }
+                }
 
-						objSQL.onFalseDML = "Insert into WindowsServices(ServerName,Service_Name,Monitored,DateStamp,ServerRequired,ServertypeId) "
-										+ " values('" + myServer.Name + "','" + service + "', 1,'" + DateTime.Now + "', '1'," + myServer.ServerTypeId.ToString() + ")";
 
-						string sqlQuery = objSQL.GetSQL(objSQL);
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-					}
-				}
-				else
-				{
-					foreach(string key in dict.Keys)
-					{
-						string service = key;
 
-						SQLBuild objSQL = new SQLBuild();
-						objSQL.ifExistsSQLSelect = "SELECT * FROM [vitalsigns].[dbo].[WindowsServices] WHERE ServerName='" + myServer.Name + "' and Service_Name='" + service + "'";
-						objSQL.onTrueDML = "update [vitalsigns].[dbo].[WindowsServices] set " +
-											"[DateStamp]='" + DateTime.Now + "', ServerRequired='1', Monitored='1',ServerTypeId=" + myServer.ServerTypeId.ToString() + " WHERE [ServerName]='" + myServer.Name + "' and [Service_Name]='" + service + "'";
-
-						objSQL.onFalseDML = "Insert into WindowsServices(ServerName,Service_Name,Monitored,DateStamp,ServerRequired,ServertypeId) "
-										+ " values('" + myServer.Name + "','" + service + "', 1,'" + DateTime.Now + "', '1'," + myServer.ServerTypeId.ToString() + ")";
-						string sqlQuery = objSQL.GetSQL(objSQL);
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-					}
-				}
 
 			}
 			catch (Exception ex)
@@ -668,72 +645,6 @@ namespace VitalSignsMicrosoftClasses
 
 			}
 		}
-
-		private void CheckTimerJobs(MonitoredItems.SharepointServer myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
-		{
-			//runspace = powershellobj.runspace;
-			PowerShell powershell = powershellobj.PS;
-
-			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In CheckTimerJobs ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-			try
-			{
-				String sr = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SP_TimedJobs.ps1";
-				String str = "Invoke-Command -Session $ra -FilePath '" + sr + "'";
-				powershell.Streams.Error.Clear();
-
-				powershell.AddScript(str);
-
-				Collection<PSObject> results = powershell.Invoke();
-
-				foreach (ErrorRecord er in powershell.Streams.Error)
-					Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, er.Exception.ToString(), Common.LogLevel.Normal);
-
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "CheckTimerJobs output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-
-                List<string> FarmNames = new List<string>();
-				List<string> JobDefInserts = new List<string>();
-
-				foreach (PSObject ps in results)
-				{
-					
-					//JobDefinitionTitle, WebApplicationName, ServerName, Status, StartTime, EndTime, DatabaseName, ErrorMessage
-					string JobDefinitionTitle = ps.Properties["JobDefinitionTitle"].Value == null ? "" : ps.Properties["JobDefinitionTitle"].Value.ToString();
-					string WebApplicationName = ps.Properties["WebApplicationName"].Value == null ? "" : ps.Properties["WebApplicationName"].Value.ToString();
-					string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
-					string Status = ps.Properties["Status"].Value == null ? "" : ps.Properties["Status"].Value.ToString();
-					string StartTime = ps.Properties["StartTime"].Value == null ? "" : ps.Properties["StartTime"].Value.ToString();
-					string EndTime = ps.Properties["EndTime"].Value == null ? "" : ps.Properties["EndTime"].Value.ToString();
-					string DatabaseName = ps.Properties["DatabaseName"].Value == null ? "" : ps.Properties["DatabaseName"].Value.ToString();
-					string ErrorMessage = ps.Properties["ErrorMessage"].Value == null ? "" : ps.Properties["ErrorMessage"].Value.ToString();
-                    string Schedule = ps.Properties["Schedule"].Value == null ? "" : ps.Properties["Schedule"].Value.ToString();
-                    string Farm = ps.Properties["Farm"].Value == null ? "" : ps.Properties["Farm"].Value.ToString();
-
-                    if (!FarmNames.Contains("" + Farm + "")) FarmNames.Add("" + Farm + "");
-					JobDefInserts.Add("('" + JobDefinitionTitle + "', '" + ServerName + "', '" + WebApplicationName + "', '" + Status + "', '" + StartTime + "', '" + EndTime + "', '" + DatabaseName + "', '" + ErrorMessage + "', '" + Schedule + "', '" + Farm + "')");
-				
-				}
-
-                if (FarmNames.Count > 0)
-				{
-                    string sql = "DELETE FROM [SharePointTimerJobs] WHERE Farm IN ('" + String.Join("','", FarmNames) + "')";
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql, DatabaseName = "VitalSigns"});
-
-					sql = "INSERT INTO [SharePointTimerJobs] (JobName, ServerName, WebApplicationName, Status, StartTime, EndTime, DatabaseName, ErrorMessage, Schedule, Farm) VALUES " + String.Join(",", JobDefInserts) + "";
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql, DatabaseName = "VitalSigns"});
-				}
-
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in CheckTimerJobs: " + ex.Message, commonEnums.ServerRoles.SharePoint, Common.LogLevel.Normal);
-
-			}
-			finally
-			{
-
-			}
-		}
-
 
 	}
 }

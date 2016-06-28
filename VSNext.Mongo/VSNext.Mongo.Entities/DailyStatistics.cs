@@ -29,19 +29,27 @@ namespace VSNext.Mongo.Entities
     [CollectionName("share_point_web_traffic_daily_statistics")]
     public class SharePointWebTrafficDailyStatistics : Entity
     {
+        public SharePointWebTrafficDailyStatistics()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
 
         [DataMember]
-        [BsonElement("device_id")]
-        public int DeviceId { get; set; }
+        [BsonElement("server_name")]
+        public string ServerName { get; set; }
         [DataMember]
-        [BsonElement("url_id")]
-        public int? UrlId { get; set; }
+        [BsonElement("relative_url")]
+        public string RelativeUrl { get; set; }
         [DataMember]
-        [BsonElement("user_id")]
-        public int? UserId { get; set; }
+        [BsonElement("user_name")]
+        public string UserName { get; set; }
         [DataMember]
         [BsonElement("stat_value")]
-        public double StatValue { get; set; }
+        public double? StatValue { get; set; }
 
     }
 }

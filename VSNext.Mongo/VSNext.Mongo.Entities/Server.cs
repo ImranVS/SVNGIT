@@ -12,7 +12,17 @@ namespace VSNext.Mongo.Entities
     [CollectionName("server")]
     public class Server: Entity
     {
-        
+
+        public Server()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach(var property in props)
+            {
+                property.SetValue(this, null);
+            }
+
+        }
+
         [DataMember]
         [BsonElement("server_name")]     
         public string ServerName { get; set; }
@@ -27,7 +37,26 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("scan_interval")]
-        public int ScanInterval { get; set; }
+        public int? ScanInterval { get; set; }
+
+        [DataMember]
+        [BsonElement("server_roles")]
+        [BsonIgnoreIfNull]
+        public List<String> ServerRoles { get; set; }
+
+        [DataMember]
+        [BsonElement("software_version")]
+        [BsonIgnoreIfNull]
+        public double SoftwareVersion { get; set; }
+
+
+
+
+
+        [DataMember]
+        [BsonElement("farm_servers")]
+        [BsonIgnoreIfNull]
+        public List<String> FarmServers { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]

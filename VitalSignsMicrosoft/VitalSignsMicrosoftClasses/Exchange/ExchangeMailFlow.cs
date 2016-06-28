@@ -51,7 +51,7 @@ namespace VitalSignsMicrosoftClasses
 			{
 				
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, Sourceservername, "In getMailFlow.", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In getMailFlow.", Common.LogLevel.Normal);
+
 				PowerShell powershell = powershellobj.PS;
 
 				string emailAddress = "";
@@ -165,7 +165,6 @@ namespace VitalSignsMicrosoftClasses
 							Common.WriteDeviceHistoryEntry(myServer.ServerType, Sourceservername, "Error in getMailFlow: " + ex.Message, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
 
 						}
-                        //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending For getMailFlow.", Common.LogLevel.Normal);
 				}
 				catch (Exception ex)
 				{
@@ -179,7 +178,7 @@ namespace VitalSignsMicrosoftClasses
 
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "In getMailFlowHeatMap.", commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
 				PowerShell powershell = powershellobj.PS;
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In getMailFlowHeatMap.", Common.LogLevel.Normal);
+
 				try
 				{
 					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "DELETE  FROM dbo.MailLatencyStats", DatabaseName = "VSS_Statistics" });
@@ -261,12 +260,10 @@ namespace VitalSignsMicrosoftClasses
 						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql2, DatabaseName = "VSS_Statistics" });
 					}
 				}
-                    
 				catch (Exception ex)
 				{
 					Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "Error in getMailFlowHeatMap: " + ex.Message, commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
 				}
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending For getMailFlowHeatMap.", Common.LogLevel.Normal);
 			}
 		}
 }

@@ -75,7 +75,7 @@ namespace VitalSignsMicrosoftClasses
 				{
 					Common.WriteDeviceHistoryEntry("All", serverType, "Server is marked for scanning so will start Server Related Tasks", Common.LogLevel.Normal);
 					CreateWindowsServersCollection();
-					InitStatusTable(myWindowsServers);
+					Common.InitStatusTable(myWindowsServers);
 					StartWindowsThreads();
 
 					Thread.Sleep(60 * 1000 * 1);
@@ -411,7 +411,7 @@ namespace VitalSignsMicrosoftClasses
 						MaintenanceDll maintenance = new MaintenanceDll();
 						if (maintenance.InMaintenance(thisServer.ServerType, thisServer.Name))
 						{
-							ServerInMaintenance(thisServer.ServerType, thisServer);
+							Common.ServerInMaintenance(thisServer);
 							goto CleanUp;
 						}
 
@@ -482,26 +482,7 @@ namespace VitalSignsMicrosoftClasses
 		}
 
 
-		private void ServerInMaintenance(string ServerType, MonitoredItems.MicrosoftServer myServer)
-		{
-			CommonDB db = new CommonDB();
-
-			SQLBuild objSQL = new SQLBuild();
-			objSQL.ifExistsSQLSelect = "SELECT * FROM Status WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-			objSQL.onFalseDML = "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, SecondaryRole,ResponseThreshold, " +
-						"DominoVersion, OperatingSystem, NextScan, Details, CPU, Memory) VALUES ('" + myServer.Name + "', 'Maintenance', 'Maintenance', '" + DateTime.Now.ToString() + "','" + ServerType + "','" +
-						myServer.Location + "','" + myServer.Category + "','" + myServer.Name + "-" + ServerType + "', 'Microsoft " + ServerType + " Server', 0, 0, '', " +
-						"'" + myServer.ResponseThreshold + "', '" + serverType + "', '" + myServer.OperatingSystem + "', '" + myServer.NextScan + "', " +
-						"'This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.', 0, 0 )";
-
-			objSQL.onTrueDML = "UPDATE Status set Status='Maintenance', StatusCode='Maintenance', LastUpdate='" + DateTime.Now + "', Details='This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.'," +
-				" UserCount=0, CPU=0, Memory=0 WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-
-			string sqlQuery = objSQL.GetSQL(objSQL);
-			db.Execute(sqlQuery);
-
-		}
-
+		
 		private void CreateWindowsServersCollection()
 		{
 			//Fetch all servers
@@ -648,38 +629,6 @@ namespace VitalSignsMicrosoftClasses
 
 			return myServer;
 		}
-
-		protected void InitStatusTable(MonitoredItems.MicrosoftServersCollection collection)
-		{
-			try
-			{
-				String type = "";
-				CommonDB db = new CommonDB();
-				if (collection.Count > 0)
-					type = collection.get_Item(0).ServerType;
-
-				if (type != "")
-				{
-					foreach (MonitoredItems.ExchangeServer server in collection)
-					{
-						String sql = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + server.Name + "-" + type + "') BEGIN " +
-							"INSERT INTO Status ( Type, Location, Category, Name, Status, Details, Description, TypeANDName, StatusCode ) VALUES " +
-							" ('" + type + "', '" + server.Location + "', '" + server.Category + "', '" + server.Name + "', '" + server.Status + "', 'This server has not yet been scanned.', " +
-							"'Microsoft " + type + " Server', '" + server.Name + "-" + type + "', '" + server.StatusCode + "') END";
-
-						db.Execute(sql);
-					}
-					Common.WriteDeviceHistoryEntry("All", serverType, type + " Servers are marked as Not Scanned", Common.LogLevel.Normal);
-
-				}
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry("All", serverType, "Error in init status.  Error: " + ex.Message, Common.LogLevel.Normal);
-			}
-
-		}
-
 
 		#region HourlyDailyTasks
 

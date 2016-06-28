@@ -16,6 +16,8 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 
+using MongoDB.Driver;
+
 using VSFramework;
 using System;
 
@@ -44,7 +46,6 @@ namespace VitalSignsMicrosoftClasses
         {
 
             Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In testMailboxReplicationService", commonEnums.ServerRoles.MailBox, Common.LogLevel.Normal);
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance","In testMailboxReplicationService", Common.LogLevel.Normal);
 
             try
             {
@@ -61,7 +62,6 @@ namespace VitalSignsMicrosoftClasses
 
 
                 Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "testMailboxReplicationService output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "" + myServer.ServerType + myServer.Name + " End in In testMailboxReplicationService ", Common.LogLevel.Normal);
 
                 if(results.Count > 0)
                 {
@@ -89,8 +89,7 @@ namespace VitalSignsMicrosoftClasses
 
                 }
 
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending For testMailboxReplicationService", Common.LogLevel.Normal);
-
+                
 
             }
             catch (Exception ex)
@@ -102,7 +101,6 @@ namespace VitalSignsMicrosoftClasses
             {
 
             }
-           
             
 
     }
@@ -111,7 +109,6 @@ namespace VitalSignsMicrosoftClasses
         {
 
             Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In testMailboxAssisstantsService", commonEnums.ServerRoles.MailBox, Common.LogLevel.Normal);
-            //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In testMailboxAssisstantsService", Common.LogLevel.Normal);
 
             try
             {
@@ -128,7 +125,6 @@ namespace VitalSignsMicrosoftClasses
 
 
                 Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "testMailboxAssisstantsService output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "" + myServer.ServerType + myServer.Name + " End in In testMailboxAssisstantsService ", Common.LogLevel.Normal);
 
                 string errorStr = "";
 
@@ -151,7 +147,6 @@ namespace VitalSignsMicrosoftClasses
                 {
                     Common.makeAlert(false, myServer, commonEnums.AlertType.MailBox_Assistants_Service_Test, ref AllTestResults, errorStr, "Mailbox");
                 }
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "Ending For testMailboxAssisstantsService", Common.LogLevel.Normal);
 
 
             }
@@ -164,7 +159,7 @@ namespace VitalSignsMicrosoftClasses
             {
 
             }
-           
+            
 
         }
 
@@ -176,230 +171,20 @@ namespace VitalSignsMicrosoftClasses
 
 		public void getMailBoxInfo(MonitoredItems.ExchangeServer Server, ref TestResults AllTestsList, string serverVersionNo, string DummyServernameForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers, ReturnPowerShellObjects results)
 		{
-			string ServerNames = "'" + String.Join("','", MyExchangeServers.Cast<MonitoredItems.ExchangeServer>().ToArray().Select(s => s.Name).ToList() + "-Exchange") + "'";
-			AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "Vitalsigns", SQL = "Delete from StatusDetail WHERE TypeANDName in (" + ServerNames + ") AND Category='Mailbox'" });
-			
-				getMailboxDatabaseDetails(Server, results.PS, ref AllTestsList, serverVersionNo, DummyServernameForLogs, MyExchangeServers);
-
-				getIndividualMailboxes(results.PS, ref AllTestsList, DummyServernameForLogs, MyExchangeServers);
-				getMailStats(Server, results.PS, ref AllTestsList, serverVersionNo, DummyServernameForLogs, MyExchangeServers);
-				results.PS.Commands.Clear();
-
-
+			getIndividualMailboxes(results.PS, ref AllTestsList, DummyServernameForLogs, MyExchangeServers);
+			getMailStats(Server, results.PS, ref AllTestsList, serverVersionNo, DummyServernameForLogs, MyExchangeServers);
+			results.PS.Commands.Clear();
 		}
-		private void getMailboxDatabaseDetails(MonitoredItems.ExchangeServer Server, PowerShell powershell, ref TestResults AllTestResults, string serverVersionNo, string DummyServerName, MonitoredItems.ExchangeServersCollection MyExchangeServers)
-		{
-			try
-			{
-
-				string SqlStr = "select ServerName, DatabaseName, DatabaseSizeThreshold, WhiteSpaceThreshold from ExchangeDatabaseSettings";
-				CommonDB db = new CommonDB();
-				DataTable dt = db.GetData(SqlStr);
-				bool overallWhitespaceAlert = true;
-				bool overallDBSizeAlert = true;
-
-
-				Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "In getMailboxDatabaseDetails.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In getMailboxDatabaseDetails.", Common.LogLevel.Normal);
-                string ServerNames = "'" + String.Join("','", MyExchangeServers.Cast<MonitoredItems.ExchangeServer>().ToArray().Select(s => s.Name).ToList()) + "'";
-				AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = "DELETE FROM ExchangeMailboxOverview WHERE ServerName in (" + ServerNames + ")", DatabaseName = "vitalsigns" });
-
-				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
-				System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_MailBoxReportByTotalSize&Count.ps1");
-				string startOfScript = "$databases = Get-MailboxDatabase -IncludePreExchange" + serverVersionNo + " -status | sort name\n";
-				String str = startOfScript + sr.ReadToEnd();
-				powershell.Streams.Error.Clear();
-
-				powershell.AddScript(str);
-				results = powershell.Invoke();
-
-				if (powershell.Streams.Error.Count > 51)
-				{
-
-					Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "getMailboxDatabaseDetails received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                    //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "getMailboxDatabaseDetails received over 51 errors", Common.LogLevel.Normal);
-				}
-				else
-				{
-					Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "getMailboxDatabaseDetails output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                    //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "getMailboxDatabaseDetails output results: " + results.Count.ToString(), Common.LogLevel.Normal);
-
-					foreach (PSObject ps in results)
-					{
-
-						string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
-						string DatabaseName = ps.Properties["DataBaseName"].Value == null ? "" : ps.Properties["DataBaseName"].Value.ToString();
-						string SizeMB = ps.Properties["SizeMB"].Value == null ? "" : ps.Properties["SizeMB"].Value.ToString();
-						string WhiteSpaceMB = ps.Properties["WhiteSpaceMB"].Value == null ? "" : ps.Properties["WhiteSpaceMB"].Value.ToString();
-						string MBXs = ps.Properties["MBXs"].Value == null ? "" : ps.Properties["MBXs"].Value.ToString();
-						string MBXsdisc = ps.Properties["MBXsdisc"].Value == null ? "" : ps.Properties["MBXsdisc"].Value.ToString();
-						string Mbcount = ps.Properties["Mbcount"].Value == null ? "" : ps.Properties["Mbcount"].Value.ToString();
-
-						if (MyExchangeServers.SearchByName(ServerName) == null)
-							return;
-
-						string sqlQuery = "INSERT INTO ExchangeMailboxOverview ([ServerName],[DatabaseName],[SizeMB],[WhiteSpaceMB],[TotalMailboxes],[DisconnectMailboxes],[ConnectedMailboxes]) VALUES " +
-							"('" + ServerName + "','" + DatabaseName + "'," + SizeMB + "," + WhiteSpaceMB + ",'" + MBXs + "','" + MBXsdisc + "','" + Mbcount + "')";
-
-
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
-						sqlQuery = " IF EXISTS (SELECT * FROM [vitalsigns].[dbo].[ExgMailHealth] where ServerName='" + ServerName + "')" +
-										  " begin" +
-										  " update [vitalsigns].[dbo].[ExgMailHealth] set [Status]='' where ServerName='" + ServerName + "'" +
-										  " end " +
-										   " else " +
-										  " begin" +
-										  " INSERT INTO [vitalsigns].[dbo].[ExgMailHealth]([ServerName],[Status]) VALUES ('" + ServerName + "','')" +
-										  " end";
-
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
-
-						sqlQuery = " IF EXISTS (SELECT * FROM [vitalsigns].[dbo].[ExgMailHealthDetails] where ServerName='" + ServerName + "' and DatabaseName='" + DatabaseName + "')" +
-										" begin" +
-										" update [vitalsigns].[dbo].[ExgMailHealthDetails] set [MailBoxes]=" + Mbcount + ",[Size]=" + SizeMB + ",[WhiteSpaceSize]=" + WhiteSpaceMB + " where ServerName='" + ServerName + "' and DatabaseName='" + DatabaseName + "'" +
-										" end " +
-										 " else " +
-										" begin" +
-										" INSERT INTO [vitalsigns].[dbo].[ExgMailHealthDetails]([ServerName],[DatabaseName],[MailBoxes],[Size],[WhiteSpaceSize]) VALUES ('" + ServerName + "','" + DatabaseName + "'," + Mbcount + "," + SizeMB + "," + WhiteSpaceMB + ")" +
-										" end";
-
-
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
-
-						sqlQuery = Common.GetInsertIntoDailyStats(ServerName, Server.ServerTypeId.ToString(), "ExDatabaseSizeMb." + DatabaseName, SizeMB);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-
-
-						//alerts
-						if (dt.Rows.Count > 0 && dt.Rows[0]["DatabaseName"].ToString() != "NoAlerts")
-						{
-							DataRow[] curr;
-							//if (dt.Rows[0]["DatabaseName"].ToString() == "AllDatabases")
-							//{
-							//    DataTable tempDT = new DataTable();
-							//    tempDT.Rows.Add();
-							//    tempDT.Columns.Add("DatabaseSizeThreshold", typeof(string));
-							//    tempDT.Columns.Add("WhiteSpaceThreshold", typeof(string));
-							//    tempDT.Rows[0]["DatabaseSizeThreshold"] = dt.Rows[0]["DatabaseSizeThreshold"].ToString();
-							//    tempDT.Rows[0]["WhiteSpaceThreshold"] = dt.Rows[0]["WhiteSpaceThreshold"].ToString();
-							//    curr = new DataRow()[1];
-							//    curr[0] = tempDT.Rows[0];
-							//}
-							//else
-							//{
-							curr = dt.Select("ServerName='" + ServerName + "' AND (DatabaseName='" + DatabaseName + "' or DatabaseName='AllDatabases')");
-							//}
-							if (curr.Count() > 0)
-							{
-								//ServerName, ServerType, DatabaseName, DatabaseSizeThreshold, WhiteSpaceThreshold
-								try
-								{
-									MonitoredItems.ExchangeServer currServer = MyExchangeServers.SearchByName(ServerName);
-
-									if (currServer != null)
-									{
-										DataRow row = curr[0];
-										string sizeThreshold = row["DatabaseSizeThreshold"].ToString();
-										string whitespaceThreshold = row["WhiteSpaceThreshold"].ToString();
-
-										double dblWhiteSpace;
-										double dblSize;
-
-										bool boolWhiteSpace = Double.TryParse(WhiteSpaceMB, out dblWhiteSpace);
-										bool boolSize = Double.TryParse(SizeMB, out dblSize);
-
-										if (boolWhiteSpace)
-											boolWhiteSpace = Double.Parse(WhiteSpaceMB) > Double.Parse(whitespaceThreshold) && Double.Parse(whitespaceThreshold) != 0;
-										if (boolSize)
-											boolSize = Double.Parse(SizeMB) > Double.Parse(sizeThreshold) && Double.Parse(sizeThreshold) != 0;
-
-										if (boolSize && boolWhiteSpace)
-										{
-											//details = "The whtiespace and the size of database " + DatabaseName + " excedes the thresholds";
-											overallDBSizeAlert = false;
-											overallWhitespaceAlert = false;
-										}
-										else if (boolSize)
-										{
-											//details = "The size of database " + DatabaseName + " excedes the threshold limit of " + Double.Parse(sizeThreshold);
-											overallDBSizeAlert = false;
-										}
-										else if (boolWhiteSpace)
-										{
-											//details = "The size of the whitespace of database " + DatabaseName + " excedes the threshold of " + Double.Parse(whitespaceThreshold);
-											overallWhitespaceAlert = false;
-										}
-										else
-										{
-											//details = "Database " + DatabaseName + " is within thresholds";
-										}
-										/*
-										if (boolSize || boolWhiteSpace)
-											Common.makeAlert(false, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
-										else
-											Common.makeAlert(true, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
-										 */
-									}
-								}
-								catch (Exception ex)
-								{
-								}
-							}
-						}
-
-
-
-
-					}
-
-					string details = "";
-					if (!overallDBSizeAlert && !overallWhitespaceAlert)
-					{
-						details = "The whitespace and the size of some databases excedes their thresholds.";
-					}
-					else if (!overallDBSizeAlert)
-					{
-						details = "The size of some databases excedes their thresholds.";
-					}
-					else if (!overallWhitespaceAlert)
-					{
-						details = "The size of the whitespace of some databases excedes their thresholds.";
-					}
-					else
-					{
-						details = "All databases are within their thresholds for size and whitespace";
-					}
-
-					if (!overallDBSizeAlert || !overallWhitespaceAlert)
-						Common.makeAlert(false, Server, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
-					else
-						Common.makeAlert(true, Server, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
-
-				}
-
-			}
-			catch (Exception ex)
-			{
-
-				Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "Error in getMailboxDatabaseDetails : " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-
-			}
-
-		}
-		private void getIndividualMailboxes(PowerShell powershell, ref TestResults AllTestResults, string DummyServerForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers)
+		
+ 		private void getIndividualMailboxes(PowerShell powershell, ref TestResults AllTestResults, string DummyServerForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers)
 		{
 			try
 			{
 				List<indvMailboxes> list = new List<indvMailboxes>();
 				string ServerNames = "'" + String.Join("','", MyExchangeServers.Cast<MonitoredItems.ExchangeServer>().ToArray().Select(s => s.Name).ToList()) + "'";
-				AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = "DELETE FROM ExchangeMailFiles Where Server in (" + ServerNames + ")", DatabaseName = "VSS_Statistics" });
 
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In getIndividualMailboxes.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In getIndividualMailboxes.", Common.LogLevel.Normal);
+
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_MailBoxQuotaStats.ps1");
 
@@ -417,7 +202,7 @@ namespace VitalSignsMicrosoftClasses
 				// else
 				//{
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getIndividualMailboxes output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "getIndividualMailboxes output results: " + results.Count.ToString(), Common.LogLevel.Normal);
+
 				foreach (PSObject ps in results)
 				{
 
@@ -436,11 +221,19 @@ namespace VitalSignsMicrosoftClasses
 						Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In loop.  Server not being scanned on this server.  Will not be added.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 						continue;
 					}
-					string sqlQuery = "INSERT INTO ExchangeMailFiles ([ScanDate],[Database],[DisplayName],[Server],[IssueWarningQuota],[ProhibitSendQuota],[ProhibitSendReceiveQuota],[TotalItemSizeInMB],[ItemCount],[StorageLimitStatus]) VALUES " +
-						"('" + DateTime.Now + "','" + Database + "','" + DisplayName + "','" + ServerName + "','" + IssueWarningQuota + "','" + ProhibitSendQuota + "','" + ProhibitSendReceiveQuota + "','" + TotalItemSize + "','" + ItemCount + "','" + StorageLimitStatus + "')";
 
+                    MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
+                    mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.ServerName == "Exchange");
+                    mongoStatement.updateDef = mongoStatement.repo.Updater
+                        .Set(i => i.IssueWarningQuota, IssueWarningQuota)
+                        .Set(i => i.ProhibitSendQuota, ProhibitSendQuota)
+                        .Set(i => i.ProhibitSendReceiveQuota, ProhibitSendReceiveQuota)
+                        .Set(i => i.TotalItemSizeMb, Convert.ToDouble(TotalItemSize))
+                        .Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
+                        .Set(i => i.StorageLimitStatus, StorageLimitStatus);
 
-					AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                    AllTestResults.MongoEntity.Add(mongoStatement);
+                    
 
 
 					double testForNum;
@@ -530,7 +323,7 @@ namespace VitalSignsMicrosoftClasses
 				List<indvMailboxes> list = new List<indvMailboxes>();
 
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In getMailStats.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "In getMailStats.", Common.LogLevel.Normal);
+
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				String str = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_MailStats.ps1";
 
@@ -547,7 +340,7 @@ namespace VitalSignsMicrosoftClasses
 
 
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailStats output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                //Common.WriteDeviceHistoryEntry("All", "Microsoft_Performance", "getMailStats output results: " + results.Count.ToString(), Common.LogLevel.Normal);
+
 				foreach (ErrorRecord err in powershell.Streams.Error)
 				{
 					Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailStats PS errors: " + err.Exception, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
@@ -590,26 +383,14 @@ namespace VitalSignsMicrosoftClasses
 						}
 
 
-						string sqlQuery = Common.GetInsertIntoDailyStats(currServer, Server.ServerTypeId.ToString(), "Mail_DeliverySuccessRate", MailDeliverySuccessRate);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(MyExchangeServers.SearchByName(currServer), "Mail_DeliverySuccessRate", MailDeliverySuccessRate));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(MyExchangeServers.SearchByName(currServer), "Mail_ReceivedSizeMB", ReceivedSizeMB));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(MyExchangeServers.SearchByName(currServer), "Mail_ReceivedCount", ReceivedCount));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(MyExchangeServers.SearchByName(currServer), "Mail_SentSizeMB", SentSizeMB));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(MyExchangeServers.SearchByName(currServer), "Mail_SentCount", SentCount));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(MyExchangeServers.SearchByName(currServer), "Mail_DeliverCount", DeliverCount));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(MyExchangeServers.SearchByName(currServer), "Mail_FailCount", FailCount));
 
-						sqlQuery = Common.GetInsertIntoDailyStats(currServer, Server.ServerTypeId.ToString(), "Mail_ReceivedSizeMB", ReceivedSizeMB);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-						sqlQuery = Common.GetInsertIntoDailyStats(currServer, Server.ServerTypeId.ToString(), "Mail_ReceivedCount", ReceivedCount);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-						sqlQuery = Common.GetInsertIntoDailyStats(currServer, Server.ServerTypeId.ToString(), "Mail_SentSizeMB", SentSizeMB);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-						sqlQuery = Common.GetInsertIntoDailyStats(currServer, Server.ServerTypeId.ToString(), "Mail_SentCount", SentCount);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-						sqlQuery = Common.GetInsertIntoDailyStats(currServer, Server.ServerTypeId.ToString(), "Mail_DeliverCount", DeliverCount);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-						sqlQuery = Common.GetInsertIntoDailyStats(currServer, Server.ServerTypeId.ToString(), "Mail_FailCount", FailCount);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 					}
 					else if (type == "User")
 					{
@@ -624,18 +405,11 @@ namespace VitalSignsMicrosoftClasses
 
 
 						//insert to table
-						string sqlQuery = Common.GetInsertIntoDailyStats(Server.Name, Server.ServerTypeId.ToString(), "Mailbox." + Name + ".Sent.Count", Sent);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
 
-						sqlQuery = Common.GetInsertIntoDailyStats(Server.Name, Server.ServerTypeId.ToString(), "Mailbox." + Name + ".Received.Count", Received);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-						sqlQuery = Common.GetInsertIntoDailyStats(Server.Name, Server.ServerTypeId.ToString(), "Mailbox." + Name + ".Sent.SizeMB", SentSizeMB);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-						sqlQuery = Common.GetInsertIntoDailyStats(Server.Name, Server.ServerTypeId.ToString(), "Mailbox." + Name + ".Received.SizeMB", RecSizeMB);
-						AllTestResults.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "Mailbox." + Name + ".Sent.Count", Sent));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "Mailbox." + Name + ".Received.Count", Received));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "Mailbox." + Name + ".Sent.SizeMB", SentSizeMB));
+                        AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "Mailbox." + Name + ".Received.SizeMB", RecSizeMB));
 					}
 
 				}
