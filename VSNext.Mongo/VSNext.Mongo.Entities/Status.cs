@@ -458,6 +458,10 @@ namespace VSNext.Mongo.Entities
         [BsonElement("details")]
         public string Details { get; set; }
 
+        [DataMember]
+        [BsonElement("last_update")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? LastUpdate { get; set; }
     }
 
 
