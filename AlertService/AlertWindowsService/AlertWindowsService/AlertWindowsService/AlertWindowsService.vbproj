@@ -108,9 +108,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
     </Compile>
-    <Compile Include="AlertService.vb">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="AlertService.vb" />
     <Compile Include="AlertService.Designer.vb">
       <DependentUpon>AlertService.vb</DependentUpon>
     </Compile>

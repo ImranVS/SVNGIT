@@ -55,12 +55,32 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Builds\Services\DateUtils.dll</HintPath>
     </Reference>
+    <Reference Include="MongoDB.Bson, Version=2.2.4.26, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MongoDB.Bson.2.2.4\lib\net45\MongoDB.Bson.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MongoDB.Driver, Version=2.2.4.26, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MongoDB.Driver.2.2.4\lib\net45\MongoDB.Driver.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MongoDB.Driver.Core, Version=2.2.4.26, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MongoDB.Driver.Core.2.2.4\lib\net45\MongoDB.Driver.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="VSNext.Mongo.Entities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Builds\Services\VSNext.Mongo.Entities.dll</HintPath>
+    </Reference>
+    <Reference Include="VSNext.Mongo.Repository, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Builds\Services\VSNext.Mongo.Repository.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
@@ -108,6 +128,7 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\LogUtils\LogUtils\LogUtils.csproj">
@@ -117,14 +138,6 @@
     <ProjectReference Include="..\..\..\VSFramework\VSFramework\VSFramework.vbproj">
       <Project>{6C0FFC43-9F5B-4832-820B-D274D0FBAC09}</Project>
       <Name>VSFramework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\VSNext.Mongo\VSNext.Mongo.Entities\VSNext.Mongo.Entities.csproj">
-      <Project>{b6e35de1-edf3-40e3-879f-e65d87c03b85}</Project>
-      <Name>VSNext.Mongo.Entities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\VSNext.Mongo\VSNext.Mongo.Repository\VSNext.Mongo.Repository.csproj">
-      <Project>{155e4118-6435-461f-93e0-542f9936d328}</Project>
-      <Name>VSNext.Mongo.Repository</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
