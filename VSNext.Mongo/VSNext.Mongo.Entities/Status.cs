@@ -436,7 +436,7 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("device_id")]
-        public int? DeviceId { get; set; }
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("type")]
