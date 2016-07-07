@@ -94,7 +94,8 @@ namespace VitalSignsMicrosoftClasses
 						string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 								+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'ResponseTime" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
 							   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "ResponseTime@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 
 					}
 				}
@@ -458,7 +459,8 @@ namespace VitalSignsMicrosoftClasses
 				string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 						+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'ComposeEMail" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
 					   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "ComposeEMail" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 				Common.makeAlert(true, myServer, commonEnums.AlertType.OWA, ref AllTestsList, "Successfully connected to OWA.", "Performance");
 			}
 		}
@@ -540,7 +542,8 @@ namespace VitalSignsMicrosoftClasses
 				string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 							+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'CreateTask" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
 						   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CreateTask" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 				if (deleteTask(calendarId, myServer))
 					Common.makeAlert(true, myServer, commonEnums.AlertType.Delete_Calendar_Entry, ref AllTestsList, "Successfully deleted test Calender entry.", "Performance");
 				else
@@ -618,7 +621,8 @@ namespace VitalSignsMicrosoftClasses
 					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 							+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'MailLatency" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
 						   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+					//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "MailLatency" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered,but it did not meet the threshold value of " + myServer.MailFlowThreshold, "Performance");
 				}
 				else
@@ -698,7 +702,8 @@ namespace VitalSignsMicrosoftClasses
 				string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 						+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'Inbox" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
 					   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Inbox" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 				Common.makeAlert(bInboxTest, myServer, commonEnums.AlertType.Inbox, ref AllTestsList, "Successfully connected to Inbox.", "Performance");
 			}
 			else
@@ -805,7 +810,8 @@ namespace VitalSignsMicrosoftClasses
 				string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 						+ " values('" + Server.Name + "','" + Server.ServerTypeId + "',GetDate(),'OneDriveUpload" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
 					   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "OneDriveUpload" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 			}
 
 			return fileUploadSuccess;
@@ -863,7 +869,8 @@ namespace VitalSignsMicrosoftClasses
 				string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 						+ " values('" + Server.Name + "','" + Server.ServerTypeId + "',GetDate(),'OneDriveDownload" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
 					   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "OneDriveDownload" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 			}
 
 			return downloadStatus;
@@ -1015,7 +1022,8 @@ namespace VitalSignsMicrosoftClasses
 
 				//Alerting and SQLs
 				string sql = Common.GetInsertIntoDailyStats(Server.Name, Server.ServerTypeId.ToString(), "CreateFolder"+ "@" + nodeName  , elapsed.Milliseconds.ToString());
-				AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sql });
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sql });
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "CreateFolder" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 				Common.makeAlert(elapsed.Milliseconds, Server.CreateFolderThreshold, Server, commonEnums.AlertType.Create_Mail_Folder, ref AllTestsList, "Performance");
 
 			}
