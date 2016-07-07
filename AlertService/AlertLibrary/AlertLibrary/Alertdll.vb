@@ -46,8 +46,8 @@ Public Class Alertdll
         Dim objDateUtils As New DateUtils.DateUtils
         Dim strDateFormat As String
         Dim NowTime As String
-        strDateFormat = objDateUtils.GetDateFormat()
-        NowTime = objDateUtils.FixDateTime(Date.Now, strDateFormat)
+        'strDateFormat = objDateUtils.GetDateFormat()
+        'NowTime = objDateUtils.FixDateTime(Date.Now, strDateFormat)
 
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
@@ -81,13 +81,17 @@ Public Class Alertdll
             End Try
             WriteDeviceHistoryEntry("All", "Alerts", NowTime & " AlertsRepeatOn flag is set. Checking if an alert is due to be queued for " & DeviceType & "/" & DeviceName & " " & AlertType)
             Try
-                filterEventsMaster = repoEventsMaster.Filter.Where(Function(i) i.EventType = AlertType And i.DeviceType = DeviceType And i.NotificationOnRepeat = True)
+                filterEventsMaster = repoEventsMaster.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
+                repoEventsMaster.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
+                repoEventsMaster.Filter.Eq(Of Boolean)(Function(i) i.NotificationOnRepeat, True)
                 eventsMasterEntity = repoEventsMaster.Find(filterEventsMaster).ToArray()
                 If eventsMasterEntity.Count > 0 Then
                     'Find all events that match the Event Type, Device Type, and Device Name that have been detected within the last hour
                     'that have the NotificationOnRepeat flag set to true in the EventsMaster collection
                     filterEventsDetected = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
-                        repoEventsDetected.Filter.Where(Function(i) i.EventType = AlertType And i.DeviceType = DeviceType And i.Device = DeviceName And i.EventDetected >= Now().AddSeconds(-3600))
+                        repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
+                        repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
+                        repoEventsDetected.Filter.Gte(Of DateTime)(Function(i) i.EventDetected, Now().AddSeconds(-3600))
                     repeatEventsEntity = repoEventsDetected.Find(filterEventsDetected).ToArray()
                     If repeatEventsEntity.Count > 0 Then
                         CurrentRepeatOccurrences = repeatEventsEntity(0).EventRepeatCount
@@ -103,7 +107,10 @@ Public Class Alertdll
                             updateEventsDetected = repoEventsDetected.Updater.Set(Function(i) i.EventRepeatCount, CurrentRepeatOccurrences + 1)
                             repoEventsDetected.Update(filterEventsDetected, updateEventsDetected)
                             filterEventsDetected = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
-                                repoEventsDetected.Filter.Where(Function(i) i.EventType = AlertType And i.DeviceType = DeviceType And i.Device = DeviceName And i.EventDetected < Now().AddSeconds(-3600))
+                                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
+                                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
+                                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
+                                repoEventsDetected.Filter.Lt(Of DateTime)(Function(i) i.EventDetected, Now().AddSeconds(-3600))
                             updateEventsDetected = repoEventsDetected.Updater.Set(Function(i) i.EventRepeatCount, 0)
                             repoEventsDetected.Update(filterEventsDetected, updateEventsDetected)
                             'Do not queue an alert yet as the current number of occurrences hasn't reached the threshold yet
@@ -123,7 +130,9 @@ Public Class Alertdll
             Try
                 'RegEx is the equivalent of Like in SQL
                 filterEventsDetected = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
-                    repoEventsDetected.Filter.Where(Function(i) i.Device = DeviceName And i.DeviceType = DeviceType And i.EventType = AlertType)
+                    repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
+                    repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
+                    repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType)
                 eventsDetectedEntity = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsDetectedEntity.Count = 0 Then
                     Dim entity As New EventsDetected With {.Device = DeviceName, .DeviceType = DeviceType, .EventType = AlertType, .EventDetected = Now, .Details = Details}
@@ -139,16 +148,20 @@ Public Class Alertdll
                             repoEventsDetected.Update(filterEventsDetected, updateEventsDetected)
                         Catch ex As Exception
                             WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Events Detected Error " & ex.Message & "," & DeviceType & "/" & DeviceName & " " & AlertType)
+
                             WriteAuditEntry(NowTime & " Events Detected Update Error " & ex.Message)
                         End Try
                     End If
                     If MyLogLevel = LogLevel.Verbose Then
                         WriteAuditEntry(NowTime & " This event has already been queued: " & DeviceType & "/" & DeviceName & " " & AlertType)
                         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " This event has already been queued: " & DeviceType & "/" & DeviceName & " " & AlertType)
+
                     End If
                 End If
 
+
                 Dim DeviceTypelist() As String = {"Mail", "NotesMail Probe", "Notes Database", "Mobile Users"}
+
                 For Each Type As String In DeviceTypelist
                     If Type = DeviceType Then
                         DeviceList = False
@@ -181,19 +194,24 @@ Public Class Alertdll
         Dim serversEntity() As Server
         Dim statusEntity() As StatusDetails
         Dim serverID As String
+        Dim category1 As String
 
         Try
-            filterDefServer = repoServer.Filter.Where(Function(i) i.ServerName = DeviceName And i.ServerType = DeviceType)
+            filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.ServerName, DeviceName) And
+                repoServer.Filter.Eq(Of String)(Function(i) i.ServerType, DeviceType)
             serversEntity = repoServer.Find(filterDefServer).ToArray()
             If serversEntity.Count > 0 Then
                 serverID = serversEntity(0).Id
-                filterDefStatusDetails = repoStatusDetails.Filter.Where(Function(i) i.Id = serverID And i.Type = DeviceType And i.TestName = AlertType)
+                filterDefStatusDetails = repoStatusDetails.Filter.Eq(Of String)(Function(i) i.DeviceId, serverID) And
+                repoStatusDetails.Filter.Eq(Of String)(Function(i) i.Type, DeviceType) And
+                repoStatusDetails.Filter.Eq(Of String)(Function(i) i.TestName, AlertType)
                 statusEntity = repoStatusDetails.Find(filterDefStatusDetails).ToArray()
                 If statusEntity.Count > 0 Then
                     'update
                     updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.LastUpdate, Now)
                     repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
-                    updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.category, IIf(Category = "", DeviceType, Category))
+                    category1 = IIf(Category = "", DeviceType, Category)
+                    updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.category, category1)
                     repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
                     updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.Details, Details)
                     repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
@@ -203,7 +221,7 @@ Public Class Alertdll
                     repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
                 Else
                     'insert
-                    Dim entity As New StatusDetails With {.Type = DeviceType, .category = IIf(Category = "", DeviceType, Category), .TestName = AlertType, .Result = Result, .LastUpdate = Now, .Details = Details}
+                    Dim entity As New StatusDetails With {.DeviceId = serverID, .Type = DeviceType, .category = IIf(Category = "", DeviceType, Category), .TestName = AlertType, .Result = Result, .LastUpdate = Now, .Details = Details}
                     repoStatusDetails.Insert(entity)
                 End If
             End If
@@ -261,7 +279,10 @@ Public Class Alertdll
         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Received notice to reset alert for " & DeviceType & "/" & DeviceName & ": " & AlertType)
 
         Try
-            filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And repoEventsDetected.Filter.Where(Function(i) i.Device = DeviceName And i.DeviceType = DeviceType And i.EventType = AlertType)
+            filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType)
             eventsEntity = repoEventsDetected.Find(filterDefEvents).ToArray()
             If eventsEntity.Length > 0 Then
                 Try
@@ -302,18 +323,22 @@ Public Class Alertdll
             If DeviceName = "" Then
                 Return "Enter Values"
             Else
-                filterDefServer = repoServer.Filter.Where(Function(i) i.ServerName = DeviceName And i.ServerType = DeviceType)
+                filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.ServerName, DeviceName) And
+                    repoServer.Filter.Eq(Of String)(Function(i) i.ServerType, DeviceType)
                 serversEntity = repoServer.Find(filterDefServer).ToArray()
                 If serversEntity.Count > 0 Then
                     serverID = serversEntity(0).Id
                     If DeviceType <> "" And DeviceName <> "" And AlertType <> "" Then
-                        filterDefStatusDetails = repoStatusDetails.Filter.Where(Function(i) i.DeviceId = serverID And i.Type = DeviceType And i.TestName = AlertType)
+                        filterDefStatusDetails = repoStatusDetails.Filter.Eq(Of String)(Function(i) i.DeviceId, serverID) And
+                            repoStatusDetails.Filter.Eq(Of String)(Function(i) i.Type, DeviceType) And
+                            repoStatusDetails.Filter.Eq(Of String)(Function(i) i.TestName, AlertType)
                         repoStatusDetails.Delete(filterDefStatusDetails)
                     ElseIf DeviceType <> "" And DeviceName <> "" Then
-                        filterDefStatusDetails = repoStatusDetails.Filter.Where(Function(i) i.DeviceId = serverID And i.Type = DeviceType)
+                        filterDefStatusDetails = repoStatusDetails.Filter.Eq(Of String)(Function(i) i.DeviceId, serverID) And
+                            repoStatusDetails.Filter.Eq(Of String)(Function(i) i.Type, DeviceType)
                         repoStatusDetails.Delete(filterDefStatusDetails)
                     ElseIf DeviceName <> "" Then
-                        filterDefStatusDetails = repoStatusDetails.Filter.Where(Function(i) i.DeviceId = serverID)
+                        filterDefStatusDetails = repoStatusDetails.Filter.Eq(Of String)(Function(i) i.DeviceId, serverID)
                         repoStatusDetails.Delete(filterDefStatusDetails)
                     End If
                 End If
@@ -331,10 +356,15 @@ Public Class Alertdll
         Dim NowTime As String = objDateUtils.FixDateTime(Date.Now, strDateFormat)
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
         Dim filterDefEvents As MongoDB.Driver.FilterDefinition(Of EventsDetected)
+        Dim eventtype As String
 
         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Received notice to delete event for " & DeviceType & "/" & DeviceName & ": " & AlertType)
         Try
-            filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And repoEventsDetected.Filter.Where(Function(i) i.Device = DeviceName And i.DeviceType = DeviceType And IIf(AlertType = "", "", i.EventType = AlertType))
+            eventtype = IIf(AlertType = "", "", AlertType)
+            filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, eventtype)
             repoEventsDetected.Delete(filterDefEvents)
         Catch ex As Exception
             WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error deleting events: " & ex.Message)
@@ -371,7 +401,8 @@ Public Class Alertdll
 
             WriteDeviceHistoryEntry("All", "SysMessages", NowTime & " Queueing System Message - " & Details)
             filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
-                repoEventsDetected.Filter.Where(Function(i) i.Details = Details And i.IsSystemMessage = True)
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Details, Details) And
+                repoEventsDetected.Filter.Eq(Of Boolean)(Function(i) i.IsSystemMessage, True)
             sysMessageEntity = repoEventsDetected.Find(filterDefEvents).ToArray()
             If sysMessageEntity.Count = 0 Then
                 WriteDeviceHistoryEntry("All", "SysMessages", NowTime & " This message is new, adding to collection", LogLevel.Verbose)
@@ -426,7 +457,9 @@ Public Class Alertdll
             Dim NowTime As String = objDateUtils.FixDateTime(Date.Now, strDateFormat)
             WriteDeviceHistoryEntry("All", "SysMessages", NowTime & " Received notice to reset system message for " & Details)
 
-            filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And repoEventsDetected.Filter.Where(Function(i) i.Details = Details And i.IsSystemMessage = True)
+            filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Details, Details) And
+                repoEventsDetected.Filter.Eq(Of Boolean)(Function(i) i.IsSystemMessage, True)
             eventsEntity = repoEventsDetected.Find(filterDefEvents).ToArray()
             If eventsEntity.Count > 0 Then
                 updateDefEvents = repoEventsDetected.Updater.Set(Function(i) i.EventDismissed, Now)
