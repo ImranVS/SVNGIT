@@ -66,7 +66,26 @@ namespace VSNext.Mongo.Entities
         [BsonElement("server_name")]
         [BsonIgnoreIfNullAttribute]
         public string ServerName { get; set; }
-        
+
+        [DataMember]
+        [BsonElement("last_logon_time")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime  LastLogonTime { get; set; }
+
+        [DataMember]
+        [BsonElement("last_logoff_time")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime LastLogoffTime { get; set; }
+
+        [DataMember]
+        [BsonElement("mailbox_type")]
+        [BsonIgnoreIfNullAttribute]
+        public string MailboxType { get; set; }
+
+        [DataMember]
+        [BsonElement("is_active")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean IsActive { get; set; }
     }
 
 }

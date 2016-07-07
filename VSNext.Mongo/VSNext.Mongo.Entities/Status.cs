@@ -955,4 +955,377 @@ namespace VSNext.Mongo.Entities
 
     }
 
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365AccountStats")]
+    public class Office365 : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public string ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("total_active_user_mailboxes")]
+        public string TotalActiveUserMailboxes { get; set; }
+
+        [DataMember]
+        [BsonElement("account_name")]
+        public string AccountName { get; set; }
+
+        [DataMember]
+        [BsonElement("active_units")]
+        public string ActiveUnits { get; set; }
+
+        [DataMember]
+        [BsonElement("warning_units")]
+        public double WarningUnits { get; set; }
+
+        [DataMember]
+        [BsonElement("consumed_units")]
+        public int ConsumedUnits { get; set; }
+
+        [DataMember]
+        [BsonElement("license_type")]
+        public string LicenseType { get; set; }
+
+        [DataMember]
+        [BsonElement("street")]
+        public string Street { get; set; }
+
+        [DataMember]
+        [BsonElement("preferred_language")]
+        public string PreferredLanguage { get; set; }
+
+        [DataMember]
+        [BsonElement("city")]
+        public string City { get; set; }
+
+        [DataMember]
+        [BsonElement("state")]
+        public string State { get; set; }
+
+        [DataMember]
+        [BsonElement("country")]
+        public string Country { get; set; }
+
+        [DataMember]
+        [BsonElement("postal_code")]
+        public string PostalCode { get; set; }
+
+        [DataMember]
+        [BsonElement("telephone")]
+        public string Telephone { get; set; }
+
+        [DataMember]
+        [BsonElement("technical_notification_email")]
+        public string TechnicalNotificationEmails { get; set; }
+    }
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365ServiceDetails")]
+    public class Office365ServiceDetails : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("service_name")]
+        public string ServiceName { get; set; }
+
+        [DataMember]
+        [BsonElement("service_id")]
+        public string ServiceID { get; set; }
+
+        [DataMember]
+        [BsonElement("start_time")]
+        public DateTime  StartTime { get; set; }
+
+        [DataMember]
+        [BsonElement("end_time")]
+        public DateTime  EndTime { get; set; }
+
+        [DataMember]
+        [BsonElement("status")]
+        public string Status { get; set; }
+
+        [DataMember]
+        [BsonElement("event_type")]
+        public string EventType { get; set; }
+
+        [DataMember]
+        [BsonElement("message")]
+        public string Message { get; set; }
+
+       
+    }
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365MSOLUsers")]
+    public class Office365MSOLUsers : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("display_name")]
+        public string DisplayName { get; set; }
+
+        [DataMember]
+        [BsonElement("first_name")]
+        public string FirstName { get; set; }
+
+        [DataMember]
+        [BsonElement("last_name")]
+        public string LastName { get; set; }
+
+        [DataMember]
+        [BsonElement("user_principal_name")]
+        public string UserPrincipalName { get; set; }
+
+        [DataMember]
+        [BsonElement("user_type")]
+        public string UserType { get; set; }
+
+        [DataMember]
+        [BsonElement("title")]
+        public string Title { get; set; }
+
+        [DataMember]
+        [BsonElement("is_licensed")]
+        public string IsLicensed { get; set; }
+
+        [DataMember]
+        [BsonElement("department")]
+        public string Department { get; set; }
+
+        [DataMember]
+        [BsonElement("strong_password_required")]
+        public string StrongPasswordRequired { get; set; }
+
+        [DataMember]
+        [BsonElement("passwprd_never_expires")]
+        public string PasswordNeverExpires { get; set; }
+
+        [DataMember]
+        [BsonElement("group_member_type")]
+        public string GroupMemberType { get; set; }
+
+    }
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365Groups")]
+    public class Office365Groups : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("group_id")]
+        public string GroupId { get; set; }
+
+        [DataMember]
+        [BsonElement("group_name")]
+        public string GroupName { get; set; }
+
+        [DataMember]
+        [BsonElement("group_type")]
+        public string GroupType { get; set; }
+
+        [DataMember]
+        [BsonElement("group_description")]
+        public string GroupDescription { get; set; }
+
+        [DataMember]
+        [BsonElement("members")]
+        public Office365GroupMembers[] Members { get; set; }
+
+    }
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365GroupMembers")]
+    public class Office365GroupMembers : Entity
+    {
+        [DataMember]
+        [BsonElement("user_principle_name")]
+        public string UserPrincipleName { get; set; }
+    }
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365LyncStats")]
+    public class Office365LyncStats : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("account_name")]
+        public string AccountName { get; set; }
+
+        [DataMember]
+        [BsonElement("active_users")]
+        public int ActiveUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("active_im_users")]
+        public int ActiveIMUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("active_audio_users")]
+        public int  ActiveAudioUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("active_video_users")]
+        public int ActiveVideoUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("active_application_sharing_users")]
+        public int ActiveApplicationSharingUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("active_file_transfer_users")]
+        public int ActiveFileTransferUsers { get; set; }
+    }
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365LyncDevices")]
+    public class Office365LyncDevices : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("account_name")]
+        public string AccountName { get; set; }
+
+        [DataMember]
+        [BsonElement("windows_users")]
+        public int WindowsUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("windows_phone_users")]
+        public int WindowsPhoneUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("android_users")]
+        public int AndroidUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("iphone_users")]
+        public int IphoneUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("ipad_users")]
+        public int IpadUsers { get; set; }
+
+    }
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365LyncPAVTimeReport")]
+    public class Office365LyncPAVTimeReport : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("account_name")]
+        public string AccountName { get; set; }
+
+        [DataMember]
+        [BsonElement("total_audio_minutes")]
+        public int TotalAudioMinutes { get; set; }
+
+        [DataMember]
+        [BsonElement("total_video_minutes")]
+        public int TotalVideoMinutes { get; set; }
+
+    }
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365LyncP2PSessionReport")]
+    public class Office365LyncP2PSessionReport : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("account_name")]
+        public string AccountName { get; set; }
+
+        [DataMember]
+        [BsonElement("total_p2p_sessions")]
+        public int TotalP2PSessions { get; set; }
+
+        [DataMember]
+        [BsonElement("p2p_im_sessions")]
+        public int P2PIMSessions { get; set; }
+
+        [DataMember]
+        [BsonElement("p2p_audio_sessions")]
+        public int P2PAudioSessions { get; set; }
+
+        [DataMember]
+        [BsonElement("p2p_video_sessions")]
+        public int P2PVideoSessions { get; set; }
+
+        [DataMember]
+        [BsonElement("p2p_application_sharing_sessions")]
+        public int P2PApplicationSharingSessions { get; set; }
+
+        [DataMember]
+        [BsonElement("p2p_file_transfer_sessions")]
+        public int P2PFileTransferSessions { get; set; }
+
+    }
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("Office365LyncConferenceReport")]
+    public class Office365LyncConferenceReport : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("account_name")]
+        public string AccountName { get; set; }
+
+        [DataMember]
+        [BsonElement("total_conferences")]
+        public int TotalConferences { get; set; }
+
+        [DataMember]
+        [BsonElement("av_conferences")]
+        public int AVConferences { get; set; }
+
+        [DataMember]
+        [BsonElement("im_conferences")]
+        public int IMConferences { get; set; }
+
+        [DataMember]
+        [BsonElement("application_sharing_conferences")]
+        public int ApplicationSharingConferences { get; set; }
+
+        [DataMember]
+        [BsonElement("web_conferences")]
+        public int WebConferences { get; set; }
+
+        [DataMember]
+        [BsonElement("telephony_conferences")]
+        public int TelephonyConferences { get; set; }
+
+    }
 }
