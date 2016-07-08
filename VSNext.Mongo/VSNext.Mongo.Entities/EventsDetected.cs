@@ -53,12 +53,12 @@ namespace VSNext.Mongo.Entities
         public bool IsSystemMessage { get; set; }
 
         [DataMember]
-        [BsonElement("notifications")]
+        [BsonElement("notifications_sent")]
         [BsonIgnoreIfNullAttribute]
-        public List<Notifications> Notifications { get; set; }
+        public List<NotificationsSent> NotificationsSent { get; set; }
     }
 
-    public class Notifications : Entity
+    public class NotificationsSent : Entity
     {
         [DataMember]
         [BsonElement("event_detected_sent")]

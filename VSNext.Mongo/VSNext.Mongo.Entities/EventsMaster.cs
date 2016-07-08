@@ -16,8 +16,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("event_type")]
         [BsonIgnoreIfNullAttribute]
-
         public string EventType { get; set; }
+
         [DataMember]
         [BsonElement("device_type")]
         [BsonIgnoreIfNullAttribute]
@@ -26,16 +26,18 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("notification_on_repeat")]
         [BsonIgnoreIfNullAttribute]
-        public string NotificationOnRepeat { get; set; }
+        public bool NotificationOnRepeat { get; set; }
 
-        public List<Notification> Notification { get; set; }
+        [DataMember]
+        [BsonElement("notifications")]
+        public List<NotificationList> NotificationList { get; set; }
     }
 
-    public class Notification : Entity
+    public class NotificationList : Entity
     {
         [DataMember]
         [BsonElement("notification_id")]
         [BsonIgnoreIfNullAttribute]
-        public string NotificationId { get; set; }
+        public ObjectId NotificationId { get; set; }
     }
 }
