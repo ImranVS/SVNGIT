@@ -201,6 +201,16 @@ namespace VSNext.Mongo.Entities
         public DateTime? ExjournalDate { get; set; }
 
         [DataMember]
+        [BsonElement("held_mail")]
+        [BsonIgnoreIfNullAttribute]
+        public int? HeldMail { get; set; }
+
+        [DataMember]
+        [BsonElement("down_minutes")]
+        [BsonIgnoreIfNullAttribute]
+        public int? DownMinutes { get; set; }
+
+        [DataMember]
         [BsonElement("disks")]
         [BsonIgnoreIfNull]
         public List<Disk> Disks { get; set; }
