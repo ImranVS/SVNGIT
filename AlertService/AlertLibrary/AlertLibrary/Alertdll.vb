@@ -356,15 +356,14 @@ Public Class Alertdll
         Dim NowTime As String = objDateUtils.FixDateTime(Date.Now, strDateFormat)
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
         Dim filterDefEvents As MongoDB.Driver.FilterDefinition(Of EventsDetected)
-        Dim eventtype As String
 
         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Received notice to delete event for " & DeviceType & "/" & DeviceName & ": " & AlertType)
         Try
-            eventtype = IIf(AlertType = "", "", AlertType)
             filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
-                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, eventtype)
+                IIf(AlertType = "", repoEventsDetected.Filter.Exists(Function(i) i.EventType, False),
+                    repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType))
             repoEventsDetected.Delete(filterDefEvents)
         Catch ex As Exception
             WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error deleting events: " & ex.Message)
@@ -473,7 +472,6 @@ Public Class Alertdll
                 '    WriteDeviceHistoryEntry("All", "SysMessages", NowTime & " UserSystemMessages delete error: " & ex.Message & "," & Details)
                 '    WriteAuditEntry(NowTime & " User System Messages Delete Error " & ex.Message)
                 'End Try
-            Else
                 WriteDeviceHistoryEntry("All", "SysMessages", NowTime & " System Message for " & Details & " was marked as 'Cleared'")
             End If
         Catch ex As Exception
