@@ -1,6 +1,7 @@
 ﻿Imports System.Threading
 Imports System.IO
 Imports System.Data.SqlClient
+Imports System.Configuration
 'Imports nsoftware.IPWorks
 Imports VSFramework
 Imports LogUtilities.LogUtils
@@ -32,7 +33,14 @@ Public Class Alertdll
     Dim MyLogLevel As LogLevel
 #Region "Connection"
     Private Function GetDBConnection() As String
-        Return "mongodb://localhost/local"
+        'Return "mongodb://localhost/local"
+        Dim connString As String = ""
+        Try
+            connString = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "Alerts", Now, "Error getting connection information: " & ex.Message)
+        End Try
+        Return connString
     End Function
 #End Region
 #Region "Alerts"
@@ -46,8 +54,8 @@ Public Class Alertdll
         Dim objDateUtils As New DateUtils.DateUtils
         Dim strDateFormat As String
         Dim NowTime As String
-        'strDateFormat = objDateUtils.GetDateFormat()
-        'NowTime = objDateUtils.FixDateTime(Date.Now, strDateFormat)
+        strDateFormat = objDateUtils.GetDateFormat()
+        NowTime = objDateUtils.FixDateTime(Date.Now, strDateFormat)
 
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
@@ -196,11 +204,13 @@ Public Class Alertdll
         Dim serverID As String
         Dim category1 As String
 
+        WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Updating status_details for " & DeviceName & ", " & DeviceType, LogLevel.Verbose)
         Try
             filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.ServerName, DeviceName) And
                 repoServer.Filter.Eq(Of String)(Function(i) i.ServerType, DeviceType)
             serversEntity = repoServer.Find(filterDefServer).ToArray()
             If serversEntity.Count > 0 Then
+                WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Found servers ", LogLevel.Verbose)
                 serverID = serversEntity(0).Id
                 filterDefStatusDetails = repoStatusDetails.Filter.Eq(Of String)(Function(i) i.DeviceId, serverID) And
                 repoStatusDetails.Filter.Eq(Of String)(Function(i) i.Type, DeviceType) And
