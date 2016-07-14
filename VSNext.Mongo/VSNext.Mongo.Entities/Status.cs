@@ -215,6 +215,41 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public List<Disk> Disks { get; set; }
 
+        [DataMember]
+        [BsonElement("up_percent_minutes")]
+        [BsonIgnoreIfNullAttribute]
+        public double? UpPercentMinutes { get; set; }
+
+        [DataMember]
+        [BsonElement("up_minutes")]
+        [BsonIgnoreIfNullAttribute]
+        public double? UpMinutes { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_version")]
+        [BsonIgnoreIfNullAttribute]
+        public string DominoVersion { get; set; }
+
+        [DataMember]
+        [BsonElement("my_percent")]
+        [BsonIgnoreIfNullAttribute]
+        public double? MyPercent { get; set; }
+
+        [DataMember]
+        [BsonElement("up_percent_count")]
+        [BsonIgnoreIfNullAttribute]
+        public double? UpPercentCount { get; set; }
+
+        [DataMember]
+        [BsonElement("icon")]
+        [BsonIgnoreIfNullAttribute]
+        public int? Icon { get; set; }
+
+        [DataMember]
+        [BsonElement("percentage_change")]
+        [BsonIgnoreIfNullAttribute]
+        public double? PercentageChange { get; set; }
+
         #region Exchange
 
         [DataMember]

@@ -11,7 +11,16 @@ namespace VSNext.Mongo.Entities
     [CollectionName("daily_statistics")]
     public class DailyStatistics : Entity
     {
-        
+
+        [DataMember]
+        [BsonElement("server_name")]
+        public string ServerName { get; set; }
+
+        [DataMember]
+        [BsonElement("device_type")]
+        public string DeviceType { get; set; }
+
+
         [DataMember]
         [BsonElement("device_id")]
         public int  DeviceId { get; set; }

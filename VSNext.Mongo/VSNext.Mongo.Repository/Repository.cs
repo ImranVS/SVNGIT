@@ -13,6 +13,7 @@ namespace VSNext.Mongo.Repository
         #region MongoSpecific
         public Repository(string connectionString)
         {
+            //read from machine
             Collection = Database<T>.GetCollectionFromConnectionString(connectionString);
         }
 
