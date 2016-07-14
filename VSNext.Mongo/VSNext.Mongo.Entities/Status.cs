@@ -152,6 +152,16 @@ namespace VSNext.Mongo.Entities
         public string TypeAndName { get; set; }
 
         [DataMember]
+        [BsonElement("icon")]
+        [BsonIgnoreIfNullAttribute]
+        public string Icon { get; set; }
+
+        [DataMember]
+        [BsonElement("version")]
+        [BsonIgnoreIfNullAttribute]
+        public string Version { get; set; }
+
+        [DataMember]
         [BsonElement("operating_system")]
         [BsonIgnoreIfNullAttribute]
         public string OperatingSystem { get; set; }
@@ -481,7 +491,7 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("device_id")]
-        public string DeviceId { get; set; }
+        public int? DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("type")]

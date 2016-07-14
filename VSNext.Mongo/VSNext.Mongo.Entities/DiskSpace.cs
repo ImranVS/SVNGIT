@@ -25,10 +25,31 @@ namespace VSNext.Mongo.Entities
         [BsonElement("drives")]
         public List<Drive> Drives { get; set; }
 
+        [DataMember]
+        [BsonElement("total")]
+        public double? Total
+        {
+            get; set;
+        }
+
+        [DataMember]
+        [BsonElement("used")]
+        public double? Used
+        {
+            get; set;
+        }
+
+        [DataMember]
+        [BsonElement("value")]
+        public double? Value
+        {
+            get; set;
+        }
     }
     [DataContract]
     [Serializable]
-    public class Drive
+    [CollectionName("disk_status")]
+    public class Drive : Entity
     {
         [DataMember]
         [BsonElement("disk_name")]
@@ -60,10 +81,14 @@ namespace VSNext.Mongo.Entities
         }
         [DataMember]
         [BsonElement("unit")]
-        public string Unit { get; set; }         
+        public string Unit { get; set; }
 
         [DataMember]
         [BsonElement("last_updated")]
-        public DateTime? LastUpdated { get; set; }       
+        public DateTime? LastUpdated { get; set; }
+
+        [DataMember]
+        [BsonElement("status")]
+        public string status { get; set; }
     }
 }
