@@ -106,6 +106,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Builds\Services\MaintenanceDLL.dll</HintPath>
     </Reference>
+    <Reference Include="MongoDB.Driver, Version=2.2.3.3, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\VitalSigns Services\packages\MongoDB.Driver.2.2.3\lib\net45\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="MonitoredItems, Version=1.0.5059.37600, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Builds\Services\MonitoredItems.dll</HintPath>

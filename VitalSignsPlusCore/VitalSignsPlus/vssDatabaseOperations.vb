@@ -2,7 +2,9 @@
 Imports System.IO
 Imports VSFramework
 Imports System.Data.SqlClient
-
+Imports VSNext.Mongo.Repository
+Imports VSNext.Mongo.Entities
+Imports MongoDB.Driver
 Partial Public Class VitalSignsPlusCore
 
 
@@ -124,7 +126,7 @@ Partial Public Class VitalSignsPlusCore
         'Update the status table
 
         Dim strSQL As String
-
+        Dim TypeAndName As String = ""
         Dim Percent As Double = 0
         Dim myResponseTime As Double = 0
 
@@ -179,7 +181,10 @@ Partial Public Class VitalSignsPlusCore
         Catch ex As Exception
             StatusDetails = ""
         End Try
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+        TypeAndName = BES_Server.Name & "-BlackBerry Server"
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
         Try
 
             With BES_Server
@@ -191,8 +196,20 @@ Partial Public Class VitalSignsPlusCore
                 "', PendingMail='" & BES_Server.PendingMessages & _
                 "', NextScan='" & BES_Server.NextScan & "' WHERE TypeANDName='" & BES_Server.Name & "-BlackBerry Server'"
             End With
+            updatedef = repo.Updater _
+                        .Set(Function(i) i.Name, BES_Server.Name) _
+                        .[Set](Function(i) i.CurrentStatus, BES_Server.Status) _
+                        .[Set](Function(i) i.StatusCode, BES_Server.Status) _
+                        .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                        .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                        .[Set](Function(i) i.Description, StatusDetails) _
+                        .[Set](Function(i) i.PendingMail, Integer.Parse(BES_Server.PendingMessages)) _
+                        .[Set](Function(i) i.NextScan, BES_Server.NextScan) _
+                        .[Set](Function(i) i.Details, StatusDetails)
+            repo.Update(filterdef, updatedef)
+
             '  WriteDeviceHistoryEntry("BES_Server", myDevice.Name, Now.ToString & " Short SQL statement: " & strSQL)
-            UpdateStatusTable(strSQL)
+            ' UpdateStatusTable(strSQL)
         Catch ex As Exception
         End Try
 
@@ -216,6 +233,25 @@ Partial Public Class VitalSignsPlusCore
                 "', MyPercent='" & Percent & "' WHERE TypeANDName='" & BES_Server.Name & "-BlackBerry Server'"
 
                 '  "', ResponseTime='" & myResponseTime & _
+                updatedef = repo.Updater _
+                            .Set(Function(i) i.Name, BES_Server.Name) _
+                            .[Set](Function(i) i.CurrentStatus, BES_Server.Status) _
+                            .[Set](Function(i) i.StatusCode, BES_Server.Status) _
+                            .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                            .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                            .[Set](Function(i) i.Description, StatusDetails) _
+                            .[Set](Function(i) i.PendingMail, Integer.Parse(BES_Server.PendingMessages)) _
+                            .[Set](Function(i) i.NextScan, BES_Server.NextScan) _
+                            .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(BES_Server.DownMinutes, "F1"))) _
+                            .[Set](Function(i) i.UpMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(BES_Server.UpMinutes, "F1"))) _
+                            .[Set](Function(i) i.UpPercentMinutes, BES_Server.UpPercentMinutes) _
+                            .[Set](Function(i) i.OperatingSystem, Left(BES_Server.BES_ServerName, 100)) _
+                            .[Set](Function(i) i.ResponseThreshold, Integer.Parse(BES_Server.ResponseThreshold)) _
+                            .[Set](Function(i) i.MyPercent, Double.Parse(Percent)) _
+                            .[Set](Function(i) i.DominoVersion, Left(BES_Server.BES_Version, 100)) _
+                            .[Set](Function(i) i.StatusCode, BES_Server.Status) _
+                            .[Set](Function(i) i.Details, StatusDetails)
+                'repo.Update(filterdef, updatedef)
             End With
         Catch ex As Exception
             strSQL = "Update Status SET DownCount= '" & BES_Server.DownCount & _
@@ -223,8 +259,15 @@ Partial Public Class VitalSignsPlusCore
               ", UpPercent= '" & BES_Server.UpPercentCount & _
                " WHERE TypeANDName='" & BES_Server.Name & "-BlackBerry Server'"
             WriteDeviceHistoryEntry("BES_Server", BES_Server.Name, Now.ToString & " Error with SQL statement " & ex.Message)
+            updatedef = repo.Updater _
+                            .[Set](Function(i) i.CurrentStatus, BES_Server.Status) _
+                            .[Set](Function(i) i.StatusCode, BES_Server.Status) _
+                            .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                            .[Set](Function(i) i.DownCount, BES_Server.DownCount) _
+                            .[Set](Function(i) i.UpCount, BES_Server.UpCount) _
+                            .[Set](Function(i) i.UpPercent, Integer.Parse(BES_Server.UpPercentCount))
+            'repo.Update(filterdef, updatedef)
         End Try
-
 
         UpdateStatusTable(strSQL)
 
@@ -232,81 +275,95 @@ Partial Public Class VitalSignsPlusCore
 
     End Sub
 
-    Private Sub UpdateBESStatisticsTable(ByVal DeviceName As String, ByVal ResponseTime As Long)
-        ' Exit Sub
-        WriteDeviceHistoryEntry("BES_Server", DeviceName, Now.ToString & " Updating BES statistics table")
-        Dim strSQL As String = ""
-        Dim MyWeekNumber As Integer
-        MyWeekNumber = GetWeekNumber(Date.Today)
+    'Private Sub UpdateBESStatisticsTable(ByVal DeviceName As String, ByVal ResponseTime As Long)
+    '    ' Exit Sub
+    '    WriteDeviceHistoryEntry("BES_Server", DeviceName, Now.ToString & " Updating BES statistics table")
+    '    Dim strSQL As String = ""
+    '    Dim MyWeekNumber As Integer
+    '    MyWeekNumber = GetWeekNumber(Date.Today)
+    '    Dim s As New MongoStatementsInsert(Of DailyStatistics)
+    '    Dim s1 As New DailyStatistics
 
-        Try
-            strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-             " VALUES ('BlackBerry Server', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
+    '    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+    '    repo.Insert(s1)
+    '    Try
+    '        strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+    '         " VALUES ('BlackBerry Server', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
+    '        s1.StatName = "ResponseTime"
+    '        s1.StatValue = ResponseTime
+    '        s1.DeviceId =
 
-        Catch ex As Exception
-            '   WriteAuditEntry(Now.ToString & " BES Stats table insert failed becase: " & ex.Message)
-            WriteAuditEntry(Now.ToString & " The failed stats table insert command was " & strSQL)
-        End Try
-        MyWeekNumber = Nothing
+    '    Catch ex As Exception
+    '        '   WriteAuditEntry(Now.ToString & " BES Stats table insert failed becase: " & ex.Message)
+    '        WriteAuditEntry(Now.ToString & " The failed stats table insert command was " & strSQL)
+    '    End Try
+    '    MyWeekNumber = Nothing
 
 
-        'If boolUseSQLServer = True Then
-        '    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
-        'Else
+    '    'If boolUseSQLServer = True Then
+    '    '    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
+    '    'Else
 
-        '    Dim myCommand As New OleDb.OleDbCommand
-        '    Dim myConnection As New OleDb.OleDbConnection
+    '    '    Dim myCommand As New OleDb.OleDbCommand
+    '    '    Dim myConnection As New OleDb.OleDbConnection
 
-        '    Try
-        '        With myConnection
-        '            .ConnectionString = Me.OleDbConnectionStatistics.ConnectionString
-        '            .Open()
-        '        End With
+    '    '    Try
+    '    '        With myConnection
+    '    '            .ConnectionString = Me.OleDbConnectionStatistics.ConnectionString
+    '    '            .Open()
+    '    '        End With
 
-        '        Do Until myConnection.State = ConnectionState.Open
-        '            myConnection.Open()
-        '        Loop
+    '    '        Do Until myConnection.State = ConnectionState.Open
+    '    '            myConnection.Open()
+    '    '        Loop
 
-        '    Catch ex As Exception
-        '        WriteAuditEntry(Now.ToString & " Error: exception connecting to  Status table with BES Statistics info: " & ex.Message)
-        '    End Try
+    '    '    Catch ex As Exception
+    '    '        WriteAuditEntry(Now.ToString & " Error: exception connecting to  Status table with BES Statistics info: " & ex.Message)
+    '    '    End Try
 
-        '    '***
-        Dim objVSAdaptor As New VSAdaptor
-        Try
-            'If myConnection.State = ConnectionState.Open Then
-            '    myCommand.CommandText = strSQL
-            '    myCommand.Connection = myConnection
-            '    If strSQL <> "" Then myCommand.ExecuteNonQuery()
-            'Else
-            '    Exit Sub
-            'End If
+    '    '    '***
+    '    Dim objVSAdaptor As New VSAdaptor
+    '    Try
+    '        'If myConnection.State = ConnectionState.Open Then
+    '        '    myCommand.CommandText = strSQL
+    '        '    myCommand.Connection = myConnection
+    '        '    If strSQL <> "" Then myCommand.ExecuteNonQuery()
+    '        'Else
+    '        '    Exit Sub
+    '        'End If
 
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error updating Status table with BES Statistic info: " & ex.Message & vbCrLf & strSQL)
-        Finally
-            'myConnection.Close()
-            'myConnection.Dispose()
-            'myCommand.Dispose()
+    '        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " Error updating Status table with BES Statistic info: " & ex.Message & vbCrLf & strSQL)
+    '    Finally
+    '        'myConnection.Close()
+    '        'myConnection.Dispose()
+    '        'myCommand.Dispose()
 
-        End Try
-        '  End If
-    End Sub
+    '    End Try
+    '    '  End If
+    'End Sub
 
     Private Sub UpdateBESDailyStatTable(ByVal ServerName As String, ByVal StatName As String, ByVal StatValue As Double)
 
         WriteAuditEntry(Now.ToString & " Updating BES Daily Statistics table")
-
+        ' Dim repo As New MongoStatementsInsert(Of DailyStatistics)
+       
         Dim strSQL As String = ""
         Dim MyWeekNumber As Integer
         MyWeekNumber = GetWeekNumber(Date.Today)
         Dim objVSAdaptor As New VSAdaptor
         Try
-            strSQL = "INSERT INTO BESDailyStats (ServerName, [Date], StatName, StatValue,  WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" & _
-           " VALUES ('" & ServerName & "', '" & Now.ToString & "', '" & StatName & "', '" & StatValue & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "', '" & Now.Hour & "')"
-
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            ' strSQL = "INSERT INTO BESDailyStats (ServerName, [Date], StatName, StatValue,  WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" & _
+            '" VALUES ('" & ServerName & "', '" & Now.ToString & "', '" & StatName & "', '" & StatValue & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "', '" & Now.Hour & "')"
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = "BES"
+            DailyStats.ServerName = ServerName
+            DailyStats.StatName = StatName
+            DailyStats.StatValue = StatValue
+            repo.Insert(DailyStats)
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
         Catch ex As Exception
 
         Finally
@@ -536,7 +593,10 @@ Partial Public Class VitalSignsPlusCore
         'Now Update the status table with the new BB Servers
         Dim n As Integer
         Dim MyBlackBerryServer As MonitoredItems.BlackBerryServer
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim TypeAndName As String = ""
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
         For n = 0 To MyBlackBerryServers.Count - 1
             Dim strSqlUpdate As String
             strSQL = ""
@@ -546,17 +606,44 @@ Partial Public Class VitalSignsPlusCore
                 If .Enabled = False Then .Status = "Disabled"
                 .StatusCode = ServerStatusCode(MyBlackBerryServer.Status)
                 .BES_Total_Messages_Xpired = 0
-
+                TypeAndName = MyBlackBerryServer.Name & "-BlackBerry Server"
                 strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-BlackBerry Server') BEGIN " & _
                  "INSERT INTO Status (StatusCode, NextScan, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon, PendingMail,  OperatingSystem, DominoVersion, UpMinutes, DownMinutes,  PendingThreshold, DeadThreshold) " & _
                  " VALUES ('" & .StatusCode & "', '" & .NextScan & "', '" & .Category & "', '" & .Description & "', '" & .ResponseDetails & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'BES', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '0', '" & .Name & "-BlackBerry Server', " & IconList.BlackBerry_Probe & ", " & .PendingMessages & ", '" & .BES_ServerName & "', '" & .BES_Version & "', " & Microsoft.VisualBasic.Strings.Format(.UpMinutes, "##,##0.#") & ", " & Microsoft.VisualBasic.Strings.Format(.DownMinutes, "##,##0.#") & ", " & .BES_Pending_Messages_Threshold & ", " & .BES_Expired_Messages_Theshold & ")" & _
                  "END"
 
                 strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-BlackBerry Server'"
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+
+                updatedef = repo.Updater _
+                         .Set(Function(i) i.Name, .Name) _
+                          .[Set](Function(i) i.CurrentStatus, .StatusCode) _
+                          .[Set](Function(i) i.StatusCode, .StatusCode) _
+                          .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                          .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                          .[Set](Function(i) i.Description, .Description) _
+                          .[Set](Function(i) i.Type, "BES") _
+                          .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
+                          .[Set](Function(i) i.Location, .Location) _
+                          .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                          .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                          .[Set](Function(i) i.ResponseTime, 0) _
+                          .[Set](Function(i) i.Category, .Category) _
+                          .[Set](Function(i) i.NextScan, .NextScan) _
+                            .[Set](Function(i) i.Details, .ResponseDetails) _
+                            .[Set](Function(i) i.PendingMail, Integer.Parse(.PendingMessages)) _
+                            .[Set](Function(i) i.OperatingSystem, .BES_ServerName) _
+                            .[Set](Function(i) i.DominoVersion, .BES_Version) _
+                            .[Set](Function(i) i.PendingThreshold, Integer.Parse(.BES_Pending_Messages_Threshold)) _
+                            .[Set](Function(i) i.DeadThreshold, Integer.Parse(.BES_Expired_Messages_Theshold)) _
+                            .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "##,##0.#"))) _
+                            .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "##,##0.#"))) _
+                        .[Set](Function(i) i.Icon, IconList.BlackBerry_Probe)
 
             End With
             Try
-                UpdateStatusTable(strSqlUpdate, strSQL, MyBlackBerryServer.Name)
+                ' UpdateStatusTable(strSqlUpdate, strSQL, MyBlackBerryServer.Name)
+                repo.Upsert(filterdef, updatedef)
             Catch ex As Exception
                 If Not InStr(ex.Message, "duplicate") > 0 Then
                     WriteAuditEntry(Now.ToString & " Error Updating Status Table with BlackBerry info: " & ex.Message & vbCrLf & "Suspect SQL statement: " & strSQL)
@@ -570,151 +657,151 @@ Partial Public Class VitalSignsPlusCore
 
     End Sub
 
-    Private Sub UpdateStatusTableWithDomino()
-        'Delete from the status table any servers that have been deleted from the collection
-        Dim myIndex As Integer
-        Dim Dom As MonitoredItems.DominoServer
-        Dim myServerNames As String = ""
-        For Each Dom In MyDominoServers
-            myServerNames += Dom.Name & vbCrLf
-        Next
+    'Private Sub UpdateStatusTableWithDomino()
+    '    'Delete from the status table any servers that have been deleted from the collection
+    '    Dim myIndex As Integer
+    '    Dim Dom As MonitoredItems.DominoServer
+    '    Dim myServerNames As String = ""
+    '    For Each Dom In MyDominoServers
+    '        myServerNames += Dom.Name & vbCrLf
+    '    Next
 
-        Dom = Nothing
-        ' myServerNames = Nothing
-        myIndex = Nothing
-
-
-        Dim dsStatusHTML As New Data.DataSet
-        Dim Status As New Data.DataTable("Status")
-        dsStatusHTML.Clear()
-        dsStatusHTML.Tables.Add(Status)
-        Dim drv As DataRowView
+    '    Dom = Nothing
+    '    ' myServerNames = Nothing
+    '    myIndex = Nothing
 
 
-
-        Dim strSQL As String = "SELECT Name, Status, Type, TypeANDName FROM Status WHERE Type = 'Domino Server'"
-        Dim objVSAdaptor As New VSAdaptor
-        Try
-            objVSAdaptor.FillDatasetAny("VitalSigns", "Status", strSQL, dsStatusHTML, "Status")
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDomino connection error @2 " & ex.Message)
-        End Try
-        'If boolUseSQLServer = True Then
-        '    mySQLCommand.Connection = SqlConnectionVitalSigns
-        '    mySQLCommand.CommandText = strSQL
-        '    mySQLAdapter.SelectCommand = mySQLCommand
-        '    mySQLAdapter.Fill(dsStatusHTML, "Status")
-        'Else
-        '    Try
-        '        myCommand.CommandText = strSQL
-        '        myCommand.Connection = myConnection
-        '        myAdapter.SelectCommand = myCommand
-        '        With myConnection
-        '            .ConnectionString = Me.OleDbConnectionStatus.ConnectionString
-        '            .Open()
-        '        End With
-
-        '        Do Until myConnection.State = ConnectionState.Open
-        '            myConnection.Open()
-        '        Loop
-        '        myAdapter.Fill(dsStatusHTML, "Status")
-        '    Catch ex As Exception
-        '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDomino connection error @2 " & ex.Message)
-        '    End Try
-        'End If
-
-        Dim myView As New Data.DataView(Status)
-
-        Try
-            myView.Sort = "Type ASC"
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDomino delete propogation is processing " & myView.Count & " records.")
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDomino module error " & ex.Message & " source: " & ex.Source)
-        End Try
+    '    Dim dsStatusHTML As New Data.DataSet
+    '    Dim Status As New Data.DataTable("Status")
+    '    dsStatusHTML.Clear()
+    '    dsStatusHTML.Tables.Add(Status)
+    '    Dim drv As DataRowView
 
 
 
-        Try
-            For Each drv In myView
-                Dim myName As String
-                myName = drv("Name")
-                If InStr(myServerNames, myName) > 0 Then
-                    'the server has not been deleted
-                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " is not marked for deletion. ")
-                Else
-                    'the server has been deleted, so delete from the status table
-                    Try
-                        strSQL = "DELETE FROM Status WHERE Type = 'Domino Server' AND Name = '" & myName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                    Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " Error executing query updating Domino status table: " & ex.Message & vbCrLf & strSQL & vbCrLf, LogLevel.Normal)
-                    End Try
+    '    Dim strSQL As String = "SELECT Name, Status, Type, TypeANDName FROM Status WHERE Type = 'Domino Server'"
+    '    Dim objVSAdaptor As New VSAdaptor
+    '    Try
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "Status", strSQL, dsStatusHTML, "Status")
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDomino connection error @2 " & ex.Message)
+    '    End Try
+    '    'If boolUseSQLServer = True Then
+    '    '    mySQLCommand.Connection = SqlConnectionVitalSigns
+    '    '    mySQLCommand.CommandText = strSQL
+    '    '    mySQLAdapter.SelectCommand = mySQLCommand
+    '    '    mySQLAdapter.Fill(dsStatusHTML, "Status")
+    '    'Else
+    '    '    Try
+    '    '        myCommand.CommandText = strSQL
+    '    '        myCommand.Connection = myConnection
+    '    '        myAdapter.SelectCommand = myCommand
+    '    '        With myConnection
+    '    '            .ConnectionString = Me.OleDbConnectionStatus.ConnectionString
+    '    '            .Open()
+    '    '        End With
+
+    '    '        Do Until myConnection.State = ConnectionState.Open
+    '    '            myConnection.Open()
+    '    '        Loop
+    '    '        myAdapter.Fill(dsStatusHTML, "Status")
+    '    '    Catch ex As Exception
+    '    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDomino connection error @2 " & ex.Message)
+    '    '    End Try
+    '    'End If
+
+    '    Dim myView As New Data.DataView(Status)
+
+    '    Try
+    '        myView.Sort = "Type ASC"
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDomino delete propogation is processing " & myView.Count & " records.")
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDomino module error " & ex.Message & " source: " & ex.Source)
+    '    End Try
 
 
-                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " has been deleted from the Status table by the service.")
 
-                End If
-            Next
-        Catch ex As Exception
-
-        End Try
-
-        'Insert any Domino servers that are not in the status table
-        WriteAuditEntry(Now.ToString & " Inserting Domino servers into the status table....")
-        Dim n As Integer
-        Dim myDominoServer As MonitoredItems.DominoServer
-        Dim Percent As Double
-        For n = 0 To MyDominoServers.Count - 1
-            Try
-                myDominoServer = MyDominoServers.Item(n)
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " Error locating Domino servers for the Status Table " & ex.ToString)
-            End Try
+    '    Try
+    '        For Each drv In myView
+    '            Dim myName As String
+    '            myName = drv("Name")
+    '            If InStr(myServerNames, myName) > 0 Then
+    '                'the server has not been deleted
+    '                If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " is not marked for deletion. ")
+    '            Else
+    '                'the server has been deleted, so delete from the status table
+    '                Try
+    '                    strSQL = "DELETE FROM Status WHERE Type = 'Domino Server' AND Name = '" & myName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+    '                Catch ex As Exception
+    '                    WriteAuditEntry(Now.ToString & " Error executing query updating Domino status table: " & ex.Message & vbCrLf & strSQL & vbCrLf, LogLevel.Normal)
+    '                End Try
 
 
-            With myDominoServer
-                WriteAuditEntry(Now.ToString & " Processing server " & myDominoServer.Name & "  (" & n.ToString & ")")
-                Try
-                    Percent = myDominoServer.PendingMail / myDominoServer.PendingThreshold * 100
-                Catch ex As Exception
-                    Percent = 0
-                End Try
+    '                If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " has been deleted from the Status table by the service.")
 
-                Try
-                    myDominoServer.StatusCode = ServerStatusCode(myDominoServer.Status)
-                Catch ex As Exception
+    '            End If
+    '        Next
+    '    Catch ex As Exception
 
-                End Try
-                strSQL = "INSERT INTO Status (StatusCode, Category, DeadMail, Description, DownCount,  Location, Name, MailDetails, PendingMail, Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon, OperatingSystem, DominoVersion, MyPercent, NextScan, Details, UpMinutes, DownMinutes, UpPercentMinutes, PendingThreshold, DeadThreshold) " & _
-                   " VALUES ( '" & .StatusCode & "', '" & .Category & "', '" & .DeadMail & "', '" & .Description & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', ' ', '" & .PendingMail & "', '" & .Status & "',  " & _
-                "'Domino Server', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-Domino', " & IconList.DominoServer & ", '" & .OperatingSystem & "', '" & .VersionDomino & "', " & Percent & ", '" & .NextScan & "', '" & .ResponseDetails & "', '" & Microsoft.VisualBasic.Strings.Format(myDominoServer.UpMinutes, "##,##0.#") & "', '" & Microsoft.VisualBasic.Strings.Format(myDominoServer.DownMinutes, "##,##0.#") & "', '0', " & .PendingThreshold & ", " & .DeadThreshold & ")"
-            End With
-            Try
-                ' WriteAuditEntry(Now.ToString & " Processing server " & myDominoServer.Name & "  (" & n.ToString & ")") ' with " & strSQL)
-                UpdateStatusTable(strSQL, "", "Processing " & myDominoServer.Name)
-            Catch ex As Exception
-                'WriteAuditEntry(Now.ToString & " Error inserting Domino servers into the Status Table " & ex.ToString)
-            End Try
+    '    End Try
 
-        Next n
-
-        myDominoServer = Nothing
-        Percent = Nothing
-        n = Nothing
-
-        'Clean up the memory when done of all unmanaged resources
-        Try
-
-            myView.Dispose()
-            dsStatusHTML.Dispose()
-            Status.Dispose()
-
-        Catch ex As Exception
-
-        End Try
+    '    'Insert any Domino servers that are not in the status table
+    '    WriteAuditEntry(Now.ToString & " Inserting Domino servers into the status table....")
+    '    Dim n As Integer
+    '    Dim myDominoServer As MonitoredItems.DominoServer
+    '    Dim Percent As Double
+    '    For n = 0 To MyDominoServers.Count - 1
+    '        Try
+    '            myDominoServer = MyDominoServers.Item(n)
+    '        Catch ex As Exception
+    '            WriteAuditEntry(Now.ToString & " Error locating Domino servers for the Status Table " & ex.ToString)
+    '        End Try
 
 
-    End Sub
+    '        With myDominoServer
+    '            WriteAuditEntry(Now.ToString & " Processing server " & myDominoServer.Name & "  (" & n.ToString & ")")
+    '            Try
+    '                Percent = myDominoServer.PendingMail / myDominoServer.PendingThreshold * 100
+    '            Catch ex As Exception
+    '                Percent = 0
+    '            End Try
+
+    '            Try
+    '                myDominoServer.StatusCode = ServerStatusCode(myDominoServer.Status)
+    '            Catch ex As Exception
+
+    '            End Try
+    '            strSQL = "INSERT INTO Status (StatusCode, Category, DeadMail, Description, DownCount,  Location, Name, MailDetails, PendingMail, Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon, OperatingSystem, DominoVersion, MyPercent, NextScan, Details, UpMinutes, DownMinutes, UpPercentMinutes, PendingThreshold, DeadThreshold) " & _
+    '               " VALUES ( '" & .StatusCode & "', '" & .Category & "', '" & .DeadMail & "', '" & .Description & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', ' ', '" & .PendingMail & "', '" & .Status & "',  " & _
+    '            "'Domino Server', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-Domino', " & IconList.DominoServer & ", '" & .OperatingSystem & "', '" & .VersionDomino & "', " & Percent & ", '" & .NextScan & "', '" & .ResponseDetails & "', '" & Microsoft.VisualBasic.Strings.Format(myDominoServer.UpMinutes, "##,##0.#") & "', '" & Microsoft.VisualBasic.Strings.Format(myDominoServer.DownMinutes, "##,##0.#") & "', '0', " & .PendingThreshold & ", " & .DeadThreshold & ")"
+    '        End With
+    '        Try
+    '            ' WriteAuditEntry(Now.ToString & " Processing server " & myDominoServer.Name & "  (" & n.ToString & ")") ' with " & strSQL)
+    '            UpdateStatusTable(strSQL, "", "Processing " & myDominoServer.Name)
+    '        Catch ex As Exception
+    '            'WriteAuditEntry(Now.ToString & " Error inserting Domino servers into the Status Table " & ex.ToString)
+    '        End Try
+
+    '    Next n
+
+    '    myDominoServer = Nothing
+    '    Percent = Nothing
+    '    n = Nothing
+
+    '    'Clean up the memory when done of all unmanaged resources
+    '    Try
+
+    '        myView.Dispose()
+    '        dsStatusHTML.Dispose()
+    '        Status.Dispose()
+
+    '    Catch ex As Exception
+
+    '    End Try
+
+
+    'End Sub
 
 
     Private Sub UpdateStatusTableWithSametime()
@@ -730,10 +817,14 @@ Partial Public Class VitalSignsPlusCore
         ' Dim mySametimeServer As MonitoredItems.SametimeServer
         Dim Percent As Double
         Dim strSqlUpdate As String
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
 
         For n = 0 To mySametimeServers.Count - 1
             MySametimeServer = mySametimeServers.Item(n)
             Dim myStatusCode As String = ServerStatusCode(MySametimeServer.Status)
+            Dim TypeAndName As String = MySametimeServer.Name & "-Sametime"
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+            Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
             With MySametimeServer
 
                 strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-Sametime') BEGIN " & _
@@ -743,9 +834,33 @@ Partial Public Class VitalSignsPlusCore
                  "END"
 
                 strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-Sametime'"
+
+                
+                updatedef = repo.Updater _
+                           .Set(Function(i) i.Name, .Name) _
+                           .[Set](Function(i) i.CurrentStatus, myStatusCode) _
+                           .[Set](Function(i) i.StatusCode, myStatusCode) _
+                           .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                           .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                           .[Set](Function(i) i.Description, .Description) _
+                           .[Set](Function(i) i.Type, "Sametime") _
+                           .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
+                           .[Set](Function(i) i.Location, .Location) _
+                           .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                           .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                           .[Set](Function(i) i.LastUpdated, Now) _
+                           .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                           .[Set](Function(i) i.MyPercent, Double.Parse(Percent)) _
+                           .[Set](Function(i) i.NextScan, .NextScan) _
+                           .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
+                           .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
+                           .[Set](Function(i) i.PendingThreshold, Integer.Parse(.Chat_Sessions_Threshold)) _
+                           .[Set](Function(i) i.DeadThreshold, Integer.Parse(.nWay_Chat_Sessions_Threshold))
+
             End With
             If MySametimeServer.Enabled = True Then
-                UpdateStatusTable(strSqlUpdate, strSQL, MySametimeServer.Name)
+                'UpdateStatusTable(strSqlUpdate, strSQL, MySametimeServer.Name)
+                repo.Upsert(filterdef, updatedef)
             End If
 
         Next n
@@ -759,12 +874,16 @@ Partial Public Class VitalSignsPlusCore
         'Now delete the existing  records 
         Dim objVSAdaptor As New VSAdaptor
         Dim strSQL As String = ""
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
         Try
             Dim n As Integer
             Dim MyMailService As MonitoredItems.MailService
+            Dim TypeAndName As String = MyMailService.Name & "-Mail"
             For n = 0 To MyMailServices.Count - 1
                 MyMailService = MyMailServices.Item(n)
                 WriteAuditEntry(Now.ToString & " Adding Mail Service " & MyMailService.Name & " to status table.")
+                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
                 With MyMailService
                     '5/5/2016 NS modified - inserting a Mail into StatusDetails fails because of a TypeANDName mismatch
                     'Changed TypeANDName -MS to -Mail
@@ -772,9 +891,27 @@ Partial Public Class VitalSignsPlusCore
                      "INSERT INTO Status (StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon) " & _
                      " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .Description & "', ' ', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'Mail', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '0', '" & .Name & "-Mail', " & IconList.Mail_Service & ")" & _
                      "END"
+
+                    updatedef = repo.Updater _
+                          .Set(Function(i) i.Name, .Name) _
+                          .[Set](Function(i) i.CurrentStatus, .StatusCode) _
+                          .[Set](Function(i) i.StatusCode, .StatusCode) _
+                          .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                          .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                          .[Set](Function(i) i.Description, .Description) _
+                          .[Set](Function(i) i.Type, "Mail") _
+                          .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
+                          .[Set](Function(i) i.Location, .Location) _
+                          .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                          .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                          .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                          .[Set](Function(i) i.Category, .Category) _
+                          .[Set](Function(i) i.NextScan, .NextScan)
+
                 End With
                 Try
-                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                    'objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                    repo.Upsert(filterdef, updatedef)
 
                 Catch ex As Exception
 
@@ -794,398 +931,398 @@ Partial Public Class VitalSignsPlusCore
     End Sub
 
 
-    Private Sub UpdateStatusTableWithDominoClusters()
-        WriteAuditEntry(Now.ToString & " Updating status table with Lotus Domino servers clusters.")
-        'Delete from the status table any servers that have been deleted from the collection
-        Dim myIndex As Integer
-        Dim Dom As MonitoredItems.DominoMailCluster
-        Dim myServerNames As String = ""
-        For Each Dom In myDominoClusters
-            myServerNames += Dom.Name & vbCrLf
-        Next
-
-        Dom = Nothing
-        ' myServerNames = Nothing
-        myIndex = Nothing
-
-        'Connect to the data source
-        Dim dsStatusHTML As New Data.DataSet
-        Dim Status As New Data.DataTable("Status")
-        dsStatusHTML.Clear()
-        dsStatusHTML.Tables.Add(Status)
-        Dim drv As DataRowView
-
-        Dim myConnection As New OleDb.OleDbConnection
-        Dim myAdapter As New OleDb.OleDbDataAdapter
-        Dim myCommand As New OleDb.OleDbCommand
-
-
-        Dim mySQLCommand As New Data.SqlClient.SqlCommand
-        Dim mySQLAdapter As New Data.SqlClient.SqlDataAdapter
-
-
-        Dim strSQL As String = "SELECT Name, Status, Type, TypeANDName FROM Status WHERE Type = 'Domino Cluster'"
-        Dim objVSAdaptor As New VSAdaptor
-        Try
-            objVSAdaptor.FillDatasetAny("VitalSigns", "Status", strSQL, dsStatusHTML, "Status")
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDominoCluster connection error @2 " & ex.Message)
-        End Try
-        'If boolUseSQLServer = True Then
-        '    mySQLCommand.Connection = SqlConnectionVitalSigns
-        '    mySQLCommand.CommandText = strSQL
-        '    mySQLAdapter.SelectCommand = mySQLCommand
-        '    mySQLAdapter.Fill(dsStatusHTML, "Status")
-        'Else
-        '    Try
-        '        myCommand.CommandText = strSQL
-        '        myCommand.Connection = myConnection
-        '        myAdapter.SelectCommand = myCommand
-        '        With myConnection
-        '            .ConnectionString = Me.OleDbConnectionStatus.ConnectionString
-        '            .Open()
-        '        End With
-
-        '        Do Until myConnection.State = ConnectionState.Open
-        '            myConnection.Open()
-        '        Loop
-        '        myAdapter.Fill(dsStatusHTML, "Status")
-        '    Catch ex As Exception
-        '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDominoCluster connection error @2 " & ex.Message)
-        '    End Try
-        'End If
-
-        Dim myView As New Data.DataView(Status)
-
-        Try
-            myView.Sort = "Type ASC"
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDominoCluster module is processing " & myView.Count & " records.")
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDominoCluster module error " & ex.Message & " source: " & ex.Source)
-        End Try
-
-
-
-        Try
-            For Each drv In myView
-                Dim myName As String
-                myName = drv("Name")
-                If InStr(myServerNames, myName) > 0 Then
-                    'the server has not been deleted
-                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " is not marked for deletion. ")
-                Else
-                    'the server has been deleted, so delete from the status table
-                    Try
-                        strSQL = "DELETE FROM Status WHERE Type = 'Domino Cluster' AND Name = '" & myName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                    Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " Error executing query updating Domino status table: " & ex.Message & vbCrLf & strSQL & vbCrLf, LogLevel.Normal)
-                    End Try
-
-                    'If boolUseSQLServer = True Then
-                    '    Try
-                    '        mySQLCommand.CommandText = strSQL
-                    '        mySQLCommand.ExecuteNonQuery()
-                    '    Catch ex As Exception
-                    '        WriteAuditEntry(Now.ToString & " Error executing query updating Domino status table: " & ex.Message & vbCrLf & strSQL & vbCrLf)
-                    '    End Try
-
-                    'Else
-                    '    Try
-                    '        myCommand.CommandText = strSQL
-                    '        myCommand.ExecuteNonQuery()
-                    '    Catch ex As Exception
-                    '        WriteAuditEntry(Now.ToString & " Error executing query updating Domino status table: " & ex.Message & vbCrLf & strSQL & vbCrLf)
-                    '    End Try
-                    'End If
-
-                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " has been deleted from the Status table by the service.")
-
-                End If
-            Next
-        Catch ex As Exception
-
-        End Try
-
-        'Now Update the Data set with the current Domino data 
-
-        Try
-            Dim n As Integer
-            Dim myDominoServerCluster As MonitoredItems.DominoMailCluster
-            For n = 0 To myDominoClusters.Count - 1
-                myDominoCluster = myDominoClusters.Item(n)
-
-                With myDominoCluster
-                    strSQL = "INSERT INTO Status ( Name, Status, Type,  LastUpdate,  TypeANDName, Icon,  NextScan, Details, Category) " & _
-        " VALUES ('" & .Name & "', '" & .Status & "',  'Domino Cluster', '" & Now & "', '" & .Name & "-Cluster', " & IconList.DominoServer & ", '" & .NextScan & "', '" & .ResponseDetails & "', '" & .Category & "')"
-                End With
-                Try
-                    UpdateStatusTable(strSQL, "", myDominoCluster.Name)
-                Catch ex As Exception
-                    ' WriteAuditEntry(Now.ToString & " Error executing query updating Domino cluster status table: " & ex.Message)
-                End Try
-            Next n
-
-            myDominoCluster = Nothing
-
-            n = Nothing
-
-
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error connecting to Status Table while inserting Domino Clusters:" & ex.Message)
-            WriteAuditEntry(Now.ToString & " Insert comand was " & strSQL)
-            '       WriteAuditEntry(Now.ToString & " Service stopped.")
-            Thread.CurrentThread.Sleep(1000)
-            ' End
-        End Try
-
-        mySQLCommand.Dispose()
-        mySQLAdapter.Dispose()
-        myCommand.Dispose()
-        myConnection.Close()
-        myConnection.Dispose()
-        WriteAuditEntry(Now.ToString & " Finished updating Status table with all Domino server clusters.")
-
-    End Sub
-
-    Private Sub UpdateStatusTableWithNotesDatabases()
-        'Delete from the status table any servers that have been deleted from the collection
-        Dim myIndex As Integer
-        Dim NDB As MonitoredItems.NotesDatabase
-        Dim myNDBNames As String
-        For Each NDB In MyNotesDatabases
-            myNDBNames += NDB.Name & vbCrLf
-        Next
-
-        NDB = Nothing
-        myIndex = Nothing
-
-
-        'Connect to the data source
-        Dim dsStatusHTML As New Data.DataSet
-        Dim Status As New Data.DataTable("Status")
-        dsStatusHTML.Clear()
-        dsStatusHTML.Tables.Add(Status)
-        Dim drv As DataRowView
-
-        Dim myConnection As New OleDb.OleDbConnection
-        Dim myAdapter As New OleDb.OleDbDataAdapter
-        Dim myCommand As New OleDb.OleDbCommand
-
-
-        Dim mySQLCommand As New Data.SqlClient.SqlCommand
-        Dim mySQLAdapter As New Data.SqlClient.SqlDataAdapter
-
-
-        Dim strSQL As String = "SELECT Name, Status, Type, TypeANDName FROM Status WHERE Type = 'Notes Database'"
-        Dim objVSAdaptor As New VSAdaptor
-        Try
-            objVSAdaptor.FillDatasetAny("VitalSigns", "Status", strSQL, dsStatusHTML, "Status")
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithNotesDBs connection error @2 " & ex.Message)
-        End Try
-        'If boolUseSQLServer = True Then
-        '    mySQLCommand.Connection = SqlConnectionVitalSigns
-        '    mySQLCommand.CommandText = strSQL
-        '    mySQLAdapter.SelectCommand = mySQLCommand
-        '    mySQLAdapter.Fill(dsStatusHTML, "Status")
-        'Else
-        '    Try
-        '        myCommand.CommandText = strSQL
-        '        myCommand.Connection = myConnection
-        '        myAdapter.SelectCommand = myCommand
-        '        With myConnection
-        '            .ConnectionString = Me.OleDbConnectionStatus.ConnectionString
-        '            .Open()
-        '        End With
-
-        '        Do Until myConnection.State = ConnectionState.Open
-        '            myConnection.Open()
-        '        Loop
-        '        myAdapter.Fill(dsStatusHTML, "Status")
-        '    Catch ex As Exception
-        '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithNotesDBs connection error @2 " & ex.Message)
-        '    End Try
-        'End If
-
-        Dim myView As New Data.DataView(Status)
-
-        Try
-            myView.Sort = "Type ASC"
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithNotesDBs module is processing " & myView.Count & " records.")
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " UpdateStatusTableWithNotesDBs module error " & ex.Message & " source: " & ex.Source)
-        End Try
-
-
-
-        Try
-            For Each drv In myView
-                Dim myName As String
-                myName = drv("Name")
-                If InStr(myNDBNames, myName) > 0 Then
-                    'the server has not been deleted
-                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " is not marked for deletion. ")
-                Else
-                    'the server has been deleted, so delete from the status table
-                    Try
-                        strSQL = "DELETE FROM Status WHERE Type = 'Notes Database' AND Name = '" & myName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                    Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " Error executing query updating Notes Database status table: " & ex.Message & vbCrLf & strSQL & vbCrLf, LogLevel.Normal)
-                    End Try
-
-                    'If boolUseSQLServer = True Then
-                    '    Try
-                    '        mySQLCommand.CommandText = strSQL
-                    '        mySQLCommand.ExecuteNonQuery()
-                    '    Catch ex As Exception
-                    '        WriteAuditEntry(Now.ToString & " Error executing query updating Notes Database status table: " & ex.Message & vbCrLf & strSQL & vbCrLf)
-                    '    End Try
-
-                    'Else
-                    '    Try
-                    '        myCommand.CommandText = strSQL
-                    '        myCommand.ExecuteNonQuery()
-                    '    Catch ex As Exception
-                    '        WriteAuditEntry(Now.ToString & " Error executing query updating Notes Database  status table: " & ex.Message & vbCrLf & strSQL & vbCrLf)
-                    '    End Try
-                    'End If
-
-                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " has been deleted from the Status table by the service.")
-
-                End If
-            Next
-        Catch ex As Exception
-
-        End Try
-
-        'Insert any Notes databases that are not in the status table
-
-        Dim n As Integer
-
-        Dim Percent As Double
-        For n = 0 To MyNotesDatabases.Count - 1
-            NDB = MyNotesDatabases.Item(n)
-
-            '5/5/2016 NS modified
-            'Changed -NDB to -Notes Database
-            With NDB
-                strSQL = "INSERT INTO Status (Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon, ResponseThreshold, NextScan) " & _
-          " VALUES ('" & .Category & "', '" & .Description & "', '', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'Notes Database', '" & .UpCount & "', '" & .UpPercentCount & "', '" & .LastScan & "', " & .ResponseTime & ", '" & .Name & "-Notes Database', " & IconList.NotesDB & ", " & .ResponseThreshold & ", '" & .NextScan & "')"
-            End With
-            Try
-                UpdateStatusTable(strSQL)
-            Catch ex As Exception
-                If Not InStr(ex.ToString, "duplicate") Then
-                    '  WriteAuditEntry(Now.ToString & " Error executing query updating Notes Databases status table: " & ex.tostring)
-                End If
-            End Try
-        Next n
-
-        NDB = Nothing
-        Percent = Nothing
-        n = Nothing
-
-        'Clean up the memory when done of all unmanaged resources
-        myCommand.Dispose()
-        myConnection.Close()
-        myConnection.Dispose()
-        myView.Dispose()
-        dsStatusHTML.Dispose()
-        Status.Dispose()
-        mySQLCommand.Dispose()
-        mySQLAdapter.Dispose()
-    End Sub
-
-
-    Private Sub UpdateStatusTableWithNotesMailProbes()
-        WriteAuditEntry(Now.ToString & " Updating status table with NotesMail Probes.")
-        'Now delete the existing NM records 
-
-        Dim strSQL As String = "DELETE FROM Status WHERE Type = 'NotesMail Probe';"
-        'Dim myConnection As New OleDb.OleDbConnection
-        'myConnection.ConnectionString = Me.OleDbConnectionStatus.ConnectionString
-        Dim objVSAdaptor As New VSAdaptor
-        Try
-            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error with Status Table while deleting obsolete NotesMail Probes:" & ex.Message)
-        End Try
-
-        'If boolUseSQLServer = True Then
-        '    Try
-        '        Dim myCommand As New Data.SqlClient.SqlCommand
-        '        myCommand.Connection = SqlConnectionVitalSigns
-        '        myCommand.CommandText = strSQL
-        '        myCommand.ExecuteNonQuery()
-        '        myCommand.Dispose()
-        '    Catch ex As Exception
-
-        '    End Try
-        'Else
-        '    myConnection.Open()
-        '    Dim myCommand As New OleDb.OleDbCommand(strSQL, myConnection)
-
-        '    Try
-        '        myCommand.ExecuteNonQuery()
-        '        myCommand.Dispose()
-        '    Catch ex As Exception
-        '        WriteAuditEntry(Now.ToString & " Error with Status Table while deleting obsolete NotesMail Probes:" & ex.Message)
-        '    End Try
-        'End If
-
-
-        'Now Update the Data set with the Mail Probes
-        Dim n As Integer
-        Dim MyNotesMailProbe As MonitoredItems.DominoMailProbe
-
-        For n = 0 To MyNotesMailProbes.Count - 1
-            strSQL = ""
-            MyNotesMailProbe = MyNotesMailProbes.Item(n)
-            WriteAuditEntry(Now.ToString & " adding Mail Probe " & MyNotesMailProbe.Name)
-            With MyNotesMailProbe
-                strSQL = "INSERT INTO Status (Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon) " & _
-                   " VALUES ('" & .Category & "', '" & .Description & "', ' ', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', 'Not Scanned', 'NotesMail Probe', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '0', '" & .Name & "-NMP', " & IconList.NotesMail_Probe & ")"
-            End With
-
-            Try
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                'If boolUseSQLServer = True Then
-                '    'WriteAuditEntry(Now.ToString & " Inserting into SQL server: " & strSQL)
-                '    Dim myCommand As New Data.SqlClient.SqlCommand
-                '    myCommand.Connection = SqlConnectionVitalSigns
-                '    myCommand.CommandText = strSQL
-                '    myCommand.ExecuteNonQuery()
-                '    myCommand.Dispose()
-                'Else
-                '    Dim myCommand As New OleDb.OleDbCommand
-                '    myCommand.Connection = myConnection
-                '    myCommand.CommandText = strSQL
-                '    myCommand.ExecuteNonQuery()
-                '    myCommand.Dispose()
-                '    myConnection.Close()
-                '    myConnection.Dispose()
-                'End If
-
-            Catch ex As Exception
-
-            End Try
-        Next n
-        MyNotesMailProbe = Nothing
-        n = Nothing
-        strSQL = Nothing
-        WriteAuditEntry(Now.ToString & " Updated Status table with NotesMail Probe information.")
-
-
-    End Sub
+    'Private Sub UpdateStatusTableWithDominoClusters()
+    '    WriteAuditEntry(Now.ToString & " Updating status table with Lotus Domino servers clusters.")
+    '    'Delete from the status table any servers that have been deleted from the collection
+    '    Dim myIndex As Integer
+    '    Dim Dom As MonitoredItems.DominoMailCluster
+    '    Dim myServerNames As String = ""
+    '    For Each Dom In myDominoClusters
+    '        myServerNames += Dom.Name & vbCrLf
+    '    Next
+
+    '    Dom = Nothing
+    '    ' myServerNames = Nothing
+    '    myIndex = Nothing
+
+    '    'Connect to the data source
+    '    Dim dsStatusHTML As New Data.DataSet
+    '    Dim Status As New Data.DataTable("Status")
+    '    dsStatusHTML.Clear()
+    '    dsStatusHTML.Tables.Add(Status)
+    '    Dim drv As DataRowView
+
+    '    Dim myConnection As New OleDb.OleDbConnection
+    '    Dim myAdapter As New OleDb.OleDbDataAdapter
+    '    Dim myCommand As New OleDb.OleDbCommand
+
+
+    '    Dim mySQLCommand As New Data.SqlClient.SqlCommand
+    '    Dim mySQLAdapter As New Data.SqlClient.SqlDataAdapter
+
+
+    '    Dim strSQL As String = "SELECT Name, Status, Type, TypeANDName FROM Status WHERE Type = 'Domino Cluster'"
+    '    Dim objVSAdaptor As New VSAdaptor
+    '    Try
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "Status", strSQL, dsStatusHTML, "Status")
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDominoCluster connection error @2 " & ex.Message)
+    '    End Try
+    '    'If boolUseSQLServer = True Then
+    '    '    mySQLCommand.Connection = SqlConnectionVitalSigns
+    '    '    mySQLCommand.CommandText = strSQL
+    '    '    mySQLAdapter.SelectCommand = mySQLCommand
+    '    '    mySQLAdapter.Fill(dsStatusHTML, "Status")
+    '    'Else
+    '    '    Try
+    '    '        myCommand.CommandText = strSQL
+    '    '        myCommand.Connection = myConnection
+    '    '        myAdapter.SelectCommand = myCommand
+    '    '        With myConnection
+    '    '            .ConnectionString = Me.OleDbConnectionStatus.ConnectionString
+    '    '            .Open()
+    '    '        End With
+
+    '    '        Do Until myConnection.State = ConnectionState.Open
+    '    '            myConnection.Open()
+    '    '        Loop
+    '    '        myAdapter.Fill(dsStatusHTML, "Status")
+    '    '    Catch ex As Exception
+    '    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDominoCluster connection error @2 " & ex.Message)
+    '    '    End Try
+    '    'End If
+
+    '    Dim myView As New Data.DataView(Status)
+
+    '    Try
+    '        myView.Sort = "Type ASC"
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDominoCluster module is processing " & myView.Count & " records.")
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithDominoCluster module error " & ex.Message & " source: " & ex.Source)
+    '    End Try
+
+
+
+    '    Try
+    '        For Each drv In myView
+    '            Dim myName As String
+    '            myName = drv("Name")
+    '            If InStr(myServerNames, myName) > 0 Then
+    '                'the server has not been deleted
+    '                If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " is not marked for deletion. ")
+    '            Else
+    '                'the server has been deleted, so delete from the status table
+    '                Try
+    '                    strSQL = "DELETE FROM Status WHERE Type = 'Domino Cluster' AND Name = '" & myName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+    '                Catch ex As Exception
+    '                    WriteAuditEntry(Now.ToString & " Error executing query updating Domino status table: " & ex.Message & vbCrLf & strSQL & vbCrLf, LogLevel.Normal)
+    '                End Try
+
+    '                'If boolUseSQLServer = True Then
+    '                '    Try
+    '                '        mySQLCommand.CommandText = strSQL
+    '                '        mySQLCommand.ExecuteNonQuery()
+    '                '    Catch ex As Exception
+    '                '        WriteAuditEntry(Now.ToString & " Error executing query updating Domino status table: " & ex.Message & vbCrLf & strSQL & vbCrLf)
+    '                '    End Try
+
+    '                'Else
+    '                '    Try
+    '                '        myCommand.CommandText = strSQL
+    '                '        myCommand.ExecuteNonQuery()
+    '                '    Catch ex As Exception
+    '                '        WriteAuditEntry(Now.ToString & " Error executing query updating Domino status table: " & ex.Message & vbCrLf & strSQL & vbCrLf)
+    '                '    End Try
+    '                'End If
+
+    '                If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " has been deleted from the Status table by the service.")
+
+    '            End If
+    '        Next
+    '    Catch ex As Exception
+
+    '    End Try
+
+    '    'Now Update the Data set with the current Domino data 
+
+    '    Try
+    '        Dim n As Integer
+    '        Dim myDominoServerCluster As MonitoredItems.DominoMailCluster
+    '        For n = 0 To myDominoClusters.Count - 1
+    '            myDominoCluster = myDominoClusters.Item(n)
+
+    '            With myDominoCluster
+    '                strSQL = "INSERT INTO Status ( Name, Status, Type,  LastUpdate,  TypeANDName, Icon,  NextScan, Details, Category) " & _
+    '    " VALUES ('" & .Name & "', '" & .Status & "',  'Domino Cluster', '" & Now & "', '" & .Name & "-Cluster', " & IconList.DominoServer & ", '" & .NextScan & "', '" & .ResponseDetails & "', '" & .Category & "')"
+    '            End With
+    '            Try
+    '                UpdateStatusTable(strSQL, "", myDominoCluster.Name)
+    '            Catch ex As Exception
+    '                ' WriteAuditEntry(Now.ToString & " Error executing query updating Domino cluster status table: " & ex.Message)
+    '            End Try
+    '        Next n
+
+    '        myDominoCluster = Nothing
+
+    '        n = Nothing
+
+
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " Error connecting to Status Table while inserting Domino Clusters:" & ex.Message)
+    '        WriteAuditEntry(Now.ToString & " Insert comand was " & strSQL)
+    '        '       WriteAuditEntry(Now.ToString & " Service stopped.")
+    '        Thread.CurrentThread.Sleep(1000)
+    '        ' End
+    '    End Try
+
+    '    mySQLCommand.Dispose()
+    '    mySQLAdapter.Dispose()
+    '    myCommand.Dispose()
+    '    myConnection.Close()
+    '    myConnection.Dispose()
+    '    WriteAuditEntry(Now.ToString & " Finished updating Status table with all Domino server clusters.")
+
+    'End Sub
+
+    'Private Sub UpdateStatusTableWithNotesDatabases()
+    '    'Delete from the status table any servers that have been deleted from the collection
+    '    Dim myIndex As Integer
+    '    Dim NDB As MonitoredItems.NotesDatabase
+    '    Dim myNDBNames As String
+    '    For Each NDB In MyNotesDatabases
+    '        myNDBNames += NDB.Name & vbCrLf
+    '    Next
+
+    '    NDB = Nothing
+    '    myIndex = Nothing
+
+
+    '    'Connect to the data source
+    '    Dim dsStatusHTML As New Data.DataSet
+    '    Dim Status As New Data.DataTable("Status")
+    '    dsStatusHTML.Clear()
+    '    dsStatusHTML.Tables.Add(Status)
+    '    Dim drv As DataRowView
+
+    '    Dim myConnection As New OleDb.OleDbConnection
+    '    Dim myAdapter As New OleDb.OleDbDataAdapter
+    '    Dim myCommand As New OleDb.OleDbCommand
+
+
+    '    Dim mySQLCommand As New Data.SqlClient.SqlCommand
+    '    Dim mySQLAdapter As New Data.SqlClient.SqlDataAdapter
+
+
+    '    Dim strSQL As String = "SELECT Name, Status, Type, TypeANDName FROM Status WHERE Type = 'Notes Database'"
+    '    Dim objVSAdaptor As New VSAdaptor
+    '    Try
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "Status", strSQL, dsStatusHTML, "Status")
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithNotesDBs connection error @2 " & ex.Message)
+    '    End Try
+    '    'If boolUseSQLServer = True Then
+    '    '    mySQLCommand.Connection = SqlConnectionVitalSigns
+    '    '    mySQLCommand.CommandText = strSQL
+    '    '    mySQLAdapter.SelectCommand = mySQLCommand
+    '    '    mySQLAdapter.Fill(dsStatusHTML, "Status")
+    '    'Else
+    '    '    Try
+    '    '        myCommand.CommandText = strSQL
+    '    '        myCommand.Connection = myConnection
+    '    '        myAdapter.SelectCommand = myCommand
+    '    '        With myConnection
+    '    '            .ConnectionString = Me.OleDbConnectionStatus.ConnectionString
+    '    '            .Open()
+    '    '        End With
+
+    '    '        Do Until myConnection.State = ConnectionState.Open
+    '    '            myConnection.Open()
+    '    '        Loop
+    '    '        myAdapter.Fill(dsStatusHTML, "Status")
+    '    '    Catch ex As Exception
+    '    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithNotesDBs connection error @2 " & ex.Message)
+    '    '    End Try
+    '    'End If
+
+    '    Dim myView As New Data.DataView(Status)
+
+    '    Try
+    '        myView.Sort = "Type ASC"
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithNotesDBs module is processing " & myView.Count & " records.")
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " UpdateStatusTableWithNotesDBs module error " & ex.Message & " source: " & ex.Source)
+    '    End Try
+
+
+
+    '    Try
+    '        For Each drv In myView
+    '            Dim myName As String
+    '            myName = drv("Name")
+    '            If InStr(myNDBNames, myName) > 0 Then
+    '                'the server has not been deleted
+    '                If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " is not marked for deletion. ")
+    '            Else
+    '                'the server has been deleted, so delete from the status table
+    '                Try
+    '                    strSQL = "DELETE FROM Status WHERE Type = 'Notes Database' AND Name = '" & myName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+    '                Catch ex As Exception
+    '                    WriteAuditEntry(Now.ToString & " Error executing query updating Notes Database status table: " & ex.Message & vbCrLf & strSQL & vbCrLf, LogLevel.Normal)
+    '                End Try
+
+    '                'If boolUseSQLServer = True Then
+    '                '    Try
+    '                '        mySQLCommand.CommandText = strSQL
+    '                '        mySQLCommand.ExecuteNonQuery()
+    '                '    Catch ex As Exception
+    '                '        WriteAuditEntry(Now.ToString & " Error executing query updating Notes Database status table: " & ex.Message & vbCrLf & strSQL & vbCrLf)
+    '                '    End Try
+
+    '                'Else
+    '                '    Try
+    '                '        myCommand.CommandText = strSQL
+    '                '        myCommand.ExecuteNonQuery()
+    '                '    Catch ex As Exception
+    '                '        WriteAuditEntry(Now.ToString & " Error executing query updating Notes Database  status table: " & ex.Message & vbCrLf & strSQL & vbCrLf)
+    '                '    End Try
+    '                'End If
+
+    '                If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " " & myName & " has been deleted from the Status table by the service.")
+
+    '            End If
+    '        Next
+    '    Catch ex As Exception
+
+    '    End Try
+
+    '    'Insert any Notes databases that are not in the status table
+
+    '    Dim n As Integer
+
+    '    Dim Percent As Double
+    '    For n = 0 To MyNotesDatabases.Count - 1
+    '        NDB = MyNotesDatabases.Item(n)
+
+    '        '5/5/2016 NS modified
+    '        'Changed -NDB to -Notes Database
+    '        With NDB
+    '            strSQL = "INSERT INTO Status (Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon, ResponseThreshold, NextScan) " & _
+    '      " VALUES ('" & .Category & "', '" & .Description & "', '', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'Notes Database', '" & .UpCount & "', '" & .UpPercentCount & "', '" & .LastScan & "', " & .ResponseTime & ", '" & .Name & "-Notes Database', " & IconList.NotesDB & ", " & .ResponseThreshold & ", '" & .NextScan & "')"
+    '        End With
+    '        Try
+    '            UpdateStatusTable(strSQL)
+    '        Catch ex As Exception
+    '            If Not InStr(ex.ToString, "duplicate") Then
+    '                '  WriteAuditEntry(Now.ToString & " Error executing query updating Notes Databases status table: " & ex.tostring)
+    '            End If
+    '        End Try
+    '    Next n
+
+    '    NDB = Nothing
+    '    Percent = Nothing
+    '    n = Nothing
+
+    '    'Clean up the memory when done of all unmanaged resources
+    '    myCommand.Dispose()
+    '    myConnection.Close()
+    '    myConnection.Dispose()
+    '    myView.Dispose()
+    '    dsStatusHTML.Dispose()
+    '    Status.Dispose()
+    '    mySQLCommand.Dispose()
+    '    mySQLAdapter.Dispose()
+    'End Sub
+
+
+    'Private Sub UpdateStatusTableWithNotesMailProbes()
+    '    WriteAuditEntry(Now.ToString & " Updating status table with NotesMail Probes.")
+    '    'Now delete the existing NM records 
+
+    '    Dim strSQL As String = "DELETE FROM Status WHERE Type = 'NotesMail Probe';"
+    '    'Dim myConnection As New OleDb.OleDbConnection
+    '    'myConnection.ConnectionString = Me.OleDbConnectionStatus.ConnectionString
+    '    Dim objVSAdaptor As New VSAdaptor
+    '    Try
+    '        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " Error with Status Table while deleting obsolete NotesMail Probes:" & ex.Message)
+    '    End Try
+
+    '    'If boolUseSQLServer = True Then
+    '    '    Try
+    '    '        Dim myCommand As New Data.SqlClient.SqlCommand
+    '    '        myCommand.Connection = SqlConnectionVitalSigns
+    '    '        myCommand.CommandText = strSQL
+    '    '        myCommand.ExecuteNonQuery()
+    '    '        myCommand.Dispose()
+    '    '    Catch ex As Exception
+
+    '    '    End Try
+    '    'Else
+    '    '    myConnection.Open()
+    '    '    Dim myCommand As New OleDb.OleDbCommand(strSQL, myConnection)
+
+    '    '    Try
+    '    '        myCommand.ExecuteNonQuery()
+    '    '        myCommand.Dispose()
+    '    '    Catch ex As Exception
+    '    '        WriteAuditEntry(Now.ToString & " Error with Status Table while deleting obsolete NotesMail Probes:" & ex.Message)
+    '    '    End Try
+    '    'End If
+
+
+    '    'Now Update the Data set with the Mail Probes
+    '    Dim n As Integer
+    '    Dim MyNotesMailProbe As MonitoredItems.DominoMailProbe
+
+    '    For n = 0 To MyNotesMailProbes.Count - 1
+    '        strSQL = ""
+    '        MyNotesMailProbe = MyNotesMailProbes.Item(n)
+    '        WriteAuditEntry(Now.ToString & " adding Mail Probe " & MyNotesMailProbe.Name)
+    '        With MyNotesMailProbe
+    '            strSQL = "INSERT INTO Status (Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon) " & _
+    '               " VALUES ('" & .Category & "', '" & .Description & "', ' ', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', 'Not Scanned', 'NotesMail Probe', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '0', '" & .Name & "-NMP', " & IconList.NotesMail_Probe & ")"
+    '        End With
+
+    '        Try
+    '            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+    '            'If boolUseSQLServer = True Then
+    '            '    'WriteAuditEntry(Now.ToString & " Inserting into SQL server: " & strSQL)
+    '            '    Dim myCommand As New Data.SqlClient.SqlCommand
+    '            '    myCommand.Connection = SqlConnectionVitalSigns
+    '            '    myCommand.CommandText = strSQL
+    '            '    myCommand.ExecuteNonQuery()
+    '            '    myCommand.Dispose()
+    '            'Else
+    '            '    Dim myCommand As New OleDb.OleDbCommand
+    '            '    myCommand.Connection = myConnection
+    '            '    myCommand.CommandText = strSQL
+    '            '    myCommand.ExecuteNonQuery()
+    '            '    myCommand.Dispose()
+    '            '    myConnection.Close()
+    '            '    myConnection.Dispose()
+    '            'End If
+
+    '        Catch ex As Exception
+
+    '        End Try
+    '    Next n
+    '    MyNotesMailProbe = Nothing
+    '    n = Nothing
+    '    strSQL = Nothing
+    '    WriteAuditEntry(Now.ToString & " Updated Status table with NotesMail Probe information.")
+
+
+    'End Sub
 
     Private Sub UpdateStatusTableWithWebSphere()
         'Delete from the status table any servers that have been deleted from the collection
 
         Dim strSQL As String
         Dim objVSAdaptor As New VSAdaptor
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
         'Insert any WebSphere servers that are not in the status table
         If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " About to insert " & MyWebSphereServers.Count & " WebSphere servers into the Status table.")
 
@@ -1195,6 +1332,9 @@ Partial Public Class VitalSignsPlusCore
         For n = 0 To MyWebSphereServers.Count - 1
             MyWebSphereServer = MyWebSphereServers.Item(n)
             Dim myStatusCode As String = ServerStatusCode(MyWebSphereServer.Status)
+            Dim TypeAndName As String = MyWebSphereServer.Name & "-WebSphere"
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+            Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
             With MyWebSphereServer
 
                 strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-WebSphere') BEGIN " & _
@@ -1204,9 +1344,23 @@ Partial Public Class VitalSignsPlusCore
                   "END"
 
                 strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-" & .ServerType & "'"
+                updatedef = repo.Updater _
+                         .Set(Function(i) i.Name, .Name) _
+                         .[Set](Function(i) i.CurrentStatus, .StatusCode) _
+                         .[Set](Function(i) i.StatusCode, .StatusCode) _
+                         .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                         .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                         .[Set](Function(i) i.Description, .Description) _
+                         .[Set](Function(i) i.Type, "WebSphere") _
+                         .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
+                         .[Set](Function(i) i.Location, .Location) _
+                         .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                         .[Set](Function(i) i.Category, .Category) _
+                         .[Set](Function(i) i.NextScan, .NextScan)
             End With
             If MyWebSphereServer.Enabled = True Then
-                UpdateStatusTable(strSqlUpdate, strSQL, MyWebSphereServer.Name)
+                'UpdateStatusTable(strSqlUpdate, strSQL, MyWebSphereServer.Name)
+                repo.Upsert(filterdef, updatedef)
             End If
 
         Next n
@@ -1219,7 +1373,7 @@ Partial Public Class VitalSignsPlusCore
 
 		Dim strSQL As String
 		Dim objVSAdaptor As New VSAdaptor
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
 		'Insert any WebSphere servers that are not in the status table
 		If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " About to insert " & MyIBMConnectServers.Count & " Ibm Connection servers into the Status table.")
 
@@ -1228,7 +1382,10 @@ Partial Public Class VitalSignsPlusCore
 
 		For n = 0 To MyIBMConnectServers.Count - 1
 			MyIBMConnectServer = MyIBMConnectServers.Item(n)
-			Dim myStatusCode As String = ServerStatusCode(MyIBMConnectServer.Status)
+            Dim myStatusCode As String = ServerStatusCode(MyIBMConnectServer.Status)
+            Dim TypeAndName As String = MyIBMConnectServer.Name & MyIBMConnectServer.ServerType
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+            Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
 			With MyIBMConnectServer
 
 				strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-WebSphere') BEGIN " & _
@@ -1237,10 +1394,23 @@ Partial Public Class VitalSignsPlusCore
 				  "'" & .DeviceType & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-" & .ServerType & "', '" & .NextScan & "' )" & _
 				  "END"
 
-				strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-" & .ServerType & "'"
+                strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-" & .ServerType & "'"
+                updatedef = repo.Updater _
+                        .Set(Function(i) i.Name, .Name) _
+                        .[Set](Function(i) i.CurrentStatus, .StatusCode) _
+                        .[Set](Function(i) i.StatusCode, .StatusCode) _
+                        .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                        .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                        .[Set](Function(i) i.Description, .Description) _
+                        .[Set](Function(i) i.Type, .ServerType) _
+                        .[Set](Function(i) i.Location, .Location) _
+                        .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                        .[Set](Function(i) i.Category, .Category) _
+                        .[Set](Function(i) i.NextScan, .NextScan)
 			End With
 			If MyIBMConnectServer.Enabled = True Then
-				UpdateStatusTable(strSqlUpdate, strSQL, MyIBMConnectServer.Name)
+                'UpdateStatusTable(strSqlUpdate, strSQL, MyIBMConnectServer.Name)
+                repo.Upsert(filterdef, updatedef)
 			End If
 
 		Next n
@@ -1249,89 +1419,89 @@ Partial Public Class VitalSignsPlusCore
 	End Sub
 
 
-    Private Sub ClearExistingNotesMailProbeHistory()
-        WriteAuditEntry(Now.ToString & " Clearing history table for NotesMail Probes.")
-        'Now delete the existing Probe records 
+    'Private Sub ClearExistingNotesMailProbeHistory()
+    '    WriteAuditEntry(Now.ToString & " Clearing history table for NotesMail Probes.")
+    '    'Now delete the existing Probe records 
 
-        Dim strSQL As String = "DELETE FROM NotesMailProbeHistory"
-        Dim objVSAdaptor As New VSAdaptor
-        Try
-            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "servers", strSQL)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error with Status Table while Clearing NotesMail Probe history:" & ex.Message)
-        End Try
-        'Dim myConnection As New OleDb.OleDbConnection
-
-
-        'myConnection.ConnectionString = Me.OleDbConnectionServers.ConnectionString
-        'myConnection.Open()
-        'Dim myCommand As New OleDb.OleDbCommand(strSQL, myConnection)
-
-        'Try
-        '    myCommand.ExecuteNonQuery()
-        '    myCommand.Dispose()
-        'Catch ex As Exception
-        '    WriteAuditEntry(Now.ToString & " Error with Status Table while Clearing NotesMail Probe history:" & ex.Message)
-        'End Try
-        'myConnection.Close()
-
-        'strSQL = Nothing
-
-        'myConnection.Dispose()
-
-    End Sub
+    '    Dim strSQL As String = "DELETE FROM NotesMailProbeHistory"
+    '    Dim objVSAdaptor As New VSAdaptor
+    '    Try
+    '        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "servers", strSQL)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " Error with Status Table while Clearing NotesMail Probe history:" & ex.Message)
+    '    End Try
+    '    'Dim myConnection As New OleDb.OleDbConnection
 
 
+    '    'myConnection.ConnectionString = Me.OleDbConnectionServers.ConnectionString
+    '    'myConnection.Open()
+    '    'Dim myCommand As New OleDb.OleDbCommand(strSQL, myConnection)
 
-    Private Sub UpdateBBQStatusTable()
+    '    'Try
+    '    '    myCommand.ExecuteNonQuery()
+    '    '    myCommand.Dispose()
+    '    'Catch ex As Exception
+    '    '    WriteAuditEntry(Now.ToString & " Error with Status Table while Clearing NotesMail Probe history:" & ex.Message)
+    '    'End Try
+    '    'myConnection.Close()
 
-        Dim strSQL As String = ""
-        Dim Percent As Decimal
-        Dim objVSAdaptor As New VSAdaptor
+    '    'strSQL = Nothing
+
+    '    'myConnection.Dispose()
+
+    'End Sub
 
 
-        For Each BB As MonitoredItems.BlackBerryQueue In myBlackBerryQueues
-            Try
-                With BB
-                    Percent = BB.PendingMail / BB.PendingThreshold
 
-                    Try
-                        BB.StatusCode = ServerStatusCode(BB.Status)
-                    Catch ex As Exception
-                        BB.StatusCode = vbNull
-                    End Try
+    'Private Sub UpdateBBQStatusTable()
 
-                    strSQL = "Update Status SET Status='" & .Status & _
-                    "', LastUpdate='" & Now & _
-                    "', PendingMail='" & .PendingMail & _
-                    "', PendingThreshold='" & .PendingThreshold & _
-                     "', NextScan='" & .NextScan & _
-                    "', MyPercent='" & (Percent * 100) & _
-                    "', Description='" & .Description & _
-                     "', StatusCode='" & .StatusCode & _
-                   "', Details='" & .ResponseDetails & _
-                    "', Name='" & .Name & "' " & _
-                    "  WHERE TypeANDName='" & .Name & "-BBQ' "
-                    'TypeANDName is the key
-                    ' WriteAuditEntry(Now.ToString & " " & strSQL)
-                End With
-                'If boolUseSQLServer = True Then
-                '    ExecuteNonQuerySQL_VitalSigns(strSQL)
-                'Else
-                '    myCommand.CommandText = strSQL
-                '    myCommand.ExecuteNonQuery()
-                'End If
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+    '    Dim strSQL As String = ""
+    '    Dim Percent As Decimal
+    '    Dim objVSAdaptor As New VSAdaptor
 
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " Error while creating BlackBerry SQL statement: " & ex.Message & vbCrLf & strSQL)
-            End Try
 
-        Next
+    '    For Each BB As MonitoredItems.BlackBerryQueue In myBlackBerryQueues
+    '        Try
+    '            With BB
+    '                Percent = BB.PendingMail / BB.PendingThreshold
 
-        strSQL = Nothing
+    '                Try
+    '                    BB.StatusCode = ServerStatusCode(BB.Status)
+    '                Catch ex As Exception
+    '                    BB.StatusCode = vbNull
+    '                End Try
 
-    End Sub
+    '                strSQL = "Update Status SET Status='" & .Status & _
+    '                "', LastUpdate='" & Now & _
+    '                "', PendingMail='" & .PendingMail & _
+    '                "', PendingThreshold='" & .PendingThreshold & _
+    '                 "', NextScan='" & .NextScan & _
+    '                "', MyPercent='" & (Percent * 100) & _
+    '                "', Description='" & .Description & _
+    '                 "', StatusCode='" & .StatusCode & _
+    '               "', Details='" & .ResponseDetails & _
+    '                "', Name='" & .Name & "' " & _
+    '                "  WHERE TypeANDName='" & .Name & "-BBQ' "
+    '                'TypeANDName is the key
+    '                ' WriteAuditEntry(Now.ToString & " " & strSQL)
+    '            End With
+    '            'If boolUseSQLServer = True Then
+    '            '    ExecuteNonQuerySQL_VitalSigns(strSQL)
+    '            'Else
+    '            '    myCommand.CommandText = strSQL
+    '            '    myCommand.ExecuteNonQuery()
+    '            'End If
+    '            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+
+    '        Catch ex As Exception
+    '            WriteAuditEntry(Now.ToString & " Error while creating BlackBerry SQL statement: " & ex.Message & vbCrLf & strSQL)
+    '        End Try
+
+    '    Next
+
+    '    strSQL = Nothing
+
+    'End Sub
 
 
 
@@ -1770,8 +1940,14 @@ Partial Public Class VitalSignsPlusCore
             '    myCommand.CommandText = strSQL
             '    myCommand.ExecuteNonQuery()
             'End If
-
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = "Network Device"
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "ResponseTime"
+            DailyStats.StatValue = ResponseTime
+            repo.Insert(DailyStats)
+            ' objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Network Device Stats table insert failed becase: " & ex.Message)
             WriteAuditEntry(Now.ToString & " The failed stats table insert comand was " & strSQL)
@@ -1800,8 +1976,16 @@ Partial Public Class VitalSignsPlusCore
             strSQL = "INSERT INTO SametimeDailyStats ( ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" & _
                " VALUES ('" & ServerName & "', '" & FixDate(Now) & " " & Now.ToShortTimeString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "' , '" & Now.Hour & "')"
 
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = "BES"
+            DailyStats.ServerName = ServerName
+            DailyStats.StatName = "ResponseTime"
+            DailyStats.StatValue = ResponseTime
+            repo.Insert(DailyStats)
+
             WriteDeviceHistoryEntry("Sametime", ServerName, Now.ToString & "  " & strSQL)
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Sametime Stats table insert failed because: " & ex.Message)
             WriteAuditEntry(Now.ToString & " The failed stats table insert command was " & strSQL)
@@ -1896,7 +2080,11 @@ Partial Public Class VitalSignsPlusCore
 
         Try
             'Update the status table
-
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim TypeAndName As String = MySametimeServer.Name & "-Sametime"
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+            Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
+          
             With MySametimeServer
                 strSQL = "Update Status SET DeadMail= " & .nWay_Chat_Sessions & ", DownCount= " & .DownCount & _
                  ", PendingMail=" & .Chat_Sessions & ", Status='" & .Status & "', Upcount=" & .UpCount & _
@@ -1918,10 +2106,38 @@ Partial Public Class VitalSignsPlusCore
                 " , UpMinutes='" & Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1") & _
                 "', DownMinutes='" & Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1") & "'" & _
                 "  WHERE TypeANDName='" & .Name & "-Sametime'"
+
+                updatedef = repo.Updater _
+                                    .Set(Function(i) i.Name, .Name) _
+                                    .[Set](Function(i) i.CurrentStatus, .Status) _
+                                    .[Set](Function(i) i.StatusCode, .Status) _
+                                    .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                    .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                    .[Set](Function(i) i.Description, .Description) _
+                                    .[Set](Function(i) i.Details, StatusDetails) _
+                                    .[Set](Function(i) i.Category, .Category) _
+                                    .[Set](Function(i) i.Type, "Sametime") _
+                                    .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
+                                    .[Set](Function(i) i.Location, .Location) _
+                                    .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                                    .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                                    .[Set](Function(i) i.LastUpdated, Now) _
+                                    .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                                    .[Set](Function(i) i.PendingMail, Integer.Parse(.Chat_Sessions)) _
+                                    .[Set](Function(i) i.NextScan, .NextScan) _
+                                    .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
+                                    .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
+                                    .[Set](Function(i) i.DominoVersion, "Current Chats: " & .Chat_Sessions) _
+                .[Set](Function(i) i.OperatingSystem, "IBM Sametime server") _
+                .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
+                .[Set](Function(i) i.PendingThreshold, Integer.Parse(.Chat_Sessions_Threshold)) _
+                .[Set](Function(i) i.DeadThreshold, Integer.Parse(.nWay_Chat_Sessions_Threshold))
             End With
 
             strSQL = strSQL.Replace("NaN", "0")
             strSQL = strSQL.Replace("' ", "'")
+           
+            repo.Upsert(filterdef, updatedef)
 
             WriteDeviceHistoryEntry("Sametime", MySametimeServer.Name, Now.ToString & " Sametime module  SQL statement: " & strSQL)
 
@@ -1931,31 +2147,31 @@ Partial Public Class VitalSignsPlusCore
         End Try
 
 
-        Try
-            '**
-            Dim myPath As String
-            Dim myRegistry As New RegistryHandler
+        'Try
+        '    '**
+        '    Dim myPath As String
+        '    Dim myRegistry As New RegistryHandler
 
 
-            myRegistry = Nothing
+        '    myRegistry = Nothing
 
-            Dim objVSAdaptor As New VSAdaptor
-            If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = False And MySametimeServer.Enabled = True Then
-                With MySametimeServer
-                    strSQL = "INSERT INTO Status (StatusCode, Category,  Description, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon,  MyPercent, NextScan,  UpMinutes, DownMinutes, PendingThreshold, DeadThreshold) " & _
-                    " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .Description & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
-                    "'Sametime', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-Sametime', " & IconList.Sametime & ", '" & Percent & "', '" & .NextScan & "', " & Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1") & ", " & Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1") & "', " & .Chat_Sessions_Threshold & ", " & .nWay_Chat_Sessions_Threshold & ")"
-                End With
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-            End If
+        '    Dim objVSAdaptor As New VSAdaptor
+        '    If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = False And MySametimeServer.Enabled = True Then
+        '        With MySametimeServer
+        '            strSQL = "INSERT INTO Status (StatusCode, Category,  Description, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon,  MyPercent, NextScan,  UpMinutes, DownMinutes, PendingThreshold, DeadThreshold) " & _
+        '            " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .Description & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
+        '            "'Sametime', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-Sametime', " & IconList.Sametime & ", '" & Percent & "', '" & .NextScan & "', " & Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1") & ", " & Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1") & "', " & .Chat_Sessions_Threshold & ", " & .nWay_Chat_Sessions_Threshold & ")"
+        '        End With
+        '        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+        '    End If
 
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error updating Status table with Sametime server info: " & ex.Message & vbCrLf & "SQL Statement: " & strSQL, LogLevel.Normal)
-        Finally
-            '  MyDominoServer.LastScan = Now.ToString
-            '   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Updated  Domino Status Table with " & strSQL)
-            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Next scan scheduled : " & MyDominoServer.NextScan)
-        End Try
+        'Catch ex As Exception
+        '    WriteAuditEntry(Now.ToString & " Error updating Status table with Sametime server info: " & ex.Message & vbCrLf & "SQL Statement: " & strSQL, LogLevel.Normal)
+        'Finally
+        '    '  MyDominoServer.LastScan = Now.ToString
+        '    '   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Updated  Domino Status Table with " & strSQL)
+        '    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Next scan scheduled : " & MyDominoServer.NextScan)
+        'End Try
 
     End Sub
 
@@ -1969,8 +2185,15 @@ Partial Public Class VitalSignsPlusCore
         strSQL = "INSERT INTO SametimeDailyStats (ServerName, [Date], StatName, StatValue,  WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" & _
             " VALUES ('" & ServerName & "', '" & Now.ToString & "', '" & StatName & "', '" & StatValue & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "', '" & Now.Hour & "')"
 
+        Dim DailyStats As New DailyStatistics
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+        DailyStats.DeviceType = "Sametime"
+        DailyStats.ServerName = ServerName
+        DailyStats.StatName = StatName
+        DailyStats.StatValue = StatValue
+        repo.Insert(DailyStats)
         Dim objVSAdaptor As New VSAdaptor
-        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "SametimeStats", strSQL)
+        'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "SametimeStats", strSQL)
 
 
         strSQL = Nothing
@@ -2046,7 +2269,15 @@ Partial Public Class VitalSignsPlusCore
                 If translatedStatName <> "" Then
                     strSQL = "INSERT INTO SametimeDailyStats (ServerName, [Date], StatName, StatValue,  WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" & _
                         " VALUES ('" & Server.Name & "', '" & Now.ToString & "', '" + translatedStatName + "', '" & Stat.Value & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "', '" & Now.Hour & "')"
-                    objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "SametimeStats", strSQL)
+                    'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "SametimeStats", strSQL)
+
+                    Dim DailyStats As New DailyStatistics
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+                    DailyStats.DeviceType = "Sametime"
+                    DailyStats.ServerName = Server.Name
+                    DailyStats.StatName = translatedStatName
+                    DailyStats.StatValue = Stat.Value
+                    repo.Insert(DailyStats)
                 End If
 
                 '		If Stat.Name = "ConcurrentLogins" Then
@@ -2282,7 +2513,14 @@ Partial Public Class VitalSignsPlusCore
             '    myCommand.CommandText = strSQL
             '    myCommand.ExecuteNonQuery()
             'End If
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = "URL"
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "ResponseTime"
+            DailyStats.StatValue = ResponseTime
+            repo.Insert(DailyStats)
         Catch ex As Exception
             WriteDeviceHistoryEntry("URL", DeviceName, Now.ToString & " URL Stats table insert failed because: " & ex.Message)
             WriteDeviceHistoryEntry("URL", DeviceName, Now.ToString & " The failed stats table insert command was " & strSQL)
@@ -2306,22 +2544,47 @@ Partial Public Class VitalSignsPlusCore
         Dim objVSAdaptor As New VSAdaptor
         Dim n As Integer
         Dim MyURL As MonitoredItems.URL
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
         For n = 0 To MyURLs.Count - 1
             strSQL = ""
             MyURL = MyURLs.Item(n)
             WriteAuditEntry(Now.ToString & " Configuring " & MyURL.Name)
+
             With MyURL
                 '5/2/2016 NS modified for VSPLUS-2887
                 strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-URL') BEGIN " & _
                  "INSERT INTO Status (StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon) " & _
                  " VALUES ('Not Scanned', '" & .Category & "', 'Not Scanned', 'This URL has not yet been scanned.', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'URL', '" & .UpCount & "', '" & .UpPercentCount & "', '" & FixDateTime(Now) & "', '0', '" & .Name & "-URL', " & IconList.URL & ")" & _
                  "END"
+
+                Dim TypeAndName As String = MyURL.Name & "-URL"
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                updatedef = repo.Updater _
+                                          .Set(Function(i) i.Name, .Name) _
+                                          .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
+                                          .[Set](Function(i) i.StatusCode, "Not Scanned") _
+                                          .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                          .[Set](Function(i) i.Category, .Category) _
+                                          .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                          .[Set](Function(i) i.Description, "Not Scanned") _
+                                          .[Set](Function(i) i.Type, "URL") _
+                                          .[Set](Function(i) i.Location, .Location) _
+                                          .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                                          .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                                          .[Set](Function(i) i.LastUpdated, Now) _
+                                          .[Set](Function(i) i.ResponseTime, 0) _
+                                          .[Set](Function(i) i.Icon, IconList.URL) _
+                               .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
+
+
             End With
 
             ' WriteAuditEntry(Now.ToString & " " & strSQL)
             Try
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                'objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                repo.Upsert(filterdef, updatedef)
             Catch ex As Exception
 
             End Try
@@ -2370,7 +2633,14 @@ Partial Public Class VitalSignsPlusCore
             '    myCommand.CommandText = strSQL
             '    myCommand.ExecuteNonQuery()
             'End If
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = "Cloud"
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "ResponseTime"
+            DailyStats.StatValue = ResponseTime
+            repo.Insert(DailyStats)
         Catch ex As Exception
             WriteDeviceHistoryEntry("Cloud", DeviceName, Now.ToString & " Cloud Stats table insert failed because: " & ex.Message)
             WriteDeviceHistoryEntry("Cloud", DeviceName, Now.ToString & " The failed stats table insert command was " & strSQL)
@@ -2395,6 +2665,11 @@ Partial Public Class VitalSignsPlusCore
         Dim n As Integer
         Dim MyCloud As MonitoredItems.Cloud
 
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
+        
+
         For n = 0 To MyClouds.Count - 1
             strSQL = ""
             MyCloud = MyClouds.Item(n)
@@ -2404,11 +2679,34 @@ Partial Public Class VitalSignsPlusCore
                  "INSERT INTO Status (StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon) " & _
                  " VALUES ('Not Scanned', '" & .Category & "', '" & .CloudURL & "', 'This Cloud URL has not yet been scanned.', '" & .DownCount & "', 'Cloud', '" & .Name & "', '" & .Status & "', 'Cloud', '" & .UpCount & "', '" & .UpPercentCount & "', '" & FixDateTime(Now) & "', '0', '" & .Name & "-Cloud', " & IconList.URL & ")" & _
                  "END"
+                Dim TypeAndName As String = .Name & "-Cloud"
+
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                updatedef = repo.Updater _
+                                  .Set(Function(i) i.Name, .Name) _
+                                  .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
+                                  .[Set](Function(i) i.StatusCode, "Not Scanned") _
+                                  .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                  .[Set](Function(i) i.Details, "This Cloud URL has not yet been scanned.") _
+                                  .[Set](Function(i) i.Category, .Category) _
+                                  .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                  .[Set](Function(i) i.Description, .CloudURL) _
+                                  .[Set](Function(i) i.Type, "Cloud") _
+                                  .[Set](Function(i) i.Location, "Cloud") _
+                                  .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                                  .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                                  .[Set](Function(i) i.LastUpdated, Now) _
+                                  .[Set](Function(i) i.Icon, IconList.URL) _
+                                  .[Set](Function(i) i.ResponseTime, 0) _
+                                  .[Set](Function(i) i.NextScan, .NextScan)
+
             End With
 
             ' WriteAuditEntry(Now.ToString & " " & strSQL)
             Try
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                'objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                repo.Upsert(filterdef, updatedef)
+
             Catch ex As Exception
 
             End Try
@@ -2496,26 +2794,49 @@ Partial Public Class VitalSignsPlusCore
 
         Try
             'Update the status table
-
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
+            Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
             With MyWebSphereServer
-                strSQL = "Update Status SET " & _
-                " Status='" & .Status & "'" & _
-                ", Details='" & StatusDetails & _
-                 "', Description='" & .Description & _
-                 "', StatusCode='" & .StatusCode & _
-                "', LastUpdate='" & Now & _
-                "', Category='" & .Category & _
-                "', ResponseTime='" & Str(.ResponseTime) & _
-                "', ResponseThreshold='" & .ResponseThreshold & _
-                "', NextScan='" & .NextScan & _
-                "', Name='" & .Name & _
-                "', CPU='" & .CPU_Utilization & _
-                "', Memory='" & .Memory_Utilization & _
-                "' WHERE TypeANDName='" & .Name & "-" & .ServerType & "'"
-            End With
+                'strSQL = "Update Status SET " & _
+                '" Status='" & .Status & "'" & _
+                '", Details='" & StatusDetails & _
+                ' "', Description='" & .Description & _
+                ' "', StatusCode='" & .StatusCode & _
+                '"', LastUpdate='" & Now & _
+                '"', Category='" & .Category & _
+                '"', ResponseTime='" & Str(.ResponseTime) & _
+                '"', ResponseThreshold='" & .ResponseThreshold & _
+                '"', NextScan='" & .NextScan & _
+                '"', Name='" & .Name & _
+                '"', CPU='" & .CPU_Utilization & _
+                '"', Memory='" & .Memory_Utilization & _
+                '"' WHERE TypeANDName='" & .Name & "-" & .ServerType & "'"
 
-            strSQL = strSQL.Replace("NaN", "0")
-            strSQL = strSQL.Replace("' ", "'")
+                Dim TypeAndName As String = .Name & "-Cloud"
+
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                updatedef = repo.Updater _
+                                  .Set(Function(i) i.Name, .Name) _
+                                  .[Set](Function(i) i.CurrentStatus, .Status) _
+                                  .[Set](Function(i) i.StatusCode, .Status) _
+                                  .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                  .[Set](Function(i) i.Details, StatusDetails) _
+                                  .[Set](Function(i) i.Category, .Category) _
+                                  .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                  .[Set](Function(i) i.Description, .Description) _
+                                  .[Set](Function(i) i.Type, .ServerType) _
+                                  .[Set](Function(i) i.LastUpdated, Now) _
+                                  .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                                  .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
+                                  .[Set](Function(i) i.NextScan, .NextScan)
+
+            End With
+            repo.Upsert(filterdef, updatedef)
+            'strSQL = strSQL.Replace("NaN", "0")
+            'strSQL = strSQL.Replace("' ", "'")
+
+           
 
             WriteDeviceHistoryEntry("WebSphere", MyWebSphereServer.Name, Now.ToString & " WebSphere module  SQL statement: " & strSQL)
 
@@ -2525,34 +2846,34 @@ Partial Public Class VitalSignsPlusCore
         End Try
 
 
-        Try
-            '**
-            Dim myPath As String
-            Dim myRegistry As New RegistryHandler
+        'Try
+        '    '**
+        '    Dim myPath As String
+        '    Dim myRegistry As New RegistryHandler
 
 
-            myRegistry = Nothing
+        '    myRegistry = Nothing
 
-            Dim objVSAdaptor As New VSAdaptor
-            If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = False And MyWebSphereServer.Enabled = True Then
-                Dim strSQLUpdate As String = strSQL
-                With MyWebSphereServer
-                    strSQL = "INSERT INTO Status (StatusCode, Category,  Description, Location, Name,  Status, Type, LastUpdate, ResponseTime, TypeANDName, NextScan, Details, ResponseThreshold) " & _
-                    " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .Description & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
-                    "'" & .ServerType & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-" & .ServerType & "', '" & .NextScan & "', '" & StatusDetails & "', '" & .ResponseThreshold & "' )"
-                End With
-                WriteAuditEntryWebSphere(Now.ToString & " Status Insert: " & strSQL)
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQLUpdate)
-            End If
+        '    Dim objVSAdaptor As New VSAdaptor
+        '    If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = False And MyWebSphereServer.Enabled = True Then
+        '        Dim strSQLUpdate As String = strSQL
+        '        With MyWebSphereServer
+        '            strSQL = "INSERT INTO Status (StatusCode, Category,  Description, Location, Name,  Status, Type, LastUpdate, ResponseTime, TypeANDName, NextScan, Details, ResponseThreshold) " & _
+        '            " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .Description & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
+        '            "'" & .ServerType & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-" & .ServerType & "', '" & .NextScan & "', '" & StatusDetails & "', '" & .ResponseThreshold & "' )"
+        '        End With
+        '        WriteAuditEntryWebSphere(Now.ToString & " Status Insert: " & strSQL)
+        '        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+        '        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQLUpdate)
+        '    End If
 
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error updating Status table with WebSphere server info: " & ex.Message & vbCrLf & "SQL Statement: " & strSQL, LogLevel.Normal)
-        Finally
-            '  MyDominoServer.LastScan = Now.ToString
-            '   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Updated  Domino Status Table with " & strSQL)
-            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Next scan scheduled : " & MyWebSphereServer.NextScan)
-        End Try
+        'Catch ex As Exception
+        '    WriteAuditEntry(Now.ToString & " Error updating Status table with WebSphere server info: " & ex.Message & vbCrLf & "SQL Statement: " & strSQL, LogLevel.Normal)
+        'Finally
+        '    '  MyDominoServer.LastScan = Now.ToString
+        '    '   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Updated  Domino Status Table with " & strSQL)
+        '    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Next scan scheduled : " & MyWebSphereServer.NextScan)
+        'End Try
 
         Try
             updateWebSphereNodeStatus(MyWebSphereServer)

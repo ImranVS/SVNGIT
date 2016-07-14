@@ -1196,7 +1196,7 @@ CleanUp:
 				End If
 
 			End If
-			UpdateBESDailyStatTable(BES_Server.Name, "BES_Messages_Filtered", FilteredMessages)
+            UpdateBESDailyStatTable(BES_Server.Name, "BES_Messages_Filtered", FilteredMessages)
 
 		Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " " & BES_Server.Name & ": Error calculating BES_Messages_Filtered " & ex.Message)

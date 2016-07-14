@@ -1,5 +1,8 @@
 ﻿Imports VSFramework
 Imports System.Threading
+Imports VSNext.Mongo.Repository
+Imports VSNext.Mongo.Entities
+Imports MongoDB.Driver
 
 Partial Public Class VitalSignsPlusCore
     '10/6/2014 NS added for VSPLUS-1002
@@ -465,57 +468,85 @@ Update:
             If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " My status code is " & myCloud.StatusCode)
         End Try
 
-        Try
-            strSQL = "Update Status SET DownCount= " & myCloud.DownCount & _
-                            ", Status='" & myCloud.Status & "', Upcount=" & myCloud.UpCount & _
-                            ", LastUpdate='" & FixDateTime(Now) & _
-                            "', StatusCode='" & myCloud.StatusCode & _
-                            "', Location='Cloud', ResponseTime=" & Str(myCloud.ResponseTime) & _
-                            ", NextScan='" & FixDateTime(myCloud.NextScan) & _
-                            "'  WHERE TypeANDName='" & myCloud.Name & "-Cloud' "
-            WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " " & strSQL)
-            UpdateStatusTable(strSQL)
-        Catch ex2 As Exception
-            WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " Cloud URL Monitor Error while creating second try Cloud URL SQL statement: " & ex2.Message & vbCrLf)
-        End Try
+        'Try
+        '    strSQL = "Update Status SET DownCount= " & myCloud.DownCount & _
+        '                    ", Status='" & myCloud.Status & "', Upcount=" & myCloud.UpCount & _
+        '                    ", LastUpdate='" & FixDateTime(Now) & _
+        '                    "', StatusCode='" & myCloud.StatusCode & _
+        '                    "', Location='Cloud', ResponseTime=" & Str(myCloud.ResponseTime) & _
+        '                    ", NextScan='" & FixDateTime(myCloud.NextScan) & _
+        '                    "'  WHERE TypeANDName='" & myCloud.Name & "-Cloud' "
+        '    WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " " & strSQL)
+        '    UpdateStatusTable(strSQL)
+        'Catch ex2 As Exception
+        '    WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " Cloud URL Monitor Error while creating second try Cloud URL SQL statement: " & ex2.Message & vbCrLf)
+        'End Try
 
 		Dim strSQLInsert As String = ""
 
         Try
 
             With myCloud
-                strSQL = "Update Status SET DownCount= " & myCloud.DownCount & _
-                ", Status='" & myCloud.Status & "', Upcount=" & myCloud.UpCount & _
-                ", UpPercent= " & myCloud.UpPercentCount & _
-                ", LastUpdate='" & FixDateTime(Now) & _
-                "', ResponseTime='" & Str(myCloud.ResponseTime) & _
-                "', StatusCode='" & .StatusCode & _
-                "', NextScan='" & FixDateTime(myCloud.NextScan) & _
-                "', PercentageChange='" & Str(PercentageChange) & _
-                "', ResponseThreshold='" & myCloud.ResponseThreshold & _
-                "', MyPercent='" & strPercent & _
-                "', Name='" & myCloud.Name & "' " & _
-                ", Details='" & StatusDetails & "' " & _
-                ", MailDetails='" & myCloud.CloudURL & "' " & _
-                ", UpPercentMinutes='" & myCloud.UpPercentMinutes & _
-                "', UpMinutes='" & Microsoft.VisualBasic.Strings.Format(myCloud.UpMinutes, "F1") & _
-                "', DownMinutes='" & Microsoft.VisualBasic.Strings.Format(myCloud.DownMinutes, "F1") & _
-                "'  WHERE TypeANDName='" & myCloud.Name & "-Cloud' "
-                'TypeANDName is the key
+                '            strSQL = "Update Status SET DownCount= " & myCloud.DownCount & _
+                '            ", Status='" & myCloud.Status & "', Upcount=" & myCloud.UpCount & _
+                '            ", UpPercent= " & myCloud.UpPercentCount & _
+                '            ", LastUpdate='" & FixDateTime(Now) & _
+                '            "', ResponseTime='" & Str(myCloud.ResponseTime) & _
+                '            "', StatusCode='" & .StatusCode & _
+                '            "', NextScan='" & FixDateTime(myCloud.NextScan) & _
+                '            "', PercentageChange='" & Str(PercentageChange) & _
+                '            "', ResponseThreshold='" & myCloud.ResponseThreshold & _
+                '            "', MyPercent='" & strPercent & _
+                '            "', Name='" & myCloud.Name & "' " & _
+                '            ", Details='" & StatusDetails & "' " & _
+                '            ", MailDetails='" & myCloud.CloudURL & "' " & _
+                '            ", UpPercentMinutes='" & myCloud.UpPercentMinutes & _
+                '            "', UpMinutes='" & Microsoft.VisualBasic.Strings.Format(myCloud.UpMinutes, "F1") & _
+                '            "', DownMinutes='" & Microsoft.VisualBasic.Strings.Format(myCloud.DownMinutes, "F1") & _
+                '            "'  WHERE TypeANDName='" & myCloud.Name & "-Cloud' "
+                '            'TypeANDName is the key
 
 
-				strSQLInsert = "INSERT INTO Status (StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon, " & _
-				  "NextScan, PercentageChange, ResponseThreshold, MyPercent, MailDetails, UpPercentMinutes, UpMinutes, DownMinutes)  " & _
-				   " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .CloudURL & "', '" & StatusDetails & "', '" & .DownCount & "', 'Cloud', '" & .Name & "', '" & .Status & "', 'Cloud', '" & .UpCount & "'," & _
-				   "'" & .UpPercentCount & "', '" & FixDateTime(Now) & "', '" & Str(.ResponseTime) & "', '" & .Name & "-Cloud', " & IconList.URL & ", '" & FixDateTime(myCloud.NextScan) & "', '" & Str(PercentageChange) & "', " & _
-				   "'" & myCloud.ResponseThreshold & "', '" & strPercent & "', '" & myCloud.CloudURL & "', '" & myCloud.UpPercentMinutes & "', '" & Microsoft.VisualBasic.Strings.Format(myCloud.UpMinutes, "F1") & "', " & _
-				   "'" & Microsoft.VisualBasic.Strings.Format(myCloud.DownMinutes, "F1") & "')"
+                'strSQLInsert = "INSERT INTO Status (StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon, " & _
+                '  "NextScan, PercentageChange, ResponseThreshold, MyPercent, MailDetails, UpPercentMinutes, UpMinutes, DownMinutes)  " & _
+                '   " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .CloudURL & "', '" & StatusDetails & "', '" & .DownCount & "', 'Cloud', '" & .Name & "', '" & .Status & "', 'Cloud', '" & .UpCount & "'," & _
+                '   "'" & .UpPercentCount & "', '" & FixDateTime(Now) & "', '" & Str(.ResponseTime) & "', '" & .Name & "-Cloud', " & IconList.URL & ", '" & FixDateTime(myCloud.NextScan) & "', '" & Str(PercentageChange) & "', " & _
+                '   "'" & myCloud.ResponseThreshold & "', '" & strPercent & "', '" & myCloud.CloudURL & "', '" & myCloud.UpPercentMinutes & "', '" & Microsoft.VisualBasic.Strings.Format(myCloud.UpMinutes, "F1") & "', " & _
+                '   "'" & Microsoft.VisualBasic.Strings.Format(myCloud.DownMinutes, "F1") & "')"
 
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim TypeAndName As String = myCloud.Name & "-Cloud"
+                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
+                updatedef = repo.Updater _
+                                          .Set(Function(i) i.Name, .Name) _
+                                          .[Set](Function(i) i.CurrentStatus, .Status) _
+                                          .[Set](Function(i) i.StatusCode, .Status) _
+                                          .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                           .[Set](Function(i) i.Details, StatusDetails) _
+                                          .[Set](Function(i) i.Category, .Category) _
+                                          .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                          .[Set](Function(i) i.Description, .Description) _
+                                          .[Set](Function(i) i.Type, "Cloud") _
+                                          .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
+                                          .[Set](Function(i) i.Location, "Cloud") _
+                                          .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                                          .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                                          .[Set](Function(i) i.Icon, IconList.URL) _
+                                          .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                                          .[Set](Function(i) i.MyPercent, Double.Parse(strPercent)) _
+                                          .[Set](Function(i) i.NextScan, .NextScan) _
+                                          .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
+                                          .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
+                                          .[Set](Function(i) i.MailDetails, TypeAndName) _
+                                          .[Set](Function(i) i.PercentageChange, PercentageChange) _
+                                         .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
+                repo.Upsert(filterdef, updatedef)
 
 			End With
 
             WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " " & strSQL)
-			UpdateStatusTable(strSQL, SQLInsertStatement:=strSQLInsert)
+            'UpdateStatusTable(strSQL, SQLInsertStatement:=strSQLInsert)
         Catch ex As Exception
             WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " Cloud URL Monitor Error while creating Cloud URL SQL statement: " & ex.Message & vbCrLf & strSQL)
         End Try

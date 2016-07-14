@@ -1,8 +1,10 @@
 ﻿Imports VSFramework
 Imports System.Threading
-
+Imports VSNext.Mongo.Repository
+Imports VSNext.Mongo.Entities
+Imports MongoDB.Driver
 Partial Public Class VitalSignsPlusCore
-
+    Dim connectionString As String = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
 #Region "URL Monitoring"
 
     Private Sub MonitorURL()  'This is the main sub that calls all the other ones
@@ -92,7 +94,7 @@ WaitHere:
     Private Sub QueryURL(ByRef myURL As MonitoredItems.URL)
         '   Dim dtLastScan As DateTime = myURL.LastScan
 
-        Dim StatusDetails As String
+        Dim StatusDetails As String = ""
         Dim Percent As Double = 100
         Dim strSQL As String
         myURL.Status = "OK"
@@ -129,14 +131,14 @@ WaitHere:
 
         End Try
 
-		WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Checking " & myURL.Name & " at " & myURL.URL, LogLevel.Normal)
-		WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " http location " & InStr(myURL.URL.ToUpper, "HTTP").ToString() & " at " & myURL.URL)
+        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Checking " & myURL.Name & " at " & myURL.URL, LogLevel.Normal)
+        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " http location " & InStr(myURL.URL.ToUpper, "HTTP").ToString() & " at " & myURL.URL)
 
-		' if not protocol is defined, append "http://"
-		If InStr(myURL.URL.ToUpper, "HTTP") <> 1 And InStr(myURL.URL.ToUpper, "FTP") <> 1 Then
-			myURL.URL = "http://" + myURL.URL
-			WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " append http:// to the URL " & " at " & myURL.URL)
-		End If
+        ' if not protocol is defined, append "http://"
+        If InStr(myURL.URL.ToUpper, "HTTP") <> 1 And InStr(myURL.URL.ToUpper, "FTP") <> 1 Then
+            myURL.URL = "http://" + myURL.URL
+            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " append http:// to the URL " & " at " & myURL.URL)
+        End If
         Try
             '' myURL.Status = "OK"
             ''myURL.ResponseDetails = ""
@@ -177,7 +179,7 @@ WaitHere:
         Try
 
             If myURL.ResponseTime > 0 Then
-              
+
                 myURL.Status = "OK"
                 myURL.AlertCondition = False
                 myURL.IncrementUpCount()
@@ -203,46 +205,46 @@ WaitHere:
                             StatusDetails = "The URL responded but contains a Domino exception"
                             WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " The URL is responding but has a Domino exception in it", LogLevel.Normal)
                             myURL.Status = "Issue"
-						Case "String Not Found"
-							WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " : String not Found. The myURL.AlertStringFound is:" + myURL.AlertStringFound.ToString(), LogLevel.Normal)
-							If myURL.AlertStringFound = "0" Or myURL.AlertStringFound = "" Then
-								StatusDetails = "The URL responded but the expected text (" & myURL.SearchString & ") was not found."
-								myURL.Status = "Issue"
-							Else
-								StatusDetails = "The URL responded but the expected text (" & myURL.SearchString & ") was not found."
-							End If
-							
-						Case "String Found"
-							WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " : String Found. The myURL.AlertStringFound is:", LogLevel.Normal)
-							If myURL.AlertStringFound = "0" Or myURL.AlertStringFound = "" Then
-								StatusDetails = "The expected text was found.  The URL responded in " & myURL.ResponseTime & " ms"
-								WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " : String Found. The expected text was found. So no issue.", LogLevel.Normal)
-							Else
-								StatusDetails = "The expected text was found.  The URL responded in " & myURL.ResponseTime & " ms"
-								WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " : String Found. The expected text was found. So it is an issue.", LogLevel.Normal)
-								myURL.Status = "Issue"
-							End If
-					End Select
+                        Case "String Not Found"
+                            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " : String not Found. The myURL.AlertStringFound is:" + myURL.AlertStringFound.ToString(), LogLevel.Normal)
+                            If myURL.AlertStringFound = "0" Or myURL.AlertStringFound = "" Then
+                                StatusDetails = "The URL responded but the expected text (" & myURL.SearchString & ") was not found."
+                                myURL.Status = "Issue"
+                            Else
+                                StatusDetails = "The URL responded but the expected text (" & myURL.SearchString & ") was not found."
+                            End If
+
+                        Case "String Found"
+                            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " : String Found. The myURL.AlertStringFound is:", LogLevel.Normal)
+                            If myURL.AlertStringFound = "0" Or myURL.AlertStringFound = "" Then
+                                StatusDetails = "The expected text was found.  The URL responded in " & myURL.ResponseTime & " ms"
+                                WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " : String Found. The expected text was found. So no issue.", LogLevel.Normal)
+                            Else
+                                StatusDetails = "The expected text was found.  The URL responded in " & myURL.ResponseTime & " ms"
+                                WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " : String Found. The expected text was found. So it is an issue.", LogLevel.Normal)
+                                myURL.Status = "Issue"
+                            End If
+                    End Select
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Exception in URL content check module: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                 End Try
 
-                        Try
-                            'MUKUND 15NOV13: copied below 2 lines from else condition to outside. As the status is OK, reset the 'Error'/'Not Responding'
-                            'The 'Slow' status reseting remains in else condition          
-                            If myURL.ResponseTime > myURL.ResponseThreshold Then
-                                myURL.Status = "Slow"
-                                StatusDetails = "Response Time: " & myURL.ResponseTime & " ms. Target is " & myURL.ResponseThreshold & " ms."
-                                myURL.Description = "Response Time: " & myURL.ResponseTime & " ms. Target is " & myURL.ResponseThreshold & " ms."
-                                myAlert.QueueAlert("URL", myURL.Name, "Slow", myURL.Name & " at " & myURL.URL & " responded in " & myURL.ResponseTime & " ms, but the Target is " & myURL.ResponseThreshold & " ms.", myURL.Location)
-                            Else
-                                myAlert.ResetAlert("URL", myURL.Name, "Slow", myURL.Location)
-                                'myAlert.ResetAlert("URL", myURL.Name, "Error", myURL.Location)
-                                'myAlert.ResetAlert("URL", myURL.Name, "Not Responding", myURL.Location)
-                            End If
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Error comparing URL response time to threshold: " & ex.Message)
-                        End Try
+                Try
+                    'MUKUND 15NOV13: copied below 2 lines from else condition to outside. As the status is OK, reset the 'Error'/'Not Responding'
+                    'The 'Slow' status reseting remains in else condition          
+                    If myURL.ResponseTime > myURL.ResponseThreshold Then
+                        myURL.Status = "Slow"
+                        StatusDetails = "Response Time: " & myURL.ResponseTime & " ms. Target is " & myURL.ResponseThreshold & " ms."
+                        myURL.Description = "Response Time: " & myURL.ResponseTime & " ms. Target is " & myURL.ResponseThreshold & " ms."
+                        myAlert.QueueAlert("URL", myURL.Name, "Slow", myURL.Name & " at " & myURL.URL & " responded in " & myURL.ResponseTime & " ms, but the Target is " & myURL.ResponseThreshold & " ms.", myURL.Location)
+                    Else
+                        myAlert.ResetAlert("URL", myURL.Name, "Slow", myURL.Location)
+                        'myAlert.ResetAlert("URL", myURL.Name, "Error", myURL.Location)
+                        'myAlert.ResetAlert("URL", myURL.Name, "Not Responding", myURL.Location)
+                    End If
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Error comparing URL response time to threshold: " & ex.Message)
+                End Try
 
             End If
 
@@ -257,8 +259,8 @@ WaitHere:
                 End If
 
                 myURL.AlertCondition = True
-				WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " " & StatusDetails, LogLevel.Normal)
-				myAlert.QueueAlert("URL", myURL.Name, "Not Responding", Now.ToString & " " & StatusDetails, myURL.Location)
+                WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " " & StatusDetails, LogLevel.Normal)
+                myAlert.QueueAlert("URL", myURL.Name, "Not Responding", Now.ToString & " " & StatusDetails, myURL.Location)
 
                 Percent = 0
             End If
@@ -302,49 +304,74 @@ Update:
             If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " My status code is " & myURL.StatusCode)
         End Try
 
-		'Try
-		'    strSQL = "Update Status SET DownCount= " & myURL.DownCount & _
-		'                    ", Status='" & myURL.Status & "', Upcount=" & myURL.UpCount & _
-		'                    ", LastUpdate='" & FixDateTime(Now) & _
-		'                    "', StatusCode='" & myURL.StatusCode & _
-		'                    "', Location='URL', ResponseTime=" & Str(myURL.ResponseTime) & _
-		'                    ", NextScan='" & FixDateTime(myURL.NextScan) & _
-		'                    "'  WHERE TypeANDName='" & myURL.Name & "-URL' "
-		'    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " " & strSQL)
-		'    UpdateStatusTable(strSQL)
-		'Catch ex2 As Exception
-		'    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " URL Monitor Error while creating second try URL SQL statement: " & ex2.Message & vbCrLf)
-		'End Try
+        'Try
+        '    strSQL = "Update Status SET DownCount= " & myURL.DownCount & _
+        '                    ", Status='" & myURL.Status & "', Upcount=" & myURL.UpCount & _
+        '                    ", LastUpdate='" & FixDateTime(Now) & _
+        '                    "', StatusCode='" & myURL.StatusCode & _
+        '                    "', Location='URL', ResponseTime=" & Str(myURL.ResponseTime) & _
+        '                    ", NextScan='" & FixDateTime(myURL.NextScan) & _
+        '                    "'  WHERE TypeANDName='" & myURL.Name & "-URL' "
+        '    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " " & strSQL)
+        '    UpdateStatusTable(strSQL)
+        'Catch ex2 As Exception
+        '    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " URL Monitor Error while creating second try URL SQL statement: " & ex2.Message & vbCrLf)
+        'End Try
 
         Try
 
 
-            With myURL
-                '5/2/2016 NS modified for VSPLUS-2887
-                strSQL = "Update Status SET DownCount= " & myURL.DownCount & _
-                ", Status='" & myURL.Status & "', Upcount=" & myURL.UpCount & _
-                ", UpPercent= " & myURL.UpPercentCount & _
-                ", LastUpdate='" & FixDateTime(Now) & _
-                "', StatusCode='" & .StatusCode & _
-                "', Location='" & .Location & "', ResponseTime=" & Str(.ResponseTime) & _
-                ", NextScan='" & FixDateTime(myURL.NextScan) & _
-                "', PercentageChange='" & Str(PercentageChange) & _
-                "', ResponseThreshold='" & myURL.ResponseThreshold & _
-                "', MyPercent='" & strPercent & _
-                "', Name='" & myURL.Name & "' " & _
-                ", Details='" & StatusDetails & "' " & _
-                ", Description='" & StatusDetails & "' " & _
-                ", MailDetails='" & myURL.URL & "' " & _
-                ", UpPercentMinutes='" & myURL.UpPercentMinutes & _
-                "', UpMinutes='" & Microsoft.VisualBasic.Strings.Format(myURL.UpMinutes, "F1") & _
-                "', DownMinutes='" & Microsoft.VisualBasic.Strings.Format(myURL.DownMinutes, "F1") & _
-                "'  WHERE TypeANDName='" & myURL.Name & "-URL' "
-                'TypeANDName is the key
+            'With myURL
+            '    '5/2/2016 NS modified for VSPLUS-2887
+            '    strSQL = "Update Status SET DownCount= " & myURL.DownCount & _
+            '    ", Status='" & myURL.Status & "', Upcount=" & myURL.UpCount & _
+            '    ", UpPercent= " & myURL.UpPercentCount & _
+            '    ", LastUpdate='" & FixDateTime(Now) & _
+            '    "', StatusCode='" & .StatusCode & _
+            '    "', Location='" & .Location & "', ResponseTime=" & Str(.ResponseTime) & _
+            '    ", NextScan='" & FixDateTime(myURL.NextScan) & _
+            '    "', PercentageChange='" & Str(PercentageChange) & _
+            '    "', ResponseThreshold='" & myURL.ResponseThreshold & _
+            '    "', MyPercent='" & strPercent & _
+            '    "', Name='" & myURL.Name & "' " & _
+            '    ", Details='" & StatusDetails & "' " & _
+            '    ", Description='" & StatusDetails & "' " & _
+            '    ", MailDetails='" & myURL.URL & "' " & _
+            '    ", UpPercentMinutes='" & myURL.UpPercentMinutes & _
+            '    "', UpMinutes='" & Microsoft.VisualBasic.Strings.Format(myURL.UpMinutes, "F1") & _
+            '    "', DownMinutes='" & Microsoft.VisualBasic.Strings.Format(myURL.DownMinutes, "F1") & _
+            '    "'  WHERE TypeANDName='" & myURL.Name & "-URL' "
+            '    'TypeANDName is the key
 
-            End With
+            'End With
+
+            Dim Typeandname As String = myURL.Name & "-URL' "
+            'Dim mongoStatement As New MongoStatementsUpsert(Of VSNext.Mongo.Entities.Status)()
+            ' mongoStatement.filterDef = mongoStatement.repo.Filter.Where(Function(i) i.TypeAndName = Typeandname)
+            ' mongoStatement.updateDef = mongoStatement.repo.Updater.[Set](Function(i) i.Name, myURL.Name).[Set](Function(i) i.CurrentStatus, myURL.Status).[Set](Function(i) i.StatusCode, myURL.StatusCode).[Set](Function(i) i.LastUpdated, DateTime.Now).[Set](Function(i) i.Location, myURL.Location).[Set](Function(i) i.Category, myURL.Category).[Set](Function(i) i.TypeAndName, myURL.Name & "-URL' ").[Set](Function(i) i.Description, "Microsoft").[Set](Function(i) i.ResponseTime, Integer.Parse(myURL.ResponseTime.ToString())).[Set](Function(i) i.ResponseThreshold, Integer.Parse(myURL.ResponseThreshold.ToString())).[Set](Function(i) i.Details, StatusDetails)
+
+
+
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = Typeandname)
+            Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repo.Updater _
+                                                                                 .Set(Function(i) i.Name, myURL.Name) _
+                                                                                 .[Set](Function(i) i.CurrentStatus, myURL.Status) _
+                                                                                 .[Set](Function(i) i.StatusCode, myURL.StatusCode) _
+                                                                                 .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                                                                 .[Set](Function(i) i.Location, myURL.Location) _
+                                                                                 .[Set](Function(i) i.Category, myURL.Category) _
+                                                                                 .[Set](Function(i) i.TypeAndName, myURL.Name & "-URL' ") _
+                                                                                 .[Set](Function(i) i.Description, StatusDetails) _
+                                                                                 .[Set](Function(i) i.ResponseTime, Integer.Parse(myURL.ResponseTime.ToString())) _
+                                                                                 .[Set](Function(i) i.ResponseThreshold, Integer.Parse(myURL.ResponseThreshold.ToString())) _
+                                                                                 .[Set](Function(i) i.Details, StatusDetails)
+            repo.Update(filterdef, updatedef)
+
+
 
             WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " " & strSQL)
-            UpdateStatusTable(strSQL)
+            'UpdateStatusTable(strSQL)
         Catch ex As Exception
             WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " URL Monitor Error while creating URL SQL statement: " & ex.Message & vbCrLf & strSQL)
         End Try
@@ -370,42 +397,42 @@ Update:
         Dim myRegistry As New RegistryHandler
 
         Dim n As Integer
-		Dim strSQL As String = ""
-		Dim ServerType As String = "URL"
-		Dim serverName As String = ""
+        Dim strSQL As String = ""
+        Dim ServerType As String = "URL"
+        Dim serverName As String = ""
 
-		Try
-			strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-			Dim ds As New DataSet()
-			ds.Tables.Add("ScanASAP")
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+        Try
+            strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+            Dim ds As New DataSet()
+            ds.Tables.Add("ScanASAP")
+            Dim objVSAdaptor As New VSAdaptor
+            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-			For Each row As DataRow In ds.Tables("ScanASAP").Rows
-				Try
-					serverName = row(0).ToString()
-				Catch ex As Exception
-					Continue For
-				End Try
+            For Each row As DataRow In ds.Tables("ScanASAP").Rows
+                Try
+                    serverName = row(0).ToString()
+                Catch ex As Exception
+                    Continue For
+                End Try
 
-				For n = 0 To MyURLs.Count - 1
-					ServerOne = MyURLs.Item(n)
+                For n = 0 To MyURLs.Count - 1
+                    ServerOne = MyURLs.Item(n)
 
-					If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-						'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-						strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-						objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+                    If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+                        'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+                        strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-						Return ServerOne
-						Exit Function
+                        Return ServerOne
+                        Exit Function
 
-					End If
-				Next
-			Next
+                    End If
+                Next
+            Next
 
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
+        End Try
 
 
 
@@ -579,87 +606,87 @@ Update:
         Dim elapsed As TimeSpan
         start = Now.Ticks
         Dim ResponseTime As Double = 0
-		' Dim ChilkatHTTP As New Chilkat.Http
+        ' Dim ChilkatHTTP As New Chilkat.Http
         myURL.HTML = ""
-		'Try
-		'    Dim success As Boolean
-		'    success = ChilkatHTTP.UnlockComponent("MZLDADHttp_efwTynJYYR3X")
-		'Catch ex As Exception
-		'    WriteAuditEntry(Now.ToString & " Error unlocking Chilkat component: " & ex.ToString)
-		'    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Error unlocking component: " & ex.ToString)
-		'End Try
+        'Try
+        '    Dim success As Boolean
+        '    success = ChilkatHTTP.UnlockComponent("MZLDADHttp_efwTynJYYR3X")
+        'Catch ex As Exception
+        '    WriteAuditEntry(Now.ToString & " Error unlocking Chilkat component: " & ex.ToString)
+        '    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Error unlocking component: " & ex.ToString)
+        'End Try
 
-		'Try
-		'    Dim myRegistry As New RegistryHandler
-		'    If myRegistry.ReadFromRegistry("ProxyEnabled") = "True" Then
-		'        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Attempting to route through proxy server.")
-		'        ChilkatHTTP.SocksHostname = myRegistry.ReadFromRegistry("ProxyServer")
-		'        ChilkatHTTP.SocksPort = myRegistry.ReadFromRegistry("ProxyPort")
-		'        ChilkatHTTP.SocksUsername = myRegistry.ReadFromRegistry("ProxyUser")
-		'        ChilkatHTTP.SocksPassword = myRegistry.ReadFromRegistry("ProxyPassword")
-		'    End If
-		'    myRegistry = Nothing
-		'Catch ex As Exception
+        'Try
+        '    Dim myRegistry As New RegistryHandler
+        '    If myRegistry.ReadFromRegistry("ProxyEnabled") = "True" Then
+        '        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Attempting to route through proxy server.")
+        '        ChilkatHTTP.SocksHostname = myRegistry.ReadFromRegistry("ProxyServer")
+        '        ChilkatHTTP.SocksPort = myRegistry.ReadFromRegistry("ProxyPort")
+        '        ChilkatHTTP.SocksUsername = myRegistry.ReadFromRegistry("ProxyUser")
+        '        ChilkatHTTP.SocksPassword = myRegistry.ReadFromRegistry("ProxyPassword")
+        '    End If
+        '    myRegistry = Nothing
+        'Catch ex As Exception
 
-		'End Try
+        'End Try
 
 
         Try
-			Dim h As System.Net.HttpWebRequest
-			h = CType(System.Net.WebRequest.Create(myURL.URL), System.Net.HttpWebRequest)
-			If myURL.UserName <> "" Then
-				Dim c As New System.Net.NetworkCredential
-				c.UserName = myURL.UserName
-				c.Password = myURL.Password
-				WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This URL requires a username and password.")
-				'ChilkatHTTP.Login = myURL.UserName
-				'ChilkatHTTP.Password = myURL.Password
-				h.Credentials = c
-			End If
+            Dim h As System.Net.HttpWebRequest
+            h = CType(System.Net.WebRequest.Create(myURL.URL), System.Net.HttpWebRequest)
+            If myURL.UserName <> "" Then
+                Dim c As New System.Net.NetworkCredential
+                c.UserName = myURL.UserName
+                c.Password = myURL.Password
+                WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This URL requires a username and password.")
+                'ChilkatHTTP.Login = myURL.UserName
+                'ChilkatHTTP.Password = myURL.Password
+                h.Credentials = c
+            End If
 
-			Dim n As Integer
-			Dim r As System.Net.HttpWebResponse
-			Do While myURL.HTML = ""
-				'myURL.HTML = ChilkatHTTP.QuickGetStr(myURL.URL)
-				Try
-					r = h.GetResponse
-				Catch ex As Exception
-						myURL.ResponseDetails = ex.Message.ToString
-						myURL.Status = "Not Responding"
-						myURL.Description = ex.Message.ToString
-						myURL.ResponseTime = 0
-						Exit Sub
-				End Try
-				Dim s As New System.IO.StreamReader(r.GetResponseStream())
-				myURL.HTML = s.ReadToEnd()
-				n += 1
-				Thread.Sleep(500)
-				If n > 15 Then Exit Do
-			Loop
-			If (myURL.HTML = "") Then
-				myURL.ResponseDetails = "Page returned with no data. "
-				myURL.Status = "Not Responding"
-				myURL.Description = "Page returned with no data. "
-				myURL.ResponseTime = 0
-				Exit Sub
-			End If
-			'should cover all the 400's and 500's errors
-			'If (ChilkatHTTP.LastStatus > 399 And ChilkatHTTP.LastStatus < 600) Then
+            Dim n As Integer
+            Dim r As System.Net.HttpWebResponse
+            Do While myURL.HTML = ""
+                'myURL.HTML = ChilkatHTTP.QuickGetStr(myURL.URL)
+                Try
+                    r = h.GetResponse
+                Catch ex As Exception
+                    myURL.ResponseDetails = ex.Message.ToString
+                    myURL.Status = "Not Responding"
+                    myURL.Description = ex.Message.ToString
+                    myURL.ResponseTime = 0
+                    Exit Sub
+                End Try
+                Dim s As New System.IO.StreamReader(r.GetResponseStream())
+                myURL.HTML = s.ReadToEnd()
+                n += 1
+                Thread.Sleep(500)
+                If n > 15 Then Exit Do
+            Loop
+            If (myURL.HTML = "") Then
+                myURL.ResponseDetails = "Page returned with no data. "
+                myURL.Status = "Not Responding"
+                myURL.Description = "Page returned with no data. "
+                myURL.ResponseTime = 0
+                Exit Sub
+            End If
+            'should cover all the 400's and 500's errors
+            'If (ChilkatHTTP.LastStatus > 399 And ChilkatHTTP.LastStatus < 600) Then
 
-			'	myURL.ResponseDetails = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
-			'	myURL.Status = "Not Responding"
-			'	myURL.Description = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
-			'	myURL.ResponseTime = 0
-			'	Exit Sub
-			'End If
-			If (r IsNot Nothing AndAlso (r.StatusCode > 399 And r.StatusCode < 600)) Then
+            '	myURL.ResponseDetails = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
+            '	myURL.Status = "Not Responding"
+            '	myURL.Description = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
+            '	myURL.ResponseTime = 0
+            '	Exit Sub
+            'End If
+            If (r IsNot Nothing AndAlso (r.StatusCode > 399 And r.StatusCode < 600)) Then
 
-				myURL.ResponseDetails = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
-				myURL.Status = "Not Responding"
-				myURL.Description = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
-				myURL.ResponseTime = 0
-				Exit Sub
-			End If
+                myURL.ResponseDetails = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+                myURL.Status = "Not Responding"
+                myURL.Description = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+                myURL.ResponseTime = 0
+                Exit Sub
+            End If
 
             done = Now.Ticks
             elapsed = New TimeSpan(done - start)
@@ -669,8 +696,8 @@ Update:
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error performing HTTP.Get: " & ex.Message)
             WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Error performing HTTP.Get: " & ex.Message)
-			myURL.ResponseDetails = ex.Message.Replace("URl", "URL")
-			myURL.Description = ex.Message.Replace("URl", "URL")
+            myURL.ResponseDetails = ex.Message.Replace("URl", "URL")
+            myURL.Description = ex.Message.Replace("URl", "URL")
             myURL.Status = "Error"
             myURL.ResponseTime = 0
         End Try
@@ -705,23 +732,23 @@ Update:
                 'myURL.ResponseDetails = myURL.ResponseDetails & " The search string " & myURL.SearchString & " was found."
                 WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This response contains the correct text.")
                 URLStringFound = True
-				returnValue = "String Found"
-				If myURL.AlertStringFound = "0" Or myURL.AlertStringFound = "" Then
-					myAlert.ResetAlert("URL", myURL.Name, "Search String", myURL.Location)
-				Else
-					myAlert.QueueAlert("URL", myURL.Name, "Search String", "This URL " & myURL.Name & " at " & myURL.URL & " contains the string (" & myURL.SearchString & ") we were searching for. ", myURL.Location)
-				End If
+                returnValue = "String Found"
+                If myURL.AlertStringFound = "0" Or myURL.AlertStringFound = "" Then
+                    myAlert.ResetAlert("URL", myURL.Name, "Search String", myURL.Location)
+                Else
+                    myAlert.QueueAlert("URL", myURL.Name, "Search String", "This URL " & myURL.Name & " at " & myURL.URL & " contains the string (" & myURL.SearchString & ") we were searching for. ", myURL.Location)
+                End If
 
             Else
                 WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " The string we were looking for was not found!", LogLevel.Verbose)
                 ' WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " The response we got was  " & vbCrLf & myURL.HTML, LogLevel.Verbose)
                 URLStringFound = False
-				returnValue = "String Not Found"
-				If myURL.AlertStringFound = "0" Or myURL.AlertStringFound = "" Then
-					myAlert.QueueAlert("URL", myURL.Name, "Search String", "This URL " & myURL.Name & " at " & myURL.URL & " does not contain the string (" & myURL.SearchString & ") we were searching for. ", myURL.Location)
-				Else
-					myAlert.ResetAlert("URL", myURL.Name, "Search String", myURL.Location)
-				End If
+                returnValue = "String Not Found"
+                If myURL.AlertStringFound = "0" Or myURL.AlertStringFound = "" Then
+                    myAlert.QueueAlert("URL", myURL.Name, "Search String", "This URL " & myURL.Name & " at " & myURL.URL & " does not contain the string (" & myURL.SearchString & ") we were searching for. ", myURL.Location)
+                Else
+                    myAlert.ResetAlert("URL", myURL.Name, "Search String", myURL.Location)
+                End If
 
             End If
         End If
@@ -730,7 +757,7 @@ Update:
 
     End Function
 
-	
+
     Public Sub URLResponseTimeSSL(ByRef myURL As MonitoredItems.URL)
         'This function returns as the number of milliseconds it takes to open a URL and retrieve its content
         'returns 0 in case of exception
