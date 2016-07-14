@@ -22,6 +22,7 @@ using System;
 //using System.Net.Http;
 //using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using MongoDB.Driver;
 namespace VitalSignsMicrosoftClasses
 {
 	public class Office365MAIN
@@ -32,7 +33,7 @@ namespace VitalSignsMicrosoftClasses
 		string NodeName = "";
 		string serverURL = "https://outlook.office365.com";
 		MonitoredItems.Office365ServersCollection myOffice365Servers;
-
+        string connectionString = ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
 		string serverType = "Office365";
 		public void StartProcess(dynamic MicrosoftHelperObj)
 		{
@@ -561,21 +562,55 @@ namespace VitalSignsMicrosoftClasses
 
 		private void ServerInMaintenance(string ServerType, MonitoredItems.Office365Server myServer)
 		{
-			CommonDB db = new CommonDB();
+            //CommonDB db = new CommonDB();
 
-			SQLBuild objSQL = new SQLBuild();
-			objSQL.ifExistsSQLSelect = "SELECT * FROM Status WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
-			objSQL.onFalseDML = "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, SecondaryRole,ResponseThreshold, " +
-						"DominoVersion, OperatingSystem, NextScan, Details, CPU, Memory) VALUES ('" + myServer.Name + "', 'Maintenance', 'Maintenance', '" + DateTime.Now.ToString() + "','" + ServerType + "','" +
-						myServer.Location + "','" + myServer.Category + "','" + myServer.Name + "-" + ServerType + "', 'Microsoft " + ServerType + " Server', 0, 0, '', " +
-						"'" + myServer.ResponseThreshold + "', '" + serverType +"', '" + myServer.OperatingSystem + "', '" + myServer.NextScan + "', " +
-						"'This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.', 0, 0 )";
+            //SQLBuild objSQL = new SQLBuild();
+            //objSQL.ifExistsSQLSelect = "SELECT * FROM Status WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
+            //objSQL.onFalseDML = "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, SecondaryRole,ResponseThreshold, " +
+            //            "DominoVersion, OperatingSystem, NextScan, Details, CPU, Memory) VALUES ('" + myServer.Name + "', 'Maintenance', 'Maintenance', '" + DateTime.Now.ToString() + "','" + ServerType + "','" +
+            //            myServer.Location + "','" + myServer.Category + "','" + myServer.Name + "-" + ServerType + "', 'Microsoft " + ServerType + " Server', 0, 0, '', " +
+            //            "'" + myServer.ResponseThreshold + "', '" + serverType +"', '" + myServer.OperatingSystem + "', '" + myServer.NextScan + "', " +
+            //            "'This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.', 0, 0 )";
 
-			objSQL.onTrueDML = "UPDATE Status set Status='Maintenance', StatusCode='Maintenance', LastUpdate='" + DateTime.Now + "', Details='This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.'," +
-				" UserCount=0, CPU=0, Memory=0 WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
+            //objSQL.onTrueDML = "UPDATE Status set Status='Maintenance', StatusCode='Maintenance', LastUpdate='" + DateTime.Now + "', Details='This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.'," +
+            //    " UserCount=0, CPU=0, Memory=0 WHERE TypeANDName='" + myServer.Name + "-" + ServerType + "'";
 
-			string sqlQuery = objSQL.GetSQL(objSQL);
-			db.Execute(sqlQuery);
+            //string sqlQuery = objSQL.GetSQL(objSQL);
+            //db.Execute(sqlQuery);
+
+            
+VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>(connectionString);
+string TypeAndName = myServer.Name + "-" + ServerType;
+FilterDefinition<VSNext.Mongo.Entities.Status> filterdef = repo.Filter.Where(i => i.TypeAndName == TypeAndName);
+UpdateDefinition<VSNext.Mongo.Entities.Status> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Status>);
+updatedef = repo.Updater
+    .Set(i => i.Name, myServer.Name)
+     .Set(i => i.CurrentStatus, "Maintenance")
+     .Set(i => i.StatusCode, "Maintenance")
+     .Set(i => i.LastUpdated, DateTime.Now)
+    .Set(i => i.Category, myServer.Category)
+    .Set(i => i.TypeAndName, TypeAndName)
+    .Set(i => i.Description, "Microsoft " + ServerType + " Server.")
+    .Set(i => i.Details, "This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.")
+    .Set(i => i.Type, ServerType)
+    .Set(i => i.UserCount, 0)
+    .Set(i => i.Location, myServer.Location)
+    .Set(i => i.LastUpdated, DateTime.Now)
+    .Set(i => i.ResponseTime, 0)
+    .Set(i => i.NextScan, myServer.NextScan)
+    .Set(i => i.DominoVersion,  ServerType)
+    .Set(i => i.OperatingSystem, myServer.OperatingSystem)
+    .Set(i => i.CPU, 0)
+    .Set(i => i.Memory, 0);
+repo.Upsert(filterdef, updatedef);
+
+//=======================================================
+//Service provided by Telerik (www.telerik.com)
+//Conversion powered by NRefactory.
+//Twitter: @telerik
+//Facebook: facebook.com/telerik
+//=======================================================
+
 
 		}
 
@@ -877,11 +912,36 @@ namespace VitalSignsMicrosoftClasses
 					{
 						if (server.Location != "")
 						{
-						 SqlStr = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + server.Name + "-" +server.Location + "'  AND CATEGORY='" + NodeName + "') BEGIN " +
-								"INSERT INTO Status ( Type, Location, Category, Name, Status, Details, Description, TypeANDName, StatusCode ) VALUES " +
-								" ('" + type + "', '" + server.Location + "', '" + server.Category + "', '" + server.Name + "', '" + server.Status + "', 'This server has not yet been scanned.', " +
-								"'Microsoft " + type + " Server', '" + server.Name + "-" + server.Location + "', '" + server.StatusCode + "')End";
-						 db.Execute(SqlStr);
+                         //SqlStr = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + server.Name + "-" +server.Location + "'  AND CATEGORY='" + NodeName + "') BEGIN " +
+                         //       "INSERT INTO Status ( Type, Location, Category, Name, Status, Details, Description, TypeANDName, StatusCode ) VALUES " +
+                         //       " ('" + type + "', '" + server.Location + "', '" + server.Category + "', '" + server.Name + "', '" + server.Status + "', 'This server has not yet been scanned.', " +
+                         //       "'Microsoft " + type + " Server', '" + server.Name + "-" + server.Location + "', '" + server.StatusCode + "')End";
+                         //db.Execute(SqlStr);
+                         VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>(connectionString);
+                         string TypeAndName = server.Name + "-" + type;
+                         FilterDefinition<VSNext.Mongo.Entities.Status> filterdef = repo.Filter.Where(i => i.TypeAndName == TypeAndName);
+                         UpdateDefinition<VSNext.Mongo.Entities.Status> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Status>);
+                         updatedef = repo.Updater
+                             .Set(i => i.Name, server.Name)
+                              .Set(i => i.CurrentStatus, server.Status)
+                              .Set(i => i.StatusCode, server.StatusCode)
+                              .Set(i => i.LastUpdated, DateTime.Now)
+                             .Set(i => i.Category, server.Category)
+                             .Set(i => i.TypeAndName, TypeAndName)
+                             .Set(i => i.Description, "Microsoft " + type + " Server.")
+                             .Set(i => i.Details, "This server has not yet been scanned.")
+                             .Set(i => i.Type, type)
+                             .Set(i => i.UserCount, 0)
+                             .Set(i => i.Location, server.Location)
+                             .Set(i => i.LastUpdated, DateTime.Now)
+                             .Set(i => i.ResponseTime, 0)
+                             .Set(i => i.NextScan, server.NextScan)
+                             .Set(i => i.DominoVersion, type)
+                             .Set(i => i.OperatingSystem, server.OperatingSystem)
+                             .Set(i => i.CPU, 0)
+                             .Set(i => i.Memory, 0);
+                         repo.Upsert(filterdef, updatedef);
+
 						//we do not want to insert a row without a location
 						
 							//i += 1;

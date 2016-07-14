@@ -1002,7 +1002,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("Office365AccountStats")]
+    [CollectionName("o365_account_stats")]
     public class Office365 : Entity
     {
         [DataMember]
@@ -1068,7 +1068,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("Office365ServiceDetails")]
+    [CollectionName("o365_service_details")]
     public class Office365ServiceDetails : Entity
     {
         [DataMember]
@@ -1108,7 +1108,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("Office365MSOLUsers")]
+    [CollectionName("o365_msol_users")]
     public class Office365MSOLUsers : Entity
     {
         [DataMember]
@@ -1163,7 +1163,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("Office365Groups")]
+    [CollectionName("o365_groups")]
     public class Office365Groups : Entity
     {
         [DataMember]
@@ -1193,7 +1193,7 @@ namespace VSNext.Mongo.Entities
     }
     [DataContract]
     [Serializable]
-    [CollectionName("Office365GroupMembers")]
+    [CollectionName("o365_group_members")]
     public class Office365GroupMembers : Entity
     {
         [DataMember]
@@ -1203,7 +1203,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("Office365LyncStats")]
+    [CollectionName("o365_lync_stats")]
     public class Office365LyncStats : Entity
     {
         [DataMember]
@@ -1240,7 +1240,7 @@ namespace VSNext.Mongo.Entities
     }
     [DataContract]
     [Serializable]
-    [CollectionName("Office365LyncDevices")]
+    [CollectionName("o365_lync_devices")]
     public class Office365LyncDevices : Entity
     {
         [DataMember]
@@ -1275,7 +1275,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("Office365LyncPAVTimeReport")]
+    [CollectionName("o365_lync_pav_time_report")]
     public class Office365LyncPAVTimeReport : Entity
     {
         [DataMember]
@@ -1298,7 +1298,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("Office365LyncP2PSessionReport")]
+    [CollectionName("o365_lync_p2p_session_report")]
     public class Office365LyncP2PSessionReport : Entity
     {
         [DataMember]
@@ -1337,7 +1337,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("Office365LyncConferenceReport")]
+    [CollectionName("o365_lync_conference_report")]
     public class Office365LyncConferenceReport : Entity
     {
         [DataMember]
