@@ -59,6 +59,7 @@
     <Compile Include="BusinessHours.cs" />
     <Compile Include="DailyStatistics.cs" />
     <Compile Include="DiskSpace.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="EventsDetected.cs" />
     <Compile Include="EventsMaster.cs" />
     <Compile Include="Mailbox.cs" />
