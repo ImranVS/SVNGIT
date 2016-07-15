@@ -89,6 +89,6 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("status")]
-        public string status { get; set; }
+        public string Status { get; set; }
     }
 }

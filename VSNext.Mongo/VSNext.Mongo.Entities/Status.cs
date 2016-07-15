@@ -251,11 +251,6 @@ namespace VSNext.Mongo.Entities
         public double? UpPercentCount { get; set; }
 
         [DataMember]
-        [BsonElement("icon")]
-        [BsonIgnoreIfNullAttribute]
-        public int? Icon { get; set; }
-
-        [DataMember]
         [BsonElement("percentage_change")]
         [BsonIgnoreIfNullAttribute]
         public double? PercentageChange { get; set; }
@@ -491,7 +486,7 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("device_id")]
-        public int? DeviceId { get; set; }
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("type")]
