@@ -32,6 +32,11 @@ namespace VSNext.Mongo.Entities
         public ObjectId BusinessHoursId { get; set; }
 
         [DataMember]
+        [BsonElement("b_id")]
+        [BsonIgnoreIfNullAttribute]
+        public int BId { get; set; }
+
+        [DataMember]
         [BsonElement("send_via")]
         [BsonIgnoreIfNullAttribute]
         public string SendVia { get; set; }
@@ -45,5 +50,26 @@ namespace VSNext.Mongo.Entities
         [BsonElement("copy_to")]
         [BsonIgnoreIfNullAttribute]
         public string CopyTo { get; set; }
+
+        [DataMember]
+        [BsonElement("blind_copy_to")]
+        [BsonIgnoreIfNullAttribute]
+        public string BlindCopyTo { get; set; }
+
+        [DataMember]
+        [BsonElement("script_command")]
+        [BsonIgnoreIfNullAttribute]
+        public string ScriptCommand { get; set; }
+
+        [DataMember]
+        [BsonElement("script_location")]
+        [BsonIgnoreIfNullAttribute]
+        public string ScriptLocation { get; set; }
+
+        [DataMember]
+        [BsonElement("persistent_alert")]
+        [BsonIgnoreIfNullAttribute]
+        public bool PersistentAlert { get; set; }
+
     }
 }

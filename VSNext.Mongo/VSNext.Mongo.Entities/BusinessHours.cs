@@ -21,6 +21,11 @@ namespace VSNext.Mongo.Entities
         public string Name { get; set; }
 
         [DataMember]
+        [BsonElement("b_id")]
+        [BsonIgnoreIfNullAttribute]
+        public int BId { get; set; }
+
+        [DataMember]
         [BsonElement("start_time")]
         [BsonIgnoreIfNullAttribute]
         public string StartTime { get; set; }
