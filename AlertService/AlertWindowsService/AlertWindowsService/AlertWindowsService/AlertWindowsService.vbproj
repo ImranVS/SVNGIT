@@ -58,12 +58,28 @@
     <ApplicationIcon>VitalSigns.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AlertLibrary, Version=3.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Builds\Services\AlertLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="ChilkatDotNet4">
       <HintPath>bin\Debug\ChilkatDotNet4.dll</HintPath>
     </Reference>
     <Reference Include="DateUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Builds\Services\DateUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Bson, Version=2.2.4.26, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Builds\Services\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver, Version=2.2.4.26, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Builds\Services\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver.Core, Version=2.2.4.26, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Builds\Services\MongoDB.Driver.Core.dll</HintPath>
     </Reference>
     <Reference Include="nsoftware.IPWorks">
       <HintPath>bin\Debug\nsoftware.ipworks.dll</HintPath>
@@ -87,6 +103,18 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Twilio.Api">
       <HintPath>..\packages\Twilio.3.6.24\lib\3.5\Twilio.Api.dll</HintPath>
+    </Reference>
+    <Reference Include="VSFramework, Version=3.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Builds\Services\VSFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="VSNext.Mongo.Entities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Builds\Services\VSNext.Mongo.Entities.dll</HintPath>
+    </Reference>
+    <Reference Include="VSNext.Mongo.Repository, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Builds\Services\VSNext.Mongo.Repository.dll</HintPath>
     </Reference>
     <Reference Include="VSServices, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -165,18 +193,6 @@
     <ProjectReference Include="..\..\..\..\LogUtils\LogUtils\LogUtils.csproj">
       <Project>{1CB45D92-7551-4699-B6A2-215E1EC9599B}</Project>
       <Name>LogUtils</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\VSFramework\VSFramework\VSFramework.vbproj">
-      <Project>{6C0FFC43-9F5B-4832-820B-D274D0FBAC09}</Project>
-      <Name>VSFramework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\VSNext.Mongo\VSNext.Mongo.Entities\VSNext.Mongo.Entities.csproj">
-      <Project>{b6e35de1-edf3-40e3-879f-e65d87c03b85}</Project>
-      <Name>VSNext.Mongo.Entities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\VSNext.Mongo\VSNext.Mongo.Repository\VSNext.Mongo.Repository.csproj">
-      <Project>{155e4118-6435-461f-93e0-542f9936d328}</Project>
-      <Name>VSNext.Mongo.Repository</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
