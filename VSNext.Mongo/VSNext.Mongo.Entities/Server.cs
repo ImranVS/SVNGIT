@@ -66,7 +66,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("notifications")]
-        public List<NotificationsList> NotificationsList { get; set; }
+        public List<ObjectId> NotificationList { get; set; }
     }
 
     public class WindowServices : Entity
@@ -104,11 +104,4 @@ namespace VSNext.Mongo.Entities
         public string Status { get; set; }
     }
 
-    public class NotificationsList : Entity
-    {
-        [DataMember]
-        [BsonElement("notification_id")]
-        [BsonIgnoreIfNullAttribute]
-        public ObjectId NotificationId { get; set; }
-    }
 }

@@ -30,14 +30,7 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("notifications")]
-        public List<NotificationList> NotificationList { get; set; }
+        public List<ObjectId> NotificationList { get; set; }
     }
 
-    public class NotificationList : Entity
-    {
-        [DataMember]
-        [BsonElement("notification_id")]
-        [BsonIgnoreIfNullAttribute]
-        public ObjectId NotificationId { get; set; }
-    }
 }

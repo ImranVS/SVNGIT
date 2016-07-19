@@ -67,9 +67,9 @@ namespace VSNext.Mongo.Entities
         public string ScriptLocation { get; set; }
 
         [DataMember]
-        [BsonElement("persistent_alert")]
+        [BsonElement("persistent_notification")]
         [BsonIgnoreIfNullAttribute]
-        public bool PersistentAlert { get; set; }
+        public bool PersistentNotification { get; set; }
 
     }
 }
