@@ -34,8 +34,8 @@ Public Class AlertDefinition
         System.Collections.IComparer.Compare
         Dim ax As AlertDefinition = DirectCast(x, AlertDefinition)
         Dim ay As AlertDefinition = DirectCast(y, AlertDefinition)
-        Dim intx As Integer
-        Dim inty As Integer
+        Dim intx As String
+        Dim inty As String
 
         intx = ax.AlertKey
         inty = ay.AlertKey
@@ -43,8 +43,8 @@ Public Class AlertDefinition
         Return intx > inty
     End Function
 
-    Private _AlertKey As Integer
-    Private _AlertHistoryId As Integer
+    Private _AlertKey As String
+    Private _AlertHistoryId As String
     Private _EventName As String
     Private _ServerType As String
     Private _ServerName As String
@@ -75,20 +75,19 @@ Public Class AlertDefinition
         'Console.WriteLine("Object is being created")
         _Repeat = False
     End Sub
-
-    Public Property AlertKey() As Integer
+    Public Property AlertKey() As String
         Get
             Return _AlertKey
         End Get
-        Set(ByVal value As Integer)
+        Set(ByVal value As String)
             _AlertKey = value
         End Set
     End Property
-    Public Property AlertHistoryId() As Integer
+    Public Property AlertHistoryId() As String
         Get
             Return _AlertHistoryId
         End Get
-        Set(ByVal value As Integer)
+        Set(ByVal value As String)
             _AlertHistoryId = value
         End Set
     End Property
@@ -828,72 +827,77 @@ Public Class VitalSignsAlertService
 
         Return str
     End Function
-
-
-    Private Sub InsertingSentMails(ByVal AlertID As Integer, ByVal SentMails As String, ByVal resent As Boolean, ByVal AlertKey As Integer)
+    Private Sub InsertingSentMails(ByVal AlertID As String, ByVal SentMails As String, ByVal resent As Boolean, ByVal AlertKey As String)
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
-        Dim filterEventsDetected As MongoDB.Driver.FilterDefinition(Of EventsDetected)
-        Dim updateEventsDetected As MongoDB.Driver.UpdateDefinition(Of EventsDetected)
+        Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
+        Dim eventsCreated() As EventsDetected
+        Dim notificationsArr() As NotificationsSent
+        Dim notificationsSent As List(Of NotificationsSent)
 
         Try
-            Dim vsObj As New VSFramework.VSAdaptor
-            Dim str As String
-            '12/17/2014 NS added
-            Dim objDateUtils As New DateUtils.DateUtils
-            Dim strDateFormat As String
             Dim strdt As String
-            strDateFormat = objDateUtils.GetDateFormat()
-            strdt = objDateUtils.FixDateTime(Date.Now, strDateFormat)
-
-            '4/7/2014 NS modified for VSPLUS-519
-            '12/17/2014 NS modified
+            strdt = Date.Now
             If resent Then
-                str = "UPDATE AlertSentDetails SET AlertCreatedDateTime='" & strdt & "',AlertKey=" + AlertKey.ToString() + " WHERE AlertHistoryID=" & AlertID & " AND SentTo='" & SentMails & "' "
-                'filterEventsDetected = repoEventsDetected.Filter.Where()
+                filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
+                                                                     repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, AlertID))
+                eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
+                If eventsCreated.Length > 0 Then
+                    notificationsArr = eventsCreated(0).NotificationsSent.ToArray()
+                    For i As Integer = 0 To notificationsArr.Length - 1
+                        If notificationsArr(i).NotificationSentTo = SentMails Then
+                            notificationsArr(i).EventDetectedSent = strdt
+                            eventsCreated(0).NotificationsSent(i) = notificationsArr(i)
+                            repoEventsDetected.Replace(eventsCreated(0))
+                            Exit For
+                        End If
+                    Next
+                End If
             Else
-                str = "Insert into AlertSentDetails(SentTo,AlertCreatedDateTime,AlertHistoryID,AlertKey) values('" & SentMails & "','" & strdt & "'," & AlertID & "," & AlertKey.ToString() & ")"
+                filterEventsDetected = repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, AlertID)
+                eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
+                If eventsCreated.Length > 0 Then
+                    Dim notificationentity As New NotificationsSent With {.NotificationSentTo = SentMails, .EventDetectedSent = strdt}
+                    If eventsCreated(0).NotificationsSent Is Nothing Then
+                        notificationsSent = New List(Of NotificationsSent)
+                        notificationsSent.Add(notificationentity)
+                        eventsCreated(0).NotificationsSent = notificationsSent
+                    Else
+                        eventsCreated(0).NotificationsSent.Add(notificationentity)
+                    End If
+                    repoEventsDetected.Replace(eventsCreated(0))
+                End If
             End If
-            '12/16/2014 NS modified for VSPLUS-1267
-            vsObj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", str)
-            'Dim Sqlcmd As New SqlCommand(str, con)
-            'con.Open()
-            'Sqlcmd.ExecuteNonQuery()
-            If resent Then
-                WriteServiceHistoryEntry(Now.ToString & " Updated record for " & AlertID & " , " & SentMails & " in the AlertSentDetails Table.", LogLevel.Normal)
-            Else
-                WriteServiceHistoryEntry(Now.ToString & " Inserted value " & AlertID & " , " & SentMails & " into  AlertSentDetails Table.", LogLevel.Normal)
-            End If
-            '12/16/2014 NS commented out for VSPLUS-1267
-            'con.Close()
-
         Catch ex As ApplicationException
-            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of inserting value " & AlertID & " , " & SentMails & " into  AlertSentDetails Table " & ex.Message, LogLevel.Normal)
+            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating document " & AlertID & " , " & SentMails & " in the events_detected collection " & ex.Message, LogLevel.Normal)
         End Try
-
     End Sub
-
-    Private Sub UpdatingSentMails(ByVal AlertID As Integer, ByVal SentMails As String, ByVal id As String)
+    Private Sub UpdatingSentMails(ByVal AlertID As String, ByVal SentMails As String, ByVal id As String)
+        Dim connString As String = GetDBConnection()
+        Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
+        Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
+        Dim eventsCreated() As EventsDetected
+        Dim notificationsArr() As NotificationsSent
 
         Try
-            Dim vsObj As New VSFramework.VSAdaptor
-            '12/17/2014 NS added
-            Dim objDateUtils As New DateUtils.DateUtils
-            Dim strDateFormat As String
             Dim strdt As String
-            strDateFormat = objDateUtils.GetDateFormat()
-            strdt = objDateUtils.FixDateTime(Date.Now, strDateFormat)
-            '12/17/2014 NS modified
-            Dim str As String = "update AlertSentDetails set AlertClearedDateTime='" & strdt & "' where  ID=" & id
-            '12/16/2014 NS modified for VSPLUS-1267
-            vsObj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", str)
-            'Dim Sqlcmd As New SqlCommand(str, con)
-            'con.Open()
-            'Sqlcmd.ExecuteNonQuery()
-            'con.Close()
-            WriteServiceHistoryEntry(Now.ToString & " Updated the AlertSentDetails table with the current AlertClearedDateTime for " & id, LogLevel.Normal)
+            strdt = Date.Now
+            filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
+                                                                 repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, AlertID))
+            eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
+            If eventsCreated.Length > 0 Then
+                notificationsArr = eventsCreated(0).NotificationsSent.ToArray()
+                For i As Integer = 0 To notificationsArr.Length - 1
+                    If notificationsArr(i).NotificationSentTo = SentMails Then
+                        notificationsArr(i).EventDismissedSent = strdt
+                        eventsCreated(0).NotificationsSent(i) = notificationsArr(i)
+                    End If
+                Next
+                repoEventsDetected.Replace(eventsCreated(0))
+            End If
+            WriteServiceHistoryEntry(Now.ToString & " Updated the events_detected collection, the notifications_sent.event_dismissed_sent value for " & id, LogLevel.Normal)
         Catch ex As ApplicationException
-            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating the row with id: " & id & ", alerthistoryid: " & AlertID & " , sentto: " & SentMails & " in the AlertSentDetails table: " & ex.Message, LogLevel.Normal)
+            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating a document with id: " & id & " , sentto: " & SentMails & " in the events_detected collection: " & ex.Message, LogLevel.Normal)
         End Try
 
     End Sub
@@ -1058,8 +1062,8 @@ Public Class VitalSignsAlertService
         Dim ADef As New AlertDefinition
         Dim AHist As New AlertDefinition
         Dim ADefOut As New AlertDefinition
-        Dim keyList As New List(Of Integer)
-        Dim keyArr As Integer()
+        Dim keyList As New List(Of String)
+        Dim keyArr As String()
         Dim ADefArr As AlertDefinition()
         Dim ADefArrOut As AlertDefinition()
         Dim AHistArr As AlertDefinition()
@@ -1067,7 +1071,6 @@ Public Class VitalSignsAlertService
         Dim ds As New DataSet
         Dim param As New SqlParameter
         Dim retVal As Integer
-        Dim da As SqlDataAdapter
         Dim sqlStr As String
         Dim con As New SqlConnection
         Dim myConnectionString As New VSFramework.XMLOperation
@@ -1129,13 +1132,13 @@ Public Class VitalSignsAlertService
         notificationsEntity = repoNotifications.Find(filterNotifications).ToArray()
         If notificationsEntity.Length > 0 Then
             For i As Integer = 0 To notificationsEntity.Length - 1
-                Oid = notificationsEntity(i).ObjectId
+                oid = notificationsEntity(i).ObjectId
                 filterEvents = repoEventsMaster.Filter.And(repoEventsMaster.Filter.Exists(Function(j) j.NotificationList, True),
-                        repoEventsMaster.Filter.ElemMatch(Of NotificationList)(Function(j) j.NotificationList, Function(j) j.NotificationId = Oid))
+                        repoEventsMaster.Filter.AnyEq(Of ObjectId)(Function(j) j.NotificationList, oid))
                 eventsEntity = repoEventsMaster.Find(filterEvents).ToArray()
 
-                filterServers = repoServers.Filter.And(repoServers.Filter.Exists(Function(j) j.NotificationsList, True),
-                        repoServers.Filter.ElemMatch(Of NotificationsList)(Function(j) j.NotificationsList, Function(j) j.NotificationId = Oid))
+                filterServers = repoServers.Filter.And(repoServers.Filter.Exists(Function(j) j.NotificationList, True),
+                        repoServers.Filter.AnyEq(Of ObjectId)(Function(j) j.NotificationList, oid))
                 serversEntity = repoServers.Find(filterServers).ToArray()
 
                 If eventsEntity.Length > 0 And serversEntity.Length > 0 Then
@@ -1156,7 +1159,7 @@ Public Class VitalSignsAlertService
                                 dr("ScriptCommand") = ""
                                 dr("ScriptLocation") = ""
                                 dr("SendSNMPTrap") = False
-                                dr("EnablePersistentAlert") = sendlist(k).PersistentAlert
+                                dr("EnablePersistentAlert") = sendlist(k).PersistentNotification
                                 If sendlist(k).SendVia = "email" Then
                                     dr("SendTo") = sendlist(k).SendTo
                                 ElseIf sendlist(k).SendVia = "sms" Then
@@ -1168,7 +1171,7 @@ Public Class VitalSignsAlertService
                                 ElseIf sendlist(k).SendVia = "snmptrap" Then
                                     dr("SendSNMPTrap") = True
                                 End If
-                                dr("HoursIndicator") = sendlist(k).BusinessHoursId.ToString()
+                                dr("HoursIndicator") = sendlist(k).BId
                                 dr("StartTime") = ""
                                 dr("Duration") = 0
                                 dr("Day") = ""
@@ -1188,6 +1191,10 @@ Public Class VitalSignsAlertService
         End If
 
         If (dt.Rows.Count > 0) Then
+            Dim tempstr = ""
+            For i As Integer = 0 To dt.Rows.Count - 1
+                tempstr = dt.Rows(i)("SendTo") + " " + dt.Rows(i)("EnablePersistentAlert") + " " + dt.Rows(i)("ServerName") + " " + dt.Rows(i)("EventName")
+            Next
             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found records from GetAlertsForSelectedEventsServers", LogLevel.Verbose)
         Else
             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - did NOT find records from GetAlertsForSelectedEventsServers", LogLevel.Verbose)
@@ -1208,8 +1215,8 @@ Public Class VitalSignsAlertService
                         ADef.ServerType = dt.Rows(i)("ServerType")
                         ADef.ServerName = dt.Rows(i)("ServerName")
                         ADef.SendTo = dt.Rows(i)("SendTo")
-                        ADef.CopyTo = dt.Rows(i)("CopyTo")
-                        ADef.BlindCopyTo = dt.Rows(i)("BlindCopyTo")
+                        ADef.CopyTo = IIf(dt.Rows(i)("CopyTo") Is Nothing, "", dt.Rows(i)("CopyTo").ToString())
+                        ADef.BlindCopyTo = IIf(dt.Rows(i)("BlindCopyTo") Is Nothing, "", dt.Rows(i)("BlindCopyTo").ToString())
                         ADef.StartTime = dt.Rows(i)("StartTime")
                         ADef.Duration = dt.Rows(i)("Duration")
                         ADef.Days = dt.Rows(i)("Day")
@@ -1284,8 +1291,7 @@ Public Class VitalSignsAlertService
             ds.Clear()
         End If
 
-        filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(i) i.NotificationsSent, False),
-            repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False))
+        filterEventsDetected = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False)
         eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
         If eventsCreated.Length > 0 Then
             dt = New DataTable
@@ -1407,7 +1413,7 @@ Public Class VitalSignsAlertService
                 ADefOut = ADefArrOut(j)
                 startdt = DateTime.Parse(ADefOut.StartTime)
                 If ADefOut.IntType <> 3 Then
-                    isSpecific = IIf(Now.ToShortTimeString >= startdt.ToShortTimeString And Now.ToShortTimeString <= startdt.AddMinutes(ADefOut.Duration).ToShortTimeString, True, False)
+                    isSpecific = IIf(Now.TimeOfDay >= startdt.TimeOfDay And Now <= startdt.AddMinutes(ADefOut.Duration), True, False)
                     isDayIncluded = IIf(ADefOut.Days.IndexOf(Now.DayOfWeek.ToString()) <> -1, True, False)
                     retVal = IIf(isSpecific And isDayIncluded, 1, 0)
                 Else
@@ -1477,6 +1483,11 @@ Public Class VitalSignsAlertService
         Else
             maxAllowedTodayCount = ADefArrOut.Length - 1
         End If
+        'JUST FOR TESTING
+        '==============
+        maxAllowedTodayCount = ADefArrOut.Length - 1
+        persistentInterval = 15
+        '==============
         'get the alertkey by matching the history id with alertkey
         If Not ADefArrOut(0) Is Nothing Then
             For i = 0 To maxAllowedTodayCount
@@ -1639,24 +1650,22 @@ Public Class VitalSignsAlertService
                                             Next
                                             Dim s As String = ADef.Details
                                         End If
-                                    Else
-                                        ADef.Details = "" & vbCrLf & ADef.Details
                                     End If
-                                    SendMailwithChilkatorNet(SendTo, CC, BCC, ADef.ServerName, ADef.ServerType, "", ADef.EventName, ADef.EventName, ADef.Details, "", "Alert")
+                                    'SendMailwithChilkatorNet(SendTo, CC, BCC, ADef.ServerName, ADef.ServerType, "", ADef.EventName, ADef.EventName, ADef.Details, "", "Alert")
                                     mailsent = True
                                 ElseIf ADef.SendSNMPTrap <> "False" Then
                                     '***** SNMP Conditions *********
                                     Try
                                         Dim SNMPHostName As String = getSettings("SNMPHostName")
                                         If ADef.SendSNMPTrap = "True" And SNMPHostName <> "" Then
-                                            SendSNMPTrap(SNMPHostName, ADef.ServerType, ADef.ServerName, ADef.EventName, ADef.Details)
+                                            'SendSNMPTrap(SNMPHostName, ADef.ServerType, ADef.ServerName, ADef.EventName, ADef.Details)
                                         End If
                                         SendTo = "SNMP Trap"
                                         mailsent = True
                                     Catch ex As ApplicationException
                                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error occurred at SendSNMPTrap " & ex.Message, LogLevel.Normal)
                                     End Try
-                                Else
+                                ElseIf SendTo = "Windows Log" Then
                                     sSource = "VitalSigns Plus"
                                     sLog = "Application"
                                     sEvent = "Alert for " & ADef.ServerType & " " & ADef.ServerName & " - " & ADef.EventName & ". " & ADef.Details
@@ -1683,7 +1692,7 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send new alert via SMS", LogLevel.Verbose)
                                     WriteServiceHistoryEntry(Now.ToString & " Attempting to send a new alert via SMS:", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & SMSTo & ",   ServerName = " & ADef.ServerName & ",    AlertKey = " & ADef.AlertKey, LogLevel.Normal)
-                                    SendSMSwithTwilio(SMSTo, ADef.ServerName, ADef.ServerType, ADef.EventName, ADef.Details, "", "")
+                                    'SendSMSwithTwilio(SMSTo, ADef.ServerName, ADef.ServerType, ADef.EventName, ADef.Details, "", "")
                                     smssent = True
                                 End If
                             End If
@@ -1697,7 +1706,7 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send new alert via Script", LogLevel.Verbose)
                                     WriteServiceHistoryEntry(Now.ToString & " Attempting to send a new alert via Script:", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & "   ScriptName = " & ScriptName & ",   ServerName = " & ADef.ServerName & ",    AlertKey = " & ADef.AlertKey, LogLevel.Normal)
-                                    SendScript(ScriptName, ScriptCommand, ScriptLocation, ADef.ServerName, ADef.ServerType, ADef.EventName, ADef.Details, "")
+                                    'SendScript(ScriptName, ScriptCommand, ScriptLocation, ADef.ServerName, ADef.ServerType, ADef.EventName, ADef.Details, "")
                                     scriptsent = True
                                 End If
                             End If
@@ -1717,7 +1726,6 @@ Public Class VitalSignsAlertService
                                 mails = mails & "," & BCC
                             End If
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email information", LogLevel.Verbose)
-                            'NEED TO CONVERT InsertingSentMails
                             InsertingSentMails(ADef.AlertHistoryId, mails, resend, ADef.AlertKey)
                             If (ADef.Details = "This is a TEST alert.") Or InStr(ADef.EventName, "Log File") Then
                                 If (ADef.Details = "This is a TEST alert.") Then
@@ -1725,13 +1733,8 @@ Public Class VitalSignsAlertService
                                 Else
                                     WriteServiceHistoryEntry(Now.ToString & " This is a Log File alert and will be cleared instantly", LogLevel.Normal)
                                 End If
-                                Dim str As String = ""
-                                Dim str2 As String = ""
-                                Dim objDateUtils As New DateUtils.DateUtils
-                                Dim strDateFormat As String
                                 Dim strdt As String
-                                strDateFormat = objDateUtils.GetDateFormat()
-                                strdt = objDateUtils.FixDateTime(Date.Now, strDateFormat)
+                                strdt = Date.Now
                                 Try
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to update event_dismissed in events_detected", LogLevel.Verbose)
                                     filterEventsDetected = repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, ADef.AlertHistoryId)
@@ -1739,12 +1742,6 @@ Public Class VitalSignsAlertService
                                     repoEventsDetected.Update(filterEventsDetected, updateEventsDetected)
 
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to update event_dismissed_sent in events_detected.notifications_sent", LogLevel.Verbose)
-                                    filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
-                                                 repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, ADef.AlertHistoryId))
-                                    updateEventsDetected = repoEventsDetected.Updater.Set(Of DateTime)(Function(j) j.NotificationsSent.ElementAt(-1).EventDismissedSent, strdt)
-                                    repoEventsDetected.Update(filterEventsDetected, updateEventsDetected)
-
-                                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to update sent email info", LogLevel.Verbose)
                                     UpdatingSentMails(ADef.AlertHistoryId, mails, ADef.AlertKey)
                                 Catch ex As Exception
                                     WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating the events_detected for the Alert with ID of " & ADef.AlertHistoryId & ": " & ex.Message, LogLevel.Normal)
@@ -1776,104 +1773,104 @@ Public Class VitalSignsAlertService
                 End If
             Next
             'ESCALATION
-            Try
-                Dim dt2 As New DataTable
-                Dim dt3 As New DataTable
-                Dim alertcreated As DateTime
-                Dim esmssent As Boolean = False
-                Dim eemailsent As Boolean = False
-                sqlStr = "SELECT t1.[ID],t1.[AlertKey],[EscalateTo],[EscalationInterval],t1.[SMSTo],t1.[ScriptID] " &
-                 "FROM EscalationDetails t1 INNER JOIN AlertDetails t2 ON t1.AlertKey=t2.AlertKey " &
-                 "GROUP BY t1.ID,t1.AlertKey,EscalateTo,EscalationInterval,t1.SMSTo,t1.ScriptID " &
-                 "ORDER BY EscalationInterval"
-                WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get records from EscalationDetails,AlertDetails", LogLevel.Verbose)
-                dt = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlStr)
-                If dt.Rows.Count > 0 Then
-                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found records in EscalationDetails,AlertDetails", LogLevel.Verbose)
-                    '1. Escalation enabled
-                    For i = 0 To dt.Rows.Count - 1
-                        Try
-                            'NOTE: Log File alerts are EXCLUDED from escalation
-                            sqlStr = "SELECT t1.ID,SentTo,AlertClearedDateTime,AlertHistoryID,AlertCreatedDateTime,t1.AlertKey, " &
-                            "DeviceName, DeviceType, AlertType, Details " &
-                            "FROM AlertSentDetails t1 " &
-                            "INNER JOIN AlertHistory t2 " &
-                            "ON t1.AlertHistoryID=t2.ID " &
-                            "WHERE AlertKey = " & dt.Rows(i)("AlertKey").ToString() & " AND " &
-                            "AlertType NOT LIKE '%log file%' AND " &
-                            "AlertClearedDateTime Is NULL " &
-                            "ORDER BY AlertCreatedDateTime DESC "
-                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get records from AlertSentDetails,AlertHistory", LogLevel.Verbose)
-                            dt2 = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlStr)
-                            If dt2.Rows.Count > 0 Then
-                                WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found records in AlertSentDetails,AlertHistory", LogLevel.Verbose)
-                                '5/13/2015 NS modified for VSPLUS-1758
-                                '1.1 Weed out the alert types/servers that are not selected in the alert definition
-                                Dim foundMatch() As DataRow
-                                For n = 0 To ADefArrOut.Length - 1
-                                    foundMatch = dt2.Select("DeviceName = '" & ADefArrOut(n).ServerName & "' AND DeviceType = '" &
-                                        ADefArrOut(n).ServerType & "' AND AlertType = '" & ADefArrOut(n).EventName & "'")
-                                    If foundMatch.Length > 0 Then
-                                        '2. An alert has been sent for the alert key
-                                        For j = 0 To foundMatch.Length - 1
-                                            sqlStr = "SELECT DISTINCT t1.ID,t1.SentTo,EscalationCreatedDateTime,t1.AlertHistoryID, " &
-                                             "t1.EscalationID,EscalationInterval " &
-                                             "FROM EscalationSentDetails t1 " &
-                                             "INNER JOIN AlertSentDetails t2 ON " &
-                                             "t1.AlertHistoryID = t2.AlertHistoryID " &
-                                             "INNER JOIN EscalationDetails t3 ON " &
-                                             "t1.EscalationID = t3.ID And t3.AlertKey = t2.AlertKey " &
-                                             "WHERE t1.AlertHistoryID = " & foundMatch(j)("AlertHistoryID").ToString() & " " &
-                                             "AND t2.AlertKey = " & dt.Rows(i)("AlertKey").ToString() & " " &
-                                             "AND EscalationInterval = " & dt.Rows(i)("EscalationInterval").ToString()
-                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get records from EscalationSentDetails,AlertSentDetails,EscalationDetails", LogLevel.Verbose)
-                                            dt3 = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlStr)
-                                            If dt3.Rows.Count = 0 Then
-                                                esmssent = False
-                                                eemailsent = False
-                                                WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found NO records from EscalationSentDetails,AlertSentDetails,EscalationDetails", LogLevel.Verbose)
-                                                alertcreated = Convert.ToDateTime(foundMatch(j)("AlertCreatedDateTime").ToString())
-                                                If (Now - alertcreated).TotalMinutes >= Convert.ToInt32(dt.Rows(i)("EscalationInterval").ToString()) Then
-                                                    '3. Send escalation
-                                                    If dt.Rows(i)("EscalateTo").ToString() <> "" Then
-                                                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via email", LogLevel.Verbose)
-                                                        WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via email:", LogLevel.Normal)
-                                                        WriteServiceHistoryEntry(Now.ToString & "   EscalateTo = " & dt.Rows(i)("EscalateTo").ToString() & ",    AlertKey = " & dt.Rows(i)("AlertKey").ToString(), LogLevel.Normal)
-                                                        SendMailwithChilkatorNet(dt.Rows(i)("EscalateTo").ToString(), "", "", foundMatch(j)("DeviceName").ToString(), foundMatch(j)("DeviceType").ToString(), "", foundMatch(j)("AlertType").ToString(), foundMatch(j)("AlertType").ToString(), foundMatch(j)("Details").ToString(), "", "ESCALATION")
-                                                        eemailsent = True
-                                                    End If
-                                                    If dt.Rows(i)("SMSTo").ToString() <> "" Then
-                                                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via SMS", LogLevel.Verbose)
-                                                        WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via SMS:", LogLevel.Normal)
-                                                        WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & dt.Rows(i)("SMSTo").ToString() & ",    AlertKey = " & dt.Rows(i)("AlertKey").ToString(), LogLevel.Normal)
-                                                        SendSMSwithTwilio(dt.Rows(i)("SMSTo").ToString(), foundMatch(j)("DeviceName").ToString(), foundMatch(j)("DeviceType").ToString(), foundMatch(j)("AlertType").ToString(), foundMatch(j)("Details").ToString(), "ESCALATION ", "")
-                                                        esmssent = True
-                                                    End If
-                                                    '4. Store escalation information
-                                                    If eemailsent Then
-                                                        'Update EscalationSentDetailsTable
-                                                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email escalation info", LogLevel.Verbose)
-                                                        InsertSentEscalation(dt.Rows(i)("EscalateTo").ToString(), foundMatch(j)("AlertHistoryID").ToString(), dt.Rows(i)("ID").ToString())
-                                                    End If
-                                                    If esmssent Then
-                                                        'Update EscalationSentDetailsTable
-                                                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent SMS escalation info", LogLevel.Verbose)
-                                                        InsertSentEscalation(dt.Rows(i)("SMSTo").ToString(), foundMatch(j)("AlertHistoryID").ToString(), dt.Rows(i)("ID").ToString())
-                                                    End If
-                                                End If
-                                            End If
-                                        Next
-                                    End If
-                                Next
-                            End If
-                        Catch ex As Exception
-                            WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while selecting last sent alert for AlertKey=" & dt.Rows(i)("AlertKey").ToString() & " " & ex.ToString, LogLevel.Normal)
-                        End Try
-                    Next
-                End If
-            Catch ex As Exception
-                WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while selecting Escalation details " & ex.ToString, LogLevel.Normal)
-            End Try
+            'Try
+            '    Dim dt2 As New DataTable
+            '    Dim dt3 As New DataTable
+            '    Dim alertcreated As DateTime
+            '    Dim esmssent As Boolean = False
+            '    Dim eemailsent As Boolean = False
+            '    sqlStr = "SELECT t1.[ID],t1.[AlertKey],[EscalateTo],[EscalationInterval],t1.[SMSTo],t1.[ScriptID] " &
+            '     "FROM EscalationDetails t1 INNER JOIN AlertDetails t2 ON t1.AlertKey=t2.AlertKey " &
+            '     "GROUP BY t1.ID,t1.AlertKey,EscalateTo,EscalationInterval,t1.SMSTo,t1.ScriptID " &
+            '     "ORDER BY EscalationInterval"
+            '    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get records from EscalationDetails,AlertDetails", LogLevel.Verbose)
+            '    dt = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlStr)
+            '    If dt.Rows.Count > 0 Then
+            '        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found records in EscalationDetails,AlertDetails", LogLevel.Verbose)
+            '        '1. Escalation enabled
+            '        For i = 0 To dt.Rows.Count - 1
+            '            Try
+            '                'NOTE: Log File alerts are EXCLUDED from escalation
+            '                sqlStr = "SELECT t1.ID,SentTo,AlertClearedDateTime,AlertHistoryID,AlertCreatedDateTime,t1.AlertKey, " &
+            '                "DeviceName, DeviceType, AlertType, Details " &
+            '                "FROM AlertSentDetails t1 " &
+            '                "INNER JOIN AlertHistory t2 " &
+            '                "ON t1.AlertHistoryID=t2.ID " &
+            '                "WHERE AlertKey = " & dt.Rows(i)("AlertKey").ToString() & " AND " &
+            '                "AlertType NOT LIKE '%log file%' AND " &
+            '                "AlertClearedDateTime Is NULL " &
+            '                "ORDER BY AlertCreatedDateTime DESC "
+            '                WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get records from AlertSentDetails,AlertHistory", LogLevel.Verbose)
+            '                dt2 = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlStr)
+            '                If dt2.Rows.Count > 0 Then
+            '                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found records in AlertSentDetails,AlertHistory", LogLevel.Verbose)
+            '                    '5/13/2015 NS modified for VSPLUS-1758
+            '                    '1.1 Weed out the alert types/servers that are not selected in the alert definition
+            '                    Dim foundMatch() As DataRow
+            '                    For n = 0 To ADefArrOut.Length - 1
+            '                        foundMatch = dt2.Select("DeviceName = '" & ADefArrOut(n).ServerName & "' AND DeviceType = '" &
+            '                            ADefArrOut(n).ServerType & "' AND AlertType = '" & ADefArrOut(n).EventName & "'")
+            '                        If foundMatch.Length > 0 Then
+            '                            '2. An alert has been sent for the alert key
+            '                            For j = 0 To foundMatch.Length - 1
+            '                                sqlStr = "SELECT DISTINCT t1.ID,t1.SentTo,EscalationCreatedDateTime,t1.AlertHistoryID, " &
+            '                                 "t1.EscalationID,EscalationInterval " &
+            '                                 "FROM EscalationSentDetails t1 " &
+            '                                 "INNER JOIN AlertSentDetails t2 ON " &
+            '                                 "t1.AlertHistoryID = t2.AlertHistoryID " &
+            '                                 "INNER JOIN EscalationDetails t3 ON " &
+            '                                 "t1.EscalationID = t3.ID And t3.AlertKey = t2.AlertKey " &
+            '                                 "WHERE t1.AlertHistoryID = " & foundMatch(j)("AlertHistoryID").ToString() & " " &
+            '                                 "AND t2.AlertKey = " & dt.Rows(i)("AlertKey").ToString() & " " &
+            '                                 "AND EscalationInterval = " & dt.Rows(i)("EscalationInterval").ToString()
+            '                                WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get records from EscalationSentDetails,AlertSentDetails,EscalationDetails", LogLevel.Verbose)
+            '                                dt3 = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlStr)
+            '                                If dt3.Rows.Count = 0 Then
+            '                                    esmssent = False
+            '                                    eemailsent = False
+            '                                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found NO records from EscalationSentDetails,AlertSentDetails,EscalationDetails", LogLevel.Verbose)
+            '                                    alertcreated = Convert.ToDateTime(foundMatch(j)("AlertCreatedDateTime").ToString())
+            '                                    If (Now - alertcreated).TotalMinutes >= Convert.ToInt32(dt.Rows(i)("EscalationInterval").ToString()) Then
+            '                                        '3. Send escalation
+            '                                        If dt.Rows(i)("EscalateTo").ToString() <> "" Then
+            '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via email", LogLevel.Verbose)
+            '                                            WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via email:", LogLevel.Normal)
+            '                                            WriteServiceHistoryEntry(Now.ToString & "   EscalateTo = " & dt.Rows(i)("EscalateTo").ToString() & ",    AlertKey = " & dt.Rows(i)("AlertKey").ToString(), LogLevel.Normal)
+            '                                            'SendMailwithChilkatorNet(dt.Rows(i)("EscalateTo").ToString(), "", "", foundMatch(j)("DeviceName").ToString(), foundMatch(j)("DeviceType").ToString(), "", foundMatch(j)("AlertType").ToString(), foundMatch(j)("AlertType").ToString(), foundMatch(j)("Details").ToString(), "", "ESCALATION")
+            '                                            eemailsent = True
+            '                                        End If
+            '                                        If dt.Rows(i)("SMSTo").ToString() <> "" Then
+            '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via SMS", LogLevel.Verbose)
+            '                                            WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via SMS:", LogLevel.Normal)
+            '                                            WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & dt.Rows(i)("SMSTo").ToString() & ",    AlertKey = " & dt.Rows(i)("AlertKey").ToString(), LogLevel.Normal)
+            '                                            'SendSMSwithTwilio(dt.Rows(i)("SMSTo").ToString(), foundMatch(j)("DeviceName").ToString(), foundMatch(j)("DeviceType").ToString(), foundMatch(j)("AlertType").ToString(), foundMatch(j)("Details").ToString(), "ESCALATION ", "")
+            '                                            esmssent = True
+            '                                        End If
+            '                                        '4. Store escalation information
+            '                                        If eemailsent Then
+            '                                            'Update EscalationSentDetailsTable
+            '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email escalation info", LogLevel.Verbose)
+            '                                            'InsertSentEscalation(dt.Rows(i)("EscalateTo").ToString(), foundMatch(j)("AlertHistoryID").ToString(), dt.Rows(i)("ID").ToString())
+            '                                        End If
+            '                                        If esmssent Then
+            '                                            'Update EscalationSentDetailsTable
+            '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent SMS escalation info", LogLevel.Verbose)
+            '                                            'InsertSentEscalation(dt.Rows(i)("SMSTo").ToString(), foundMatch(j)("AlertHistoryID").ToString(), dt.Rows(i)("ID").ToString())
+            '                                        End If
+            '                                    End If
+            '                                End If
+            '                            Next
+            '                        End If
+            '                    Next
+            '                End If
+            '            Catch ex As Exception
+            '                WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while selecting last sent alert for AlertKey=" & dt.Rows(i)("AlertKey").ToString() & " " & ex.ToString, LogLevel.Normal)
+            '            End Try
+            '        Next
+            '    End If
+            'Catch ex As Exception
+            '    WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while selecting Escalation details " & ex.ToString, LogLevel.Normal)
+            'End Try
         End If
     End Sub
     Private Function GetAlertHistory() As DataTable
