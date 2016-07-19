@@ -15,6 +15,6 @@ namespace VSNext.Mongo.Repository
         [BsonIgnore]
         DateTime CreatedOn { get; }
 
-        DateTime ModifiedOn { get; }
+        DateTime? ModifiedOn { get; }
     }
 }
