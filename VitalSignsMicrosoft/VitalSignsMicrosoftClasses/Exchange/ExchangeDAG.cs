@@ -492,7 +492,8 @@ namespace VitalSignsMicrosoftClasses
                            ReplayQueue = strReplayQueue,
                            ReplayLagged = strReplayLagged,
                            TruncationLagged = strTruncationLagged,
-                           ContendIndex = strContendIndex
+                           ContendIndex = strContendIndex,
+                           ServerName = strServer
                        });
 
 					   if (strContendIndex != "Healthy")
@@ -655,14 +656,15 @@ namespace VitalSignsMicrosoftClasses
 							   isActive = "Passive";
 
                            MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                           mongoStatement.filterDef = mongoStatement.repo.Filter.Where(p => p.TypeAndName == myServer.TypeANDName) & 
-                               mongoStatement.repo.Filter.Eq(Common.GetMongoBsonEntityElementName("DagServerDatabases", "DatabaseName"), name ) & 
-                               mongoStatement.repo.Filter.Eq(Common.GetMongoBsonEntityElementName("DagServerDatabases", "ServerName"), arrString[i].ToString());
+                           mongoStatement.filterDef = mongoStatement.repo.Filter.Where(p => p.TypeAndName == myServer.TypeANDName) &
+                               mongoStatement.repo.Filter.ElemMatch("dag_server_databases", mongoStatement.repo.Filter.Eq("database_name", name) & 
+                               mongoStatement.repo.Filter.Eq("server_name", arrString[i].ToString()));
                                
                            mongoStatement.updateDef = mongoStatement.repo.Updater
                                .Set(p => p.DagServerDatabases[-1].ActionPreference, Convert.ToInt32(arrInt[i].ToString()))
                                .Set(p => p.DagServerDatabases[-1].IsActive, isActive);
 
+                           AllTestsList.MongoEntity.Add(mongoStatement);
 
 						   if (arrInt[i].ToString() == "1")
 						   {
@@ -751,17 +753,17 @@ namespace VitalSignsMicrosoftClasses
 				   foreach (PSObject ps in results)
 				   {
 
-					   string strDatabase = ps.Properties["Name"].Value == null ? "" : ps.Properties["Name"].Value.ToString();
+                       string strDatabase = ps.Properties["Name"].Value == null ? "" : ps.Properties["Name"].Value.ToString();
 					   string strStorageGroup = ps.Properties["StorageGroup"].Value == null ? "" : ps.Properties["StorageGroup"].Value.ToString();
 					   string strMounted = ps.Properties["Mounted"].Value == null ? "False" : ps.Properties["Mounted"].Value.ToString();
 					   string strBackupInProgress = ps.Properties["BackupInProgress"].Value == null ? "False" : ps.Properties["BackupInProgress"].Value.ToString();
 					   string strOnlineMaintenanceInProgress = ps.Properties["OnlineMaintenanceInProgress"].Value == null ? "False" : ps.Properties["OnlineMaintenanceInProgress"].Value.ToString();
 
 					   //datetime stamp
-					   string strLastFullBackup = ps.Properties["LastFullBackup"].Value == null ? "null" : "'" + ps.Properties["LastFullBackup"].Value.ToString() + "'";
-					   string strLastIncrementalBackup = ps.Properties["LastIncrementalBackup"].Value == null ? "null" : "'" + ps.Properties["LastIncrementalBackup"].Value.ToString() + "'";
-					   string strLastDifferentialBackup = ps.Properties["LastDifferentialBackup"].Value == null ? "null" : "'" + ps.Properties["LastDifferentialBackup"].Value.ToString() + "'";
-					   string strLastCopyBackup = ps.Properties["LastCopyBackup"].Value == null ? "null" : "'" + ps.Properties["LastCopyBackup"].Value.ToString() + "'";
+					   string strLastFullBackup = ps.Properties["LastFullBackup"].Value == null ? null : "" + ps.Properties["LastFullBackup"].Value.ToString() + "";
+					   string strLastIncrementalBackup = ps.Properties["LastIncrementalBackup"].Value == null ? null : "" + ps.Properties["LastIncrementalBackup"].Value.ToString() + "";
+					   string strLastDifferentialBackup = ps.Properties["LastDifferentialBackup"].Value == null ? null : "" + ps.Properties["LastDifferentialBackup"].Value.ToString() + "";
+					   string strLastCopyBackup = ps.Properties["LastCopyBackup"].Value == null ? null : "" + ps.Properties["LastCopyBackup"].Value.ToString() + "";
 
 					   //days ago
 					   string strLastFullBackupDaysAgo = ps.Properties["LastFullBackupDaysAgo"].Value == null ? "Never" : ps.Properties["LastFullBackupDaysAgo"].Value.ToString();
@@ -769,19 +771,34 @@ namespace VitalSignsMicrosoftClasses
 					   string strLastDifferentialBackupDaysAgo = ps.Properties["LastDifferentialBackupDaysAgo"].Value == null ? "Never" : ps.Properties["LastDifferentialBackupDaysAgo"].Value.ToString();
 					   string strLastCopyBackupDaysAgo = ps.Properties["LastCopyBackupDaysAgo"].Value == null ? "Never" : ps.Properties["LastCopyBackupDaysAgo"].Value.ToString();
 
-                        MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.Name == myServer.Name) & mongoUpdate.repo.Filter.Eq("dag_database.database_name", strDatabase);
-                        mongoUpdate.updateDef = mongoUpdate.repo.Updater
-                            .Set(i => i.DagDatabases[-1].StorageGroup, strStorageGroup)
-                            .Set(i => i.DagDatabases[-1].Mounted, Convert.ToBoolean(strMounted))
-                            .Set(i => i.DagDatabases[-1].BackupInProgress, Convert.ToBoolean(strBackupInProgress))
-                            .Set(i => i.DagDatabases[-1].OnlineMaintenanceInProgress, Convert.ToBoolean(strOnlineMaintenanceInProgress))
-                            .Set(i => i.DagDatabases[-1].LastFullBackupDate, string.IsNullOrWhiteSpace(strLastFullBackup) ? null : (DateTime?)Convert.ToDateTime(strLastFullBackup))
-                            .Set(i => i.DagDatabases[-1].LastIncrementalBackupDate, string.IsNullOrWhiteSpace(strLastIncrementalBackup) ? null : (DateTime?)Convert.ToDateTime(strLastIncrementalBackup))
-                            .Set(i => i.DagDatabases[-1].LastDifferentialBackupDate, string.IsNullOrWhiteSpace(strLastDifferentialBackup) ? null : (DateTime?)Convert.ToDateTime(strLastDifferentialBackup))
-                            .Set(i => i.DagDatabases[-1].LastCopyBackupDate, string.IsNullOrWhiteSpace(strLastCopyBackup) ? null : (DateTime?)Convert.ToDateTime(strLastCopyBackup));
+                       MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                       mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.TypeAndName, myServer.TypeANDName) 
+                           & mongoUpdate.repo.Filter.ElemMatch(i => i.DagServers, i => i.DAGServerName != strDatabase);
+                       VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases()
+                       {
+                            DatabaseName = strDatabase
+                       };
+                       mongoUpdate.updateDef = mongoUpdate.repo.Updater.Push(i => i.DagDatabases, dbg);
+                       AllTestsList.MongoEntity.Add(mongoUpdate);                       
 
-                        AllTestsList.MongoEntity.Add(mongoUpdate);
+                       mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                       mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.Name, myServer.Name) 
+                           & mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == strDatabase);
+                       mongoUpdate.updateDef = mongoUpdate.repo.Updater
+                           .Set(i => i.DagDatabases[-1].StorageGroup, strStorageGroup)
+                           .Set(i => i.DagDatabases[-1].Mounted, Convert.ToBoolean(strMounted))
+                           .Set(i => i.DagDatabases[-1].BackupInProgress, Convert.ToBoolean(strBackupInProgress))
+                           .Set(i => i.DagDatabases[-1].OnlineMaintenanceInProgress, Convert.ToBoolean(strOnlineMaintenanceInProgress));
+                       if(!string.IsNullOrWhiteSpace(strLastFullBackup))
+                            mongoUpdate.updateDef.Set(i => i.DagDatabases[-1].LastFullBackupDate, string.IsNullOrWhiteSpace(strLastFullBackup) ?null : (DateTime?)Convert.ToDateTime(strLastFullBackup));
+                       if (!string.IsNullOrWhiteSpace(strLastIncrementalBackup))
+                           mongoUpdate.updateDef.Set(i => i.DagDatabases[-1].LastIncrementalBackupDate, string.IsNullOrWhiteSpace(strLastIncrementalBackup) ? null : (DateTime?)Convert.ToDateTime(strLastIncrementalBackup));
+                       if(!string.IsNullOrWhiteSpace(strLastDifferentialBackup))
+                            mongoUpdate.updateDef.Set(i => i.DagDatabases[-1].LastDifferentialBackupDate, string.IsNullOrWhiteSpace(strLastDifferentialBackup) ? null : (DateTime?)Convert.ToDateTime(strLastDifferentialBackup));
+                       if(!string.IsNullOrWhiteSpace(strLastCopyBackup))
+                            mongoUpdate.updateDef.Set(i => i.DagDatabases[-1].LastCopyBackupDate, string.IsNullOrWhiteSpace(strLastCopyBackup) ? null : (DateTime?)Convert.ToDateTime(strLastCopyBackup));
+
+                       AllTestsList.MongoEntity.Add(mongoUpdate);
 					   
 
 				   }

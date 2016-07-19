@@ -479,6 +479,7 @@ namespace VitalSignsMicrosoftClasses
 				MongoStatementsUpdate<VSNext.Mongo.Entities.Status> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
                 updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
                 updateStatement.updateDef = updateStatement.repo.Updater.Set(i => i.ActiveDirectoryReplicationStatus, list.ToArray());
+                AllTestsList.MongoEntity.Add(updateStatement);
 
 				if(failsServerList != "")
 					if(failsServerList.Length < 50)

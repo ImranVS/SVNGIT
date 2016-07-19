@@ -2177,7 +2177,7 @@ namespace VitalSignsMicrosoftClasses
                  .Set(i => i.UserCount, 0)
                  .Set(i => i.ResponseTime, 0)
                  .Set(i => i.ResponseThreshold, int.Parse(myServer.ResponseThreshold.ToString()))
-                 .Set(i => i.SoftwareVersion, Convert.ToDouble(myServer.VersionNo))
+                 .Set(i => i.SoftwareVersion, myServer.VersionNo)
                  .Set(i => i.OperatingSystem, myServer.OperatingSystem)
                  .Set(i => i.Details, "This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.")
                  .Set(i => i.CPU, 0)

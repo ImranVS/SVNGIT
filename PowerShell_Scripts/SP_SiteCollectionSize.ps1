@@ -2,6 +2,7 @@
 $t = @()
 $t += get-spsite | % {
 $URL = $_.PrimaryUri
+    $WebApplication = $_.WebApplication.DisplayName
  $BASETEMPLATE="Pages"
 
 
@@ -26,6 +27,7 @@ $URL = $_.PrimaryUri
             "NumOfSites" = $totalItems
             "Owner" = $_.Owner
             "SizeMB" = [Math]::round($_.usage.storage/1MB,1)
+            "WebApplication" = $WebApplication
             };
     $obj
 

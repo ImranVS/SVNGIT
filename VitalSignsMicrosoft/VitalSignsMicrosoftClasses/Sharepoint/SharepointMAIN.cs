@@ -639,7 +639,7 @@ namespace VitalSignsMicrosoftClasses
 			MySPServer.UserName = DR["UserID"].ToString();
 			MySPServer.Password = Common.decodePasswordFromEncodedString(DR["Password"].ToString(), MySPServer.Name);
 			MySPServer.Location = DR["Location"].ToString();
-			MySPServer.Role = DR["RoleName"] == null ? "" : DR["RoleName"].ToString();
+			//MySPServer.Role = DR["RoleName"] == null ? "" : DR["RoleName"].ToString();
 			MySPServer.ResponseThreshold = long.Parse(DR["ResponseTime"].ToString());
 			MySPServer.ScanInterval = int.Parse(DR["ScanInterval"].ToString());
 			MySPServer.OffHoursScanInterval = int.Parse(DR["OffHourInterval"].ToString());

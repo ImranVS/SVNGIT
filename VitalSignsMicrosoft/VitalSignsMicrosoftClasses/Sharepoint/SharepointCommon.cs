@@ -376,12 +376,12 @@ namespace VitalSignsMicrosoftClasses
 						{
 							case "NetworkBytesSentPerSec":
 								newStatName = "NetworkBytesSent";
-                                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.NetworkBytesSent, propValue.ToString());
+                                mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.NetworkBytesSent, propValue.ToString());
 								break;
 							
 							case "NetworkBytesReceivedPerSec":
 								newStatName = "NetworkBytes Received";
-                                mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.NetworkBytesReceived, propValue.ToString());
+                                mongoUpdate.updateDef = mongoUpdate.updateDef.Set(i => i.NetworkBytesReceived, propValue.ToString());
 								break;
 							
 							default:
@@ -552,7 +552,7 @@ namespace VitalSignsMicrosoftClasses
                         .Set(i => i.IISServiceState, IIS_Status)
                         .Set(i => i.AspNetVersion, ASPNetVersions);
 
-
+                    AllTestsList.MongoEntity.Add(mongoUpdate);
 				}
 
 				

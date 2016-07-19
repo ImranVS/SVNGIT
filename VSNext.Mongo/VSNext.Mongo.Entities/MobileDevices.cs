@@ -143,5 +143,15 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public Boolean? IsActive { get; set; }
 
+        [DataMember]
+        [BsonElement("href")]
+        [BsonIgnoreIfNullAttribute]
+        public string Href { get; set; }
+
+        [DataMember]
+        [BsonElement("last_updated")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? LastUpdated { get; set; }
+
     }
 }

@@ -167,7 +167,9 @@ namespace VitalSignsMicrosoftClasses
 
         public string GetMongoConnectionString()
         {
-            return "mongodb://localhost/VitalSigns";
+            return System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
+            
+            //return "mongodb://192.168.1.10:27017/vitalsigns_reference";
         }
 
 		public void UpdateAllTests(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server, string ServerType)
@@ -194,7 +196,7 @@ namespace VitalSignsMicrosoftClasses
             }
             catch (Exception ex)
             {
-                Common.WriteTestResults(ServerType, Server.Name, "Exception", "Exception", ex.Message.ToString());
+                Common.WriteDeviceHistoryEntry(ServerType, Server.Name, "Exception while executing Mongo Statements. Error: " + ex.Message, Common.LogLevel.Normal);
             }
             // TODO: End transaction
             finally
@@ -429,7 +431,7 @@ namespace VitalSignsMicrosoftClasses
                     .Set(i => i.UserCount, int.Parse(Server.UserCount.ToString()))
                     .Set(i => i.ResponseTime, int.Parse(Server.ResponseTime.ToString()))
                     .Set(i => i.ResponseThreshold, int.Parse(Server.ResponseThreshold.ToString()))
-                    .Set(i => i.SoftwareVersion, Convert.ToDouble(Server.VersionNo))
+                    .Set(i => i.SoftwareVersion, Server.VersionNo)
                     .Set(i => i.OperatingSystem, Server.OperatingSystem)
                     .Set(i => i.Details, Details);
 
@@ -739,7 +741,7 @@ namespace VitalSignsMicrosoftClasses
                     .Set(i => i.UserCount, 0)
                     .Set(i => i.ResponseTime, 0)
                     .Set(i => i.ResponseThreshold, int.Parse(Server.ResponseThreshold.ToString()))
-                    .Set(i => i.SoftwareVersion, Convert.ToDouble(Server.VersionNo))
+                    .Set(i => i.SoftwareVersion, Server.VersionNo)
                     .Set(i => i.OperatingSystem, Server.OperatingSystem)
                     .Set(i => i.Details, Details);
 

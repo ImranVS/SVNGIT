@@ -2441,17 +2441,18 @@ namespace VitalSignsMicrosoftClasses
                         string DagName = ps.Properties["DagName"].Value == null ? "" : ps.Properties["DagName"].Value.ToString();
 
 
-
                         MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Regex(i => i.Name, DagName) & mongoUpdate.repo.Filter.Ne("dag_database.database_name", DatabaseName);
-                        VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases() { 
-                            DatabaseName = DatabaseName                    
+                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.TypeAndName, DagName + "-" + "Database Availability Group") 
+                            & mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
+                        VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases()
+                        {
+                            DatabaseName = DatabaseName
                         };
                         mongoUpdate.updateDef = mongoUpdate.repo.Updater.Push(i => i.DagDatabases, dbg);
-                        AllTestResults.MongoEntity.Add(mongoUpdate);
+                        AllTestResults.MongoEntity.Add(mongoUpdate);         
 
                         mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.Name == DagName) & mongoUpdate.repo.Filter.Eq("dag_database.database_name", DatabaseName);
+                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == DagName + "-" + "Database Availability Group") & mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
                         mongoUpdate.updateDef = mongoUpdate.repo.Updater
                             .Set(i => i.DagDatabases[-1].ConnectedMailboxCount, Convert.ToInt32(Mbcount))
                             .Set(i => i.DagDatabases[-1].DatabaseName, DatabaseName)

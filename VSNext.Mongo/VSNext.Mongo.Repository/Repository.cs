@@ -104,9 +104,22 @@ namespace VSNext.Mongo.Repository
             Collection.InsertMany(entities);
         }
 
+        public virtual void Replace(T entity, UpdateOptions updateOptions)
+        {
+            Collection.ReplaceOne(i => i.Id == entity.Id, entity, updateOptions);
+        }
+
+        public void Replace(IEnumerable<T> entities, UpdateOptions updateOptions)
+        {
+            foreach (T entity in entities)
+            {
+                Replace(entity, updateOptions);
+            }
+        }
+
         public virtual void Replace(T entity)
         {
-            Collection.ReplaceOne(i => i.Id == entity.Id, entity);
+            Replace(entity, null);
         }
 
         public void Replace(IEnumerable<T> entities)
@@ -115,6 +128,11 @@ namespace VSNext.Mongo.Repository
             {
                 Replace(entity);
             }
+        }
+
+        public void BulkUpsert(IEnumerable<UpdateOneModel<T>> entities)
+        {
+            Collection.BulkWrite(entities);
         }
 
         public bool Update<TField>(T entity, Expression<Func<T, TField>> field, TField value)
@@ -134,8 +152,13 @@ namespace VSNext.Mongo.Repository
 
         public bool Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
         {
-            return Collection.UpdateMany(filter, update.CurrentDate(i => i.ModifiedOn)).ModifiedCount>0; 
+            return Update(filter, update, updateOptions: null);
         }
+        public bool Update(FilterDefinition<T> filter, UpdateDefinition<T> update, UpdateOptions updateOptions = null)
+        {
+            return Collection.UpdateMany(filter, update.CurrentDate(i => i.ModifiedOn), updateOptions).ModifiedCount > 0;
+        }
+
 
         public void Delete(T entity)
         {
@@ -157,9 +180,10 @@ namespace VSNext.Mongo.Repository
             Collection.DeleteMany(filter);
         }
 
-        public void Upsert(FilterDefinition<T> filter, UpdateDefinition<T> update)
+        public bool Upsert(FilterDefinition<T> filter, UpdateDefinition<T> update)
         {
-            Collection.UpdateOne(filter, update, new UpdateOptions { IsUpsert = true});
+            return Update(filter, update.SetOnInsert(i => i.CreatedOn, DateTime.Now), updateOptions: new UpdateOptions { IsUpsert = true });
+            
         }
         #endregion CRUD
 

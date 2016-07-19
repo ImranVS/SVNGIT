@@ -68,7 +68,9 @@ Public Class MonitoredDevice
     Dim mIsBeingScanned As Boolean = False
     Dim mScanAgentLog As Boolean
 	Dim mScanLog As Boolean
-	Dim mInsufficientLicenses As Boolean
+    Dim mInsufficientLicenses As Boolean
+
+    Public Property ServerObjectID As String
 
     Enum Alert As Integer
         'This never got used.

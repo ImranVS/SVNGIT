@@ -22,7 +22,7 @@ foreach ($db in $databases){
  $tmp | Add-Member -type NoteProperty -name MBXs -value $mbxs.count
  $tmp | Add-Member -type NoteProperty -name MBXsdisc -value $mbxs_disc.count
  $tmp | Add-Member -type NoteProperty -name Mbcount -value ($mbxs_disc.count + $mbxs.count)
- 
+ $tmp | Add-Member -type NoteProperty -Name DagName -Value ($db.MailboxProvisioningAttributes.Attributes | ? {$_.Key -eq "DagName" }).Value
 
  $Report += $tmp
 }

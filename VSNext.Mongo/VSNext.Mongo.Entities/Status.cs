@@ -91,6 +91,16 @@ namespace VSNext.Mongo.Entities
         public int? DeadMail { get; set; }
 
         [DataMember]
+        [BsonElement("held_mail")]
+        [BsonIgnoreIfNullAttribute]
+        public int? HeldMail { get; set; }
+
+        [DataMember]
+        [BsonElement("my_percent")]
+        [BsonIgnoreIfNullAttribute]
+        public double? MyPercent { get; set; }
+
+        [DataMember]
         [BsonElement("mail_details")]
         [BsonIgnoreIfNullAttribute]
         public string MailDetails { get; set; }
@@ -108,7 +118,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("up_percent")]
         [BsonIgnoreIfNullAttribute]
-        public int? UpPercent { get; set; }
+        public double? UpPercent { get; set; }
 
         [DataMember]
         [BsonElement("response_time")]
@@ -142,9 +152,9 @@ namespace VSNext.Mongo.Entities
         public int? UserCount { get; set; }
 
         [DataMember]
-        [BsonElement("domino_server_tasks")]
+        [BsonElement("domino_server_tasks_status")]
         [BsonIgnoreIfNullAttribute]
-        public string DominoServerTasks { get; set; }
+        public string DominoServerTasksStatus { get; set; }
 
         [DataMember]
         [BsonElement("type_and_name")]
@@ -165,6 +175,7 @@ namespace VSNext.Mongo.Entities
         [BsonElement("operating_system")]
         [BsonIgnoreIfNullAttribute]
         public string OperatingSystem { get; set; }
+
         [DataMember]
         [BsonElement("software_version")]
         [BsonIgnoreIfNullAttribute]
@@ -188,7 +199,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("elapsed_days")]
         [BsonIgnoreIfNullAttribute]
-        public int? ElapsedDays { get; set; }
+        public double? ElapsedDays { get; set; }
 
         [DataMember]
         [BsonElement("exjournal")]
@@ -211,19 +222,14 @@ namespace VSNext.Mongo.Entities
         public DateTime? ExjournalDate { get; set; }
 
         [DataMember]
-        [BsonElement("held_mail")]
+        [BsonElement("up_minutes")]
         [BsonIgnoreIfNullAttribute]
-        public int? HeldMail { get; set; }
+        public double? UpMinutes { get; set; }
 
         [DataMember]
         [BsonElement("down_minutes")]
         [BsonIgnoreIfNullAttribute]
-        public int? DownMinutes { get; set; }
-
-        [DataMember]
-        [BsonElement("disks")]
-        [BsonIgnoreIfNull]
-        public List<Disk> Disks { get; set; }
+        public double? DownMinutes { get; set; }
 
         [DataMember]
         [BsonElement("up_percent_minutes")]
@@ -231,19 +237,24 @@ namespace VSNext.Mongo.Entities
         public double? UpPercentMinutes { get; set; }
 
         [DataMember]
-        [BsonElement("up_minutes")]
+        [BsonElement("version_architecture")]
         [BsonIgnoreIfNullAttribute]
-        public double? UpMinutes { get; set; }
+        public string VersionArchitecture { get; set; }
+
+        [DataMember]
+        [BsonElement("cpu_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? CpuCount { get; set; }
+
+        [DataMember]
+        [BsonElement("disks")]
+        [BsonIgnoreIfNull]
+        public List<Disk> Disks { get; set; }
 
         [DataMember]
         [BsonElement("domino_version")]
         [BsonIgnoreIfNullAttribute]
         public string DominoVersion { get; set; }
-
-        [DataMember]
-        [BsonElement("my_percent")]
-        [BsonIgnoreIfNullAttribute]
-        public double? MyPercent { get; set; }
 
         [DataMember]
         [BsonElement("up_percent_count")]
@@ -415,7 +426,7 @@ namespace VSNext.Mongo.Entities
         #region Stats
 
         [DataMember]
-        [BsonElement("ASP.NET Version")]
+        [BsonElement("asp_net_version")]
         [BsonIgnoreIfNullAttribute]
         public string AspNetVersion;
 
@@ -469,6 +480,311 @@ namespace VSNext.Mongo.Entities
 
         #endregion
 
+        #region LatencyTest
+
+        [DataMember]
+        [BsonElement("latency_results")]
+        [BsonIgnoreIfNullAttribute]
+        public List<LatencyResults> LatencyResults { get; set; }
+
+        #endregion
+
+        #region Domino
+
+        [DataMember]
+        [BsonElement("domino_server_tasks")]
+        [BsonIgnoreIfNull]
+        public List<DominoServerTask> DominoServerTasks { get; set; }
+
+        [DataMember]
+        [BsonElement("domain")]
+        [BsonIgnoreIfNull]
+        public string Domain { get; set; }
+
+
+        [DataMember]
+        [BsonElement("mailbox_performance_index")]
+        [BsonIgnoreIfNull]
+        public int? MailboxPerformanceIndex { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_pending")]
+        [BsonIgnoreIfNull]
+        public int? MailPending { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_dead")]
+        [BsonIgnoreIfNull]
+        public int? MailDead { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_waiting")]
+        [BsonIgnoreIfNull]
+        public int? MailWaiting { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_held")]
+        [BsonIgnoreIfNull]
+        public int? MailHeld { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_max_size_delivered")]
+        [BsonIgnoreIfNull]
+        public int? MailMaximiumSizeDelivered { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_peek_message_delivery_time")]
+        [BsonIgnoreIfNull]
+        public int? MailPeakMessageDeliveryTime { get; set; }
+
+        [DataMember]
+        [BsonElement("held_mail_threshold")]
+        [BsonIgnoreIfNull]
+        public int? HeldMailThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_average_delivery_time")]
+        [BsonIgnoreIfNull]
+        public int? MailAverageDeliveryTime { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_average_size_delivered")]
+        [BsonIgnoreIfNull]
+        public int? MailAverageSizeDelivered { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_average_server_hopes")]
+        [BsonIgnoreIfNull]
+        public int? MailAverageServerHops { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_transferred")]
+        [BsonIgnoreIfNull]
+        public int? MailTransferred { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_delivered")]
+        [BsonIgnoreIfNull]
+        public int? MailDelivered { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_transferred_nrpc")]
+        [BsonIgnoreIfNull]
+        public int? MailTransferredNRPC { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_transferred_smtp")]
+        [BsonIgnoreIfNull]
+        public int? MailTransferredSMTP { get; set; }
+        [DataMember]
+
+        [BsonElement("mail_transfer_threads_active")]
+        [BsonIgnoreIfNull]
+        public int? MailTransferThreadsActive { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_waiting_for_delivery_retry")]
+        [BsonIgnoreIfNull]
+        public int? MailWaitingForDeliveryRetry { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_waiting_for_dir")]
+        [BsonIgnoreIfNull]
+        public int? MailWaitingForDIR { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_waiting_for_dns")]
+        [BsonIgnoreIfNull]
+        public int? MailWaitingForDNS { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_delivered_size_under_1kb")]
+        [BsonIgnoreIfNull]
+        public int? MailDeliveredSize_Under_1KB { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_delivered_size_1kb_to_10kb")]
+        [BsonIgnoreIfNull]
+        public int? MailDeliveredSize_1KB_to_10KB { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_delivered_size_10kb_to_100kb")]
+        [BsonIgnoreIfNull]
+        public int? MailDeliveredSize_10KB_to_100KB { get; set; }
+        
+        [DataMember]
+        [BsonElement("mail_delivered_size_100kb_to_1mb")]
+        [BsonIgnoreIfNull]
+        public int? MailDeliveredSize_100KB_to_1MB { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_delivered_size_1mb_to_10mb")]
+        [BsonIgnoreIfNull]
+        public int? MailDeliveredSize_1MB_to_10MB { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_delivered_size_10mb_to_100mb")]
+        [BsonIgnoreIfNull]
+        public int? MailDeliveredSize_10MB_to_100MB { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_routed")]
+        [BsonIgnoreIfNull]
+        public int? MailRouted { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_peek_messages_delivered")]
+        [BsonIgnoreIfNull]
+        public int? MailPeakMessagesDelivered { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_peek_messages_transferred")]
+        [BsonIgnoreIfNull]
+        public int? MailPeakMessagesTransferred { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_peek_message_transferred_time")]
+        [BsonIgnoreIfNull]
+        public int? MailPeakMessageTransferredTime { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_recall_failures")]
+        [BsonIgnoreIfNull]
+        public int? MailRecallFailures { get; set; }
+
+        [DataMember]
+        [BsonElement("mail_waiting_recipients")]
+        [BsonIgnoreIfNull]
+        public int? MailWaitingRecipients { get; set; }
+
+        [DataMember]
+        [BsonElement("data_member")]
+        [BsonIgnoreIfNull]
+        public int? DataMember { get; set; }
+
+        [DataMember]
+        [BsonElement("cluster_name")]
+        [BsonIgnoreIfNull]
+        public string ClusterName { get; set; }
+
+        [DataMember]
+        [BsonElement("cluster_seconds_on_queue")]
+        [BsonIgnoreIfNull]
+        public int? ClusterSecondsOnQueue { get; set; }
+        
+        [DataMember]
+        [BsonElement("cluster_seconds_on_queue_average")]
+        [BsonIgnoreIfNull]
+        public double? ClusterSecondsOnQueueAverage { get; set; }
+        
+        [DataMember]
+        [BsonElement("cluster_seconds_on_queue_max")]
+        [BsonIgnoreIfNull]
+        public int? ClusterSecondsOnQueueMax { get; set; }
+        
+        [DataMember]
+        [BsonElement("cluster_work_queue_depth")]
+        [BsonIgnoreIfNull]
+        public int? ClusterWorkQueueDepth { get; set; }
+
+        [DataMember]
+        [BsonElement("cluster_work_queue_depth_average")]
+        [BsonIgnoreIfNull]
+        public double? ClusterWorkQueueDepthAverage { get; set; }
+
+        [DataMember]
+        [BsonElement("cluster_work_queue_depth_max")]
+        [BsonIgnoreIfNull]
+        public int? ClusterWorkQueueDepthMax { get; set; }
+
+        [DataMember]
+        [BsonElement("cluster_availability")]
+        [BsonIgnoreIfNull]
+        public double? ClusterAvailability { get; set; }
+
+        [DataMember]
+        [BsonElement("cluster_availability_threshold")]
+        [BsonIgnoreIfNull]
+        public double? ClusterAvailabilityThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("cluster_analysis")]
+        [BsonIgnoreIfNull]
+        public string ClusterAnalysis { get; set; }
+
+
+
+        #endregion
+
+        #region Traveler
+
+        [DataMember]
+        [BsonElement("traveler_status")]
+        [BsonIgnoreIfNull]
+        public string TravelerStatus { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_details")]
+        [BsonIgnoreIfNull]
+        public string TravelerDetails { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_description")]
+        [BsonIgnoreIfNull]
+        public string TravelerDescription { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_users")]
+        [BsonIgnoreIfNull]
+        public int? TravelerUsers { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_device_count")]
+        [BsonIgnoreIfNull]
+        public int? TravelerDeviceCount { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_version")]
+        [BsonIgnoreIfNull]
+        public string TravelerVersion { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_incremental_syncs")]
+        [BsonIgnoreIfNull]
+        public int? TravelerIncrementalSyncs { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_availability_index")]
+        [BsonIgnoreIfNull]
+        public int? TravelerAvailabilityIndex { get; set; }
+        
+        [DataMember]
+        [BsonElement("http_peak_connections")]
+        [BsonIgnoreIfNull]
+        public int? HttpPeakConnections { get; set; }
+
+        [DataMember]
+        [BsonElement("http_max_configured_connections")]
+        [BsonIgnoreIfNull]
+        public int? HttpMaxConfiguredConnections { get; set; }
+
+        [DataMember]
+        [BsonElement("http_status")]
+        [BsonIgnoreIfNull]
+        public string HttpStatus { get; set; }
+
+        [DataMember]
+        [BsonElement("http_details")]
+        [BsonIgnoreIfNull]
+        public string HttpDetails { get; set; }
+
+        [DataMember]
+        [BsonElement("resource_constraint")]
+        [BsonIgnoreIfNull]
+        public string ResourceConstraint { get; set; }
+
+
+        #endregion
 
 
 
@@ -1003,7 +1319,60 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public double? PercentFree { get; set; }
 
+        [DataMember]
+        [BsonElement("average_queue_length")]
+        [BsonIgnoreIfNullAttribute]
+        public double? AverageQueueLength { get; set; }
+
+        [DataMember]
+        [BsonElement("disk_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public double? DiskThreshold { get; set; }
     }
+
+    public class DominoServerTask : Entity
+    {
+        public DominoServerTask()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("task_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string TaskName { get; set; }
+
+        [DataMember]
+        [BsonElement("monitored")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean? Monitored { get; set; }
+
+        [DataMember]
+        [BsonElement("status_summary")]
+        [BsonIgnoreIfNullAttribute]
+        public string StatusSummary { get; set; }
+
+        [DataMember]
+        [BsonElement("primary_status")]
+        [BsonIgnoreIfNullAttribute]
+        public string PrimaryStatus { get; set; }
+
+        [DataMember]
+        [BsonElement("secondary_status")]
+        [BsonIgnoreIfNullAttribute]
+        public string SecondaryStatus { get; set; }
+
+        [DataMember]
+        [BsonElement("last_updated")]
+        [BsonIgnoreIfNullAttribute]
+        public string LastUpdated { get; set; }
+
+    }
+
 
     [DataContract]
     [Serializable]
@@ -1376,6 +1745,34 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("telephony_conferences")]
         public int TelephonyConferences { get; set; }
+
+    }
+
+    public class LatencyResults
+    {
+        public LatencyResults()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("source_server")]
+        [BsonIgnoreIfNullAttribute]
+        public string SourceServer { get; set; }
+
+        [DataMember]
+        [BsonElement("destination_server")]
+        [BsonIgnoreIfNullAttribute]
+        public string DestinationServer { get; set; }
+
+        [DataMember]
+        [BsonElement("latency")]
+        [BsonIgnoreIfNullAttribute]
+        public double? Latency { get; set; }
 
     }
 }

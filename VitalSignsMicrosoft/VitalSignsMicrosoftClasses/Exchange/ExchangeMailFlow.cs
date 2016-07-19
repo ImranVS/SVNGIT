@@ -19,6 +19,8 @@ using System.Threading;
 using VSFramework;
 using System;
 
+using MongoDB.Driver;
+
 namespace VitalSignsMicrosoftClasses
 {
 	class ExchangeMailFlow
@@ -200,10 +202,16 @@ namespace VitalSignsMicrosoftClasses
 					Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "getMailFlowHeatMap PS Script:" +PowerShellCmd, commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
 					System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 					powershell.Streams.Error.Clear();
+                    powershell.Commands.Clear();
 					powershell.AddScript(PowerShellCmd);
 
 					results = powershell.Invoke();
 					Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "getMailFlowHeatMap result count:" + results.Count.ToString(), commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
+
+                    List<VSNext.Mongo.Entities.LatencyResults> listOfResults = new List<VSNext.Mongo.Entities.LatencyResults>();
+                    MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoUpsert = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
+                    mongoUpsert.filterDef = mongoUpsert.repo.Filter.Eq(i => i.TypeAndName, "ExchangeMailFlow-ExchangeMailFlow");
+
 					if (results.Count > 0)
 					{
 
@@ -232,32 +240,66 @@ namespace VitalSignsMicrosoftClasses
 										double sSec = Convert.ToDouble(psTime.Split(':')[2]);
 										int iFinalSec = Convert.ToInt32((sHour + sMin + sSec) * 1000);
 
-										sql += "('" + source + "','" + target + "','" + iFinalSec.ToString() + "','" + dtNow + "'),";
+                                        listOfResults.Add(new VSNext.Mongo.Entities.LatencyResults()
+                                        {
+                                            SourceServer = source,
+                                            DestinationServer = target,
+                                            Latency = iFinalSec
+                                        });
 									}
 									else
 									{
-										sql += "('" + source + "','" + target + "','-1','" + dtNow + "'),";
+                                        listOfResults.Add(new VSNext.Mongo.Entities.LatencyResults()
+                                        {
+                                            SourceServer = source,
+                                            DestinationServer = target,
+                                            Latency = -1
+                                        });
 									}
 								}
 								else
 								{
 									i++;
-									sql += "('" + source + "','" + target + "','-1','" + dtNow + "'),";
+
+                                    listOfResults.Add(new VSNext.Mongo.Entities.LatencyResults()
+                                    {
+                                        SourceServer = source,
+                                        DestinationServer = target,
+                                        Latency = -1
+                                    });
 								}
 							}
 							else
 							{
-								sql += "('" + source + "','" + target + "','-1','" + dtNow + "'),";
+                                listOfResults.Add(new VSNext.Mongo.Entities.LatencyResults()
+                                {
+                                    SourceServer = source,
+                                    DestinationServer = target,
+                                    Latency = -1
+                                });
 							}
 
 
 
 						}
 
-						string sql1 = "INSERT INTO dbo.MailLatencyStats(sourceserver,destinationserver,latency,date) values" + sql.Substring(0, sql.Length - 1);
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql1, DatabaseName = "VSS_Statistics" });
-						string sql2 = "INSERT INTO dbo.MailLatencyDailyStats(sourceserver,destinationserver,latency,date) values" + sql.Substring(0, sql.Length - 1);
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql2, DatabaseName = "VSS_Statistics" });
+
+                        mongoUpsert.updateDef = mongoUpsert.repo.Updater.Set(x => x.LatencyResults, listOfResults);
+                        AllTestsList.MongoEntity.Add(mongoUpsert);
+
+                        MongoStatementsInsert<VSNext.Mongo.Entities.DailyStatistics> mongoInsert = new MongoStatementsInsert<VSNext.Mongo.Entities.DailyStatistics>();
+                        List<VSNext.Mongo.Entities.DailyStatistics> listOfStats = new List<VSNext.Mongo.Entities.DailyStatistics>();
+                        foreach (VSNext.Mongo.Entities.LatencyResults entity in listOfResults)
+                            listOfStats.Add(new VSNext.Mongo.Entities.DailyStatistics()
+                            {
+                                DeviceType = "ExchangeMailFlow",
+                                ServerName = "ExchangeMailFlow",
+                                StatName = entity.SourceServer + "-to-" + entity.DestinationServer,
+                                StatValue = Convert.ToDouble(entity.Latency)
+                            });
+                        mongoInsert.listOfEntities = listOfStats;
+                        AllTestsList.MongoEntity.Add(mongoInsert);
+
 					}
 				}
 				catch (Exception ex)
