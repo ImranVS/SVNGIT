@@ -25,26 +25,7 @@ namespace VSNext.Mongo.Entities
         [BsonElement("drives")]
         public List<Drive> Drives { get; set; }
 
-        [DataMember]
-        [BsonElement("total")]
-        public double? Total
-        {
-            get; set;
-        }
-
-        [DataMember]
-        [BsonElement("used")]
-        public double? Used
-        {
-            get; set;
-        }
-
-        [DataMember]
-        [BsonElement("value")]
-        public double? Value
-        {
-            get; set;
-        }
+       
     }
     [DataContract]
     [Serializable]
