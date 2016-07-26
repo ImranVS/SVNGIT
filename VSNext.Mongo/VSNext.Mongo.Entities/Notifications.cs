@@ -22,8 +22,11 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("send")]
+        [BsonIgnoreIfNullAttribute]
         public List<SendList> SendList { get; set; }
     }
+    /* Documents created using SendList can be either regular notifications or escalations. The difference between the two is the presence 
+     of the property Interval in the list of members. Interval will only pertain to escalations. */
     public class SendList : Entity
     {
         [DataMember]
@@ -71,5 +74,9 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public bool PersistentNotification { get; set; }
 
+        [DataMember]
+        [BsonElement("interval")]
+        [BsonIgnoreIfNullAttribute]
+        public int? Interval { get; set; }
     }
 }

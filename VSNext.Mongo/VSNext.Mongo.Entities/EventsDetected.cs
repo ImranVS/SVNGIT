@@ -61,6 +61,11 @@ namespace VSNext.Mongo.Entities
     public class NotificationsSent : Entity
     {
         [DataMember]
+        [BsonElement("notification_id")]
+        [BsonIgnoreIfNullAttribute]
+        public ObjectId NotificationId { get; set; }
+
+        [DataMember]
         [BsonElement("event_detected_sent")]
         [BsonIgnoreIfNullAttribute]
         public DateTime? EventDetectedSent { get; set; }
@@ -74,5 +79,10 @@ namespace VSNext.Mongo.Entities
         [BsonElement("notification_sent_to")]
         [BsonIgnoreIfNullAttribute]
         public string NotificationSentTo { get; set; }
+
+        [DataMember]
+        [BsonElement("escalation_id")]
+        [BsonIgnoreIfNullAttribute]
+        public ObjectId? EscalationId { get; set; }
     }
 }
