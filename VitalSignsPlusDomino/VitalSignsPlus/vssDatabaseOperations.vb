@@ -1944,45 +1944,43 @@ Partial Public Class VitalSignsPlusDomino
     End Sub
 
 
-    Public Sub SetActiveDevices(ByVal list As List(Of VSNext.Mongo.Entities.MobileDevices))
+    Public Sub SetActiveDevices()
 
 
         Try
-
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDevices)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repo.Filter.In(Function(x) x.DeviceID, list.Select(Function(x) x.DeviceID.ToString()))
-            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repo.Updater.Set(Function(x) x.IsActive, True)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.MobileDevices)
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.MobileDevices)
+
+
+            filterDef = repo.Filter.In(Function(x) x.ServerName, MyDominoServers.Cast(Of MonitoredItems.DominoServer)().Select(Function(x) x.Name))
+            Dim list As List(Of VSNext.Mongo.Entities.MobileDevices) = repo.Collection.Find(filterDef) _
+                    .Project((New ProjectionDefinitionBuilder(Of VSNext.Mongo.Entities.MobileDevices)() _
+                    .Include(Function(x) x.DeviceID) _
+                    .Include(Function(x) x.LastSyncTime) _
+                    .Include(Function(x) x.Id) _
+                    .Include(Function(x) x.ServerName))) _
+                    .ToList() _
+                    .Select(Function(x) MongoDB.Bson.Serialization.BsonSerializer.Deserialize(Of VSNext.Mongo.Entities.MobileDevices)(x)) _
+                    .ToList()
+
+
+            Dim activeList As List(Of VSNext.Mongo.Entities.MobileDevices) = list _
+                    .GroupBy(Function(x) x.ServerName) _
+                    .Select(Function(x) x.Aggregate((Function(max, cur) IIf(max Is Nothing Or cur.LastSyncTime.Value > max.LastSyncTime.Value, cur, max))))
+
+
+
+
+            filterDef = repo.Filter.In(Function(x) x.Id, activeList.Select(Function(y) y.Id.ToString()).ToList()) 
+            updateDef = repo.Updater.Set(Function(x) x.IsActive, True)
+
+            repo.Update(filterDef, updateDef)
+
+
 
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Exception in Setting ActiveDevices: " & ex.Message)
-        End Try
-
-
-
-
-
-
-
-
-
-
-
-        Dim con As New SqlConnection
-
-        Try
-            Dim myAdapter As New VSFramework.XMLOperation
-            con.ConnectionString = myAdapter.GetDBConnectionString("Vitalsigns")
-            con.Open()
-            Dim da As SqlDataAdapter
-            da = New SqlDataAdapter("PR_SetActiveDevices", con)
-            da.SelectCommand.CommandType = CommandType.StoredProcedure
-            da.SelectCommand.CommandTimeout = 60 * 1000 * 5
-            da.SelectCommand.ExecuteNonQuery()
-
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Exception in Setting ActiveDevices: " & ex.Message)
-        Finally
-            con.Close()
         End Try
 
     End Sub

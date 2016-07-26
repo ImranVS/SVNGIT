@@ -2324,7 +2324,7 @@ Partial Public Class VitalSignsPlusDomino
 
                 Try
                     WriteDeviceHistoryEntry("All", "Traveler_Users_MoreDetails", Now.ToString & ": setting the devices as active.", LogLevel.Verbose)
-                    SetActiveDevices(list)
+                    SetActiveDevices()
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("All", "Traveler_Users_MoreDetails", Now.ToString & " Error setting the devices as active : " & ex.ToString)
 
@@ -3648,7 +3648,7 @@ Alerts:
 
             Try
                 WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & ": setting the devices as active.", LogLevel.Verbose)
-                'SetActiveDevices()
+                SetActiveDevices()
                 'Dim strUpdSQL As String = "update dbo.traveler_devices set IsActive=0"
                 'objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strUpdSQL)
 
