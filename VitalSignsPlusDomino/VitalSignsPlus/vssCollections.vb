@@ -1980,7 +1980,7 @@ Partial Public Class VitalSignsPlusDomino
 			If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
 				Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
                 strSelect += ", di.CurrentNodeID "
-                strJoins += "	inner join DeviceInventory di on d.ID=di.DeviceID and di.DeviceTypeId=(select id from ServerTypes where ServerType = 'Domino Cluster database')"
+                strJoins += "	inner join DeviceInventory di on d.ID=di.DeviceID and di.DeviceTypeId=(select id from ServerTypes where ServerType = 'Domino Cluster')"
                 strJoins += " inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" & NodeName & "'"
 			End If
 

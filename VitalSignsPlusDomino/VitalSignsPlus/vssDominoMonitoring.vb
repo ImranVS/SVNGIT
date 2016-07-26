@@ -8,6 +8,7 @@ Imports System.Collections.Generic
 Imports System.Text
 Imports System.Runtime.Serialization.Json
 Imports System.Runtime.Serialization
+Imports MongoDB.Driver
 
 Partial Public Class VitalSignsPlusDomino
 
@@ -1506,7 +1507,7 @@ WaitHere:
                     End If
                     UpdateDominoStatusTable(MyDominoServer)
                     'Put the response time in the statistics.mdb 'DeviceDailyStat' table
-                    UpdateDominoResponseTimeTable(MyDominoServer.Name, MyDominoServer.ResponseTime)
+                    UpdateDominoResponseTimeTable(MyDominoServer, MyDominoServer.ResponseTime)
 
                     Exit Sub
                 End If
@@ -1593,7 +1594,7 @@ WaitHere:
 
                 Try
                     'Put the response time in the statistics.mdb 'DeviceDailyStat' table
-                    UpdateDominoResponseTimeTable(MyDominoServer.Name, ResponseTime)
+                    UpdateDominoResponseTimeTable(MyDominoServer, ResponseTime)
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error updating Domino Response Table " & ex.Message)
 
@@ -1709,11 +1710,22 @@ WaitHere:
             If MyDominoServer.VersionDomino <> "Unknown" Then
                 Dim strSQL As String = ""
 
-                With MyDominoServer
-                    strSQL = "Update Status SET DominoVersion='" & .VersionDomino & "', OperatingSystem='" & Left(.OperatingSystem, 100) & "'" & _
-                             "  WHERE TypeANDName='" & .Name & "-Domino'"
-                End With
-                UpdateStatusTable(strSQL)
+                Try
+
+                    With MyDominoServer
+                        strSQL = "Update Status SET DominoVersion='" & .VersionDomino & "', OperatingSystem='" & Left(.OperatingSystem, 100) & "'" & _
+                                 "  WHERE TypeANDName='" & .Name & "-Domino'"
+                        Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-Domino")
+                        Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                             .Set(Function(x) x.SoftwareVersion, .VersionDomino) _
+                                                                                             .Set(Function(x) x.OperatingSystem, Left(.OperatingSystem, 100))
+                        repository.Update(filterDef, updateDef)
+                    End With
+
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error updating Domino software and OS version :  " & ex.Message)
+                End Try
             End If
         End If
 
@@ -1880,7 +1892,7 @@ WaitHere:
                     End Try
 
                     Try
-                        UpdateDominoDailyStatTable(MyDominoServer.Name, "Platform.System.PctCombinedCpuUtil", myCPU)
+                        UpdateDominoDailyStatTable(MyDominoServer, "Platform.System.PctCombinedCpuUtil", myCPU)
                     Catch ex As Exception
 
                     End Try
@@ -2309,7 +2321,7 @@ WaitHere:
                     End If
                     UpdateDominoStatusTable(MyDominoServer)
                     'Put the response time in the statistics.mdb 'DeviceDailyStat' table
-                    UpdateDominoResponseTimeTable(MyDominoServer.Name, MyDominoServer.ResponseTime)
+                    UpdateDominoResponseTimeTable(MyDominoServer, MyDominoServer.ResponseTime)
                     Exit Sub
                 End If
             End If
@@ -2412,7 +2424,7 @@ WaitHere:
 
                 Try
                     'Put the response time in the statistics.mdb 'DeviceDailyStat' table
-                    UpdateDominoResponseTimeTable(MyDominoServer.Name, ResponseTime)
+                    UpdateDominoResponseTimeTable(MyDominoServer, ResponseTime)
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error updating Domino Response Table " & ex.Message)
 
@@ -2874,17 +2886,6 @@ WaitHere:
             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error converting server time in CheckDominoServerTasks: " & ex.ToString)
         End Try
         
-
-        Dim vsObj As New VSAdaptor
-        Dim strSQL As String = "Delete FROM DominoServerTaskStatus WHERE ServerName='" & DominoServer.Name & "'"
-
-        Try
-            Dim RA As Integer
-            RA = vsObj.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Deleted " & RA.ToString & " previous server task records.")
-        Catch ex As Exception
-
-        End Try
 
         DominoServer.TaskStatus = ""
         Dim TaskStatus As String = ""
@@ -3569,8 +3570,15 @@ SkipTask:
 
             If myErrorCount > 1 Then
                 DominoServer.Status = "Server Tasks Warning"
-                Dim mySQL As String = "Update Status set Status = 'Server Tasks Warning', StatusCode = 'Issue' WHERE TypeAndName = '" & DominoServer.Name & "-Domino'"
-                UpdateStatusTable(mySQL, "")
+
+                Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, DominoServer.Name) And _
+                    repository.Filter.Eq(Function(x) x.Type, "Domino")
+                Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                     .Set(Function(x) x.CurrentStatus, "Server Tasks Warning") _
+                                                                                     .Set(Function(x) x.StatusCode, "Issue")
+
+
             End If
 
 
@@ -3659,6 +3667,7 @@ SkipTask:
         End Try
         Try
             'WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Now Updating DominoServerTaskStatus table.  ")
+            Dim listOfEntities As New List(Of VSNext.Mongo.Entities.DominoServerTask)()
 
             For Each ServerTask As MonitoredItems.ServerTask In MyServerTasks
                 WriteDeviceHistoryEntry("Domino", DominoServer.Name, vbCrLf)
@@ -3670,19 +3679,33 @@ SkipTask:
                 WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task last updated: " & ServerTask.LastUpdated)
 
                 Try
-                    strSQL = "INSERT INTO DominoServerTaskStatus (ServerName, TaskName, StatusSummary, Monitored, PrimaryStatus, SecondaryStatus, LastUpdate) " _
-                                          & "VALUES ('" & DominoServer.Name & "', '" & ServerTask.Name & "', '" & ServerTask.StatusSummary & "', '" & ServerTask.IsMonitored & "', '" & ServerTask.Status.Replace("'", "") & "', '" & ServerTask.SecondaryStatus.Replace("'", "") & "', '" & FixDateTime(ServerTask.LastUpdated) & "') "
-                    strSQL = vsObj.SQL_Server_Compatible_SQLStatement(strSQL)
-                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, strSQL)
-                    vsObj.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                    listOfEntities.Add(New VSNext.Mongo.Entities.DominoServerTask With {
+                                    .LastUpdated = GetFixedDateTime(ServerTask.LastUpdated),
+                                    .Monitored = IIf(Boolean.TryParse(ServerTask.IsMonitored, New Boolean), Boolean.Parse(ServerTask.IsMonitored), False),
+                                    .PrimaryStatus = ServerTask.Status,
+                                    .StatusSummary = ServerTask.StatusSummary,
+                                    .TaskName = ServerTask.TaskName,
+                                    .SecondaryStatus = ServerTask.SecondaryStatus
+                                })
+
                 Catch ex As Exception
-                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, "Exception inserting into DominoServerTaskStatus: " & ex.ToString)
+                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, "Exception adding to DominoServerTaskStatus List: " & ex.ToString)
                 End Try
 
 
 
             Next
 
+            Try
+                Dim DominoServer2 As MonitoredItems.DominoServer = DominoServer
+                Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(DominoServer2.Name & "-Domino"))
+                Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                     .Set(Function(x) x.DominoServerTasks, listOfEntities)
+                repository.Update(filterDef, updateDef)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, "Exception inserting DominoServerTask List: " & ex.ToString)
+            End Try
 
         Catch ex As Exception
 
@@ -3726,7 +3749,7 @@ SkipTask:
             If myStat <> Nothing Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.OpenDocument value is " & myStat)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.OpenDocument increment value from last scan is " & myIncrement)
-                UpdateDominoDailyStatTable(MyDominoServer.Name, "Domino.Command.OpenDocument", myIncrement)
+                UpdateDominoDailyStatTable(MyDominoServer, "Domino.Command.OpenDocument", myIncrement)
                 MyDominoServer.priorDominoOpenDocument = myStat
             End If
 
@@ -3752,7 +3775,7 @@ SkipTask:
             If myStat <> Nothing Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.CreateDocument value is " & myStat)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.CreateDocument increment value from last scan is " & myIncrement)
-                UpdateDominoDailyStatTable(MyDominoServer.Name, "Domino.Command.CreateDocument", myIncrement)
+                UpdateDominoDailyStatTable(MyDominoServer, "Domino.Command.CreateDocument", myIncrement)
                 MyDominoServer.priorDominoCreateDocument = myStat
             End If
 
@@ -3779,7 +3802,7 @@ SkipTask:
             If myStat <> Nothing Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.DeleteDocument value is " & myStat)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.DeleteDocument increment value from last scan is " & myIncrement)
-                UpdateDominoDailyStatTable(MyDominoServer.Name, "Domino.Command.DeleteDocument", myIncrement)
+                UpdateDominoDailyStatTable(MyDominoServer, "Domino.Command.DeleteDocument", myIncrement)
                 MyDominoServer.priorDominoDeleteDocument = myStat
             End If
 
@@ -3806,7 +3829,7 @@ SkipTask:
             If myStat <> Nothing Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.OpenDatabase value is " & myStat)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.OpenDatabase increment value from last scan is " & myIncrement)
-                UpdateDominoDailyStatTable(MyDominoServer.Name, "Domino.Command.OpenDatabase", myIncrement)
+                UpdateDominoDailyStatTable(MyDominoServer, "Domino.Command.OpenDatabase", myIncrement)
                 MyDominoServer.priorDominoOpenDatabase = myStat
             End If
 
@@ -3834,7 +3857,7 @@ SkipTask:
             If myStat <> Nothing Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.OpenView value is " & myStat)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.OpenView increment value from last scan is " & myIncrement)
-                UpdateDominoDailyStatTable(MyDominoServer.Name, "Domino.Command.OpenView", myIncrement)
+                UpdateDominoDailyStatTable(MyDominoServer, "Domino.Command.OpenView", myIncrement)
                 MyDominoServer.priorDominoOpenView = myStat
             End If
 
@@ -3861,7 +3884,7 @@ SkipTask:
             If myStat <> Nothing Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.Total value is " & myStat)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino.Command.Total increment value from last scan is " & myIncrement)
-                UpdateDominoDailyStatTable(MyDominoServer.Name, "Domino.Command.Total", myIncrement)
+                UpdateDominoDailyStatTable(MyDominoServer, "Domino.Command.Total", myIncrement)
                 MyDominoServer.priorDominoTotal = myStat
             End If
 
@@ -3938,10 +3961,10 @@ SkipTask:
         Try
             If PercentRAMinUse <> 999 Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Updating DominoDailyStat table with Mem.PercentUsed as " & PercentRAMinUse & "% of memory used.")
-                UpdateDominoDailyStatTable(MyDominoServer.Name, "Mem.PercentUsed", PercentRAMinUse)
+                UpdateDominoDailyStatTable(MyDominoServer, "Mem.PercentUsed", PercentRAMinUse)
 
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Updating DominoDailyStat table with Mem.PercentAvailable as " & (100 - PercentRAMinUse) & "% of memory used.")
-                UpdateDominoDailyStatTable(MyDominoServer.Name, "Mem.PercentAvailable", (100 - PercentRAMinUse))
+                UpdateDominoDailyStatTable(MyDominoServer, "Mem.PercentAvailable", (100 - PercentRAMinUse))
 
                 If PercentRAMinUse > MyDominoServer.Memory_Threshold And InStr(MyDominoServer.OperatingSystem.ToUpper, "WINDOWS") > 0 Then
                     'Unix servers are supposed to use all available memory.
@@ -4623,6 +4646,7 @@ skipdrive2:
 
 
         If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " ********* Disk space summary   **************")
+        Dim listOfDisks As New List(Of VSNext.Mongo.Entities.Disk)()
         For Each myDiskDrive In MyDominoServer.DiskDrives
 
             If MyLogLevel = LogLevel.Verbose And Trim(myDiskDrive.DiskName) <> "" Then
@@ -4652,77 +4676,40 @@ skipdrive2:
             Dim strInsert As String = ""
             Dim objVSAdaptor As New VSAdaptor
             Try
-                strSQL = "IF EXISTS(SELECT * FROM DominoDiskSpace WHERE ServerName='" & MyDominoServer.Name & "' AND DiskName='" & myDiskDrive.DiskName & "') BEGIN "
                 If myDiskDrive.DiskSize <> 0 And myDiskDrive.DiskName.Trim <> "" Then
-                    strUpdate = "Update DominoDiskSpace SET ServerName= '" & MyDominoServer.Name & _
-                       "', DiskName='" & myDiskDrive.DiskName & _
-                     "', Threshold='" & MyDominoServer.DiskThreshold & _
-                       "', DiskFree='" & myDiskDrive.DiskFree & _
-                       "', DiskSize='" & myDiskDrive.DiskSize & _
-                       "', PercentFree='" & myDiskDrive.PercentFree & _
-                       "', PercentUtilization='" & myDiskDrive.DiskPercentUtilization & _
-                       "', AverageQueueLength='" & myDiskDrive.DiskAverageQueueLength & _
-                     "', Updated='" & FixDateTime(Now) & _
-                       "'  WHERE ServerName='" & MyDominoServer.Name & "' AND DiskName='" & myDiskDrive.DiskName & "' "
-                Else
-                    strUpdate = "Update DominoDiskSpace SET ServerName= '" & MyDominoServer.Name & _
-                      "', DiskName='" & myDiskDrive.DiskName & _
-                      "', PercentUtilization='" & myDiskDrive.DiskPercentUtilization & _
-                      "', AverageQueueLength='" & myDiskDrive.DiskAverageQueueLength & _
-                       "', Updated='" & FixDateTime(Now) & _
-                      "'  WHERE ServerName='" & MyDominoServer.Name & "' AND DiskName='" & myDiskDrive.DiskName & "' "
-                End If
-                If Trim(myDiskDrive.DiskName) <> "" And myDiskDrive.DiskSize <> 0 Then
-                    strInsert = "INSERT INTO DominoDiskSpace (ServerName, DiskName, DiskFree, DiskSize, PercentFree, Updated, PercentUtilization, AverageQueueLength, Threshold) " & _
-                      "VALUES ('" & MyDominoServer.Name & "', '" & myDiskDrive.DiskName & "', '" & myDiskDrive.DiskFree & "', '" & myDiskDrive.DiskSize & "', '" & myDiskDrive.PercentFree & "', '" & FixDateTime(Now) & "', '" & myDiskDrive.DiskPercentUtilization & "', '" & myDiskDrive.DiskAverageQueueLength & "', '" & MyDominoServer.DiskThreshold & "')"
+                    listOfDisks.Add(New VSNext.Mongo.Entities.Disk With {
+                                    .DiskFree = myDiskDrive.DiskFree,
+                                    .DiskName = myDiskDrive.DiskName,
+                                    .DiskSize = myDiskDrive.DiskSize,
+                                    .PercentFree = myDiskDrive.PercentFree,
+                                    .AverageQueueLength = myDiskDrive.DiskAverageQueueLength,
+                                    .DiskThreshold = MyDominoServer.DiskThreshold
+                                    })
 
-                ElseIf Trim(myDiskDrive.DiskName) <> "" Then
-                    strInsert = "INSERT INTO DominoDiskSpace (ServerName, DiskName,  Updated, PercentUtilization, AverageQueueLength) " & _
-                     "VALUES ('" & MyDominoServer.Name & "', '" & myDiskDrive.DiskName & "', '" & FixDateTime(Now) & "', '" & myDiskDrive.DiskPercentUtilization & "', '" & myDiskDrive.DiskAverageQueueLength & "')"
+                Else
+
+                    listOfDisks.Add(New VSNext.Mongo.Entities.Disk With {
+                                    .DiskName = myDiskDrive.DiskName,
+                                    .PercentFree = myDiskDrive.PercentFree,
+                                    .AverageQueueLength = myDiskDrive.DiskAverageQueueLength
+                                    })
                 End If
-                strSQL += strUpdate & " END "
-                strSQL += "ELSE BEGIN "
-                strSQL += strInsert & " END "
 
                 ' WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " My Disk Space SQL UPDATE statement is : " & vbCrLf & strSQL)
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
             Catch ex As Exception
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error in Domino disk space creating SQL statement for status table: " & ex.Message & vbCrLf & strSQL)
             End Try
-
-            'Try
-            '    'Save it to the Servers database, DominoDiskSpace Table
-
-            '    'WRITTEN BY MUKUND 28Feb12
-            '    Dim objVSAdaptor As New VSAdaptor
-            '    Dim strSQLInsert As String = ""
-            '    If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = 0 Then
-            '        Try
-            '            If Trim(myDiskDrive.DiskName) <> "" And myDiskDrive.DiskSize <> 0 Then
-            '                strSQLInsert = "INSERT INTO DominoDiskSpace (ServerName, DiskName, DiskFree, DiskSize, PercentFree, Updated, PercentUtilization, AverageQueueLength, Threshold) " & _
-            '                  "VALUES ('" & MyDominoServer.Name & "', '" & myDiskDrive.DiskName & "', '" & myDiskDrive.DiskFree & "', '" & myDiskDrive.DiskSize & "', '" & myDiskDrive.PercentFree & "', '" & FixDateTime(Now) & "', '" & myDiskDrive.DiskPercentUtilization & "', '" & myDiskDrive.DiskAverageQueueLength & "', '" & MyDominoServer.DiskThreshold & "')"
-
-            '            ElseIf Trim(myDiskDrive.DiskName) <> "" Then
-            '                strSQLInsert = "INSERT INTO DominoDiskSpace (ServerName, DiskName,  Updated, PercentUtilization, AverageQueueLength) " & _
-            '                 "VALUES ('" & MyDominoServer.Name & "', '" & myDiskDrive.DiskName & "', '" & FixDateTime(Now) & "', '" & myDiskDrive.DiskPercentUtilization & "', '" & myDiskDrive.DiskAverageQueueLength & "')"
-
-            '            End If
-            '            If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = 0 And Trim(myDiskDrive.DiskName) <> "" Then
-            '                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Update failed, attempting insert instead " & vbCrLf & strSQLInsert)
-            '                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQLInsert)
-            '            End If
-
-            '        Catch ex As Exception
-            '            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error inserting into DiskSpace table:  " & ex.ToString)
-            '        End Try
-            '    End If
-
-            'Catch ex As Exception
-            '    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error updating DiskSpace table:  " & ex.ToString)
-
-            'End Try
         Next
 
+        Try
+            Dim MyDominoServer2 As MonitoredItems.DominoServer = MyDominoServer2
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = MyDominoServer2.Name & "-Domino")
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.Disks, listOfDisks)
+            repository.Update(filterDef, updateDef)
+        Catch ex As Exception
+
+        End Try
 
         If MyLogLevel = LogLevel.Verbose Then
             'WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " My disk statistics are: " & vbCrLf & MyDominoServer.Statistics_Disk & vbCrLf)
@@ -5436,7 +5423,7 @@ skipdrive2:
                     End If
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Incremental Delivered Mail value is " & DeliveredMail)
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Value of Previous delivered mail is " & DominoServer.PreviousDeliveredMail)
-                    UpdateDominoDailyStatTable(DominoServer.Name, "Mail.Delivered", DeliveredMail)
+                    UpdateDominoDailyStatTable(DominoServer, "Mail.Delivered", DeliveredMail)
                 Catch ex As Exception
 
                 End Try
@@ -5463,7 +5450,7 @@ skipdrive2:
                     SMTPMessages = 0
                 End If
                 DominoServer.PreviousSMTPMessages = SMTPMailCurrentStatValue
-                UpdateDominoDailyStatTable(DominoServer.Name, "SMTP.MessagesProcessed", SMTPMessages)
+                UpdateDominoDailyStatTable(DominoServer, "SMTP.MessagesProcessed", SMTPMessages)
                 '1/4/2016 NS modified for VSPLUS-2434
                 'WriteSettingsValue(DominoServer.Name & "-PreviousSMTPMessages", SMTPMailCurrentStatValue)
                 If MailStatsDict.ContainsKey(DominoServer.Name & "-PreviousSMTPMessages") Then
@@ -5494,7 +5481,7 @@ skipdrive2:
                 End If
                 DominoServer.PreviousMailFailures = MailFailuresCurrentStatValue
                 '   WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Mail.TransferFailures value is " & DominoServer.MailTransferFailures)
-                UpdateDominoDailyStatTable(DominoServer.Name, "Mail.TransferFailures", MailFailures)
+                UpdateDominoDailyStatTable(DominoServer, "Mail.TransferFailures", MailFailures)
                 '1/4/2016 NS modified for VSPLUS-2434
                 'WriteSettingsValue(DominoServer.Name & "-PreviousMailFailures", MailFailuresCurrentStatValue)
                 If MailStatsDict.ContainsKey(DominoServer.Name & "-PreviousMailFailures") Then
@@ -5536,7 +5523,7 @@ skipdrive2:
                     RoutedMail = 0
                 End Try
 
-                UpdateDominoDailyStatTable(DominoServer.Name, "Mail.TotalRouted", RoutedMail)
+                UpdateDominoDailyStatTable(DominoServer, "Mail.TotalRouted", RoutedMail)
                 '1/4/2016 NS modified for VSPLUS-2434
                 'WriteSettingsValue(DominoServer.Name & "-PreviousRoutedMail", RoutedMailCurrentStatValue)
                 If MailStatsDict.ContainsKey(DominoServer.Name & "-PreviousRoutedMail") Then
@@ -5588,7 +5575,7 @@ skipdrive2:
 
             End If
             ' WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental Transferred Mail value is " & DominoServer.TransferredMail)
-            UpdateDominoDailyStatTable(DominoServer.Name, "Mail.Transferred", TransferredMail)
+            UpdateDominoDailyStatTable(DominoServer, "Mail.Transferred", TransferredMail)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating Mail.Transferred " & ex.Message)
         End Try
@@ -5599,7 +5586,7 @@ skipdrive2:
             If InStr(DominoServer.Statistics_Mail.ToUpper, "Mail.AverageDeliverTime".ToUpper) > 0 Then
                 Try
                     AvgMailDeliver = ParseNumericStatValue("Mail.AverageDeliverTime", DominoServer.Statistics_Mail)
-                    UpdateDominoDailyStatTable(DominoServer.Name, "Mail.AverageDeliverTime", AvgMailDeliver)
+                    UpdateDominoDailyStatTable(DominoServer, "Mail.AverageDeliverTime", AvgMailDeliver)
                 Catch ex As Exception
                     AvgMailDeliver = 0
                 End Try
@@ -5617,7 +5604,7 @@ skipdrive2:
                     myNumber = ParseNumericStatValue("Mail.AverageSizeDelivered", DominoServer.Statistics_Mail)
                     'This is in KBytes so convert to MBytes
                     'myNumber = myNumber / 1024
-                    UpdateDominoDailyStatTable(DominoServer.Name, "Mail.AverageSizeDelivered", myNumber)
+                    UpdateDominoDailyStatTable(DominoServer, "Mail.AverageSizeDelivered", myNumber)
                 Catch ex As Exception
                     myNumber = 0
                 End Try
@@ -5633,7 +5620,7 @@ skipdrive2:
             If InStr(DominoServer.Statistics_Mail.ToUpper, "Mail.AverageServerHops".ToUpper) > 0 Then
                 Try
                     myNumber = ParseNumericStatValue("Mail.AverageServerHops", DominoServer.Statistics_Mail)
-                    UpdateDominoDailyStatTable(DominoServer.Name, "Mail.AverageServerHops", myNumber)
+                    UpdateDominoDailyStatTable(DominoServer, "Mail.AverageServerHops", myNumber)
                 Catch ex As Exception
                     myNumber = 0
                 End Try
@@ -5646,305 +5633,306 @@ skipdrive2:
 
     End Sub
 
-    Private Function CountMailFiles(ByRef s As Domino.NotesSession, ByRef MyDominoServer As MonitoredItems.DominoServer) As Integer
-        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Entered Mail File Count for  " & MyDominoServer.Name)
-        'Don't do this right away, it is too slow
+    'Not being used
+    'Private Function CountMailFiles(ByRef s As Domino.NotesSession, ByRef MyDominoServer As MonitoredItems.DominoServer) As Integer
+    '    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Entered Mail File Count for  " & MyDominoServer.Name)
+    '    'Don't do this right away, it is too slow
 
-        Try
-            Dim AllScanned As Boolean = True
-            For Each Server As MonitoredItems.DominoServer In MyDominoServers
-                If Server.Status = "Not Scanned" Then
-                    AllScanned = False
-                    WriteAuditEntry(Now.ToString & " Mail File Analysis is deferred until all Domino servers have been scanned.", LogLevel.Verbose)
-                    Exit Function
-                End If
-            Next
+    '    Try
+    '        Dim AllScanned As Boolean = True
+    '        For Each Server As MonitoredItems.DominoServer In MyDominoServers
+    '            If Server.Status = "Not Scanned" Then
+    '                AllScanned = False
+    '                WriteAuditEntry(Now.ToString & " Mail File Analysis is deferred until all Domino servers have been scanned.", LogLevel.Verbose)
+    '                Exit Function
+    '            End If
+    '        Next
 
-        Catch ex As Exception
+    '    Catch ex As Exception
 
-        End Try
+    '    End Try
 
-        If MyDominoServer.Status = "Maintenance" Then
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exiting Mail File Count because the server is in a maintenance window.")
-            Return 0
-            Exit Function
-        End If
+    '    If MyDominoServer.Status = "Maintenance" Then
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exiting Mail File Count because the server is in a maintenance window.")
+    '        Return 0
+    '        Exit Function
+    '    End If
 
-        Dim myRegistry As New RegistryHandler
+    '    Dim myRegistry As New RegistryHandler
 
-        'This subroutine counts, details, and summarizes the number of files in the \mail directory
-        If MyDominoServer.Enabled = False Then
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exiting Mail File Count because the server is not enabled.")
-            myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.ToShortDateString)
-            Return 0
-            Exit Function
-        End If
+    '    'This subroutine counts, details, and summarizes the number of files in the \mail directory
+    '    If MyDominoServer.Enabled = False Then
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exiting Mail File Count because the server is not enabled.")
+    '        myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.ToShortDateString)
+    '        Return 0
+    '        Exit Function
+    '    End If
 
-        If MyDominoServer.CountMailFiles = False Or MyDominoServer.MailDirectory = "None" Then
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exiting Mail File Count because mail file directory is " & MyDominoServer.MailDirectory & " or count mail files=" & MyDominoServer.CountMailFiles)
-            myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.ToShortDateString)
-            Return 0
-            Exit Function
-        End If
+    '    If MyDominoServer.CountMailFiles = False Or MyDominoServer.MailDirectory = "None" Then
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exiting Mail File Count because mail file directory is " & MyDominoServer.MailDirectory & " or count mail files=" & MyDominoServer.CountMailFiles)
+    '        myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.ToShortDateString)
+    '        Return 0
+    '        Exit Function
+    '    End If
 
-        '  Dim s As New Domino.NotesSession
-        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Searching " & MyDominoServer.Name & " for mail files in the " & MyDominoServer.MailDirectory & " directory.")
-        Dim MyCount As Integer
-        Dim MyTotalSize As Long
-        Dim dbDir As Domino.NotesDbDirectory
-        Dim db As Domino.NotesDatabase
-        Dim a As Domino.NotesAgent
-        Dim myCommand As New OleDb.OleDbCommand
-        Dim myConnection As New OleDb.OleDbConnection
-        'Dim myAdapter As New OleDb.OleDbDataAdapter
-        Dim myPath As String
+    '    '  Dim s As New Domino.NotesSession
+    '    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Searching " & MyDominoServer.Name & " for mail files in the " & MyDominoServer.MailDirectory & " directory.")
+    '    Dim MyCount As Integer
+    '    Dim MyTotalSize As Long
+    '    Dim dbDir As Domino.NotesDbDirectory
+    '    Dim db As Domino.NotesDatabase
+    '    Dim a As Domino.NotesAgent
+    '    Dim myCommand As New OleDb.OleDbCommand
+    '    Dim myConnection As New OleDb.OleDbConnection
+    '    'Dim myAdapter As New OleDb.OleDbDataAdapter
+    '    Dim myPath As String
 
-        'Read the registry for the location of the mailfilestats Database
+    '    'Read the registry for the location of the mailfilestats Database
 
-        Try
-            myPath = myRegistry.ReadFromRegistry("Application Path")
-            ' WriteAuditEntry(Now.ToString & " Domino Update e database " & myPath)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Failed to read registry in Domino count mail files module. Exception: " & ex.Message)
-        End Try
+    '    Try
+    '        myPath = myRegistry.ReadFromRegistry("Application Path")
+    '        ' WriteAuditEntry(Now.ToString & " Domino Update e database " & myPath)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " Failed to read registry in Domino count mail files module. Exception: " & ex.Message)
+    '    End Try
 
-        If myPath Is Nothing Then
-            WriteAuditEntry(Now.ToString & " Error: Failed to read registry in Domino count maile files module.   Cannot locate Config Database 'mailfilestats.mdb'.  Configure by running" & ProductName & " client before starting the service.")
-            '   Return False
-            Exit Function
-        End If
-        '   myRegistry = Nothing
+    '    If myPath Is Nothing Then
+    '        WriteAuditEntry(Now.ToString & " Error: Failed to read registry in Domino count maile files module.   Cannot locate Config Database 'mailfilestats.mdb'.  Configure by running" & ProductName & " client before starting the service.")
+    '        '   Return False
+    '        Exit Function
+    '    End If
+    '    '   myRegistry = Nothing
 
-        With myConnection
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Opening mailfilestats on " & myPath & "data\mailfilestats.mdb")
-            .ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & myPath & "data\mailfilestats.mdb"
-            .Open()
-        End With
+    '    With myConnection
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Opening mailfilestats on " & myPath & "data\mailfilestats.mdb")
+    '        .ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & myPath & "data\mailfilestats.mdb"
+    '        .Open()
+    '    End With
 
-        Do Until myConnection.State = ConnectionState.Open
-            myConnection.Open()
-        Loop
+    '    Do Until myConnection.State = ConnectionState.Open
+    '        myConnection.Open()
+    '    Loop
 
-        'myCommand.Connection = myConnection
-        '***
+    '    'myCommand.Connection = myConnection
+    '    '***
 
-        'Delete any existing data that is older than a week, as only the current data matters
-        Dim StrSQL As String
-        Try
-            StrSQL = "DELETE FROM Daily WHERE ScanDate<=#" & FixDate(Today.AddDays(-7)) & "# AND MailServer='" & MyDominoServer.Name & "'"
-            'myCommand.CommandText = StrSQL
-            'myCommand.ExecuteNonQuery()
+    '    'Delete any existing data that is older than a week, as only the current data matters
+    '    Dim StrSQL As String
+    '    Try
+    '        StrSQL = "DELETE FROM Daily WHERE ScanDate<=#" & FixDate(Today.AddDays(-7)) & "# AND MailServer='" & MyDominoServer.Name & "'"
+    '        'myCommand.CommandText = StrSQL
+    '        'myCommand.ExecuteNonQuery()
 
-            'WRITTEN BY MUKUND 28Feb12
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", StrSQL)
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Count Mail Files delete command failed because: " & ex.Message)
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The failed Count Mail Files delete  command was " & StrSQL)
-        End Try
+    '        'WRITTEN BY MUKUND 28Feb12
+    '        Dim objVSAdaptor As New VSAdaptor
+    '        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", StrSQL)
+    '    Catch ex As Exception
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Count Mail Files delete command failed because: " & ex.Message)
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The failed Count Mail Files delete  command was " & StrSQL)
+    '    End Try
 
-        'myConnection.Close()
-        'myConnection.Dispose()
-        'myCommand.Dispose()
+    '    'myConnection.Close()
+    '    'myConnection.Dispose()
+    '    'myCommand.Dispose()
 
-        Try
-            dbDir = s.GetDbDirectory(MyDominoServer.Name)
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error: Domino Monitoring CountMailboxes routine failed to initiate NotesdbDirectory: " & ex.Message)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
-            Exit Function
-        End Try
+    '    Try
+    '        dbDir = s.GetDbDirectory(MyDominoServer.Name)
+    '    Catch ex As Exception
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error: Domino Monitoring CountMailboxes routine failed to initiate NotesdbDirectory: " & ex.Message)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
+    '        Exit Function
+    '    End Try
 
-        If dbDir Is Nothing Then
-            MyCount = Nothing
-            MyTotalSize = Nothing
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(a)
-            Exit Function
-        End If
+    '    If dbDir Is Nothing Then
+    '        MyCount = Nothing
+    '        MyTotalSize = Nothing
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(a)
+    '        Exit Function
+    '    End If
 
-        Try
-            db = dbDir.GetFirstDatabase(Domino.DB_TYPES.NOTES_DATABASE)
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error: Domino Monitoring CountMailboxes routine failed to access the first database: " & ex.Message)
-            MyCount = Nothing
-            MyTotalSize = Nothing
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(a)
+    '    Try
+    '        db = dbDir.GetFirstDatabase(Domino.DB_TYPES.NOTES_DATABASE)
+    '    Catch ex As Exception
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error: Domino Monitoring CountMailboxes routine failed to access the first database: " & ex.Message)
+    '        MyCount = Nothing
+    '        MyTotalSize = Nothing
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(a)
 
-            Exit Function
-        End Try
-
-
-        Dim FT As Boolean = False
-        Dim OOO As Boolean = False
-        Dim ClusterRep As Boolean = False
-        Dim ReplicaID As String
-        Dim ODS As Double
-        myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.ToShortDateString)
-
-        Try
-            While Not (db Is Nothing)
-                If InStr(db.FilePath.ToUpper, MyDominoServer.MailDirectory.ToUpper, CompareMethod.Text) Then
-                    Try
-                        If String.IsNullOrWhiteSpace(db.Title) Then
-                            db.Title = "Untitled Database"
-                        End If
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
-                    End Try
+    '        Exit Function
+    '    End Try
 
 
-                    MyCount += 1
-                    MyTotalSize += (db.Size / 1024 / 1024)
-                    ' WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Examining mail file " & db.Server & " | " & db.FilePath)
+    '    Dim FT As Boolean = False
+    '    Dim OOO As Boolean = False
+    '    Dim ClusterRep As Boolean = False
+    '    Dim ReplicaID As String
+    '    Dim ODS As Double
+    '    myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.ToShortDateString)
 
-                    FT = False
-                    OOO = False
-                    ClusterRep = False
-                    ReplicaID = ""
-                    ODS = 0
-
-                    Dim Quota As Long
-                    Try
-                        Quota = db.SizeQuota / 1024
-                    Catch ex As Exception
-                        Quota = 0
-                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error calculating Quota for " & db.Server & " | " & db.FilePath & " Error: " & ex.Message)
-                    End Try
-
-                    Try
-                        ReplicaID = db.ReplicaID
-                    Catch ex As Exception
-                        ReplicaID = ""
-                    End Try
-
-                    If MyDominoServer.AdvancedMailScan = True Then
-                        Try
-                            If Not (db.IsOpen) Then
-                                db.Open()
-                            End If
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error Opening Database: " & db.Server & " | " & db.FilePath & " Error: " & ex.Message)
-                        End Try
-
-                        Try
-                            FT = db.IsFTIndexed
-                        Catch ex As Exception
-                            FT = False
-                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error determining if database " & db.Server & " | " & db.FilePath & " is FTIndexed: " & ex.Message)
-                        End Try
+    '    Try
+    '        While Not (db Is Nothing)
+    '            If InStr(db.FilePath.ToUpper, MyDominoServer.MailDirectory.ToUpper, CompareMethod.Text) Then
+    '                Try
+    '                    If String.IsNullOrWhiteSpace(db.Title) Then
+    '                        db.Title = "Untitled Database"
+    '                    End If
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
+    '                End Try
 
 
-                        Try
-                            ODS = db.FileFormat
-                        Catch ex As Exception
-                            ODS = 0
-                        End Try
+    '                MyCount += 1
+    '                MyTotalSize += (db.Size / 1024 / 1024)
+    '                ' WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Examining mail file " & db.Server & " | " & db.FilePath)
 
-                        Try
-                            a = db.GetAgent("OutOfOffice")
-                            If Not a Is Nothing Then
-                                ' WriteAuditEntry(Now.ToString & " Examining agent " & a.Name & " Enabled: " & a.IsEnabled)
-                                If InStr(a.Name, "OutOfOffice") Then
-                                    OOO = a.IsEnabled
-                                End If
-                            End If
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error calculating status of OOO Agent for " & db.Server & " | " & db.FilePath & " Error: " & ex.Message)
-                            OOO = False
-                        End Try
+    '                FT = False
+    '                OOO = False
+    '                ClusterRep = False
+    '                ReplicaID = ""
+    '                ODS = 0
 
-                        Try
-                            '  WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Cluster Replication for " & db.Server & " | " & db.FilePath & " is " & db.IsClusterReplication)
-                            ClusterRep = db.IsClusterReplication
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error calculating status of Enabled for Cluster Replication for " & db.Server & " | " & db.FilePath & " Error: " & ex.Message)
-                            ClusterRep = False
-                        End Try
+    '                Dim Quota As Long
+    '                Try
+    '                    Quota = db.SizeQuota / 1024
+    '                Catch ex As Exception
+    '                    Quota = 0
+    '                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error calculating Quota for " & db.Server & " | " & db.FilePath & " Error: " & ex.Message)
+    '                End Try
 
-                    End If
+    '                Try
+    '                    ReplicaID = db.ReplicaID
+    '                Catch ex As Exception
+    '                    ReplicaID = ""
+    '                End Try
 
-                    Dim mySize As Double
-                    Try
-                        mySize = db.Size / 1024 / 1024  'Convert to MB
-                    Catch ex As Exception
-                        mySize = 0
-                    End Try
+    '                If MyDominoServer.AdvancedMailScan = True Then
+    '                    Try
+    '                        If Not (db.IsOpen) Then
+    '                            db.Open()
+    '                        End If
+    '                    Catch ex As Exception
+    '                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error Opening Database: " & db.Server & " | " & db.FilePath & " Error: " & ex.Message)
+    '                    End Try
 
-                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Selected for Mail file count: " & db.Title & " (" & db.FilePath & " ) Size: " & db.Size / 1024 & " Template: " & db.DesignTemplateName & " Quota: " & db.SizeQuota & " Rep ID: " & ReplicaID)
-                    '  WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Selected " & db.Title & " " & db.DesignTemplateName & " Q: " & Quota & " FT: " & FT & " OOO: " & OOO & " CR: " & ClusterRep & " ID: " & ReplicaID & " size " & mySize)
-
-                    Try
-                        UpdateDominoDailyMailFileStatTable(Date.Now, MyDominoServer.Name, db.FilePath, db.Title, mySize, db.DesignTemplateName, Quota, FT, OOO, ClusterRep, ReplicaID, ODS)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error calling stat update: " & ex.Message)
-                    End Try
-
-                Else
-                    ' WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Rejected for Mail file count: " & db.Title & " (" & db.FilePath & ")")
-                End If
-                db = dbDir.GetNextDatabase
-                dtDominoLastUpdate = Now
-            End While
-
-            Try
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & "  Domino Monitoring finished counting Mail files on " & MyDominoServer.Name & " Found " & MyCount & " consuming " & MyTotalSize & " MB")
-                myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.ToShortDateString)
-            Catch ex As Exception
-
-            End Try
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error: Domino Monitoring CountMailFiles routine failed while looping through databases: " & ex.Message)
-            MyCount = Nothing
-            MyTotalSize = Nothing
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(a)
-
-            myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.AddDays(-1).ToShortDateString)
-            Return 0
-            Exit Function
-        Finally
-            myRegistry = Nothing
-        End Try
+    '                    Try
+    '                        FT = db.IsFTIndexed
+    '                    Catch ex As Exception
+    '                        FT = False
+    '                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error determining if database " & db.Server & " | " & db.FilePath & " is FTIndexed: " & ex.Message)
+    '                    End Try
 
 
-        Try
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(a)
-        Catch ex As Exception
+    '                    Try
+    '                        ODS = db.FileFormat
+    '                    Catch ex As Exception
+    '                        ODS = 0
+    '                    End Try
 
-        End Try
+    '                    Try
+    '                        a = db.GetAgent("OutOfOffice")
+    '                        If Not a Is Nothing Then
+    '                            ' WriteAuditEntry(Now.ToString & " Examining agent " & a.Name & " Enabled: " & a.IsEnabled)
+    '                            If InStr(a.Name, "OutOfOffice") Then
+    '                                OOO = a.IsEnabled
+    '                            End If
+    '                        End If
+    '                    Catch ex As Exception
+    '                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error calculating status of OOO Agent for " & db.Server & " | " & db.FilePath & " Error: " & ex.Message)
+    '                        OOO = False
+    '                    End Try
 
-        Try
-            MyDominoServer.MailFileCount = MyCount
-            UpdateDominoDailyMailFileSummaryTable(Date.Now, MyDominoServer.Name, MyCount, MyTotalSize)
-        Catch ex As Exception
+    '                    Try
+    '                        '  WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Cluster Replication for " & db.Server & " | " & db.FilePath & " is " & db.IsClusterReplication)
+    '                        ClusterRep = db.IsClusterReplication
+    '                    Catch ex As Exception
+    '                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error calculating status of Enabled for Cluster Replication for " & db.Server & " | " & db.FilePath & " Error: " & ex.Message)
+    '                        ClusterRep = False
+    '                    End Try
 
-        End Try
+    '                End If
 
-        Return MyCount
-    End Function
+    '                Dim mySize As Double
+    '                Try
+    '                    mySize = db.Size / 1024 / 1024  'Convert to MB
+    '                Catch ex As Exception
+    '                    mySize = 0
+    '                End Try
 
-    Private Function GetDominoMailDotBoxCount(ByVal ServerName As String) As Integer
-        Dim MailBoxCount As Integer
-        Try
-            MailBoxCount = GetDominoNumericStatistic(ServerName, "Server", "mailboxes")   'Figure out how many mailboxes
-            If MailBoxCount = 0 Then MailBoxCount = 1
-            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " Mailbox count returned: " & MailBoxCount)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " ERROR: Domino monitor module error determining mailbox count for " & ServerName & " Error: " & ex.Message)
-            MailBoxCount = 999
-        End Try
+    '                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Selected for Mail file count: " & db.Title & " (" & db.FilePath & " ) Size: " & db.Size / 1024 & " Template: " & db.DesignTemplateName & " Quota: " & db.SizeQuota & " Rep ID: " & ReplicaID)
+    '                '  WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Selected " & db.Title & " " & db.DesignTemplateName & " Q: " & Quota & " FT: " & FT & " OOO: " & OOO & " CR: " & ClusterRep & " ID: " & ReplicaID & " size " & mySize)
 
-        Return MailBoxCount
-    End Function
+    '                Try
+    '                    UpdateDominoDailyMailFileStatTable(Date.Now, MyDominoServer.Name, db.FilePath, db.Title, mySize, db.DesignTemplateName, Quota, FT, OOO, ClusterRep, ReplicaID, ODS)
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error calling stat update: " & ex.Message)
+    '                End Try
+
+    '            Else
+    '                ' WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Rejected for Mail file count: " & db.Title & " (" & db.FilePath & ")")
+    '            End If
+    '            db = dbDir.GetNextDatabase
+    '            dtDominoLastUpdate = Now
+    '        End While
+
+    '        Try
+    '            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & "  Domino Monitoring finished counting Mail files on " & MyDominoServer.Name & " Found " & MyCount & " consuming " & MyTotalSize & " MB")
+    '            myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.ToShortDateString)
+    '        Catch ex As Exception
+
+    '        End Try
+
+    '    Catch ex As Exception
+    '        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error: Domino Monitoring CountMailFiles routine failed while looping through databases: " & ex.Message)
+    '        MyCount = Nothing
+    '        MyTotalSize = Nothing
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(a)
+
+    '        myRegistry.WriteToRegistry("MailFileScanDate_" & MyDominoServer.Name, Now.AddDays(-1).ToShortDateString)
+    '        Return 0
+    '        Exit Function
+    '    Finally
+    '        myRegistry = Nothing
+    '    End Try
+
+
+    '    Try
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
+    '        System.Runtime.InteropServices.Marshal.ReleaseComObject(a)
+    '    Catch ex As Exception
+
+    '    End Try
+
+    '    Try
+    '        MyDominoServer.MailFileCount = MyCount
+    '        UpdateDominoDailyMailFileSummaryTable(Date.Now, MyDominoServer.Name, MyCount, MyTotalSize)
+    '    Catch ex As Exception
+
+    '    End Try
+
+    '    Return MyCount
+    'End Function
+
+    'Private Function GetDominoMailDotBoxCount(ByVal ServerName As String) As Integer
+    '    Dim MailBoxCount As Integer
+    '    Try
+    '        MailBoxCount = GetDominoNumericStatistic(ServerName, "Server", "mailboxes")   'Figure out how many mailboxes
+    '        If MailBoxCount = 0 Then MailBoxCount = 1
+    '        If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " Mailbox count returned: " & MailBoxCount)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " ERROR: Domino monitor module error determining mailbox count for " & ServerName & " Error: " & ex.Message)
+    '        MailBoxCount = 999
+    '    End Try
+
+    '    Return MailBoxCount
+    'End Function
 
     Private Sub UpdateMailHealth(ByRef MyDominoServer As MonitoredItems.DominoServer)
         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + ": Calculating overall mail health statistics")
@@ -6196,146 +6184,54 @@ skipdrive2:
 
         Dim sqlStatement As New System.Text.StringBuilder
         With MyDominoServer
-            sqlStatement.Append("UPDATE MailHealth " & vbCrLf)
-            sqlStatement.Append("SET    Domino_Domain = '" & Domino_Domain & "', " & vbCrLf)
-            sqlStatement.Append("       Mailbox_Count = " & MyDominoServer.MailboxCount & ", " & vbCrLf)
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-Domino")
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                 .Set(Function(x) x.Domain, Domino_Domain) _
+                                                                                 .Set(Function(x) x.MailboxCount, MyDominoServer.MailboxCount) _
+                                                                                 .Set(Function(x) x.MailboxPerformanceIndex, IIf(Mailbox_PerformanceIndex = 0, Convert.ToInt32(Mailbox_PerformanceIndex), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailPending, .PendingMail) _
+                                                                                 .Set(Function(x) x.PendingThreshold, .PendingThreshold) _
+                                                                                 .Set(Function(x) x.MailDead, .DeadMail) _
+                                                                                 .Set(Function(x) x.MailHeld, .HeldMail) _
+                                                                                 .Set(Function(x) x.HeldMailThreshold, heldThreshold) _
+                                                                                 .Set(Function(x) x.DeadThreshold, .DeadThreshold) _
+                                                                                 .Set(Function(x) x.MailWaiting, Convert.ToInt32(Mail_Waiting)) _
+                                                                                 .Set(Function(x) x.MailAverageSizeDelivered, IIf(Mail_AverageSizeDelivered = 0, Convert.ToInt32(Mail_AverageSizeDelivered), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailAverageDeliveryTime, IIf(Mail_AverageDeliveryTime = 0, Convert.ToInt32(Mail_AverageDeliveryTime), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailPeakMessageDeliveryTime, IIf(Mail_PeakMessageDeliveryTime <> "n/a" And Mail_PeakMessageDeliveryTime <> "", Convert.ToInt32(Mail_PeakMessageDeliveryTime), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailPeakMessageTransferredTime, IIf(Mail_PeakMessageTransferredTime <> "n/a" And Mail_PeakMessageTransferredTime <> "", Convert.ToInt32(Mail_PeakMessageTransferredTime), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailMaximiumSizeDelivered, IIf(Mail_MaximiumSizeDelivered = 0, Convert.ToInt32(Mail_MaximiumSizeDelivered), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailPeakMessagesDelivered, IIf(Mail_PeakMessagesDelivered = 0, Convert.ToInt32(Mail_PeakMessagesDelivered), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailAverageServerHops, IIf(Mail_AverageServerHops = 0, Convert.ToInt32(Mail_AverageServerHops), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailTransferred, IIf(Mail_Transferred = 0, Convert.ToInt32(Mail_Transferred), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailDelivered, IIf(Mail_Delivered = 0, Convert.ToInt32(Mail_Delivered), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailRouted, IIf(Mail_Routed = 0, Convert.ToInt32(Mail_Routed), MongoDB.Bson.BsonNull.Value)) _
+                                                                                 .Set(Function(x) x.MailWaitingForDeliveryRetry, Convert.ToInt32(Mail_WaitingForDeliveryRetry)) _
+                                                                                 .Set(Function(x) x.MailWaitingForDNS, Convert.ToInt32(Mail_WaitingForDNS)) _
+                                                                                 .Set(Function(x) x.MailWaitingForDIR, Convert.ToInt32(Mail_WaitingForDIR)) _
+                                                                                 .Set(Function(x) x.MailWaitingRecipients, Convert.ToInt32(Mail_WaitingRecipients)) _
+                                                                                 .Set(Function(x) x.MailTransferredNRPC, Convert.ToInt32(Mail_Transferred_NRPC)) _
+                                                                                 .Set(Function(x) x.MailTransferredSMTP, Convert.ToInt32(Mail_Transferred_SMTP)) _
+                                                                                 .Set(Function(x) x.MailRecallFailures, Convert.ToInt32(Mail_RecallFailures)) _
+                                                                                 .Set(Function(x) x.MailTransferThreadsActive, Convert.ToInt32(Mail_TransferThreads_Active)) _
+                                                                                 .Set(Function(x) x.MailPeakMessagesTransferred, Convert.ToInt32(Mail_PeakMessagesTransferred)) _
+                                                                                 .Set(Function(x) x.MailDeliveredSize_100KB_to_1MB, Convert.ToInt32(Mail_DeliveredSize_100KB_to_1MB)) _
+                                                                                 .Set(Function(x) x.MailDeliveredSize_10KB_to_100KB, Convert.ToInt32(Mail_DeliveredSize_10KB_to_100KB)) _
+                                                                                 .Set(Function(x) x.MailDeliveredSize_Under_1KB, Convert.ToInt32(Mail_DeliveredSize_Under_1KB)) _
+                                                                                 .Set(Function(x) x.MailDeliveredSize_1KB_to_10KB, Convert.ToInt32(Mail_DeliveredSize_1KB_to_10KB)) _
+                                                                                 .Set(Function(x) x.MailDeliveredSize_1MB_to_10MB, Convert.ToInt32(Mail_DeliveredSize_1MB_to_10MB)) _
+                                                                                 .Set(Function(x) x.MailDeliveredSize_10MB_to_100MB, Convert.ToInt32(Mail_DeliveredSize_10MB_to_100MB))
 
-            If Mailbox_PerformanceIndex <> 0 Then
-                sqlStatement.Append("       Mailbox_PerformanceIndex = '" & Mailbox_PerformanceIndex & "', " & vbCrLf)
-            End If
-
-            sqlStatement.Append("       Mail_Pending = " & .PendingMail & ", " & vbCrLf)
-            sqlStatement.Append("       PendingThreshold = " & .PendingThreshold.ToString("N0") & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_Dead = " & .DeadMail & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_Held = " & MailHeld & ", " & vbCrLf)
-            sqlStatement.Append("       HeldMailThreshold = " & heldThreshold & ", " & vbCrLf)
-            sqlStatement.Append("       DeadThreshold = " & .DeadThreshold & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_Waiting = " & Mail_Waiting & ", " & vbCrLf)
+            Try
+                repository.Upsert(filterDef, updateDef)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + " Error updating Mail Health. Error: " & ex.Message)
+            End Try
 
 
-            If Mail_AverageSizeDelivered <> 0 Then
-                sqlStatement.Append("       Mail_AverageSizeDelivered = " & Mail_AverageSizeDelivered & ", " & vbCrLf)
-            End If
-
-            If Mail_AverageDeliveryTime <> 0 Then
-                sqlStatement.Append("       Mail_AverageDeliveryTime = " & Mail_AverageDeliveryTime & ", " & vbCrLf)
-            End If
-
-            If Mail_PeakMessageDeliveryTime <> "n/a" And Mail_PeakMessageDeliveryTime <> "" Then
-                sqlStatement.Append("       Mail_PeakMessageDeliveryTime = '" & Mail_PeakMessageDeliveryTime & "', " & vbCrLf)
-            End If
-
-            If Mail_PeakMessageTransferredTime <> "n/a" And Mail_PeakMessageTransferredTime <> "" Then
-                sqlStatement.Append("       Mail_PeakMessageTransferredTime = '" & Mail_PeakMessageTransferredTime & "', " & vbCrLf)
-            End If
-
-            If Mail_MaximiumSizeDelivered <> 0 Then
-                sqlStatement.Append("       Mail_MaximiumSizeDelivered = " & Mail_MaximiumSizeDelivered & ", " & vbCrLf)
-            End If
-
-            If Mail_PeakMessagesDelivered <> 0 Then
-                sqlStatement.Append("       Mail_PeakMessagesDelivered = " & Mail_PeakMessagesDelivered & ", " & vbCrLf)
-            End If
-
-            If Mail_AverageServerHops <> 0 Then
-                sqlStatement.Append("       Mail_AverageServerHops = " & Mail_AverageServerHops & ", " & vbCrLf)
-            End If
-
-            If Mail_Transferred <> 0 Then
-                sqlStatement.Append("       Mail_Transferred = " & Mail_Transferred & ", " & vbCrLf)
-            End If
-
-            If Mail_Delivered <> 0 Then
-                sqlStatement.Append("       Mail_Delivered = " & Mail_Delivered & ", " & vbCrLf)
-            End If
-
-            If Mail_Routed <> 0 Then
-                sqlStatement.Append("       Mail_Routed = " & Mail_Routed & ", " & vbCrLf)
-            End If
-
-            sqlStatement.Append("       Mail_WaitingForDeliveryRetry = " & Mail_WaitingForDeliveryRetry & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_WaitingForDNS = " & Mail_WaitingForDNS & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_WaitingForDIR = " & Mail_WaitingForDIR & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_WaitingRecipients = " & Mail_WaitingRecipients & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_Transferred_NRPC = " & Mail_Transferred_NRPC & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_Transferred_SMTP = " & Mail_Transferred_SMTP & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_RecallFailures =" & Mail_RecallFailures & " , " & vbCrLf)
-            sqlStatement.Append("       Mail_TransferThreads_Active = " & Mail_TransferThreads_Active & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_PeakMessagesTransferred = " & Mail_PeakMessagesTransferred & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_DeliveredSize_100KB_to_1MB = " & Mail_DeliveredSize_100KB_to_1MB & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_DeliveredSize_10KB_to_100KB = " & Mail_DeliveredSize_10KB_to_100KB & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_DeliveredSize_Under_1KB = " & Mail_DeliveredSize_Under_1KB & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_DeliveredSize_1KB_to_10KB = " & Mail_DeliveredSize_1KB_to_10KB & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_DeliveredSize_1MB_to_10MB = " & Mail_DeliveredSize_1MB_to_10MB & ", " & vbCrLf)
-            sqlStatement.Append("       Mail_DeliveredSize_10MB_to_100MB = " & Mail_DeliveredSize_10MB_to_100MB & vbCrLf)
-            sqlStatement.Append("WHERE  ServerName = '" & .Name & "'")
         End With
 
-
-        With MyDominoServer
-            strSQL = "Update MailHealth SET Domino_Domain= '" & Domino_Domain & _
-            "', Mailbox_Count= " & .MailboxCount & _
-            ", Mailbox_PerformanceIndex='" & Mailbox_PerformanceIndex & _
-            "', Mail_Pending=" & .PendingMail & _
-            ", PendingThreshold=" & .PendingThreshold.ToString("N0") & _
-            ", Mail_Dead=" & .DeadMail & _
-            ", Mail_Held=" & MailHeld & _
-            ", HeldMailThreshold=" & heldThreshold & _
-            ", DeadThreshold=" & .DeadThreshold & _
-            ", Mail_Waiting=" & Mail_Waiting & _
-            ", Mail_AverageSizeDelivered=" & Mail_AverageSizeDelivered & _
-            ", Mail_AverageDeliveryTime=" & Mail_AverageDeliveryTime & _
-            ", Mail_PeakMessageDeliveryTime='" & Mail_PeakMessageDeliveryTime & _
-            "', Mail_PeakMessageTransferredTime='" & Mail_PeakMessageTransferredTime & _
-            "', Mail_MaximiumSizeDelivered=" & Mail_MaximiumSizeDelivered & _
-            ", Mail_PeakMessagesDelivered=" & Mail_PeakMessagesDelivered & _
-            ", Mail_AverageServerHops=" & Mail_AverageServerHops & _
-            ", Mail_Transferred=" & Mail_Transferred & _
-            ", Mail_Delivered=" & Mail_Delivered & _
-            ", Mail_Routed=" & Mail_Routed & _
-            ", Mail_WaitingForDeliveryRetry=" & Mail_WaitingForDeliveryRetry & _
-            ", Mail_WaitingForDNS=" & Mail_WaitingForDNS & _
-            ", Mail_WaitingForDIR=" & Mail_WaitingForDIR & _
-            ", Mail_WaitingRecipients=" & Mail_WaitingRecipients & _
-            ", Mail_Transferred_NRPC=" & Mail_Transferred_NRPC & _
-            ", Mail_Transferred_SMTP=" & Mail_Transferred_SMTP & _
-            ", Mail_RecallFailures=" & Mail_RecallFailures & _
-            ", Mail_TransferThreads_Active=" & Mail_TransferThreads_Active & _
-            ", Mail_PeakMessagesTransferred=" & Mail_PeakMessagesTransferred & _
-            ", Mail_DeliveredSize_100KB_to_1MB=" & Mail_DeliveredSize_100KB_to_1MB & _
-            ", Mail_DeliveredSize_10KB_to_100KB=" & Mail_DeliveredSize_10KB_to_100KB & _
-            ", Mail_DeliveredSize_Under_1KB=" & Mail_DeliveredSize_Under_1KB & _
-            ", Mail_DeliveredSize_1KB_to_10KB=" & Mail_DeliveredSize_1KB_to_10KB & _
-            ", Mail_DeliveredSize_1MB_to_10MB=" & Mail_DeliveredSize_1MB_to_10MB & _
-             ", Mail_DeliveredSize_10MB_to_100MB=" & Mail_DeliveredSize_10MB_to_100MB & _
-            "  WHERE ServerName='" & .Name & "'"
-        End With
-
-        'If MyDominoServer.UpCount = 2 Then
-        '    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + " The Mail Health SQL Update Statement is " & vbCrLf & strSQL)
-        '    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + " My formatted SQL  Statement is " & vbCrLf & sqlStatement.ToString)
-        'End If
-
-        Dim strSQLInsert As String = ""
-        With MyDominoServer
-
-            strSQLInsert = "Insert into MailHealth (ServerName, Mail_Held, Mail_Pending, PendingThreshold, Mail_Dead, DeadThreshold, Mailbox_PerformanceIndex, Mailbox_Count, Mail_Transferred_NRPC, Mail_Transferred_SMTP, Domino_Domain ) " & _
-             "VALUES  ('" & MyDominoServer.Name & "', '" & .HeldMail & "', '" & .PendingMail & "', '" & .PendingThreshold & "', '" & .DeadMail & "', '" & .DeadThreshold & "', '" & Mailbox_PerformanceIndex & "', '" & .MailboxCount & "', '" & Mail_Transferred_NRPC & "', '" & Mail_Transferred_SMTP & "', '" & Domino_Domain & "')"
-        End With
-
-        '   WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + " My formatted SQL  Statement is " & vbCrLf & sqlStatement.ToString)
-        '    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + " The other SQL  Statement is " & vbCrLf & strSQL.ToString)
-
-
-        If MyDominoServer.UpCount < 2 Then
-            '   UpdateStatusTable(strSQL, strSQLInsert)
-            UpdateStatusTable(sqlStatement.ToString, strSQLInsert)
-            UpdateStatusTable(sqlStatement.ToString, strSQLInsert)
-        Else
-            'UpdateStatusTable(strSQL, strSQLInsert)
-            ' UpdateStatusTable(sqlStatement.ToString, strSQLInsert)
-            UpdateStatusTable(sqlStatement.ToString, strSQLInsert)
-        End If
         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + " Finished updating mail health ")
 
     End Sub
@@ -6344,127 +6240,128 @@ skipdrive2:
 #Region "Domino Cluster Replicator Health Related"
     ' *******************************  Domino Cluster Health
 
-    Private Sub TrackDominoClusterStatistics(ByRef DominoServer As MonitoredItems.DominoServer)
+    'This is not being used
+    'Private Sub TrackDominoClusterStatistics(ByRef DominoServer As MonitoredItems.DominoServer)
 
-        'Sucessful Failover Open Redirects 
-        Dim ClusterOpenRedirectsFailoverSuccessful, CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful As Long
+    '    'Sucessful Failover Open Redirects 
+    '    Dim ClusterOpenRedirectsFailoverSuccessful, CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful As Long
 
-        Try
-            If InStr(DominoServer.Statistics_Server, "Server.Cluster.OpenRedirects.Failover.Successful") > 0 Then
-                CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful = ParseNumericStatValue("Server.Cluster.OpenRedirects.Failover.Successful", DominoServer.Statistics_Server)
-                '  WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of Mail.Delivered stat is " & DeliveredCurrentStatValue)
-                ' WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of DeliveredMailPrevious is " & DeliveredMailPrevious)
-                If DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful <> -1 Then
-                    ClusterOpenRedirectsFailoverSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful - DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful
-                    ' WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of calculated delivered ClusterOpenRedirectsFailoverSuccessful is " & ClusterOpenRedirectsFailoverSuccessful)
+    '    Try
+    '        If InStr(DominoServer.Statistics_Server, "Server.Cluster.OpenRedirects.Failover.Successful") > 0 Then
+    '            CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful = ParseNumericStatValue("Server.Cluster.OpenRedirects.Failover.Successful", DominoServer.Statistics_Server)
+    '            '  WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of Mail.Delivered stat is " & DeliveredCurrentStatValue)
+    '            ' WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of DeliveredMailPrevious is " & DeliveredMailPrevious)
+    '            If DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful <> -1 Then
+    '                ClusterOpenRedirectsFailoverSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful - DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful
+    '                ' WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of calculated delivered ClusterOpenRedirectsFailoverSuccessful is " & ClusterOpenRedirectsFailoverSuccessful)
 
-                    If ClusterOpenRedirectsFailoverSuccessful < 0 Then
-                        ClusterOpenRedirectsFailoverSuccessful = 0
-                    End If
-                    DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful
-                Else
-                    DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful
-                    ClusterOpenRedirectsFailoverSuccessful = 0
-                End If
+    '                If ClusterOpenRedirectsFailoverSuccessful < 0 Then
+    '                    ClusterOpenRedirectsFailoverSuccessful = 0
+    '                End If
+    '                DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful
+    '            Else
+    '                DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful
+    '                ClusterOpenRedirectsFailoverSuccessful = 0
+    '            End If
 
-            End If
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental ClusterOpenRedirectsFailoverSuccessful value is " & ClusterOpenRedirectsFailoverSuccessful)
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Value of Previous ClusterOpenRedirectsFailoverSuccessful is " & DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful)
+    '        End If
+    '        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental ClusterOpenRedirectsFailoverSuccessful value is " & ClusterOpenRedirectsFailoverSuccessful)
+    '        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Value of Previous ClusterOpenRedirectsFailoverSuccessful is " & DominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful)
 
-            UpdateDominoDailyStatTable(DominoServer.Name, "Server.Cluster.OpenRedirects.Failover.Successful", ClusterOpenRedirectsFailoverSuccessful)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating ClusterOpenRedirectsFailoverSuccessful " & ex.Message)
-        End Try
+    '        UpdateDominoDailyStatTable(DominoServer, "Server.Cluster.OpenRedirects.Failover.Successful", ClusterOpenRedirectsFailoverSuccessful)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating ClusterOpenRedirectsFailoverSuccessful " & ex.Message)
+    '    End Try
 
-        'Unsucessful Failover Open Redirects 
-        Dim ClusterOpenRedirectsFailoverUnSuccessful, CurrentStatValueOfClusterOpenRedirectsFailoverUnSuccessful As Long
+    '    'Unsucessful Failover Open Redirects 
+    '    Dim ClusterOpenRedirectsFailoverUnSuccessful, CurrentStatValueOfClusterOpenRedirectsFailoverUnSuccessful As Long
 
-        Try
-            If InStr(DominoServer.Statistics_Server, "Server.Cluster.OpenRedirects.Failover.Unsuccessful") > 0 Then
-                CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful = ParseNumericStatValue("Server.Cluster.OpenRedirects.Failover.Unsuccessful", DominoServer.Statistics_Server)
+    '    Try
+    '        If InStr(DominoServer.Statistics_Server, "Server.Cluster.OpenRedirects.Failover.Unsuccessful") > 0 Then
+    '            CurrentStatValueOfClusterOpenRedirectsFailoverSuccessful = ParseNumericStatValue("Server.Cluster.OpenRedirects.Failover.Unsuccessful", DominoServer.Statistics_Server)
 
-                If DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful <> -1 Then
-                    ClusterOpenRedirectsFailoverUnSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverUnSuccessful - DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful
-                    '   WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of calculated delivered ClusterOpenRedirectsFailoverSuccessful is " & ClusterOpenRedirectsFailoverSuccessful)
+    '            If DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful <> -1 Then
+    '                ClusterOpenRedirectsFailoverUnSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverUnSuccessful - DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful
+    '                '   WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of calculated delivered ClusterOpenRedirectsFailoverSuccessful is " & ClusterOpenRedirectsFailoverSuccessful)
 
-                    If ClusterOpenRedirectsFailoverUnSuccessful < 0 Then
-                        ClusterOpenRedirectsFailoverUnSuccessful = 0
-                    End If
-                    DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverUnSuccessful
-                Else
-                    DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverUnSuccessful
-                    ClusterOpenRedirectsFailoverUnSuccessful = 0
-                End If
+    '                If ClusterOpenRedirectsFailoverUnSuccessful < 0 Then
+    '                    ClusterOpenRedirectsFailoverUnSuccessful = 0
+    '                End If
+    '                DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverUnSuccessful
+    '            Else
+    '                DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful = CurrentStatValueOfClusterOpenRedirectsFailoverUnSuccessful
+    '                ClusterOpenRedirectsFailoverUnSuccessful = 0
+    '            End If
 
-            End If
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental ClusterOpenRedirectsFailoverUnSuccessful value is " & ClusterOpenRedirectsFailoverUnSuccessful)
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Value of Previous ClusterOpenRedirectsFailoverUnSuccessful is " & DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful)
+    '        End If
+    '        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental ClusterOpenRedirectsFailoverUnSuccessful value is " & ClusterOpenRedirectsFailoverUnSuccessful)
+    '        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Value of Previous ClusterOpenRedirectsFailoverUnSuccessful is " & DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful)
 
-            UpdateDominoDailyStatTable(DominoServer.Name, "Server.Cluster.OpenRedirects.Failover.Unsuccessful", ClusterOpenRedirectsFailoverUnSuccessful)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating ClusterOpenRedirectsFailoverUnSuccessful " & ex.Message)
-        End Try
+    '        UpdateDominoDailyStatTable(DominoServer, "Server.Cluster.OpenRedirects.Failover.Unsuccessful", ClusterOpenRedirectsFailoverUnSuccessful)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating ClusterOpenRedirectsFailoverUnSuccessful " & ex.Message)
+    '    End Try
 
-        'Unsucessful Load Balance Open Redirects 
-        Dim ClusterOpenRedirectsLoadBalanceUnSuccessful, CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful As Long
+    '    'Unsucessful Load Balance Open Redirects 
+    '    Dim ClusterOpenRedirectsLoadBalanceUnSuccessful, CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful As Long
 
-        Try
-            If InStr(DominoServer.Statistics_Server, "Server.Cluster.OpenRedirects.LoadBalance.Unsuccessful") > 0 Then
-                CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful = ParseNumericStatValue("Server.Cluster.OpenRedirects.LoadBalance.Unsuccessful", DominoServer.Statistics_Server)
+    '    Try
+    '        If InStr(DominoServer.Statistics_Server, "Server.Cluster.OpenRedirects.LoadBalance.Unsuccessful") > 0 Then
+    '            CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful = ParseNumericStatValue("Server.Cluster.OpenRedirects.LoadBalance.Unsuccessful", DominoServer.Statistics_Server)
 
-                If DominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful <> -1 Then
-                    ClusterOpenRedirectsLoadBalanceUnSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful - DominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful
-                    '   WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of calculated delivered ClusterOpenRedirectsLoadBalanceUnSuccessful is " & ClusterOpenRedirectsLoadBalanceUnSuccessful)
+    '            If DominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful <> -1 Then
+    '                ClusterOpenRedirectsLoadBalanceUnSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful - DominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful
+    '                '   WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of calculated delivered ClusterOpenRedirectsLoadBalanceUnSuccessful is " & ClusterOpenRedirectsLoadBalanceUnSuccessful)
 
-                    If ClusterOpenRedirectsLoadBalanceUnSuccessful < 0 Then
-                        ClusterOpenRedirectsLoadBalanceUnSuccessful = 0
-                    End If
-                    DominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful
-                Else
-                    DominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful
-                    ClusterOpenRedirectsLoadBalanceUnSuccessful = 0
-                End If
+    '                If ClusterOpenRedirectsLoadBalanceUnSuccessful < 0 Then
+    '                    ClusterOpenRedirectsLoadBalanceUnSuccessful = 0
+    '                End If
+    '                DominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful
+    '            Else
+    '                DominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceUnSuccessful
+    '                ClusterOpenRedirectsLoadBalanceUnSuccessful = 0
+    '            End If
 
-            End If
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental ClusterOpenRedirectsFailoverUnSuccessful value is " & ClusterOpenRedirectsFailoverUnSuccessful)
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Value of Previous ClusterOpenRedirectsFailoverUnSuccessful is " & DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful)
+    '        End If
+    '        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental ClusterOpenRedirectsFailoverUnSuccessful value is " & ClusterOpenRedirectsFailoverUnSuccessful)
+    '        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Value of Previous ClusterOpenRedirectsFailoverUnSuccessful is " & DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful)
 
-            UpdateDominoDailyStatTable(DominoServer.Name, "Server.Cluster.OpenRedirects.LoadBalance.Unsuccessful", ClusterOpenRedirectsLoadBalanceUnSuccessful)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating ClusterOpenRedirectsLoadBalanceUnSuccessful " & ex.Message)
-        End Try
+    '        UpdateDominoDailyStatTable(DominoServer, "Server.Cluster.OpenRedirects.LoadBalance.Unsuccessful", ClusterOpenRedirectsLoadBalanceUnSuccessful)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating ClusterOpenRedirectsLoadBalanceUnSuccessful " & ex.Message)
+    '    End Try
 
 
-        'Sucessful Load Balance Open Redirects 
-        Dim ClusterOpenRedirectsLoadBalanceSuccessful, CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful As Long
+    '    'Sucessful Load Balance Open Redirects 
+    '    Dim ClusterOpenRedirectsLoadBalanceSuccessful, CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful As Long
 
-        Try
-            If InStr(DominoServer.Statistics_Server, "Server.Cluster.OpenRedirects.LoadBalance.Successful") > 0 Then
-                CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful = ParseNumericStatValue("Server.Cluster.OpenRedirects.LoadBalance.Successful", DominoServer.Statistics_Server)
+    '    Try
+    '        If InStr(DominoServer.Statistics_Server, "Server.Cluster.OpenRedirects.LoadBalance.Successful") > 0 Then
+    '            CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful = ParseNumericStatValue("Server.Cluster.OpenRedirects.LoadBalance.Successful", DominoServer.Statistics_Server)
 
-                If DominoServer.ClusterOpenRedirects_Previous_LoadBalanceSuccessful <> -1 Then
-                    ClusterOpenRedirectsLoadBalanceSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful - DominoServer.ClusterOpenRedirects_Previous_LoadBalanceSuccessful
-                    '     WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of calculated delivered ClusterOpenRedirectsLoadBalanceSuccessful is " & ClusterOpenRedirectsLoadBalanceSuccessful)
+    '            If DominoServer.ClusterOpenRedirects_Previous_LoadBalanceSuccessful <> -1 Then
+    '                ClusterOpenRedirectsLoadBalanceSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful - DominoServer.ClusterOpenRedirects_Previous_LoadBalanceSuccessful
+    '                '     WriteAuditEntry(Now.ToString & " " & DominoServer.Name & " current value of calculated delivered ClusterOpenRedirectsLoadBalanceSuccessful is " & ClusterOpenRedirectsLoadBalanceSuccessful)
 
-                    If ClusterOpenRedirectsLoadBalanceSuccessful < 0 Then
-                        ClusterOpenRedirectsLoadBalanceSuccessful = 0
-                    End If
-                    DominoServer.ClusterOpenRedirects_Previous_LoadBalanceSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful
-                Else
-                    DominoServer.ClusterOpenRedirects_Previous_LoadBalanceSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful
-                    ClusterOpenRedirectsLoadBalanceSuccessful = 0
-                End If
+    '                If ClusterOpenRedirectsLoadBalanceSuccessful < 0 Then
+    '                    ClusterOpenRedirectsLoadBalanceSuccessful = 0
+    '                End If
+    '                DominoServer.ClusterOpenRedirects_Previous_LoadBalanceSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful
+    '            Else
+    '                DominoServer.ClusterOpenRedirects_Previous_LoadBalanceSuccessful = CurrentStatValueOfClusterOpenRedirectsLoadBalanceSuccessful
+    '                ClusterOpenRedirectsLoadBalanceSuccessful = 0
+    '            End If
 
-            End If
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental ClusterOpenRedirectsFailoverUnSuccessful value is " & ClusterOpenRedirectsFailoverUnSuccessful)
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Value of Previous ClusterOpenRedirectsFailoverUnSuccessful is " & DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful)
+    '        End If
+    '        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental ClusterOpenRedirectsFailoverUnSuccessful value is " & ClusterOpenRedirectsFailoverUnSuccessful)
+    '        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Value of Previous ClusterOpenRedirectsFailoverUnSuccessful is " & DominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful)
 
-            UpdateDominoDailyStatTable(DominoServer.Name, "Server.Cluster.OpenRedirects.LoadBalance.Successful", ClusterOpenRedirectsLoadBalanceSuccessful)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating ClusterOpenRedirectsLoadBalanceSuccessful " & ex.Message)
-        End Try
+    '        UpdateDominoDailyStatTable(DominoServer, "Server.Cluster.OpenRedirects.LoadBalance.Successful", ClusterOpenRedirectsLoadBalanceSuccessful)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating ClusterOpenRedirectsLoadBalanceSuccessful " & ex.Message)
+    '    End Try
 
-    End Sub
+    'End Sub
 
     Private Sub CheckClusterMemberAvailability(ByRef DominoServer As MonitoredItems.DominoServer)
         Try
@@ -6655,69 +6552,33 @@ skipdrive2:
         Dim strSQL As String = ""
         Try
             With DominoServer
-                strSQL = "Update DominoClusterHealth SET LastUpdate= '" & FixDateTime(Now) & _
-                  "', ClusterName='" & myClusterName & _
-                  "', SecondsOnQueue='" & .ReplicaClusterSecondsOnQueue & _
-                  "', SecondsOnQueueAvg='" & .ReplicaClusterSecondsOnQueueAvg & _
-                  "', SecondsOnQueueMax='" & .ReplicaClusterSecondsOnQueueMax & _
-                  "', WorkQueueDepth='" & .ReplicaClusterWorkQueueDepth & _
-                  "', WorkQueueDepthAvg='" & .ReplicaClusterWorkQueueDepthAvg & _
-                  "', WorkQueueDepthMax='" & .ReplicaClusterWorkQueueDepthMax & _
-                  "', Availability='" & .AvailabilityIndex & _
-                  "', AvailabilityThreshold='" & .AvailabilityThreshold & _
-                  "', Analysis='" & Analysis & _
-                  "'  WHERE ServerName='" & DominoServer.Name & "' "
+                Dim DominoServer2 As MonitoredItems.DominoServer = DominoServer
+                Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(DominoServer2.Name & "-Domino"))
+                Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                     .Set(Function(x) x.ClusterName, myClusterName) _
+                                                                                     .Set(Function(x) x.ClusterSecondsOnQueue, .ReplicaClusterSecondsOnQueue) _
+                                                                                     .Set(Function(x) x.ClusterSecondsOnQueueMax, .ReplicaClusterSecondsOnQueueMax) _
+                                                                                     .Set(Function(x) x.ClusterSecondsOnQueueAverage, .ReplicaClusterSecondsOnQueueAvg) _
+                                                                                     .Set(Function(x) x.ClusterWorkQueueDepth, .ReplicaClusterWorkQueueDepth) _
+                                                                                     .Set(Function(x) x.ClusterWorkQueueDepthMax, .ReplicaClusterWorkQueueDepthMax) _
+                                                                                     .Set(Function(x) x.ClusterWorkQueueDepthAverage, .ReplicaClusterWorkQueueDepthAvg) _
+                                                                                     .Set(Function(x) x.ClusterAvailability, .AvailabilityIndex) _
+                                                                                     .Set(Function(x) x.ClusterAvailabilityThreshold, .AvailabilityThreshold) _
+                                                                                     .Set(Function(x) x.ClusterAnalysis, Analysis)
+
+                Try
+                    repository.Upsert(filterDef, updateDef)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error updating the DominoClusterHealth stats:  " & ex.ToString)
+                End Try
+
             End With
 
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error in Domino Cluster Health creating SQL statement for status table: " & ex.Message & vbCrLf & strSQL)
         End Try
 
-        '
-
-        Try
-            'Save it to the Servers database, DominoClusterHealth Table
-            Dim intSuccess As Integer
-            '
-
-            'WRITTEN BY MUKUND 28Feb12
-            Dim objVSAdaptor As New VSAdaptor
-            Dim dt As DataTable
-            If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = False Then
-                '11/12/2015 NS modified for VSPLUS-2069
-                Dim myConnectionString As New VSFramework.XMLOperation
-                Try
-                    strSQL = "SELECT * FROM DominoClusterHealth WHERE ServerName='" & DominoServer.Name & "' "
-                    dt = objVSAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), strSQL)
-                    If dt.Rows.Count = 0 Then
-                        Try
-                            With DominoServer
-                                strSQL = "INSERT INTO DominoClusterHealth (ServerName, ClusterName, SecondsOnQueue, SecondsOnQueueAvg, SecondsOnQueueMax, WorkQueueDepth, WorkQueueDepthAvg, WorkQueueDepthMax, Availability, AvailabilityThreshold, Analysis, LastUpdate) " & _
-                                   "VALUES ('" & .Name & "', '" & .ClusterMember & "', '" & .ReplicaClusterSecondsOnQueue & "', '" & .ReplicaClusterSecondsOnQueueAvg & "', '" & .ReplicaClusterSecondsOnQueueMax & "', '" & .ReplicaClusterWorkQueueDepth & "', '" & .ReplicaClusterWorkQueueDepthAvg & "', '" & .ReplicaClusterWorkQueueDepthMax & "', '" & .AvailabilityIndex & "', '" & .AvailabilityThreshold & "', '" & Analysis & "', '" & FixDateTime(Now) & "')"
-                            End With
-                            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error inserting into the DominoClusterHealth table:  " & ex.ToString)
-                        End Try
-                    Else
-                        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Unable to insert " & DominoServer.Name & " record into the DominoClusterHealth table - a row already exists.")
-                    End If
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error selecting from the DominoClusterHealth table:  " & ex.ToString)
-                End Try
-            End If
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error updating the DominoClusterHealth table:  " & ex.ToString)
-
-        End Try
-
-        'Try
-        '    myCommand.Dispose()
-        '    mySQLCommand.Dispose()
-        'Catch ex As Exception
-
-        'End Try
         WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Finished Updating Domino Cluster Health ")
     End Sub
 
@@ -7741,76 +7602,77 @@ skipdrive2:
 
 #Region "BlackBerry Queue Monitoring"
 
-    Private Function CheckBESMessageQueue(ByRef s As Domino.NotesSession, ByVal BESDominoServer As MonitoredItems.BlackBerryQueue) As Long
-        'This function searches the results of "sh ta" and returns the value of BES Pending Mail
-        ' Expected String format:
-        ' DBES Mail Agent   BES pending count 5873, sent 206, queued 5667
-        '  Server.Task = DBES Mail Agent: BES pending count 0, sent 0, queued 0: [04/12/2011 18:04:41 MST]
+    'This function is not being used
+    'Private Function CheckBESMessageQueue(ByRef s As Domino.NotesSession, ByVal BESDominoServer As MonitoredItems.BlackBerryQueue) As Long
+    '    'This function searches the results of "sh ta" and returns the value of BES Pending Mail
+    '    ' Expected String format:
+    '    ' DBES Mail Agent   BES pending count 5873, sent 206, queued 5667
+    '    '  Server.Task = DBES Mail Agent: BES pending count 0, sent 0, queued 0: [04/12/2011 18:04:41 MST]
 
-        '  Dim s As New Domino.NotesSession
-        Dim intDBESLocation As Integer
-        Dim intCommaLocation As Integer
-        Dim strResult As String
-        Dim ReturnValue As String = ""
-        'Try
-        '   ' s.Initialize(MyDominoPassword)
-        'Catch ex As Exception
-        '   ' System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
-        '    WriteAuditEntry(Now.ToString + ": Error creating NotesSession in CheckBESMessageQueue module " & ex.Message)
-        '    Exit Function
-        'End Try
-
-
-        Try
-            'Send a remote console command to get the value of the stat
-            strResult = s.SendConsoleCommand(BESDominoServer.Name, "sh ta")
-            ' strResult = " DBES Mail Agent   BES pending count 350, sent 206, queued 5667"
-            ' WriteAuditEntry(Now.ToString & " Response is : " & strResult)
-            BESDominoServer.IncrementUpCount()
-        Catch ex As Exception
-            BESDominoServer.IncrementDownCount()
-            WriteAuditEntry(Now.ToString & " " & ex.Message)
-        End Try
-
-        'Try
-        '    System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
-        'Catch ex As Exception
-        '    WriteAuditEntry(Now.ToString & " CheckBESMessageQueue Module Error releasing NotesSession: " & ex.Message)
-        'End Try
+    '    '  Dim s As New Domino.NotesSession
+    '    Dim intDBESLocation As Integer
+    '    Dim intCommaLocation As Integer
+    '    Dim strResult As String
+    '    Dim ReturnValue As String = ""
+    '    'Try
+    '    '   ' s.Initialize(MyDominoPassword)
+    '    'Catch ex As Exception
+    '    '   ' System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
+    '    '    WriteAuditEntry(Now.ToString + ": Error creating NotesSession in CheckBESMessageQueue module " & ex.Message)
+    '    '    Exit Function
+    '    'End Try
 
 
+    '    Try
+    '        'Send a remote console command to get the value of the stat
+    '        strResult = s.SendConsoleCommand(BESDominoServer.Name, "sh ta")
+    '        ' strResult = " DBES Mail Agent   BES pending count 350, sent 206, queued 5667"
+    '        ' WriteAuditEntry(Now.ToString & " Response is : " & strResult)
+    '        BESDominoServer.IncrementUpCount()
+    '    Catch ex As Exception
+    '        BESDominoServer.IncrementDownCount()
+    '        WriteAuditEntry(Now.ToString & " " & ex.Message)
+    '    End Try
 
-        Try
-            intDBESLocation = InStr(strResult, "BES pending count ")
-            If intDBESLocation > 0 Then
-                intCommaLocation = InStr(intDBESLocation + 18, strResult, ",")
-                Dim intStart, intLength As Integer
-                intStart = intDBESLocation + 18  '18 characters in 'BES pending count '
-                intLength = intCommaLocation - intDBESLocation - 18
-                If intLength > 0 Then
-                    strResult = Mid(strResult, intStart, intLength)
-                Else
-                    strResult = Mid(strResult, intStart, 1)
-                End If
-                strResult = Trim(strResult)
-                WriteAuditEntry(Now.ToString & " " & BESDominoServer.Name & " BES Pending Messages: " & strResult)
+    '    'Try
+    '    '    System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
+    '    'Catch ex As Exception
+    '    '    WriteAuditEntry(Now.ToString & " CheckBESMessageQueue Module Error releasing NotesSession: " & ex.Message)
+    '    'End Try
 
-                WriteAuditEntry(Now.ToString & " CheckBESMessageQueue thread has finished.")
-                ReturnValue = strResult
-            Else
-                ReturnValue = -999  'This means the search string was not found
-            End If
 
-            strResult = Nothing
-        Catch ex As Exception
-            WriteAuditEntry("CheckBESMessageQueue Module Error: " & BESDominoServer.Name & vbCrLf & ex.Message & vbCrLf & ex.Source)
-            Return Nothing
 
-        End Try
+    '    Try
+    '        intDBESLocation = InStr(strResult, "BES pending count ")
+    '        If intDBESLocation > 0 Then
+    '            intCommaLocation = InStr(intDBESLocation + 18, strResult, ",")
+    '            Dim intStart, intLength As Integer
+    '            intStart = intDBESLocation + 18  '18 characters in 'BES pending count '
+    '            intLength = intCommaLocation - intDBESLocation - 18
+    '            If intLength > 0 Then
+    '                strResult = Mid(strResult, intStart, intLength)
+    '            Else
+    '                strResult = Mid(strResult, intStart, 1)
+    '            End If
+    '            strResult = Trim(strResult)
+    '            WriteAuditEntry(Now.ToString & " " & BESDominoServer.Name & " BES Pending Messages: " & strResult)
 
-        Return ReturnValue
+    '            WriteAuditEntry(Now.ToString & " CheckBESMessageQueue thread has finished.")
+    '            ReturnValue = strResult
+    '        Else
+    '            ReturnValue = -999  'This means the search string was not found
+    '        End If
 
-    End Function
+    '        strResult = Nothing
+    '    Catch ex As Exception
+    '        WriteAuditEntry("CheckBESMessageQueue Module Error: " & BESDominoServer.Name & vbCrLf & ex.Message & vbCrLf & ex.Source)
+    '        Return Nothing
+
+    '    End Try
+
+    '    Return ReturnValue
+
+    'End Function
 
 #End Region
 

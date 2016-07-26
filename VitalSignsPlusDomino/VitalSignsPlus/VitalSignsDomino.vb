@@ -52,7 +52,22 @@ Imports System.Globalization
 Imports RPRWyatt.VitalSigns.Services
 
 Public Class VitalSignsPlusDomino
-	Inherits VSServices
+    Inherits VSServices
+
+
+
+
+
+
+
+    ''' <summary>
+    '''  REMOVE THIS!!!
+    ''' </summary>
+    ''' <remarks></remarks>
+    Dim connectionString As String = "mongodb://localhost/VitalSigns"
+
+
+
 	Dim BuildNumber As Integer = 2281
 	Dim ProductName As String 'value set in start up 
 	Dim CompanyName As String = "RPR Wyatt"
@@ -179,208 +194,216 @@ Public Class VitalSignsPlusDomino
 
 	Dim HungThreadsKilled As Integer = 0
 
-	Protected Overrides Sub ServiceOnStart(ByVal args() As String)
-		Try
-			sCultureString = ConfigurationManager.AppSettings(connectionStringName).ToString()
-		Catch ex As Exception
-			sCultureString = "en-US"
-		End Try
+    Protected Overrides Sub ServiceOnStart(ByVal args() As String)
+
+        Try
+            connectionString = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
+            WriteAuditEntry(Now.ToString + " connection string is " & connectionString)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString + " Error getting connection string. Error: " & ex.Message)
+        End Try
+
+        Try
+            sCultureString = ConfigurationManager.AppSettings(connectionStringName).ToString()
+        Catch ex As Exception
+            sCultureString = "en-US"
+        End Try
 
 
-		Thread.CurrentThread.CurrentCulture = New CultureInfo(sCultureString)
+        Thread.CurrentThread.CurrentCulture = New CultureInfo(sCultureString)
 
-		'Writes to the History.txt file
-		Try
-			ThreadHourlyDaily.Start()
-		Catch ex As Exception
+        'Writes to the History.txt file
+        Try
+            ThreadHourlyDaily.Start()
+        Catch ex As Exception
 
-		End Try
-
-
-
-		'Read some settings from the registry
-		Dim myRegistry As New VSFramework.RegistryHandler()
+        End Try
 
 
-		Try
-			myRegistry.WriteToRegistry("Cluster Health Date", Now.ToShortDateString)
-		Catch ex As Exception
 
-		End Try
+        'Read some settings from the registry
+        Dim myRegistry As New VSFramework.RegistryHandler()
 
-		Try
+
+        Try
+            myRegistry.WriteToRegistry("Cluster Health Date", Now.ToShortDateString)
+        Catch ex As Exception
+
+        End Try
+
+        Try
             UpdateDominoThreadKilledCounter()
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		Try
-			ProductName = myRegistry.ReadFromRegistry("ProductName")
-			If ProductName = "" Then
-				ProductName = "VitalSigns"
-			End If
-		Catch ex As Exception
-			ProductName = "VitalSigns"
-		End Try
+        Try
+            ProductName = myRegistry.ReadFromRegistry("ProductName")
+            If ProductName = "" Then
+                ProductName = "VitalSigns"
+            End If
+        Catch ex As Exception
+            ProductName = "VitalSigns"
+        End Try
 
-		Try
-			MyLogLevel = myRegistry.ReadFromRegistry("Log Level")
-		Catch ex As Exception
-			MyLogLevel = LogLevel.Verbose
-		End Try
+        Try
+            MyLogLevel = myRegistry.ReadFromRegistry("Log Level")
+        Catch ex As Exception
+            MyLogLevel = LogLevel.Verbose
+        End Try
 
 
 
-		Try
-			myRegistry.WriteToRegistry("Service Start", Now.ToShortDateString & " " & Now.ToShortTimeString)
-			myRegistry.WriteToRegistry("VS Domino Service Start", Now.ToShortDateString & " " & Now.ToShortTimeString)
-			'   myRegistry.WriteToRegistry("VS Domino Build Number", BuildNumber)
-			myRegistry.WriteToRegistry("Service Build Number", BuildNumber)
+        Try
+            myRegistry.WriteToRegistry("Service Start", Now.ToShortDateString & " " & Now.ToShortTimeString)
+            myRegistry.WriteToRegistry("VS Domino Service Start", Now.ToShortDateString & " " & Now.ToShortTimeString)
+            '   myRegistry.WriteToRegistry("VS Domino Build Number", BuildNumber)
+            myRegistry.WriteToRegistry("Service Build Number", BuildNumber)
             'myRegistry.WriteToRegistry("Service Reset Date", Now.ToShortDateString)
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
-
-
-		Try
-			WriteAuditEntry(Now.ToString + " ")
-			WriteAuditEntry(Now.ToString + " ********************************* ")
-			WriteAuditEntry(Now.ToString + " VitalSigns Plus - Build Number: " & BuildNumber)
-			WriteAuditEntry(Now.ToString + " The service is starting up.")
-			WriteAuditEntry(Now.ToString + " ")
-			WriteAuditEntry(Now.ToString + " Copyright 2006 - " & Now.Year & ", JNITH Corporation. dba RPR Wyatt and Plum Island Publishing, LLC.")
-			WriteAuditEntry(Now.ToString + " All rights reserved.")
-			WriteAuditEntry(Now.ToString + " Distributed worldwide by RPR Wyatt, Inc. and its partner network.")
-			WriteAuditEntry(Now.ToString + " ")
-			WriteAuditEntry(Now.ToString + " ")
-			WriteAuditEntry(Now.ToString + " ")
-			'     If Use_NotesAPI_Mutex = True Then WriteAuditEntry(Now.ToString + " Using the Notes API mutex to minimize API collisions.")
-
-			' Thread.CurrentThread.Sleep(4000)
-
-		Catch ex As Exception
-
-		End Try
+        End Try
 
 
-		Try
-			Dim myAdapter As New VSFramework.XMLOperation
-			Dim MyConnectionString As String
-			MyConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
-			'WriteAuditEntry(Now.ToString + " My connection string is " & MyConnectionString)
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString + " Exception getting connection string: " & ex.ToString)
-		End Try
+        Try
+            WriteAuditEntry(Now.ToString + " ")
+            WriteAuditEntry(Now.ToString + " ********************************* ")
+            WriteAuditEntry(Now.ToString + " VitalSigns Plus - Build Number: " & BuildNumber)
+            WriteAuditEntry(Now.ToString + " The service is starting up.")
+            WriteAuditEntry(Now.ToString + " ")
+            WriteAuditEntry(Now.ToString + " Copyright 2006 - " & Now.Year & ", JNITH Corporation. dba RPR Wyatt and Plum Island Publishing, LLC.")
+            WriteAuditEntry(Now.ToString + " All rights reserved.")
+            WriteAuditEntry(Now.ToString + " Distributed worldwide by RPR Wyatt, Inc. and its partner network.")
+            WriteAuditEntry(Now.ToString + " ")
+            WriteAuditEntry(Now.ToString + " ")
+            WriteAuditEntry(Now.ToString + " ")
+            '     If Use_NotesAPI_Mutex = True Then WriteAuditEntry(Now.ToString + " Using the Notes API mutex to minimize API collisions.")
 
-		Try
-			mNotesProgDir = myRegistry.ReadFromRegistry("Notes Program Directory")
-			If mNotesProgDir = "" Then
-				WriteAuditEntry(Now.ToString & " *** WARNING *** The Notes Program Directory has to be set using the Configurator, Stored Password & Options, IBM Domino Settings.")
-				End
-			Else
-				WriteAuditEntry(Now.ToString & " The Notes Program Directory is " & mNotesProgDir)
-			End If
+            ' Thread.CurrentThread.Sleep(4000)
 
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
-
-		Try
-			mNotesINI = "=" & myRegistry.ReadFromRegistry("Notes.ini")
-			'Should be like "=c:\program files\lotus\notes\notes.ini"
-			If mNotesINI = "=" Then
-				WriteAuditEntry(Now.ToString & "  *** WARNING *** The Notes.INI location has to be set using the Configurator, Stored Password & Options, IBM Domino Settings.")
-			Else
-				WriteAuditEntry(Now.ToString & " The Notes.INI setting is " & mNotesINI)
-			End If
-		Catch ex As Exception
-
-		End Try
-
-		Try
-			mUserId = myRegistry.ReadFromRegistry("Notes User ID")
-			If mUserId = "" Then
-				WriteAuditEntry(Now.ToString & "  *** WARNING ***  The Notes User ID file location has to be set using the Configurator, Stored Password & Options, IBM Domino Settings.")
-				' End
-			Else
-				WriteAuditEntry(Now.ToString & " The Notes User ID setting is " & mUserId)
-			End If
-		Catch ex As Exception
-
-		End Try
-
-		Try
-			Dim sStartStatus As String
-			InitNotes(sStartStatus)
-			' WriteAuditEntry(Now.ToString & " Notes API initialization: " & sStartStatus)
-		Catch ex As Exception
-
-		End Try
-
-		Dim NotesSystemMessageString As String = "Incorrect Notes Password."
-		Try
-			MyDominoPassword = GetNotesPassword()
-			NotesSession.Initialize(MyDominoPassword)
-			WriteAuditEntry(Now.ToString & " Initialized NotesSession for " & NotesSession.CommonUserName)
-			'CleanAlertsDB()
-		Catch ex As Exception
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
-			'3/13/2015 NS added for VSPLUS-1476
-			myAlert.QueueSysMessage(NotesSystemMessageString)
-			WriteAuditEntry(Now.ToString & " Error Initializing NotesSession.  Many problems will follow....  " & ex.ToString)
-			WriteAuditEntry(Now.ToString & " *********** ERROR ************  Error initializing a session to Query Domino server. ")
-			WriteAuditEntry(Now.ToString & " Calling stopnotescl.exe then exiting in an attempt to recover.")
-			WriteAuditEntry(Now.ToString & " The VitalSigns Master service should restart the monitoring service in a few moments.")
-			KillNotes()
-			Exit Sub
-		End Try
-
-		Try
-			myAlert.ResetSysMessage(NotesSystemMessageString)
-		Catch ex As Exception
-
-		End Try
-
-		WriteAuditEntry(Now.ToString & " Calling Off Hours check.....")
-
-		Try
-			CreateCollections()
-		Catch ex As Exception
-
-		End Try
+        End Try
 
 
-		Try
-			InitializeStatusTable()
-		Catch ex As Exception
+        Try
+            Dim myAdapter As New VSFramework.XMLOperation
+            Dim MyConnectionString As String
+            MyConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
+            'WriteAuditEntry(Now.ToString + " My connection string is " & MyConnectionString)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString + " Exception getting connection string: " & ex.ToString)
+        End Try
 
-		End Try
+        Try
+            mNotesProgDir = myRegistry.ReadFromRegistry("Notes Program Directory")
+            If mNotesProgDir = "" Then
+                WriteAuditEntry(Now.ToString & " *** WARNING *** The Notes Program Directory has to be set using the Configurator, Stored Password & Options, IBM Domino Settings.")
+                End
+            Else
+                WriteAuditEntry(Now.ToString & " The Notes Program Directory is " & mNotesProgDir)
+            End If
 
-		Try
-			'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is starting up.', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='The VitalSigns monitoring service is starting up.' WHERE Status <> 'Disabled' AND Type='Domino Server'")
-			'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is starting up.', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='The VitalSigns monitoring service is starting up.' WHERE Status <> 'Disabled' AND Type='Notes Database'")
-			'UpdateStatusTable("Update Status SET  Details='The URL monitoring service is starting up.', Status='Not Scanned', StatusCode='Not Scanned', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='URL monitoring is not running.' WHERE Type ='URL'")
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
+        End Try
+
+        Try
+            mNotesINI = "=" & myRegistry.ReadFromRegistry("Notes.ini")
+            'Should be like "=c:\program files\lotus\notes\notes.ini"
+            If mNotesINI = "=" Then
+                WriteAuditEntry(Now.ToString & "  *** WARNING *** The Notes.INI location has to be set using the Configurator, Stored Password & Options, IBM Domino Settings.")
+            Else
+                WriteAuditEntry(Now.ToString & " The Notes.INI setting is " & mNotesINI)
+            End If
+        Catch ex As Exception
+
+        End Try
+
+        Try
+            mUserId = myRegistry.ReadFromRegistry("Notes User ID")
+            If mUserId = "" Then
+                WriteAuditEntry(Now.ToString & "  *** WARNING ***  The Notes User ID file location has to be set using the Configurator, Stored Password & Options, IBM Domino Settings.")
+                ' End
+            Else
+                WriteAuditEntry(Now.ToString & " The Notes User ID setting is " & mUserId)
+            End If
+        Catch ex As Exception
+
+        End Try
+
+        Try
+            Dim sStartStatus As String
+            InitNotes(sStartStatus)
+            ' WriteAuditEntry(Now.ToString & " Notes API initialization: " & sStartStatus)
+        Catch ex As Exception
+
+        End Try
+
+        Dim NotesSystemMessageString As String = "Incorrect Notes Password."
+        Try
+            MyDominoPassword = GetNotesPassword()
+            NotesSession.Initialize(MyDominoPassword)
+            WriteAuditEntry(Now.ToString & " Initialized NotesSession for " & NotesSession.CommonUserName)
+            'CleanAlertsDB()
+        Catch ex As Exception
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
+            '3/13/2015 NS added for VSPLUS-1476
+            myAlert.QueueSysMessage(NotesSystemMessageString)
+            WriteAuditEntry(Now.ToString & " Error Initializing NotesSession.  Many problems will follow....  " & ex.ToString)
+            WriteAuditEntry(Now.ToString & " *********** ERROR ************  Error initializing a session to Query Domino server. ")
+            WriteAuditEntry(Now.ToString & " Calling stopnotescl.exe then exiting in an attempt to recover.")
+            WriteAuditEntry(Now.ToString & " The VitalSigns Master service should restart the monitoring service in a few moments.")
+            KillNotes()
+            Exit Sub
+        End Try
+
+        Try
+            myAlert.ResetSysMessage(NotesSystemMessageString)
+        Catch ex As Exception
+
+        End Try
+
+        WriteAuditEntry(Now.ToString & " Calling Off Hours check.....")
+
+        Try
+            CreateCollections()
+        Catch ex As Exception
+
+        End Try
 
 
-		Try
-			'4/29/2014 - this was changed to a thread instead of just calling StartThreads directly so it would start quicker
-			WriteAuditEntry(Now.ToString & " All configuration settings have been read.  Starting monitoring threads.")
-			Dim threadStartThreads As New Thread(AddressOf StartThreads)
-			'Thread.CurrentThread.CurrentCulture = New CultureInfo("en-US")
-			threadStartThreads.CurrentCulture = New CultureInfo(sCultureString)
+        Try
+            InitializeStatusTable()
+        Catch ex As Exception
 
-			threadStartThreads.Start()
+        End Try
 
-		Catch ex As Exception
+        Try
+            'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is starting up.', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='The VitalSigns monitoring service is starting up.' WHERE Status <> 'Disabled' AND Type='Domino Server'")
+            'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is starting up.', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='The VitalSigns monitoring service is starting up.' WHERE Status <> 'Disabled' AND Type='Notes Database'")
+            'UpdateStatusTable("Update Status SET  Details='The URL monitoring service is starting up.', Status='Not Scanned', StatusCode='Not Scanned', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='URL monitoring is not running.' WHERE Type ='URL'")
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		WriteAuditEntry(Now.ToString & " Startup process is complete. ")
 
-	End Sub
+        Try
+            '4/29/2014 - this was changed to a thread instead of just calling StartThreads directly so it would start quicker
+            WriteAuditEntry(Now.ToString & " All configuration settings have been read.  Starting monitoring threads.")
+            Dim threadStartThreads As New Thread(AddressOf StartThreads)
+            'Thread.CurrentThread.CurrentCulture = New CultureInfo("en-US")
+            threadStartThreads.CurrentCulture = New CultureInfo(sCultureString)
+
+            threadStartThreads.Start()
+
+        Catch ex As Exception
+
+        End Try
+
+        WriteAuditEntry(Now.ToString & " Startup process is complete. ")
+
+    End Sub
 
 	Protected Overrides Sub OnStop()
         ' Add code here to perform any tear-down necessary to stop your service.
@@ -1396,32 +1419,32 @@ Public Class VitalSignsPlusDomino
                     '   WriteAuditEntry(Now.ToString & " Domino server " & Server.Name & " availability percentage is " & Server.UpPercentCount)
                     Try
 
-                        RecordCountAvailability("Domino", Server.Name, Server.UpPercentCount * 100)
+                        'RecordCountAvailability("Domino", Server.Name, Server.UpPercentCount * 100)
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording count availability: " & ex.Message)
                     End Try
 
                     Try
-                        RecordTimeAvailability("Domino", Server.Name, Server.UpPercentMinutes * 100)
+                        'RecordTimeAvailability("Domino", Server.Name, Server.UpPercentMinutes * 100)
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording time availability: " & ex.Message)
                     End Try
 
                     Try
-                        RecordDownTime("Domino", Server.Name, Server.DownMinutes)
+                        'RecordDownTime("Domino", Server.Name, Server.DownMinutes)
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording down minutes: " & ex.Message)
                     End Try
 
                     Try
-                        RecordOnTargetAvailability("Domino", Server.Name, Server.OnTargetPercent * 100)
+                        'RecordOnTargetAvailability("Domino", Server.Name, Server.OnTargetPercent * 100)
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording hourly uptime: " & ex.Message)
                     End Try
 
                     Try
                         If Server.BusinessHoursOnTargetPercent <> 0 Then
-                            RecordBusinessHoursOnTargetAvailability("Domino", Server.Name, Server.BusinessHoursOnTargetPercent * 100)
+                            'RecordBusinessHoursOnTargetAvailability("Domino", Server.Name, Server.BusinessHoursOnTargetPercent * 100)
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording OnTarget hourly uptime: " & ex.Message)
@@ -1465,9 +1488,9 @@ Public Class VitalSignsPlusDomino
                 For Each NMProbe In MyNotesMailProbes
                     If NMProbe.Enabled = True Then
                         '   WriteAuditEntry(Now.ToString & " BlackBerry " & BB.Name & " availability percentage is " & BB.UpPercentCount)
-                        RecordCountAvailability("NotesMail Probe", NMProbe.Name, NMProbe.UpPercentCount * 100)
+                        'RecordCountAvailability("NotesMail Probe", NMProbe.Name, NMProbe.UpPercentCount * 100)
                         '     RecordTimeAvailability("NotesMail Probe", NMProbe.Name, NMProbe.UpPercentMinutes * 100)
-                        RecordDownTime("NotesMail Probe", NMProbe.Name, NMProbe.DownMinutes)
+                        'RecordDownTime("NotesMail Probe", NMProbe.Name, NMProbe.DownMinutes)
                         NMProbe.ResetUpandDownCounts()
                     End If
                 Next
@@ -1485,9 +1508,9 @@ Public Class VitalSignsPlusDomino
                 For Each NDB In MyNotesDatabases
                     If NDB.Enabled = True And NDB.TriggerType = "Database Response Time" Then
                         '   WriteAuditEntry(Now.ToString & " Notes Database " & NDB.Name & " availability percentage is " & NDB.UpPercentCount)
-                        RecordCountAvailability("Notes Database", NDB.Name, NDB.UpPercentCount * 100)
+                        'RecordCountAvailability("Notes Database", NDB.Name, NDB.UpPercentCount * 100)
                         '  RecordTimeAvailability("Notes Database", NDB.Name, NDB.UpPercentMinutes * 100)
-                        RecordDownTime("Notes Database", NDB.Name, NDB.DownMinutes)
+                        'RecordDownTime("Notes Database", NDB.Name, NDB.DownMinutes)
                         NDB.ResetUpandDownCounts()
                     End If
                 Next

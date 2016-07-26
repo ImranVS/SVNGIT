@@ -8,6 +8,7 @@ Imports System.Collections.Generic
 Imports System.Text
 Imports System.Runtime.Serialization.Json
 Imports System.Runtime.Serialization
+Imports MongoDB.Driver
 
 Partial Public Class VitalSignsPlusDomino
 
@@ -634,32 +635,23 @@ Cleanup:
 
 		'     WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" NotesMail Monitor  says History table is " & OleDbConnectionServers.State.ToString)
 
-		Try
-			With MyNotesMailProbe
-				strSQL = ""
-				strSQL = "Insert INTO NotesMailProbeHistory "
-				strSQL += "(SentDateTime, SentTo, DeliveryThresholdInMinutes, SubjectKey, DeviceName, Status, TargetServer, TargetDatabase) VALUES "
-				strSQL += "('" & Now.ToString & "', '" & .NotesMailAddress & "', '" & .DeliveryThreshold & "', '" & myKey & "', '" & .Name & "', 'Sent', '" & .TargetServer & "', '" & .TargetDatabase & "')"
-			End With
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor  is about to execute: " & strSQL, LogLevel.Verbose)
+        Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NotesMailProbeHistory)(connectionString)
+            Dim entity As New VSNext.Mongo.Entities.NotesMailProbeHistory() With {
+                .DeliveryThresholdMinutes = MyNotesMailProbe.DeliveryThreshold,
+                .SubjectKey = myKey,
+                .DeviceID = MongoDB.Bson.ObjectId.Parse(MyNotesMailProbe.ServerObjectID),
+                .DeviceName = MyNotesMailProbe.Name,
+                .Status = "Sent",
+                .TargetServer = MyNotesMailProbe.TargetServer,
+                .TargetDatabase = MyNotesMailProbe.TargetDatabase
+            }
+            repository.Insert(entity)
+            
 
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error creating SQL statement: " & ex.Message)
-			With MyNotesMailProbe
-				WriteAuditEntry("('" & Now.ToString & "', '" & .NotesMailAddress & "', '" & .DeliveryThreshold & "', '" & myKey & "', '" & .Name & "', 'Sent', '" & .TargetServer & "', '" & .TargetDatabase & "')")
-			End With
-		End Try
-
-		Try
-			Dim myAdapter As New VSFramework.VSAdaptor
-			myAdapter.ExecuteNonQueryAny("VitalSigns", "*", strSQL)
-
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor executed the query")
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error updating NotesMail History table with NotesMail Probe info: " & ex.Message & vbCrLf & strSQL)
-		Finally
-			'     MyNotesMailProbe.LastScan = Now.ToString
-		End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error inserting NotesMail History table with NotesMail Probe info: " & ex.Message)
+        End Try
 
 		strSQL = Nothing
 		myKey = Nothing
@@ -711,270 +703,270 @@ Cleanup:
 		Dim dsNotesMailHistory As New Data.DataSet
 		Dim dv As DataView
 
+        Dim listOfEntities As New List(Of VSNext.Mongo.Entities.NotesMailProbeHistory)()
 
-		'     WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" myConnection state is " & myConnection.State.ToString)
-		strSQL = "SELECT ArrivalAtMailBox, DeliveryThresholdInMinutes, DeliveryTimeInMinutes, Details, DeviceName, ProbeID, SentDateTime, SentTo, Status, SubjectKey, TargetDatabase, TargetServer FROM NotesMailProbeHistory WHERE ArrivalAtMailBox is Null"
-		' myCommand.Connection = myConnection
-		' myCommand.CommandText = OleDbDataAdapterNotesMailHistory.SelectCommand.CommandText
-		dsNotesMailHistory.Tables.Add("NotesMailProbeHistory")
-		vsAdapter.FillDatasetAny("VitalSigns", "Servers", strSQL, dsNotesMailHistory, "NotesMailProbeHistory")
-		Try
-			Dim dt As DataTable = dsNotesMailHistory.Tables("NotesMailProbeHistory")
-			'  WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Check of dataTable table name: " & dt.TableName)
-			dv = New DataView(dt, "Status='Sent'", "DeviceName", DataViewRowState.CurrentRows)
-			dt.Dispose()
+        Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NotesMailProbeHistory)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.NotesMailProbeHistory) = repository.Filter.Eq(Function(x) x.ArrivalAtMailbox, Nothing)
+            listOfEntities = repository.Find(filterDef).ToList()
+        Catch ex As Exception
 
-			Thread.Sleep(500)
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Check NotesMail Delivery Times is examining " & dv.Count & " rows in DataView.")
-			For Each row As DataRowView In dv
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe will check delivery on " & row("DeviceName"))
-			Next
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error in CheckNotesMailDeliveryTimes module creating DataView:" & ex.Message)
-		End Try
+        End Try
 
-		If dv.Count = 0 Then
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " ** No NotesMail Probes to check, exiting")
-			Try
+        Try
+            listOfEntities = listOfEntities.Where(Function(x) x.Status = "Sent")
 
-				dsNotesMailHistory.Dispose()
-				dv.Dispose()
-				'myCommand.Dispose()
-			Catch ex As Exception
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & "Check NotesMail has disposed connection, adapter, and command")
-			Finally
-				GC.Collect()
-			End Try
+            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Check NotesMail Delivery Times is examining " & listOfEntities.Count & " entities in List.")
+            For Each entity As VSNext.Mongo.Entities.NotesMailProbeHistory In listOfEntities
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe will check delivery on " & entity.DeviceName)
+            Next
 
+            If listOfEntities.Count = 0 Then
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " ** No NotesMail Probes to check, exiting")
 
-			Try
-				tNow = Nothing
-				tSentDate = Nothing
-				tDeliveryDate = Nothing
-				tScheduled = Nothing
-				DeliveryTime = Nothing
-				MyNotesMailProbe = Nothing
-				strSubject = Nothing
-				strSQL = Nothing
-				intDeliveryThreshold = Nothing
-				boolFoundMemo = Nothing
-			Catch ex As Exception
+                Try
+                    tNow = Nothing
+                    tSentDate = Nothing
+                    tDeliveryDate = Nothing
+                    tScheduled = Nothing
+                    DeliveryTime = Nothing
+                    MyNotesMailProbe = Nothing
+                    strSubject = Nothing
+                    strSQL = Nothing
+                    intDeliveryThreshold = Nothing
+                    boolFoundMemo = Nothing
+                    listOfEntities = Nothing
+                Catch ex As Exception
 
-			End Try
+                End Try
 
-			Try
-				GoTo Cleanup
-			Catch ex As Exception
+                Try
+                    GoTo Cleanup
+                Catch ex As Exception
 
-			End Try
-		End If
+                End Try
+            End If
 
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Exception getting list of entities in CheckNotesMailDeliveryTimes. Error:" & ex.Message)
+        End Try
 
-		Try
-			Dim objVSAdaptor As New VSAdaptor
-			'Loop through the NotesMail probes with status of 'Sent'
-			For Each row As DataRowView In dv
-				boolFoundMemo = False
-				strSQL = ""
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Looping through row ")
-				Try
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " searching in row " & row("DeviceName") & " with status of " & row("Status"))
-					MyNotesMailProbe = MyNotesMailProbes.Search(row("DeviceName"))
-				Catch ex As Exception
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " error while searching " & ex.Message)
-				End Try
+        Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NotesMailProbeHistory)(connectionString)
+            For Each entity As VSNext.Mongo.Entities.NotesMailProbeHistory In listOfEntities
+                boolFoundMemo = False
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Looping through row ")
 
-				Try
-					tSentDate = CType(row("SentDateTime"), DateTime)
+                Try
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " searching in row " & entity.DeviceName & " with status of " & entity.Status)
+                    MyNotesMailProbe = MyNotesMailProbes.Search(entity.DeviceName)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " error while searching " & ex.Message)
+                End Try
+
+                Try
+                    tSentDate = entity.SentDateTime
                     WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Message was sent: " & tSentDate.ToLongTimeString, LogLevel.Verbose)
-                    intDeliveryThreshold = CType(row("DeliveryThresholdInMinutes"), Integer)
+                    intDeliveryThreshold = entity.DeliveryThresholdMinutes
                     WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Message has " & intDeliveryThreshold.ToString & " minutes.", LogLevel.Verbose)
-					tScheduled = tSentDate.AddMinutes(intDeliveryThreshold)
+                    tScheduled = tSentDate.AddMinutes(intDeliveryThreshold)
                     WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Message must arrive before: " & tScheduled.ToLongTimeString, LogLevel.Verbose)
-					'See if message arrived
-					MailBox = myLocalSession.GetDatabase(row("TargetServer"), row("TargetDatabase"), False)
-				Catch ex As Exception
-					'MailBox = Nothing
-				End Try
+                    'See if message arrived
+                    MailBox = myLocalSession.GetDatabase(entity.TargetServer, entity.TargetDatabase, False)
+                Catch ex As Exception
+                    'MailBox = Nothing
+                End Try
 
-				If MailBox Is Nothing Then
-					'Can't connect to server, see if deadline has past
-					If DateTime.Compare(tNow, tScheduled) > 0 Then
-						'deadline has past, document has not arrived.
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Could not connect to: " & row("TargetServer") & ":" & row("TargetDatabase"))
-						MyNotesMailProbe.IncrementDownCount()
-						MyNotesMailProbe.Status = "Not Responding"
-						MyNotesMailProbe.ResponseDetails = "Cannot connect to target Notes database: " & row("TargetServer") & ":" & row("TargetDatabase")
-						strSQL = "Update NotesMailProbeHistory Set Status='Not Responding', Details='Unable to open target server' WHERE ProbeID=" & row("ProbeID")
-						myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not connect to target Notes database: " & row("TargetServer") & ":" & row("TargetDatabase"), MyNotesMailProbe.Location)
-						objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "servers", strSQL)
 
-						'Update statistics Table
-						UpdateNotesMailStatistics(MyNotesMailProbe.Name, "DeliveryTime.Seconds", 0)
-					End If
+                If MailBox Is Nothing Then
+                    'Can't connect to server, see if deadline has past
+                    If DateTime.Compare(tNow, tScheduled) > 0 Then
+                        'deadline has past, document has not arrived.
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Could not connect to: " & entity.TargetServer & ":" & entity.TargetDatabase)
+                        MyNotesMailProbe.IncrementDownCount()
+                        MyNotesMailProbe.Status = "Not Responding"
+                        MyNotesMailProbe.ResponseDetails = "Cannot connect to target Notes database: " & entity.TargetServer & ":" & entity.TargetDatabase
 
-				Else
-					If String.IsNullOrWhiteSpace(MailBox.Title) Then
-						MailBox.Title = "Untitled Database"
-					End If
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Successfully connected to mailbox: " & MailBox.Title)
-					viewInbox = MailBox.GetView("($Inbox)")
-					If viewInbox Is Nothing Then
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe module could not connect to Inbox in " & row("TargetServer") & ":" & row("TargetDatabase"))
-						'   Exit Try
-					Else
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe module connected to target InBox")
-						navInBox = viewInbox.CreateViewNav
-					End If
+                        entity.Status = "Not Responding"
+                        entity.Details = "Unable to open target server"
+                        repository.Replace(entity)
 
-					' docMail = Inbox.GetFirstDocument
-					entryMail = navInBox.GetLastDocument
-					If entryMail Is Nothing Then
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Unable to connect to last document Inbox")
-						'   Exit Try
-					Else
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Connected to the last document in Inbox, searching up", LogLevel.Verbose)
-					End If
-				End If
+                        myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not connect to target Notes database: " & entity.TargetServer & ":" & entity.TargetDatabase, MyNotesMailProbe.Location)
 
-				Dim counter As Integer = 0	'This will store the total number of documents examined
-				Dim DeleteCounter As Integer = 0   'This will store the total number of probes found that match the name
-				Dim SearchText As String = row("SubjectKey")
+                        'Update statistics Table
+                        UpdateNotesMailStatistics(MyNotesMailProbe.ServerObjectID, "DeliveryTime.Seconds", 0)
+                    End If
 
-				Dim oWatch As New System.Diagnostics.Stopwatch
-				oWatch.Start()
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe history is now searching for " & SearchText)
+                Else
+                    If String.IsNullOrWhiteSpace(MailBox.Title) Then
+                        MailBox.Title = "Untitled Database"
+                    End If
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Successfully connected to mailbox: " & MailBox.Title)
+                    viewInbox = MailBox.GetView("($Inbox)")
+                    If viewInbox Is Nothing Then
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe module could not connect to Inbox in " & entity.TargetServer & ":" & entity.TargetDatabase)
+                        '   Exit Try
+                    Else
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe module connected to target InBox")
+                        navInBox = viewInbox.CreateViewNav
+                    End If
 
-				While Not entryMail Is Nothing
-					'The counter should help prevent from going through huge inboxes over and over
-					counter += 1
-					If counter > 100 Then Exit While
+                    ' docMail = Inbox.GetFirstDocument
+                    entryMail = navInBox.GetLastDocument
+                    If entryMail Is Nothing Then
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Unable to connect to last document Inbox")
+                        '   Exit Try
+                    Else
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Connected to the last document in Inbox, searching up", LogLevel.Verbose)
+                    End If
+                End If
 
-					boolDeleteMe = False
-					docMail = entryMail.Document
-					strSubject = docMail.GetItemValue("Subject")(0)
-					' WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe history is now searching the Target Inbox... examining # " & counter.ToString & " - " & strSubject, LogLevel.Verbose)
-					If InStr(strSubject, SearchText) Then
-						'Found the document
-						boolFoundMemo = True
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe history found Target Document, it was delivered at: " & docMail.GetItemValue("DeliveredDate")(0))
-						tDeliveryDate = CType(docMail.GetItemValue("DeliveredDate")(0), DateTime)
-						DeliveryTime = tDeliveryDate.Subtract(tSentDate)
-						MyNotesMailProbe.ResponseTime = Math.Abs(DeliveryTime.TotalMinutes)
-						Dim MyResponse As String
-						MyResponse = " Successfully found the target document which was delivered within the target time. Elapsed time = " & DeliveryTime.TotalSeconds.ToString("F1") & " seconds."
+                Dim counter As Integer = 0  'This will store the total number of documents examined
+                Dim DeleteCounter As Integer = 0   'This will store the total number of probes found that match the name
+                Dim SearchText As String = entity.SubjectKey
+
+                Dim oWatch As New System.Diagnostics.Stopwatch
+                oWatch.Start()
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe history is now searching for " & SearchText)
+
+
+
+                While Not entryMail Is Nothing
+                    'The counter should help prevent from going through huge inboxes over and over
+                    counter += 1
+                    If counter > 100 Then Exit While
+
+                    boolDeleteMe = False
+                    docMail = entryMail.Document
+                    strSubject = docMail.GetItemValue("Subject")(0)
+                    ' WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe history is now searching the Target Inbox... examining # " & counter.ToString & " - " & strSubject, LogLevel.Verbose)
+                    If InStr(strSubject, SearchText) Then
+                        'Found the document
+                        boolFoundMemo = True
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe history found Target Document, it was delivered at: " & docMail.GetItemValue("DeliveredDate")(0))
+                        tDeliveryDate = CType(docMail.GetItemValue("DeliveredDate")(0), DateTime)
+                        DeliveryTime = tDeliveryDate.Subtract(tSentDate)
+                        MyNotesMailProbe.ResponseTime = Math.Abs(DeliveryTime.TotalMinutes)
+                        Dim MyResponse As String
+                        MyResponse = " Successfully found the target document which was delivered within the target time. Elapsed time = " & DeliveryTime.TotalSeconds.ToString("F1") & " seconds."
                         WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " " & MyNotesMailProbe.Name & " was delivered in " & MyResponse, LogLevel.Verbose)
                         WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " " & MyNotesMailProbe.Name & " was delivered at " & tDeliveryDate.ToString, LogLevel.Verbose)
-						If DateTime.Compare(CType(docMail.GetItemValue("DeliveredDate")(0), DateTime), tScheduled) < 0 Then
-							'date is in future
-							'   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Delivered on time")
-							myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.Location)
-							If MyNotesMailProbe.ResponseTime = 0 Then
-								strSQL = "Update NotesMailProbeHistory Set Status='OK', DeliveryTimeInMinutes='" & MyNotesMailProbe.ResponseTime.ToString("F1") & "', ArrivalAtMailBox='" & docMail.GetItemValue("DeliveredDate")(0) & "', " & _
-										 "Details='" & MyResponse & "' WHERE ProbeID=" & row("ProbeID")
-							Else
-								strSQL = "Update NotesMailProbeHistory Set Status='OK', DeliveryTimeInMinutes='" & MyNotesMailProbe.ResponseTime & "', ArrivalAtMailBox='" & docMail.GetItemValue("DeliveredDate")(0) & "', " & _
-								"Details='" & MyResponse & "' WHERE ProbeID=" & row("ProbeID")
-							End If
-							MyNotesMailProbe.IncrementUpCount()
-							MyNotesMailProbe.Status = "OK"
-							MyNotesMailProbe.ResponseDetails = " Found the test message in the Target database, it was delivered on time at: " & docMail.GetItemValue("DeliveredDate")(0)
-							myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.Location)
-							myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Late", MyNotesMailProbe.Location)
-							'Update Stats Table
-							Dim MyResponseTime As Integer
-							MyResponseTime = Math.Abs(DeliveryTime.Seconds)
-							'        WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" MyResponseTime=" & DeliveryTime.Seconds)
-							If MyResponseTime = 0 Then
-								'   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Somehow thought it was zero....")
-								'If delivered in less than a second, set it to 1, to distinguish from failures, which get 0
-								MyResponseTime = 1
-							End If
-							UpdateNotesMailStatistics(MyNotesMailProbe.Name, "DeliveryTime.Seconds", MyResponseTime)
-							MyResponseTime = Nothing
+                        If DateTime.Compare(CType(docMail.GetItemValue("DeliveredDate")(0), DateTime), tScheduled) < 0 Then
+                            'date is in future
+                            '   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Delivered on time")
 
-						Else
-							'      WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Delivered LATE")
-							strSQL = "Update NotesMailProbeHistory Set Status='Late' , DeliveryTimeInMinutes='" & MyNotesMailProbe.ResponseTime & "', ArrivalAtMailBox='" & docMail.GetItemValue("DeliveredDate")(0) & "', " & _
-							 "Details='Delivered LATE in " & MyResponse & "' WHERE ProbeID=" & row("ProbeID")
-							MyNotesMailProbe.IncrementDownCount()
-							myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Slow", "NotesMailProbe found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0), MyNotesMailProbe.Location)
+                            myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.Location)
 
-							MyNotesMailProbe.Status = "Delivered Late"
-							MyNotesMailProbe.ResponseDetails = " Found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0)
-							myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Slow", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
-							'Update Stats Table
-							UpdateNotesMailStatistics(MyNotesMailProbe.Name, "DeliveryTime.Seconds", Math.Abs(DeliveryTime.Seconds))
-						End If
+                            entity.Status = "OK"
+                            entity.DeliveryTimeMinutes = MyNotesMailProbe.ResponseTime
+                            entity.ArrivalAtMailbox = DateTime.Parse(docMail.GetItemValue("DeliveredDate")(0))
+                            entity.Details = MyResponse
 
-						'Update the history table
-						'myCommand.CommandText = strSQL
-						'myCommand.ExecuteNonQuery()
-						objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "servers", strSQL)
-						Exit While
-					Else
-						'WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " This email is not a match.", LogLevel.Verbose)
-						'WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Checking to see if it is an old probe... if the subject contains " & row("DeviceName"), LogLevel.Verbose)
-						'WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Subject is " & strSubject, LogLevel.Verbose)
-						'If InStr(strSubject, "NotesMail Probe Key=") And InStr(strSubject, row("DeviceName")) Then
-						'    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " This message should be deleted.", LogLevel.Verbose)
-						'End If
-					End If
+                            MyNotesMailProbe.IncrementUpCount()
+                            MyNotesMailProbe.Status = "OK"
+                            MyNotesMailProbe.ResponseDetails = " Found the test message in the Target database, it was delivered on time at: " & docMail.GetItemValue("DeliveredDate")(0)
+                            myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.Location)
+                            myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Late", MyNotesMailProbe.Location)
+                            'Update Stats Table
+                            Dim MyResponseTime As Integer
+                            MyResponseTime = Math.Abs(DeliveryTime.Seconds)
+                            '        WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" MyResponseTime=" & DeliveryTime.Seconds)
+                            If MyResponseTime = 0 Then
+                                '   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Somehow thought it was zero....")
+                                'If delivered in less than a second, set it to 1, to distinguish from failures, which get 0
+                                MyResponseTime = 1
+                            End If
+                            UpdateNotesMailStatistics(MyNotesMailProbe.ServerObjectID, "DeliveryTime.Seconds", MyResponseTime)
+                            MyResponseTime = Nothing
 
-					Try
-						'You can't delete a document then use it to get to the next document, so here I mark the previous document for deletion then go back and get it
+                        Else
+                            '      WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Delivered LATE")
 
-						If InStr(strSubject, "NotesMail Probe Key=") And InStr(strSubject, row("DeviceName")) Then
-							WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Deleting Obsolete NotesMail document " & strSubject)
-							'  docMail.Remove(True)
-						End If
-					Catch ex As Exception
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Exception deleting obsolete NotesMail document " & strSubject)
-					End Try
+                            entity.Status = "Late"
+                            entity.DeliveryTimeMinutes = MyNotesMailProbe.ResponseTime
+                            entity.ArrivalAtMailbox = DateTime.Parse(docMail.GetItemValue("DeliveredDate")(0))
+                            entity.Details = "Delivered LATE in " & MyResponse
 
-					' docPrevious = docMail
-					'docMail = Inbox.GetNextDocument(docMail)
-					entryMail = navInBox.GetPrevDocument(entryMail)
+                            MyNotesMailProbe.IncrementDownCount()
+                            myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Slow", "NotesMailProbe found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0), MyNotesMailProbe.Location)
 
-				End While
+                            MyNotesMailProbe.Status = "Delivered Late"
+                            MyNotesMailProbe.ResponseDetails = " Found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0)
+                            myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Slow", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
+                            'Update Stats Table
+                            UpdateNotesMailStatistics(MyNotesMailProbe.ServerObjectID, "DeliveryTime.Seconds", Math.Abs(DeliveryTime.Seconds))
+                        End If
 
-				oWatch.Stop()
+                        'Update the history table
+                        'myCommand.CommandText = strSQL
+                        'myCommand.ExecuteNonQuery()
+                        repository.Replace(entity)
+                        Exit While
+                    Else
+                        'WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " This email is not a match.", LogLevel.Verbose)
+                        'WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Checking to see if it is an old probe... if the subject contains " & row("DeviceName"), LogLevel.Verbose)
+                        'WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Subject is " & strSubject, LogLevel.Verbose)
+                        'If InStr(strSubject, "NotesMail Probe Key=") And InStr(strSubject, row("DeviceName")) Then
+                        '    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " This message should be deleted.", LogLevel.Verbose)
+                        'End If
+                    End If
 
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & "  Searched the inbox and examined " & counter & " documents. ")
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & "  Searched the inbox for " & oWatch.Elapsed.TotalMinutes.ToString("F1") & " minutes.")
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & "  Searched the inbox for " & oWatch.Elapsed.TotalSeconds.ToString("F1") & " seconds.")
-				'Document was not found in the target database if boolFoundMemo = False
-				'see if the delivery deadline has past
-				If boolFoundMemo = False Then
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Doc not found, checking deadline." & "It is now " & tNow.ToString & " and deadline was " & tScheduled.ToString)
-					If DateTime.Compare(tNow, tScheduled) > 0 Then
-						'deadline has past, document has not arrived.
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Deadline expired, mail has not arrived")
-						MyNotesMailProbe.IncrementDownCount()
-						MyNotesMailProbe.Status = "Failed"
-						MyNotesMailProbe.ResponseDetails = "The test message was not found in the target database, and the deadline has passed.  Sending another test message at " & MyNotesMailProbe.NextScan & "."
-						myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
+                    Try
+                        'You can't delete a document then use it to get to the next document, so here I mark the previous document for deletion then go back and get it
 
-						strSQL = "Update NotesMailProbeHistory Set Status='Failed', Details='Memo not found' WHERE ProbeID=" & row("ProbeID")
-						objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "servers", strSQL)
-					End If
-				Else
-					'deadline not expired yet
-					'  WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Deadline has not expired. ")
-				End If
-			Next
+                        If InStr(strSubject, "NotesMail Probe Key=") And InStr(strSubject, entity.DeviceName) Then
+                            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Deleting Obsolete NotesMail document " & strSubject)
+                            '  docMail.Remove(True)
+                        End If
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Exception deleting obsolete NotesMail document " & strSubject)
+                    End Try
+
+                    ' docPrevious = docMail
+                    'docMail = Inbox.GetNextDocument(docMail)
+                    entryMail = navInBox.GetPrevDocument(entryMail)
+
+                End While
 
 
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error in CheckNotesMailDeliveryTimes module:" & ex.Message & vbCrLf & strSQL)
-		End Try
+                oWatch.Stop()
+
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & "  Searched the inbox and examined " & counter & " documents. ")
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & "  Searched the inbox for " & oWatch.Elapsed.TotalMinutes.ToString("F1") & " minutes.")
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & "  Searched the inbox for " & oWatch.Elapsed.TotalSeconds.ToString("F1") & " seconds.")
+                'Document was not found in the target database if boolFoundMemo = False
+                'see if the delivery deadline has past
+                If boolFoundMemo = False Then
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Doc not found, checking deadline." & "It is now " & tNow.ToString & " and deadline was " & tScheduled.ToString)
+                    If DateTime.Compare(tNow, tScheduled) > 0 Then
+                        'deadline has past, document has not arrived.
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Deadline expired, mail has not arrived")
+                        MyNotesMailProbe.IncrementDownCount()
+                        MyNotesMailProbe.Status = "Failed"
+                        MyNotesMailProbe.ResponseDetails = "The test message was not found in the target database, and the deadline has passed.  Sending another test message at " & MyNotesMailProbe.NextScan & "."
+                        myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
+
+                        entity.Status = "Failed"
+                        entity.Details = "Memo not found"
+                        repository.Replace(entity)
+
+                    End If
+                Else
+                    'deadline not expired yet
+                    '  WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Deadline has not expired. ")
+                End If
+            Next
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error in CheckNotesMailDeliveryTimes module:" & ex.Message & vbCrLf & strSQL)
+
+        End Try
 
 Cleanup:
 
 
 		Try
-			dv.Dispose()
-			dsNotesMailHistory.Dispose()
+            listOfEntities = Nothing
 		Catch ex As Exception
 
 		End Try
@@ -1296,18 +1288,32 @@ Cleanup:
                      "', Name='" & .Name & _
                      "', Location='Mail Probe' " & _
                      "  WHERE TypeANDName='" & .Name & "-NotesMail Probe' "
-					'TypeANDName is the key
+                    'TypeANDName is the key
+
+                    Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-NotesMail Probe")
+                    Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                         .Set(Function(x) x.DownCount, .DownCount) _
+                                                                                         .Set(Function(x) x.CurrentStatus, .Status) _
+                                                                                         .Set(Function(x) x.UpPercent, .UpPercentCount) _
+                                                                                         .Set(Function(x) x.LastUpdated, GetFixedDateTime(.LastScan)) _
+                                                                                         .Set(Function(x) x.ResponseTime, Convert.ToInt32(.ResponseTime)) _
+                                                                                         .Set(Function(x) x.Details, .ResponseDetails) _
+                                                                                         .Set(Function(x) x.NextScan, .NextScan) _
+                                                                                         .Set(Function(x) x.StatusCode, .StatusCode) _
+                                                                                         .Set(Function(x) x.ResponseThreshold, Convert.ToInt32(.ResponseThreshold)) _
+                                                                                         .Set(Function(x) x.MyPercent, Percent * 100) _
+                                                                                         .Set(Function(x) x.Location, "Mail Probe")
+
+                    repository.Update(filterDef, updateDef)
+
+
+
 				End With
 			Catch ex As Exception
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error while creating NotesMail Probe SQL statement: " & ex.Message & vbCrLf & strSQL)
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error while executing NotesMail Probe update statement: " & ex.Message)
 			End Try
 
-			Try
-				'WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Sql:  " & strSQL)
-				objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-			Catch ex As Exception
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error updating status table with NotesMail Probe info: " & ex.Message & vbCrLf & strSQL)
-			End Try
 
 		Next
 
@@ -1324,47 +1330,49 @@ Cleanup:
 		GC.Collect()
 	End Sub
 
-	Private Sub UpdateNotesMailStatistics(ByVal ProbeName As String, ByVal StatName As String, ByVal StatValue As Double)
-		WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Updating NotesMail statistics table")
+    Private Sub UpdateNotesMailStatistics(ByVal ProbeID As String, ByVal StatName As String, ByVal StatValue As Double)
+        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Updating NotesMail statistics table")
 
-		'COMMENTED BY MUKUND 28Feb12
-		'Dim myConnection As New Data.OleDb.OleDbConnection
-		'myConnection.ConnectionString = Me.OleDbConnectionStatistics.ConnectionString
-		''   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" myConnection string is " & myConnection.ConnectionString)
+        'COMMENTED BY MUKUND 28Feb12
+        'Dim myConnection As New Data.OleDb.OleDbConnection
+        'myConnection.ConnectionString = Me.OleDbConnectionStatistics.ConnectionString
+        ''   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" myConnection string is " & myConnection.ConnectionString)
 
-		'Do While myConnection.State <> ConnectionState.Open
-		'    myConnection.Open()
-		'Loop
+        'Do While myConnection.State <> ConnectionState.Open
+        '    myConnection.Open()
+        'Loop
 
-		''     WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" myConnection state is " & myConnection.State.ToString)
-		'Dim myCommand As New OleDb.OleDbCommand
-		'myCommand.Connection = myConnection
+        ''     WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" myConnection state is " & myConnection.State.ToString)
+        'Dim myCommand As New OleDb.OleDbCommand
+        'myCommand.Connection = myConnection
 
-		'WRITTEN BY MUKUND 28Feb12
-		Dim objVSAdaptor As New VSAdaptor
+        'WRITTEN BY MUKUND 28Feb12
+        Dim objVSAdaptor As New VSAdaptor
 
-		Dim strSQL As String
-		Dim MyWeekNumber As Integer
-		MyWeekNumber = GetWeekNumber(Date.Today)
-		Try
-			strSQL = "INSERT INTO NotesMailStats (Name, [Date], StatName, StatValue )" & _
-			 " VALUES ('" & ProbeName & "', '" & Now.ToString & "', '" & StatName & "', '" & StatValue & "' )"
+        Dim strSQL As String
+        Dim MyWeekNumber As Integer
+        MyWeekNumber = GetWeekNumber(Date.Today)
+        Try
 
-			'myCommand.CommandText = strSQL
-			'myCommand.ExecuteNonQuery()
-			objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Stats table insert failed becase: " & ex.Message)
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " The failed stats table insert comand was " & strSQL)
-		Finally
-			'myConnection.Close()
-			'myConnection.Dispose()
-			'myCommand.Dispose()
-			strSQL = Nothing
-			MyWeekNumber = Nothing
-		End Try
-		GC.Collect()
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            Dim entity As New VSNext.Mongo.Entities.DailyStatistics With {
+                .DeviceId = ProbeID,
+                .StatName = StatName,
+                .StatValue = StatValue
+            }
 
-	End Sub
+            repository.Insert(entity)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Stats table insert failed becase: " & ex.Message)
+        Finally
+            'myConnection.Close()
+            'myConnection.Dispose()
+            'myCommand.Dispose()
+            strSQL = Nothing
+            MyWeekNumber = Nothing
+        End Try
+        GC.Collect()
+
+    End Sub
 
 End Class

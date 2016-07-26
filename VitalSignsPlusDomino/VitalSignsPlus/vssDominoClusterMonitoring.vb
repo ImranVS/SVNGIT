@@ -8,6 +8,8 @@ Imports System.Collections.Generic
 Imports System.Text
 Imports System.Runtime.Serialization.Json
 Imports System.Runtime.Serialization
+Imports MongoDB.Driver
+Imports MongoDB.Bson
 
 Partial Public Class VitalSignsPlusDomino
 
@@ -60,8 +62,12 @@ Partial Public Class VitalSignsPlusDomino
                     '3/28/2016 NS added for VSPLUS-2629
                     Dim strSQL As String
                     myCluster.Status = "Scanning"
-                    strSQL = "Update Status SET Status='" & myCluster.Status & "' WHERE TypeANDName='" & myCluster.Name & "-Domino Cluster database'"
-                    UpdateStatusTable(strSQL)
+
+
+                    Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                    Dim filterDef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, myCluster.Name + "-Domino Cluster database")
+                    Dim updateDef As MongoDB.Driver.UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.CurrentStatus, myCluster.Status)
+                    repository.Update(filterDef, updateDef)
 
                     Do While CollectClusterInformation(myCluster) = False
                         RetryCount += 1
@@ -96,7 +102,7 @@ ThreadSleep:
         End Try
     End Sub
 
-	Private Function SelectDominoClusterToMonitor() As MonitoredItems.DominoMailCluster
+    Private Function SelectDominoClusterToMonitor() As MonitoredItems.DominoMailCluster
         WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Selecting a Domino Cluster for monitoring >>>>")
         If myDominoClusters.Count = 0 Then
             WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " No clusters found. Exiting SelectDominoClusterToMonitor...")
@@ -106,36 +112,36 @@ ThreadSleep:
             WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " Found " & myDominoClusters.Count.ToString() & " clusters", LogUtilities.LogUtils.LogLevel.Verbose)
         End If
 
-		Dim tNow As DateTime
-		tNow = Now
-		Dim tScheduled As DateTime
+        Dim tNow As DateTime
+        tNow = Now
+        Dim tScheduled As DateTime
 
-		Dim timeOne, timeTwo As DateTime
+        Dim timeOne, timeTwo As DateTime
 
-		Dim SelectedServer As MonitoredItems.DominoMailCluster
+        Dim SelectedServer As MonitoredItems.DominoMailCluster
 
-		Dim ServerOne As MonitoredItems.DominoMailCluster
-		Dim ServerTwo As MonitoredItems.DominoMailCluster
+        Dim ServerOne As MonitoredItems.DominoMailCluster
+        Dim ServerTwo As MonitoredItems.DominoMailCluster
 
-		Dim n As Integer
+        Dim n As Integer
 
-		'this for/next loop is for debug, disable later
-		'  For n = 0 To myDominoClusters.Count - 1
-		'ServerOne = myDominoClusters.Item(n)
-		'   WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " >>> " & ServerOne.Name & " scheduled for " & ServerOne.NextScan & " and status is " & ServerOne.Status)
-		'  Next
+        'this for/next loop is for debug, disable later
+        '  For n = 0 To myDominoClusters.Count - 1
+        'ServerOne = myDominoClusters.Item(n)
+        '   WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " >>> " & ServerOne.Name & " scheduled for " & ServerOne.NextScan & " and status is " & ServerOne.Status)
+        '  Next
 
 
-		Dim strSQL As String = ""
-		Dim ServerType As String = "DominoCluster"
-		Dim serverName As String = ""
+        Dim strSQL As String = ""
+        Dim ServerType As String = "DominoCluster"
+        Dim serverName As String = ""
 
-		Try
+        Try
             strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
             Dim ds As New DataSet()
-			ds.Tables.Add("ScanASAP")
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+            ds.Tables.Add("ScanASAP")
+            Dim objVSAdaptor As New VSAdaptor
+            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
             For Each row As DataRow In ds.Tables("ScanASAP").Rows
                 WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Found clusters to scan immediately. ", LogUtilities.LogUtils.LogLevel.Verbose)
@@ -160,16 +166,16 @@ ThreadSleep:
                 Next
             Next
 
-		Catch ex As Exception
+        Catch ex As Exception
             WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error executing a SQL query while selecting a Domino server... " & ex.Message)
-		End Try
+        End Try
 
 
 
-		'Any server Not Scanned can be scanned right away.  Select the first one you encounter
-		For n = 0 To myDominoClusters.Count - 1
-			Try
-				ServerOne = myDominoClusters.Item(n)
+        'Any server Not Scanned can be scanned right away.  Select the first one you encounter
+        For n = 0 To myDominoClusters.Count - 1
+            Try
+                ServerOne = myDominoClusters.Item(n)
                 If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
                     WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
                     Return ServerOne
@@ -177,147 +183,147 @@ ThreadSleep:
                 Else
                     WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> " & ServerOne.Name & " - " & ServerOne.Status, LogUtilities.LogUtils.LogLevel.Verbose)
                 End If
-			Catch ex As Exception
+            Catch ex As Exception
                 WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error Selecting Domino server... " & ex.Message)
-			End Try
+            End Try
 
-		Next
+        Next
 
-		'start with the first two servers
-		ServerOne = myDominoClusters.Item(0)
-		If myDominoClusters.Count > 1 Then ServerTwo = myDominoClusters.Item(1)
+        'start with the first two servers
+        ServerOne = myDominoClusters.Item(0)
+        If myDominoClusters.Count > 1 Then ServerTwo = myDominoClusters.Item(1)
 
-		'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-		If myDominoClusters.Count > 2 Then
-			Try
-				For n = 2 To myDominoClusters.Count - 1
-					'             WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " N is " & n)
-					timeOne = CDate(ServerOne.NextScan)
-					timeTwo = CDate(ServerTwo.NextScan)
-					If DateTime.Compare(timeOne, timeTwo) < 0 Then
-						'time one is earlier than time two, so keep server 1
-						ServerTwo = myDominoClusters.Item(n)
-					Else
-						'time two is later than time one, so keep server 2
-						ServerOne = myDominoClusters.Item(n)
-					End If
-				Next
-			Catch ex As Exception
+        'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+        If myDominoClusters.Count > 2 Then
+            Try
+                For n = 2 To myDominoClusters.Count - 1
+                    '             WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " N is " & n)
+                    timeOne = CDate(ServerOne.NextScan)
+                    timeTwo = CDate(ServerTwo.NextScan)
+                    If DateTime.Compare(timeOne, timeTwo) < 0 Then
+                        'time one is earlier than time two, so keep server 1
+                        ServerTwo = myDominoClusters.Item(n)
+                    Else
+                        'time two is later than time one, so keep server 2
+                        ServerOne = myDominoClusters.Item(n)
+                    End If
+                Next
+            Catch ex As Exception
                 WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error Selecting Domino server... " & ex.Message)
-			End Try
-		Else
+            End Try
+        Else
             WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> There are only two servers, proceeding ... ", LogUtilities.LogUtils.LogLevel.Verbose)
-		End If
+        End If
 
-		'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+        'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
 
-		'Of the two remaining servers, pick the one with earliest scheduled time for next scan
-		If Not (ServerTwo Is Nothing) Then
-			timeOne = CDate(ServerOne.NextScan)
-			timeTwo = CDate(ServerTwo.NextScan)
+        'Of the two remaining servers, pick the one with earliest scheduled time for next scan
+        If Not (ServerTwo Is Nothing) Then
+            timeOne = CDate(ServerOne.NextScan)
+            timeTwo = CDate(ServerTwo.NextScan)
             WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Time 1: " & timeOne.ToShortTimeString() & ", Time 2: " & timeTwo.ToShortTimeString(), LogUtilities.LogUtils.LogLevel.Verbose)
-			If DateTime.Compare(timeOne, timeTwo) < 0 Then
-				'time one is earlier than time two, so keep server 1
-				SelectedServer = ServerOne
-				tScheduled = CDate(ServerOne.NextScan)
-			Else
-				SelectedServer = ServerTwo
-				tScheduled = CDate(ServerTwo.NextScan)
-			End If
-			tNow = Now
+            If DateTime.Compare(timeOne, timeTwo) < 0 Then
+                'time one is earlier than time two, so keep server 1
+                SelectedServer = ServerOne
+                tScheduled = CDate(ServerOne.NextScan)
+            Else
+                SelectedServer = ServerTwo
+                tScheduled = CDate(ServerTwo.NextScan)
+            End If
+            tNow = Now
             WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status, LogUtilities.LogUtils.LogLevel.Verbose)
-		Else
-			SelectedServer = ServerOne
-			tScheduled = CDate(ServerOne.NextScan)
-		End If
+        Else
+            SelectedServer = ServerOne
+            tScheduled = CDate(ServerOne.NextScan)
+        End If
 
         tScheduled = CDate(SelectedServer.NextScan)
         WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> tScheduled: " & tScheduled.ToShortTimeString(), LogUtilities.LogUtils.LogLevel.Verbose)
-		If DateTime.Compare(tNow, tScheduled) < 0 Then
-			If SelectedServer.Status <> "Not Scanned" Then
+        If DateTime.Compare(tNow, tScheduled) < 0 Then
+            If SelectedServer.Status <> "Not Scanned" Then
                 WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " No Domino clusters scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-				SelectedServer = Nothing
-			Else
+                SelectedServer = Nothing
+            Else
                 WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " selected Domino cluster: " & SelectedServer.Name & " because it has not been scanned yet.")
-			End If
-		Else
+            End If
+        Else
             WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " selected Domino cluster: " & SelectedServer.Name)
-		End If
+        End If
 
-		'Release Memory
-		tNow = Nothing
-		tScheduled = Nothing
-		n = Nothing
+        'Release Memory
+        tNow = Nothing
+        tScheduled = Nothing
+        n = Nothing
 
-		timeOne = Nothing
-		timeTwo = Nothing
+        timeOne = Nothing
+        timeTwo = Nothing
 
-		ServerOne = Nothing
-		ServerTwo = Nothing
+        ServerOne = Nothing
+        ServerTwo = Nothing
 
-		'return selected server
-		SelectDominoClusterToMonitor = SelectedServer
-		'Exit Function
-		SelectedServer = Nothing
+        'return selected server
+        SelectDominoClusterToMonitor = SelectedServer
+        'Exit Function
+        SelectedServer = Nothing
     End Function
 
-	Private Function LockOrReleaseDominoServerForScan(ByRef ServerName As String, ByRef ClusterName As String, ByVal Release As Boolean) As Boolean
+    Private Function LockOrReleaseDominoServerForScan(ByRef ServerName As String, ByRef ClusterName As String, ByVal Release As Boolean) As Boolean
         Dim myDominoServer As MonitoredItems.DominoServer
-		Try
-			MyDominoServer = MyDominoServers.Search(ServerName)
+        Try
+            MyDominoServer = MyDominoServers.Search(ServerName)
             WriteDeviceHistoryEntry("Domino_Cluster", ClusterName, Now.ToString & " Server   " & ServerName & " is requested for Release = " & Release)
-		Catch ex As Exception
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", ClusterName, Now.ToString & " Exception Server   " & ServerName & " is requested for Release = " & Release)
-		End Try
+        End Try
 
-		Try
-			If MyDominoServer Is Nothing Then
-				Exit Function
-			End If
-		Catch ex As Exception
+        Try
+            If MyDominoServer Is Nothing Then
+                Exit Function
+            End If
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		If Release Then
-			MyDominoServer.IsBeingScanned = False
+        If Release Then
+            MyDominoServer.IsBeingScanned = False
             WriteDeviceHistoryEntry("Domino_Cluster", ClusterName, Now.ToString & " Lock is released for server   " & ServerName)
-			Exit Function
-		End If
+            Exit Function
+        End If
 
-		While True
-			If MyDominoServer.IsBeingScanned Then
-				Thread.Sleep(1000)
-				Continue While
-			Else
-				' Locking the Domino Server to be scanned. 
-				MyDominoServer.IsBeingScanned = True
+        While True
+            If MyDominoServer.IsBeingScanned Then
+                Thread.Sleep(1000)
+                Continue While
+            Else
+                ' Locking the Domino Server to be scanned. 
+                MyDominoServer.IsBeingScanned = True
                 WriteDeviceHistoryEntry("Domino_Cluster", ClusterName, Now.ToString & " Lock is Acquired for server   " & ServerName)
-				Return True
-				Exit While
-			End If
-		End While
+                Return True
+                Exit While
+            End If
+        End While
 
-	End Function
+    End Function
 
-	Private Function CollectClusterInformation(ByRef Cluster As MonitoredItems.DominoMailCluster) As Boolean
+    Private Function CollectClusterInformation(ByRef Cluster As MonitoredItems.DominoMailCluster) As Boolean
         WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Entered module to collect cluster information.")
-		CollectClusterInformation = True
+        CollectClusterInformation = True
 
-		Dim mySession As New Domino.NotesSession
-		Dim dbDir As Domino.NotesDbDirectory
-		Dim db As Domino.NotesDatabase
-		Dim collection As Domino.NotesDocumentCollection
+        Dim mySession As New Domino.NotesSession
+        Dim dbDir As Domino.NotesDbDirectory
+        Dim db As Domino.NotesDatabase
+        Dim collection As Domino.NotesDocumentCollection
 
-		Dim ServerALock As Boolean = False
-		Dim ServerBLock As Boolean = False
-		Dim ServerCLock As Boolean = False
+        Dim ServerALock As Boolean = False
+        Dim ServerBLock As Boolean = False
+        Dim ServerCLock As Boolean = False
 
         '6/22/2015 NS added for VSPLUS-1475
         Dim NotesSystemMessageString As String = "Incorrect Notes Password."
-		Try
-			mySession.Initialize(MyDominoPassword)
+        Try
+            mySession.Initialize(MyDominoPassword)
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString + " Initialized a session for " & mySession.CommonUserName)
-		Catch ex As Exception
+        Catch ex As Exception
             '6/22/2015 NS added for VSPLUS-1475
             System.Runtime.InteropServices.Marshal.ReleaseComObject(mySession)
             myAlert.QueueSysMessage(NotesSystemMessageString)
@@ -327,81 +333,81 @@ ThreadSleep:
             WriteAuditEntry(Now.ToString & " The VitalSigns Master service should restart the monitoring service in a few moments.")
             KillNotes()
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString + ": Error creating NotesSession in CollectClusterInformation module " & ex.Message)
-			GoTo ReleaseCOMObjects
-		End Try
+            GoTo ReleaseCOMObjects
+        End Try
 
-		Dim myDatabaseCollection As MonitoredItems.DominoMailClusterDatabaseCollection = Cluster.DatabaseCollection
-		Dim myClusterDatabase As MonitoredItems.DominoMailClusterDatabase
-		Dim ServerCount As Integer	'the number of servers in this cluster-- if all are up, then the cluster is up
+        Dim myDatabaseCollection As MonitoredItems.DominoMailClusterDatabaseCollection = Cluster.DatabaseCollection
+        Dim myClusterDatabase As MonitoredItems.DominoMailClusterDatabase
+        Dim ServerCount As Integer  'the number of servers in this cluster-- if all are up, then the cluster is up
 
-		If Cluster.Server_C_Name = "" Then
-			ServerCount = 2
-		Else
-			ServerCount = 3
-		End If
+        If Cluster.Server_C_Name = "" Then
+            ServerCount = 2
+        Else
+            ServerCount = 3
+        End If
 
-		Dim ServerUpCount As Integer = 0
+        Dim ServerUpCount As Integer = 0
 
-		'loop through all the databases on Server A
-		Try
-			'Get a lock before you start the scan.
-			ServerALock = LockOrReleaseDominoServerForScan(Cluster.Server_A_Name, Cluster.Name, False)
-			dbDir = mySession.GetDbDirectory(Cluster.Server_A_Name)
-		Catch ex As Exception
+        'loop through all the databases on Server A
+        Try
+            'Get a lock before you start the scan.
+            ServerALock = LockOrReleaseDominoServerForScan(Cluster.Server_A_Name, Cluster.Name, False)
+            dbDir = mySession.GetDbDirectory(Cluster.Server_A_Name)
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Error: Domino Cluster Monitoring routine failed to initiate NotesdbDirectory on " & Cluster.Server_A_Name & ": " & ex.Message)
-			Cluster.IncrementDownCount()
-			' Cluster.Status = "Server Down"
-			Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_A_Name & " is not responding."
-			GoTo ReleaseCOMObjects
-		End Try
+            Cluster.IncrementDownCount()
+            ' Cluster.Status = "Server Down"
+            Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_A_Name & " is not responding."
+            GoTo ReleaseCOMObjects
+        End Try
 
-		If dbDir Is Nothing Then
-			Cluster.IncrementDownCount()
-			' Cluster.Status = "Server Down"
-			Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_A_Name & " is not responding."
-			GoTo ReleaseCOMObjects
-		End If
+        If dbDir Is Nothing Then
+            Cluster.IncrementDownCount()
+            ' Cluster.Status = "Server Down"
+            Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_A_Name & " is not responding."
+            GoTo ReleaseCOMObjects
+        End If
 
-		Try
-			db = dbDir.GetFirstDatabase(Domino.DB_TYPES.NOTES_DATABASE)
-		Catch ex As Exception
+        Try
+            db = dbDir.GetFirstDatabase(Domino.DB_TYPES.NOTES_DATABASE)
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Error: Domino Cluster Monitoring CountMailboxes routine failed to access the first database: " & ex.Message)
-			Cluster.IncrementDownCount()
-			'  Cluster.Status = "Server Down"
-			Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_A_Name & " is not responding."
-			Cluster.LastScan = Now.AddMinutes(-30)
-			GoTo ReleaseCOMObjects
-		End Try
+            Cluster.IncrementDownCount()
+            '  Cluster.Status = "Server Down"
+            Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_A_Name & " is not responding."
+            Cluster.LastScan = Now.AddMinutes(-30)
+            GoTo ReleaseCOMObjects
+        End Try
 
-		'  WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " looping through databases for server A - " & Cluster.Server_A_Name & ", matching all databases with : '" & Cluster.Server_A_Directory & "' ")
-		ServerUpCount += 1 'add one to the server up count for this cluster
-		Dim dbPathlist As New Generic.List(Of String)
+        '  WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " looping through databases for server A - " & Cluster.Server_A_Name & ", matching all databases with : '" & Cluster.Server_A_Directory & "' ")
+        ServerUpCount += 1 'add one to the server up count for this cluster
+        Dim dbPathlist As New Generic.List(Of String)
 
-		Try
-			If db Is Nothing Then
-				GoTo ReleaseComObjects
-			End If
+        Try
+            If db Is Nothing Then
+                GoTo ReleaseComObjects
+            End If
 
-			While Not (db Is Nothing)
-				dbPathlist.Add(db.FilePath)
+            While Not (db Is Nothing)
+                dbPathlist.Add(db.FilePath)
                 WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Adding " & db.FilePath)
-				db = dbDir.GetNextDatabase()
-			End While
+                db = dbDir.GetNextDatabase()
+            End While
 
-		Catch ex As Exception
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception getting all the file paths: " & ex.ToString)
-			Cluster.LastScan = Now.AddMinutes(-30)
-			GoTo ReleaseComObjects
-		End Try
+            Cluster.LastScan = Now.AddMinutes(-30)
+            GoTo ReleaseComObjects
+        End Try
 
-		Try
+        Try
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases in it.")
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
+        End Try
 
 
-		Try
+        Try
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " **********************************************************")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " *** Analyzing  Cluster Health for server #1: " & Cluster.Server_A_Name & ", matching all databases with : '" & Cluster.Server_A_Directory & "' ")
@@ -410,24 +416,24 @@ ThreadSleep:
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
 
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
+        End Try
 
 
-		Dim filePath As String = ""
-		Dim myFilePath As String = ""
+        Dim filePath As String = ""
+        Dim myFilePath As String = ""
 
-		Try
+        Try
 
-			For Each filePath In dbPathlist
-				Try
+            For Each filePath In dbPathlist
+                Try
                     WriteAuditEntry(Now.ToString & " Attempting to open  " & Cluster.Server_A_Name & " - " & filePath, LogLevel.Verbose)
-					db = mySession.GetDatabase(Cluster.Server_A_Name, filePath)
-				Catch ex As Exception
-					WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
-					GoTo SkipDatabase
-				End Try
+                    db = mySession.GetDatabase(Cluster.Server_A_Name, filePath)
+                Catch ex As Exception
+                    WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
+                    GoTo SkipDatabase
+                End Try
 
                 '9/10/2015 NS added for VSPLUS-2126
                 Try
@@ -460,11 +466,11 @@ ThreadSleep:
                 'Catch ex As Exception
                 '                WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
                 'End Try
-				' WriteAuditEntry(Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
+                ' WriteAuditEntry(Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
 
-				If InStr(myFilePath, Cluster.Server_A_Directory.ToUpper, CompareMethod.Text) Then
-					'  WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_A_Name)
-					' WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_A_Name)
+                If InStr(myFilePath, Cluster.Server_A_Directory.ToUpper, CompareMethod.Text) Then
+                    '  WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_A_Name)
+                    ' WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_A_Name)
                     Try
                         '9/10/2015 NS modified for VSPLUS-2126
                         myClusterDatabase = Nothing
@@ -480,9 +486,9 @@ ThreadSleep:
                         myClusterDatabase = Nothing
                     End Try
 
-					If myClusterDatabase Is Nothing Then
-						Dim myNewClusterDatabase As New MonitoredItems.DominoMailClusterDatabase
-						'  WriteAuditEntry(Now.ToString & " This database is not yet in the cluster, adding.")
+                    If myClusterDatabase Is Nothing Then
+                        Dim myNewClusterDatabase As New MonitoredItems.DominoMailClusterDatabase
+                        '  WriteAuditEntry(Now.ToString & " This database is not yet in the cluster, adding.")
                         Try
                             '9/10/2015 NS modified for VSPLUS-2126
                             If Not db Is Nothing Then
@@ -513,9 +519,9 @@ ThreadSleep:
                         Catch ex As Exception
                             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception opening database summary information for cluster analysis: " & ex.Message)
                         End Try
-						'    WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " " & db.Title & " replica ID is  " & db.ReplicaID)
+                        '    WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " " & db.Title & " replica ID is  " & db.ReplicaID)
 
-						Try
+                        Try
                             ' WriteAuditEntry(Now.ToString & " Getting document info...")
                             '9/10/2015 NS modified for VSPLUS-2126
                             If Not db Is Nothing Then
@@ -546,8 +552,8 @@ ThreadSleep:
                             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception adding database to collection for analysis: " & ex.Message)
                         End Try
 
-					Else
-						' WriteAuditEntry(Now.ToString & " This database is already in the cluster, updating.")
+                    Else
+                        ' WriteAuditEntry(Now.ToString & " This database is already in the cluster, updating.")
                         Try
                             '9/10/2015 NS modified for VSPLUS-2126
                             If Not db Is Nothing Then
@@ -589,21 +595,21 @@ ThreadSleep:
                             ' collection = Nothing
                         End Try
 
-					End If
-				End If
+                    End If
+                End If
 
-				dtDominoLastUpdate = Now
+                dtDominoLastUpdate = Now
 SkipDatabase:
-			Next
+            Next
 
-		Catch ex As Exception
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " General exception during cluster analysis at point A: " & ex.Message)
-		End Try
+        End Try
 
-		'******************************************
-		'loop through all the databases on Server B
-		'******************************************
-		Try
+        '******************************************
+        'loop through all the databases on Server B
+        '******************************************
+        Try
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
@@ -614,72 +620,72 @@ SkipDatabase:
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
 
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		'   WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " looping through databases for server B - " & Cluster.Server_B_Name & " directory: " & Cluster.Server_B_Directory)
-		If Cluster.Server_B_Name = "" Then
-			GoTo ReleaseCOMObjects
-		End If
+        '   WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " looping through databases for server B - " & Cluster.Server_B_Name & " directory: " & Cluster.Server_B_Directory)
+        If Cluster.Server_B_Name = "" Then
+            GoTo ReleaseCOMObjects
+        End If
 
-		Try
-			ServerBLock = LockOrReleaseDominoServerForScan(Cluster.Server_B_Name, Cluster.Name, False)
-			dbDir = mySession.GetDbDirectory(Cluster.Server_B_Name)
-		Catch ex As Exception
+        Try
+            ServerBLock = LockOrReleaseDominoServerForScan(Cluster.Server_B_Name, Cluster.Name, False)
+            dbDir = mySession.GetDbDirectory(Cluster.Server_B_Name)
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Error: Domino Cluster Monitoring routine failed to initiate NotesdbDirectory on " & Cluster.Server_B_Name & ": " & ex.Message)
-			Cluster.IncrementDownCount()
-			'  Cluster.Status = "Server Down"
-			Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_B_Name & " is not responding."
+            Cluster.IncrementDownCount()
+            '  Cluster.Status = "Server Down"
+            Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_B_Name & " is not responding."
 
-			GoTo ReleaseCOMObjects
-		End Try
+            GoTo ReleaseCOMObjects
+        End Try
 
-		If dbDir Is Nothing Then
-			Cluster.IncrementDownCount()
-			' Cluster.Status = "Server Down"
-			GoTo ReleaseCOMObjects
-		End If
+        If dbDir Is Nothing Then
+            Cluster.IncrementDownCount()
+            ' Cluster.Status = "Server Down"
+            GoTo ReleaseCOMObjects
+        End If
 
-		Try
-			db = dbDir.GetFirstDatabase(Domino.DB_TYPES.NOTES_DATABASE)
-		Catch ex As Exception
+        Try
+            db = dbDir.GetFirstDatabase(Domino.DB_TYPES.NOTES_DATABASE)
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Error: Domino Cluster Monitoring  routine failed to access the first database: " & ex.Message)
-			Cluster.IncrementDownCount()
-			'Cluster.Status = "Server Down"
-			Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_B_Name & " is not responding."
-			GoTo ReleaseCOMObjects
-		End Try
+            Cluster.IncrementDownCount()
+            'Cluster.Status = "Server Down"
+            Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_B_Name & " is not responding."
+            GoTo ReleaseCOMObjects
+        End Try
 
-		ServerUpCount += 1 'add one to the server up count for this cluster
+        ServerUpCount += 1 'add one to the server up count for this cluster
 
-		Try
-			If db Is Nothing Then
-				GoTo ReleaseComObjects
-			End If
-			'Remove all the prior items
-			dbPathlist.Clear()
-			While Not (db Is Nothing)
-				dbPathlist.Add(db.FilePath)
-				db = dbDir.GetNextDatabase()
-			End While
+        Try
+            If db Is Nothing Then
+                GoTo ReleaseComObjects
+            End If
+            'Remove all the prior items
+            dbPathlist.Clear()
+            While Not (db Is Nothing)
+                dbPathlist.Add(db.FilePath)
+                db = dbDir.GetNextDatabase()
+            End While
 
-		Catch ex As Exception
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception getting all the file paths: " & ex.ToString)
-			GoTo ReleaseComObjects
-		End Try
+            GoTo ReleaseComObjects
+        End Try
 
         WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases in it.")
-		
-		Try
-			For Each filePath In dbPathlist
-				Try
+
+        Try
+            For Each filePath In dbPathlist
+                Try
                     WriteAuditEntry(Now.ToString & " Attempting to open  " & Cluster.Server_B_Name & " - " & filePath, LogLevel.Verbose)
-					db = mySession.GetDatabase(Cluster.Server_B_Name, filePath)
-				Catch ex As Exception
-					WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
-					GoTo SkipDatabase2
-				End Try
+                    db = mySession.GetDatabase(Cluster.Server_B_Name, filePath)
+                Catch ex As Exception
+                    WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
+                    GoTo SkipDatabase2
+                End Try
 
                 '9/10/2015 NS commented out for VSPLUS-2126
                 'Try
@@ -712,10 +718,10 @@ SkipDatabase:
                     myFilePath = ""
                 End Try
 
-				If InStr(myFilePath, Cluster.Server_B_Directory.ToUpper, CompareMethod.Text) Then
-					'     WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
-					'    WriteAuditEntry(Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath)
-					Try
+                If InStr(myFilePath, Cluster.Server_B_Directory.ToUpper, CompareMethod.Text) Then
+                    '     WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
+                    '    WriteAuditEntry(Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath)
+                    Try
                         '9/10/2015 NS modified for VSPLUS-2126
                         myClusterDatabase = Nothing
                         If Not db Is Nothing Then
@@ -732,9 +738,9 @@ SkipDatabase:
                         WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception accessing information about the database: " & ex.Message)
                     End Try
 
-					If myClusterDatabase Is Nothing Then
+                    If myClusterDatabase Is Nothing Then
                         WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " This database was NOT found on " & Cluster.Server_A_Name, LogUtilities.LogUtils.LogLevel.Verbose)
-						Dim myNewClusterDatabase As New MonitoredItems.DominoMailClusterDatabase
+                        Dim myNewClusterDatabase As New MonitoredItems.DominoMailClusterDatabase
                         Try
                             If Not db Is Nothing Then
                                 If db.IsOpen() Then
@@ -794,11 +800,11 @@ SkipDatabase:
                             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception adding database to collection for analysis: " & ex.Message)
                         End Try
 
-					Else
-						Try
+                    Else
+                        Try
                             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " This database HAS already been found on " & Cluster.Server_A_Name, LogUtilities.LogUtils.LogLevel.Verbose)
-							' myClusterDatabase.ReplicaID = db.ReplicaID
-							' myClusterDatabase.Database_Title = db.Title
+                            ' myClusterDatabase.ReplicaID = db.ReplicaID
+                            ' myClusterDatabase.Database_Title = db.Title
                             '   myClusterDatabase.Database_FileName = db.FilePath
                             myClusterDatabase.Server_B_Comment = ""
                             If Not db Is Nothing Then
@@ -809,9 +815,9 @@ SkipDatabase:
                             Else
                                 myClusterDatabase.Server_B_Size = 0
                             End If
-						Catch ex As Exception
+                        Catch ex As Exception
                             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception: " & ex.Message)
-						End Try
+                        End Try
                         Try
                             '9/10/2015 NS modified for VSPLUS-2126
                             If Not db Is Nothing Then
@@ -832,7 +838,7 @@ SkipDatabase:
                             myClusterDatabase.Server_B_Comment = ex.Message
                         End Try
 
-					End If
+                    End If
                 End If
                 '9/10/2015 NS commented out for VSPLUS-2126
                 'Try
@@ -850,25 +856,25 @@ SkipDatabase:
                 'End Try
 
 SkipDatabase2:
-			Next
-		Catch ex As Exception
+            Next
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " General exception during cluster analysis at point B: " & ex.Message)
-		End Try
+        End Try
 
-		If ServerCount = ServerUpCount Then
-			Cluster.IncrementUpCount()
-			Cluster.Status = "OK"
-		End If
+        If ServerCount = ServerUpCount Then
+            Cluster.IncrementUpCount()
+            Cluster.Status = "OK"
+        End If
 
-		'**********************************************************
-		'loop through all the databases on Server C, if defined
-		'***********************************************************
+        '**********************************************************
+        'loop through all the databases on Server C, if defined
+        '***********************************************************
 
-		If Cluster.Server_C_Name = "" Then
-			GoTo ReleaseCOMObjects
-		End If
+        If Cluster.Server_C_Name = "" Then
+            GoTo ReleaseCOMObjects
+        End If
 
-		Try
+        Try
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " **********************************************************")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " *** Analyzing  Cluster Health for server #3: " & Cluster.Server_C_Name & ", matching all databases with : '" & Cluster.Server_C_Directory & "' ")
@@ -877,70 +883,70 @@ SkipDatabase2:
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " ")
 
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
+        End Try
 
 
-		Try
-			ServerCLock = LockOrReleaseDominoServerForScan(Cluster.Server_C_Name, Cluster.Name, False)
-			dbDir = mySession.GetDbDirectory(Cluster.Server_C_Name)
-		Catch ex As Exception
+        Try
+            ServerCLock = LockOrReleaseDominoServerForScan(Cluster.Server_C_Name, Cluster.Name, False)
+            dbDir = mySession.GetDbDirectory(Cluster.Server_C_Name)
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Error: Domino Cluster Monitoring routine failed to initiate NotesdbDirectory on " & Cluster.Server_C_Name & ": " & ex.Message)
-			Cluster.IncrementDownCount()
-			' Cluster.Status = "Server Down"
-			Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_C_Name & " is not responding."
-			GoTo ReleaseCOMObjects
-		End Try
+            Cluster.IncrementDownCount()
+            ' Cluster.Status = "Server Down"
+            Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_C_Name & " is not responding."
+            GoTo ReleaseCOMObjects
+        End Try
 
-		Try
-			If dbDir Is Nothing Then
-				Cluster.IncrementDownCount()
-				'  Cluster.Status = "Server Down"
-				GoTo ReleaseCOMObjects
-			End If
-		Catch ex As Exception
+        Try
+            If dbDir Is Nothing Then
+                Cluster.IncrementDownCount()
+                '  Cluster.Status = "Server Down"
+                GoTo ReleaseCOMObjects
+            End If
+        Catch ex As Exception
 
-		End Try
+        End Try
 
 
-		Try
-			db = dbDir.GetFirstDatabase(Domino.DB_TYPES.NOTES_DATABASE)
-		Catch ex As Exception
+        Try
+            db = dbDir.GetFirstDatabase(Domino.DB_TYPES.NOTES_DATABASE)
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Error: Domino Cluster Monitoring CountMailboxes routine failed to access the first database: " & ex.Message)
-			'   Cluster.Status = "Server Down"
-			Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_C_Name & " is not responding."
-			GoTo ReleaseCOMObjects
-		End Try
+            '   Cluster.Status = "Server Down"
+            Cluster.ResponseDetails = "Domino server cluster member " & Cluster.Server_C_Name & " is not responding."
+            GoTo ReleaseCOMObjects
+        End Try
 
-		ServerUpCount += 1 'add one to the server up count for this cluster
-		Try
-			If db Is Nothing Then
-				GoTo ReleaseComObjects
-			End If
-			'Start with fresh data only for this server
-			dbPathlist.Clear()
-			While Not (db Is Nothing)
-				dbPathlist.Add(db.FilePath)
-				db = dbDir.GetNextDatabase()
-			End While
+        ServerUpCount += 1 'add one to the server up count for this cluster
+        Try
+            If db Is Nothing Then
+                GoTo ReleaseComObjects
+            End If
+            'Start with fresh data only for this server
+            dbPathlist.Clear()
+            While Not (db Is Nothing)
+                dbPathlist.Add(db.FilePath)
+                db = dbDir.GetNextDatabase()
+            End While
 
-		Catch ex As Exception
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception getting all the file paths: " & ex.ToString)
-			GoTo ReleaseComObjects
-		End Try
+            GoTo ReleaseComObjects
+        End Try
 
         WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases in it.")
-		
-		Try
-			For Each filePath In dbPathlist
-				Try
+
+        Try
+            For Each filePath In dbPathlist
+                Try
                     WriteAuditEntry(Now.ToString & " Attempting to open  " & Cluster.Server_C_Name & " - " & filePath, LogLevel.Verbose)
-					db = mySession.GetDatabase(Cluster.Server_C_Name, filePath)
-				Catch ex As Exception
-					WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
-					GoTo SkipDatabase3
-				End Try
+                    db = mySession.GetDatabase(Cluster.Server_C_Name, filePath)
+                Catch ex As Exception
+                    WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
+                    GoTo SkipDatabase3
+                End Try
 
                 '9/10/2015 NS commented out for VSPLUS-2126
                 'Try
@@ -973,10 +979,10 @@ SkipDatabase2:
                 Catch ex As Exception
                     myFilePath = ""
                 End Try
-				'    WriteAuditEntry(Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
+                '    WriteAuditEntry(Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
 
-				If InStr(myFilePath, Cluster.Server_C_Directory.ToUpper, CompareMethod.Text) Then
-					' WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
+                If InStr(myFilePath, Cluster.Server_C_Directory.ToUpper, CompareMethod.Text) Then
+                    ' WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
                     '   myClusterDatabase = myDatabaseCollection.Search(db.ReplicaID)
                     '9/10/2015 NS modified for VSPLUS-2126
                     myClusterDatabase = Nothing
@@ -1105,66 +1111,66 @@ SkipDatabase2:
 SkipDatabase3:
             Next
 
-		Catch ex As Exception
+        Catch ex As Exception
             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " General exception during cluster analysis at point C: " & ex.Message)
-		End Try
+        End Try
 
-		If ServerCount = ServerUpCount Then
-			Cluster.IncrementUpCount()
-			Cluster.Status = "OK"
-		End If
+        If ServerCount = ServerUpCount Then
+            Cluster.IncrementUpCount()
+            Cluster.Status = "OK"
+        End If
 
-		If CollectClusterInformation = False Then
-			Cluster.Status = "Incomplete Analysis"
-		End If
+        If CollectClusterInformation = False Then
+            Cluster.Status = "Incomplete Analysis"
+        End If
 
 ReleaseCOMObjects:
-		Try
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-		Catch ex As Exception
+        Try
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		Try
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
-		Catch ex As Exception
+        Try
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(dbDir)
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		Try
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(collection)
-		Catch ex As Exception
+        Try
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(collection)
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		Try
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(mySession)
-		Catch ex As Exception
+        Try
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(mySession)
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		Try
-			If ServerALock Then
-				LockOrReleaseDominoServerForScan(Cluster.Server_A_Name, Cluster.Name, True)
-			End If
-		Catch ex As Exception
-		End Try
-		Try
-			If ServerBLock Then
-				LockOrReleaseDominoServerForScan(Cluster.Server_B_Name, Cluster.Name, True)
-			End If
-		Catch ex As Exception
+        Try
+            If ServerALock Then
+                LockOrReleaseDominoServerForScan(Cluster.Server_A_Name, Cluster.Name, True)
+            End If
+        Catch ex As Exception
+        End Try
+        Try
+            If ServerBLock Then
+                LockOrReleaseDominoServerForScan(Cluster.Server_B_Name, Cluster.Name, True)
+            End If
+        Catch ex As Exception
 
-		End Try
-		Try
-			If ServerCLock Then
-				LockOrReleaseDominoServerForScan(Cluster.Server_C_Name, Cluster.Name, True)
-			End If
-		Catch ex As Exception
+        End Try
+        Try
+            If ServerCLock Then
+                LockOrReleaseDominoServerForScan(Cluster.Server_C_Name, Cluster.Name, True)
+            End If
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-	End Function
+    End Function
     Private Sub AnalyzeClusterInformation(ByRef Cluster As MonitoredItems.DominoMailCluster)
         If Cluster.Status = "Server Down" Then Exit Sub
         '5/6/2016 NS added
@@ -1191,7 +1197,7 @@ ReleaseCOMObjects:
         Dim proceed As Boolean
         For Each db As MonitoredItems.DominoMailClusterDatabase In myDatabaseCollection
             proceed = ProceedWithDBProcessing(db, Cluster)
-            
+
             Dim ReplicaCount As Integer = 0
             If db.Server_A_Size <> 0 Then
                 ReplicaCount += 1
@@ -1310,7 +1316,7 @@ ReleaseCOMObjects:
             If Cluster.Status = "Server Down" Then Exit Sub
             Dim myDatabaseCollection As MonitoredItems.DominoMailClusterDatabaseCollection = Cluster.DatabaseCollection
             ' Remove Cluster details for the Cluster ID. 
-            cleanUpClusterDetailedTable(Cluster.ClusterID)
+            cleanUpClusterDetailedTable(Cluster.Name)
 
             '4/20/2016 NS added for VSPLUS-2724
             Dim proceed As Boolean
@@ -1346,13 +1352,13 @@ ReleaseCOMObjects:
                 WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Title = ------- " & dbtitle & " ----------")
                 If proceed Then
                     '9/30/2015 NS modified for VSPLUS-2150
-                    UpdateClusterDataTable(Cluster.ClusterID, dbtitle, db.Database_FileName, db.Server_A_Doc_Count, db.Server_B_Doc_Count,
+                    UpdateClusterDataTable(Cluster.Name, dbtitle, db.Database_FileName, db.Server_A_Doc_Count, db.Server_B_Doc_Count,
                                            db.Server_C_Doc_Count, db.Server_A_Size / 1024 / 1024, db.Server_B_Size / 1024 / 1024,
                                            db.Server_C_Size / 1024 / 1024, myComment, DateTime.Now(), db.ReplicaID)
                 Else
                     WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " The database " & db.Database_Title & " (" & db.Database_FileName & ") qualifies for one of the exclusion criteria. It will not be reported.")
                 End If
-                
+
             Next
         Catch ex As Exception
             'Mukund 31Oct14:VSPLUS-1130,Unhandled exception in CreateClusterReport (as per error in IMG_30102014_111430.png shared)
@@ -1402,73 +1408,73 @@ ReleaseCOMObjects:
         End If
         Return proceed
     End Function
-	Private Sub UpdateDominoClusterStatusTable(ByRef MyDominoCluster As MonitoredItems.DominoMailCluster)
+    Private Sub UpdateDominoClusterStatusTable(ByRef MyDominoCluster As MonitoredItems.DominoMailCluster)
 
-		'*************************************************************
-		'Update the Status Table with Cluster Information
-		'*************************************************************
-		Dim strSQL As String
-		Dim StatusDetails As String
+        '*************************************************************
+        'Update the Status Table with Cluster Information
+        '*************************************************************
+        Dim strSQL As String
+        Dim StatusDetails As String
 
-		Try
-			If MyLogLevel = LogLevel.Verbose Then
+        Try
+            If MyLogLevel = LogLevel.Verbose Then
                 WriteDeviceHistoryEntry("Domino_Cluster", MyDominoCluster.Name, Now.ToString & " %% Entered UpdateDominoStatusTable for " & MyDominoCluster.Name)
                 WriteDeviceHistoryEntry("Domino_Cluster", MyDominoCluster.Name, Now.ToString & " Status Details for " & MyDominoCluster.Name & " are " & MyDominoCluster.ResponseDetails)
-			End If
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Error logging StatusDetails String: " & ex.Message)
-		End Try
+            End If
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error logging StatusDetails String: " & ex.Message)
+        End Try
 
-		Try
-			'   WriteAuditEntry(Now.ToString & " Response Details: " & MyDominoServer.ResponseDetails)
-			If MyDominoCluster.ResponseDetails <> "" Or MyDominoCluster.ResponseDetails <> " " Then
-				StatusDetails = MyDominoCluster.ResponseDetails
-			Else
-				StatusDetails = "No databases in this cluster are affected by problems with Cluster Replication"
-				'  StatusDetails = "Pending: " & MyDominoServer.PendingMail & vbCrLf & " Dead: " & MyDominoServer.DeadMail & vbCrLf & " Users: " & MyDominoCluster.UserCount
-			End If
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Error creating StatusDetails String: " & ex.Message)
-		End Try
+        Try
+            '   WriteAuditEntry(Now.ToString & " Response Details: " & MyDominoServer.ResponseDetails)
+            If MyDominoCluster.ResponseDetails <> "" Or MyDominoCluster.ResponseDetails <> " " Then
+                StatusDetails = MyDominoCluster.ResponseDetails
+            Else
+                StatusDetails = "No databases in this cluster are affected by problems with Cluster Replication"
+                '  StatusDetails = "Pending: " & MyDominoServer.PendingMail & vbCrLf & " Dead: " & MyDominoServer.DeadMail & vbCrLf & " Users: " & MyDominoCluster.UserCount
+            End If
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error creating StatusDetails String: " & ex.Message)
+        End Try
 
-		Try
-			If InStr(StatusDetails, "'") > 0 Then
-				StatusDetails = StatusDetails.Replace("'", "")
-			End If
+        Try
+            If InStr(StatusDetails, "'") > 0 Then
+                StatusDetails = StatusDetails.Replace("'", "")
+            End If
 
-			Dim Quote As Char
-			Quote = Chr(34)
+            Dim Quote As Char
+            Quote = Chr(34)
 
-			If InStr(StatusDetails, Quote) > 0 Then
-				StatusDetails = StatusDetails.Replace(Quote, "~")
-			End If
+            If InStr(StatusDetails, Quote) > 0 Then
+                StatusDetails = StatusDetails.Replace(Quote, "~")
+            End If
 
-		Catch ex As Exception
-			StatusDetails = "No databases in this cluster are affected by problems with Cluster Replication"
-		End Try
+        Catch ex As Exception
+            StatusDetails = "No databases in this cluster are affected by problems with Cluster Replication"
+        End Try
 
-		If MyDominoCluster.Status = "Disabled" Then
-			StatusDetails = "This cluster is not enabled for monitoring."
-		End If
+        If MyDominoCluster.Status = "Disabled" Then
+            StatusDetails = "This cluster is not enabled for monitoring."
+        End If
 
-		If MyDominoCluster.Status = "Maintenance" Then
-			StatusDetails = "This server cluster is in a scheduled maintenance period.  Monitoring is temporarily disabled."
-		End If
+        If MyDominoCluster.Status = "Maintenance" Then
+            StatusDetails = "This server cluster is in a scheduled maintenance period.  Monitoring is temporarily disabled."
+        End If
 
-		If MyDominoCluster.Status = "Not Scanned" Then
-			StatusDetails = "This cluster has not been scanned yet."
-		End If
+        If MyDominoCluster.Status = "Not Scanned" Then
+            StatusDetails = "This cluster has not been scanned yet."
+        End If
 
-		Try
-			'Update the status table
+        Try
+            'Update the status table
 
-			Dim Percent As Double
-			Try
-				Percent = MyDominoCluster.TotalDatabasesInError / MyDominoCluster.TotalDatabases
-			Catch ex As Exception
-				Percent = 0
-			End Try
-			WriteAuditEntry(Now.ToString & " Domino Cluster " & MyDominoCluster.Name & " percent of databases in error  =" & (Percent * 100).ToString & "%", LogLevel.Verbose)
+            Dim Percent As Double
+            Try
+                Percent = MyDominoCluster.TotalDatabasesInError / MyDominoCluster.TotalDatabases
+            Catch ex As Exception
+                Percent = 0
+            End Try
+            WriteAuditEntry(Now.ToString & " Domino Cluster " & MyDominoCluster.Name & " percent of databases in error  =" & (Percent * 100).ToString & "%", LogLevel.Verbose)
             Dim myLocation As String = ""
 
             With MyDominoCluster
@@ -1498,92 +1504,41 @@ ReleaseCOMObjects:
 
                 'If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Updating Cluster status with " & vbCrLf & strSQL)
 
+
+                Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim filterDef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-Domino Cluster database")
+                Dim updateDef As MongoDB.Driver.UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                                    .Set(Function(x) x.Name, .Name) _
+                                                                                                    .Set(Function(x) x.CurrentStatus, .Status) _
+                                                                                                    .Set(Function(x) x.Type, "Domino Cluster database") _
+                                                                                                    .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
+                                                                                                    .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan)) _
+                                                                                                    .Set(Function(x) x.Details, .ResponseDetails) _
+                                                                                                    .Set(Function(x) x.Category, .Category) _
+                                                                                                    .Set(Function(x) x.DownCount, .DownCount) _
+                                                                                                    .Set(Function(x) x.UpCount, .UpCount) _
+                                                                                                    .Set(Function(x) x.UpPercent, .UpPercentCount) _
+                                                                                                    .Set(Function(x) x.Description, myLocation) _
+                                                                                                    .Set(Function(x) x.UserCount, Convert.ToInt32(.TotalDatabasesInError)) _
+                                                                                                    .Set(Function(x) x.DeadMail, Convert.ToInt32(.TotalDatabasesInError))
+                repository.Upsert(filterDef, updateDef)
+
+
             End With
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Error in Domino cluster module creating SQL statement for status table: " & ex.Message)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error in Domino cluster module creating SQL statement for status table: " & ex.Message)
             WriteDeviceHistoryEntry("Domino_Cluster", MyDominoCluster.Name, Now.ToString & " Error in Domino Cluster module creating SQL statement for status table: " & ex.Message)
-		End Try
+        Finally
+            WriteAuditEntry("Next scan scheduled : " & MyDominoCluster.NextScan, LogLevel.Verbose)
+        End Try
 
+        Try
+            GC.Collect()
+        Catch ex As Exception
 
+        End Try
 
-		'COMMENTED BY MUKUND 28Feb12
-		'If boolUseSQLServer = True Then
+    End Sub
 
-		'    Dim myCommand As New Data.SqlClient.SqlCommand
-		'    myCommand.Connection = SqlConnectionVitalSigns
-		'    myCommand.CommandText = strSQL
-		'    myCommand.Dispose()
-		'Else
-		'    Dim myCommand As New OleDb.OleDbCommand
-		'    Dim myConnection As New OleDb.OleDbConnection
-		'    'Dim myAdapter As New OleDb.OleDbDataAdapter
-
-		'    With myConnection
-		'        .ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & myPath
-		'        .Open()
-		'    End With
-
-		'    Do Until myConnection.State = ConnectionState.Open
-		'        myConnection.Open()
-		'    Loop
-
-		'    '***
-
-		'    'Save it to the Access database
-		'    If myConnection.State = ConnectionState.Open Then
-		'        Try
-		'            myCommand.CommandText = strSQL
-		'            myCommand.Connection = myConnection
-		'            myCommand.ExecuteNonQuery()
-
-		'        Catch ex As Exception
-		'            WriteDeviceHistoryEntry("Domino Cluster", MyDominoCluster.Name, Now.ToString & " Error in Domino Cluster module updating status table: " & ex.Message)
-
-		'        End Try
-
-		'        'If myCommand.ExecuteNonQuery = 0 Then
-		'        '    'server wasn't in the status table, perhaps because it was previously disabled
-		'        '    'WriteAuditEntry(Now.ToString & " Update Failed because it affected 0 records")
-		'        '    With MyDominoServer
-		'        '        strSQL = "INSERT INTO Status (Category, DeadMail, Description, Details, DownCount,  Location, Name, MailDetails, PendingMail, Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon) " & _
-		'        '           " VALUES ('" & .Category & "', " & .DeadMail & ", '" & .Description & "', ' ', " & .DownCount & ", '" & .Location & "', '" & .Name & "', 'Mail Details', " & .PendingMail & ", '" & .Status & "',  " & _
-		'        '        "'Domino Server', " & .UpCount & ", " & .UpPercentCount & ", '" & Now & "', '0' , '" & .Name & "-Domino', " & IconList.DominoServer & ")"
-		'        '    End With
-		'        '    myCommand.CommandText = strSQL
-		'        '    myCommand.ExecuteNonQuery()
-		'        '    '  OleDbDataAdapterStatus.InsertCommand.CommandText = strSQL
-		'        '    ' OleDbDataAdapterStatus.InsertCommand.ExecuteNonQuery()
-		'        'End If
-		'    End If
-
-
-		'    myConnection.Close()
-		'    myCommand.Dispose()
-		'    myConnection.Dispose()
-		'    strSQL = ""
-		'End If
-
-		Try
-
-			'WRITTEN BY MUKUND 28Feb12
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Error updating Status table with Domino Cluster info: " & ex.Message & vbCrLf & "SQL Statement: " & strSQL)
-		Finally
-			'  MyDominoServer.LastScan = Now.ToString
-			'   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Updated  Domino Status Table with " & strSQL)
-
-			WriteAuditEntry("Next scan scheduled : " & MyDominoCluster.NextScan, LogLevel.Verbose)
-		End Try
-
-		Try
-			GC.Collect()
-		Catch ex As Exception
-
-		End Try
-
-	End Sub
 
 End Class

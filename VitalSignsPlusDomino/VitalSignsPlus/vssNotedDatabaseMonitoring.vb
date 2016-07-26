@@ -8,7 +8,7 @@ Imports System.Collections.Generic
 Imports System.Text
 Imports System.Runtime.Serialization.Json
 Imports System.Runtime.Serialization
-
+Imports MongoDB.Driver
 Partial Public Class VitalSignsPlusDomino
 
 #Region "Notes Database Monitoring"
@@ -666,7 +666,7 @@ Partial Public Class VitalSignsPlusDomino
 							' db = Nothing
 							'  WriteAuditEntry(Now.ToString & " Database Response Time has finished.")
 						End Try
-						UpdateNDBStatisticsTable(MyNotesDatabase.Name, MyNotesDatabase.ResponseTime)
+                        UpdateNDBStatisticsTable(MyNotesDatabase.ServerObjectID, MyNotesDatabase.ResponseTime)
 
 					Case "Refresh All Views"
 						Dim start, done, hits As Long
@@ -764,7 +764,7 @@ Partial Public Class VitalSignsPlusDomino
 						Catch ex As Exception
 							MyNotesDatabase.ResponseTime = 1
 						End Try
-						UpdateNDBStatisticsTable(MyNotesDatabase.Name, MyNotesDatabase.ResponseTime)
+                        UpdateNDBStatisticsTable(MyNotesDatabase.ServerObjectID, MyNotesDatabase.ResponseTime)
 				End Select
 			End If
 
@@ -842,46 +842,43 @@ Partial Public Class VitalSignsPlusDomino
 
 	End Sub
 
-	Private Sub UpdateNDBStatisticsTable(ByVal DeviceName As String, ByVal ResponseTime As Long)
-		WriteAuditEntry(Now.ToString & " Updating Notes Database statistics table")
-		'COMMENTED BY MUKUND 28Feb12
-		'Dim myConnection As New Data.OleDb.OleDbConnection
-		'myConnection.ConnectionString = Me.OleDbConnectionStatistics.ConnectionString
-		'' WriteAuditEntry(Now.ToString & " myConnection string is " & myConnection.ConnectionString)
+    Private Sub UpdateNDBStatisticsTable(ByVal DeviceId As String, ByVal ResponseTime As Long)
+        WriteAuditEntry(Now.ToString & " Updating Notes Database statistics table")
+        'COMMENTED BY MUKUND 28Feb12
+        'Dim myConnection As New Data.OleDb.OleDbConnection
+        'myConnection.ConnectionString = Me.OleDbConnectionStatistics.ConnectionString
+        '' WriteAuditEntry(Now.ToString & " myConnection string is " & myConnection.ConnectionString)
 
-		'Do While myConnection.State <> ConnectionState.Open
-		'    myConnection.Open()
-		'Loop
+        'Do While myConnection.State <> ConnectionState.Open
+        '    myConnection.Open()
+        'Loop
 
-		''   WriteAuditEntry(Now.ToString & " myConnection state is " & myConnection.State.ToString)
-		'Dim myCommand As New OleDb.OleDbCommand
-		'myCommand.Connection = myConnection
+        ''   WriteAuditEntry(Now.ToString & " myConnection state is " & myConnection.State.ToString)
+        'Dim myCommand As New OleDb.OleDbCommand
+        'myCommand.Connection = myConnection
 
-		'WRITTEN BY MUKUND 28Feb12
-		Dim objVSAdaptor As New VSAdaptor
+        'WRITTEN BY MUKUND 28Feb12
 
-		Dim strSQL As String
-		Dim MyWeekNumber As Integer
-		MyWeekNumber = GetWeekNumber(Now.Today)
-		Try
-			strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-			   " VALUES ('Notes Database', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
+        Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            Dim entity As New VSNext.Mongo.Entities.DailyStatistics() With {
+                .DeviceId = DeviceId,
+                .StatName = "ResponseTime",
+                .StatValue = ResponseTime}
 
-			'myCommand.CommandText = strSQL
-			'myCommand.ExecuteNonQuery()
-			objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Notes Database Stats table insert failed becase: " & ex.Message)
-			WriteAuditEntry(Now.ToString & " The failed stats table insert command was " & strSQL)
-		Finally
-			'myConnection.Close()
-			'myConnection.Dispose()
-			'myCommand.Dispose()
-		End Try
+            repository.Insert(entity)
 
-		GC.Collect()
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Notes Database Stats table insert failed becase: " & ex.Message)
+        Finally
+            'myConnection.Close()
+            'myConnection.Dispose()
+            'myCommand.Dispose()
+        End Try
 
-	End Sub
+        GC.Collect()
+
+    End Sub
 
 	Private Sub UpdateStatusTableNotesDB(ByRef MyNotesDatabase As MonitoredItems.NotesDatabase, ByVal Percent As Double)
 		Dim strSQL As String
@@ -934,6 +931,30 @@ Partial Public Class VitalSignsPlusDomino
             "', Name='" & MyNotesDatabase.Name & "' " & _
             ", Location='" & MyNotesDatabase.Location & "' " & _
             " WHERE TypeANDName='" & MyNotesDatabase.Name & "-Notes Database'"
+
+            Dim MyNotesDatabase2 = MyNotesDatabase
+
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = MyNotesDatabase2.Name & "-Notes Database")
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                 .Set(Function(x) x.DownCount, .DownCount) _
+                                                                                 .Set(Function(x) x.CurrentStatus, .Status) _
+                                                                                 .Set(Function(x) x.UpCount, .UpCount) _
+                                                                                 .Set(Function(x) x.UpPercent, .UpPercentCount) _
+                                                                                 .Set(Function(x) x.Details, .ResponseDetails) _
+                                                                                 .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
+                                                                                 .Set(Function(x) x.StatusCode, .StatusCode) _
+                                                                                 .Set(Function(x) x.SoftwareVersion, .ServerName) _
+                                                                                 .Set(Function(x) x.DominoServerTasksStatus, .FileName) _
+                                                                                 .Set(Function(x) x.ResponseTime, Convert.ToInt32(.ResponseTime)) _
+                                                                                 .Set(Function(x) x.NextScan, .NextScan) _
+                                                                                 .Set(Function(x) x.ResponseThreshold, Convert.ToInt32(.ResponseThreshold)) _
+                                                                                 .Set(Function(x) x.Description, .Description) _
+                                                                                 .Set(Function(x) x.MyPercent, Percent) _
+                                                                                 .Set(Function(x) x.Name, .Name) _
+                                                                                 .Set(Function(x) x.Location, .Location)
+
+            repository.Update(filterDef, updateDef)
 
 		End With
 
