@@ -9,9 +9,10 @@ foreach ($db in $databases){
  $name = $db.Name 
  $Size = $("{0:f2}" -f ($db.DatabaseSize.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2)
  $whiteSpace = $("{0:f2}" -f ($db.AvailableNewMailboxSpace.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2)
- $mbxs = Get-MailboxStatistics -Database "$db" | Where {$_.DisconnectDate -eq $null} | Measure-Object
+ $mailboxes = Get-MailboxStatistics -Database "$db"
+ $mbxs = $mailboxes | Where {$_.DisconnectDate -eq $null} | Measure-Object
  #number of disconnected mailboxes 
- $mbxs_disc = Get-MailboxStatistics -Database "$db" | Where {$_.DisconnectDate -ne $null} | Measure-Object
+ $mbxs_disc = $mailboxes | Where {$_.DisconnectDate -ne $null} | Measure-Object
  #$mbcount = [int]$mbxs + [int]$mbxs_disc
 
  $tmp = New-Object System.Object

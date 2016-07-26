@@ -773,7 +773,7 @@ namespace VitalSignsMicrosoftClasses
 
                        MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.TypeAndName, myServer.TypeANDName) 
-                           & mongoUpdate.repo.Filter.ElemMatch(i => i.DagServers, i => i.DAGServerName != strDatabase);
+                           & !mongoUpdate.repo.Filter.ElemMatch(i => i.DagServers, i => i.DAGServerName == strDatabase);
                        VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases()
                        {
                             DatabaseName = strDatabase

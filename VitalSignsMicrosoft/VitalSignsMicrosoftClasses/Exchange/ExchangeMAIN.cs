@@ -2204,12 +2204,76 @@ namespace VitalSignsMicrosoftClasses
                 Thread DAGHourly = new Thread(() =>
                 {
 
+                    if (myDagCollection != null)
+                    {
+                        foreach (MonitoredItems.ExchangeServer myServer in myDagCollection)
+                        {
+                            string cmdlets = "-CommandName Get-MailboxDatabase,Get-MailboxStatistics";
+                            
+                            ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGPrimaryUserName, myServer.DAGPrimaryPassword, myServer.ServerType, myServer.DAGPrimaryIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGPrimaryAuthenticationType);
+
+                            string Version = "";
+                            string IPAddress = "";
+
+                            if (results.Connected == false)
+                            {
+                                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to primary server.  Will attempt backup", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                results.Dispose();
+                                results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGBackupUserName, myServer.DAGBackupPassword, myServer.ServerType, myServer.DAGBackupIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGBackupAuthenticationType);
+                                IPAddress = myServer.DAGBackupIPAddress;
+                                Version = myExchangeServers.SearchByIPAddress(IPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(IPAddress).VersionNo;
+                            }
+                            else
+                            {
+
+                                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Connected to primary server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                IPAddress = myServer.DAGPrimaryIPAddress;
+                                Version = myExchangeServers.SearchByIPAddress(IPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(IPAddress).VersionNo;
+
+                            }
+
+                            if (results.Connected == false)
+                            {
+                                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to backup server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                results.Dispose();
+                                return;
+                            }
+                            else
+                            {
+                                TestResults AllTestResults = new TestResults();
+
+                                getMailboxDatabaseDetails(myServer, results.PS, ref AllTestResults, Version, DummyServerForLogs.Name);
+
+                                GC.Collect();
+
+                                Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
+
+                                CommonDB DB = new CommonDB();
+                                DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                            }
+
+                        }
+
+                    }
+
+
+
+
+
+
+                    /*
+
                     int newestVersion = -1;
                     MonitoredItems.ExchangeServer myServer = null;
                     if (myDagCollection != null)
                     {
                         foreach (MonitoredItems.ExchangeServer server in myDagCollection)
                         {
+
+
+
+
+
                             if(server.Status == "Not Responding")
                                 continue;
 
@@ -2232,6 +2296,11 @@ namespace VitalSignsMicrosoftClasses
 
                     if (myServer != null)
                     {
+
+
+
+
+
                         Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + myServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
                         TestResults AllTestResults = new TestResults();
@@ -2272,6 +2341,7 @@ namespace VitalSignsMicrosoftClasses
                     {
                         //no server was found to be used to scan
                     }
+                     * */
                 });
                 DAGHourly.CurrentCulture = c;
                 DAGHourly.IsBackground = true;
@@ -2396,7 +2466,7 @@ namespace VitalSignsMicrosoftClasses
 
         #region DAG
 
-        private void getMailboxDatabaseDetails(MonitoredItems.ExchangeServer Server, PowerShell powershell, ref TestResults AllTestResults, string serverVersionNo, string DummyServerName, MonitoredItems.ExchangeServersCollection MyExchangeServers)
+        private void getMailboxDatabaseDetails(MonitoredItems.ExchangeServer Server, PowerShell powershell, ref TestResults AllTestResults, string serverVersionNo, string DummyServerName)
         {
             try
             {
@@ -2407,8 +2477,8 @@ namespace VitalSignsMicrosoftClasses
                 DataTable dt = db.GetData(SqlStr);
 
                 Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "In getMailboxDatabaseDetails.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                string ServerNames = "'" + String.Join("','", MyExchangeServers.Cast<MonitoredItems.ExchangeServer>().ToArray().Select(s => s.Name).ToList()) + "'";
-
+                string ServerNames = "'" + String.Join("','", myExchangeServers.Cast<MonitoredItems.ExchangeServer>().ToArray().Select(s => s.Name).ToList()) + "'";
+                
                 System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
                 System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_MailBoxReportByTotalSize&Count.ps1");
                 string startOfScript = "$databases = Get-MailboxDatabase -IncludePreExchange" + serverVersionNo + " -status | sort name\n";
@@ -2443,7 +2513,7 @@ namespace VitalSignsMicrosoftClasses
 
                         MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
                         mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.TypeAndName, DagName + "-" + "Database Availability Group") 
-                            & mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
+                            & !mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
                         VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases()
                         {
                             DatabaseName = DatabaseName
@@ -2452,10 +2522,9 @@ namespace VitalSignsMicrosoftClasses
                         AllTestResults.MongoEntity.Add(mongoUpdate);         
 
                         mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == DagName + "-" + "Database Availability Group") & mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
+                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == DagName.ToString() + "-Database Availability Group") & mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
                         mongoUpdate.updateDef = mongoUpdate.repo.Updater
                             .Set(i => i.DagDatabases[-1].ConnectedMailboxCount, Convert.ToInt32(Mbcount))
-                            .Set(i => i.DagDatabases[-1].DatabaseName, DatabaseName)
                             .Set(i => i.DagDatabases[-1].DisconnectedMailboxCount, Convert.ToInt32(MBXsdisc))
                             .Set(i => i.DagDatabases[-1].MailboxCount, Convert.ToInt32(MBXs))
                             .Set(i => i.DagDatabases[-1].SizeMB, Convert.ToDouble(SizeMB))
@@ -2464,9 +2533,9 @@ namespace VitalSignsMicrosoftClasses
                         AllTestResults.MongoEntity.Add(mongoUpdate);
                         
                         if(myDagCollection.SearchByName(DagName) != null)
-                            AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(myDagCollection.SearchByName(DagName), "ExDatabaseSizeMb." + DatabaseName, SizeMB));
+                            AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "ExDatabaseSizeMb." + DatabaseName, SizeMB));
 
-
+                        /*
                         //alerts
                         if (dt.Rows.Count > 0 && dt.Rows[0]["DatabaseName"].ToString() != "NoAlerts")
                         {
@@ -2477,7 +2546,7 @@ namespace VitalSignsMicrosoftClasses
                             {
                                 try
                                 {
-                                    MonitoredItems.ExchangeServer currServer = MyExchangeServers.SearchByName(ServerName);
+                                    MonitoredItems.ExchangeServer currServer = myExchangeServers.SearchByName(ServerName);
 
                                     if (currServer != null)
                                     {
@@ -2526,7 +2595,7 @@ namespace VitalSignsMicrosoftClasses
                                             Common.makeAlert(false, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
                                         else
                                             Common.makeAlert(true, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
-                                         */
+                                         
                                     }
                                 }
                                 catch (Exception ex)
@@ -2536,7 +2605,7 @@ namespace VitalSignsMicrosoftClasses
                         }
 
 
-
+                        */
 
                     }
                     foreach (MonitoredItems.ExchangeServer currServer in dict.Keys)
@@ -3370,7 +3439,7 @@ namespace VitalSignsMicrosoftClasses
 
 		private MonitoredItems.ExchangeServer SetDAGSettings(MonitoredItems.ExchangeServer MyExchangeServer, DataRow DR)
 		{
-
+            MyExchangeServer.ServerId = DR["ID"].ToString();
 			MyExchangeServer.Name = DR["ServerName"].ToString();
 			MyExchangeServer.Location = DR["Location"].ToString();
 			MyExchangeServer.ScanInterval = int.Parse(DR["ScanInterval"].ToString());
