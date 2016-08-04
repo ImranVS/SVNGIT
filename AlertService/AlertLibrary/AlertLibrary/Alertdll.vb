@@ -11,6 +11,7 @@ Imports VSNext.Mongo.Repository
 
 
 
+
 Public Class Alertdll
 
 #Region "Declarations"
@@ -73,6 +74,7 @@ Public Class Alertdll
         AlertsRepeatOccurrences = 0
         Try
             '12/17/2014 NS modified for VSPLUS-1267
+
             AlertsRepeatOn = Boolean.Parse(getSettings("AlertsRepeatOn"))
         Catch ex As Exception
             WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error getting AlertsRepeatOn option from the Settings table:  " & ex.ToString)
@@ -241,39 +243,22 @@ Public Class Alertdll
         End Try
     End Sub
     Public Function getSettings(ByVal sname As String) As String
-        '12/17/2014 NS modified for VSPLUS-1267
-        Dim myConnectionString As New VSFramework.XMLOperation
-        Dim myAdapter As New VSFramework.VSAdaptor
         Dim str As String = ""
+        Dim connString As String = GetDBConnection()
+        Dim repoNameValue As New Repository(Of NameValue)(connString)
+        Dim filterNameValue As MongoDB.Driver.FilterDefinition(Of NameValue)
+        Dim nameValueEntity() As NameValue
 
         Try
-            Dim sqlQuery As String = "Select svalue from Settings where sname='" & sname & "'"
-            Dim dt As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlQuery)
-            If dt.Rows.Count > 0 Then
-                str = dt.Rows(0)("svalue").ToString()
+            filterNameValue = repoNameValue.Filter.Eq(Of String)(Function(j) j.Name, sname)
+            nameValueEntity = repoNameValue.Find(filterNameValue).ToArray()
+            If nameValueEntity.Length > 0 Then
+                str = nameValueEntity(0).Value.ToString()
             End If
         Catch ex As Exception
-            WriteDeviceHistoryEntry("All", "Alerts", Now.ToString & " Error occurred at the time of getting value of " & sname & " from Settings Table " & ex.Message)
+            WriteDeviceHistoryEntry("All", "Alerts", Now.ToString & " Error occurred at the time of getting value of " & sname & " from the name_value collection " & ex.Message)
         End Try
-
         Return str
-    End Function
-    Private Function GetMaxAlertsQueuedToday(ByVal con As SqlConnection) As Integer
-        '12/17/2014 NS added for VSPLUS-1267
-        Dim myConnectionString As New VSFramework.XMLOperation
-        Dim myAdapter As New VSFramework.VSAdaptor
-        Dim iRetVal As Integer = 0
-        Dim dailyCountSetting As String = ""
-        '12/17/2014 NS modified for VSPLUS-1267
-        Try
-            dailyCountSetting = getSettings("DailyAlertCountSetting")
-            If dailyCountSetting <> "" Then
-                iRetVal = Convert.ToInt32(dailyCountSetting)
-            End If
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("All", "Alerts", Now.ToString & " Error getting DailyAlertCountSetting option from the Settings table:  " & ex.ToString)
-        End Try
-        Return iRetVal
     End Function
     Public Sub ResetAlert(ByVal DeviceType As String, ByVal DeviceName As String, ByVal AlertType As String, ByVal Location As String,
      Optional ByVal Details As String = "", Optional ByVal Category As String = "")
@@ -283,9 +268,13 @@ Public Class Alertdll
         Dim NowTime As String = objDateUtils.FixDateTime(Date.Now, strDateFormat)
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
+        Dim repoServers As New Repository(Of Server)(connString)
+        Dim repoOutages As New Repository(Of Outages)(connString)
         Dim filterDefEvents As MongoDB.Driver.FilterDefinition(Of EventsDetected)
+        Dim filterServers As MongoDB.Driver.FilterDefinition(Of Server)
         Dim updateDefEvents As MongoDB.Driver.UpdateDefinition(Of EventsDetected)
         Dim eventsEntity() As EventsDetected
+        Dim servers() As Server
         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Received notice to reset alert for " & DeviceType & "/" & DeviceName & ": " & AlertType)
 
         Try
@@ -304,6 +293,15 @@ Public Class Alertdll
                 End Try
                 If AlertType = "Not Responding" Then
                     'OUTAGES
+                    WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update started: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                    filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Function(j) j.ServerName, DeviceName),
+                                                           repoServers.Filter.Eq(Function(j) j.ServerType, DeviceType))
+                    servers = repoServers.Find(filterServers).ToArray()
+                    If servers.Length > 0 Then
+                        Dim outages As New Outages With {.DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
+                        repoOutages.Insert(outages)
+                        WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                    End If
                 End If
             End If
             'VSPLUS-930,Mukund, 15Sep14 pass Category, Details parameters
