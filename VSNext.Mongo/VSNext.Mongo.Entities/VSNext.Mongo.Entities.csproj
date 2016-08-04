@@ -67,6 +67,7 @@
     <Compile Include="MobileDevices.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="O365Heath.cs" />
+    <Compile Include="Outages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="ServerType.cs" />
