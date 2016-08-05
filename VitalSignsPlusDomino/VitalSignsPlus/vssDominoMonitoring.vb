@@ -5004,8 +5004,15 @@ skipdrive2:
 
                             Catch ex As Exception
                                 'Exception reading the Routing State 
-                                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception processing " & MailboxName & ":  " & ex.ToString)
-                            End Try
+                                'Alert would be queued as 'Mailbox: mail2.box' for example
+                                If Not (InStr(ex.ToString, "Entry not found") > 0) And Not (InStr(ex.ToString, "Domino.IView.GetNextDocument")) Then
+                                    'if the error is that we cannot get from one document to another because the router is deleting them 
+                                    'so quickly, it is safe to assume that the router is OK, and no need to queue an alert
+                                    ' VSPLUS-3145
+                                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
+                                    MyDominoServer.Description = "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble."
+                                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception processing " & MailboxName & ":  " & ex.ToString)
+               End Try
 
                         End While
                     Catch ex2 As Exception
