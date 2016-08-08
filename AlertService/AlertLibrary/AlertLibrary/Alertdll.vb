@@ -208,8 +208,8 @@ Public Class Alertdll
 
         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Updating status_details for " & DeviceName & ", " & DeviceType, LogLevel.Verbose)
         Try
-            filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.ServerName, DeviceName) And
-                repoServer.Filter.Eq(Of String)(Function(i) i.ServerType, DeviceType)
+            filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.DeviceName, DeviceName) And
+                repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType)
             serversEntity = repoServer.Find(filterDefServer).ToArray()
             If serversEntity.Count > 0 Then
                 WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Found servers ", LogLevel.Verbose)
@@ -294,8 +294,8 @@ Public Class Alertdll
                 If AlertType = "Not Responding" Then
                     'OUTAGES
                     WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update started: " & DeviceType & "/" & DeviceName & " " & AlertType)
-                    filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Function(j) j.ServerName, DeviceName),
-                                                           repoServers.Filter.Eq(Function(j) j.ServerType, DeviceType))
+                    filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Function(j) j.DeviceName, DeviceName),
+                                                           repoServers.Filter.Eq(Function(j) j.DeviceType, DeviceType))
                     servers = repoServers.Find(filterServers).ToArray()
                     If servers.Length > 0 Then
                         Dim outages As New Outages With {.DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
@@ -331,8 +331,8 @@ Public Class Alertdll
             If DeviceName = "" Then
                 Return "Enter Values"
             Else
-                filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.ServerName, DeviceName) And
-                    repoServer.Filter.Eq(Of String)(Function(i) i.ServerType, DeviceType)
+                filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.DeviceName, DeviceName) And
+                    repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType)
                 serversEntity = repoServer.Find(filterDefServer).ToArray()
                 If serversEntity.Count > 0 Then
                     serverID = serversEntity(0).Id

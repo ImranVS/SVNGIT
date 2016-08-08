@@ -1418,7 +1418,7 @@ namespace VitalSignsMicrosoftClasses
 							myServer.VersionNo = Version;
 
                             MongoStatementsUpdate<VSNext.Mongo.Entities.Server> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
-                            mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType);
+                            mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.DeviceName == myServer.Name && i.DeviceType == myServer.ServerType);
                             mongoUpdate.updateDef = mongoUpdate.repo.Updater
                                 .Set(i => i.SoftwareVersion, Convert.ToDouble(Version))
                                 .Set(i => i.ServerRoles, myServer.Role.ToList());

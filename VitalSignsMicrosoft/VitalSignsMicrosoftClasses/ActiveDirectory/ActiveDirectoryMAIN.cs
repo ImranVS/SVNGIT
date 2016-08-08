@@ -448,10 +448,10 @@ namespace VitalSignsMicrosoftClasses
 							
 
 							VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
-                            if(ServerRepo.Find(i => i.ServerName == thisServer.Name && i.ServerType == thisServer.ServerType).Where(j => j.WindowServices != null && j.WindowServices.Where(k => k.ServerRequired).Count() > 0).Count() == 0)
+                            if (ServerRepo.Find(i => i.DeviceName == thisServer.Name && i.DeviceType == thisServer.ServerType).Where(j => j.WindowServices != null && j.WindowServices.Where(k => k.ServerRequired).Count() > 0).Count() == 0)
                             {
                                 MongoStatementsUpdate<VSNext.Mongo.Entities.Server> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
-                                updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.ServerName == thisServer.Name && i.ServerType == thisServer.ServerType)
+                                updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.DeviceName == thisServer.Name && i.DeviceType == thisServer.ServerType)
                                     & updateStatement.repo.Filter.ElemMatch("windows_services", updateStatement.repo.Filter.Regex("display_name", "Active Directory") & updateStatement.repo.Filter.Eq("server_required", false));
                                 updateStatement.updateDef = updateStatement.repo.Updater
                                     .Set(i => i.WindowServices[-1].Monitored, true)

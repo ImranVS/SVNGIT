@@ -10,8 +10,13 @@ Imports nsoftware.IPWorks
 Imports VSFramework
 Imports System.Configuration
 Imports System.Collections.Generic
+Imports System.Linq
 
 Imports RPRWyatt.VitalSigns.Services
+
+
+Imports MongoDB.Bson
+Imports MongoDB.Driver
 'Written by Alan Forbes
 'Copyright 2013
 
@@ -71,6 +76,9 @@ Public Class VitalSignsDBHealth
 
     ' Dim WithEvents SNMPAgent As New nsoftware.IPWorks.Snmpagent("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
     Friend WithEvents OleDBConnectionServers As New System.Data.OleDb.OleDbConnection
+
+    Dim connectionString As String = ""
+
 #Region " Component Designer generated code "
 
     Public Sub New()
@@ -127,6 +135,13 @@ Public Class VitalSignsDBHealth
 
 
 	Protected Overrides Sub ServiceOnStart(ByVal args() As String)
+
+        Try
+            connectionString = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
+            WriteAuditEntry(Now.ToString + " connection string is " & connectionString)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString + " Error getting connection string. Error: " & ex.Message)
+        End Try
 
 		Try
 			sCultureString = ConfigurationManager.AppSettings(connectionStringName).ToString()
@@ -288,19 +303,10 @@ Public Class VitalSignsDBHealth
 
         End Try
 
+        RemoveNullEntries()
+
         Dim strSQL As String
         Dim objVSAdaptor As New VSAdaptor
-
-
-        Try
-            strSQL = "DELETE FROM Daily WHERE FileName is Null"
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-
-            strSQL = " DELETE  FROM Daily WHERE Status is Null"
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-        Catch ex As Exception
-
-        End Try
 
 		'Me.Stop()
 		MyBase.OnStop()
@@ -308,51 +314,51 @@ Public Class VitalSignsDBHealth
     End Sub
 
 
-    Private Sub CleanupDBData()
-        WriteAuditEntry(Now.ToString & " Cleaning up All data older than 2 days.")
-        Dim objVSAdaptor As New VSAdaptor
-        Dim SearchDate As DateTime
-        SearchDate = FixDate(Today.AddDays(-2))
-        Dim strSQL As String = ""
+    'Private Sub CleanupDBData()
+    '    WriteAuditEntry(Now.ToString & " Cleaning up All data older than 2 days.")
+    '    Dim objVSAdaptor As New VSAdaptor
+    '    Dim SearchDate As DateTime
+    '    SearchDate = FixDate(Today.AddDays(-2))
+    '    Dim strSQL As String = ""
 
-        Try
-            ' Delete all the earlier days data.
-            strSQL = "DELETE FROM Daily WHERE ScanDate < " & objVSAdaptor.DateFormat(FixDate(SearchDate)) & ""
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-            ' Delete all the old Temp records, if in case the earlier service did not finish its job.
-            strSQL = "DELETE FROM Daily WHERE Temp = 1 "
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error executing SQL command " & ex.ToString)
-        End Try
+    '    Try
+    '        ' Delete all the earlier days data.
+    '        strSQL = "DELETE FROM Daily WHERE ScanDate < " & objVSAdaptor.DateFormat(FixDate(SearchDate)) & ""
+    '        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+    '        ' Delete all the old Temp records, if in case the earlier service did not finish its job.
+    '        strSQL = "DELETE FROM Daily WHERE Temp = 1 "
+    '        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " Error executing SQL command " & ex.ToString)
+    '    End Try
 
-        Try
-            GC.Collect()
-        Catch ex As Exception
-            '  Thread.Sleep(500)
-        End Try
+    '    Try
+    '        GC.Collect()
+    '    Catch ex As Exception
+    '        '  Thread.Sleep(500)
+    '    End Try
 
-        WriteAuditEntry(Now.ToString & " Finished up Daily Data older than 1 days. ")
+    '    WriteAuditEntry(Now.ToString & " Finished up Daily Data older than 1 days. ")
 
-    End Sub
+    'End Sub
 
-    Public Sub UpdateTableDesign()
-        Dim strSQL As String = ""
-        strSQL = "CREATE TABLE [dbo].[ScanResults]([ID] [int] IDENTITY(1,1) NOT NULL,[ScanDate] [datetime] NULL,[ServerName] [nvarchar](250) NULL, [DatabaseCount] [int] NULL) "
-        Dim objVSAdaptor As New VSAdaptor
-        Try
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-        Catch ex As Exception
+    'Public Sub UpdateTableDesign()
+    '    Dim strSQL As String = ""
+    '    strSQL = "CREATE TABLE [dbo].[ScanResults]([ID] [int] IDENTITY(1,1) NOT NULL,[ScanDate] [datetime] NULL,[ServerName] [nvarchar](250) NULL, [DatabaseCount] [int] NULL) "
+    '    Dim objVSAdaptor As New VSAdaptor
+    '    Try
+    '        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+    '    Catch ex As Exception
 
-        End Try
+    '    End Try
 
-        Try
-            strSQL = "ALTER TABLE Daily ADD Temp Bit Null"
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "MailFileStats", strSQL)
-        Catch ex As Exception
-        End Try
+    '    Try
+    '        strSQL = "ALTER TABLE Daily ADD Temp Bit Null"
+    '        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "MailFileStats", strSQL)
+    '    Catch ex As Exception
+    '    End Try
 
-    End Sub
+    'End Sub
 
     Public Sub StartThreads()
         Dim EnabledCount As Integer = 0
@@ -399,15 +405,7 @@ Public Class VitalSignsDBHealth
         Dim objVSAdaptor As New VSAdaptor
 
 
-        Try
-            strSQL = "DELETE FROM Daily WHERE FileName is Null"
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-
-            strSQL = " DELETE  FROM Daily WHERE Status is Null"
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-        Catch ex As Exception
-
-        End Try
+        RemoveNullEntries()
 
         Me.Stop()
         '   Dim VitalStatusThread As New Thread(AddressOf OutputVitalStatus)
@@ -777,16 +775,29 @@ NextServer:
             End If
 
             Try
-                strSQL = "Select DatabaseCount FROM ScanResults WHERE ServerName ='" & server.Name & "'"
-                intDBCount = objVSAdaptor.ExecuteScalarAny("VSS_Statistics", "NSFHealth", strSQL)
+
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repo.Filter.Eq(Function(x) x.DeviceName, server.Name) And repo.Filter.Eq(Function(x) x.DeviceType, "Domino")
+                Dim entity As VSNext.Mongo.Entities.Server = repo.Find(filterDef).ToList()(0)
+
+                intDBCount = entity.DatabaseCount
+
+
+                'strSQL = "Select DatabaseCount FROM ScanResults WHERE ServerName ='" & server.Name & "'"
+                'intDBCount = objVSAdaptor.ExecuteScalarAny("VSS_Statistics", "NSFHealth", strSQL)
                 WriteAuditEntry(Now.ToString & " The previous run of DB Health found " & intDBCount & " databases on " & server.Name, LogLevel.Verbose)
             Catch ex As Exception
                 intDBCount = 0
             End Try
 
             Try
-                strSQL = "Select COUNT(ID) FROM DAILY WHERE Server ='" & server.Name & "'"
-                intRecordCount = objVSAdaptor.ExecuteScalarAny("VSS_Statistics", "NSFHealth", strSQL)
+
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = repo.Filter.Eq(Function(x) x.ServerName, server.Name)
+                intRecordCount = repo.Collection.Count(filterDef)
+
+                'strSQL = "Select COUNT(ID) FROM DAILY WHERE Server ='" & server.Name & "'"
+                'intRecordCount = objVSAdaptor.ExecuteScalarAny("VSS_Statistics", "NSFHealth", strSQL)
                 WriteAuditEntry(Now.ToString & " There are " & intRecordCount & " records for " & server.Name & " in the Daily table.", LogLevel.Verbose)
             Catch ex As Exception
                 intRecordCount = 0
@@ -925,15 +936,22 @@ NextServer:
 
 
         Try
-            Dim intResult As Integer
+            'Dim intResult As Integer
             ' ScanResults (ID COUNTER, ServerName char(250), DatabaseCount INT, ScanCount INT, ScanDate DATE) "
-            strSQL = "Update ScanResults Set DatabaseCount = " & intTotalCount & ", ScanDate = '" & Date.Now & "' WHERE ServerName='" & Server.Name & "'"
-            intResult = objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+            'strSQL = "Update ScanResults Set DatabaseCount = " & intTotalCount & ", ScanDate = '" & Date.Now & "' WHERE ServerName='" & Server.Name & "'"
+            'intResult = objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+            '
+            'If intResult = 0 Then
+            '    strSQL = "Insert into ScanResults (ServerName, DatabaseCount, ScanDate) VALUES ('" & Server.Name & "', " & intTotalCount & ", '" & Date.Now.Date & "')"
+            '    objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+            'End If
 
-            If intResult = 0 Then
-                strSQL = "Insert into ScanResults (ServerName, DatabaseCount, ScanDate) VALUES ('" & Server.Name & "', " & intTotalCount & ", '" & Date.Now.Date & "')"
-                objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-            End If
+
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repo.Filter.Eq(Function(x) x.DeviceName, Server.Name) And repo.Filter.Eq(Function(x) x.DeviceType, "Domino")
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repo.Updater.Set(Function(x) x.DatabaseCount, intTotalCount)
+            repo.Update(filterDef, updateDef)
+
 
         Catch ex As Exception
 
@@ -941,11 +959,13 @@ NextServer:
 
         Try
             Dim intResult As Integer
-            strSQL = "DELETE FROM Daily WHERE Server='" & Server.Name & "' AND Temp = 1"
-            intResult = objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-            If intResult > 0 Then
-                WriteDeviceHistoryEntry("Database_Health", Server.Name, Now.ToString & " Deleted " & intResult & " records leftover from a prior incomplete run.", LogLevel.Verbose)
-            End If
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = _
+                repo.Filter.Eq(Function(x) x.ServerName, Server.Name) And _
+                repo.Filter.Eq(Function(x) x.Temp, True)
+
+            repo.Delete(filterDef)
+
         Catch ex As Exception
             WriteDeviceHistoryEntry("Database_Health", Server.Name, Now.ToString & " Exception deleting data " & ex.ToString)
         End Try
@@ -995,42 +1015,39 @@ NextServer:
         Try
             'Convert the temp records into permanent records for NSFHealth  
             WriteDeviceHistoryEntry("Database_Health", Server.Name, Now.ToString & " Deleting the prior records for " & Server.Name)
-            strSQL = "DELETE FROM Daily WHERE Server ='" & Server.Name & "' AND Temp = 0"
-            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", Server.Name, "SQL: " & strSQL & vbCrLf)
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = _
+                repo.Filter.Eq(Function(x) x.ServerName, Server.Name) And _
+                repo.Filter.Eq(Function(x) x.Temp, False)
+
+            repo.Delete(filterDef)
+
             'UPDATE table_name SET column1=value1,column2=value2,... WHERE some_column=some_value;
 
-            strSQL = "UPDATE Daily SET Temp=0  WHERE  Server ='" & Server.Name & "' AND Temp=1"
+            filterDef = repo.Filter.Eq(Function(x) x.ServerName, Server.Name) And _
+                repo.Filter.Eq(Function(x) x.Temp, True)
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Database) = repo.Updater.Set(Function(x) x.Temp, False)
 
-            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", Server.Name, Now.ToString & " Copying the updated records for " & Server.Name & " for NSFHealth.")
-            ' strSQL = "INSERT INTO Daily SELECT * FROM Daily_Temp WHERE Server ='" & Server.Name & "' "
-            ' strSQL = "INSERT INTO " & strSelect & " WHERE Server ='" & Server.Name & "' "
-            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", Server.Name, "SQL: " & strSQL & vbCrLf)
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-
-          
+            repo.Update(filterDef, updateDef)
 
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error transferring records for " & Server.Name & ": " & ex.ToString)
         End Try
 
         Try
-            strSQL = "DELETE FROM Daily WHERE FileName = ''"
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-        Catch ex As Exception
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = _
+                repo.Filter.Eq(Function(x) x.FileName, "") Or _
+                repo.Filter.Exists(Function(x) x.FileName, False)
 
-            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", Server.Name, "SQL: " & strSQL & vbCrLf)
-
-        End Try
-
-        Try
-            strSQL = "DELETE FROM Daily WHERE FileName is Null"
-            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+            repo.Delete(filterDef)
 
         Catch ex As Exception
 
-        End Try
+            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", Server.Name, " Exception in Analyze Server when removing empty and null FileNames. Exception : " & ex.Message.ToString())
 
+        End Try
 
     End Sub
 
@@ -1140,16 +1157,25 @@ NextServer:
                     .Details = "Could not open the database"
                     .Server = ServerName
 					.CurrentAccessLevel = "No Access"
-					'changed fixdate as fixdatetime by somaraj
-					strTemp = "INSERT INTO Daily (Temp, Status, FileNamePath, ScanDate,  FileName, Title, Server,  CurrentAccessLevel, Details,  Folder ) " & _
-	   " VALUES ('true', |Exception|, |" & .FileNamePath & "|, |" & FixDateTime(Date.Now) & "|, |" & .FileName & "|, |" & .Title & "|, |" & .Server & "|, |" & .CurrentAccessLevel & "|, |" & .Details & "|, |" & .Folder & "|)"
+                    'changed fixdate as fixdatetime by somaraj
 
-                    strSQL = Strings.Replace(strTemp, "|", "'")
-                    If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " My SQL statement is " & vbCrLf & strSQL & vbCrLf)
                 End With
 
-                Dim objVSAdaptor As New VSAdaptor
-                objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+                Dim entity As New VSNext.Mongo.Entities.Database() With {
+                    .Temp = True,
+                    .Status = "Exception",
+                    .FileNamePath = ndb.FileNamePath,
+                    .ScanDateTime = GetFixedDateTime(DateTime.Now),
+                    .FileName = ndb.FileName,
+                    .Title = ndb.Title,
+                    .ServerName = ndb.Server,
+                    .CurrentAccessLevel = ndb.CurrentAccessLevel,
+                    .Details = ndb.Details,
+                    .Folder = ndb.Folder}
+
+                repo.Insert(entity)
+
                 WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " Skipping detailed Notes Database Health for " & FilePath & " because it cannot be opened-- database # " & dbCounter.ToString)
 
                 GoTo SkipDatabase
@@ -1769,38 +1795,51 @@ SkipDatabase:
         Dim objVSAdaptor As New VSAdaptor
 
         Try
-			With myNotesDatabase
-				'changed by somaraju fixdate as fixdatetime
-				strTemp = "INSERT INTO Daily (FolderCount, Temp,  FileNamePath, ScanDate, Q_PlaceBotCount, Q_CustomFormCount, InboxDocCount, FileName, Title, FileSize, Server, DesignTemplateName, Quota, FTIndexed, EnabledForClusterReplication, EnabledForReplication, ReplicaID, ODS, Status, DocumentCount, CurrentAccessLevel, Details, Categories, IsPrivateAddressBook, IsPublicAddressBook, IsInService, FTIndexFrequency, Folder, PercentUsed, Created, LastFixup, LastFTIndexed, LastModified, IsMailFile, PersonDocID ) " & _
-				 " VALUES (" & .FolderCount & ", 'true', |" & .FileNamePath & "|, |" & FixDateTime(Date.Now) & "|, " & .QuickrPlaceBotCount & ", " & .QuickrCustomFormCount & ", " & .InboxDocCount & ", |" & .FileName & "|, |" & .Title & "|, |" & .FileSize & "|, |" & .Server & "|, |" & .DesignTemplateName & "|, |" & .Quota & "|, " & .FTIndexed & ", " & .EnabledForClusterReplication & ", " & .EnabledforReplication & ", |" & .ReplicaID & "|, " & .ODS & ", |" & .Status & "|, " & .DocumentCount & ", |" & .CurrentAccessLevel & "|, |" & myDetails & "|, |" & .Categories & "|, " & .IsPrivateAddressBook & ", " & .IsPublicAddressBook & ", " & .IsInService & ", |" & .FTIndexFrequency & "|, |" & .Folder & "|, |" & .PercentUsed & "|, |" & .Created & "|, |" & .LastFixup & "|, |" & .LastFTIndexed & "|, |" & .LastModified & "|, " & .IsMailFile & ", |" & .PersonDocID & "|)"
-
-				'strTemp = "UPDATE DAILY SET FolderCount=" & .FolderCount & ", FileNamePath ='" & .FileNamePath & "', ScanDate= '" & Date.Now & "', InboxDocCount = '" & .InboxDocCount & "', Quota = " & .Quota & ", FTIndexed =" & .FTIndexed & ", EnabledForClusterReplication = '" & .EnabledForClusterReplication & "',  EnabledForReplication= '" & .EnabledforReplication & "', Status= '" & .Status & "', Details='" & .Details & "', "
-				'strTemp += " FTIndexed = " & .FTIndexed & ", ODS='" & .ODS & "', CurrentAccessLevel='" & .CurrentAccessLevel & "', Categories='" & .Categories & "', IsPrivateAddressBook=" & .IsPrivateAddressBook
-				'strTemp += ", IsPublicAddressBook=" & .IsPublicAddressBook & ", IsInService=" & .IsInService & ", FTIndexFrequency='" & .FTIndexFrequency & "', Folder='" & .Folder & "'"
-				'strTemp += ", PercentUsed='" & .PercentUsed & "', Created='" & .Created & "', LastFixup='" & .LastFixup & "', LastFTIndexed='" & .LastFTIndexed & "', LastModified='" & .LastModified & "'"
-				'strTemp += ", IsMailFile=" & .IsMailFile & ", PersonDocID='" & .PersonDocID & "'"
-				'strTemp += " WHERE Server = '" & .Server & "' AND FileName ='" & .FileName & "'"
-
-				strSQL = Strings.Replace(strTemp, "|", "'")
-				strSQL = Strings.Replace(strSQL, "True", "1")
-				strSQL = Strings.Replace(strSQL, "False", "0")
-				WriteAuditEntry(Now.ToString & " My SQL statement is " & vbCrLf & strSQL & vbCrLf, LogLevel.Verbose)
-
-				If InStr(.Title, "'") Then
-					.Title = .Title.Replace("'", "")
-				End If
-				' .Title = strDBTitle.Substring(0, 50)
-
-				If InStr(.FileNamePath, "'") Then
-					.FileNamePath = .FileNamePath.Replace("'", "")
-				End If
-
-				If InStr(.FileName, "'") Then
-					.FileName = .FileName.Replace("'", "")
-				End If
-			End With
 
             Try
+
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+                Dim entity As New VSNext.Mongo.Entities.Database() With {
+                    .Temp = True,
+                    .Status = .Status,
+                    .FileNamePath = myNotesDatabase.FileNamePath,
+                    .ScanDateTime = GetFixedDateTime(DateTime.Now),
+                    .FileName = myNotesDatabase.FileName,
+                    .Title = myNotesDatabase.Title,
+                    .ServerName = myNotesDatabase.Server,
+                    .Details = myDetails,
+                    .Folder = myNotesDatabase.Folder,
+                    .FolderCount = myNotesDatabase.FolderCount,
+                    .QPlaceBotCount = myNotesDatabase.QuickrPlaceBotCount,
+                    .QCustomFormCount = myNotesDatabase.QuickrCustomFormCount,
+                    .InboxDocCount = myNotesDatabase.InboxDocCount,
+                    .FileSize = myNotesDatabase.FileSize,
+                    .DesignTemplateName = myNotesDatabase.DesignTemplateName,
+                    .Quota = myNotesDatabase.Quota,
+                    .FTIndexed = myNotesDatabase.FTIndexed,
+                    .EnabledForClusterReplication = myNotesDatabase.EnabledForClusterReplication,
+                    .EnabledForReplication = myNotesDatabase.EnabledforReplication,
+                    .ReplicaId = myNotesDatabase.ReplicaID,
+                    .ODS = myNotesDatabase.ODS,
+                    .DocumentCount = myNotesDatabase.DocumentCount,
+                    .CurrentAccessLevel = myNotesDatabase.CurrentAccessLevel,
+                    .Categories = myNotesDatabase.Categories,
+                    .IsPrivateAddressBook = myNotesDatabase.IsPrivateAddressBook,
+                    .IsPublicAddressBook = myNotesDatabase.IsPublicAddressBook,
+                    .IsInService = myNotesDatabase.IsInService,
+                    .FTIndexFrequency = myNotesDatabase.FTIndexFrequency,
+                    .PercentUsed = myNotesDatabase.PercentUsed,
+                    .Created = myNotesDatabase.Created,
+                    .LastFixup = myNotesDatabase.LastFixup,
+                    .LastFTIndexed = myNotesDatabase.LastFTIndexed,
+                    .LastModified = myNotesDatabase.LastModified,
+                    .IsMailFile = myNotesDatabase.IsMailFile,
+                    .PersonDocId = myNotesDatabase.PersonDocID
+                    }
+
+                repo.Insert(entity)
+
+
                 Dim RA As Integer   'Rows affected
                 RA = objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
 
@@ -1822,46 +1861,46 @@ SkipDatabase:
     End Sub
 
 
-    Private Sub EmptyDatabaseHealthTable(ByVal ServerName As String)
+    'Private Sub EmptyDatabaseHealthTable(ByVal ServerName As String)
 
-        Dim vsAdapter As New VSAdaptor
-        Dim strSQL As String
-        Try
-            strSQL = "Delete * FROM Daily WHERE Server='" & ServerName & "'"
-            vsAdapter.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
-        Catch ex As Exception
+    '    Dim vsAdapter As New VSAdaptor
+    '    Dim strSQL As String
+    '    Try
+    '        strSQL = "Delete * FROM Daily WHERE Server='" & ServerName & "'"
+    '        vsAdapter.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", strSQL)
+    '    Catch ex As Exception
 
-        End Try
+    '    End Try
 
-    End Sub
+    'End Sub
 
 
 #End Region
 
 #Region "Mail File Count"
 
-    Private Sub CleanMailFileDetails(ServerName As String)
-        Dim myRegistry As New RegistryHandler
-        Dim myPath As String = ""
-        Dim vsObj As New VSAdaptor
+    'Private Sub CleanMailFileDetails(ServerName As String)
+    '    Dim myRegistry As New RegistryHandler
+    '    Dim myPath As String = ""
+    '    Dim vsObj As New VSAdaptor
 
-        Dim StrSQL As String = ""
-        Try
-            StrSQL = "DELETE FROM Daily WHERE  MailServer='" & ServerName & "'"
-            vsObj.ExecuteNonQueryAny("VSS_Statistics", "MailFileStats", StrSQL)
-        Catch ex As Exception
+    '    Dim StrSQL As String = ""
+    '    Try
+    '        StrSQL = "DELETE FROM Daily WHERE  MailServer='" & ServerName & "'"
+    '        vsObj.ExecuteNonQueryAny("VSS_Statistics", "MailFileStats", StrSQL)
+    '    Catch ex As Exception
 
-        End Try
+    '    End Try
 
 
-        'Try
-        '    StrSQL = "DELETE FROM Daily_Temp WHERE  Server='" & ServerName & "'"
-        '    vsObj.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", StrSQL)
-        'Catch ex As Exception
+    '    'Try
+    '    '    StrSQL = "DELETE FROM Daily_Temp WHERE  Server='" & ServerName & "'"
+    '    '    vsObj.ExecuteNonQueryAny("VSS_Statistics", "NSFHealth", StrSQL)
+    '    'Catch ex As Exception
 
-        'End Try
+    '    'End Try
 
-    End Sub
+    'End Sub
 
 
     Private Sub UpdateDominoDailyMailFileStatTable(ByVal ScanDate As DateTime, ByVal MailServer As String, ByVal FileName As String, ByVal FileTitle As String, ByVal FileSize As Double, ByVal TemplateName As String, ByVal Quota As Double, ByVal FTIndexed As Boolean, ByVal OutOfOfficeAgentEnabled As Boolean, ByVal EnabledForClusterReplication As Boolean, ByVal ReplicaID As String, ByVal ODS As Double)
@@ -1879,13 +1918,24 @@ SkipDatabase:
 
 		Try
 			'change by somaraj fixdate as fixdatetime
-			strSQL = "INSERT INTO Daily (Temp, Server, ScanDate, FileName, FileSize, Title, DesignTemplateName, Quota, FTIndexed,  ReplicaID, ODS )" & _
-				" VALUES (1, '" & MailServer & "', '" & FixDateTime(ScanDate) & "', '" & FileName & "', '" & FileSize & "', '" & FileTitle & "', '" & TemplateName & "', " & Quota & ", " & FTIndexed & ", '" & ReplicaID & "', '" & ODS & "')"
 
-			strSQL = Strings.Replace(strSQL, "True", "1")
-			strSQL = Strings.Replace(strSQL, "False", "0")
-			vsObj.ExecuteNonQueryAny("VSS_Statistics", "mailfilestats", strSQL)
-			'WriteAuditEntry(Now.ToString & " *** MAIL FILE ****   ------> SQL statement is " & vbCrLf & strSQL & vbCrLf)
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+            Dim entity As New VSNext.Mongo.Entities.Database() With {
+                .Temp = True,
+                .FileName = FileName,
+                .Title = FileTitle,
+                .ServerName = MailServer,
+                .FileSize = FileSize,
+                .DesignTemplateName = TemplateName,
+                .Quota = Quota,
+                .FTIndexed = FTIndexed,
+                .ReplicaId = ReplicaID,
+                .ODS = ODS,
+                .ScanDateTime = GetFixedDateTime(ScanDate)
+                }
+
+            repo.Insert(entity)
+
 
 		Catch ex2 As Exception
 			WriteAuditEntry(Now.ToString & " Error Inserting Mail Stats: " & ex2.Message & vbCrLf & strSQL)
@@ -1897,28 +1947,33 @@ SkipDatabase:
     End Sub
 
 
-    Private Function FixDate(ByVal dt As DateTime) As String
-        ' Return dt.ToUniversalTime.ToString
-        Return objDateUtils.FixDate(dt, strDateFormat)
-	End Function
+    '   Private Function FixDate(ByVal dt As DateTime) As String
+    '       ' Return dt.ToUniversalTime.ToString
+    '       Return objDateUtils.FixDate(dt, strDateFormat)
+    'End Function
 	Private Function FixDateTime(ByVal dt As DateTime) As String 'change by somaraj
 		' Return dt.ToUniversalTime.ToString
 		Return objDateUtils.FixDateTime(dt, strDateFormat)
-	End Function
-    Private Function FixTime(ByVal TimeString As String) As String
-        'incoming format is 08/11/2005 14:02:17 
-        'Outgoing format is time only "14:33:17"
-        Dim NewTime As String
-
-        Dim mystart As Integer
-        mystart = TimeString.IndexOf(" ")
-        NewTime = Right(TimeString, mystart)
-        ' WriteAuditEntry(Now.ToString & " FIXTIME ends with with " & NewTime)
-
-        Return NewTime
-
-
     End Function
+
+    Private Function GetFixedDateTime(ByVal dt As DateTime) As DateTime
+        ' Return dt.ToUniversalTime.ToString
+        Return DateTime.Parse(FixDateTime(dt))
+    End Function
+    'Private Function FixTime(ByVal TimeString As String) As String
+    '    'incoming format is 08/11/2005 14:02:17 
+    '    'Outgoing format is time only "14:33:17"
+    '    Dim NewTime As String
+
+    '    Dim mystart As Integer
+    '    mystart = TimeString.IndexOf(" ")
+    '    NewTime = Right(TimeString, mystart)
+    '    ' WriteAuditEntry(Now.ToString & " FIXTIME ends with with " & NewTime)
+
+    '    Return NewTime
+
+
+    'End Function
 
 #End Region
 
@@ -2083,11 +2138,21 @@ SkipDatabase:
                 If Server.Enabled = True And Server.ScanDBHealth = True Then
                     Server.IsBeingScanned = False
                     Server.LastDBHealthScan = Date.Today.AddDays(-7)
-                    strSQL = "Select MAX(ScanDate) AS 'MyDate' From Daily WHERE Server='" & Server.Name & "'"
-                    myString = vsObj.ExecuteScalarAny("VSS_Statistics", "NSFHealth", strSQL)
+
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = repo.Filter.Eq(Function(x) x.ServerName, Server.Name)
+
+                    Dim list As List(Of VSNext.Mongo.Entities.Database) = repo.Find(filterDef)
+
+
+                    'strSQL = "Select MAX(ScanDate) AS 'MyDate' From Daily WHERE Server='" & Server.Name & "'"
+                    'myString = vsObj.ExecuteScalarAny("VSS_Statistics", "NSFHealth", strSQL)
                     '  WriteAuditEntry(Now.ToString & " *** Server " & Server.Name & " database query returned the string: " & myString)
                     Try
-                        Server.LastDBHealthScan = CDate(myString)
+                        'Server.LastDBHealthScan =
+                        list.Sort(Function(x, y) x.ScanDateTime.Value.CompareTo(y.ScanDateTime.Value))
+                        Server.LastDBHealthScan = list(0).ScanDateTime
+                        'Server.LastDBHealthScan = CDate(myString)
                     Catch ex As Exception
                         Server.LastDBHealthScan = Date.Today.AddDays(-7)
                     End Try
@@ -2103,6 +2168,20 @@ SkipDatabase:
 
         strSQL = Nothing
         vsObj = Nothing
+
+    End Sub
+
+    Public Sub RemoveNullEntries()
+
+        Try
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = _
+                repo.Filter.Exists(Function(x) x.FileName, False) And _
+                repo.Filter.Exists(Function(x) x.Status, False)
+            repo.Delete(filterDef)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error in RemoveNullEntries while deleteing entries. Error: " & ex.Message.ToString())
+        End Try
 
     End Sub
 

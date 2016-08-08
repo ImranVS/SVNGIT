@@ -5012,6 +5012,7 @@ skipdrive2:
                                     myAlert.QueueAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
                                     MyDominoServer.Description = "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble."
                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception processing " & MailboxName & ":  " & ex.ToString)
+                                End If
                End Try
 
                         End While

@@ -868,7 +868,7 @@ namespace VSNext.Mongo.Entities
         public string DirectoryPartitions { get; set; }
     }
 
-    public class DagServers : Entity 
+    public class DagServers  
     {
 
         public DagServers()
@@ -953,7 +953,7 @@ namespace VSNext.Mongo.Entities
     }
 
 
-    public class DagDatabases : Entity
+    public class DagDatabases 
     {
 
         public DagDatabases()
@@ -1000,7 +1000,6 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public int? ConnectedMailboxCount { get; set; }
 
-
         #region DatabaseBackupDetails
         [DataMember]
         [BsonElement("storage_group")]
@@ -1043,9 +1042,33 @@ namespace VSNext.Mongo.Entities
         public DateTime? LastCopyBackupDate { get; set; }
 
         #endregion
+
+        #region Configuration
+
+        [DataMember]
+        [BsonElement("copy_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? CopyThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("replay_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? ReplayThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("database_size_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? DatabaseSizeThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("database_white_space_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public int? DatabaseWhiteTSpaceThreshold { get; set; }
+
+        #endregion
     }
 
-    public class DagServerDatabases : Entity
+    public class DagServerDatabases 
     {
 
         public DagServerDatabases()
@@ -1105,7 +1128,7 @@ namespace VSNext.Mongo.Entities
 
     }
 
-    public class SharePointWebApplication : Entity
+    public class SharePointWebApplication 
     {
 
         public SharePointWebApplication()
@@ -1161,7 +1184,7 @@ namespace VSNext.Mongo.Entities
     }
 
 
-    public class SharePointSiteCollection : Entity
+    public class SharePointSiteCollection 
     {
 
         public SharePointSiteCollection()
@@ -1201,7 +1224,7 @@ namespace VSNext.Mongo.Entities
     }
 
 
-    public class SharePointTimerJob : Entity
+    public class SharePointTimerJob 
     {
         public SharePointTimerJob()
         {
@@ -1258,7 +1281,7 @@ namespace VSNext.Mongo.Entities
         public string Schedule { get; set; }
     }
 
-    public class SharePointSiteActivity : Entity
+    public class SharePointSiteActivity 
     {
         public SharePointSiteActivity()
         {
@@ -1288,7 +1311,7 @@ namespace VSNext.Mongo.Entities
 
 
 
-    public class Disk : Entity
+    public class Disk
     {
         public Disk()
         {
@@ -1328,9 +1351,19 @@ namespace VSNext.Mongo.Entities
         [BsonElement("disk_threshold")]
         [BsonIgnoreIfNullAttribute]
         public double? DiskThreshold { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("threshold")]
+        public int? Threshold { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("threshold_type")]
+        public string ThresholdType { get; set; }
     }
 
-    public class DominoServerTask : Entity
+    public class DominoServerTask
     {
         public DominoServerTask()
         {
@@ -1371,6 +1404,30 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string LastUpdated { get; set; }
 
+        [DataMember]
+        [BsonElement("enabled")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean? Enabled { get; set; }
+
+        [DataMember]
+        [BsonElement("send_load_cmd")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean? SendLoadCmd { get; set; }
+
+        [DataMember]
+        [BsonElement("send_restart_cmd")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean? SendRestartCmd { get; set; }
+
+        [DataMember]
+        [BsonElement("send_exit_cmd")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean? SendExitCmd { get; set; }
+
+        [DataMember]
+        [BsonElement("send_restart_cmd_offhours")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean? SendRestartCmdOffhours { get; set; }
     }
 
 

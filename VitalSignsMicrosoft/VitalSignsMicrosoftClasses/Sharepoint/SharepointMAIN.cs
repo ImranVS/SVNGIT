@@ -723,7 +723,7 @@ namespace VitalSignsMicrosoftClasses
 								currServer.Role = Role;
 
                                 MongoStatementsUpdate<VSNext.Mongo.Entities.Server> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
-                                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.ServerName == currServer.Name && i.ServerType == currServer.ServerType);
+                                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.DeviceName == currServer.Name && i.DeviceType == currServer.ServerType);
                                 mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.ServerRoles, new List<String>() { Role });
                                 AllTestsList.MongoEntity.Add(mongoUpdate);
 
@@ -738,7 +738,7 @@ namespace VitalSignsMicrosoftClasses
 								}
 
                                 MongoStatementsUpsert<VSNext.Mongo.Entities.Server> mongoUpsertServer = new MongoStatementsUpsert<VSNext.Mongo.Entities.Server>();
-                                mongoUpsertServer.filterDef = mongoUpsertServer.repo.Filter.Where(i => i.ServerName == Farm && i.ServerType == SharePointFarmServerType);
+                                mongoUpsertServer.filterDef = mongoUpsertServer.repo.Filter.Where(i => i.DeviceName == Farm && i.DeviceType == SharePointFarmServerType);
                                 mongoUpsertServer.updateDef = mongoUpsertServer.repo.Updater.AddToSet(i => i.FarmServers, currServer.Name);
                                 AllTestsList.MongoEntity.Add(mongoUpsertServer);
 

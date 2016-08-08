@@ -116,7 +116,7 @@ namespace VitalSignsMicrosoftClasses
 			DataTable dt = db.GetData(sql);
 
             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(db.GetMongoConnectionString());
-            List<VSNext.Mongo.Entities.Server> listOfServers = ServerRepo.Find(i => i.ServerName == myServer.Name).ToList();
+            List<VSNext.Mongo.Entities.Server> listOfServers = ServerRepo.Find(i => i.DeviceName == myServer.Name).ToList();
             List<VSNext.Mongo.Entities.WindowServices> windowsServicesExistingList;
             List<VSNext.Mongo.Entities.WindowServices> windowsServicesNewList = new List<VSNext.Mongo.Entities.WindowServices>();
             if (listOfServers.Count > 0 && listOfServers[0].WindowServices != null && listOfServers[0].WindowServices.Count > 0)
@@ -166,7 +166,7 @@ namespace VitalSignsMicrosoftClasses
                        
 					}
                     MongoStatementsUpdate<VSNext.Mongo.Entities.Server> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
-                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType);
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.DeviceName == myServer.Name && i.DeviceType == myServer.ServerType);
                     mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.WindowServices, windowsServicesNewList);
                     AllTestsList.MongoEntity.Add(mongoUpdate);
 			                  

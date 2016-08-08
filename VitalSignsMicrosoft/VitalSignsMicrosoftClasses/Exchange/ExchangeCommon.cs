@@ -100,12 +100,12 @@ namespace VitalSignsMicrosoftClasses
 
 
                         VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(db.GetMongoConnectionString());
-                        if (ServerRepo.Find(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType).Where(j => j.WindowServices != null && j.WindowServices.Where(k => k.ServerRequired).Count() > 0).Count() == 0)
+                        if (ServerRepo.Find(i => i.DeviceName == myServer.Name && i.DeviceType == myServer.ServerType).Where(j => j.WindowServices != null && j.WindowServices.Where(k => k.ServerRequired).Count() > 0).Count() == 0)
                         {
                             foreach (string service in ListOfServices.Where(w => !string.IsNullOrEmpty(w)))
                             {
                                 MongoStatementsUpdate<VSNext.Mongo.Entities.Server> updateStatement = new MongoStatementsUpdate<VSNext.Mongo.Entities.Server>();
-                                updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.ServerName == myServer.Name && i.ServerType == myServer.ServerType)
+                                updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.DeviceName == myServer.Name && i.DeviceType == myServer.ServerType)
                                     & updateStatement.repo.Filter.ElemMatch("windows_services", updateStatement.repo.Filter.Eq("service_name", service) & updateStatement.repo.Filter.Eq("server_required", false));
                                 updateStatement.updateDef = updateStatement.repo.Updater
                                     .Set(i => i.WindowServices[-1].Monitored, true)

@@ -58,6 +58,7 @@ namespace VSNext.Mongo.Entities
             SNMPDevices,
             [Description("Office365")]
             Office365,
+            [BaseServerType("WebSphere")]
             [Description("WebSphere")]
             WebSphere,
             [Description("Network Latency")]
@@ -67,7 +68,13 @@ namespace VSNext.Mongo.Entities
             [Description("ExchangeMail Probe")]
             ExchangeMailProbe,
             [Description("IBM Connections")]
-            IBMConnections
+            IBMConnections,
+            [BaseServerType("WebSphere")]
+            [Description("WebSphereNode")]
+            WebSphereNode,
+            [BaseServerType("WebSphere")]
+            [Description("WebSphereCell")]
+            WebSphereCell
         }       
 
     }
