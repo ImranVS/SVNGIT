@@ -11,10 +11,11 @@ namespace VSNext.Mongo.Repository
          where T : IEntity
     {
         #region MongoSpecific
-        public Repository(string connectionString)
+        public Repository(string connectionString,int? tenantId=null)
         {
             //read from machine
             Collection = Database<T>.GetCollectionFromConnectionString(connectionString);
+            TenantId = tenantId;
         }
 
         public Repository()
@@ -22,6 +23,10 @@ namespace VSNext.Mongo.Repository
         }
 
         public IMongoCollection<T> Collection
+        {
+            get; private set;
+        }
+        public int? TenantId
         {
             get; private set;
         }
@@ -96,6 +101,7 @@ namespace VSNext.Mongo.Repository
 
         public virtual void Insert(T entity)
         {
+            entity.TenantId = TenantId;
             Collection.InsertOne(entity);
         }
 

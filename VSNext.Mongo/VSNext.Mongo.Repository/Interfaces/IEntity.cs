@@ -16,5 +16,6 @@ namespace VSNext.Mongo.Repository
         DateTime CreatedOn { get; }
 
         DateTime? ModifiedOn { get; }
+        int? TenantId { get; set; }
     }
 }
