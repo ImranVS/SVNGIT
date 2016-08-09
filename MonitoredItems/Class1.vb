@@ -506,6 +506,7 @@ Public Class MonitoredDevice
 
     Public Property SecondaryRole As String
     Public Property StatusCode As String
+    Public Property ServerType As String
 
     Public Property Key() As Integer
         'Stores the key or ID file in the Access table to uniquely identify the record
@@ -753,7 +754,6 @@ Public Class MicrosoftServer
 	Inherits MonitoredDevice
 	Public Property UserName As String
 	Public Property Password As String
-	Public Property ServerType As String 'Exchange or Lync
 	Public Property ServerTypeId As Integer
 	Public Property CPU_Threshold As Double
 	Public Property Memory_Threshold As Double

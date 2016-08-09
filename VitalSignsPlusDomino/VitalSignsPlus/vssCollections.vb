@@ -1,5 +1,6 @@
 ﻿Imports System.Threading
 Imports VSFramework
+Imports VSNext.Mongo.Entities
 
 Partial Public Class VitalSignsPlusDomino
 
@@ -712,7 +713,7 @@ Partial Public Class VitalSignsPlusDomino
                     MyDominoServer.UserCount = 0
                     MyDominoServer.Statistics_Server = ""
                     MyDominoServer.Statistics_Disk = ""
-
+                    MyDominoServer.ServerType = VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()
 
                     Try
                         Dim myDiskCollection As New MonitoredItems.DominoDiskSpaceCollection
@@ -1649,7 +1650,7 @@ Partial Public Class VitalSignsPlusDomino
 							.Description = "Sends NotesMail to target address and verifies delivery."
 							.ResponseDetails = ""
 							.ResponseTime = 0
-
+                            .ServerType = VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription()
 						End With
 					End If
 
@@ -2085,6 +2086,7 @@ Partial Public Class VitalSignsPlusDomino
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error adding new empty database collection to " & myDominoCluster.Name)
                     End Try
+                    myDominoCluster.ServerType = VSNext.Mongo.Entities.Enums.ServerType.DominoCluster.ToDescription()
                 Else
                     WriteAuditEntry(Now.ToString & " " & myDominoCluster.Name & " is already in the collection, updating settings.")
                 End If

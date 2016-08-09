@@ -473,7 +473,7 @@ Partial Public Class VitalSignsPlusDomino
 				If MailBox Is Nothing Then
 					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer)
 					MyNotesMailProbe.Status = "Failed"
-					myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer, MyNotesMailProbe.Location)
+                    myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer, MyNotesMailProbe.Location)
 					MyNotesMailProbe.ResponseDetails = " NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer
 					GoTo Cleanup
 				End If
@@ -511,7 +511,7 @@ Partial Public Class VitalSignsPlusDomino
 						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Warning: NotesMailProbe could not create test message on " & MyNotesMailProbe.SourceServer)
 						MyNotesMailProbe.Status = "Failed"
 						MyNotesMailProbe.ResponseDetails = "Could not create test message."
-						myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could create the test message on the VitalSigns monitoring station. ", MyNotesMailProbe.Location)
+                        myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could create the test message on the VitalSigns monitoring station. ", MyNotesMailProbe.Location)
 						GoTo Cleanup
 					End If
 
@@ -579,7 +579,7 @@ Partial Public Class VitalSignsPlusDomino
                         Catch ex As Exception
 							MyNotesMailProbe.Status = "Failure on Sending"
 							.ResponseDetails = "Test message could not be sent due to error: " & ex.ToString
-							myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not transfer the test message to the mail.box file on " & MyNotesMailProbe.SourceServer, MyNotesMailProbe.Location)
+                            myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not transfer the test message to the mail.box file on " & MyNotesMailProbe.SourceServer, MyNotesMailProbe.Location)
 
 						End Try
 					End With
@@ -589,7 +589,7 @@ Partial Public Class VitalSignsPlusDomino
 					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor error creating message: " & ex.Message)
 					MyNotesMailProbe.Status = "Failed"
 					MyNotesMailProbe.ResponseDetails = "Error sending the test message " & ex.Message
-					myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not create test message " & ex.ToString, MyNotesMailProbe.Location)
+                    myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not create test message " & ex.ToString, MyNotesMailProbe.Location)
 
 				Finally
 
@@ -791,7 +791,7 @@ Cleanup:
                         entity.Details = "Unable to open target server"
                         repository.Replace(entity)
 
-                        myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not connect to target Notes database: " & entity.TargetServer & ":" & entity.TargetDatabase, MyNotesMailProbe.Location)
+                        myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not connect to target Notes database: " & entity.TargetServer & ":" & entity.TargetDatabase, MyNotesMailProbe.Location)
 
                         'Update statistics Table
                         UpdateNotesMailStatistics(MyNotesMailProbe.ServerObjectID, "DeliveryTime.Seconds", 0)
@@ -855,7 +855,7 @@ Cleanup:
                             'date is in future
                             '   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Delivered on time")
 
-                            myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.Location)
+                            myAlert.ResetAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.Location)
 
                             entity.Status = "OK"
                             entity.DeliveryTimeMinutes = MyNotesMailProbe.ResponseTime
@@ -865,8 +865,8 @@ Cleanup:
                             MyNotesMailProbe.IncrementUpCount()
                             MyNotesMailProbe.Status = "OK"
                             MyNotesMailProbe.ResponseDetails = " Found the test message in the Target database, it was delivered on time at: " & docMail.GetItemValue("DeliveredDate")(0)
-                            myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.Location)
-                            myAlert.ResetAlert("NotesMail Probe", MyNotesMailProbe.Name, "Late", MyNotesMailProbe.Location)
+                            myAlert.ResetAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.Location)
+                            myAlert.ResetAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Late", MyNotesMailProbe.Location)
                             'Update Stats Table
                             Dim MyResponseTime As Integer
                             MyResponseTime = Math.Abs(DeliveryTime.Seconds)
@@ -892,7 +892,7 @@ Cleanup:
 
                             MyNotesMailProbe.Status = "Delivered Late"
                             MyNotesMailProbe.ResponseDetails = " Found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0)
-                            myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Slow", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
+                            myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Slow", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
                             'Update Stats Table
                             UpdateNotesMailStatistics(MyNotesMailProbe.ServerObjectID, "DeliveryTime.Seconds", Math.Abs(DeliveryTime.Seconds))
                         End If
@@ -944,7 +944,7 @@ Cleanup:
                         MyNotesMailProbe.IncrementDownCount()
                         MyNotesMailProbe.Status = "Failed"
                         MyNotesMailProbe.ResponseDetails = "The test message was not found in the target database, and the deadline has passed.  Sending another test message at " & MyNotesMailProbe.NextScan & "."
-                        myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
+                        myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
 
                         entity.Status = "Failed"
                         entity.Details = "Memo not found"
@@ -1291,7 +1291,7 @@ Cleanup:
                     'TypeANDName is the key
 
                     Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-NotesMail Probe")
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-" & .ServerType)
                     Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                          .Set(Function(x) x.DownCount, .DownCount) _
                                                                                          .Set(Function(x) x.CurrentStatus, .Status) _

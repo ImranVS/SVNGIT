@@ -21,6 +21,8 @@ using VSFramework;
 using System;
 
 using MongoDB.Driver;
+using VSNext.Mongo.Entities;
+using VSNext.Mongo.Repository;
 
 namespace VitalSignsMicrosoftClasses
 {
@@ -33,7 +35,7 @@ namespace VitalSignsMicrosoftClasses
 		MonitoredItems.ActiveDirectoryServersCollection myActiveDirectoryServers;
 		Thread DiagTestThread = null;
 
-		string serverType = "Active Directory";
+        string serverType = VSNext.Mongo.Entities.Enums.ServerType.ActiveDirectory.ToDescription();
 		public void StartProcess(dynamic MicrosoftHelperObj)
 		{
 			try

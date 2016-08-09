@@ -620,14 +620,14 @@ Partial Public Class VitalSignsPlusDomino
                                     If myKeywords.Item(i).RepeatOnce = True Then
                                         '10/3/2014 NS modified for VSPLUS-981
                                         '4/6/2015 NS reverted the code back to the original line below in order to keep track of multiple keywords per server
-                                        myAlert.QueueAlert("Domino", DominoServer.Name, "Log File - " & myKeywords.Item(i).Keyword, "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
+                                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Log File - " & myKeywords.Item(i).Keyword, "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
                                         '12/18/2014 NS modified
                                         'myAlert.QueueAlert("Domino", DominoServer.Name, "Log File", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & convertQuotes(item), DominoServer.Location)
                                     Else
                                         '10/3/2014 NS modified for VSPLUS-981
                                         '4/6/2015 NS reverted the code back to the original line below in order to keep track of multiple keywords per server
                                         '5/14/2015 NS modified for VSPLUS-1761 - added ticks in parenthesis to distinguish between entries when a lot of records are found
-                                        myAlert.QueueAlert("Domino", DominoServer.Name, "Log File - " & myKeywords.Item(i).Keyword & " at " & Now.ToString & " (" & Now.Ticks.ToString() & ")", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
+                                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Log File - " & myKeywords.Item(i).Keyword & " at " & Now.ToString & " (" & Now.Ticks.ToString() & ")", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
                                         '12/18/2014 NS modified
                                         'myAlert.QueueAlert("Domino", DominoServer.Name, "Log File", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & convertQuotes(item), DominoServer.Location)
                                     End If
@@ -785,14 +785,14 @@ Cleanup:
                                     If myKeywords.Item(i).RepeatOnce = True Then
                                         '10/3/2014 NS modified for VSPLUS-981
                                         '4/6/2015 NS reverted the code back to the original line below in order to keep track of multiple keywords per server
-                                        myAlert.QueueAlert("Domino", DominoServer.Name, "Agent Log File - " & myKeywords.Item(i).Keyword, "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the agent log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
+                                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Agent Log File - " & myKeywords.Item(i).Keyword, "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the agent log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
                                         '12/18/2014 NS modified
                                         'myAlert.QueueAlert("Domino", DominoServer.Name, "Log File", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the agent log file.  " & vbCrLf & vbCrLf & "The entry was " & convertQuotes(item), DominoServer.Location)
                                     Else
                                         '10/3/2014 NS modified for VSPLUS-981
                                         '4/6/2015 NS reverted the code back to the original line below in order to keep track of multiple keywords per server
                                         '5/14/2015 NS modified for VSPLUS-1761 - added ticks in parenthesis to distinguish between entries when a lot of records are found
-                                        myAlert.QueueAlert("Domino", DominoServer.Name, "Agent Log File - " & myKeywords.Item(i).Keyword & " at " & Now.ToString & " (" & Now.Ticks.ToString() & ")", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the agent log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
+                                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Agent Log File - " & myKeywords.Item(i).Keyword & " at " & Now.ToString & " (" & Now.Ticks.ToString() & ")", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the agent log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
                                         '12/18/2014 NS modified
                                         'myAlert.QueueAlert("Domino", DominoServer.Name, "Log File", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the agent log file.  " & vbCrLf & vbCrLf & "The entry was " & convertQuotes(item), DominoServer.Location)
                                     End If
@@ -1466,7 +1466,7 @@ WaitHere:
         Try
             If ResponseTime > 0 Then
                 MyDominoServer.ConsecutiveTelnetCount = 0
-                myAlert.ResetAlert("Domino", MyDominoServer.Name, "Telnet", MyDominoServer.Location, "The server is responding to Notes client requests")
+                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Telnet", MyDominoServer.Location, "The server is responding to Notes client requests")
             End If
 
         Catch ex As Exception
@@ -1492,7 +1492,7 @@ WaitHere:
                     MyDominoServer.Description = "Connected to the server via telnet on port 1352 at " & Now.ToShortTimeString
                     ' MyDominoServer.Status = "Telnet"
                     MyDominoServer.ResponseDetails = "Connected to the server via telnet on port 1352 at " & Now.ToShortTimeString
-                    myAlert.ResetAlert("Domino", MyDominoServer.Name, "Not Responding", MyDominoServer.Location)
+                    myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Not Responding", MyDominoServer.Location)
                     MyDominoServer.IsUp = True
                     MyDominoServer.LastScan = Now
                     MyDominoServer.IncrementUpCount()  '2
@@ -1500,7 +1500,7 @@ WaitHere:
                     If MyDominoServer.ConsecutiveTelnetCount > GetConsecutiveTelnetValue() Then
                         MyDominoServer.Status = "Telnet"
                         MyDominoServer.ResponseDetails = "The server is answering, but only to telnet on port 1352"
-                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "Telnet", "The server is answering, but only to telnet on port 1352.  This could indicate a problem.", MyDominoServer.Location)
+                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Telnet", "The server is answering, but only to telnet on port 1352.  This could indicate a problem.", MyDominoServer.Location)
                         '1/26/2016 NS modified for VSPLUS-2209
                     Else
                         MyDominoServer.Status = "OK"
@@ -1542,7 +1542,7 @@ WaitHere:
                 '1/21/2016 NS modified for VSPLUS-2534
                 MyDominoServer.Description = "Successfully connected to the server via fast scan at " & Now.ToShortTimeString & ". "
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " QueryDominoServer cycle at C(a)")
-                myAlert.ResetAlert("Domino", MyDominoServer.Name, "Not Responding", MyDominoServer.Location, "The server is responding to Notes client requests")
+                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Not Responding", MyDominoServer.Location, "The server is responding to Notes client requests")
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " QueryDominoServer cycle at C(b)")
                 If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Server up time is " & Microsoft.VisualBasic.Strings.Format(MyDominoServer.UpMinutes, "F1") & " minutes.")
                 If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Server down time is " & Microsoft.VisualBasic.Strings.Format(MyDominoServer.DownMinutes, "F1") & " minutes.")
@@ -1713,10 +1713,9 @@ WaitHere:
                 Try
 
                     With MyDominoServer
-                        strSQL = "Update Status SET DominoVersion='" & .VersionDomino & "', OperatingSystem='" & Left(.OperatingSystem, 100) & "'" & _
-                                 "  WHERE TypeANDName='" & .Name & "-Domino'"
+
                         Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-Domino")
+                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-" & .ServerType)
                         Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                              .Set(Function(x) x.SoftwareVersion, .VersionDomino) _
                                                                                              .Set(Function(x) x.OperatingSystem, Left(.OperatingSystem, 100))
@@ -1902,9 +1901,9 @@ WaitHere:
                             MyDominoServer.Status = "Insufficient CPU"
                             MyDominoServer.ResponseDetails += "The CPU utilization on this server exceeds the alert threshold of " & MyDominoServer.CPU_Threshold & "%. " & vbCrLf
                             MyDominoServer.Description = "The CPU utilization on this server exceeds the alert threshold of " & MyDominoServer.CPU_Threshold & "%. "
-                            myAlert.QueueAlert("Domino", MyDominoServer.Name, "CPU", "The CPU utilization on this server exceeds the alert threshold of " & MyDominoServer.CPU_Threshold & "%.", MyDominoServer.Location)
+                            myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "CPU", "The CPU utilization on this server exceeds the alert threshold of " & MyDominoServer.CPU_Threshold & "%.", MyDominoServer.Location)
                         Else
-                            myAlert.ResetAlert("Domino", MyDominoServer.Name, "CPU", MyDominoServer.Location, "The CPU is at " & MyDominoServer.CPU_Utilization & "%")
+                            myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "CPU", MyDominoServer.Location, "The CPU is at " & MyDominoServer.CPU_Utilization & "%")
                         End If
                     Catch ex As Exception
 
@@ -2128,7 +2127,7 @@ WaitHere:
                     'Server has failed before, so time to send out some alerts
                     ' myAlert.QueueAlert("Domino Server", MyDominoServer.Name, "Not Responding", "The Domino server " & MyDominoServer.Name & " is not responding.  This was first detected " & Now.ToShortDateString & "  " & Now.ToShortTimeString)
                     '3/4/2016 NS modified for VSPLUS-2682
-                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Not Responding", "The server " & MyDominoServer.Name & " is not responding.  " & MyDominoServer.Description & vbCrLf & vbCrLf & " This was first detected " & Now.ToShortDateString & "  " & Now.ToShortTimeString, MyDominoServer.Location)
+                    myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Not Responding", "The server " & MyDominoServer.Name & " is not responding.  " & MyDominoServer.Description & vbCrLf & vbCrLf & " This was first detected " & Now.ToShortDateString & "  " & Now.ToShortTimeString, MyDominoServer.Location)
 
                 End If
             Catch ex As Exception
@@ -2282,7 +2281,7 @@ WaitHere:
             ' Added the check to reset and reset the alert only if the prior Telnet value was > 0 to avoid un-necessary call to do a reset alert. 
             If ResponseTime > 0 And MyDominoServer.ConsecutiveTelnetCount > 0 Then
                 MyDominoServer.ConsecutiveTelnetCount = 0
-                myAlert.ResetAlert("Domino", MyDominoServer.Name, "Telnet", MyDominoServer.Location)
+                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Telnet", MyDominoServer.Location)
             End If
 
         Catch ex As Exception
@@ -2306,7 +2305,7 @@ WaitHere:
                     '	MyDominoServer.Description = "Connected at " & Now.ToShortTimeString
                     'MyDominoServer.Status = "OK"
                     MyDominoServer.ResponseDetails = "Connected to the server via telnet on port 1352 at " & Now.ToShortTimeString
-                    myAlert.ResetAlert("Domino", MyDominoServer.Name, "Not Responding", MyDominoServer.Location, "Connected to the server via telnet on port 1352")
+                    myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Not Responding", MyDominoServer.Location, "Connected to the server via telnet on port 1352")
                     MyDominoServer.IsUp = True
                     ' MyDominoServer.LastScan = Now
                     MyDominoServer.IncrementUpCount()
@@ -2314,7 +2313,7 @@ WaitHere:
                     If MyDominoServer.ConsecutiveTelnetCount > GetConsecutiveTelnetValue() Then
                         MyDominoServer.Status = "Telnet"
                         MyDominoServer.ResponseDetails = "The server is answering, but only to telnet on port 1352"
-                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "Telnet", "The server is answering, but only to telnet on port 1352.  This could indicate a problem.", MyDominoServer.Location)
+                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Telnet", "The server is answering, but only to telnet on port 1352.  This could indicate a problem.", MyDominoServer.Location)
                         '1/26/2016 NS modified for VSPLUS-2209
                     Else
                         MyDominoServer.Status = "OK"
@@ -2369,7 +2368,7 @@ WaitHere:
                 MyDominoServer.Description = "Successfully connected to the server via Just Ping scan at " & Now.ToShortTimeString
                 ' JT 2/16 Added a condition to reset only if the Prior Statu was Not Responding to minimize the un-necessary call. 
                 If Trim(previousStatus) = "Not Responding" Then
-                    myAlert.ResetAlert("Domino", MyDominoServer.Name, "Not Responding", MyDominoServer.Location)
+                    myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Not Responding", MyDominoServer.Location)
                 End If
 
 
@@ -2480,7 +2479,7 @@ WaitHere:
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Alert: " & MyDominoServer.Name & " is down.", LogLevel.Verbose)
                     'Server has failed before, so time to send out some alerts
                     '3/4/2016 NS modified for VSPLUS-2682
-                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Not Responding", "The server " & MyDominoServer.Name & " is not responding.  " & MyDominoServer.Description & vbCrLf & vbCrLf & " This was first detected " & Now.ToShortDateString & "  " & Now.ToShortTimeString, MyDominoServer.Location)
+                    myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Not Responding", "The server " & MyDominoServer.Name & " is not responding.  " & MyDominoServer.Description & vbCrLf & vbCrLf & " This was first detected " & Now.ToShortDateString & "  " & Now.ToShortTimeString, MyDominoServer.Location)
 
                 End If
             Catch ex As Exception
@@ -2536,17 +2535,17 @@ WaitHere:
                 ElapsedDays = myElapsedString.Substring(0, dIndex + 1)
                 If MyDominoServer.ServerDaysAlert > 0 Then
                     If (ElapsedDays > MyDominoServer.ServerDaysAlert) Then
-                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "Reboot Overdue", "Server has been running for " & ElapsedDays & " Days and is longer than the threshold of " & MyDominoServer.ServerDaysAlert & " Days", MyDominoServer.Location, "Policy")
+                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Reboot Overdue", "Server has been running for " & ElapsedDays & " Days and is longer than the threshold of " & MyDominoServer.ServerDaysAlert & " Days", MyDominoServer.Location, "Policy")
                     Else
-                        myAlert.ResetAlert("Domino", MyDominoServer.Name, "Reboot Overdue", MyDominoServer.Location, "Server has been running for " & ElapsedDays, "Policy")
+                        myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Reboot Overdue", MyDominoServer.Location, "Server has been running for " & ElapsedDays, "Policy")
                     End If
                 End If
-                Dim objVSAdaptor As New VSAdaptor
-                Dim strSQL_Short As String = ""
-                With MyDominoServer
-                    strSQL_Short = "Update Status SET ElapsedDays = " & ElapsedDays & " WHERE TypeANDName='" & .Name & "-Domino'"
-                End With
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL_Short)
+                Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.ElapsedDays, ElapsedDays)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, MyDominoServer.Name) And _
+                    repository.Filter.Eq(Function(x) x.Type, MyDominoServer.ServerType)
+                repository.Update(filterDef, updateDef)
+
             End If
 
         Catch ex As Exception
@@ -3312,7 +3311,7 @@ WaitHere:
                         Try
                             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Sending Load command because the " & ConfiguredTask.Name & " task was not found")
                             SendDominoConsoleCommands(DominoServer.Name, ConfiguredTask.LoadCommand, "Sending Load command because the task was not found")
-                            myAlert.QueueAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was not found on " & DominoServer.Name & ". A load command was sent to the server.", DominoServer.Location)
+                            myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was not found on " & DominoServer.Name & ". A load command was sent to the server.", DominoServer.Location)
                             DominoServer.AlertCondition = True
                         Catch ex As Exception
 
@@ -3320,7 +3319,7 @@ WaitHere:
 
                         If ConfiguredTask.RestartServerIfMissingASAP = True And ConfiguredTask.FailureCount >= (ConfiguredTask.FailureThreshold + 1) Then
                             Try
-                                myAlert.QueueAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was not found on " & DominoServer.Name & ". A load command was sent to the server, but it failed.  A restart server command has been sent.", DominoServer.Location)
+                                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was not found on " & DominoServer.Name & ". A load command was sent to the server, but it failed.  A restart server command has been sent.", DominoServer.Location)
                                 DominoServer.Status = ConfiguredTask.Name & " Task Failure - Server Restarted"
                                 If ConfiguredTask.FailureCount = 1 Then
                                     If TaskStatus = "" Then
@@ -3345,7 +3344,7 @@ WaitHere:
 
                         If ConfiguredTask.RestartServerIfMissingOFFHOURS = True And ConfiguredTask.FailureCount >= (ConfiguredTask.FailureThreshold + 1) And DominoServer.OffHours = True Then
                             Try
-                                myAlert.QueueAlert("Domino", DominoServer.Name, ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was not found on " & DominoServer.Name & ". A load command was sent to the server, but it failed.  A restart server command has been sent.", DominoServer.Location)
+                                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was not found on " & DominoServer.Name & ". A load command was sent to the server, but it failed.  A restart server command has been sent.", DominoServer.Location)
                                 DominoServer.Status = ConfiguredTask.Name & " Task Failure - Server Restarted"
                                 If ConfiguredTask.FailureCount = 1 Then
                                     If TaskStatus = "" Then
@@ -3379,7 +3378,7 @@ WaitHere:
                             TaskStatus += vbCrLf & ConfiguredTask.Name & " Not Found"
                         End If
 
-                        myAlert.QueueAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was not found on " & DominoServer.Name & ". No action was taken", DominoServer.Location)
+                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was not found on " & DominoServer.Name & ". No action was taken", DominoServer.Location)
                         DominoServer.AlertCondition = True
                     End If
 
@@ -3424,7 +3423,7 @@ WaitHere:
                         End Try
                         '     myAlert.QueueAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was found on " & DominoServer.Name & ". The task was told to exit.", DominoServer.Location)
 
-                        myAlert.QueueAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was found on " & DominoServer.Name & ". The task was told to exit.", DominoServer.Location)
+                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was found on " & DominoServer.Name & ". The task was told to exit.", DominoServer.Location)
                     End If
 
 
@@ -3478,13 +3477,13 @@ WaitHere:
                             End If
                             DominoServer.Description = "The task " & ConfiguredTask.Name & " appears to be hung"
                             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Attempting to send an alert for " & ConfiguredTask.Name & " on " & DominoServer.Name & " - hung.")
-                            myAlert.QueueAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " appears to be hung on " & DominoServer.Name & ". The last update was " & Math.Round(RunningTime.TotalMinutes, MidpointRounding.AwayFromZero).ToString & " minutes ago.  No action was taken", DominoServer.Location)
+                            myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " appears to be hung on " & DominoServer.Name & ". The last update was " & Math.Round(RunningTime.TotalMinutes, MidpointRounding.AwayFromZero).ToString & " minutes ago.  No action was taken", DominoServer.Location)
                         End If
 
                         If ConfiguredTask.LoadIfMissing = True And ConfiguredTask.FailureCount = ConfiguredTask.FailureThreshold And ConfiguredTask.RestartServerIfMissingASAP = True Then
                             DominoServer.Status = ConfiguredTask.Name & " Hung"
                             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Attempting to send an alert for " & ConfiguredTask.Name & " on " & DominoServer.Name & " - hung.")
-                            myAlert.QueueAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was hung on " & DominoServer.Name & ". The server was restarted.", DominoServer.Location)
+                            myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was hung on " & DominoServer.Name & ". The server was restarted.", DominoServer.Location)
                             SendDominoConsoleCommand(DominoServer.Name, "restart server")
                             If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & ConfiguredTask.Name & " on " & DominoServer.Name & " was hung.  Server restarted.")
                             If TaskStatus = "" Then
@@ -3499,7 +3498,7 @@ WaitHere:
                             DominoServer.Status = ConfiguredTask.Name & " Hung"
                             DominoServer.Description = "The task " & ConfiguredTask.Name & " was hung on " & DominoServer.Name & ". It is now off hours, so the server was restarted."
                             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Attempting to send an alert for " & ConfiguredTask.Name & " on " & DominoServer.Name & " - hung.")
-                            myAlert.QueueAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was hung on " & DominoServer.Name & ". It is now off hours, so the server was restarted.", DominoServer.Location)
+                            myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, "The task " & ConfiguredTask.Name & " was hung on " & DominoServer.Name & ". It is now off hours, so the server was restarted.", DominoServer.Location)
                             SendDominoConsoleCommand(DominoServer.Name, "restart server")
                             If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & ConfiguredTask.Name & " on " & DominoServer.Name & " was hung.  Server restarted.")
                             If TaskStatus = "" Then
@@ -3518,7 +3517,7 @@ WaitHere:
                             'it is supposed to be running
                             'If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Name: " & ConfiguredTask.Name)
                             ' If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Location: " & DominoServer.Location)
-                            myAlert.ResetAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, DominoServer.Location, "Task is running", "Server Tasks")
+                            myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, DominoServer.Location, "Task is running", "Server Tasks")
                             ConfiguredTask.FailureCount = 0
                         End If
                     Catch ex As Exception
@@ -3530,7 +3529,7 @@ WaitHere:
                     'Not supposed to be running and not running so do nothing
                     Try
                         ' myAlert.ResetAlert("Server Task", DominoServer.Name, ConfiguredTask.Name, DominoServer.Location)
-                        myAlert.ResetAlert("Domino", DominoServer.Name, "Server Task: " & ConfiguredTask.Name, DominoServer.Location)
+                        myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, DominoServer.Location)
 
                     Catch ex As Exception
 
@@ -3573,7 +3572,7 @@ SkipTask:
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
                 Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, DominoServer.Name) And _
-                    repository.Filter.Eq(Function(x) x.Type, "Domino")
+                    repository.Filter.Eq(Function(x) x.Type, DominoServer.ServerType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.CurrentStatus, "Server Tasks Warning") _
                                                                                      .Set(Function(x) x.StatusCode, "Issue")
@@ -3699,7 +3698,7 @@ SkipTask:
             Try
                 Dim DominoServer2 As MonitoredItems.DominoServer = DominoServer
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(DominoServer2.Name & "-Domino"))
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(DominoServer2.Name & "-" & DominoServer2.ServerType))
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.DominoServerTasks, listOfEntities)
                 repository.Update(filterDef, updateDef)
@@ -3970,11 +3969,11 @@ SkipTask:
                     'Unix servers are supposed to use all available memory.
                     MyDominoServer.Status = "Low Memory: " & PercentRAMinUse & "% used."
                     If MyDominoServer.Memory_Threshold <> 0 Then
-                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "Memory", "The server is reporting low memory.  The statistic Platform.Memory.RAM.PctUtil reports that " & PercentRAMinUse & "% of memory is currently in use.  Your alert threshold for this server is " & MyDominoServer.Memory_Threshold & "%. Consistent low memory often leads to a server crash.", MyDominoServer.Location)
+                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Memory", "The server is reporting low memory.  The statistic Platform.Memory.RAM.PctUtil reports that " & PercentRAMinUse & "% of memory is currently in use.  Your alert threshold for this server is " & MyDominoServer.Memory_Threshold & "%. Consistent low memory often leads to a server crash.", MyDominoServer.Location)
                     End If
                 Else
                     ' myAlert.ResetAlert("Domino", MyDominoServer.Name, "Memory", MyDominoServer.Location)
-                    myAlert.ResetAlert("Domino", MyDominoServer.Name, "Memory", MyDominoServer.Location, "Server reports memory at " & PercentRAMinUse & "% used.")
+                    myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Memory", MyDominoServer.Location, "Server reports memory at " & PercentRAMinUse & "% used.")
                 End If
             End If
 
@@ -4027,9 +4026,9 @@ SkipTask:
 
         If MyDominoServer.AvailabilityIndex < MyDominoServer.AvailabilityIndexThreshold Then
             '3/1/2016 NS modified for VSPLUS-2641
-            myAlert.QueueAlert("Domino", MyDominoServer.Name, "Availability Index", "The server is reporting its availability index below the set threshold. The statistic Server.AvailabilityIndex reports that " & MyDominoServer.AvailabilityIndex & "% of the server's resources are available. This alert is triggered whenever less than " & MyDominoServer.AvailabilityIndexThreshold & "% of the server's resources are available.", MyDominoServer.Location)
+            myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Availability Index", "The server is reporting its availability index below the set threshold. The statistic Server.AvailabilityIndex reports that " & MyDominoServer.AvailabilityIndex & "% of the server's resources are available. This alert is triggered whenever less than " & MyDominoServer.AvailabilityIndexThreshold & "% of the server's resources are available.", MyDominoServer.Location)
         Else
-            myAlert.ResetAlert("Domino", MyDominoServer.Name, "Availability Index", MyDominoServer.Location, "Server reports availability index at " & MyDominoServer.AvailabilityIndex & "%.")
+            myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Availability Index", MyDominoServer.Location, "Server reports availability index at " & MyDominoServer.AvailabilityIndex & "%.")
         End If
     End Sub
 #Region "Disk Space Related"
@@ -4507,19 +4506,19 @@ skipdrive:
                                         If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                             'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                             '3/4/2016 NS modified for VSPLUS-2682
-                                            myAlert.QueueAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & row.Item("Threshold") & "%", MyDominoServer.Location)
+                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & row.Item("Threshold") & "%", MyDominoServer.Location)
 
                                         Else
                                             ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                             '3/4/2016 NS modified for VSPLUS-2682
-                                            myAlert.QueueAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ". The threshold is " & row.Item("Threshold") & "%", MyDominoServer.Location)
+                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ". The threshold is " & row.Item("Threshold") & "%", MyDominoServer.Location)
                                             ' MyDominoServer.ResponseDetails += " - " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & Microsoft.VisualBasic.Strings.Format(row.Item("Threshold"), "##0.#" & "%")
                                             MyDominoServer.ResponseDetails += " | " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & row.Item("Threshold").ToString & "%"
 
                                         End If
                                     Else
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive is not in an alert condition. ")
-                                        myAlert.ResetAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location)
+                                        myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location)
                                     End If
                                 Case "GB"
                                     Try
@@ -4533,19 +4532,19 @@ skipdrive:
                                             If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                                 'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                                 '3/4/2016 NS modified for VSPLUS-2682
-                                                myAlert.QueueAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & row.Item("Threshold") & " GB", MyDominoServer.Location)
+                                                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & row.Item("Threshold") & " GB", MyDominoServer.Location)
                                                 MyDominoServer.ResponseDetails += " | " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free space on " & DiskNames(n) & ". Threshold is " & myThreshold.ToString("F2") & "%"
 
                                             Else
                                                 ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                                 '3/4/2016 NS modified for VSPLUS-2682
-                                                myAlert.QueueAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & row.Item("Threshold") & " GB", MyDominoServer.Location)
+                                                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & row.Item("Threshold") & " GB", MyDominoServer.Location)
                                                 MyDominoServer.ResponseDetails += " | " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free space on " & DiskNames(n) & ". Threshold is " & myThreshold.ToString("F2") & " GB"
 
                                             End If
                                         Else
                                             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive is not in an alert condition. ")
-                                            myAlert.ResetAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, "This drive has " & myDiskDrive.DiskFreeInGB & " GB free space.")
+                                            myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, "This drive has " & myDiskDrive.DiskFreeInGB & " GB free space.")
                                         End If
                                     Catch ex As Exception
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception with disk space at #5: " & ex.ToString)
@@ -4577,12 +4576,12 @@ skipdrive:
                                     If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                         'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & MyDominoServer.DiskThreshold & "%", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & MyDominoServer.DiskThreshold & "%", MyDominoServer.Location)
 
                                     Else
                                         ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold & "%", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold & "%", MyDominoServer.Location)
 
                                     End If
                                     MyDominoServer.Status = "Low Disk Space"
@@ -4592,7 +4591,7 @@ skipdrive:
                                     UpdateDominoStatusTable(MyDominoServer)
                                 Else
                                     'ResetAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n))
-                                    myAlert.ResetAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, (PercentFree * 100).ToString("F1") & "% free space on " & DiskNames(n))
+                                    myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, (PercentFree * 100).ToString("F1") & "% free space on " & DiskNames(n))
                                 End If
 
 
@@ -4607,12 +4606,12 @@ skipdrive:
                                     If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                         'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & MyDominoServer.DiskThreshold & " GB", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & MyDominoServer.DiskThreshold & " GB", MyDominoServer.Location)
 
                                     Else
                                         ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold & " GB", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold & " GB", MyDominoServer.Location)
 
                                     End If
                                     MyDominoServer.Status = "Low Disk Space"
@@ -4622,7 +4621,7 @@ skipdrive:
                                     UpdateDominoStatusTable(MyDominoServer)
                                 Else
                                     'ResetAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n))
-                                    myAlert.ResetAlert("Domino", MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free")
+                                    myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free")
                                 End If
 
 
@@ -5009,7 +5008,7 @@ skipdrive2:
                                     'if the error is that we cannot get from one document to another because the router is deleting them 
                                     'so quickly, it is safe to assume that the router is OK, and no need to queue an alert
                                     ' VSPLUS-3145
-                                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
+                                    myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
                                     MyDominoServer.Description = "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble."
                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception processing " & MailboxName & ":  " & ex.ToString)
                                 End If
@@ -5033,7 +5032,7 @@ skipdrive2:
                     'if the error is that we cannot get from one document to another because the router is deleting them 
                     'so quickly, it is safe to assume that the router is OK, and no need to queue an alert
                     ' VSPLUS-3145
-                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
+                    myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
                     MyDominoServer.Description = "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble."
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception processing " & MailboxName & ":  " & ex.ToString)
                 End If
@@ -5112,11 +5111,11 @@ skipdrive2:
                 MyDominoServer.Status = "Dead Mail Alert"
                 MyDominoServer.AlertType = DeadMail
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.QueueAlert("Domino", MyDominoServer.Name, "Dead Mail", "The server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages.", MyDominoServer.Location)
+                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Dead Mail", "The server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages.", MyDominoServer.Location)
                 ' myAlert.QueueAlert("Domino", MyDominoServer.Name, "Dead Mail", "The Domino server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages.", MyDominoServer.Location)
             Else
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.ResetAlert("Domino", MyDominoServer.Name, "Dead Mail", MyDominoServer.Location, "The server has " & MyDominoServer.DeadMail & " dead messages.")
+                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Dead Mail", MyDominoServer.Location, "The server has " & MyDominoServer.DeadMail & " dead messages.")
                 If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " No problem with dead mail, Dead Mail= " & MyDominoServer.DeadMail & " Dead mail threshold= " & MyDominoServer.DeadThreshold)
             End If
         Catch ex As Exception
@@ -5140,7 +5139,7 @@ skipdrive2:
 
                     End Try
                     '3/4/2016 NS modified for VSPLUS-2682
-                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Dead Mail Deletion", "The server " & MyDominoServer.Name & " had dead mail of " & MyDominoServer.DeadMail & " messages, which exceeded the automatic deletion threshold.  VitalSigns attempted to automatically delete the dead mail on this server. " & intMessagesDeleted & " messages were deleted.", MyDominoServer.Location)
+                    myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Dead Mail Deletion", "The server " & MyDominoServer.Name & " had dead mail of " & MyDominoServer.DeadMail & " messages, which exceeded the automatic deletion threshold.  VitalSigns attempted to automatically delete the dead mail on this server. " & intMessagesDeleted & " messages were deleted.", MyDominoServer.Location)
                 End If
             End If
 
@@ -5163,10 +5162,10 @@ skipdrive2:
                     strmsg = "The server " & MyDominoServer.Name & " has " & MyDominoServer.HeldMail.ToString & " held messages."
                 End If
 
-                myAlert.QueueAlert("Domino", MyDominoServer.Name, "Held Mail", strmsg, MyDominoServer.Location)
+                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Held Mail", strmsg, MyDominoServer.Location)
             Else
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.ResetAlert("Domino", MyDominoServer.Name, "Held Mail", MyDominoServer.Location, "The server has " & MyDominoServer.HeldMail & " held messages.")
+                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Held Mail", MyDominoServer.Location, "The server has " & MyDominoServer.HeldMail & " held messages.")
             End If
         Catch ex As Exception
             If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception calculating Held mail alert: " & ex.ToString)
@@ -5189,7 +5188,7 @@ skipdrive2:
                     '3/4/2016 NS modified for VSPLUS-2682
                     strmsg = "The server " & MyDominoServer.Name & " has " & MyDominoServer.PendingMail.ToString & " pending messages."
                 End If
-                myAlert.QueueAlert("Domino", MyDominoServer.Name, "Pending Mail", strmsg, MyDominoServer.Location)
+                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Pending Mail", strmsg, MyDominoServer.Location)
 
                 'myAlert.QueueAlert("Domino", MyDominoServer.Name, "Pending Mail", "The Domino server " & MyDominoServer.Name & " has " & MyDominoServer.PendingMail & " pending messages.", MyDominoServer.Location)
                 If MyDominoServer.DeadMail >= MyDominoServer.DeadThreshold Then
@@ -5198,7 +5197,7 @@ skipdrive2:
                 End If
 
             Else
-                myAlert.ResetAlert("Domino", MyDominoServer.Name, "Pending Mail", MyDominoServer.Location, "Server has " & MyDominoServer.PendingMail & " pending messages")
+                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Pending Mail", MyDominoServer.Location, "Server has " & MyDominoServer.PendingMail & " pending messages")
             End If
 
         Catch ex As Exception
@@ -6204,7 +6203,7 @@ skipdrive2:
         Dim sqlStatement As New System.Text.StringBuilder
         With MyDominoServer
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-Domino")
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-" & .ServerType)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                  .Set(Function(x) x.Domain, Domino_Domain) _
                                                                                  .Set(Function(x) x.MailboxCount, MyDominoServer.MailboxCount) _
@@ -6434,9 +6433,9 @@ skipdrive2:
             If DominoServer.ReplicaClusterSecondsOnQueue > DominoServer.ClusterRep_Threshold Then
                 DominoServer.Status = "Cluster Replication Delays"
                 DominoServer.ResponseDetails = "The cluster replication threshold is " & DominoServer.ClusterRep_Threshold & " and the current value is " & DominoServer.ReplicaClusterSecondsOnQueue
-                myAlert.QueueAlert("Domino", DominoServer.Name, "Cluster Replicator Delay", DominoServer.ResponseDetails, DominoServer.Location)
+                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Cluster Replicator Delay", DominoServer.ResponseDetails, DominoServer.Location)
             Else
-                myAlert.ResetAlert("Domino", DominoServer.Name, "Cluster Replicator Delay", DominoServer.Location)
+                myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Cluster Replicator Delay", DominoServer.Location)
             End If
         Catch ex As Exception
 
@@ -6506,9 +6505,9 @@ skipdrive2:
                 DominoServer.Description = "The server's availability index, " & DominoServer.AvailabilityIndex & ", equals or exceeds the availability threshold of " & DominoServer.AvailabilityThreshold & ".  Database open requests to this server will be redirected to another server for load balancing."
 
                 UpdateDominoStatusTable(DominoServer)
-                myAlert.QueueAlert("Domino", DominoServer.Name, "Failover", DominoServer.ResponseDetails, DominoServer.Location)
+                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Failover", DominoServer.ResponseDetails, DominoServer.Location)
             Else
-                myAlert.ResetAlert("Domino", DominoServer.Name, "Failover", DominoServer.Location)  'no need to be busy and overloaded
+                myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Failover", DominoServer.Location)  'no need to be busy and overloaded
             End If
         Catch ex As Exception
 
@@ -6573,7 +6572,7 @@ skipdrive2:
             With DominoServer
                 Dim DominoServer2 As MonitoredItems.DominoServer = DominoServer
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(DominoServer2.Name & "-Domino"))
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(DominoServer2.Name & "-" & DominoServer2.ServerType))
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.ClusterName, myClusterName) _
                                                                                      .Set(Function(x) x.ClusterSecondsOnQueue, .ReplicaClusterSecondsOnQueue) _
@@ -7249,10 +7248,10 @@ skipdrive2:
                         If Stat.ConsoleCommand <> "" Then
                             SendConsoleCommand(DominoServer.Name, Stat.ConsoleCommand)
                         End If
-                        myAlert.QueueAlert("Domino", DominoServer.Name, "Domino Statistic: " & Stat.Statistic, "A custom statistic has passed its threshold: " & Stat.Statistic & " " & Stat.ComparisonOperator & " " & Stat.ThresholdValue & ".  Current Value is " & Stat.Value & ".", DominoServer.Location)
+                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Domino Statistic: " & Stat.Statistic, "A custom statistic has passed its threshold: " & Stat.Statistic & " " & Stat.ComparisonOperator & " " & Stat.ThresholdValue & ".  Current Value is " & Stat.Value & ".", DominoServer.Location)
                     Else
                         WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & " " & Stat.Statistic & " is NOT in an Alert condition.")
-                        myAlert.ResetAlert("Domino", DominoServer.Name, "Domino Statistic: " & Stat.Statistic, DominoServer.Location)
+                        myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Domino Statistic: " & Stat.Statistic, DominoServer.Location)
                     End If
                 End If
             Catch ex As Exception

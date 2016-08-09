@@ -282,7 +282,7 @@ Partial Public Class VitalSignsPlusDomino
 							MyNotesDatabase.ResponseDetails = ex.Message
 							MyNotesDatabase.IncrementDownCount()
 							'  MyNotesDatabase.LastScan = Now
-							myAlert.QueueAlert("Notes Database", MyNotesDatabase.Name, "Database Disappearance", MyNotesDatabase.ResponseDetails, MyNotesDatabase.Location)
+                            myAlert.QueueAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Database Disappearance", MyNotesDatabase.ResponseDetails, MyNotesDatabase.Location)
 						End Try
 
 						If db Is Nothing Then
@@ -291,14 +291,14 @@ Partial Public Class VitalSignsPlusDomino
 							MyNotesDatabase.ResponseDetails = MyNotesDatabase.FileName & " is not found on " & MyNotesDatabase.ServerName & "."
 							MyNotesDatabase.IncrementDownCount()
 							'   MyNotesDatabase.LastScan = Now
-							myAlert.QueueAlert("Notes Database", MyNotesDatabase.Name, "Database Disappearance", MyNotesDatabase.ResponseDetails, MyNotesDatabase.Location)
+                            myAlert.QueueAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Database Disappearance", MyNotesDatabase.ResponseDetails, MyNotesDatabase.Location)
 						Else
 							MyNotesDatabase.AlertCondition = False
 							MyNotesDatabase.Status = "OK"
 							MyNotesDatabase.ResponseDetails = MyNotesDatabase.FileName & " exists on " & MyNotesDatabase.ServerName & "."
 							MyNotesDatabase.IncrementUpCount()
 
-							myAlert.ResetAlert("Notes Database", MyNotesDatabase.Name, "Database Disappearance", MyNotesDatabase.Location)
+                            myAlert.ResetAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Database Disappearance", MyNotesDatabase.Location)
 						End If
 
 					Case "Replication"
@@ -459,13 +459,13 @@ Partial Public Class VitalSignsPlusDomino
 									.AlertCondition = True
 									.Status = "Too Many Documents"
 									.ResponseDetails = "Notes database has  " & MyNotesDatabase.DocumentCount & " documents. "
-									myAlert.QueueAlert("Notes Database", MyNotesDatabase.Name, "Too Many Documents", "The Notes database " & MyNotesDatabase.Name & " on " & MyNotesDatabase.ServerName & " (" & MyNotesDatabase.FileName & ") has  " & MyNotesDatabase.DocumentCount & " documents. Alert threshold is " & MyNotesDatabase.DocumentCountTrigger, MyNotesDatabase.Location)
+                                    myAlert.QueueAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Too Many Documents", "The Notes database " & MyNotesDatabase.Name & " on " & MyNotesDatabase.ServerName & " (" & MyNotesDatabase.FileName & ") has  " & MyNotesDatabase.DocumentCount & " documents. Alert threshold is " & MyNotesDatabase.DocumentCountTrigger, MyNotesDatabase.Location)
 								End With
 							Else
 								With MyNotesDatabase
 									.AlertCondition = False
 									.Status = "OK"
-									myAlert.ResetAlert("Notes Database", MyNotesDatabase.Name, "Too Many Documents", MyNotesDatabase.Location)
+                                    myAlert.ResetAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Too Many Documents", MyNotesDatabase.Location)
 									.ResponseDetails = "Notes database has  " & MyNotesDatabase.DocumentCount & " documents. "
 								End With
 							End If
@@ -518,14 +518,14 @@ Partial Public Class VitalSignsPlusDomino
 									.AlertCondition = True
 									.Status = "Over Size"
 									.ResponseDetails = "Notes database is " & (.DatabaseSize / 1024 / 1024) & " MB"
-									myAlert.QueueAlert("Notes Database", MyNotesDatabase.Name, "Database Size", "The Notes database " & MyNotesDatabase.Name & " on " & MyNotesDatabase.ServerName & " (" & MyNotesDatabase.FileName & ") has has exceed the size theshold. The Notes database is " & (.DatabaseSize / 1024 / 1024) & " MB", MyNotesDatabase.Location)
+                                    myAlert.QueueAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Database Size", "The Notes database " & MyNotesDatabase.Name & " on " & MyNotesDatabase.ServerName & " (" & MyNotesDatabase.FileName & ") has has exceed the size theshold. The Notes database is " & (.DatabaseSize / 1024 / 1024) & " MB", MyNotesDatabase.Location)
 
 								End With
 							Else
 								With MyNotesDatabase
 									.AlertCondition = False
 									.Status = "OK"
-									myAlert.ResetAlert("Notes Database", MyNotesDatabase.Name, "Database Size", MyNotesDatabase.Location)
+                                    myAlert.ResetAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Database Size", MyNotesDatabase.Location)
 									.ResponseDetails = "Notes database is " & (.DatabaseSize / 1024 / 1024) & " MB"
 								End With
 							End If
@@ -643,16 +643,16 @@ Partial Public Class VitalSignsPlusDomino
 
 								If MyNotesDatabase.ResponseTime < MyNotesDatabase.ResponseThreshold Then
 									MyNotesDatabase.Status = "OK"
-									myAlert.ResetAlert("Notes Database", MyNotesDatabase.Name, "Slow", MyNotesDatabase.Location)
+                                    myAlert.ResetAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Slow", MyNotesDatabase.Location)
 									MyNotesDatabase.AlertCondition = False
 									MyNotesDatabase.IncrementUpCount()
 
 									MyNotesDatabase.ResponseDetails = "Notes database responded in " & MyNotesDatabase.ResponseTime & " ms, and goal is " & MyNotesDatabase.ResponseThreshold
-									myAlert.ResetAlert("Notes Database", MyNotesDatabase.Name, "Response Time", MyNotesDatabase.Location)
+                                    myAlert.ResetAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Response Time", MyNotesDatabase.Location)
 								Else
 									MyNotesDatabase.Status = "Slow"
 									MyNotesDatabase.ResponseDetails = "Notes database responded in " & MyNotesDatabase.ResponseTime & " ms, but goal is " & MyNotesDatabase.ResponseThreshold
-									myAlert.QueueAlert("Notes Database", MyNotesDatabase.Name, "Response Time", "The Notes database " & MyNotesDatabase.Name & " on " & MyNotesDatabase.ServerName & " (" & MyNotesDatabase.FileName & ") is slow.  " & MyNotesDatabase.ResponseDetails, MyNotesDatabase.Location)
+                                    myAlert.QueueAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Response Time", "The Notes database " & MyNotesDatabase.Name & " on " & MyNotesDatabase.ServerName & " (" & MyNotesDatabase.FileName & ") is slow.  " & MyNotesDatabase.ResponseDetails, MyNotesDatabase.Location)
 									MyNotesDatabase.IncrementUpCount()
 								End If
 							End If
@@ -717,7 +717,7 @@ Partial Public Class VitalSignsPlusDomino
 										myViewCount += 1
 										WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Refreshing view: " & v.Name)
 										v.Refresh()
-										myAlert.ResetAlert("Notes Database", MyNotesDatabase.Name, "View " & v.Name, MyNotesDatabase.Location)
+                                        myAlert.ResetAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "View " & v.Name, MyNotesDatabase.Location)
 
 										'    WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " View name is: " & v.Name)
 										If v.IsDefaultView Then
@@ -915,27 +915,11 @@ Partial Public Class VitalSignsPlusDomino
             .StatusCode = ServerStatusCode(.Status)
             '5/5/2016 NS modified
             'Changed -NDB to -Notes Database
-            strSQL = "Update Status SET DownCount= '" & MyNotesDatabase.DownCount & _
-            "', Status='" & MyNotesDatabase.Status & "', Upcount=" & MyNotesDatabase.UpCount & _
-            ", UpPercent= '" & MyNotesDatabase.UpPercentCount & _
-            "', Details='" & MyNotesDatabase.ResponseDetails & _
-            "', LastUpdate='" & Now & _
-            "', StatusCode='" & .StatusCode & _
-            "', DominoVersion='" & MyNotesDatabase.ServerName & _
-            "', DominoServerTasks='" & MyNotesDatabase.FileName & _
-            "', ResponseTime='" & MyNotesDatabase.ResponseTime & _
-            "', NextScan='" & MyNotesDatabase.NextScan & _
-            "', ResponseThreshold=" & MyNotesDatabase.ResponseThreshold & _
-            ", Description='" & MyNotesDatabase.Description & _
-            "', MyPercent='" & Percent & _
-            "', Name='" & MyNotesDatabase.Name & "' " & _
-            ", Location='" & MyNotesDatabase.Location & "' " & _
-            " WHERE TypeANDName='" & MyNotesDatabase.Name & "-Notes Database'"
 
             Dim MyNotesDatabase2 = MyNotesDatabase
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = MyNotesDatabase2.Name & "-Notes Database")
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = MyNotesDatabase2.Name & "-" & MyNotesDatabase2.ServerType)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                  .Set(Function(x) x.DownCount, .DownCount) _
                                                                                  .Set(Function(x) x.CurrentStatus, .Status) _

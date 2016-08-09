@@ -3,6 +3,7 @@ Imports System.IO
 Imports VSFramework
 Imports System.Data.SqlClient
 Imports MongoDB.Driver
+Imports VSNext.Mongo.Entities
 
 Partial Public Class VitalSignsPlusDomino
 
@@ -167,7 +168,7 @@ Partial Public Class VitalSignsPlusDomino
                 End Try
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name + "-Domino")
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name + "-" + .ServerType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.StatusCode, "Maintenance") _
                                                                                      .Set(Function(x) x.Category, .Category) _
@@ -179,7 +180,7 @@ Partial Public Class VitalSignsPlusDomino
                                                                                      .Set(Function(x) x.MailDetails, "") _
                                                                                      .Set(Function(x) x.PendingMail, .PendingMail) _
                                                                                      .Set(Function(x) x.CurrentStatus, .Status) _
-                                                                                     .Set(Function(x) x.Type, "Domino") _
+                                                                                     .Set(Function(x) x.Type, .ServerType) _
                                                                                      .Set(Function(x) x.UpCount, .UpCount) _
                                                                                      .Set(Function(x) x.UpPercent, .UpPercentCount) _
                                                                                      .Set(Function(x) x.ResponseTime, Convert.ToInt32(.ResponseTime)) _
@@ -288,11 +289,11 @@ Partial Public Class VitalSignsPlusDomino
                 WriteAuditEntry(Now.ToString & " Inserting " & myDominoCluster.Name)
                 With myDominoCluster
 
-                    filterDef = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-Domino Cluster database")
+                    filterDef = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-" + .ServerType)
                     updateDef = repository.Updater _
                         .Set(Function(x) x.Name, .Name) _
                         .Set(Function(x) x.CurrentStatus, .Status) _
-                        .Set(Function(x) x.Type, "Domino Cluster database") _
+                        .Set(Function(x) x.Type, .ServerType) _
                         .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                         .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan)) _
                         .Set(Function(x) x.Details, .ResponseDetails) _
@@ -359,11 +360,11 @@ Partial Public Class VitalSignsPlusDomino
                     .StatusCode = "OK"
                 End Try
 
-                filterDef = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-Notes Database")
+                filterDef = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-" + .ServerType)
                 updateDef = repository.Updater _
                     .Set(Function(x) x.Name, .Name) _
                     .Set(Function(x) x.CurrentStatus, .Status) _
-                    .Set(Function(x) x.Type, "Notes Database") _
+                    .Set(Function(x) x.Type, .ServerType) _
                     .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                     .Set(Function(x) x.Details, .ResponseDetails) _
                     .Set(Function(x) x.Category, .Category) _
@@ -420,11 +421,11 @@ Partial Public Class VitalSignsPlusDomino
             With MyNotesMailProbe
                 MyNotesMailProbe.StatusCode = ServerStatusCode(MyNotesMailProbe.Status)
 
-                filterDef = repository.Filter.Eq(Function(x) x.TypeAndName, .Name.ToString() & "-NotesMail Probe")
+                filterDef = repository.Filter.Eq(Function(x) x.TypeAndName, .Name.ToString() & "-" + .ServerType)
                 updateDef = repository.Updater _
                     .Set(Function(x) x.Name, .Name) _
                     .Set(Function(x) x.CurrentStatus, .Status) _
-                    .Set(Function(x) x.Type, "Mail Probe") _
+                    .Set(Function(x) x.Type, .ServerType) _
                     .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                     .Set(Function(x) x.Details, .ResponseDetails) _
                     .Set(Function(x) x.Category, .Category) _
@@ -457,7 +458,6 @@ Partial Public Class VitalSignsPlusDomino
 
     End Sub
 
-    'Not Used
     Private Sub ClearExistingNotesMailProbeHistory()
         WriteAuditEntry(Now.ToString & " Clearing history table for NotesMail Probes.")
         'Now delete the existing Probe records 
@@ -851,7 +851,7 @@ Partial Public Class VitalSignsPlusDomino
             With MyDominoServer
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-Domino")
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-" & .ServerType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.DeadMail, .DeadMail) _
                                                                                      .Set(Function(x) x.DownCount, .DownCount) _
@@ -1993,7 +1993,7 @@ Partial Public Class VitalSignsPlusDomino
 
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(ServerName & "-Domino"))
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(ServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()))
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                  .Set(Function(x) x.TravelerStatus, Status) _
                                                                                  .Set(Function(x) x.TravelerDetails, Details) _
@@ -2070,7 +2070,7 @@ Partial Public Class VitalSignsPlusDomino
 
             Dim DominoServer2 As MonitoredItems.DominoServer = DominoServer
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, DominoServer2.Name.ToString() + "-Domino")
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, DominoServer2.Name.ToString() + "-" + DominoServer2.ServerType)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                     .Set(Function(x) x.ElapsedDays, DominoServer2.ElapsedTime / 60 / 60 / 24) _
                                                                                     .Set(Function(x) x.VersionArchitecture, DominoServer2.VersionArchitecture) _

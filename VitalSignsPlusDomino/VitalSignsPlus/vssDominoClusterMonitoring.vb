@@ -1233,7 +1233,7 @@ ReleaseCOMObjects:
                     Cluster.TotalDatabasesInError += 1
                     '5/6/2016 NS modified - the reference should be to the Cluster name, not the Database title
                     'myAlert.QueueAlert("Domino Cluster database", db.Database_Title, "Missing Replica", AlertString, Cluster.Location)
-                    myAlert.QueueAlert("Domino Cluster database", Cluster.Name, "Missing Replica", AlertStringMR, Cluster.Location)
+                    myAlert.QueueAlert(Cluster.ServerType, Cluster.Name, "Missing Replica", AlertStringMR, Cluster.Location)
                     '5/5/2016 NS added for VSPLUS-2921
                     Cluster.Status = "Issue"
                 End If
@@ -1296,7 +1296,7 @@ ReleaseCOMObjects:
                     End If
                     '5/6/2016 NS modified - the reference should be to the Cluster name, not the Database title
                     'myAlert.QueueAlert("Domino Cluster database", db.Database_Title, "Cluster Replication", AlertStringCR, Cluster.Location)
-                    myAlert.QueueAlert("Domino Cluster database", Cluster.Name, "Cluster Replication", AlertStringCR, Cluster.Location)
+                    myAlert.QueueAlert(Cluster.ServerType, Cluster.Name, "Cluster Replication", AlertStringCR, Cluster.Location)
                     '5/5/2016 NS added for VSPLUS-2921
                     Cluster.Status = "Issue"
                 End If
@@ -1506,11 +1506,11 @@ ReleaseCOMObjects:
 
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-Domino Cluster database")
+                Dim filterDef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-" & .ServerType)
                 Dim updateDef As MongoDB.Driver.UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                                     .Set(Function(x) x.Name, .Name) _
                                                                                                     .Set(Function(x) x.CurrentStatus, .Status) _
-                                                                                                    .Set(Function(x) x.Type, "Domino Cluster database") _
+                                                                                                    .Set(Function(x) x.Type, .ServerType) _
                                                                                                     .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                                                                                                     .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan)) _
                                                                                                     .Set(Function(x) x.Details, .ResponseDetails) _
