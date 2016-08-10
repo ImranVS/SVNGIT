@@ -1493,7 +1493,23 @@ namespace VitalSignsMicrosoftClasses
 									" VALUES ('" + Username + "', '" + myDevice.DevicePolicyApplied + "', '" + myDevice.DeviceModel + "', '" + myDevice.Status + "','" + myDevice.LastSuccessSync + "', '" + myDevice.DeviceOS + "','" + TranslatedValue + "', '" +
 									myDevice.DeviceActiveSyncVersion + "', '" + myDevice.DeviceType + "', '" + myServer.Name + "', '" + myDevice.DeviceAccessState + "', '" + myDevice.DeviceID + "', '" + DateTime.Now + "', 1) end";
 
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL + strSQLValues });
+						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL + strSQLValues });
+                        MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
+                        mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
+                        mongoStatement.updateDef = mongoStatement.repo.Updater
+                            .Set(i => i.UserName, Username)
+                            .Set(i => i.SecurityPolicy, myDevice.DevicePolicyApplied)
+                            .Set(i => i.DeviceName, myDevice.DeviceModel)
+                            .Set(i => i.ConnectionState, myDevice.Status)
+                            .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?)DateTime.Parse(myDevice.LastSuccessSync))
+                            .Set(i => i.OSType, myDevice.DeviceOS)
+                            .Set(i => i.OSTypeMin, TranslatedValue)
+                            .Set(i => i.ClientBuild, myDevice.DeviceActiveSyncVersion)
+                            .Set(i => i.DeviceType, myDevice.DeviceType)
+                            .Set(i => i.Access, myDevice.DeviceAccessState)
+                            .Set(i => i.IsActive, true)
+                            .Set(i => i.SyncType, "ActiveSync");
+                        AllTestsList.MongoEntity.Add(mongoStatement);
 					}
 
 				}
@@ -1682,7 +1698,7 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				
+				 MongoStatementsInsert<VSNext.Mongo.Entities.Office365UsersLicensesServices> msi = new MongoStatementsInsert<VSNext.Mongo.Entities.Office365UsersLicensesServices>();
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Users with Licences and Services Hourly: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				System.Security.SecureString securePassword = Common.String2SecureString(myServer.Password);
@@ -1718,10 +1734,16 @@ namespace VitalSignsMicrosoftClasses
 					select new XElement("Row", new XAttribute("Key", x.name), new XAttribute("Value", x.value)));
 						userLicense.XMLConfiguration = xmlResult.ToString();
 						userLicenseList.Add(userLicense);
-						strSQL = "INSERT INTO vitalsigns.dbo.O365UserswithLicensesandServices (DisplayName, XMLConfiguration, ServerId) VALUES ('" + userLicense.DisplayName + "', '" + userLicense.XMLConfiguration + "', '" + myServer.ServerId + "')";
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL, DatabaseName = "Vitalsigns" });
+                        //strSQL = "INSERT INTO vitalsigns.dbo.O365UserswithLicensesandServices (DisplayName, XMLConfiguration, ServerId) VALUES ('" + userLicense.DisplayName + "', '" + userLicense.XMLConfiguration + "', '" + myServer.ServerId + "')";
+                        //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL, DatabaseName = "Vitalsigns" });
+                         VSNext.Mongo.Entities.Office365UsersLicensesServices o365Server = new VSNext.Mongo.Entities.Office365UsersLicensesServices();
+                        o365Server.ServerId = Convert.ToInt32(myServer.ServerId);
+                        o365Server.DisplayName = userLicense.DisplayName;
+                        o365Server.XMLConfiguration = userLicense.XMLConfiguration;
+                       
+                        msi.listOfEntities.Add(o365Server);
 					}
-
+                    AllTestsList.MongoEntity.Add(msi);
 				}
 			}
 			catch (Exception ex)

@@ -1805,6 +1805,25 @@ namespace VSNext.Mongo.Entities
 
     }
 
+    [DataContract]
+    [Serializable]
+    [CollectionName("o365_users_license_services")]
+    public class Office365UsersLicensesServices : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("display_name")]
+        public string DisplayName { get; set; }
+
+        [DataMember]
+        [BsonElement("xml_configuration")]
+        public string XMLConfiguration { get; set; }
+
+    }
+
     public class LatencyResults
     {
         public LatencyResults()

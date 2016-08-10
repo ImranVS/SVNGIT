@@ -345,7 +345,7 @@ Update:
 
             'End With
 
-            Dim Typeandname As String = myURL.Name & "-URL' "
+            Dim Typeandname As String = myURL.Name & "-URL"
             'Dim mongoStatement As New MongoStatementsUpsert(Of VSNext.Mongo.Entities.Status)()
             ' mongoStatement.filterDef = mongoStatement.repo.Filter.Where(Function(i) i.TypeAndName = Typeandname)
             ' mongoStatement.updateDef = mongoStatement.repo.Updater.[Set](Function(i) i.Name, myURL.Name).[Set](Function(i) i.CurrentStatus, myURL.Status).[Set](Function(i) i.StatusCode, myURL.StatusCode).[Set](Function(i) i.LastUpdated, DateTime.Now).[Set](Function(i) i.Location, myURL.Location).[Set](Function(i) i.Category, myURL.Category).[Set](Function(i) i.TypeAndName, myURL.Name & "-URL' ").[Set](Function(i) i.Description, "Microsoft").[Set](Function(i) i.ResponseTime, Integer.Parse(myURL.ResponseTime.ToString())).[Set](Function(i) i.ResponseThreshold, Integer.Parse(myURL.ResponseThreshold.ToString())).[Set](Function(i) i.Details, StatusDetails)
