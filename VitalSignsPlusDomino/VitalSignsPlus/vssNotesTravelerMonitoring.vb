@@ -634,9 +634,12 @@ Partial Public Class VitalSignsPlusDomino
 					Try
 						WriteDeviceHistoryEntry("All", "Traveler_Servers", Now.ToString & ":traveler servers: Update the database for the sever:" & server.domino_name)
 
-						strSQL = "Update Traveler_Status SET  HeartBeat='" & myHeartBeat & "' WHERE ServerName='" & server.domino_name & "'"
-						WriteDeviceHistoryEntry("All", "Traveler_Servers", Now.ToString & ":traveler servers SQL:" & strSQL)
-						objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                        Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                        Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerHeartBeat, myHeartBeat)
+                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, server.domino_name) And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+
+                        repository.Update(filterDef, updateDef)
+
 						WriteDeviceHistoryEntry("All", "Traveler_Servers", Now.ToString & ":traveler servers : Update done.")
 					Catch ex As Exception
 						WriteDeviceHistoryEntry("All", "Traveler_Servers", Now.ToString & ":traveler servers: error:" & ex.Message.ToString)
@@ -2227,8 +2230,11 @@ Partial Public Class VitalSignsPlusDomino
                                         Dim Span As New TimeSpan
                                         Span = timeNow - timeLastSync
                                         'update the record
-                                        Dim sSQL As String = "UPDATE dbo.TRAVELER_DEVICES set LastSyncTime='" + myDeviceMoreInfo.data.LastSyncTime + "' where DeviceId='" + myDeviceMoreInfo.data.DeviceID + "' AND IsActive=1"
-                                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", sSQL)
+
+                                        Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDevices)(connectionString)
+                                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repository.Filter.Eq(Function(x) x.DeviceID, myDeviceMoreInfo.data.DeviceID) And repository.Filter.Eq(Function(x) x.IsActive, True)
+                                        Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repository.Updater.Set(Function(x) x.LastSyncTime, Convert.ToDateTime(myDeviceMoreInfo.data.LastSyncTime))
+                                        repository.Update(filterDef, updateDef)
 
                                         If Span.TotalMinutes >= Threshold_Minutes Then
                                             '12/7/2015 NS modified for VSPLUS-2227
@@ -2898,9 +2904,9 @@ Partial Public Class VitalSignsPlusDomino
             Dim UsedByServersArray() As String = Split(BE.UsedByServers, ",")
             For Each currString As String In UsedByServersArray
                 If myResult = "Fail" Then
-                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Traveler Data Store", "The Traveler Datastore  is not responding.", MyDominoServer.Location)
+                    myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Traveler Data Store", "The Traveler Datastore  is not responding.", MyDominoServer.Location)
                 Else
-                    myAlert.ResetAlert("Domino", MyDominoServer.Name, "Traveler Data Store", MyDominoServer.Location)
+                    myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Traveler Data Store", MyDominoServer.Location)
                 End If
 
             Next
@@ -2919,9 +2925,12 @@ Partial Public Class VitalSignsPlusDomino
         Dim strReasons As String = ""
 
         Try
-            Dim RA As Integer
-            RA = vsObj.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Deleted " & RA.ToString & " previous Traveler status records.")
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, DominoServer.Name) And repository.Filter.Eq(Function(x) x.Type, DominoServer.ServerType)
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Unset(Function(x) x.TravelerStatusReasons)
+            repository.Update(filterDef, updateDef)
+
+            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Deleted previous Traveler status records.")
         Catch ex As Exception
             '10/2/2015 NS added for VSPLUS-2217
             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " The following exception has occurred while executing the SQL query " & strSQL & ". " & ex.Message)
@@ -3061,12 +3070,13 @@ Partial Public Class VitalSignsPlusDomino
 
         Try
             'WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Now Updating DominoServerTaskStatus table.  ")
-
+            Dim listOfReasons As New List(Of String)()
             For Each StatusReason As MonitoredItems.TravelerStatusReason In myTravelerStatus
                 WriteDeviceHistoryEntry("Domino", DominoServer.Name, vbCrLf)
                 WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Traveler status reason is: " & StatusReason.StatusDetails)
 
                 Try
+                    listOfReasons.Add(StatusReason.StatusDetails)
                     strSQL = "INSERT INTO TravelerStatusReasons (ServerName, Details, LastUpdate) " _
                                           & "VALUES ('" & DominoServer.Name & "', '" & StatusReason.StatusDetails & "', '" & FixDateTime(Now) & "') "
                     strSQL = vsObj.SQL_Server_Compatible_SQLStatement(strSQL)
@@ -3085,6 +3095,11 @@ Partial Public Class VitalSignsPlusDomino
 
             Next
 
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, DominoServer.Name) And repository.Filter.Eq(Function(x) x.Type, DominoServer.ServerType)
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerStatusReasons, listOfReasons)
+            repository.Update(filterDef, updateDef)
+
             'gets rid of the comma and space
             'strReasons = strReasons.Substring(0, strReasons.Length)
 
@@ -3098,14 +3113,14 @@ Alerts:
         Try
             If DominoServer.Traveler_Status = "Red" Then
                 '5/20/2016 NS modified for VSPLUS-2874
-                myAlert.QueueAlert("Domino", DominoServer.Name, "Traveler Status: Red", "The overall status of IBM Notes Traveler on " & DominoServer.Name & " is " & DominoServer.Traveler_Status & " due to: " & vbCrLf & strReasons, DominoServer.Location)
+                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status: Red", "The overall status of IBM Notes Traveler on " & DominoServer.Name & " is " & DominoServer.Traveler_Status & " due to: " & vbCrLf & strReasons, DominoServer.Location)
             Else
                 'In some cases Traveler_Status was blank, and this was resetting the alert even though the server was still Red  - AF
                 If Trim(DominoServer.Traveler_Status) <> "" Then
                     Dim strDetails As String
                     strDetails = "The overall status of IBM Notes Traveler is " & DominoServer.Traveler_Status
                     '5/20/2016 NS modified for VSPLUS-2874
-                    myAlert.ResetAlert("Domino", DominoServer.Name, "Traveler Status: Red", DominoServer.Location, strDetails, "Traveler")
+                    myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status: Red", DominoServer.Location, strDetails, "Traveler")
                 End If
 
             End If
@@ -3206,8 +3221,6 @@ Alerts:
     Public Sub UpdateTravelerTable(ByVal travelerSrvVal As String, ByVal statsDict As Dictionary(Of String, Long), ByRef myDominoServer As MonitoredItems.DominoServer)
 
         ' WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Attempting to update Traveler Table.")
-        Dim cn As New SqlClient.SqlConnection
-        Dim cmd As New SqlClient.SqlCommand
         Dim uStrInd As Integer
         Dim pair As KeyValuePair(Of String, Long)
         Dim timeVal As Long
@@ -3216,51 +3229,49 @@ Alerts:
         Dim srvVal As String
         Dim rangeVal As String
         Dim found As Boolean
-        Dim sqlReader As SqlClient.SqlDataReader
         Dim datetimeVal As Date
         Const underscoreStr As String = "_"
         Dim dtNow As DateTime = Now
 
-
         datetimeVal = Nothing
         Try
-            Dim myAdapter As New VSFramework.XMLOperation
 
-            ' cn.ConnectionString = " data source = 174.46.239.207; Initial catalog = VitalSigns; uid=sa; password = RPRWyatt1"
-            cn.ConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
-            ' WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Opening Traveler data table with " & cn.ConnectionString)
-            cn.Open()
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.TravelerStats)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.TravelerStats)
+            Dim entityList As List(Of VSNext.Mongo.Entities.TravelerStats)
+            Dim entity As VSNext.Mongo.Entities.TravelerStats
 
-            cmd.Connection = cn
             For Each pair In statsDict
                 uStrInd = pair.Key.LastIndexOf(underscoreStr)
                 srvVal = pair.Key.Substring(0, uStrInd)
                 rangeVal = pair.Key.Substring(uStrInd + 1, pair.Key.Length - uStrInd - 1)
                 timeVal = pair.Value
                 WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " The current value of the open times stat is " & timeVal)
-                cmd.CommandType = CommandType.Text
                 If datetimeVal = Nothing Then
-                    '1/14/2014 NS modified the query
-                    'cmd.CommandText = "SELECT OpenTimes,DateUpdated FROM TravelerStats WHERE TravelerServerName='" & travelerSrvVal & "' AND MailServerName='" & srvVal & "' AND Interval='" & rangeVal & "' AND DateUpdated=(SELECT MAX(DateUpdated) FROM TravelerStats)"
-                    cmd.CommandText = "SELECT OpenTimes,DateUpdated FROM TravelerStats WHERE TravelerServerName='" & travelerSrvVal & "' AND MailServerName='" & srvVal & "' AND Interval='" & rangeVal & _
-                     "' AND DateUpdated=(SELECT MAX(DateUpdated) FROM TravelerStats WHERE TravelerServerName='" & travelerSrvVal & "' AND MailServerName='" & srvVal & "' AND Interval='" & rangeVal & "')"
+                    filterDef = repository.Filter.Eq(Function(x) x.TravelerServerName, travelerSrvVal) _
+                        And repository.Filter.Eq(Function(x) x.MailServerName, srvVal) _
+                        And repository.Filter.Eq(Function(x) x.Interval, rangeVal)
+                    entityList = repository.Find(filterDef, Function(x) x.DateUpdated, 0, 1, True).ToList()
                 Else
-                    cmd.CommandText = "SELECT OpenTimes,DateUpdated FROM TravelerStats WHERE TravelerServerName='" & travelerSrvVal & "' AND MailServerName='" & srvVal & "' AND Interval='" & rangeVal & "' AND DateUpdated='" & datetimeVal & "'"
+                    filterDef = repository.Filter.Eq(Function(x) x.TravelerServerName, travelerSrvVal) _
+                        And repository.Filter.Eq(Function(x) x.MailServerName, srvVal) _
+                        And repository.Filter.Eq(Function(x) x.Interval, rangeVal)
+                    entityList = repository.Find(filterDef).ToList()
                 End If
-                ' WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Attempting to update Traveler Table #2")
-                sqlReader = cmd.ExecuteReader()
+
                 found = False
-                While sqlReader.Read()
+                If entityList.Count <> 0 Then
                     WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Top of read loop.")
+                    entity = entityList(0)
                     Try
-                        timeValPrev = CLng(sqlReader.GetInt32(sqlReader.GetOrdinal("OpenTimes")))
+                        timeValPrev = entity.OpenTimes
                         WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Previous actual open value is " & timeValPrev)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Exception calculating timeValPrev: " & ex.ToString)
                     End Try
 
                     Try
-                        datetimeVal = CDate(sqlReader.GetDateTime(sqlReader.GetOrdinal("DateUpdated")))
+                        datetimeVal = entity.DateUpdated
                         WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Previous date value is " & datetimeVal)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Exception calculating datetimeVal: " & ex.ToString)
@@ -3284,18 +3295,24 @@ Alerts:
 
                     found = True
                     WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Bottom of read loop.")
-                End While
-                sqlReader.Close()
+                End If
 
-                cmd.CommandText = "INSERT INTO TravelerStats (TravelerServerName, MailServerName, Interval, Delta, OpenTimes, DateUpdated) VALUES ('" & travelerSrvVal & "', '" & srvVal & "', '" & rangeVal & "', " & deltaVal & ", " & timeVal & ",'" & dtNow & "')"
-                WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Attempting to update Traveler Table with " & cmd.CommandText)
-                cmd.ExecuteNonQuery()
+                entity = New VSNext.Mongo.Entities.TravelerStats() With {
+                    .TravelerServerName = travelerSrvVal,
+                    .MailServerName = srvVal,
+                    .Interval = rangeVal,
+                    .Delta = deltaVal,
+                    .OpenTimes = timeVal,
+                    .DateUpdated = dtNow
+                }
+                repository.Insert(entity)
+                WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Attempting to update Traveler Table with new entity")
             Next
 
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Error while inserting record on table..." & ex.Message)
         Finally
-            cn.Close()
+
         End Try
     End Sub
 
@@ -3385,17 +3402,23 @@ Alerts:
 
             If (myServletURL.HTML = "") Then
                 'This server is not an HA server if this page comes back blank
-                strSQL = "Update Traveler_Status SET  HA=0 WHERE ServerName='" & myDominoServer.Name & "'"
+                Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, myDominoServer.Name) _
+                                                                                     And repository.Filter.Eq(Function(x) x.Type, myDominoServer.ServerType)
+                Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerHA, False)
+                repository.Update(filterDef, updateDef)
+
             Else
                 If InStr(myServletURL.HTML, "Domino Name") > 0 Or InStr(myServletURL.HTML, "Nome Domino") > 0 Then
                     ' This server is an HA server
                     myDominoServer.Traveler_Server_HA = True
-                    strSQL = "Update Traveler_Status SET  HA=1 WHERE ServerName='" & myDominoServer.Name & "'"
+                    Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, myDominoServer.Name) _
+                                                                                         And repository.Filter.Eq(Function(x) x.Type, myDominoServer.ServerType)
+                    Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerHA, True)
+                    repository.Update(filterDef, updateDef)
                 End If
             End If
-
-
-            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
 
         Catch ex As Exception
 
@@ -3477,8 +3500,13 @@ Alerts:
         Try
             If ChilkatHTTP.Login.ToUpper = "TRUE" Or ChilkatHTTP.Login.Trim = "" Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The Traveler servlet cannot be checked because the username and password are not configured.  See Configurator, Stored Passwords & Options, Server Credentials.")
-                strSQL = "Update Traveler_Status SET  TravelerServlet='Not Checked', Details = 'The Traveler servlet cannot be checked because the username and password are not configured.  See Configurator, Stored Passwords & Options, Server Credentials .'  WHERE ServerName='" & MyDominoServer.Name & "' "
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+                Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, MyDominoServer.Name) _
+                                                                                     And repository.Filter.Eq(Function(x) x.Type, MyDominoServer.ServerType)
+                Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                     .Set(Function(x) x.TravelerDetails, "The Traveler servlet cannot be checked because the username and password are not configured.  See Configurator, Stored Passwords & Options, Server Credentials.") _
+                                                                                     .Set(Function(x) x.TravelerServlet, "Not Checked")
+                repository.Update(filterDef, updateDef)
                 Exit Sub
             End If
         Catch ex As Exception
@@ -3512,16 +3540,25 @@ Alerts:
 
 
         Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, MyDominoServer.Name) _
+                                                                                And repository.Filter.Eq(Function(x) x.Type, MyDominoServer.ServerType)
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
+
             If InStr(myServletURL.HTML, "Traveler server is available") Or InStr(myServletURL.HTML, "Traveler está disponível") Or InStr(myServletURL.HTML, "ist verfügbar") Or InStr(myServletURL.HTML, "är tillgänglig") Then
                 'DRS 10/19/2014 check if JSON is returned
                 myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Traveler Servlet", MyDominoServer.Location)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The Traveler Servlet is functioning. ")  ', LogLevel.Verbose)
-                strSQL = "Update Traveler_Status SET  TravelerServlet='" & TravelerServlet & "' WHERE ServerName='" & MyDominoServer.Name & "'"
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+
+                updateDef = repository.Updater _
+                    .Set(Function(x) x.TravelerServlet, "TravelerServlet")
+
                 If MyDominoServer.Traveler_Server_HA = False Then
-                    strSQL = "Update Traveler_Status SET  HeartBeat='" & Now.ToString & "' WHERE ServerName='" & MyDominoServer.Name & "'"
+                    updateDef = updateDef.Set(Function(x) x.TravelerHeartBeat, Now.ToString())
                 End If
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+
+                repository.Update(filterDef, updateDef)
+
                 Dim n As Integer = 0
                 Dim myDevicesData As String = ""
                 Do While myDevicesData = ""
@@ -3542,39 +3579,34 @@ Alerts:
                     'set the devices flaf to FAIL
                     sMyDevicesStatus = "Fail"
                 End If
-                strSQL = "Update Traveler_Status SET  DevicesAPIStatus='" & sMyDevicesStatus & "' WHERE ServerName='" & MyDominoServer.Name & "'"
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+
+                updateDef = repository.Updater.Set(Function(x) x.TravelerDevicesAPIStatus, sMyDevicesStatus)
+                repository.Update(filterDef, updateDef)
+
             ElseIf InStr(myServletURL.HTML, "Traveler server is not available") Then
-                strSQL = "Update Traveler_Status SET  TravelerServlet='" & TravelerServlet & "', Details = 'IBM Notes Traveler server is not available.', Status ='Fail',DevicesAPIStatus='Fail'  WHERE ServerName='" & MyDominoServer.Name
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
 
-                'Remove Traveler Status Reasons since we are unable to gather them
-                strSQL = "Delete FROM TravelerStatusReasons WHERE ServerName='" & MyDominoServer.Name & "'"
-                Try
-                    Dim RA As Integer
-                    RA = objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Deleted " & RA.ToString & " Traveler status records since Traveler Server is not available.")
-                Catch ex As Exception
-
-                End Try
+                updateDef = repository.Updater _
+                    .Set(Function(x) x.TravelerServlet, TravelerServlet) _
+                    .Set(Function(x) x.Details, "IBM Notes Traveler server is not available.") _
+                    .Set(Function(x) x.TravelerStatus, "Fail") _
+                    .Set(Function(x) x.TravelerDevicesAPIStatus, "Fail") _
+                    .Unset(Function(x) x.TravelerStatusReasons)
+                repository.Update(filterDef, updateDef)
 
             Else
                 MyDominoServer.Traveler_Status = "Failure"
                 myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Traveler Servlet", "The Traveler Servlet is not responding.", MyDominoServer.Location)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The Traveler Servlet is not responding. ", LogLevel.Verbose)
                 TravelerServlet = "Not Responding"
-                strSQL = "Update Traveler_Status SET  TravelerServlet='" & TravelerServlet & "', Details = 'The Traveler Servlet is not responding.', Status ='Fail',DevicesAPIStatus='Fail'  WHERE ServerName='" & MyDominoServer.Name & "'"
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
 
-                'Remove Traveler Status Reasons since we are unable to gather them
-                strSQL = "Delete FROM TravelerStatusReasons WHERE ServerName='" & MyDominoServer.Name & "'"
-                Try
-                    Dim RA As Integer
-                    RA = objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Deleted " & RA.ToString & " Traveler status records since Traveler Server is not responding.")
-                Catch ex As Exception
+                updateDef = repository.Updater _
+                    .Set(Function(x) x.TravelerServlet, TravelerServlet) _
+                    .Set(Function(x) x.Details, "The Traveler Servlet is not responding.") _
+                    .Set(Function(x) x.TravelerStatus, "Fail") _
+                    .Set(Function(x) x.TravelerDevicesAPIStatus, "Fail") _
+                    .Unset(Function(x) x.TravelerStatusReasons)
+                repository.Update(filterDef, updateDef)
 
-                End Try
             End If
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception updating Traveler servlet: " & ex.ToString)

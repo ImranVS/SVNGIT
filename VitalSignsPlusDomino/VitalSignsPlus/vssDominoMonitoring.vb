@@ -4056,25 +4056,24 @@ SkipTask:
         'End If
 
         'First, figure out which disks the user wants to monitor
+        Dim listOfDisks As List(Of VSNext.Mongo.Entities.Disk)
+        Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.ObjectId, MongoDB.Bson.ObjectId.Parse(MyDominoServer.ServerObjectID))
+            listOfDisks = repository.Find(filterDef)(0).DiskInfo
+        Catch ex As Exception
+            listOfDisks = New List(Of VSNext.Mongo.Entities.Disk)()
+        End Try
 
-        Dim strSQL As String = "SELECT ServerName, DiskName, Threshold, ThresholdType FROM DominoDiskSettings WHERE ServerName ='" & MyDominoServer.Name & "' "
-        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Disk SQL= " & strSQL)
-        Dim dbAdapter As New VSAdaptor
-        Dim dsDrives As New DataSet
-        dsDrives.Tables.Add("Drives")
-        dbAdapter.FillDatasetAny("VitalSigns", "vs", strSQL, dsDrives, "Drives")
-
-        Dim dtDataTable As DataTable
-        dtDataTable = dsDrives.Tables(0)
         Dim boolAllDrives As Boolean = False
         Dim AllDrivesThresholdType As String = "Percent"
         Dim boolNoAlerts As Boolean = False
 
         Try
-            If dtDataTable.Rows.Count = 0 Then
+            If listOfDisks.Count = 0 Then
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This server is configured to monitor all servers at the same threshold value.")
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The threshold value is " & dtDataTable.Rows(0).Item("Threshold") & " " & dtDataTable.Rows(0).Item("ThresholdType"))
-                AllDrivesThresholdType = dtDataTable.Rows(0).Item("ThresholdType")
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The threshold value is " & listOfDisks(0).Threshold & " " & listOfDisks(0).ThresholdType)
+                AllDrivesThresholdType = listOfDisks(0).ThresholdType
                 boolAllDrives = True
             End If
         Catch ex As Exception
@@ -4082,19 +4081,19 @@ SkipTask:
         End Try
 
         Try
-            For Each row As DataRow In dtDataTable.Rows
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Set to monitor " & row.Item("DiskName") & " for " & row.Item("Threshold") & " " & row.Item("ThresholdType"))
-                If row.Item("DiskName") = "AllDisks" Then
+            For Each disk As VSNext.Mongo.Entities.Disk In listOfDisks
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Set to monitor " & disk.DiskName & " for " & disk.Threshold & " " & disk.ThresholdType)
+                If disk.DiskName = "AllDisks" Then
                     boolAllDrives = True
-                    MyDominoServer.DiskThreshold = row.Item("Threshold")
-                    AllDrivesThresholdType = dtDataTable.Rows(0).Item("ThresholdType")
+                    MyDominoServer.DiskThreshold = disk.Threshold
+                    AllDrivesThresholdType = disk.ThresholdType
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This server is configured to monitor all servers at the same threshold value: " & MyDominoServer.DiskThreshold & " " & AllDrivesThresholdType)
                 End If
-                If row.Item("DiskName") = "NoAlerts" Then
+                If disk.DiskName = "NoAlerts" Then
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This server is configured to NOT monitor disk drives.")
                     boolNoAlerts = True
                 End If
-            Next row
+            Next disk
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception looping through drive configuration: " & ex.ToString)
         End Try
@@ -4493,27 +4492,27 @@ skipdrive:
 
                 'Check to see if this drive has a specific threshold set for it
                 Try
-                    For Each row As DataRow In dtDataTable.Rows
-                        Dim myThreshold As Integer = row.Item("Threshold")
-                        If myDiskDrive.DiskName = row.Item("DiskName") And boolNoAlerts = False And boolAllDrives = False And row.Item("Threshold") <> 0 Then
-                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Set to monitor " & row.Item("DiskName") & " with a threshold of " & row.Item("Threshold") & " " & row.Item("ThresholdType"))
-                            Select Case row.Item("ThresholdType")
+                    For Each disk As VSNext.Mongo.Entities.Disk In listOfDisks
+                        Dim myThreshold As Integer = disk.Threshold
+                        If myDiskDrive.DiskName = disk.DiskName And boolNoAlerts = False And boolAllDrives = False And disk.Threshold <> 0 Then
+                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Set to monitor " & disk.DiskName & " with a threshold of " & disk.Threshold & " " & disk.ThresholdType)
+                            Select Case disk.ThresholdType
                                 Case "Percent"
                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive has " & PercentFree * 100 & " % free space.")
-                                    If PercentFree * 100 < row.Item("Threshold") Then
+                                    If PercentFree * 100 < disk.Threshold Then
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive is in an alert condition. ")
                                         MyDominoServer.Status = "Low Disk Space"
                                         If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                             'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                             '3/4/2016 NS modified for VSPLUS-2682
-                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & row.Item("Threshold") & "%", MyDominoServer.Location)
+                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & disk.Threshold & "%", MyDominoServer.Location)
 
                                         Else
                                             ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                             '3/4/2016 NS modified for VSPLUS-2682
-                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ". The threshold is " & row.Item("Threshold") & "%", MyDominoServer.Location)
+                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ". The threshold is " & disk.Threshold & "%", MyDominoServer.Location)
                                             ' MyDominoServer.ResponseDetails += " - " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & Microsoft.VisualBasic.Strings.Format(row.Item("Threshold"), "##0.#" & "%")
-                                            MyDominoServer.ResponseDetails += " | " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & row.Item("Threshold").ToString & "%"
+                                            MyDominoServer.ResponseDetails += " | " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & disk.Threshold.ToString & "%"
 
                                         End If
                                     Else
@@ -4523,22 +4522,22 @@ skipdrive:
                                 Case "GB"
                                     Try
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive has " & myDiskDrive.DiskFreeInGB & " GB free space.")
-                                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive has a threshold of " & row.Item("Threshold") & " GB free space.")
+                                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive has a threshold of " & disk.Threshold & " GB free space.")
 
 
-                                        If myDiskDrive.DiskFreeInGB < row.Item("Threshold") Then
+                                        If myDiskDrive.DiskFreeInGB < disk.Threshold Then
                                             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive is in an alert condition. ")
                                             MyDominoServer.Status = "Low Disk Space"
                                             If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                                 'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                                 '3/4/2016 NS modified for VSPLUS-2682
-                                                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & row.Item("Threshold") & " GB", MyDominoServer.Location)
+                                                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & disk.Threshold & " GB", MyDominoServer.Location)
                                                 MyDominoServer.ResponseDetails += " | " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free space on " & DiskNames(n) & ". Threshold is " & myThreshold.ToString("F2") & "%"
 
                                             Else
                                                 ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                                 '3/4/2016 NS modified for VSPLUS-2682
-                                                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & row.Item("Threshold") & " GB", MyDominoServer.Location)
+                                                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & disk.Threshold & " GB", MyDominoServer.Location)
                                                 MyDominoServer.ResponseDetails += " | " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free space on " & DiskNames(n) & ". Threshold is " & myThreshold.ToString("F2") & " GB"
 
                                             End If
@@ -4557,7 +4556,7 @@ skipdrive:
 
                         End If
 
-                    Next row
+                    Next disk
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception looping through drive configuration: " & ex.ToString)
                 End Try
@@ -4645,7 +4644,7 @@ skipdrive2:
 
 
         If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " ********* Disk space summary   **************")
-        Dim listOfDisks As New List(Of VSNext.Mongo.Entities.Disk)()
+        listOfDisks = New List(Of VSNext.Mongo.Entities.Disk)()
         For Each myDiskDrive In MyDominoServer.DiskDrives
 
             If MyLogLevel = LogLevel.Verbose And Trim(myDiskDrive.DiskName) <> "" Then
@@ -4669,7 +4668,6 @@ skipdrive2:
             End If
 
             'Write the results to the database
-            strSQL = ""
             '4/7/2016 NS modified for VSPLUS-2790
             Dim strUpdate As String = ""
             Dim strInsert As String = ""
@@ -4696,14 +4694,14 @@ skipdrive2:
 
                 ' WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " My Disk Space SQL UPDATE statement is : " & vbCrLf & strSQL)
             Catch ex As Exception
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error in Domino disk space creating SQL statement for status table: " & ex.Message & vbCrLf & strSQL)
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error in Domino disk space adding the disks: " & ex.Message)
             End Try
         Next
 
         Try
             Dim MyDominoServer2 As MonitoredItems.DominoServer = MyDominoServer2
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = MyDominoServer2.Name & "-Domino")
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = MyDominoServer2.Name & "-" & MyDominoServer2.ServerType)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.Disks, listOfDisks)
             repository.Update(filterDef, updateDef)
         Catch ex As Exception
@@ -6628,11 +6626,17 @@ skipdrive2:
             WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " sending " & Command & " to " & ServerName)
             'NotesSession.SendConsoleCommand(ServerName, Command)
 
-            StrSQL = "DECLARE @currDate DATETIME; " & vbCrLf
-            StrSQL += "SET @currDate = GETDATE(); " & vbCrLf
-            StrSQL += "Insert INTO DominoConsoleCommands (ServerName, Command, Submitter, DateTimeSubmitted, DateTimeProcessed, Result, Comments) Values ('" + ServerName + "', '" + Command + "', 'VitalSigns Domino Service', @currDate, NULL, 'Command Request sent', '" + Comments + " '); "
-            vsAdapter.ExecuteNonQueryAny("VitalSigns", "DominoConsoleCommands", StrSQL)
-            'WriteDeviceHistoryEntry("Domino", ServerName, StrSQL)
+            Dim entity As New VSNext.Mongo.Entities.ConsoleCommands() With {
+                .Command = Command,
+                .Comments = Comments,
+                .DateTimeSubmitted = Now,
+                .Result = "Command Request Sent",
+                .ServerName = ServerName,
+                .Submitter = "VitalSigns Domino Service"
+            }
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ConsoleCommands)(connectionString)
+            repository.Insert(entity)
+
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " Error sending " & Command & " to " & ServerName & ": " & ex.ToString)
         End Try

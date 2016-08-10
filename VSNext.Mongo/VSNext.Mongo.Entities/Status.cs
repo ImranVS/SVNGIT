@@ -783,6 +783,30 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string ResourceConstraint { get; set; }
 
+        [DataMember]
+        [BsonElement("traveler_heartbeat")]
+        [BsonIgnoreIfNull]
+        public string TravelerHeartBeat { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_status_reasons")]
+        [BsonIgnoreIfNull]
+        public List<String> TravelerStatusReasons { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_ha")]
+        [BsonIgnoreIfNull]
+        public Boolean? TravelerHA { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_servlet")]
+        [BsonIgnoreIfNull]
+        public string TravelerServlet { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_devices_api_status")]
+        [BsonIgnoreIfNull]
+        public string TravelerDevicesAPIStatus { get; set; }
 
         #endregion
 

@@ -462,13 +462,13 @@ Partial Public Class VitalSignsPlusDomino
         WriteAuditEntry(Now.ToString & " Clearing history table for NotesMail Probes.")
         'Now delete the existing Probe records 
 
-        '2/11/2016 NS modified for VSPLUS-2585
-        Dim strSQL As String = "DELETE FROM NotesMailProbeHistory WHERE SentDateTime <= DATEADD(hh,-24,GETDATE())"
-        Dim objVSAdaptor As New VSAdaptor
         Try
-            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "servers", strSQL)
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NotesMailProbeHistory)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.NotesMailProbeHistory) = repository.Filter.Lt(Function(x) x.SentDateTime, DateTime.Now.AddDays(-1))
+            repository.Delete(filterDef)
+
         Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error with Status Table while Clearing NotesMail Probe history:" & ex.Message)
+            WriteAuditEntry(Now.ToString & " Error with Clearing NotesMail Probe history:" & ex.Message)
         End Try
 
 
@@ -541,20 +541,17 @@ Partial Public Class VitalSignsPlusDomino
 
     Public Function GetConsecutiveTelnetValue() As Double
 
-        Dim strSQL As String
         Dim intResult As Double = 0
-        Dim objVSAdaptor As New VSAdaptor
-
-        'str1SQL = "Select COUNT (Distinct  Status) from Status WHERE Type = 'Domino' AND Status <> 'Scanning'"
-        strSQL = "SELECT svalue AS N FROM dbo.settings where sname = 'ConsecutiveTelnet' "
 
         Try
-            intResult = Convert.ToDouble(objVSAdaptor.ExecuteScalarAny("VitalSigns", "Status", strSQL))
-            WriteAuditEntry(Now.ToString & "  Consecutive Telnet Value = " & intResult)
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NameValue)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.NameValue) = repository.Filter.Eq(Function(x) x.Name, "ConsecutiveTelnet")
+            intResult = Convert.ToDouble(repository.Find(filterDef)(0).Value.ToString())
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & "  Exception getting Consecutive Telnet Value ")
             intResult = 8
         End Try
+
         Return intResult
 
     End Function

@@ -99,6 +99,12 @@ namespace VSNext.Mongo.Repository
             return (isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable();
         }
 
+        public virtual IEnumerable<T> Find(FilterDefinition<T> filter, Expression<Func<T, object>> order, int pageIndex, int size, bool isDescending)
+        {
+            var query = Query(filter).Skip(pageIndex * size).Limit(size);
+            return (isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable();
+        }
+
         public virtual void Insert(T entity)
         {
             entity.TenantId = TenantId;

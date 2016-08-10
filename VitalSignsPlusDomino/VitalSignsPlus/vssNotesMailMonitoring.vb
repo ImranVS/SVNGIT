@@ -888,7 +888,7 @@ Cleanup:
                             entity.Details = "Delivered LATE in " & MyResponse
 
                             MyNotesMailProbe.IncrementDownCount()
-                            myAlert.QueueAlert("NotesMail Probe", MyNotesMailProbe.Name, "Slow", "NotesMailProbe found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0), MyNotesMailProbe.Location)
+                            myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Slow", "NotesMailProbe found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0), MyNotesMailProbe.Location)
 
                             MyNotesMailProbe.Status = "Delivered Late"
                             MyNotesMailProbe.ResponseDetails = " Found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0)
