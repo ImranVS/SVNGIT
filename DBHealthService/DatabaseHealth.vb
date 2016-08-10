@@ -17,6 +17,8 @@ Imports RPRWyatt.VitalSigns.Services
 
 Imports MongoDB.Bson
 Imports MongoDB.Driver
+
+Imports VSNext.Mongo.Entities
 'Written by Alan Forbes
 'Copyright 2013
 
@@ -496,6 +498,8 @@ Public Class VitalSignsDBHealth
                     MyDominoServer.Status = "Not Scanned"
                     MyDominoServer.LastScan = Date.Now
 
+                    MyDominoServer.ServerType = VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()
+
                 End If
 
                 With MyDominoServer
@@ -948,7 +952,7 @@ NextServer:
 
 
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repo.Filter.Eq(Function(x) x.DeviceName, Server.Name) And repo.Filter.Eq(Function(x) x.DeviceType, "Domino")
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repo.Filter.Eq(Function(x) x.DeviceName, Server.Name) And repo.Filter.Eq(Function(x) x.DeviceType, Server.ServerType)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repo.Updater.Set(Function(x) x.DatabaseCount, intTotalCount)
             repo.Update(filterDef, updateDef)
 
