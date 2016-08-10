@@ -595,8 +595,8 @@ Public Class VitalSignsAlertService
                                     dr = dt.NewRow()
                                     dr("AlertKey") = notificationsEntity(i).Id
                                     dr("EventName") = eventsEntity(x).EventType
-                                    dr("ServerType") = serversEntity(y).ServerType
-                                    dr("ServerName") = serversEntity(y).ServerName
+                                    dr("ServerType") = serversEntity(y).DeviceType
+                                    dr("ServerName") = serversEntity(y).DeviceName
                                     dr("CopyTo") = ""
                                     dr("BlindCopyTo") = ""
                                     If Not IsNothing(sendlist(k).CopyTo) Then
