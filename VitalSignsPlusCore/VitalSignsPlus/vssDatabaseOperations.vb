@@ -182,7 +182,7 @@ Partial Public Class VitalSignsPlusCore
             StatusDetails = ""
         End Try
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
         TypeAndName = BES_Server.Name & "-BlackBerry Server"
         Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
         Try
@@ -613,7 +613,7 @@ Partial Public Class VitalSignsPlusCore
                  "END"
 
                 strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-BlackBerry Server'"
-                filterdef = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
 
                 updatedef = repo.Updater _
                          .Set(Function(i) i.Name, .Name) _
@@ -637,8 +637,8 @@ Partial Public Class VitalSignsPlusCore
                             .[Set](Function(i) i.PendingThreshold, Integer.Parse(.BES_Pending_Messages_Threshold)) _
                             .[Set](Function(i) i.DeadThreshold, Integer.Parse(.BES_Expired_Messages_Theshold)) _
                             .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "##,##0.#"))) _
-                            .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "##,##0.#"))) _
-                        .[Set](Function(i) i.Icon, IconList.BlackBerry_Probe)
+                            .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "##,##0.#")))
+
 
             End With
             Try
@@ -823,7 +823,7 @@ Partial Public Class VitalSignsPlusCore
             MySametimeServer = mySametimeServers.Item(n)
             Dim myStatusCode As String = ServerStatusCode(MySametimeServer.Status)
             Dim TypeAndName As String = MySametimeServer.Name & "-Sametime"
-            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
             With MySametimeServer
 
@@ -882,7 +882,7 @@ Partial Public Class VitalSignsPlusCore
             For n = 0 To MyMailServices.Count - 1
                 MyMailService = MyMailServices.Item(n)
                 WriteAuditEntry(Now.ToString & " Adding Mail Service " & MyMailService.Name & " to status table.")
-                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
                 With MyMailService
                     '5/5/2016 NS modified - inserting a Mail into StatusDetails fails because of a TypeANDName mismatch
@@ -1333,7 +1333,7 @@ Partial Public Class VitalSignsPlusCore
             MyWebSphereServer = MyWebSphereServers.Item(n)
             Dim myStatusCode As String = ServerStatusCode(MyWebSphereServer.Status)
             Dim TypeAndName As String = MyWebSphereServer.Name & "-WebSphere"
-            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
             With MyWebSphereServer
 
@@ -1384,7 +1384,7 @@ Partial Public Class VitalSignsPlusCore
 			MyIBMConnectServer = MyIBMConnectServers.Item(n)
             Dim myStatusCode As String = ServerStatusCode(MyIBMConnectServer.Status)
             Dim TypeAndName As String = MyIBMConnectServer.Name & MyIBMConnectServer.ServerType
-            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
 			With MyIBMConnectServer
 
@@ -2082,7 +2082,7 @@ Partial Public Class VitalSignsPlusCore
             'Update the status table
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
             Dim TypeAndName As String = MySametimeServer.Name & "-Sametime"
-            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
           
             With MySametimeServer
@@ -2551,42 +2551,41 @@ Partial Public Class VitalSignsPlusCore
             strSQL = ""
             MyURL = MyURLs.Item(n)
             WriteAuditEntry(Now.ToString & " Configuring " & MyURL.Name)
-
-            With MyURL
-                '5/2/2016 NS modified for VSPLUS-2887
-                strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-URL') BEGIN " & _
-                 "INSERT INTO Status (StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon) " & _
-                 " VALUES ('Not Scanned', '" & .Category & "', 'Not Scanned', 'This URL has not yet been scanned.', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'URL', '" & .UpCount & "', '" & .UpPercentCount & "', '" & FixDateTime(Now) & "', '0', '" & .Name & "-URL', " & IconList.URL & ")" & _
-                 "END"
-
-                Dim TypeAndName As String = MyURL.Name & "-URL"
-                filterdef = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
-                updatedef = repo.Updater _
-                                          .Set(Function(i) i.Name, .Name) _
-                                          .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
-                                          .[Set](Function(i) i.StatusCode, "Not Scanned") _
-                                          .[Set](Function(i) i.LastUpdated, DateTime.Now) _
-                                          .[Set](Function(i) i.Category, .Category) _
-                                          .[Set](Function(i) i.TypeAndName, TypeAndName) _
-                                          .[Set](Function(i) i.Description, "Not Scanned") _
-                                          .[Set](Function(i) i.Type, "URL") _
-                                          .[Set](Function(i) i.Location, .Location) _
-                                          .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
-                                          .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
-                                          .[Set](Function(i) i.LastUpdated, Now) _
-                                          .[Set](Function(i) i.ResponseTime, 0) _
-                                          .[Set](Function(i) i.Icon, IconList.URL) _
-                               .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
-
-
-            End With
-
-            ' WriteAuditEntry(Now.ToString & " " & strSQL)
             Try
+                With MyURL
+                    '5/2/2016 NS modified for VSPLUS-2887
+                    strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-URL') BEGIN " & _
+                     "INSERT INTO Status (StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon) " & _
+                     " VALUES ('Not Scanned', '" & .Category & "', 'Not Scanned', 'This URL has not yet been scanned.', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'URL', '" & .UpCount & "', '" & .UpPercentCount & "', '" & FixDateTime(Now) & "', '0', '" & .Name & "-URL', " & IconList.URL & ")" & _
+                     "END"
+
+                    Dim TypeAndName As String = MyURL.Name & "-" & MyURL.ServerType
+                    filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
+                    updatedef = repo.Updater _
+                                              .Set(Function(i) i.Name, .Name) _
+                                              .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
+                                              .[Set](Function(i) i.StatusCode, "Not Scanned") _
+                                              .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                              .[Set](Function(i) i.Category, .Category) _
+                                              .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                              .[Set](Function(i) i.Description, "Not Scanned") _
+                                              .[Set](Function(i) i.Type, "URL") _
+                                              .[Set](Function(i) i.Location, .Location) _
+                                              .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                                              .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                                              .[Set](Function(i) i.LastUpdated, Now) _
+                                              .[Set](Function(i) i.ResponseTime, 0) _
+                                              .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
+
+
+                End With
+
+                ' WriteAuditEntry(Now.ToString & " " & strSQL)
+
                 'objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
                 repo.Upsert(filterdef, updatedef)
             Catch ex As Exception
-
+                WriteAuditEntry(Now.ToString & " error Updating status table with URLs. Error:" + ex.Message.ToString())
             End Try
 
         Next n
@@ -2681,7 +2680,7 @@ Partial Public Class VitalSignsPlusCore
                  "END"
                 Dim TypeAndName As String = .Name & "-Cloud"
 
-                filterdef = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 updatedef = repo.Updater _
                                   .Set(Function(i) i.Name, .Name) _
                                   .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
@@ -2696,7 +2695,6 @@ Partial Public Class VitalSignsPlusCore
                                   .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
                                   .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
                                   .[Set](Function(i) i.LastUpdated, Now) _
-                                  .[Set](Function(i) i.Icon, IconList.URL) _
                                   .[Set](Function(i) i.ResponseTime, 0) _
                                   .[Set](Function(i) i.NextScan, .NextScan)
 
@@ -2813,9 +2811,9 @@ Partial Public Class VitalSignsPlusCore
                 '"', Memory='" & .Memory_Utilization & _
                 '"' WHERE TypeANDName='" & .Name & "-" & .ServerType & "'"
 
-                Dim TypeAndName As String = .Name & "-Cloud"
+                Dim TypeAndName As String = .Name & "-" & .ServerType
 
-                filterdef = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 updatedef = repo.Updater _
                                   .Set(Function(i) i.Name, .Name) _
                                   .[Set](Function(i) i.CurrentStatus, .Status) _
@@ -3084,7 +3082,9 @@ Partial Public Class VitalSignsPlusCore
         '*************************************************************
         Dim strSQL As String = ""
         Dim StatusDetails As String = ""
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
         Try
             If MyLogLevel = LogLevel.Verbose Then
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "  Entered UpdateIBMConenctStatusTable for " & myServer.Name)
@@ -3158,24 +3158,43 @@ Partial Public Class VitalSignsPlusCore
             'Update the status table
 
             With myServer
-                strSQL = "Update Status SET " & _
-                " Status='" & .Status & "'" & _
-                ", Details='" & StatusDetails & _
-                 "', Description='" & .Description & _
-                 "', StatusCode='" & .StatusCode & _
-                "', LastUpdate='" & Now & _
-                "', Category='" & .Category & _
-                "', ResponseTime='" & Str(.ResponseTime) & _
-                "', ResponseThreshold='" & .ResponseThreshold & _
-                "', NextScan='" & .NextScan & _
-                "', Name='" & .Name & _
-                "', CPU='" & .CPU_Utilization & _
-                "', Memory='" & .Memory_Utilization & _
-                "' WHERE TypeANDName='" & .Name & "-" & .ServerType & "'"
-            End With
+                'strSQL = "Update Status SET " & _
+                '" Status='" & .Status & "'" & _
+                '", Details='" & StatusDetails & _
+                ' "', Description='" & .Description & _
+                ' "', StatusCode='" & .StatusCode & _
+                '"', LastUpdate='" & Now & _
+                '"', Category='" & .Category & _
+                '"', ResponseTime='" & Str(.ResponseTime) & _
+                '"', ResponseThreshold='" & .ResponseThreshold & _
+                '"', NextScan='" & .NextScan & _
+                '"', Name='" & .Name & _
+                '"', CPU='" & .CPU_Utilization & _
+                '"', Memory='" & .Memory_Utilization & _
+                '"' WHERE TypeANDName='" & .Name & "-" & .ServerType & "'"
 
-            strSQL = strSQL.Replace("NaN", "0")
-            strSQL = strSQL.Replace("' ", "'")
+                Dim TypeAndName As String = .Name & "-" & .ServerType
+
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
+                updatedef = repo.Updater _
+                                  .Set(Function(i) i.Name, .Name) _
+                                  .[Set](Function(i) i.CurrentStatus, .Status) _
+                                  .[Set](Function(i) i.StatusCode, .Status) _
+                                  .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                  .[Set](Function(i) i.Details, StatusDetails) _
+                                  .[Set](Function(i) i.Category, .Category) _
+                                  .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                  .[Set](Function(i) i.Description, .Description) _
+                                  .[Set](Function(i) i.Type, .ServerType) _
+                                  .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                                  .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
+                                  .[Set](Function(i) i.CPU, Integer.Parse(.CPU_Utilization)) _
+                                  .[Set](Function(i) i.Memory, Integer.Parse(.Memory_Utilization)) _
+                                  .[Set](Function(i) i.NextScan, .NextScan)
+            End With
+            repo.Upsert(filterdef, updatedef)
+            'strSQL = strSQL.Replace("NaN", "0")
+            'strSQL = strSQL.Replace("' ", "'")
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " IBM Connect module  SQL statement: " & strSQL)
 
@@ -3185,34 +3204,34 @@ Partial Public Class VitalSignsPlusCore
         End Try
 
 
-        Try
-            '**
-            Dim myPath As String
-            Dim myRegistry As New RegistryHandler
+        'Try
+        '**
+        'Dim myPath As String
+        'Dim myRegistry As New RegistryHandler
 
 
-            myRegistry = Nothing
+        'myRegistry = Nothing
 
-            Dim objVSAdaptor As New VSAdaptor
-            If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = False And myServer.Enabled = True Then
-                Dim strSQLUpdate As String = strSQL
-                With myServer
-                    strSQL = "INSERT INTO Status (StatusCode, Category,  Description, Location, Name,  Status, Type, LastUpdate, ResponseTime, TypeANDName, NextScan, Details, ResponseThreshold) " & _
-                    " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .Description & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
-                    "'" & .ServerType & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-" & .ServerType & "', '" & .NextScan & "', '" & StatusDetails & "', '" & .ResponseThreshold & "' )"
-                End With
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Status Insert: " & strSQL)
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQLUpdate)
-            End If
+        'Dim objVSAdaptor As New VSAdaptor
+        'If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = False And myServer.Enabled = True Then
+        '    Dim strSQLUpdate As String = strSQL
+        '    With myServer
+        '        strSQL = "INSERT INTO Status (StatusCode, Category,  Description, Location, Name,  Status, Type, LastUpdate, ResponseTime, TypeANDName, NextScan, Details, ResponseThreshold) " & _
+        '        " VALUES ('" & .StatusCode & "', '" & .Category & "', '" & .Description & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
+        '        "'" & .ServerType & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-" & .ServerType & "', '" & .NextScan & "', '" & StatusDetails & "', '" & .ResponseThreshold & "' )"
+        '    End With
+        '    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Status Insert: " & strSQL)
+        '    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+        '    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQLUpdate)
+        'End If
 
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error updating Status table with IBM Connect server info: " & ex.Message & vbCrLf & "SQL Statement: " & strSQL, LogLevel.Normal)
-        Finally
-            '  MyDominoServer.LastScan = Now.ToString
-            '   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Updated  Domino Status Table with " & strSQL)
-            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Next scan scheduled : " & myServer.NextScan)
-        End Try
+        'Catch ex As Exception
+        '    WriteAuditEntry(Now.ToString & " Error updating Status table with IBM Connect server info: " & ex.Message & vbCrLf & "SQL Statement: " & strSQL, LogLevel.Normal)
+        'Finally
+        '    '  MyDominoServer.LastScan = Now.ToString
+        '    '   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Updated  Domino Status Table with " & strSQL)
+        '    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry("Next scan scheduled : " & myServer.NextScan)
+        'End Try
 
     End Sub
 
@@ -3221,17 +3240,25 @@ Partial Public Class VitalSignsPlusCore
 
 		If StatValue IsNot Nothing Then
 
-            Dim strSql As String = "Insert into VSS_Statistics.dbo.IBMConnectionsDailyStats(ServerName,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber) " & _
-             " values('" & ServerName & "','" & dtNow & "','" & StatName & "','" & StatValue & "'," & GetWeekNumber(dtNow) & ", " & dtNow.Month.ToString() & _
-             ", " & dtNow.Year.ToString() & ", " & dtNow.Day.ToString() & ", " & dtNow.Hour.ToString() & ")"
+            '         Dim strSql As String = "Insert into VSS_Statistics.dbo.IBMConnectionsDailyStats(ServerName,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber) " & _
+            '          " values('" & ServerName & "','" & dtNow & "','" & StatName & "','" & StatValue & "'," & GetWeekNumber(dtNow) & ", " & dtNow.Month.ToString() & _
+            '          ", " & dtNow.Year.ToString() & ", " & dtNow.Day.ToString() & ", " & dtNow.Hour.ToString() & ")"
 
-			Dim objVSAdaptor As New VSAdaptor
+            'Dim objVSAdaptor As New VSAdaptor
 
-			Try
-				objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", strSql)
-			Catch ex As Exception
+            Try
+                Dim DailyStats As New DailyStatistics
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+                DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.IBMConnections.ToDescription()
+                DailyStats.ServerName = ServerName
+                DailyStats.StatName = StatName
+                DailyStats.StatValue = StatValue
+                repo.Insert(DailyStats)
 
-			End Try
+                'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", strSql)
+            Catch ex As Exception
+
+            End Try
 
 		Else
 			WriteDeviceHistoryEntry("WebSphere", StatName, Now.ToString & " the following stat is empty: " & StatName)
@@ -3285,8 +3312,8 @@ Partial Public Class VitalSignsPlusCore
 		MyWeekNumber = GetWeekNumber(StatDate)
 		Dim objVSAdaptor As New VSAdaptor
 		Try
-			strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-			 " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyUpPercent', '" & UpPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
+            'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+            ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyUpPercent', '" & UpPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
 			'  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
 			'If boolUseSQLServer = True Then
 			'    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
@@ -3295,8 +3322,15 @@ Partial Public Class VitalSignsPlusCore
 			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
 			'End If
 
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = DeviceType
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "HourlyUpPercent"
+            DailyStats.StatValue = UpPercent
+            repo.Insert(DailyStats)
 
-			objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
 		Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " RecordCountAvailability insert failed becase: " & ex.Message)
 			WriteAuditEntry(Now.ToString & " The failed RecordCountAvailability insert comand was " & strSQL)
@@ -3318,8 +3352,8 @@ Partial Public Class VitalSignsPlusCore
 		MyWeekNumber = GetWeekNumber(StatDate)
 		Dim objVSAdaptor As New VSAdaptor
 		Try
-			strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-			 " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyOnTargetPercent', '" & OnTargetPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
+            'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+            ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyOnTargetPercent', '" & OnTargetPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
 			'  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
 
 			'If boolUseSQLServer = True Then
@@ -3328,7 +3362,14 @@ Partial Public Class VitalSignsPlusCore
 			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
 			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
 			'End If
-			objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = DeviceType
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "HourlyOnTargetPercent"
+            DailyStats.StatValue = OnTargetPercent
+            repo.Insert(DailyStats)
 		Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " Record On Target Availability insert failed becase: " & ex.Message)
 			WriteAuditEntry(Now.ToString & " The failed Record On Target Availability insert comand was " & strSQL)
@@ -3349,8 +3390,8 @@ Partial Public Class VitalSignsPlusCore
 		MyWeekNumber = GetWeekNumber(StatDate)
 		Dim objVSAdaptor As New VSAdaptor
 		Try
-			strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-			 " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyBusinessHoursOnTargetPercent', '" & OnTargetPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
+            'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+            ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyBusinessHoursOnTargetPercent', '" & OnTargetPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
 			'  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
 
 			'If boolUseSQLServer = True Then
@@ -3359,7 +3400,15 @@ Partial Public Class VitalSignsPlusCore
 			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
 			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
 			'End If
-			objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = DeviceType
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "HourlyBusinessHoursOnTargetPercent"
+            DailyStats.StatValue = OnTargetPercent
+            repo.Insert(DailyStats)
 		Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " Record On Target Availability insert failed becase: " & ex.Message)
 			WriteAuditEntry(Now.ToString & " The failed Record On Target Availability insert comand was " & strSQL)
@@ -3382,12 +3431,19 @@ Partial Public Class VitalSignsPlusCore
 		MyWeekNumber = GetWeekNumber(StatDate)
 		Dim objVSAdaptor As New VSAdaptor
 		Try
-			strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-			 " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyUpTimePercent', '" & UpPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
-			'  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
-			'OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
-			'OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
-			objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+            ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyUpTimePercent', '" & UpPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
+            ''  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
+            ''OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
+            ''OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = DeviceType
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "HourlyUpTimePercent"
+            DailyStats.StatValue = UpPercent
+            repo.Insert(DailyStats)
 		Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " RecordTimeAvailability insert failed because: " & ex.Message)
 			WriteAuditEntry(Now.ToString & " The failed RecordTimeAvailability insert command was " & strSQL)
@@ -3413,17 +3469,24 @@ Partial Public Class VitalSignsPlusCore
 		MyWeekNumber = GetWeekNumber(StatDate)
 		Dim objVSAdaptor As New VSAdaptor
 		Try
-			strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-			 " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyDownTimeMinutes', '" & DownMinutes & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
-			'  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
+            'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+            ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyDownTimeMinutes', '" & DownMinutes & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
+            ''  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
 
-			'If boolUseSQLServer = True Then
-			'    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
-			'Else
-			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
-			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
-			'End If
-			objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            ''If boolUseSQLServer = True Then
+            ''    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
+            ''Else
+            ''    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
+            ''    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
+            ''End If
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = DeviceType
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "HourlyDownTimeMinutes"
+            DailyStats.StatValue = DownMinutes
+            repo.Insert(DailyStats)
 		Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " RecordTimeAvailability insert failed because: " & ex.Message)
 			WriteAuditEntry(Now.ToString & " The failed RecordTimeAvailability insert command was " & strSQL)

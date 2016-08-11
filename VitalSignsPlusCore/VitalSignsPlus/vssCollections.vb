@@ -1,5 +1,6 @@
 ﻿Imports System.Threading
 Imports VSFramework
+Imports VSNext.Mongo.Entities
 
 Partial Public Class VitalSignsPlusCore
 
@@ -1810,6 +1811,7 @@ Partial Public Class VitalSignsPlusCore
                     MyURL.SearchString = ""
                     '5/2/2016 NS modified for VSPLUS-2887
                     MyURL.Location = dr.Item("Location")
+                    MyURL.ServerType = VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription()
                     MyURLs.Add(MyURL)
 
                     WriteAuditEntry(Now.ToString & " Adding new URL--" & MyURL.Name & "-- to the collection.", LogLevel.Verbose)
@@ -2737,12 +2739,12 @@ Partial Public Class VitalSignsPlusCore
 
 					Try
 						If dr.Item("ServerType") Is Nothing Then
-							.ServerType = "WebSphere"
+                            .ServerType = VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription()
 						Else
 							.ServerType = dr.Item("ServerType")
 						End If
 					Catch ex As Exception
-						.ServerType = "WebSphere"
+                        .ServerType = VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription()
 					End Try
 
 					Try

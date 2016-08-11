@@ -353,7 +353,7 @@ Update:
 
 
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = Typeandname)
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(Typeandname))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repo.Updater _
                                                                                  .Set(Function(i) i.Name, myURL.Name) _
                                                                                  .[Set](Function(i) i.CurrentStatus, myURL.Status) _
