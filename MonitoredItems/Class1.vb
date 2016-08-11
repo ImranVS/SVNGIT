@@ -3874,8 +3874,8 @@ Public Class WebSphere
     Inherits MonitoredDevice
 
     Public ID As Integer
-    Public NodeID As Integer
-    Public CellID As Integer
+    Public NodeID As String
+    Public CellID As String
     Public HostName As String
     Public ServerName As String
     Public NodeName As String

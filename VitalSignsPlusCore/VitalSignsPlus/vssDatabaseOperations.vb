@@ -2889,14 +2889,50 @@ Partial Public Class VitalSignsPlusCore
         Dim objVSAdaptor As New VSAdaptor
 
         Try
+            'Gets a list of all the servers inside the node
+            Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.NodeId, MongoDB.Bson.ObjectId.Parse(MyWebSphereServer.NodeID)) _
+                                                                                        And repositoryServers.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
+            Dim listOfServers As List(Of VSNext.Mongo.Entities.Server) = repositoryServers.Find(filterDefServers).ToList()
+
+            'Gets a list of all the status entitys of the servers in the node
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.In(Function(x) x.Name, listOfServers.Select(Function(x) x.DeviceName).ToList()) _
+                                                                                 And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
+
+            Dim listOfStatus As List(Of VSNext.Mongo.Entities.Status) = repository.Find(filterDef).ToList()
+
+            'Finds the worst status
+            Dim worstStatus As String = ""
+            Dim listOfDistinctStatuses As List(Of String) = listOfStatus.Select(Function(x) x.StatusCode).ToList().Distinct()
+
+            If listOfDistinctStatuses.Contains("Not Responding") Then
+                worstStatus = "Not Responding"
+            ElseIf listOfDistinctStatuses.Contains("Issue") Then
+                worstStatus = "Issue"
+            ElseIf listOfDistinctStatuses.Contains("OK") Then
+                worstStatus = "OK"
+            Else
+                worstStatus = "Maintenance"
+            End If
+
+            'updates the node's status document
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                 .Set(Function(x) x.StatusCode, worstStatus) _
+                                                                                 .Set(Function(x) x.CurrentStatus, worstStatus) _
+                                                                                 .Set(Function(x) x.JvmCount, listOfServers.Count) _
+                                                                                 .Set(Function(x) x.JvmMonitoredCount, listOfServers.Where(Function(x) x.IsEnabled).Count)
+
+            filterDef = repository.Filter.Eq(Function(x) x.Name, MyWebSphereServer.NodeName) _
+                And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
+
+            repository.Upsert(filterDef, updateDef)
+
 
             strSQL = "UPDATE WebSphereNode Set Status=tbl.StatusCode, JVMs=tbl2.JVMs From ( select Top 1 StatusCode, ServerName, " & _
              "case when StatusCode='Not Responding' then '1' when StatusCode='Issue' then '2' when StatusCode='OK' then '3' when StatusCode='Maintenance' then '4' end Rank " & _
              "from WebSphereNode wsn inner join WebSphereServer wss on wsn.NodeID=wss.NodeID and wsn.NodeID=" & MyWebSphereServer.NodeID & " inner join Status st on st.TypeANDName " & _
              "=wss.ServerName + '-" & MyWebSphereServer.ServerType & "' order by rank ) tbl cross join (select count(*) JVMs  from WebSphereServer where NodeID=" & MyWebSphereServer.NodeID & " Group By NodeID) tbl2  WHERE NodeID = " & MyWebSphereServer.NodeID & ""
-
-            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
-
 
         Catch ex As Exception
 
@@ -2942,15 +2978,55 @@ Partial Public Class VitalSignsPlusCore
         Dim objVSAdaptor As New VSAdaptor
 
         Try
+            'Gets a list of all the nodes inside the cell
+            Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.CellId, MongoDB.Bson.ObjectId.Parse(MyWebSphereServer.CellID)) _
+                                                                                        And repositoryServers.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
+            Dim listOfServers As List(Of VSNext.Mongo.Entities.Server) = repositoryServers.Find(filterDefServers).ToList()
+
+            'Gets a list of all the status docuemnts of the nodes in the cell
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.In(Function(x) x.Name, listOfServers.Select(Function(x) x.DeviceName).ToList()) _
+                                                                                 And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
+
+            Dim listOfStatus As List(Of VSNext.Mongo.Entities.Status) = repository.Find(filterDef).ToList()
+
+            'Finds the worst status
+            Dim worstStatus As String = ""
+            Dim listOfDistinctStatuses As List(Of String) = listOfStatus.Select(Function(x) x.StatusCode).ToList().Distinct()
+
+            If listOfDistinctStatuses.Contains("Not Responding") Then
+                worstStatus = "Not Responding"
+            ElseIf listOfDistinctStatuses.Contains("Issue") Then
+                worstStatus = "Issue"
+            ElseIf listOfDistinctStatuses.Contains("OK") Then
+                worstStatus = "OK"
+            Else
+                worstStatus = "Maintenance"
+            End If
+
+            'updates the cell status
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                 .Set(Function(x) x.StatusCode, worstStatus) _
+                                                                                 .Set(Function(x) x.CurrentStatus, worstStatus) _
+                                                                                 .Set(Function(x) x.JvmCount, listOfStatus.Sum(Function(x) x.JvmCount)) _
+                                                                                 .Set(Function(x) x.JvmMonitoredCount, listOfStatus.Sum(Function(x) x.JvmMonitoredCount))
+
+            filterDef = repository.Filter.Eq(Function(x) x.Name, MyWebSphereServer.NodeName) _
+                And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription())
+
+            repository.Upsert(filterDef, updateDef)
+
+
 
             strSQL = "Select count(*) from WebSphereCellStats where CellId = " & MyWebSphereServer.CellID
             Dim ds As New DataSet()
             ds.Tables.Add("table")
-            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "table")
+            'objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "table")
             Dim s As String = ds.Tables("table").Rows(0)(0).ToString()
-            If ds.Tables("table").Rows(0)(0) = False Then
-                strSQL = "INSERT INTO WebSphereCellStats (CellId, CellName) VALUES (" & MyWebSphereServer.CellID & ", '" & MyWebSphereServer.CellName & "');"
-            End If
+            'If ds.Tables("table").Rows(0)(0) = False Then
+            'strSQL = "INSERT INTO WebSphereCellStats (CellId, CellName) VALUES (" & MyWebSphereServer.CellID & ", '" & MyWebSphereServer.CellName & "');"
+            'End If
 
             strSQL += "UPDATE WebSphereCellStats Set Status=tbl.Status, TotalJVM=tbl2.TotalJVMs, MonitoredJVMs=tbl2.MonitoredJVMs " & _
                "From (( select Top 1 Status, NodeName, " & _
@@ -2959,7 +3035,7 @@ Partial Public Class VitalSignsPlusCore
                "(select count(*) TotalJVMs, sum(cast(Enabled as Int)) MonitoredJVMs from WebSphereServer where CellID=" & MyWebSphereServer.CellID & ") tbl2 ) WHERE CellID=" & MyWebSphereServer.CellID & ""
 
 
-            objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+            'objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
 
         Catch ex As Exception

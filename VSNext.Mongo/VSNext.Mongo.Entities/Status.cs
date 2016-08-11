@@ -810,7 +810,19 @@ namespace VSNext.Mongo.Entities
 
         #endregion
 
+        #region WebSphere
 
+        [DataMember]
+        [BsonElement("jvm_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? JvmCount { get; set; }
+
+        [DataMember]
+        [BsonElement("jvm_monitored_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? JvmMonitoredCount { get; set; }
+
+        #endregion
 
 
 
