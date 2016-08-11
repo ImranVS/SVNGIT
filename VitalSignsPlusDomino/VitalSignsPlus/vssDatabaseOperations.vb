@@ -1964,7 +1964,8 @@ Partial Public Class VitalSignsPlusDomino
             repo.Collection.Aggregate.SortBy(Function(x) x.CreatedOn).First()
             Dim activeList As List(Of VSNext.Mongo.Entities.MobileDevices) = list _
                     .GroupBy(Function(x) x.ServerName) _
-                    .Select(Function(x) x.Aggregate((Function(max, cur) IIf(max Is Nothing Or cur.LastSyncTime.Value > max.LastSyncTime.Value, cur, max))))
+                    .Select(Function(x) x.Aggregate((Function(max, cur) IIf(max Is Nothing Or cur.LastSyncTime.Value > max.LastSyncTime.Value, cur, max)))) _
+                    .ToList()
 
 
 
