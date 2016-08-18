@@ -1860,6 +1860,25 @@ namespace VSNext.Mongo.Entities
 
     }
 
+    [DataContract]
+    [Serializable]
+    [CollectionName("network_device_details")]
+    public class NetworkDeviceDetails : Entity
+    {
+        [DataMember]
+        [BsonElement("server_id")]
+        public int ServerId { get; set; }
+
+        [DataMember]
+        [BsonElement("stat_name")]
+        public string StatName { get; set; }
+
+        [DataMember]
+        [BsonElement("stat_value")]
+        public double StatValue { get; set; }
+
+    }
+
     public class LatencyResults
     {
         public LatencyResults()

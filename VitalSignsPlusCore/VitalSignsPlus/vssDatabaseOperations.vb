@@ -2503,8 +2503,8 @@ Partial Public Class VitalSignsPlusCore
         MyWeekNumber = GetWeekNumber(Date.Today)
         Dim objVSAdaptor As New VSAdaptor
         Try
-            strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-             " VALUES ('URL', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
+            'strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+            ' " VALUES ('URL', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
 
 
             'If boolUseSQLServer = True Then
@@ -2516,7 +2516,7 @@ Partial Public Class VitalSignsPlusCore
             'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
             Dim DailyStats As New DailyStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
-            DailyStats.DeviceType = "URL"
+            DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription()
             DailyStats.ServerName = DeviceName
             DailyStats.StatName = "ResponseTime"
             DailyStats.StatValue = ResponseTime

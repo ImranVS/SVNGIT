@@ -117,6 +117,14 @@
     <Reference Include="MaintenanceDLL">
       <HintPath>..\..\..\..\..\..\Builds\Services\MaintenanceDLL.dll</HintPath>
     </Reference>
+    <Reference Include="MongoDB.Bson, Version=2.2.3.3, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\VitalSigns Services\packages\MongoDB.Bson.2.2.3\lib\net45\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver, Version=2.2.3.3, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\VitalSigns Services\packages\MongoDB.Driver.2.2.3\lib\net45\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="MonitoredItems">
       <HintPath>..\..\..\..\..\..\Builds\Services\MonitoredItems.dll</HintPath>
     </Reference>

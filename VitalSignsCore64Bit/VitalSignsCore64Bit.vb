@@ -20,11 +20,14 @@ Imports System.Collections.Generic
 Imports System.Linq
 
 Imports RPRWyatt.VitalSigns.Services
+Imports VSNext.Mongo.Repository
+Imports VSNext.Mongo.Entities
+Imports MongoDB.Driver
 
 
 Partial Class VitalSignsCore
 	Inherits VSServices
-
+    Dim connectionString As String = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
 	Dim sCultureString As String = "en-US"
 	Dim connectionStringName As String = "CultureString"
 
@@ -799,8 +802,8 @@ Partial Class VitalSignsCore
 		Dim MyWeekNumber As Integer
 		MyWeekNumber = GetWeekNumber(Date.Today)
 		Try
-			strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
-			   " VALUES ('Network Device', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
+            'strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+            '   " VALUES ('Network Device', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
 			'If boolUseSQLServer = True Then
 			'    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
 			'Else
@@ -808,7 +811,14 @@ Partial Class VitalSignsCore
 			'    myCommand.ExecuteNonQuery()
 			'End If
 
-			objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription()
+            DailyStats.ServerName = DeviceName
+            DailyStats.StatName = "ResponseTime"
+            DailyStats.StatValue = ResponseTime
+            repo.Insert(DailyStats)
 		Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " Network Device Stats table insert failed becase: " & ex.Message)
 			WriteAuditEntry(Now.ToString & " The failed stats table insert comand was " & strSQL)
@@ -950,7 +960,9 @@ Partial Class VitalSignsCore
 		Dim strSQL As String
 		Dim objVSAdaptor As New VSAdaptor
 
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
 		strSQL = ""
 		Try
 			Dim n As Integer
@@ -959,22 +971,39 @@ Partial Class VitalSignsCore
 			For n = 0 To MyNetworkDevices.Count - 1
 				MyNetworkDevice = MyNetworkDevices.Item(n)
 				'   WriteAuditEntry(Now.ToString & " Adding " & MyNetworkDevice.Name & " to status table.")
-				myStatus = ServerStatusCode(MyNetworkDevice.Status)
-				With MyNetworkDevice
-                    '5/5/2016 NS modified - inserting a Network Device into StatusDetails fails because of a TypeANDName mismatch
-                    'Changed TypeANDName -ND to -Network Device
-                    strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-Network Device') BEGIN " & _
-                     "INSERT INTO Status(StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon) VALUES " & _
-                     "('" & myStatus & "', '" & .Category & "', '" & .Description & "', ' ', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'Network Device', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '0', '" & .Name & "-Network Device', " & IconList.Network_Device & ")" & _
-                     "END"
-				End With
+                myStatus = ServerStatusCode(MyNetworkDevice.Status)
+                Try
 
-				Try
-					objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-				Catch ex As Exception
+                    With MyNetworkDevice
+                        '5/5/2016 NS modified - inserting a Network Device into StatusDetails fails because of a TypeANDName mismatch
+                        'Changed TypeANDName -ND to -Network Device
+                        'strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-Network Device') BEGIN " & _
+                        ' "INSERT INTO Status(StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon) VALUES " & _
+                        ' "('" & myStatus & "', '" & .Category & "', '" & .Description & "', ' ', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'Network Device', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '0', '" & .Name & "-Network Device', " & IconList.Network_Device & ")" & _
+                        ' "END"
+                        Dim TypeAndName As String = .Name & "-" & .ServerType
+                        filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
+                        updatedef = repo.Updater _
+                                                  .Set(Function(i) i.Name, .Name) _
+                                                  .[Set](Function(i) i.CurrentStatus, .Status) _
+                                                  .[Set](Function(i) i.StatusCode, myStatus) _
+                                                  .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                                  .[Set](Function(i) i.Category, .Category) _
+                                                  .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                                  .[Set](Function(i) i.Description, .Description) _
+                                                  .[Set](Function(i) i.Type, .ServerType) _
+                                                  .[Set](Function(i) i.Location, .Location) _
+                                                  .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                                                  .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                                                  .[Set](Function(i) i.LastUpdated, Now) _
+                                                  .[Set](Function(i) i.ResponseTime, 0)
+                    End With
 
-				End Try
-			Next n
+                    repo.Upsert(filterdef, updatedef)
+                Catch ex As Exception
+
+                End Try
+            Next n
 			n = Nothing
 			MyNetworkDevice = Nothing
 		Catch ex As Exception
@@ -995,7 +1024,9 @@ Partial Class VitalSignsCore
 		Dim strSQLInsert As String = ""
 
 		Dim objVSAdaptor As New VSAdaptor
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
 		Try
 
 			Dim PercentageChange As Double
@@ -1021,46 +1052,69 @@ Partial Class VitalSignsCore
                 With myDevice
                     '5/5/2016 NS modified - inserting a Network Device into StatusDetails fails because of a TypeANDName mismatch
                     'Changed TypeANDName -ND to -Network Device
-                    strSQLUpdate = "Update Status SET DownCount= '" & myDevice.DownCount & _
-                       "', Status='" & myDevice.Status & "', Upcount=" & myDevice.UpCount & _
-                      ", UpPercent= '" & myDevice.UpPercentCount & _
-                      "', Details='" & myDevice.ResponseDetails & _
-                      "', LastUpdate='" & Now & _
-                      "', ResponseTime='" & Str(myDevice.ResponseTime) & _
-                      "', PercentageChange='" & Str(PercentageChange) & _
-                     "', StatusCode='" & .StatusCode & _
-                      "', NextScan='" & myDevice.NextScan & _
-                      "', ResponseThreshold=" & myDevice.ResponseThreshold & _
-                      ", MyPercent='" & (Percent) & _
-                      "', UpMinutes=" & Microsoft.VisualBasic.Strings.Format(myDevice.UpMinutes, "F1") & _
-                      ", DownMinutes=" & Microsoft.VisualBasic.Strings.Format(myDevice.DownMinutes, "F1") & _
-                      ", UpPercentMinutes='" & Str(myDevice.UpPercentMinutes) & _
-                      "', Name='" & myDevice.Name & "' " & _
-                      ", Location='" & myDevice.Location & "' " & _
-                      " WHERE TypeANDName='" & myDevice.Name & "-Network Device'"
+                    'strSQLUpdate = "Update Status SET DownCount= '" & myDevice.DownCount & _
+                    '   "', Status='" & myDevice.Status & "', Upcount=" & myDevice.UpCount & _
+                    '  ", UpPercent= '" & myDevice.UpPercentCount & _
+                    '  "', Details='" & myDevice.ResponseDetails & _
+                    '  "', LastUpdate='" & Now & _
+                    '  "', ResponseTime='" & Str(myDevice.ResponseTime) & _
+                    '  "', PercentageChange='" & Str(PercentageChange) & _
+                    ' "', StatusCode='" & .StatusCode & _
+                    '  "', NextScan='" & myDevice.NextScan & _
+                    '  "', ResponseThreshold=" & myDevice.ResponseThreshold & _
+                    '  ", MyPercent='" & (Percent) & _
+                    '  "', UpMinutes=" & Microsoft.VisualBasic.Strings.Format(myDevice.UpMinutes, "F1") & _
+                    '  ", DownMinutes=" & Microsoft.VisualBasic.Strings.Format(myDevice.DownMinutes, "F1") & _
+                    '  ", UpPercentMinutes='" & Str(myDevice.UpPercentMinutes) & _
+                    '  "', Name='" & myDevice.Name & "' " & _
+                    '  ", Location='" & myDevice.Location & "' " & _
+                    '  " WHERE TypeANDName='" & myDevice.Name & "-Network Device'"
+                    Dim TypeAndName As String = .Name & "-" & .ServerType
+                    filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
+                    updatedef = repo.Updater _
+                    .Set(Function(i) i.Name, .Name) _
+                    .[Set](Function(i) i.CurrentStatus, .Status) _
+                    .[Set](Function(i) i.StatusCode, .StatusCode) _
+                    .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                    .[Set](Function(i) i.Category, .Category) _
+                    .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                    .[Set](Function(i) i.Description, .Description) _
+                    .[Set](Function(i) i.Type, .ServerType) _
+                    .[Set](Function(i) i.Location, .Location) _
+                    .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                    .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                    .[Set](Function(i) i.LastUpdated, Now) _
+                    .[Set](Function(i) i.MyPercent, Percent) _
+                    .[Set](Function(i) i.UpMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(myDevice.UpMinutes, "F1"))) _
+                    .[Set](Function(i) i.DownMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(myDevice.DownMinutes, "F1"))) _
+                    .[Set](Function(i) i.UpPercentMinutes, myDevice.UpPercentMinutes) _
+                    .[Set](Function(i) i.ResponseTime, 0) _
+                    .[Set](Function(i) i.ResponseThreshold, Convert.ToInt32(.ResponseThreshold))
+
 
                 End With
+                repo.Upsert(filterdef, updatedef)
 			Catch ex As Exception
 				strSQLUpdate = ""
 			End Try
 
-			Try
-                With myDevice
-                    '5/5/2016 NS modified - inserting a Network Device into StatusDetails fails because of a TypeANDName mismatch
-                    'Changed TypeANDName -ND to -Network Device
-                    strSQLInsert = "INSERT INTO Status(StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon, " & _
-                     "PercentageChange, NextScan, ResponseThreshold, MyPercent, UpMinutes, DownMinutes, UpPercentMinutes) VALUES " & _
-                      "('" & .Status & "', '" & .Category & "', '" & .Description & "', '" & .ResponseDetails & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', " & _
-                      "'Network Device', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '" & Str(.ResponseTime) & "', '" & .Name & "-Network Device', " & IconList.Network_Device & ", " & _
-                      "'" & Str(PercentageChange) & "', '" & .NextScan & "', '" & .ResponseThreshold & "', '" & Percent & "', " & Microsoft.VisualBasic.Strings.Format(myDevice.UpMinutes, "F1") & ", " & _
-                      "" & Microsoft.VisualBasic.Strings.Format(myDevice.DownMinutes, "F1") & ", '" & Str(.UpPercentMinutes) & "')"
+            'Try
+            '             With myDevice
+            '                 '5/5/2016 NS modified - inserting a Network Device into StatusDetails fails because of a TypeANDName mismatch
+            '                 'Changed TypeANDName -ND to -Network Device
+            '                 strSQLInsert = "INSERT INTO Status(StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon, " & _
+            '                  "PercentageChange, NextScan, ResponseThreshold, MyPercent, UpMinutes, DownMinutes, UpPercentMinutes) VALUES " & _
+            '                   "('" & .Status & "', '" & .Category & "', '" & .Description & "', '" & .ResponseDetails & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', " & _
+            '                   "'Network Device', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '" & Str(.ResponseTime) & "', '" & .Name & "-Network Device', " & IconList.Network_Device & ", " & _
+            '                   "'" & Str(PercentageChange) & "', '" & .NextScan & "', '" & .ResponseThreshold & "', '" & Percent & "', " & Microsoft.VisualBasic.Strings.Format(myDevice.UpMinutes, "F1") & ", " & _
+            '                   "" & Microsoft.VisualBasic.Strings.Format(myDevice.DownMinutes, "F1") & ", '" & Str(.UpPercentMinutes) & "')"
 
-                End With
-			Catch ex As Exception
-				strSQLUpdate = ""
-			End Try
+            '             End With
+            'Catch ex As Exception
+            '	strSQLUpdate = ""
+            'End Try
 
-			UpdateStatusTable(strSQLUpdate, SQLInsertStatement:=strSQLInsert)
+            'UpdateStatusTable(strSQLUpdate, SQLInsertStatement:=strSQLInsert)
 		Catch ex As Exception
 			WriteAuditEntry("Failure updating status table with Network Device info: " & ex.Message)
 			WriteAuditEntry(Now.ToString & " Update command was " & strSQLUpdate)

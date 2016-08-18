@@ -6,6 +6,9 @@ Imports System.Management.Automation.Remoting
 Imports System.Collections.Generic
 Imports System.Threading
 Imports System.Data
+Imports VSNext.Mongo.Repository
+Imports VSNext.Mongo.Entities
+Imports MongoDB.Driver
 
 Partial Class VitalSignsCore
 
@@ -300,30 +303,57 @@ Update:
 		Catch ex As Exception
 			MyDevice.StatusCode = "OK"
 		End Try
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
 
 		Try
             With MyDevice
                 '5/5/2016 NS modified - inserting a Network Device into StatusDetails fails because of a TypeANDName mismatch
                 'Changed TypeANDName -ND to -Network Device
-                strSQL = "Update Status SET DownCount= '" & MyDevice.DownCount & _
-                 "', Status='" & MyDevice.Status & "', Upcount=" & MyDevice.UpCount & _
-                ", UpPercent= '" & MyDevice.UpPercentCount & _
-                "', Details='" & MyDevice.ResponseDetails & _
-                "', LastUpdate='" & Now & _
-                "', ResponseTime='" & Str(myResponseTime) & _
-                "', PercentageChange='" & Str(PercentageChange) & _
-                 "', StatusCode='" & .StatusCode & _
-                "', NextScan='" & MyDevice.NextScan & _
-                "', ResponseThreshold=" & MyDevice.ResponseThreshold & _
-                ", MyPercent='" & (Percent) & _
-                "', UpMinutes=" & Microsoft.VisualBasic.Strings.Format(MyDevice.UpMinutes, "F1") & _
-                ", DownMinutes=" & Microsoft.VisualBasic.Strings.Format(MyDevice.DownMinutes, "F1") & _
-                ", UpPercentMinutes='" & Str(MyDevice.UpPercentMinutes) & _
-                "', Name='" & MyDevice.Name & "' " & _
-                ", Location='" & MyDevice.Location & "' " & _
-                " WHERE TypeANDName='" & MyDevice.Name & "-Network Device'"
+                'strSQL = "Update Status SET DownCount= '" & MyDevice.DownCount & _
+                ' "', Status='" & MyDevice.Status & "', Upcount=" & MyDevice.UpCount & _
+                '", UpPercent= '" & MyDevice.UpPercentCount & _
+                '"', Details='" & MyDevice.ResponseDetails & _
+                '"', LastUpdate='" & Now & _
+                '"', ResponseTime='" & Str(myResponseTime) & _
+                '"', PercentageChange='" & Str(PercentageChange) & _
+                ' "', StatusCode='" & .StatusCode & _
+                '"', NextScan='" & MyDevice.NextScan & _
+                '"', ResponseThreshold=" & MyDevice.ResponseThreshold & _
+                '", MyPercent='" & (Percent) & _
+                '"', UpMinutes=" & Microsoft.VisualBasic.Strings.Format(MyDevice.UpMinutes, "F1") & _
+                '", DownMinutes=" & Microsoft.VisualBasic.Strings.Format(MyDevice.DownMinutes, "F1") & _
+                '", UpPercentMinutes='" & Str(MyDevice.UpPercentMinutes) & _
+                '"', Name='" & MyDevice.Name & "' " & _
+                '", Location='" & MyDevice.Location & "' " & _
+                '" WHERE TypeANDName='" & MyDevice.Name & "-Network Device'"
+
+
+                Dim TypeAndName As String = .Name & "-" & .ServerType
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
+                updatedef = repo.Updater _
+                .Set(Function(i) i.Name, .Name) _
+                .[Set](Function(i) i.CurrentStatus, .Status) _
+                .[Set](Function(i) i.StatusCode, .StatusCode) _
+                .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                .[Set](Function(i) i.Category, .Category) _
+                .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                .[Set](Function(i) i.Description, .Description) _
+                .[Set](Function(i) i.Type, .ServerType) _
+                .[Set](Function(i) i.Location, .Location) _
+                .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
+                .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                .[Set](Function(i) i.LastUpdated, Now) _
+                .[Set](Function(i) i.MyPercent, Percent) _
+                .[Set](Function(i) i.UpMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(MyDevice.UpMinutes, "F1"))) _
+                .[Set](Function(i) i.DownMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(MyDevice.DownMinutes, "F1"))) _
+                .[Set](Function(i) i.UpPercentMinutes, MyDevice.UpPercentMinutes) _
+                .[Set](Function(i) i.ResponseTime, 0) _
+                .[Set](Function(i) i.ResponseThreshold, Convert.ToInt32(.ResponseThreshold))
 
             End With
+            repo.Upsert(filterdef, updatedef)
 		Catch ex As Exception
 			strSQL = ""
 		End Try
@@ -834,16 +864,28 @@ Update:
 
 	Private Sub WriteToNetworkDevicesDetailsTable(Name As String, Value As String, MyDevice As MonitoredItems.NetworkDevice)
 
-		Dim dtNow As DateTime = DateTime.Now
-		Dim weekNumber As Integer = GetWeekNumber(dtNow)
+        'Dim dtNow As DateTime = DateTime.Now
+        'Dim weekNumber As Integer = GetWeekNumber(dtNow)
 
-		Dim sqlQuery As String = "Insert into VitalSigns.dbo.NetworkDevicesDetails(NetworkID, StatName, StatValue) " &
-		  " values('" & MyDevice.ID & "','" & Name & "','" & Value & "')"
+        'Dim sqlQuery As String = "Insert into VitalSigns.dbo.NetworkDevicesDetails(NetworkID, StatName, StatValue) " &
+        '  " values('" & MyDevice.ID & "','" & Name & "','" & Value & "')"
+        WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, "Stat Name:" + Name + ", Stat Value:" + Value)
+        Try
 
-		WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, sqlQuery)
+       
+        Dim NetworkDeviceDetails As New NetworkDeviceDetails
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NetworkDeviceDetails)(connectionString)
+        NetworkDeviceDetails.ServerId = MyDevice.ID
+        NetworkDeviceDetails.StatName = Name
+        NetworkDeviceDetails.StatValue = Value
+        repo.Insert(NetworkDeviceDetails)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, "WriteToNetworkDevicesDetailsTable Exception:" + ex.Message.ToString())
+        End Try
+        'WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, sqlQuery)
 
-		Dim adapter As New VSAdaptor
-		adapter.ExecuteNonQueryAny("VitalSigns", "", sqlQuery)
+        'Dim adapter As New VSAdaptor
+        'adapter.ExecuteNonQueryAny("VitalSigns", "", sqlQuery)
 
 	End Sub
 
@@ -851,11 +893,14 @@ Update:
 
 		Dim dtNow As DateTime = DateTime.Now
 		Dim weekNumber As Integer = GetWeekNumber(dtNow)
-
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NetworkDeviceDetails)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.NetworkDeviceDetails)
 		Dim sqlQuery As String = "Delete VitalSigns.dbo.NetworkDevicesDetails where NetworkId=" & MyDevice.ID & ""
 
 		WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, sqlQuery)
 
+        filterdef = repo.Filter.Where(Function(i) i.ServerId.Equals(MyDevice.ID))
+        repo.Delete(filterdef)
 		Dim adapter As New VSAdaptor
 		adapter.ExecuteNonQueryAny("VitalSigns", "", sqlQuery)
 
@@ -866,14 +911,26 @@ Update:
 		Dim dtNow As DateTime = DateTime.Now
 		Dim weekNumber As Integer = GetWeekNumber(dtNow)
 
-		Dim sqlQuery As String = "Insert into VSS_Statistics.dbo.DeviceDailyStats(ServerName,DeviceType,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber) " &
-		  " values('" & MyDevice.Name & "','Network Device','" & dtNow & "','" & Name & "','" & Value &
-		"'," & weekNumber & ", " & dtNow.Month.ToString() & ", " & dtNow.Year.ToString() & ", " & dtNow.Day.ToString() & ")"
+        'Dim sqlQuery As String = "Insert into VSS_Statistics.dbo.DeviceDailyStats(ServerName,DeviceType,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber) " &
+        '  " values('" & MyDevice.Name & "','Network Device','" & dtNow & "','" & Name & "','" & Value &
+        '"'," & weekNumber & ", " & dtNow.Month.ToString() & ", " & dtNow.Year.ToString() & ", " & dtNow.Day.ToString() & ")"
 
-		WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, sqlQuery)
+        WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, "Stat Name:" + Name + ", Stat Value:" + Value)
+        Try
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription()
+            DailyStats.ServerName = MyDevice.Name
+            DailyStats.StatName = Name
+            DailyStats.StatValue = Value
+            repo.Insert(DailyStats)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, "WriteToNetworkDevicesStatsTable Exception:" + ex.Message.ToString())
+        End Try
+       
 
-		Dim adapter As New VSAdaptor
-		adapter.ExecuteNonQueryAny("VSS_Statistics", "", sqlQuery)
+        'Dim adapter As New VSAdaptor
+        'adapter.ExecuteNonQueryAny("VSS_Statistics", "", sqlQuery)
 
 	End Sub
 
