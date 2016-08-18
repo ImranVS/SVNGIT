@@ -59,6 +59,7 @@
     <Compile Include="ClusterDatabaseDetails.cs" />
     <Compile Include="BusinessHours.cs" />
     <Compile Include="ConsoleCommands.cs" />
+    <Compile Include="Credentials.cs" />
     <Compile Include="DailyStatistics.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DiskSpace.cs" />
