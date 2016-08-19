@@ -56,7 +56,10 @@ Imports RPRWyatt.VitalSigns.Services
 
 
 Public Class VitalSignsPlusExJournal
-	Inherits VSServices
+    Inherits VSServices
+
+    Dim connectionString As String
+
 	Dim BuildNumber As Integer = 2280
 	Dim ProductName As String 'value set in start up 
 	Dim CompanyName As String = "JNIT, Inc.  dba RPR Wyatt"
@@ -109,60 +112,68 @@ Public Class VitalSignsPlusExJournal
 
 
 
-	Protected Overrides Sub ServiceOnStart(ByVal args() As String)
-		Try
-			sCultureString = ConfigurationManager.AppSettings(connectionStringName).ToString()
-		Catch ex As Exception
-			sCultureString = "en-US"
-		End Try
+    Protected Overrides Sub ServiceOnStart(ByVal args() As String)
 
-		Try
-			strAppPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly.Location)
-		Catch ex As Exception
-			strAppPath = "c:\"
-		End Try
+        Try
+            connectionString = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
+            WriteAuditEntry(Now.ToString + " connection string is " & connectionString)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString + " Error getting connection string. Error: " & ex.Message)
+        End Try
 
+        Try
+            sCultureString = ConfigurationManager.AppSettings(connectionStringName).ToString()
+        Catch ex As Exception
+            sCultureString = "en-US"
+        End Try
 
-		'Read some settings from the registry
-		Dim myRegistry As New VSFramework.RegistryHandler()
-
-		SetMyThresholdValue()
-
-		Try
-			MyLogLevel = myRegistry.ReadFromRegistry("Log Level")
-		Catch ex As Exception
-			MyLogLevel = LogLevel.Verbose
-		End Try
+        Try
+            strAppPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly.Location)
+        Catch ex As Exception
+            strAppPath = "c:\"
+        End Try
 
 
+        'Read some settings from the registry
+        Dim myRegistry As New VSFramework.RegistryHandler()
 
-		Try
-			WriteAuditEntry(Now.ToString + " ")
-			WriteAuditEntry(Now.ToString + " ********************************* ")
-			WriteAuditEntry(Now.ToString + " VitalSigns Plus EXJournal Scanner - Build Number: " & BuildNumber)
-			WriteAuditEntry(Now.ToString + " The service is starting up.")
-			WriteAuditEntry(Now.ToString + " ")
-			WriteAuditEntry(Now.ToString + " Copyright 2006 - " & Now.Year & ", JNITH, Inc. and Plum Island Publishing, LLC.")
-			WriteAuditEntry(Now.ToString + " All rights reserved.")
-			WriteAuditEntry(Now.ToString + " Distributed worldwide by RPR Wyatt and its partner network.")
-			WriteAuditEntry(Now.ToString + " ")
-			WriteAuditEntry(Now.ToString + " ")
-			' Thread.CurrentThread.Sleep(4000)
+        SetMyThresholdValue()
 
-		Catch ex As Exception
-
-		End Try
+        Try
+            MyLogLevel = myRegistry.ReadFromRegistry("Log Level")
+        Catch ex As Exception
+            MyLogLevel = LogLevel.Verbose
+        End Try
 
 
-		Try
-			Dim myAdapter As New VSFramework.XMLOperation
-			Dim MyConnectionString As String
-			MyConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
-			WriteAuditEntry(Now.ToString + " My connection string is " & MyConnectionString)
 
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString + " Exception getting connection string: " & ex.ToString)
-		End Try
+        Try
+            WriteAuditEntry(Now.ToString + " ")
+            WriteAuditEntry(Now.ToString + " ********************************* ")
+            WriteAuditEntry(Now.ToString + " VitalSigns Plus EXJournal Scanner - Build Number: " & BuildNumber)
+            WriteAuditEntry(Now.ToString + " The service is starting up.")
+            WriteAuditEntry(Now.ToString + " ")
+            WriteAuditEntry(Now.ToString + " Copyright 2006 - " & Now.Year & ", JNITH, Inc. and Plum Island Publishing, LLC.")
+            WriteAuditEntry(Now.ToString + " All rights reserved.")
+            WriteAuditEntry(Now.ToString + " Distributed worldwide by RPR Wyatt and its partner network.")
+            WriteAuditEntry(Now.ToString + " ")
+            WriteAuditEntry(Now.ToString + " ")
+            ' Thread.CurrentThread.Sleep(4000)
+
+        Catch ex As Exception
+
+        End Try
+
+
+        Try
+            Dim myAdapter As New VSFramework.XMLOperation
+            Dim MyConnectionString As String
+            MyConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
+            WriteAuditEntry(Now.ToString + " My connection string is " & MyConnectionString)
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString + " Exception getting connection string: " & ex.ToString)
+        End Try
 
         '5/5/2016 NS commented out the code below since it is outdated and produces an error in SQL
         'Try
@@ -173,106 +184,106 @@ Public Class VitalSignsPlusExJournal
 
         'End Try
 
-		Try
-			mNotesProgDir = myRegistry.ReadFromRegistry("Notes Program Directory")
-			If mNotesProgDir = "" Then
-				WriteAuditEntry(Now.ToString & " *** WARNING *** The Notes Program Directory has to be set in File, Preferences.")
-				End
-			Else
-				WriteAuditEntry(Now.ToString & " The Notes Program Directory is " & mNotesProgDir)
-			End If
+        Try
+            mNotesProgDir = myRegistry.ReadFromRegistry("Notes Program Directory")
+            If mNotesProgDir = "" Then
+                WriteAuditEntry(Now.ToString & " *** WARNING *** The Notes Program Directory has to be set in File, Preferences.")
+                End
+            Else
+                WriteAuditEntry(Now.ToString & " The Notes Program Directory is " & mNotesProgDir)
+            End If
 
-		Catch ex As Exception
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		Try
-			mNotesINI = "=" & myRegistry.ReadFromRegistry("Notes.ini")
-			'Should be like "=c:\program files\lotus\notes\notes.ini"
-			If mNotesINI = "=" Then
-				WriteAuditEntry(Now.ToString & "  *** WARNING *** The Notes.INI location has to be set in File, Preferences.")
-			Else
-				WriteAuditEntry(Now.ToString & " The Notes.INI setting is " & mNotesINI)
-			End If
-		Catch ex As Exception
+        Try
+            mNotesINI = "=" & myRegistry.ReadFromRegistry("Notes.ini")
+            'Should be like "=c:\program files\lotus\notes\notes.ini"
+            If mNotesINI = "=" Then
+                WriteAuditEntry(Now.ToString & "  *** WARNING *** The Notes.INI location has to be set in File, Preferences.")
+            Else
+                WriteAuditEntry(Now.ToString & " The Notes.INI setting is " & mNotesINI)
+            End If
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		Try
-			mUserId = myRegistry.ReadFromRegistry("Notes User ID")
-			If mUserId = "" Then
-				WriteAuditEntry(Now.ToString & "  *** WARNING ***  The Notes User ID file location has to be set in File, Preferences.")
-				' End
-			Else
-				WriteAuditEntry(Now.ToString & " The Notes User ID setting is " & mUserId)
-			End If
-		Catch ex As Exception
+        Try
+            mUserId = myRegistry.ReadFromRegistry("Notes User ID")
+            If mUserId = "" Then
+                WriteAuditEntry(Now.ToString & "  *** WARNING ***  The Notes User ID file location has to be set in File, Preferences.")
+                ' End
+            Else
+                WriteAuditEntry(Now.ToString & " The Notes User ID setting is " & mUserId)
+            End If
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		'Get the passwords from the registry
-		Dim MyPass As Object
+        'Get the passwords from the registry
+        Dim MyPass As Object
 
-		Try
-			' MyPass = myRegistry.ReadFromRegistry("Password")  'Domino password as encrypted byte stream
-			Dim myAdapter As New VSFramework.XMLOperation
-			MyPass = myAdapter.ReadSettingsSQL("Password")
+        Try
+            ' MyPass = myRegistry.ReadFromRegistry("Password")  'Domino password as encrypted byte stream
+            Dim myAdapter As New VSFramework.XMLOperation
+            MyPass = myAdapter.ReadSettingsSQL("Password")
 
-		Catch ex As Exception
-			MyPass = Nothing
-		End Try
+        Catch ex As Exception
+            MyPass = Nothing
+        End Try
 
-		Dim mySecrets As New VSFramework.TripleDES
-		Try
-			If Not MyPass Is Nothing Then
-				MyDominoPassword = mySecrets.Decrypt(MyPass) 'password in clear text, stored in memory now
-				'  If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Successfully decrypted the Notes password as " & MyDominoPassword)
+        Dim mySecrets As New VSFramework.TripleDES
+        Try
+            If Not MyPass Is Nothing Then
+                MyDominoPassword = mySecrets.Decrypt(MyPass) 'password in clear text, stored in memory now
+                '  If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Successfully decrypted the Notes password as " & MyDominoPassword)
 
-			Else
-				MyDominoPassword = Nothing
-			End If
-		Catch ex As Exception
-			MyDominoPassword = ""
-			If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString)
-		End Try
+            Else
+                MyDominoPassword = Nothing
+            End If
+        Catch ex As Exception
+            MyDominoPassword = ""
+            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString)
+        End Try
 
-		Try
-			NotesSession.Initialize(MyDominoPassword)
-			WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Initialized NotesSession for " & NotesSession.CommonUserName)
-		Catch ex As Exception
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
-			If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Error Initializing NotesSession.  Many problems will follow....  " & ex.ToString)
-			WriteAuditEntry(Now.ToString & " *********** ERROR ************  Error initializing a session to Query Domino server. ")
-			'  Exit Sub
-		End Try
-
-
-		Try
-			CreateDominoServersCollection()
-		Catch ex As Exception
-
-		End Try
-
-		Try
-			ProductName = myRegistry.ReadFromRegistry("ProductName")
-			If ProductName = "" Then
-				ProductName = "VitalSigns"
-			End If
-		Catch ex As Exception
-			ProductName = "VitalSigns"
-		End Try
-
-		Try
-			WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " All server settings have been read.  Starting EXJournal monitoring.")
-			' Thread.CurrentThread.Sleep(2000)
-			StartThreads()
-		Catch ex As Exception
-
-		End Try
+        Try
+            NotesSession.Initialize(MyDominoPassword)
+            WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Initialized NotesSession for " & NotesSession.CommonUserName)
+        Catch ex As Exception
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
+            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Error Initializing NotesSession.  Many problems will follow....  " & ex.ToString)
+            WriteAuditEntry(Now.ToString & " *********** ERROR ************  Error initializing a session to Query Domino server. ")
+            '  Exit Sub
+        End Try
 
 
+        Try
+            CreateDominoServersCollection()
+        Catch ex As Exception
 
-	End Sub
+        End Try
+
+        Try
+            ProductName = myRegistry.ReadFromRegistry("ProductName")
+            If ProductName = "" Then
+                ProductName = "VitalSigns"
+            End If
+        Catch ex As Exception
+            ProductName = "VitalSigns"
+        End Try
+
+        Try
+            WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " All server settings have been read.  Starting EXJournal monitoring.")
+            ' Thread.CurrentThread.Sleep(2000)
+            StartThreads()
+        Catch ex As Exception
+
+        End Try
+
+
+
+    End Sub
 
 	Protected Overrides Sub OnStop()
 		' Add code here to perform any tear-down necessary to stop your service.
@@ -412,26 +423,17 @@ Public Class VitalSignsPlusExJournal
 
     End Sub
     Public Function getThreadCount(ServerType As String) As Integer
-        'Dim db As New CommonDB()
+
+        Dim myRegistry As New VSFramework.XMLOperation()
         Dim numOfThreads As Integer = 35
-        Dim Svalue As String = ""
-        Dim sql As String = (Convert.ToString("SELECT SValue FROM Settings WHERE SName = 'ThreadLimit") & ServerType) + "'"
-        Dim myAdapter As New VSAdaptor
-        Dim dt As DataTable = New DataTable
-        Dim DsSettings As New Data.DataSet
-
-
-        dt.TableName = "Settings"
-        DsSettings.Tables.Add(dt)
-        myAdapter.FillDatasetAny("VitalSigns", "vitalsigns", sql, DsSettings, "Settings")
-
-        If dt.Rows.Count > 0 Then
-            Svalue = DsSettings.Tables("Settings").Rows(0)("svalue").ToString()
-            numOfThreads = Convert.ToInt32(dt.Rows(0)(0).ToString())
-
-        End If
+        Try
+            numOfThreads = Convert.ToInt32(myRegistry.ReadSettingsSQL("ThreadLimit" & ServerType))
+        Catch ex As Exception
+            numOfThreads = 35
+        End Try
 
         Return numOfThreads
+
     End Function
 	Protected Sub SetMyThresholdValue()
 		Try

@@ -6,6 +6,8 @@ Imports VSFramework
 Imports System.Net.Sockets
 Imports System.Collections.Generic
 
+Imports MongoDB.Driver
+Imports VSNext.Mongo.Entities
 Partial Public Class VitalSignsPlusExJournal
 
 
@@ -485,16 +487,42 @@ Update:
                 If mySum >= 0 Then
                     WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " mySum >= 0 condition is true.", LogUtilities.LogUtils.LogLevel.Verbose)
                     With MyDominoServer
-                        strSQL = "Update Status SET exjournal='" & .EXJournal_DocCount & "', exjournal1='" & .EXJournal1_DocCount & "',  exjournal2='" & .EXJournal2_DocCount & "', EXJournalDate = '" & Now.ToString & "'  WHERE TypeANDName='" & .Name & "-Domino'"
-                        WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Updating EXJournal status with: " & vbCrLf & strSQL)
+
+                        Try
+                            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
+                                                                                                 And repository.Filter.Eq(Function(x) x.Name, .Name)
+                            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                                 .Set(Function(x) x.Exjournal, Convert.ToInt32(.EXJournal_DocCount)) _
+                                                                                                 .Set(Function(x) x.Exjournal1, Convert.ToInt32(.EXJournal1_DocCount)) _
+                                                                                                 .Set(Function(x) x.Exjournal2, Convert.ToInt32(.EXJournal2_DocCount)) _
+                                                                                                 .Set(Function(x) x.ExjournalDate, Now)
+
+                            repository.Update(filterDef, updateDef)
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception updating EXJournal Status for EXJournal Stats. Exception : " & ex.Message)
+                        End Try
+
+
                     End With
-                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
 
                     '4/25/2016 NS added for VSPLUS-2806
                     'Inserting EXJournal document count total into the DominoDailyStats table
                     WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Updating DominoDailyStats with the EXJournal document total = " & mySum.ToString())
-                    strSQL = "INSERT INTO DominoDailyStats VALUES('" & MyDominoServer.Name & "','" & Now.ToString() & "','EXJournal.DocCount.Total'," & mySum.ToString() & ",DATEPART(wk, GETDATE())," & Now.Month.ToString() & "," & Now.Year.ToString() & "," & Now.Day.ToString() & "," & Now.Hour.ToString() & ")"
-                    objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", strSQL)
+
+                    Try
+                        Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+                        Dim entity As New VSNext.Mongo.Entities.DailyStatistics() With {
+                            .DeviceType = VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription(),
+                            .ServerName = MyDominoServer.Name,
+                            .StatName = "EXJournal.DocCount.Total",
+                            .StatValue = mySum.ToString()
+                        }
+                        repository.Insert(entity)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception inserting EXJournal daily stat for EXJournal.DocCount.Total. Exception : " & ex.Message)
+                    End Try
 
                     '6/19/2015 NS added for VSPLUS-1802
                     '8/7/2015 NS modified for VSPLUS-1802
@@ -533,7 +561,7 @@ Update:
                 If mySum > myThreshold Then
                     MyDominoServer.Status = "EXJournal"
                     MyDominoServer.Description = "The sum of the documents in the EXJournal databases is " & mySum
-                    strSQL = "Update Status SET Description='" & MyDominoServer.Description & "' WHERE TypeANDName='" & MyDominoServer.Name & "-Domino'"
+
                     '11/4/2015 NS modified for VSPLUS-2324
                     strBody = "The sum of the EXJournal databases exceeds the alert threshold of " & myThreshold & "." & vbCrLf & vbCrLf
                     If MyDominoServer.EXJournal_DocCount > -1 Then
@@ -548,15 +576,34 @@ Update:
                     End If
                     myAlert.QueueAlert("Domino", MyDominoServer.Name, "EXJournal", strBody, MyDominoServer.Location)
                     Try
-                        WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " updating Server Description in status table with: " & vbCrLf & strSQL)
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-                    Catch ex As Exception
+                        Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
+                                                                                             And repository.Filter.Eq(Function(x) x.Name, MyDominoServer.Name)
+                        Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                             .Set(Function(x) x.Description, MyDominoServer.Description)
 
+                        repository.Update(filterDef, updateDef)
+
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception updating ExJournal Status Description. Exception : " & ex.Message)
                     End Try
+
                 Else
                     If mySum >= 0 Then
-                        strSQL = "Update Status SET Description='EXJournal databases are below threshold.' WHERE TypeANDName='" & MyDominoServer.Name & "-Domino'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
+
+                        Try
+                            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
+                                                                                                 And repository.Filter.Eq(Function(x) x.Name, MyDominoServer.Name)
+                            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                                                                                                 .Set(Function(x) x.Description, "EXJournal databases are below threshold.")
+
+                            repository.Update(filterDef, updateDef)
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception updating ExJournal Status Description. Exception : " & ex.Message)
+                        End Try
+
                     End If
                     myAlert.ResetAlert("Domino", MyDominoServer.Name, "EXJournal", MyDominoServer.Location)
                 End If
@@ -590,9 +637,9 @@ Update:
     Public Sub UpdateEXJournalStatsTable(ByRef myDominoServer As MonitoredItems.DominoServer)
         Dim cn As New SqlClient.SqlConnection
         Dim cmd As New SqlClient.SqlCommand
-        Dim countVal As Long
-        Dim countValPrev As Long
-        Dim deltaVal As Long = 555 ' default value - the first time the service runs, there will be no 0 delta
+        Dim countVal As Int32
+        Dim countValPrev As Int32
+        Dim deltaVal As Int32 = 555 ' default value - the first time the service runs, there will be no 0 delta
         Dim found As Boolean
         Dim sqlReader As SqlClient.SqlDataReader
         Dim datetimeVal As Date
@@ -605,10 +652,9 @@ Update:
 
         datetimeVal = Nothing
         Try
-            Dim myAdapter As New VSFramework.XMLOperation
-            cn.ConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
-            cn.Open()
-            cmd.Connection = cn
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ExJournalStats)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ExJournalStats)
+            Dim entity As VSNext.Mongo.Entities.ExJournalStats
             For i As Integer = 0 To UBound(dbArr)
                 If i = 0 Then
                     countVal = myDominoServer.EXJournal1_DocCount
@@ -619,25 +665,26 @@ Update:
                 End If
 
                 WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " The current value of the doc count for " & dbArr(i) & " on " & myDominoServer.Name & " is " & countVal)
-                cmd.CommandType = CommandType.Text
-                '10/19/2015 NS added the server condition to the select statement
-                cmd.CommandText = "SELECT DocCount,DateUpdated FROM EXJournalStats WHERE EXJournalDB='" & dbArr(i) & "' " &
-                    "AND ServerName='" & myDominoServer.Name & "' " &
-                    "AND DateUpdated=" &
-                    "(SELECT MAX(DateUpdated) FROM EXJournalStats WHERE EXJournalDB='" & dbArr(i) & "' AND ServerName='" & myDominoServer.Name & "')"
-                sqlReader = cmd.ExecuteReader()
-                found = False
-                While sqlReader.Read()
+
+                Try
+
+                    filterDef = repository.Filter.Eq(Function(x) x.ExJournalDatabase, dbArr(i)) _
+                        And repository.Filter.Eq(Function(x) x.ServerName, myDominoServer.Name)
+
+                    entity = repository.Find(filterDef, Function(x) x.ModifiedOn, 0, 1, True)(0)
+
+
+
                     WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Top of read loop.", LogUtilities.LogUtils.LogLevel.Verbose)
                     Try
-                        countValPrev = CLng(sqlReader.GetInt32(sqlReader.GetOrdinal("DocCount")))
+                        countValPrev = entity.DocumentCount
                         WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Previous doc count value for " & dbArr(i) & " on " & myDominoServer.Name & " is " & countValPrev)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception calculating countValPrev: " & ex.ToString)
                     End Try
 
                     Try
-                        datetimeVal = CDate(sqlReader.GetDateTime(sqlReader.GetOrdinal("DateUpdated")))
+                        datetimeVal = entity.ModifiedOn
                         WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Previous date value for " & dbArr(i) & " on " & myDominoServer.Name & " is " & datetimeVal)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception calculating datetimeVal: " & ex.ToString)
@@ -652,14 +699,25 @@ Update:
 
                     found = True
                     WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Bottom of read loop.", LogUtilities.LogUtils.LogLevel.Verbose)
-                End While
-                sqlReader.Close()
 
-                cmd.CommandText = "INSERT INTO EXJournalStats (EXJournalDB, Delta, DocCount, DateUpdated, ServerName) VALUES ('" &
-                    dbArr(i) & "', " & deltaVal & ", " & countVal & ",'" & dtNow & "','" & myDominoServer.Name & "')"
-                WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to update EXJournalStats table with " & cmd.CommandText)
-                cmd.ExecuteNonQuery()
-                '10/19/2015 NS added - reset delta
+
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " UpdateEXJournalStatsTable has an exception in getting the entity. Exception : " & ex.Message)
+                End Try
+
+                Try
+                    entity = New VSNext.Mongo.Entities.ExJournalStats()
+                    entity.ExJournalDatabase = dbArr(i)
+                    entity.Delta = deltaVal
+                    entity.DocumentCount = countVal
+                    entity.ServerName = myDominoServer.Name
+                    repository.Insert(entity)
+
+                    '10/19/2015 NS added - reset delta
+
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " UpdateEXJournalStatsTable has an exception in inserting the entity. Exception : " & ex.Message)
+                End Try
                 deltaVal = 555
             Next
 
@@ -673,12 +731,12 @@ Update:
     Public Sub CompareEXJournalDocCounts(ByRef myDominoServer As MonitoredItems.DominoServer)
         Dim cn As New SqlClient.SqlConnection
         Dim cmd As New SqlClient.SqlCommand
-        Dim countVal As Long
-        Dim countValPrev As Long
+        Dim countVal As Int32
+        Dim countValPrev As Int32
         '9/23/2015 NS added for VSPLUS-2196
-        Dim countValTotal As Long
-        Dim countValPrevTotal As Long
-        Dim lookbackPeriod As Long
+        Dim countValTotal As Int32
+        Dim countValPrevTotal As Int32
+        Dim lookbackPeriod As Int32
         Dim sqlReader As SqlClient.SqlDataReader
         Dim dbArr(2) As String
         '2/11/2016 NS added for VSPLUS-2598
@@ -689,57 +747,55 @@ Update:
         dbArr(2) = "EXJournal3.nsf"
 
         Try
-            Dim myAdapter As New VSFramework.XMLOperation
-            cn.ConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
-            cn.Open()
-            cmd.Connection = cn
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ExJournalStats)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ExJournalStats)
+            Dim entity As VSNext.Mongo.Entities.ExJournalStats
             '9/23/2015 NS added for VSPLUS-2196
             countValTotal = 0
             countValPrevTotal = 0
             For i As Integer = 0 To UBound(dbArr)
                 '2/11/2016 NS added for VSPLUS-2598
+
+                
                 foundRows = False
                 lookbackPeriod = myDominoServer.EXJLookBackDuration
-                cmd = New SqlClient.SqlCommand
-                cmd.Connection = cn
-                cmd.CommandType = CommandType.Text
-                '9/23/2015 NS modified for VSPLUS-2196
-                '10/22/2015 NS modified
-                cmd.CommandText = "SELECT * FROM EXJournalStats WHERE DateUpdated=(SELECT MAX(DateUpdated) FROM EXJournalStats " & _
-                    "WHERE EXJournalDB='" & dbArr(i) & "' AND ServerName='" & myDominoServer.Name & "') " & _
-                    "AND EXJournalDB='" & dbArr(i) & "' AND ServerName='" & myDominoServer.Name & "' "
-                sqlReader = cmd.ExecuteReader()
-                If sqlReader.HasRows Then
-                    While sqlReader.Read()
+
+                Try
+                    filterDef = repository.Filter.Eq(Function(x) x.ExJournalDatabase, dbArr(i)) _
+                        And repository.Filter.Eq(Function(x) x.ServerName, myDominoServer.Name)
+
+                    entity = repository.Find(filterDef, Function(x) x.ModifiedOn, 0, 1, True)(0)
+
+                    Try
+                        countVal = entity.DocumentCount
+                        '9/23/2015 NS added for VSPLUS-2196
+                        If (countVal > -1) Then
+                            countValTotal += countVal
+                        End If
+                        WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Current doc count value for " & dbArr(i) & " on " & myDominoServer.Name & " is " & countVal)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception calculating countVal in CompareEXJournalDocCounts: " & ex.ToString)
+                    End Try
+
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " CompareEXJournalDocCounts has an exception in getting the entity. Exception : " & ex.Message)
+                End Try
+
+                Try
+
+                    filterDef = repository.Filter.Eq(Function(x) x.ExJournalDatabase, dbArr(i)) _
+                        And repository.Filter.Eq(Function(x) x.ServerName, myDominoServer.Name)
+
+                    entity = repository.Find(filterDef, Function(x) x.ModifiedOn, 0, 1, True)(0)
+
+                    filterDef = filterDef And repository.Filter.Lte(Function(x) x.ModifiedOn, entity.ModifiedOn.Value.AddMinutes(-1 * lookbackPeriod))
+
+                    Dim listOfEntities As List(Of VSNext.Mongo.Entities.ExJournalStats) = repository.Find(filterDef)
+
+                    For Each entity In listOfEntities
+                        foundRows = True
                         Try
-                            countVal = CLng(sqlReader.GetInt32(sqlReader.GetOrdinal("DocCount")))
-                            '9/23/2015 NS added for VSPLUS-2196
-                            If (countVal > -1) Then
-                                countValTotal += countVal
-                            End If
-                            WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Current doc count value for " & dbArr(i) & " on " & myDominoServer.Name & " is " & countVal)
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception calculating countVal in CompareEXJournalDocCounts: " & ex.ToString)
-                        End Try
-                    End While
-                End If
-                sqlReader.Close()
-                cmd.Dispose()
-                '9/23/2015 NS modified for VSPLUS-2196
-                '10/22/2015 NS modified
-                cmd = New SqlClient.SqlCommand
-                cmd.Connection = cn
-                cmd.CommandType = CommandType.Text
-                cmd.CommandText = "SELECT TOP 1 * FROM EXJournalStats WHERE DateUpdated<=DATEADD(mi,-" & lookbackPeriod & ",(SELECT MAX(DateUpdated) FROM EXJournalStats " & _
-                    "WHERE EXJournalDB='" & dbArr(i) & "' AND ServerName='" & myDominoServer.Name & "')) " & _
-                    "AND EXJournalDB='" & dbArr(i) & "' AND ServerName='" & myDominoServer.Name & "' " &
-                    "ORDER BY DateUpdated DESC "
-                sqlReader = cmd.ExecuteReader()
-                If sqlReader.HasRows Then
-                    foundRows = True
-                    While sqlReader.Read()
-                        Try
-                            countValPrev = CLng(sqlReader.GetInt32(sqlReader.GetOrdinal("DocCount")))
+                            countValPrev = entity.DocumentCount
                             '9/23/2015 NS added
                             If (countValPrev > -1) Then
                                 countValPrevTotal += countValPrev
@@ -748,10 +804,12 @@ Update:
                         Catch ex As Exception
                             WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception calculating countValPrev in CompareEXJournalDocCounts: " & ex.ToString)
                         End Try
-                    End While
-                End If
-                sqlReader.Close()
-                cmd.Dispose()
+                    Next
+
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception looping in CompareEXJournalDocCounts: " & ex.ToString)
+                End Try
+
             Next
             WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Count totals - current: " & countValTotal & ", previous: " & countValPrevTotal & " for " & myDominoServer.Name)
             '9/23/2015 NS modified for VSPLUS-2196
