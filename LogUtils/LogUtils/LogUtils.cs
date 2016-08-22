@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Data;
 using System.Threading;
@@ -9,6 +10,10 @@ using System.Web;
 using System.Configuration;
 
 using System.Data.SqlClient;
+
+using MongoDB.Driver;
+using MongoDB.Bson;
+using System.Configuration;
 
 namespace LogUtilities
 {
@@ -373,60 +378,22 @@ namespace LogUtilities
 
 		private static String GetSettingValue(string sname)
 		{
-			String sql = "SELECT Svalue FROM Settings WHERE Sname='" + sname + "'";
+            try
+            {
+                MongoUrl url = new MongoUrl(System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString());// collectionName
+                var client = new MongoClient(url);
+                IMongoCollection<BsonDocument> collection = client.GetDatabase(url.DatabaseName).GetCollection<BsonDocument>("name_value");
+                FilterDefinition<BsonDocument> filterDef = new FilterDefinitionBuilder<BsonDocument>().Eq("name", sname);
+                var t = collection.Find(filterDef).ToList();
+                return collection.Find(filterDef).ToList()[0]["value"].ToString();
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
 
-			string sqlcon = getSqlConnectionString("VitalSigns");
-			SqlConnection con = new SqlConnection(sqlcon);
 
-			DataTable dt = getData(con, sql);
-
-			con.Dispose();
-
-			try
-			{
-				return dt.Rows[0][0].ToString();
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
 			
-		}
-
-		private static DataTable getData(SqlConnection con, String sql)
-		{
-			DataTable dt = new DataTable();
-			try
-			{
-				if (con.State == ConnectionState.Closed) con.Open();
-				DataSet ds = new DataSet();
-				SqlDataAdapter myAdapter = new SqlDataAdapter();
-				SqlCommand myCommand = new SqlCommand();
-				myCommand.Connection = con;
-				myCommand.CommandText = sql;
-				myAdapter.SelectCommand = myCommand;
-				myAdapter.Fill(ds, "dt");
-				dt = ds.Tables[0];
-				myCommand.Dispose();
-				con.Close();
-
-			}
-			catch (Exception ex)
-			{
-
-			}
-			finally
-			{
-
-			}
-			return dt;
-		}
-
-		private static string getSqlConnectionString(string DatabaseName)
-		{
-			String connectionStringName = DatabaseName + "ConnectionString";
-			String sConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ToString();
-			return sConnectionString;
 		}
 
     }
