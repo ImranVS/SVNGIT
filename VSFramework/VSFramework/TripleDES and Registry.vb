@@ -7,6 +7,9 @@ Imports Microsoft.Win32.Registry
 Imports System.Xml
 Imports System.Xml.Linq
 Imports System.Configuration
+
+Imports MongoDB.Driver
+
 'Updated 11-7-13
 Public Class TripleDES
     Private key() As Byte = {8, 2, 11, 4, 5, 6, 7, 8, 4, 10, 11, 12, 13, 21, 15, 16, 17, 18, 2, 20, 21, 16, 16, 24} 'Encryption Key
@@ -300,39 +303,18 @@ Public Class XMLOperation
 	End Function
 
     Public Function ReadSettingsSQL(ByVal strSetting As String) As Object
-        Dim vsobj As New VSAdaptor
+        Dim returnVal As String
 
-        'myDES.Decrypt(myCode)
-        Dim dt As DataTable
-        Dim sConnectionString As String = ""
-        Dim strValue As Object
-        Dim str1() As String
-        sConnectionString = GetDBConnectionString("VitalSigns")
+        Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NameValue)("")
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.NameValue) = repository.Filter.Eq(Function(x) x.Name, strSetting)
+            returnVal = repository.Find(filterDef).ToList()(0).Value.ToString()
+        Catch ex As Exception
+            returnVal = ""
+        End Try
 
-        Dim strQuery As String
-        strQuery = "select * from Settings where sname='" & strSetting & "'"
-        Dim myType As String
+        Return returnVal
 
-        dt = vsobj.FetchData(sConnectionString, strQuery)
-        If dt.Rows.Count > 0 Then
-            myType = Trim(dt.Rows(0)("stype").ToString())
-            If myType = "System.Byte[]" Then
-                strValue = dt.Rows(0)("svalue").ToString()
-                str1 = strValue.Split(",")
-                Dim bstr1(str1.Length - 1) As Byte
-                For j As Integer = 0 To str1.Length - 1
-                    bstr1(j) = str1(j).ToString()
-                Next
-                Return bstr1
-            ElseIf myType = "System.Int32" Then
-                Return CInt(dt.Rows(0)("svalue"))
-            Else
-                Return dt.Rows(0)("svalue").ToString()
-            End If
-            'Return dt.Rows(0)("svalue").ToString()
-        Else
-            Return ""
-        End If
     End Function
 
     Public Sub WriteSettingsSQL(ByVal strSetting As String, ByVal strValue As Object)
@@ -353,17 +335,15 @@ Public Class XMLOperation
         Dim sConnectionString As String = ""
         sConnectionString = GetDBConnectionString("VitalSigns")
 
-        Dim dt As New DataTable
-        strQuery = "select * from Settings where sname='" & strSetting & "'"
+        Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NameValue)("")
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.NameValue) = repository.Filter.Eq(Function(x) x.Name, strSetting)
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.NameValue) = repository.Updater.Set(Function(x) x.Value, strChangeValue)
+            repository.Upsert(filterDef, updateDef)
+        Catch ex As Exception
 
-        dt = vsobj.FetchData(sConnectionString, strQuery)
-        If dt.Rows.Count > 0 Then
-            strUpdate = "update Settings set svalue='" & strChangeValue & "', stype='" & strType & "' where  sname='" & strSetting & "'"
-            vsobj.UpdateData(sConnectionString, strUpdate)
-        Else
-            strInsert = "insert into Settings values('" & strSetting & "','" & strChangeValue & "','" & strType & "')"
-            vsobj.UpdateData(sConnectionString, strInsert)
-        End If
+        End Try
+
     End Sub
 End Class
 

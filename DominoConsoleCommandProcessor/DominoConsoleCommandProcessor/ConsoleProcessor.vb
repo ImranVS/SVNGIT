@@ -2,9 +2,11 @@
 Imports System.IO
 Imports RPRWyatt.VitalSigns.Services
 
+Imports MongoDB.Driver
+
 Public Class ConsoleProcessor
 	Inherits VSServices
-
+    Dim connectionString As String
 	Dim ProcessCommandsThread As New Thread(AddressOf ProcessCommands)
 	Dim strAuditText, strLogDest As String
 	Dim BuildNumber As Integer = 11
@@ -22,7 +24,15 @@ Public Class ConsoleProcessor
 	Protected Overrides Sub ServiceOnStart(ByVal args() As String)
 		' Add code here to start your service. This method should set things
 		' in motion so your service can do its work.
-		'10/1/2014 NS added for VSPLUS-956
+        '10/1/2014 NS added for VSPLUS-956
+
+        Try
+            connectionString = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
+            WriteHistoryEntry(Now.ToString + " connection string is " & connectionString)
+        Catch ex As Exception
+            WriteHistoryEntry(Now.ToString + " Error getting connection string. Error: " & ex.Message)
+        End Try
+
 		Try
 			MyLogLevel = myRegistry.ReadFromRegistry("Log Level")
 		Catch ex As Exception
@@ -98,68 +108,61 @@ Public Class ConsoleProcessor
 			GoTo CleanUp
 		End Try
 
-		MyDominoPassword = ""
-
-		Dim vsAdapter As New VSFramework.VSAdaptor
-		Dim strSQL As String = "SELECT ID ,ServerName, Command ,Submitter, DateTimeSubmitted, DateTimeProcessed FROM VitalSigns.dbo.DominoConsoleCommands WHERE DateTimeProcessed IS NULL"
-		Dim strSQLUpdate, strResult As String
-		Dim dsConsoleCommands As New Data.DataSet
-		dsConsoleCommands.Tables.Add("Commands")
+        MyDominoPassword = ""
+        Dim strResult As String = ""
 
 		Try
-			Do
-				dsConsoleCommands.Clear()
-				vsAdapter.FillDatasetAny("VitalSigns", "servers", strSQL, dsConsoleCommands, "Commands")
-				WriteHistoryEntry(Now.ToString & " I found " & dsConsoleCommands.Tables("Commands").Rows.Count & " commands waiting to be sent.")
-				If dsConsoleCommands.Tables("Commands").Rows.Count > 0 Then
+            Do
+                Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ConsoleCommands)(connectionString)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ConsoleCommands) = repository.Filter.Exists(Function(x) x.DateTimeProcessed, False)
+                WriteHistoryEntry(Now.ToString & " Before find")
+                Dim listOfCommands As List(Of VSNext.Mongo.Entities.ConsoleCommands) = repository.Find(filterDef).ToList()
+                WriteHistoryEntry(Now.ToString & " Before sort.")
+                listOfCommands.Sort(Function(x, y) y.DateTimeSubmitted.Value.CompareTo(x.DateTimeSubmitted.Value))
 
-					Dim myView As New Data.DataView(dsConsoleCommands.Tables("Commands"))
-					myView.Sort = "DateTimeSubmitted ASC"
-					Dim drv As DataRowView
-					For Each drv In myView
-						Try
-							If IsAuthorized(drv("Submitter")) = True Then
-								WriteHistoryEntry(Now.ToString & " Sending '" & drv("Command") & "' to " & drv("ServerName") & ", as requested by " & drv("Submitter"), LogLevel.Normal)
-								strResult = s.SendConsoleCommand(drv("ServerName"), drv("Command"))
-								WriteHistoryEntry(Now.ToString & " The result from SendConsoleCommand is " & strResult)
-								strSQLUpdate = "DECLARE @currDate DATETIME; " & vbCrLf
-								strSQLUpdate += "SET @currDate = GETDATE(); " & vbCrLf
+                WriteHistoryEntry(Now.ToString & " I found " & listOfCommands.Count & " commands waiting to be sent.")
+                If listOfCommands.Count > 0 Then
 
-								If InStr(strResult, "You are not authorized") > 0 Then
-									strSQLUpdate += "Update DominoConsoleCommands SET Result = 'Not Authorized', DateTimeProcessed  = @currDate WHERE ID=" & drv("ID")
-								Else
-									strSQLUpdate += "Update DominoConsoleCommands SET Result = 'Command Sent', DateTimeProcessed  = @currDate WHERE ID=" & drv("ID")
-								End If
+                    For Each command As VSNext.Mongo.Entities.ConsoleCommands In listOfCommands
+                        Try
+                            If IsAuthorized(command.Submitter) = True Then
+                                WriteHistoryEntry(Now.ToString & " Sending '" & command.Command & "' to " & command.ServerName & ", as requested by " & command.Submitter, LogLevel.Normal)
+                                strResult = s.SendConsoleCommand(command.ServerName, command.Command)
+                                WriteHistoryEntry(Now.ToString & " The result from SendConsoleCommand is " & strResult)
 
-								' WriteHistoryEntry(Now.ToString & " strSQLUpdate is " & strSQLUpdate)
-								vsAdapter.ExecuteNonQueryAny("VitalSigns", "servers", strSQLUpdate)
-							Else
-								strSQLUpdate = "DECLARE @currDate DATETIME; " & vbCrLf
-								strSQLUpdate += "SET @currDate = GETDATE(); " & vbCrLf
-								strSQLUpdate += "Update DominoConsoleCommands SET Result = 'Not Authorized' , DateTimeProcessed  = @currDate WHERE ID=" & drv("ID")
-								vsAdapter.ExecuteNonQueryAny("VitalSigns", "servers", strSQLUpdate)
-								WriteHistoryEntry(Now.ToString & " NOT Sending '" & drv("Command") & "' to " & drv("ServerName") & ", as requested by " & drv("Submitter") & ".  This user is not authorized to send console commands via VitalSigns.", LogLevel.Normal)
-							End If
+                                If InStr(strResult, "You are not authorized") > 0 Then
+                                    command.Result = "Not Authorized"
+                                    command.DateTimeProcessed = DateTime.Now
+                                Else
+                                    command.Result = "Command Sent"
+                                    command.DateTimeProcessed = DateTime.Now
+                                End If
 
-						Catch ex As Exception
-							WriteHistoryEntry(Now.ToString & " Exception with SendConsoleCommand - " & ex.ToString, LogLevel.Normal)
-							If InStr(ex.ToString.ToLower, "not authorized") > 0 Then
-								strSQL = "DECLARE @currDate DATETIME; " & vbCrLf
-								strSQL += "SET @currDate = GETDATE(); " & vbCrLf
-								strSQL += "Update DominoConsoleCommands SET Result = '" & s.CommonUserName & " is not authorized to use the remote console on this server', DateTimeProcessed  = @currDate WHERE ID=" & drv("ID")
-								WriteHistoryEntry(Now.ToString & " SQL is " & strSQL)
-								vsAdapter.ExecuteNonQueryAny("VitalSigns", "servers", strSQL)
-							End If
-						End Try
+                            Else
+                                command.Result = "Not Authorized"
+                                command.DateTimeProcessed = DateTime.Now
+                                WriteHistoryEntry(Now.ToString & " NOT Sending '" & command.Command & "' to " & command.ServerName & ", as requested by " & command.Submitter & ".  This user is not authorized to send console commands via VitalSigns.", LogLevel.Normal)
+                            End If
 
-					Next
+                        Catch ex As Exception
+                            WriteHistoryEntry(Now.ToString & " Exception with SendConsoleCommand - " & ex.ToString, LogLevel.Normal)
+                            If InStr(ex.ToString.ToLower, "not authorized") > 0 Then
+                                command.Result = s.CommonUserName & " is not authorized to use the remote console on this server"
+                                command.DateTimeProcessed = DateTime.Now
+                            End If
+                        End Try
 
-				End If
-				'WriteHistoryEntry(Now.ToString & " Sleeping for 15 seconds.")
-				Thread.Sleep(30000)
-			Loop
-		Catch ex As Exception
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
+                        repository.Replace(command)
+
+                    Next
+
+                End If
+                'WriteHistoryEntry(Now.ToString & " Sleeping for 15 seconds.")
+                Thread.Sleep(30000)
+            Loop
+        Catch ex As Exception
+            WriteHistoryEntry(Now.ToString & " Error processing commands. Error: " & ex.Message)
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
 		End Try
 
 CleanUp:
@@ -170,9 +173,9 @@ CleanUp:
 
 #Region "Log Files"
 
-	Private Overloads Sub WriteHistoryEntry(ByVal strMsg As String, Optional ByVal LogLevelInput As LogLevel = LogLevel.Verbose)
-		MyBase.WriteHistoryEntry(strMsg, "All_DominoConsoleCommands_Log.txt", LogLevelInput)
-	End Sub
+    Private Overloads Sub WriteHistoryEntry(ByVal strMsg As String, Optional ByVal LogLevelInput As LogLevel = LogLevel.Normal)
+        MyBase.WriteHistoryEntry(strMsg, "All_DominoConsoleCommands_Log.txt", LogLevelInput)
+    End Sub
 
 	'Private Sub WriteHistoryEntry(ByVal strMsg As String, Optional ByVal LogLevelInput As LogLevel = LogLevel.Verbose)
 	'	Dim DeviceLogDestination As String
