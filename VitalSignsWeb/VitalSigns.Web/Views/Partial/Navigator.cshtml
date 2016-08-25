@@ -1,0 +1,31 @@
+﻿@model VitalSigns.Web.Models.SiteMap
+
+<div class="dropdown">
+    <span class="glyphicon glyphicon-chevron-down dropdown-toggle" data-toggle="dropdown" id="openContextNavigation" aria-hidden="true"></span>
+    <ul class="dropdown-menu active" id="menuTesting">
+        <form class="navbar-form" role="search">
+            <input type="text" id="menuSearch" class="form-control menuClick" placeholder="Search" disabled />
+        </form>
+        <div class="controlBar">
+            <button class="backBtn menuClick btn btn-primary">Back</button>
+            <h4 class="branchTitle">Home</h4>
+        </div>
+    </ul>
+
+    <div class="items-bounding">
+
+        @foreach (var l1Node in Model.Nodes)
+        {
+            <li>
+                <a [routerLink]="['@l1Node.Url']">@l1Node.Title</a>
+
+                @if (l1Node.Nodes != null)
+                {
+                    @await Component.InvokeAsync("NavigatorMenuItem", l1Node.Nodes)
+                }
+
+            </li>
+        }
+
+    </div>
+</div>

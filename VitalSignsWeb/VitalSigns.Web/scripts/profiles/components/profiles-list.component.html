@@ -1,0 +1,30 @@
+﻿<div class="container">
+    <style>
+        table.table tr td .btn { display:none;}
+        table.table tr:hover td .btn { display:inline-block;}
+        .table-cell-height { height: 25px; }
+    </style>
+    <h1>Users list</h1>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th class="col-md-5">Name</th>
+                <th class="col-md-5">Email</th>
+                <th class="col-md-2"></th>
+            </tr>
+        </thead>
+        <tbody *ngIf="profilesList">
+            <tr *ngFor="let profile of profilesList">
+                <th scope="row">{{profile.name}}</th>
+                <td>{{profile.email}}</td>
+                <td>
+                    <div class="table-cell-height">
+                        <a class="btn btn-primary btn-xs" [routerLink]="['/profiles/'+profile.email]" role="button">Edit</a>
+                        <a class="btn btn-danger btn-xs" (click)="deleteProfile(profile.email)" role="button">Delete</a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <a class="btn btn-primary" [routerLink]="['/profiles/create']" role="button">Create</a>
+</div>

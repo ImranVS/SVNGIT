@@ -1,0 +1,90 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="img/menu/servers.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Servers
+                <div class="dropdown">
+                    <span class="glyphicon glyphicon-chevron-down" data-toggle="dropdown" class="dropdown-toggle" id="openContextNavigation" aria-hidden="true"></span>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                    </ul>
+                </div>
+            </h2>
+            <p>Manage your servers</p>
+        </div>
+    </div>
+    <div id="zeusContextActions">
+
+        <!-- Split button -->
+        <div class="btn-wrapper">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary">Action</button>
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div id="zeusContent" class="noPadding twoColumns30-70">
+
+    <div class="twoColumn30 serversList">
+
+        <div id="serversFilters">
+            <div class="zeusFilterWrapper simple">
+
+                <div class="aZeusFilterHeader">
+                    <span aria-hidden="true" class="glyphicon glyphicon-filter"></span><strong>Filters</strong>
+                </div>
+                <div class="aZeusFilter">
+                    <span class="aZeusFilterName">Name : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
+                </div>
+                <div class="aZeusFilter">
+                    <span class="aZeusFilterName">Status : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
+                </div>
+                <div class="aZeusFilter">
+                    <span class="aZeusFilterName">Location : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
+                </div>
+            </div>
+        </div>
+        <div id="serversResults">
+            <div *ngIf="services">
+                {{services.length}} servers found
+            </div>
+        </div>
+        <div id="serversListWrapper">
+            <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" *ngFor="let service of services" (click)="selectService(service)">
+                <div class="serverIcon">
+                    <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
+                </div>
+                <div class="serverTitle"><span class="flag-icon flag-icon-{{service.country}}"></span>{{service.name}}</div>
+                <p class="desc" *ngIf="service.version">{{service.version}}</p>
+                <p class="desc">{{service.description}}</p>
+                <div class="statusIndicator"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="twoColumn70 serverDetailWrapper">
+
+        <div id="serverDetail">
+
+            <router-outlet></router-outlet>
+
+        </div>
+
+    </div>
+</div>

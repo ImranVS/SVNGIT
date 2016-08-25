@@ -1,0 +1,19 @@
+<div class="container">
+    <style>
+        .ng-valid[required] { border-left: 5px solid #5fbe7f; }
+        .ng-invalid { border-left: 5px solid #ef3a24; }
+    </style>
+    <h1>{{formTitle}}</h1>
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit(profileForm.value)">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" #name d="name" required name="name" formControlName="name">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="text" class="form-control" id="email" required name="email"  formControlName="email">
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+        <a class="btn btn-primary" [routerLink]="['/profiles']" role="button">Cancel</a>
+    </form>
+</div>

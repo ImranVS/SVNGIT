@@ -1,0 +1,47 @@
+<div id="zeusContext">
+
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="img/menu/dashboard.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Office 365
+                <app-navigator></app-navigator>
+            </h2>
+            <p>Office 365 dashboard</p>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+</div>
+
+<div class="hidden-xs hidden-sm dashboard-menu" id="zeusContext">
+
+    <ul class="list-group">
+        <li class="list-group-item">
+            <a [routerLink]="['/dashboard/office365']">Overall</a>
+        </li>
+        <li class="list-group-item">
+            <a [routerLink]="['/dashboard/office365/mail-statistics']">Mail statistics</a>
+        </li>
+        <li class="list-group-item">
+            <a [routerLink]="['/dashboard/office365/password-settings']">Password settings</a>
+        </li>
+        <li class="list-group-item">
+            <a href="#">Skype for business</a>
+        </li>
+        <li class="list-group-item">
+            <a href="#">Service details</a>
+        </li>
+    </ul>
+
+</div>
+
+<div id="zeusContent" class="container-fluid">
+    <router-outlet></router-outlet>
+</div>
+
+<button class="visible-xs visible-sm showMbtn" onclick="$('.dashboard-menu').toggle();">
+    <img class="svgInject" src="img/dashboard/SubLevelsMenu.svg" title="Dashboard Sub Levels" alt="Dashboard Sub Levels" />
+</button>

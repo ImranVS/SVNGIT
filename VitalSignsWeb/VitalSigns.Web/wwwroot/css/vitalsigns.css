@@ -1,0 +1,639 @@
+#headerLogo {
+	padding: 11px 15px 0 15px;
+}
+
+.notifVitalSign {
+	width: 50px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.notifVitalSign .notifVitalSignNumber {
+	font-size: 11px;
+	margin-top: 6px;
+}
+
+.notifVitalSign .notifVitalSignLabel {
+	font-size: 10px;
+	display: block;
+	color: #9c9c9c;
+}
+
+.notifVitalSign:hover .notifVitalSignLabel {
+	color: #5b5b5b;
+}
+
+
+#maintenanceNotification .notifVitalSignNumber {
+	background-color: #8c8c8c;
+}
+
+#issuesNotification .notifVitalSignNumber {
+	background-color: #F99C1C;
+}
+
+#noIssuesNotification .notifVitalSignNumber {
+	background-color: #5FBE7F;
+}
+
+#noResponseNotification .notifVitalSignNumber {
+	background-color: #EF3A24;
+}
+
+#mobileUsersTable {
+	min-height: 902px;
+}
+#mobileUsersTable table {
+	margin-bottom:0;
+	margin-top: 10px;
+}
+#mobileUsersTable .notificationIcon {
+	cursor: pointer;
+}
+
+#mobileUsersTable .notificationIcon.active {
+	color: #5fbe7f;
+}
+
+.serversList {
+	background-color: #FFFFFF;
+	border-right: 1px solid #eaeaea;
+}
+
+#serversFilters {
+	font-size: 13px;
+	padding: 5px 10px;
+}
+
+#serversResults {
+	font-size: 12px;
+	border-top: 1px solid #eaeaea;
+	padding: 4px 10px;
+}
+
+#serversListWrapper {
+	border-top: 2px solid #eaeaea;
+}
+
+#serversListWrapper .aServer {
+	height: 70px;
+	border-bottom: 1px solid #ffffff;
+	position: relative;
+	padding: 5px 5px 20px 5px;
+	cursor: pointer;
+}
+
+#serversListWrapper .aServer.active {
+	color: #FFFFFF;
+}
+
+
+
+#serversListWrapper .aServer .statusIndicator {
+	position: absolute;
+	height: 100%;
+	width: 15px;
+	right: 0;
+	top: 0;
+}
+
+#serversListWrapper .aServer.selected .statusIndicator {
+	display: none;
+}
+
+
+#serversListWrapper .aServer .serverIcon {
+	height: 58px;
+	width: 58px;
+	background-color: #C6C6C5;
+	border-radius: 10px;
+	text-align: center;
+	float: left;
+	margin-right: 10px;
+	margin-left: 2px;
+}
+
+#serversListWrapper .aServer:hover .serverIcon {
+	background-color: #a6a6a5;
+}
+
+#serversListWrapper .aServer .serverIcon svg {
+	fill: #FFFFFF;
+	vertical-align: middle;
+}
+
+#serversListWrapper .aServer .serverIcon .helper {
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+
+#serversListWrapper .aServer .serverTitle {
+	color: #3e3e3e;
+	font-size: 16px;
+	height: 23px;
+	overflow: hidden;
+	margin-right: 18px;
+	word-break: break-all;
+}
+
+#serversListWrapper .aServer.active .serverTitle {
+	color: #FFFFFF;
+}
+
+#serversListWrapper .aServer .flag-icon {
+	margin-right: 5px;
+	border: 1px solid #eaeaea;
+}
+
+
+
+#serversListWrapper .aServer .desc {
+	font-size: 11px;
+	height: 15px;
+	line-height: 14px;
+	margin: 0 0 2px;
+	overflow: hidden;
+	margin-right: 18px;
+}
+
+
+
+#serversListWrapper .aServer[data-status="notResponding"] {
+	background-color: rgba(239, 58, 36, 0.15);
+}
+#serversListWrapper .aServer[data-status="notResponding"] .statusIndicator {
+	background-color: rgba(239, 58, 36, 1);
+}
+#serversListWrapper .aServer[data-status="notResponding"]:hover {
+	background-color: rgba(239, 58, 36, 0.25);
+}
+#serversListWrapper .aServer[data-status="notResponding"].active {
+	background-color: rgba(239, 58, 36, 1);
+}
+#serversListWrapper .aServer[data-status="notResponding"].active:hover {
+	background-color: rgba(239, 58, 36, 0.85);
+}
+#serversListWrapper .aServer[data-status="notResponding"].active .serverIcon {
+	background-color: #FFFFFF;
+}
+#serversListWrapper .aServer[data-status="notResponding"].active .serverIcon svg {
+	fill: rgba(239, 58, 36, 1);
+}
+
+
+
+
+#serversListWrapper .aServer[data-status="noIssues"] {
+	background-color: rgba(95, 190, 127, 0.15);
+}
+#serversListWrapper .aServer[data-status="noIssues"] .statusIndicator {
+	background-color: rgba(95, 190, 127, 1);
+}
+#serversListWrapper .aServer[data-status="noIssues"]:hover {
+	background-color: rgba(95, 190, 127, 0.25);
+}
+#serversListWrapper .aServer[data-status="noIssues"].active {
+	background-color: rgba(95, 190, 127, 1);
+}
+#serversListWrapper .aServer[data-status="noIssues"].active:hover {
+	background-color: rgba(95, 190, 127, 0.85);
+}
+#serversListWrapper .aServer[data-status="noIssues"].active .serverIcon {
+	background-color: #FFFFFF;
+}
+#serversListWrapper .aServer[data-status="noIssues"].active .serverIcon svg {
+	fill: rgba(95, 190, 127, 1);
+}
+
+
+
+#serversListWrapper .aServer[data-status="issues"] {
+	background-color: rgba(249, 156, 28, 0.15);
+}
+#serversListWrapper .aServer[data-status="issues"] .statusIndicator {
+	background-color: rgba(249, 156, 28, 1);
+}
+#serversListWrapper .aServer[data-status="issues"]:hover {
+	background-color: rgba(249, 156, 28, 0.25);
+}
+#serversListWrapper .aServer[data-status="issues"].active {
+	background-color: rgba(249, 156, 28, 1);
+}
+#serversListWrapper .aServer[data-status="issues"].active:hover {
+	background-color: rgba(249, 156, 28, 0.85);
+}
+#serversListWrapper .aServer[data-status="issues"].active .serverIcon {
+	background-color: #FFFFFF;
+}
+#serversListWrapper .aServer[data-status="issues"].active .serverIcon svg {
+	fill: rgba(249, 156, 28, 1);
+}
+
+
+
+#serversListWrapper .aServer[data-status="inMaintenance"] {
+	background-color: rgba(132, 132, 132, 0.15);
+}
+#serversListWrapper .aServer[data-status="inMaintenance"] .statusIndicator {
+	background-color: rgba(132, 132, 132, 1);
+}
+#serversListWrapper .aServer[data-status="inMaintenance"]:hover {
+	background-color: rgba(132, 132, 132, 0.25);
+}
+#serversListWrapper .aServer[data-status="inMaintenance"].active {
+	background-color: rgba(132, 132, 132, 1);
+}
+#serversListWrapper .aServer[data-status="inMaintenance"].active:hover {
+	background-color: rgba(132, 132, 132, 0.85);
+}
+#serversListWrapper .aServer[data-status="inMaintenance"].active .serverIcon {
+	background-color: #FFFFFF;
+}
+#serversListWrapper .aServer[data-status="inMaintenance"].active .serverIcon svg {
+	fill: rgba(132, 132, 132, 1);
+}
+
+
+
+.serverDetailWrapper #noServerSelectedWrapper {
+	width:100%;
+	height:100%;
+	display:table;
+}
+
+.serverDetailWrapper #noServerSelected {
+	display:table-cell;
+	vertical-align:middle;
+	text-align: center;
+	width:100%;
+	height:100%:
+}
+
+.serverDetailWrapper #noServerSelectedWrapper #noServerImg {
+	transform: scale(5);
+	-webkit-transform: scale(5);
+	fill: #d3d3d3;
+	margin-bottom: 20px;
+	margin-top: 40px;
+}
+
+.serverDetailWrapper #noServerSelectedWrapper .glyphicon {
+	font-size: 23px;
+	color: #8c8c8c;
+}
+
+.serverDetailWrapper #noServerSelectedWrapper p {
+	margin-bottom: 30px;
+}
+
+.serverDetailWrapper #serverDetail {
+	width:100%;
+	height:100%;
+}
+
+.serverDetailWrapper #serverDetailHeader {
+	min-height: 121px;
+	background-color: #FFFFFF;
+}
+
+.serverDetailWrapper #serverOverview {
+	padding: 10px;
+}
+
+.serverDetailWrapper #serverOverview .serverIcon {
+	height: 58px;
+	width: 58px;
+	background-color: #C6C6C5;
+	border-radius: 10px;
+	text-align: center;
+	float: left;
+	margin-right: 10px;
+	margin-left: 2px;
+}
+
+.serverDetailWrapper #serverOverview .serverIcon svg {
+	fill: #FFFFFF;
+	vertical-align: middle;
+}
+
+.serverDetailWrapper #serverOverview .serverIcon .helper {
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.serverDetailWrapper #serverOverview .serverStatus {
+	height: 58px;
+	width: 58px;
+	border-radius: 10px;
+	text-align: center;
+	float: left;
+	margin-right: 6px;
+	margin-left: 2px;
+	color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 120%;
+    padding-top: 14px;
+}
+
+.serverDetailWrapper #serverOverview .serverStatus.noIssue {
+	background-color: #5fbe7f;
+}
+.serverDetailWrapper #serverOverview .serverStatus.notResponding {
+	background-color: #EF3A24;
+}
+.serverDetailWrapper #serverOverview .serverStatus.issues {
+	background-color: #F99C1C;
+}
+.serverDetailWrapper #serverOverview .serverStatus.inMaintenance {
+	background-color: #8c8c8c;
+}
+
+
+
+
+.serverDetailWrapper #serverOverview h2 {
+	color: #000000;
+    font-size: 28px;
+    margin: 0;
+    height: 40px;
+	overflow: hidden;
+	margin-right: 18px;
+	line-height: 38px;
+}
+
+
+.serverDetailWrapper #serverOverview .flag-icon {
+	margin-right: 5px;
+	border: 1px solid #eaeaea;
+}
+
+.serverDetailWrapper #serverOverview p {
+	font-size: 13px;
+	height: 15px;
+	line-height: 14px;
+	margin: 0 0 2px;
+	overflow: hidden;
+	margin-right: 18px;
+}
+
+.serverDetailWrapper #serverDetailContent {
+	padding: 20px 30px 20px 20px ;
+}
+
+.stay-open .dropdown-menu{
+	display:block !important;
+}
+
+.dropdown-menu{
+	overflow: hidden;
+	padding: 15px;
+	font-size: 13px !important;
+	font-weight: normal !important;
+	right: -110px !important;
+}
+.dropdown-menu .navbar-form{
+	padding: 0 !important;
+}
+.dropdown-menu input{
+	width: 100% !important;
+	margin: 0 0 10px 0 !important;
+}
+
+.dropdown-menu .backBtn{
+	float:left;
+	cursor: pointer;
+	margin:0 0 10px 0;
+	display: none;
+}
+
+.dropdown-menu .branchTitle{
+	float:left;
+}
+
+.items-bounding{
+	display: block;
+	clear:both;
+	position: relative;
+	left: 0px;
+	margin:25px 0 0 0;
+}
+
+.items-bounding ul{
+	list-style: none;
+	top: 0px;
+	display: block;
+	padding:0;
+	margin:0;
+}
+
+.items-bounding ul.active{
+	display: block !important;
+}
+
+.items-bounding ul li{
+	margin:0;
+	display: block;
+	padding:0;
+	font-size: 13px !important;
+}
+
+.items-bounding li a{
+	font-size: 13px !important;
+	margin:3px 0;
+	display: inline-block;
+}
+
+.items-bounding li .nextLevel{
+	margin:0;
+	cursor:pointer;
+	display: inline-block;
+	float:right;
+	width: 5%;
+}
+
+.items-bounding ul.active li .nextLevel{
+	margin-right: 30px;
+}
+
+.items-bounding li a.nextLevel:hover{
+	text-decoration: none;
+}
+
+.ui-autocomplete{
+	list-style: none;
+	clear:both;
+	padding:0;
+	margin: 10px 0;
+	top: 0px !important;
+}
+
+.ui-autocomplete li{
+	margin: 3px 0;
+	padding: 0;
+}
+
+.dashboard-menu{
+	display: table-cell;
+	width:20%;
+	min-width: 230px;
+	vertical-align: top;
+}
+
+.container-fluid{
+	display: table-cell;
+}
+
+.dashboard-menu li.activated{
+	border-left: 3px solid #5fbe7f;
+	background: #e9fff0;
+}
+
+.dashboard-menu li a{
+	color: #4da56b;
+}
+
+.showMbtn{
+	position: fixed;
+	z-index: 1;
+	bottom:-6px;
+	padding:0;
+	margin:0;
+	background: none;
+	border: none;
+	left: 50%;
+	-webkit-transform: translateX(-50%);
+	-ms-transform: translateX(-50%);
+	transform: translateX(-50%);
+}
+
+.showMbtn svg{
+	z-index: 100;
+	height:45px;
+	padding:0;
+	margin:0;
+	position: relative;
+	bottom: 0%;
+}
+
+.showMbtn svg rect{
+	fill: #ffffff;
+}
+
+.showMbtn svg path{
+	fill: #4da56b;
+}
+
+
+
+
+/* Portrait phones and smaller */
+/* class="xs" */
+@media (max-width: 767px) {
+
+	.dashboard-menu{
+		position: absolute !important;
+		top: 0px;
+		z-index: 1;
+		width: 100%;
+		height: 100%;
+		display: block;
+		overflow: scroll;
+	}
+
+	.serverDetailWrapper #noServerSelectedWrapper {
+	    padding: 50px 0;
+	}
+
+	.serversList {
+		border-right: none;
+		border-bottom: 1px solid #eaeaea;
+	}
+
+	.serverDetailWrapper #serverDetailHeader {
+		padding: 15px 15px 0 15px;
+	}
+	.serverDetailWrapper #serverDetailContent {
+	    padding: 30px 15px;
+	}
+	.serverDetailWrapper #serverOverview {
+		padding: 0;
+	}
+	.serverDetailWrapper #serverOverview h2 {
+		clear: both;
+		margin: 64px 0 10px 0;
+		height: auto;
+		line-height: 32px;
+		padding-top: 8px;
+	}
+	.serverDetailWrapper #serverOverview p {
+		height: auto;
+		line-height: 19px;
+		margin: 0 18px 12px 0;
+	}
+	#serverDetailHeader .nav-tabs {
+		border-bottom: none;
+	}
+
+	#serverDetailHeader .nav-tabs li {
+		float: none;
+	}
+
+	#serverDetailHeader .nav-tabs li a {
+		padding: 6px 6px;
+	}
+
+	#serverDetailHeader .nav-tabs li a:before {
+		content: '>';
+		display: inline-block;
+		margin: 0 10px 0 0;
+	}
+
+	.serverDetailWrapper #noServerSelected {
+		padding: 0 15px;
+	}
+
+	.serverDetailWrapper .titleTabMobile {
+		margin: 0 0 25px;
+		font-size: 35px;
+	}
+}
+
+/* Portrait tablets and small desktops */
+/* class="sm" */
+@media (min-width: 768px) and (max-width: 991px) {
+	.dashboard-menu{
+		position: absolute !important;
+		top: 0px;
+		z-index: 1;
+		width: 100%;
+		height: 100%;
+		display: block;
+		overflow: scroll;
+	}
+
+}
+
+/* Landscape tablets and medium desktops */
+/* class="md" */
+@media (min-width: 992px) and (max-width: 1199px) {
+
+}
+
+/* Large desktops and laptops */
+/* class="lg" */
+@media (min-width: 1200px) {
+
+}
+
+#overview-stats-table td:nth-child(2) {
+	text-align: right;
+}
+
+
+.visible{display: block !important;}
+
+.overflowHidden{overflow: hidden !important;}

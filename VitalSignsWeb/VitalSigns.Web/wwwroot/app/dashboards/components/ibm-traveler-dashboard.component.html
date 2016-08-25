@@ -1,0 +1,55 @@
+<div id="zeusContext">
+    
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="img/menu/dashboard.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                IBM Traveler
+                <app-navigator></app-navigator>
+            </h2>
+            <p>IBM Traveler dashboard</p>
+        </div>
+    </div>
+
+    <div id="zeusContextActions">
+
+        <!-- Split button -->
+        <div class="btn-wrapper">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary">Action</button>
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div id="zeusContent">
+    <div class="row">
+        <div class="{{widget.css}}" *ngFor="let widget of widgets">
+            <div class="widgetWrapper">
+                <div class="widgetTitle">
+                    {{widget.title}}
+                </div>
+                <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+                <div class="widgetContent" id="{{widget.id}}">
+                    <my-widget [title]="widget.title"
+                               [path]="widget.path"
+                               [name]="widget.name"
+                               [settings]="widget.settings">loading...</my-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

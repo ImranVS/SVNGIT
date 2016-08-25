@@ -1,0 +1,20 @@
+<div class="{{firstWidget.css}}" *ngFor="let firstWidget of firstWidgets">
+
+    <div class="widgetWrapper">
+
+        <div class="widgetTitle">
+            {{firstWidget.title}}
+        </div>
+
+        <div class="widgetContent" id="{{firstWidget.id}}">
+
+            <my-widget [title]="firstWidget.title"
+                       [path]="firstWidget.path"
+                       [name]="firstWidget.name"
+                       [settings]="firstWidget.settings">loading...</my-widget>
+
+        </div>
+
+    </div>
+
+</div>

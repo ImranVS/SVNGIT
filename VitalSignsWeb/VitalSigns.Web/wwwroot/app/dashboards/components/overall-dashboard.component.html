@@ -1,0 +1,226 @@
+<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="img/menu/dashboard.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Dashboard
+                <app-navigator></app-navigator>
+            </h2>
+            <p>Global overview of your servers health</p>
+        </div>
+    </div>
+    <div id="zeusContextActions">
+
+        <!-- Split button -->
+        <div class="btn-wrapper">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary">Action</button>
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div id="zeusContent" class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-lg-8">
+
+            <div class="row">
+
+                <my-widget [title]="widgetStatusSummary.title"
+                           [path]="widgetStatusSummary.path"
+                           [name]="widgetStatusSummary.name"
+                           [settings]="widgetStatusSummary.settings">loading...</my-widget>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-lg-3 col-md-12">
+
+                    <div class="row">
+
+                        <!-- Weekly events repartition -->
+                        <div class="{{weeklyEvents.css}}">
+                            <div class="widgetWrapper h-xs-362">
+                                <div class="widgetTitle">
+                                    {{weeklyEvents.title}}
+                                </div>
+                                <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+                                <div id="{{weeklyEvents.id}}">
+                                    <my-widget [title]="weeklyEvents.title"
+                                               [path]="weeklyEvents.path"
+                                               [name]="weeklyEvents.name"
+                                               [settings]="weeklyEvents.settings">loading...</my-widget>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network quality -->
+                        <div class="col-lg-12 col-md-6 col-sm-6 zeusColorReact-success">
+                            <div class="widgetWrapper h-xs-110 h-sm-362 h-lg-110 zeusColorReactBg" data-widget-type="widgetImageText">
+                                <img class="svgInject" src="img/dashboard/NetworkQuality.svg" title="Network Quality" alt="Network Quality" />
+                                <div>
+                                    <div class="widgetImageText-head">Good</div>
+                                    <div class="widgetImageText-text">Network quality</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+
+                    <my-widget [title]="widgetAppsStatus[0].title"
+                               [path]="widgetAppsStatus[0].path"
+                               [name]="widgetAppsStatus[0].name"
+                               [settings]="widgetAppsStatus[0].settings">loading...</my-widget>
+
+                    <my-widget [title]="widgetAppsStatus[1].title"
+                               [path]="widgetAppsStatus[1].path"
+                               [name]="widgetAppsStatus[1].name"
+                               [settings]="widgetAppsStatus[1].settings">loading...</my-widget>
+
+                </div>
+                <div class="col-md-6 col-lg-3">
+
+                    <my-widget [title]="widgetAppsStatus[2].title"
+                               [path]="widgetAppsStatus[2].path"
+                               [name]="widgetAppsStatus[2].name"
+                               [settings]="widgetAppsStatus[2].settings">loading...</my-widget>
+
+                    <my-widget [title]="widgetAppsStatus[3].title"
+                               [path]="widgetAppsStatus[3].path"
+                               [name]="widgetAppsStatus[3].name"
+                               [settings]="widgetAppsStatus[3].settings">loading...</my-widget>
+
+                </div>
+
+                <div class="col-lg-3 col-md-12">
+                    <div class="row">
+
+                        <!-- Users sessions -->
+                        <div class="col-lg-12 col-md-6 zeusColorReact-success">
+                            <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
+                                <img class="svgInject" src="img/dashboard/UsersSessions.svg" title="Users sessions" alt="Users sessions" style="width: 70px;" />
+                                <div>
+                                    <div class="widgetImageText-head">174</div>
+                                    <div class="widgetImageText-text">Users sessions</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Down Time -->
+                        <div class="col-lg-12 col-md-6 zeusColorReact-danger">
+                            <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
+                                <img class="svgInject" src="img/dashboard/Chrono.svg" title="Down time" alt="Down time" />
+                                <div>
+                                    <div class="widgetImageText-head">18 mins</div>
+                                    <div class="widgetImageText-text">Down time this hour</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emails server -->
+                        <div class="col-lg-12 col-md-6 zeusColorReact-default">
+                            <div class="widgetWrapper h-xs-108" data-widget-type="widgetImageText">
+                                <img class="svgInject zeusColorReactFill" src="img/dashboard/Email.svg" title="Email" alt="Email" />
+                                <div style="padding: 0 5px;">
+                                    <div class="widgetImageText-head zeusColorReactText">0</div>
+                                    <div class="widgetImageText-text zeusColorReactText">Pending email</div>
+                                </div>
+                                <div style="padding: 0 5px;">
+                                    <div class="widgetImageText-head zeusColorReactText">31</div>
+                                    <div class="widgetImageText-text zeusColorReactText">Dead mails</div>
+                                </div>
+                                <div style="padding: 0 5px;">
+                                    <div class="widgetImageText-head zeusColorReactText">2</div>
+                                    <div class="widgetImageText-text zeusColorReactText">Held mails</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Average Response time -->
+                        <div class="col-lg-12 col-md-6 zeusColorReact-warning">
+                            <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
+                                <img class="svgInject" src="img/dashboard/HourGlass.svg" title="Average Response time" alt="Average Response time" />
+                                <div>
+                                    <div class="widgetImageText-head">1028 ms.</div>
+                                    <div class="widgetImageText-text">Average response time</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-4">
+            <div class="row">
+
+                <!-- On premises applications -->
+                <div class="{{widgetOnPremisesApps.css}}">
+                    <div class="widgetWrapper h-xs-664" data-widget-type="widgetOnPremisesApps">
+
+                        <div class="widgetTitle">
+                            {{widgetOnPremisesApps.title}}
+                        </div>
+
+                        <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+
+                        <div class="widgetContent">
+
+                            <my-widget [title]="widgetOnPremisesApps.title"
+                                       [path]="widgetOnPremisesApps.path"
+                                       [name]="widgetOnPremisesApps.name"
+                                       [settings]="widgetOnPremisesApps.settings">loading...</my-widget>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Events count -->
+                <div class="{{lastMonthEvents.css}}">
+                    <div class="widgetWrapper h-xs-322 h-md-664 h-lg-322">
+                        <div class="widgetTitle">
+                            {{lastMonthEvents.title}}
+                        </div>
+                        <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+                        <div id="{{lastMonthEvents.id}}" class="widgetContent">
+                            <my-widget [title]="lastMonthEvents.title"
+                                       [path]="lastMonthEvents.path"
+                                       [name]="lastMonthEvents.name"
+                                       [settings]="lastMonthEvents.settings">loading...</my-widget>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
