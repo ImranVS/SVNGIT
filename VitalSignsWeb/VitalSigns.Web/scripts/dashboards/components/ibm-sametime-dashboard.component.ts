@@ -3,6 +3,7 @@ import {ROUTER_DIRECTIVES} from '@angular/router';
 
 import {WidgetController, WidgetContainer, WidgetContract} from '../../core/widgets';
 import {AppNavigator} from '../../navigation/app.navigator.component';
+import {ServiceTab} from '../../services/models/service-tab.interface';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
@@ -13,7 +14,18 @@ declare var bootstrapNavigator: any;
 })
 export class IBMSametimeDashboard extends WidgetController implements OnInit {
 
-    widgets: WidgetContract[] = []
+    widgets: WidgetContract[] = [
+        {
+            id: 'sametimeDetails',
+            title: 'Sametime Info',
+            path: '/app/dashboards/components/ibm-sametime-details.component',
+            name: 'IBMSametimeDetails',
+            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
+            settings: {
+
+            }
+        }
+    ]
     
     constructor(protected resolver: ComponentResolver) {
         super(resolver);

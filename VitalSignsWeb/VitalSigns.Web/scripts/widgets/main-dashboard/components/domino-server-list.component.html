@@ -1,0 +1,40 @@
+﻿<div class="zeusFilterWrapper">
+    <div class="aZeusFilterHeader">
+        <span aria-hidden="true" class="glyphicon glyphicon-filter"></span><strong>Filters</strong>
+    </div>
+    <div class="aZeusFilter">
+        <span class="aZeusFilterName">Server Name : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
+    </div>
+    <div class="aZeusFilter">
+        <span class="aZeusFilterName">OS : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
+    </div>
+    <div class="aZeusFilter">
+        <span class="aZeusFilterName">Domino Version : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
+    </div>
+    <div class="aZeusFilter">
+        <span class="aZeusFilterName">Architecture : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
+    </div>
+    <div class="aZeusFilter">
+        <span class="aZeusFilterName">CPU Count : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
+    </div>
+</div>
+<table class="table table-condensed small table-striped">
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>OS</th>
+            <th>Domino Version</th>
+            <th>Architecture</th>
+            <th>CPU Count</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="dominoServers">
+        <tr *ngFor="let dominoServer of dominoServers">
+            <td>{{dominoServer.servername}}</td>
+            <td>{{dominoServer.os}}</td>
+            <td>{{dominoServer.version}}</td>
+            <td>{{dominoServer.architecture}}</td>
+            <td>{{dominoServer.cpucount}}</td>
+        </tr>
+    </tbody>
+</table>
