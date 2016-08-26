@@ -40,7 +40,7 @@ namespace VSNext.Mongo.Repository
             get
             {
                 //Incase, this is required before inserted into db
-                if (Id == null)
+                if (string.IsNullOrEmpty( Id))
                     Id = ObjectId.GenerateNewId().ToString();
                 return ObjectId.Parse(Id);
             }
