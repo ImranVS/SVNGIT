@@ -16,7 +16,6 @@
     <SccLocalPath>SAK</SccLocalPath>
   </PropertyGroup>
   <PropertyGroup>
-    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <SchemaVersion>2.0</SchemaVersion>
     <DevelopmentServerPort>63600</DevelopmentServerPort>
   </PropertyGroup>
