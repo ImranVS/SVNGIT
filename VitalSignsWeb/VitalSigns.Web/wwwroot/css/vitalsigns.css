@@ -55,6 +55,10 @@
 	color: #5fbe7f;
 }
 
+#dominoInfo{
+    min-height: 902px;
+}
+
 .serversList {
 	background-color: #FFFFFF;
 	border-right: 1px solid #eaeaea;

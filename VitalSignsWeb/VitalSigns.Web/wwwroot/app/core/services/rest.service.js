@@ -27,7 +27,8 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Observable'], function(
             RESTService = (function () {
                 function RESTService(http) {
                     this.http = http;
-                    this.serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
+                    //serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
+                    this.serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
                 }
                 RESTService.prototype.get = function (path) {
                     var serviceUrl = path.indexOf('://') > -1 ? path : this.serverUrl + path;
