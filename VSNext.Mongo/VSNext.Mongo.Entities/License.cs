@@ -135,5 +135,33 @@ namespace VSNext.Mongo.Entities
         [BsonElement("is_disabled")]
         [BsonIgnoreIfNull]
         public bool IsDisabled { get; set; }
+
+        [DataMember]
+        [BsonElement("collection_resets")]
+        [BsonIgnoreIfNull]
+        public List<Enums.ServerType> CollectionResets { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_thread_killed_count")]
+        [BsonIgnoreIfNull]
+        public int? DominoThreadKilledCount { get; set; }
+
+        [DataMember]
+        [BsonElement("service_status")]
+        [BsonIgnoreIfNull]
+        public List<ServiceStatus> ServiceStatus { get; set; }
+    }
+
+    public class ServiceStatus
+    {
+        [DataMember]
+        [BsonElement("name")]
+        [BsonIgnoreIfNull]
+        public string Name { get; set; }
+
+        [DataMember]
+        [BsonElement("state")]
+        [BsonIgnoreIfNull]
+        public string State { get; set; }
     }
 }

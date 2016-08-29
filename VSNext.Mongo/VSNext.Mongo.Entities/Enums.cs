@@ -74,8 +74,20 @@ namespace VSNext.Mongo.Entities
             WebSphereNode,
             [BaseServerType("WebSphere")]
             [Description("WebSphereCell")]
-            WebSphereCell
-        }       
+            WebSphereCell,
+            [BaseServerType("Domino")]
+            [Description("Domino Log Scanning")]
+            DominoLogScanning,
+            [BaseServerType("Domino")]
+            [Description("Traveler")]
+            Traveler,
+            [BaseServerType("Domino")]
+            [Description("Traveler HA Datastore")]
+            TravelerHaDatastore,
+            [BaseServerType("Domino")]
+            [Description("EXJournal")]
+            EXJournal
+        }
 
     }
     /// <summary>
@@ -138,5 +150,6 @@ namespace VSNext.Mongo.Entities
         /// <value>The name of the base server type.</value>
         public virtual string Name { get; private set; }
     }
+
 
 }
