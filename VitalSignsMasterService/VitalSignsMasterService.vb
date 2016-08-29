@@ -834,7 +834,7 @@ Public Class VSMaster
                         WriteAuditEntry(Now.ToString & " Calling Hourly Tasks")
                         Try
                             If ServiceStatus(VitalSignsPlusDBHealthService) = "Stopped" Then
-                                WriteAuditEntry(Now.ToString & " Service Stopped:rows:" & dt.Rows.Count.ToString & ", LastDate:" & LastDate.ToShortDateString & ", MyDate: " & MyDate.ToShortDateString)
+                                WriteAuditEntry(Now.ToString & " Service Stopped:rows:" & numOfServersNotDBScanned.ToString() & ", LastDate:" & LastDate.ToShortDateString & ", MyDate: " & MyDate.ToShortDateString)
                                 StartService(VitalSignsPlusDBHealthService)
                                 WriteAuditEntry(Now.ToString & " DB Health is due, starting service now.")
                             End If
@@ -933,7 +933,7 @@ Public Class VSMaster
                         Servername.Substring(0, Servername.Length - 1)
                         WriteAuditEntry(Now.ToString & " Domino Servers with status older than 45 minutes are  " & Servername & "")
                     Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " Error printing out the servers over 45 minutes. Error: " & ex.Message & strSQL)
+                        WriteAuditEntry(Now.ToString & " Error printing out the servers over 45 minutes. Error: " & ex.Message)
                     End Try
 
                     Try
