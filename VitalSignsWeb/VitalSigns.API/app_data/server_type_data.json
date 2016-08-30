@@ -1,0 +1,47 @@
+﻿{
+  {
+    "data": [
+      {
+        "server_type": "Active Directory",
+        "server_type_id": "1",
+        "icon": "",
+        "tabs": [
+          {
+            "type": "Dashboard",
+            "title": "Traveler Health",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component",
+            "title": "Traveler Health",
+            "type": "Dashboard"
+          }
+        ]
+
+      },
+      {
+        "server_type": "Active Directory",
+        "server_type_id": "1",
+        "tabs": [
+          {
+            "type": "Dashboard",
+            "title": "Traveler Health",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component",
+            "title": "Traveler Health",
+            "type": "Dashboard"
+          }
+        ]
+
+      }
+
+    ]
+
+  }
+}
