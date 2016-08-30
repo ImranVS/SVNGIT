@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../../core/widgets'], function(exports_1, context_1) {
+System.register(['@angular/core', '../../../core/widgets'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -16,7 +16,7 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var core_1, widgets_1;
-    var ServiceOverallTab;
+    var IBMSametimeChatsTab;
     return {
         setters:[
             function (core_1_1) {
@@ -26,25 +26,25 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                 widgets_1 = widgets_1_1;
             }],
         execute: function() {
-            ServiceOverallTab = (function (_super) {
-                __extends(ServiceOverallTab, _super);
-                function ServiceOverallTab(resolver) {
+            IBMSametimeChatsTab = (function (_super) {
+                __extends(IBMSametimeChatsTab, _super);
+                function IBMSametimeChatsTab(resolver) {
                     _super.call(this, resolver);
                     this.resolver = resolver;
                 }
-                ServiceOverallTab.prototype.ngOnInit = function () {
+                IBMSametimeChatsTab.prototype.ngOnInit = function () {
                     this.widgets = [
                         {
-                            id: 'usersConnectionsDuringTheDay',
-                            title: 'Users connections during the day',
+                            id: 'nWayChats',
+                            title: 'N-way Chats',
                             path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
-                            css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/services/1/overall/hourly-connections',
+                                url: '/sametime/n_way_chats',
                                 chart: {
                                     chart: {
-                                        renderTo: 'usersConnectionsDuringTheDay',
+                                        renderTo: 'nWayChats',
                                         type: 'areaspline',
                                         height: 300
                                     },
@@ -53,7 +53,7 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 6
+                                            step: 1
                                         },
                                         categories: []
                                     },
@@ -71,78 +71,25 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                             }
                         },
                         {
-                            id: 'diskSpace',
-                            title: 'Disk space',
+                            id: 'activeNWayChats',
+                            title: 'Active N-way Chats',
                             path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
-                            css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/services/1/overall/disk-space',
+                                url: '/sametime/active_n_way_chats',
                                 chart: {
                                     chart: {
-                                        renderTo: 'diskSpace',
-                                        type: 'pie',
-                                        height: 300
-                                    },
-                                    title: { text: '' },
-                                    subtitle: { text: '' },
-                                    credits: {
-                                        enabled: false
-                                    },
-                                    exporting: {
-                                        enabled: false
-                                    },
-                                    plotOptions: {
-                                        pie: {
-                                            allowPointSelect: true,
-                                            cursor: 'pointer',
-                                            dataLabels: {
-                                                enabled: false
-                                            },
-                                            showInLegend: true
-                                        }
-                                    },
-                                    tooltip: {
-                                        formatter: function () {
-                                            return '<div style="font-size: 11px; font-weight: normal;">' + this.key + '<br /><strong>' + this.y + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
-                                        },
-                                        useHTML: true
-                                    },
-                                    legend: {
-                                        labelFormatter: function () {
-                                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
-                                        }
-                                    },
-                                    series: [
-                                        {
-                                            name: 'Go',
-                                            data: [],
-                                            innerSize: '70%'
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            id: 'cpuUsage',
-                            title: 'CPU Usage',
-                            path: '/app/widgets/charts/components/chart.component',
-                            name: 'ChartComponent',
-                            css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
-                            settings: {
-                                url: "/services/statistics?statname=Platform.System.PctCombinedCpuUtil&serverid=" + this.serviceId,
-                                chart: {
-                                    chart: {
-                                        renderTo: 'cpuUsage',
+                                        renderTo: 'activeNWayChats',
                                         type: 'areaspline',
                                         height: 300
                                     },
-                                    colors: ['#ef3a24'],
+                                    colors: ['#5fbe7f'],
                                     title: { text: '' },
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 6
+                                            step: 1
                                         },
                                         categories: []
                                     },
@@ -155,33 +102,30 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                     exporting: {
                                         enabled: false
                                     },
-                                    series: [{
-                                            name: '% Usage',
-                                            data: []
-                                        }]
+                                    series: []
                                 }
                             }
                         },
                         {
-                            id: 'memoryUsage',
-                            title: 'Memory Usage',
+                            id: 'openChatSessions',
+                            title: 'Open Chat Sessions',
                             path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
-                            css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: "http://USDOPVSDEV11SVC.jnittech.com/services/" + this.serviceId + "/overall/memory-usage",
+                                url: '/sametime/open_chat_sessions',
                                 chart: {
                                     chart: {
-                                        renderTo: 'memoryUsage',
+                                        renderTo: 'openChatSessions',
                                         type: 'areaspline',
                                         height: 300
                                     },
-                                    colors: ['#848484'],
+                                    colors: ['#5fbe7f'],
                                     title: { text: '' },
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 6
+                                            step: 1
                                         },
                                         categories: []
                                     },
@@ -194,28 +138,61 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                     exporting: {
                                         enabled: false
                                     },
-                                    series: [{
-                                            name: 'GB',
-                                            data: []
-                                        }]
+                                    series: []
+                                }
+                            }
+                        },
+                        {
+                            id: 'chatMessages',
+                            title: 'Chat Messages',
+                            path: '/app/widgets/charts/components/chart.component',
+                            name: 'ChartComponent',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                            settings: {
+                                url: '/sametime/chat_messages',
+                                chart: {
+                                    chart: {
+                                        renderTo: 'chatMessages',
+                                        type: 'areaspline',
+                                        height: 300
+                                    },
+                                    colors: ['#5fbe7f'],
+                                    title: { text: '' },
+                                    subtitle: { text: '' },
+                                    xAxis: {
+                                        labels: {
+                                            step: 1
+                                        },
+                                        categories: []
+                                    },
+                                    legend: {
+                                        enabled: false
+                                    },
+                                    credits: {
+                                        enabled: false
+                                    },
+                                    exporting: {
+                                        enabled: false
+                                    },
+                                    series: []
                                 }
                             }
                         }
                     ];
                     injectSVG();
                 };
-                ServiceOverallTab = __decorate([
+                IBMSametimeChatsTab = __decorate([
                     core_1.Component({
-                        selector: 'tab-overall',
-                        templateUrl: '/app/services/components/service-overall-tab.component.html',
+                        selector: 'tab-chats',
+                        templateUrl: '/app/dashboards/components/ibm-sametime-chats-tab.component.html',
                         directives: [widgets_1.WidgetContainer]
                     }), 
                     __metadata('design:paramtypes', [core_1.ComponentResolver])
-                ], ServiceOverallTab);
-                return ServiceOverallTab;
+                ], IBMSametimeChatsTab);
+                return IBMSametimeChatsTab;
             }(widgets_1.WidgetController));
-            exports_1("ServiceOverallTab", ServiceOverallTab);
+            exports_1("IBMSametimeChatsTab", IBMSametimeChatsTab);
         }
     }
 });
-//# sourceMappingURL=service-overall-tab.component.js.map
+//# sourceMappingURL=ibm-sametime-chats-tab.component.js.map

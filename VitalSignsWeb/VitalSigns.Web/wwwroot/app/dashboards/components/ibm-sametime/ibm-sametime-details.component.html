@@ -1,0 +1,18 @@
+<div id="sametimeDetailHeader" *ngIf="service">
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+
+        <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of service.tabs">
+            <a href="javascript:void(0);">{{tab.title}}</a>
+        </li>
+
+    </ul>
+
+</div>
+<!-- Tab panes -->
+<div id="sametimeDetailContent" class="tab-content">
+
+    <div #tab></div>
+
+</div>

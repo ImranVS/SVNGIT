@@ -2,20 +2,20 @@
 
 import { OverallDashboard } from './dashboards/components/overall-dashboard.component';
 
-import { IBMDominoDashboard } from './dashboards/components/ibm-domino-dashboard.component';
-import { IBMConnectionsDashboard } from './dashboards/components/ibm-connections-dashboard.component';
-import { IBMSametimeDashboard } from './dashboards/components/ibm-sametime-dashboard.component';
-import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler-dashboard.component';
-import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere-dashboard.component';
+import { IBMDominoDashboard } from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
+import { IBMConnectionsDashboard } from './dashboards/components/ibm-connections/ibm-connections-dashboard.component';
+import { IBMSametimeDashboard } from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.component';
+import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
+import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 
-import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad-dashboard.component';
-import { MSExchangeDashboard } from './dashboards/components/ms-exchange-dashboard.component';
-import { MSSharePointDashboard } from './dashboards/components/ms-sharepoint-dashboard.component';
+import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
+import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
+import { MSSharePointDashboard } from './dashboards/components/ms-sharepoint/ms-sharepoint-dashboard.component';
 
-import { Office365Dashboard } from './dashboards/components/office365-dashboard.component';
-import { Office365Overall } from './dashboards/components/office365-overall.component';
-import { OfficeMailStatistics } from './dashboards/components/office365-mail-statistics.component';
-import { Office365PasswordSettings } from './dashboards/components/office365-password-settings.component';
+import { Office365Dashboard } from './dashboards/components/office365/office365-dashboard.component';
+import { Office365Overall } from './dashboards/components/office365/office365-overall.component';
+import { OfficeMailStatistics } from './dashboards/components/office365/office365-mail-statistics.component';
+import { Office365PasswordSettings } from './dashboards/components/office365/office365-password-settings.component';
 
 import { CloudServicesDashboard } from './dashboards/components/cloud-services-dashboard.component';
 
@@ -34,17 +34,17 @@ import { NotYetImplemented } from './not-yet-implemented.component';
 
 export * from './dashboards/components/overall-dashboard.component';
 
-export * from './dashboards/components/ibm-domino-dashboard.component';
-export * from './dashboards/components/ibm-connections-dashboard.component';
-export * from './dashboards/components/ibm-sametime-dashboard.component';
-export * from './dashboards/components/ibm-traveler-dashboard.component';
-export * from './dashboards/components/ibm-websphere-dashboard.component';
+export * from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
+export * from './dashboards/components/ibm-connections/ibm-connections-dashboard.component';
+export * from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.component';
+export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
+export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 
-export * from './dashboards/components/ms-ad-dashboard.component';
-export * from './dashboards/components/ms-exchange-dashboard.component';
-export * from './dashboards/components/ms-sharepoint-dashboard.component';
+export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
+export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
+export * from './dashboards/components/ms-sharepoint/ms-sharepoint-dashboard.component';
 
-export * from './dashboards/components/office365-dashboard.component';
+export * from './dashboards/components/office365/office365-dashboard.component';
 
 export * from './dashboards/components/cloud-services-dashboard.component';
 

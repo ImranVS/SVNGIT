@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../../core/widgets'], function(exports_1, context_1) {
+System.register(['@angular/core', '../../../core/widgets'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -16,7 +16,7 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var core_1, widgets_1;
-    var ServiceOverallTab;
+    var IBMSametimeConferencesTab;
     return {
         setters:[
             function (core_1_1) {
@@ -26,25 +26,25 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                 widgets_1 = widgets_1_1;
             }],
         execute: function() {
-            ServiceOverallTab = (function (_super) {
-                __extends(ServiceOverallTab, _super);
-                function ServiceOverallTab(resolver) {
+            IBMSametimeConferencesTab = (function (_super) {
+                __extends(IBMSametimeConferencesTab, _super);
+                function IBMSametimeConferencesTab(resolver) {
                     _super.call(this, resolver);
                     this.resolver = resolver;
                 }
-                ServiceOverallTab.prototype.ngOnInit = function () {
+                IBMSametimeConferencesTab.prototype.ngOnInit = function () {
                     this.widgets = [
                         {
-                            id: 'usersConnectionsDuringTheDay',
-                            title: 'Users connections during the day',
+                            id: 'oneOnOneCalls',
+                            title: 'One-on-one Calls',
                             path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
-                            css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/services/1/overall/hourly-connections',
+                                url: '/sametime/one_on_one_calls',
                                 chart: {
                                     chart: {
-                                        renderTo: 'usersConnectionsDuringTheDay',
+                                        renderTo: 'oneOnOneCalls',
                                         type: 'areaspline',
                                         height: 300
                                     },
@@ -53,7 +53,7 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 6
+                                            step: 1
                                         },
                                         categories: []
                                     },
@@ -71,78 +71,25 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                             }
                         },
                         {
-                            id: 'diskSpace',
-                            title: 'Disk space',
+                            id: 'multiUserCalls',
+                            title: 'Multi-user Calls',
                             path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
-                            css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/services/1/overall/disk-space',
+                                url: '/sametime/multi_user_calls',
                                 chart: {
                                     chart: {
-                                        renderTo: 'diskSpace',
-                                        type: 'pie',
-                                        height: 300
-                                    },
-                                    title: { text: '' },
-                                    subtitle: { text: '' },
-                                    credits: {
-                                        enabled: false
-                                    },
-                                    exporting: {
-                                        enabled: false
-                                    },
-                                    plotOptions: {
-                                        pie: {
-                                            allowPointSelect: true,
-                                            cursor: 'pointer',
-                                            dataLabels: {
-                                                enabled: false
-                                            },
-                                            showInLegend: true
-                                        }
-                                    },
-                                    tooltip: {
-                                        formatter: function () {
-                                            return '<div style="font-size: 11px; font-weight: normal;">' + this.key + '<br /><strong>' + this.y + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
-                                        },
-                                        useHTML: true
-                                    },
-                                    legend: {
-                                        labelFormatter: function () {
-                                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
-                                        }
-                                    },
-                                    series: [
-                                        {
-                                            name: 'Go',
-                                            data: [],
-                                            innerSize: '70%'
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            id: 'cpuUsage',
-                            title: 'CPU Usage',
-                            path: '/app/widgets/charts/components/chart.component',
-                            name: 'ChartComponent',
-                            css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
-                            settings: {
-                                url: "/services/statistics?statname=Platform.System.PctCombinedCpuUtil&serverid=" + this.serviceId,
-                                chart: {
-                                    chart: {
-                                        renderTo: 'cpuUsage',
+                                        renderTo: 'multiUserCalls',
                                         type: 'areaspline',
                                         height: 300
                                     },
-                                    colors: ['#ef3a24'],
+                                    colors: ['#5fbe7f'],
                                     title: { text: '' },
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 6
+                                            step: 1
                                         },
                                         categories: []
                                     },
@@ -155,33 +102,30 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                     exporting: {
                                         enabled: false
                                     },
-                                    series: [{
-                                            name: '% Usage',
-                                            data: []
-                                        }]
+                                    series: []
                                 }
                             }
                         },
                         {
-                            id: 'memoryUsage',
-                            title: 'Memory Usage',
+                            id: 'allCalls',
+                            title: 'All Calls',
                             path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
-                            css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: "http://USDOPVSDEV11SVC.jnittech.com/services/" + this.serviceId + "/overall/memory-usage",
+                                url: '/sametime/all_calls',
                                 chart: {
                                     chart: {
-                                        renderTo: 'memoryUsage',
+                                        renderTo: 'allCalls',
                                         type: 'areaspline',
                                         height: 300
                                     },
-                                    colors: ['#848484'],
+                                    colors: ['#5fbe7f'],
                                     title: { text: '' },
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 6
+                                            step: 1
                                         },
                                         categories: []
                                     },
@@ -194,28 +138,133 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                     exporting: {
                                         enabled: false
                                     },
-                                    series: [{
-                                            name: 'GB',
-                                            data: []
-                                        }]
+                                    series: []
+                                }
+                            }
+                        },
+                        {
+                            id: 'allCallsAllUsers',
+                            title: 'All Calls/All Users',
+                            path: '/app/widgets/charts/components/chart.component',
+                            name: 'ChartComponent',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                            settings: {
+                                url: '/sametime/all_calls_all_users',
+                                chart: {
+                                    chart: {
+                                        renderTo: 'allCallsAllUsers',
+                                        type: 'areaspline',
+                                        height: 300
+                                    },
+                                    colors: ['#5fbe7f'],
+                                    title: { text: '' },
+                                    subtitle: { text: '' },
+                                    xAxis: {
+                                        labels: {
+                                            step: 1
+                                        },
+                                        categories: []
+                                    },
+                                    legend: {
+                                        enabled: false
+                                    },
+                                    credits: {
+                                        enabled: false
+                                    },
+                                    exporting: {
+                                        enabled: false
+                                    },
+                                    series: []
+                                }
+                            }
+                        },
+                        {
+                            id: 'allOneOnOneCallsUsers',
+                            title: 'All One-on-one Calls/All One-on-one Call Users',
+                            path: '/app/widgets/charts/components/chart.component',
+                            name: 'ChartComponent',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                            settings: {
+                                url: '/sametime/all_one_on_one_calls_users',
+                                chart: {
+                                    chart: {
+                                        renderTo: 'allOneOnOneCallsUsers',
+                                        type: 'areaspline',
+                                        height: 300
+                                    },
+                                    colors: ['#5fbe7f'],
+                                    title: { text: '' },
+                                    subtitle: { text: '' },
+                                    xAxis: {
+                                        labels: {
+                                            step: 1
+                                        },
+                                        categories: []
+                                    },
+                                    legend: {
+                                        enabled: false
+                                    },
+                                    credits: {
+                                        enabled: false
+                                    },
+                                    exporting: {
+                                        enabled: false
+                                    },
+                                    series: []
+                                }
+                            }
+                        },
+                        {
+                            id: 'allMultiUserCallsUsers',
+                            title: 'All Multi-user Calls/All Multi-user Call Users',
+                            path: '/app/widgets/charts/components/chart.component',
+                            name: 'ChartComponent',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                            settings: {
+                                url: '/sametime/all_multi_user_calls_users',
+                                chart: {
+                                    chart: {
+                                        renderTo: 'allMultiUserCallsUsers',
+                                        type: 'areaspline',
+                                        height: 300
+                                    },
+                                    colors: ['#5fbe7f'],
+                                    title: { text: '' },
+                                    subtitle: { text: '' },
+                                    xAxis: {
+                                        labels: {
+                                            step: 1
+                                        },
+                                        categories: []
+                                    },
+                                    legend: {
+                                        enabled: false
+                                    },
+                                    credits: {
+                                        enabled: false
+                                    },
+                                    exporting: {
+                                        enabled: false
+                                    },
+                                    series: []
                                 }
                             }
                         }
                     ];
                     injectSVG();
                 };
-                ServiceOverallTab = __decorate([
+                IBMSametimeConferencesTab = __decorate([
                     core_1.Component({
-                        selector: 'tab-overall',
-                        templateUrl: '/app/services/components/service-overall-tab.component.html',
+                        selector: 'tab-chats',
+                        templateUrl: '/app/dashboards/components/ibm-sametime-conferences-tab.component.html',
                         directives: [widgets_1.WidgetContainer]
                     }), 
                     __metadata('design:paramtypes', [core_1.ComponentResolver])
-                ], ServiceOverallTab);
-                return ServiceOverallTab;
+                ], IBMSametimeConferencesTab);
+                return IBMSametimeConferencesTab;
             }(widgets_1.WidgetController));
-            exports_1("ServiceOverallTab", ServiceOverallTab);
+            exports_1("IBMSametimeConferencesTab", IBMSametimeConferencesTab);
         }
     }
 });
-//# sourceMappingURL=service-overall-tab.component.js.map
+//# sourceMappingURL=ibm-sametime-conferences-tab.component.js.map
