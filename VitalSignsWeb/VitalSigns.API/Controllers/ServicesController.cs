@@ -22,6 +22,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<DiskHealth> diskHealthRepository;
 
         private IRepository<Server> serverRepository;
+        private IRepository<DailyStatistics> dailyRepository;
+        private IRepository<SummaryStatistics> summaryRepository;
 
         [HttpGet("status_summary")]
         public IEnumerable<Segment> ServersStatusSummary()
@@ -243,6 +245,69 @@ namespace VitalSigns.API.Controllers
                 return null;
         }
 
+        [HttpGet("daily_statistics/{statName}")]
+        public IEnumerable<Models.Statistics> GetDailyStatName(string statname)
+        {
+            dailyRepository = new Repository<DailyStatistics>(ConnectionString);
+
+            Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statname);
+            var result = dailyRepository.Find(expression).Select(x => new Models.Statistics
+            {
+                DeviceId = x.DeviceId,
+                StatName = x.StatName,
+                StatValue = x.StatValue
+
+            });
+            return result.ToList().Take(100);
+        }
+
+
+        [HttpGet("{id}/daily_statistics/{statName}")]
+        public IEnumerable<Models.Statistics> GetDailyStat(int id, string statname)
+        {
+            dailyRepository = new Repository<DailyStatistics>(ConnectionString);
+
+            Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statname && p.DeviceId == id);
+            var result = dailyRepository.Find(expression).Select(x => new Models.Statistics
+            {
+                DeviceId = x.DeviceId,
+                StatName = x.StatName,
+                StatValue = x.StatValue
+
+            });
+            return result.ToList();
+        }
+
+        [HttpGet("summary_statistics/{statName}")]
+        public IEnumerable<Models.Statistics> GetSummaryStatName(string statname)
+        {
+            summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+
+            Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatName == statname);
+            var result = summaryRepository.Find(expression).Select(x => new Models.Statistics
+            {
+                DeviceId = x.DeviceId,
+                StatName = x.StatName,
+                StatValue = x.StatValue
+
+            });
+            return result.ToList();
+        }
+        [HttpGet("{id}/summary_statistics/{statName}")]
+        public IEnumerable<Models.Statistics> GetSummaryStat(int id, string statname)
+        {
+            summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+
+            Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatName == statname && p.DeviceId == id);
+            var result = summaryRepository.Find(expression).Select(x => new Models.Statistics
+            {
+                DeviceId = x.DeviceId,
+                StatName = x.StatName,
+                StatValue = x.StatValue
+
+            });
+            return result.ToList();
+        }
 
     }
 }
