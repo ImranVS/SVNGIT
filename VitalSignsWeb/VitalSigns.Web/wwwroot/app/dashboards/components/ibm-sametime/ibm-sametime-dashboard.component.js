@@ -62,7 +62,7 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
                 };
                 IBMSametimeDashboard = __decorate([
                     core_1.Component({
-                        templateUrl: '/app/dashboards/components/ibm-sametime-dashboard.component.html',
+                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-dashboard.component.html',
                         directives: [router_1.ROUTER_DIRECTIVES, widgets_1.WidgetContainer, app_navigator_component_1.AppNavigator]
                     }), 
                     __metadata('design:paramtypes', [core_1.ComponentResolver])

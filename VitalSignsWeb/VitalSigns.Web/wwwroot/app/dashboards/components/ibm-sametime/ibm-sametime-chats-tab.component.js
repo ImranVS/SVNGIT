@@ -184,7 +184,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                 IBMSametimeChatsTab = __decorate([
                     core_1.Component({
                         selector: 'tab-chats',
-                        templateUrl: '/app/dashboards/components/ibm-sametime-chats-tab.component.html',
+                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component.html',
                         directives: [widgets_1.WidgetContainer]
                     }), 
                     __metadata('design:paramtypes', [core_1.ComponentResolver])

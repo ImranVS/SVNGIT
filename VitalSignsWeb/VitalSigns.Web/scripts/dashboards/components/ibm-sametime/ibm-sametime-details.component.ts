@@ -9,7 +9,7 @@ import {ServiceTab} from '../../../services/models/service-tab.interface';
 declare var System: any;
 
 @Component({
-    templateUrl: '/app/dashboards/components/ibm-sametime-details.component.html',
+    templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-details.component.html',
     providers: [
         HTTP_PROVIDERS,
         RESTService

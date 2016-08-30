@@ -8,7 +8,7 @@ declare var injectSVG: any;
 
 @Component({
     selector: 'tab-chats',
-    templateUrl: '/app/dashboards/components/ibm-sametime-chats-tab.component.html',
+    templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component.html',
     directives: [WidgetContainer]
 })
 export class IBMSametimeChatsTab extends WidgetController implements OnInit, ServiceTab {

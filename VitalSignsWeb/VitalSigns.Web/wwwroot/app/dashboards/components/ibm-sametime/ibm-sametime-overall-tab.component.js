@@ -112,7 +112,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                 IBMSametimeOverallTab = __decorate([
                     core_1.Component({
                         selector: 'tab-overall',
-                        templateUrl: '/app/dashboards/components/ibm-sametime-overall-tab.component.html',
+                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component.html',
                         directives: [widgets_1.WidgetContainer]
                     }), 
                     __metadata('design:paramtypes', [core_1.ComponentResolver])

@@ -8,7 +8,7 @@ declare var injectSVG: any;
 
 @Component({
     selector: 'tab-overall',
-    templateUrl: '/app/dashboards/components/ibm-sametime-overall-tab.component.html',
+    templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component.html',
     directives: [WidgetContainer]
 })
 export class IBMSametimeOverallTab extends WidgetController implements OnInit, ServiceTab {

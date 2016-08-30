@@ -82,7 +82,7 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../../
                 ], IBMSametimeDetails.prototype, "target", void 0);
                 IBMSametimeDetails = __decorate([
                     core_1.Component({
-                        templateUrl: '/app/dashboards/components/ibm-sametime-details.component.html',
+                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-details.component.html',
                         providers: [
                             http_1.HTTP_PROVIDERS,
                             services_1.RESTService
