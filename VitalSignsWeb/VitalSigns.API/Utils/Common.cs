@@ -1,18 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Web;
+using Newtonsoft.Json;
+using System.IO;
+using VitalSigns.API.Models;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace VitalSigns.API.Utils
 {
     public class Common
     {
-        public Dictionary<string, string> GetServerTypeIcons()
+        public static Dictionary<string, string> GetServerTypeIcons()
         {
             Dictionary<string, string> serverTypeIcons = new Dictionary<string, string>();
-
-
+           
+            List<ServerType> serverTypeList = (List<ServerType>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerType>));
+            foreach (ServerType item in serverTypeList)
+                serverTypeIcons[item.ServerTypeName] = item.Icon;
             return serverTypeIcons;
+        }
+
+        public static ServerType GetServerTypeTabs(string serverTypeName )
+        {   
+            List<ServerType> serverTypeList = (List<ServerType>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerType>));
+            var serverType = serverTypeList.Where(x => x.ServerTypeName == serverTypeName).FirstOrDefault();
+            return serverType;
         }
     }
 }

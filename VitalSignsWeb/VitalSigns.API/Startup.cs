@@ -15,6 +15,8 @@ namespace VitalSigns.API
     {
         public static string ConnectionString { get; private set; }
         public static string DataBaseName { get; private set; }
+        public static string ServerTypeJsonPath { get; private set; }
+
 
 
         public Startup(IHostingEnvironment env)
@@ -50,6 +52,7 @@ namespace VitalSigns.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            ServerTypeJsonPath = env.MapPath("App_Data/server_type_data.json");
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 

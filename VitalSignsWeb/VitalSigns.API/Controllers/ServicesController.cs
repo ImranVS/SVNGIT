@@ -127,19 +127,64 @@ namespace VitalSigns.API.Controllers
         public IEnumerable<ServiceStatus> GetAllServerServices()
         {
             statusRepository = new Repository<Status>(ConnectionString);
+            var serviceIcons = VitalSigns.API.Utils.Common.GetServerTypeIcons();
             var result = statusRepository.All().AsQueryable()
                                  .Select(x => new ServiceStatus
                                  {
                                      Id = x.Id,
-                                     Icon = x.Icon,
+                                     Type = x.Type,
                                      Country = x.Location,
                                      Name = x.Name,
-                                     Version = x.Version,
+                                     Version = x.SoftwareVersion,
+                                     LastUpdated = x.LastUpdated,
                                      Description = x.Description,
                                      Status = x.StatusCode
 
-                                 });
-            return result.ToList();
+                                 }).ToList();
+            foreach(ServiceStatus item in result)
+            {
+                item.Country = "us";
+                if (item.LastUpdated.HasValue)
+                    item.Description = "Last Updated: " + item.LastUpdated.Value.ToShortDateString();
+                if (serviceIcons.ContainsKey(item.Type))
+                    item.Icon = serviceIcons[item.Type];
+                else
+                    item.Icon = @"/img/servers/Paintbrush.svg";
+            }
+            return result;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("services/{id}")]
+        public ServiceStatus GetServerDetails(string id )
+        {
+            statusRepository = new Repository<Status>(ConnectionString);
+         
+
+            Expression<Func<Status, bool>> expression = (p => p.Id == id);
+            var result = (statusRepository.Find(expression)
+                                 .Select(x => new ServiceStatus
+                                 {
+                                     Id = x.Id,
+                                     Type = x.Type,
+                                     Country = x.Location,
+                                     Name = x.Name,
+                                     Version = x.SoftwareVersion,
+                                     LastUpdated = x.LastUpdated,
+                                     Description = x.Description,
+                                     Status = x.StatusCode
+
+                                 })).FirstOrDefault();
+            var serviceIcons = VitalSigns.API.Utils.Common.GetServerTypeIcons();
+           Models.ServerType serverType= Utils.Common.GetServerTypeTabs(result.Type);
+            result.Tabs = serverType.Tabs;
+            result.Description = "Last Updated: " + result.LastUpdated.Value.ToShortDateString();
+            result.Icon = serverType.Icon;
+
+            return result;
         }
         [HttpGet("diskhealth")]
 

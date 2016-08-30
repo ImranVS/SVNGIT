@@ -27,7 +27,16 @@ namespace VitalSigns.API.Models
         [JsonProperty("version")]
         public string Version { get; set; }
 
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+
         [JsonProperty("description")]
         public string Description { get; set; }
+
+        [JsonProperty("last_updated")]
+        public DateTime? LastUpdated { get; set; }
+        [JsonProperty("tabs")]
+        public List<Tab> Tabs { get; set; }
     }
 }
