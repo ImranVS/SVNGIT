@@ -1,0 +1,408 @@
+﻿ [
+      {
+        "server_type": "Active Directory",
+        "icon": "/img/servers/ActiveDirectoryHealth.svg",
+        "tabs": [
+          {
+            "tab_id": 1,
+            "title": "Overall",
+            "type": "Dashboard",
+            "component": "ServiceOverallTab",
+            "path": "/app/services/components/service-overall-tab.component"
+          },
+          {
+            "tab_id": 2,
+            "title": "Main Health",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 3,
+            "title": "Traveler Health",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 4,
+            "title": "Database",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 5,
+            "title": "Tasks",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 6,
+            "title": "Maintenance",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 7,
+            "title": "Alerts",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 8,
+            "title": "Outages",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 9,
+            "title": "Admin",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          }
+        ]
+
+      },
+      {
+        "server_type": "Domino",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+          {
+            "tab_id": 1,
+            "title": "Overall",
+            "type": "Dashboard",
+            "component": "ServiceOverallTab",
+            "path": "/app/services/components/service-overall-tab.component"
+          },
+          {
+            "tab_id": 2,
+            "title": "Main Health",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 3,
+            "title": "Traveler Health",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 4,
+            "title": "Database",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 5,
+            "title": "Tasks",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 6,
+            "title": "Maintenance",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 7,
+            "title": "Alerts",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 8,
+            "title": "Outages",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 9,
+            "title": "Admin",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          }
+        ]
+
+      },
+
+      {
+        "server_type": "Database Availability Group",
+        "icon": "/img/servers/DatabaseHealth.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "SharePoint",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+
+        ]
+
+      },
+
+
+      {
+        "server_type": "Windows",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Exchange",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Domino Cluster database",
+        "icon": "/img/servers/ClusterHealth.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Mail",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+
+      {
+        "server_type": "Office365",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Domino Cluster",
+        "icon": "/img/servers/ClusterHealth.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "WebSphere",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "IBM Connections",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+          {
+            "title": "Overview",
+            "component": "DominoHealthTab",
+            "path": "/app/services/components/domino-health-tab.component"
+          },
+          {
+            "title": "Communities",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "title": "Profiles",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "title": "Activities",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "title": "Blogs",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "title": "Bookmarks",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "title": "Files",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "title": "Forums",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "title": "Wikis",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          }
+        ]
+
+      },
+
+      {
+        "server_type": "URL",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "BES",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+
+      {
+        "server_type": "Sametime",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+
+
+      {
+        "server_type": "Network Device",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Notes Database",
+        "icon": "/img/servers/DatabaseHealth.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "General",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Mobile Users",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "NotesMail Probe",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Exchange Mail Flow",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Skype for Business",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "Cloud",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "SNMP Devices",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+      {
+        "server_type": "Network Latency",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      },
+      {
+        "server_type": "ExchangeMail Probe",
+        "icon": "/img/servers/Paintbrush.svg",
+        "tabs": [
+
+        ]
+
+      }
+    ]
+
+
