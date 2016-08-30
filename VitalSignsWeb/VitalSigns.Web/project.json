@@ -28,7 +28,8 @@
   ],
   "publishExclude": [
     "**.user",
-    "**.vspscc"
+    "**.vspscc",
+    "global.json"
   ],
   "userSecretsId": "aspnet5-VitalSignsWebReloaded-20160304063211"
 }
