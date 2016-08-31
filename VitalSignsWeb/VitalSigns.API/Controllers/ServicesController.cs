@@ -121,7 +121,7 @@ namespace VitalSigns.API.Controllers
         /// <author>Swathi Dongari</author>
         /// <param name="id"></param>
         /// <returns>List of daily stats data</returns>
-        [HttpPost("statistics")]
+        [HttpGet("statistics")]
         public APIResponse GetDailyStatName([FromBody]StatisticsRequest request)
         {
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
