@@ -27,10 +27,10 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string ServerTypeTable { get; set; }
 
-        [DataMember]
-        [BsonElement("tabs")]
-        [BsonIgnoreIfNull]
-        public int[] Tabs { get; set; }
+        //[DataMember]
+        //[BsonElement("tabs")]
+        //[BsonIgnoreIfNull]
+        //public List<Tab> Tabs { get; set; } 
 
         [DataMember]
         [BsonElement("unit_cost")]
@@ -44,31 +44,31 @@ namespace VSNext.Mongo.Entities
 
     }
 
-    [DataContract]
-    [Serializable]
-    [CollectionName("tab")]
-    public class Tab:Entity
-    {
-        [DataMember]
-        [BsonElement("tab_id")]
-        [BsonIgnoreIfNull]
-        public int TabId { get; set; }
+    //[DataContract]
+    //[Serializable]
+    //[CollectionName("tab")]
+    //public class Tab:Entity
+    //{
+    //    [DataMember]
+    //    [BsonElement("tab_id")]
+    //    [BsonIgnoreIfNull]
+    //    public int? TabId { get; set; }
 
-        [DataMember]
-        [BsonElement("title")]
-        [BsonIgnoreIfNull]
-        public string Title { get; set; }
+    //    [DataMember]
+    //    [BsonElement("title")]
+    //    [BsonIgnoreIfNull]
+    //    public string Title { get; set; }
 
-        [DataMember]
-        [BsonElement("component")]
-        [BsonIgnoreIfNull]
-        public string Component { get; set; }
+    //    [DataMember]
+    //    [BsonElement("component")]
+    //    [BsonIgnoreIfNull]
+    //    public string Component { get; set; }
 
-        [DataMember]
-        [BsonElement("path")]
-        [BsonIgnoreIfNull]
-        public string Path { get; set; }
-    }
+    //    [DataMember]
+    //    [BsonElement("path")]
+    //    [BsonIgnoreIfNull]
+    //    public string Path { get; set; }
+    //}
 
     [DataContract]
     [Serializable]
