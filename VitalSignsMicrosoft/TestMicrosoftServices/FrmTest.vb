@@ -202,4 +202,15 @@ Public Class FrmTest
 		End If
 	End Sub
 
+    Private Sub Button1_Click_1(sender As Object, e As EventArgs) Handles btnLicense.Click
+        Dim vs As New VitalSignsLicensing.Licensing
+        vs.refreshServerCollectionWrapper()
+    End Sub
+
+    Private Sub btnPing_Click(sender As Object, e As EventArgs) Handles btnPing.Click
+        'Dim nodeName As String =System.Configuration.con
+        Dim nodeName As String = ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
+        Dim vs As New VitalSignsLicensing.Licensing
+        vs.doMasterPing("VSNode2", "VSNode2")
+    End Sub
 End Class

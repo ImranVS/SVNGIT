@@ -49,27 +49,27 @@ namespace VSNext.Mongo.Entities
 
     }
 
-    [DataContract]
-    [Serializable]
-    [CollectionName("device_type_license")]
-    public class DeviceTypeLicense : Entity
-    {
-        [DataMember]
-        [BsonElement("device_type_id")]
-        [BsonIgnoreIfNull]
-        public int DeviceTypeId { get; set; }
+    //[DataContract]
+    //[Serializable]
+    //[CollectionName("device_type_license")]
+    //public class DeviceTypeLicense : Entity
+    //{
+    //    [DataMember]
+    //    [BsonElement("device_type")]
+    //    [BsonIgnoreIfNull]
+    //    public string DeviceType { get; set; }
 
-        [DataMember]
-        [BsonElement("unit_cost")]
-        [BsonIgnoreIfNull]
-        public double UnitCost { get; set; }
+    //    [DataMember]
+    //    [BsonElement("unit_cost")]
+    //    [BsonIgnoreIfNull]
+    //    public double UnitCost { get; set; }
 
-        [DataMember]
-        [BsonElement("enc_unit_cost")]
-        [BsonIgnoreIfNull]
-        public string EncUnitCost { get; set; }
+    //    [DataMember]
+    //    [BsonElement("enc_unit_cost")]
+    //    [BsonIgnoreIfNull]
+    //    public string EncUnitCost { get; set; }
 
-    }
+    //}
 
     [DataContract]
     [Serializable]
@@ -92,11 +92,6 @@ namespace VSNext.Mongo.Entities
         public bool  IsAlive { get; set; }
 
         [DataMember]
-        [BsonElement("version")]
-        [BsonIgnoreIfNull]
-        public string Version { get; set; }
-
-        [DataMember]
         [BsonElement("node_type")]
         [BsonIgnoreIfNull]
         public string NodeType { get; set; }
@@ -106,15 +101,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public double LoadFactor { get; set; }
 
-        [DataMember]
-        [BsonElement("node_time")]
-        [BsonIgnoreIfNull]
-        public DateTime NodeTime { get; set; }
 
         [DataMember]
         [BsonElement("pulse")]
         [BsonIgnoreIfNull]
-        public double Pulse { get; set; }
+        public DateTime Pulse { get; set; }
 
         [DataMember]
         [BsonElement("is_primary")]

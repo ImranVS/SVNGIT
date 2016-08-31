@@ -57,6 +57,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
@@ -114,7 +115,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="My Project\app.manifest" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
@@ -138,6 +141,10 @@
     <ProjectReference Include="..\..\MonitoredItems\MonitoredItems.vbproj">
       <Project>{F0352188-DCF6-48E7-8A73-43DE89B7F6EC}</Project>
       <Name>MonitoredItems</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VitalSigns Services\VitalSignsLicensing\VitalSignsLicensing.csproj">
+      <Project>{723d8395-0a54-41bb-b893-b4e6a1828d79}</Project>
+      <Name>VitalSignsLicensing</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\VSFramework\VSFramework\VSFramework.vbproj">
       <Project>{6C0FFC43-9F5B-4832-820B-D274D0FBAC09}</Project>

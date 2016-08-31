@@ -828,6 +828,20 @@ namespace VSNext.Mongo.Entities
         [BsonElement("notifications")]
         public List<ObjectId> NotificationList { get; set; }
 
+        [DataMember]
+        [BsonElement("assigned_node")]
+        [BsonIgnoreIfNull]
+        public string AssignedNode { get; set; }
+
+        [DataMember]
+        [BsonElement("current_node")]
+        [BsonIgnoreIfNull]
+        public string CurrentNode { get; set; }
+
+        [DataMember]
+        [BsonElement("license_cost")]
+        [BsonIgnoreIfNull]
+        public double LicenseCost { get; set; }
         
     }
 

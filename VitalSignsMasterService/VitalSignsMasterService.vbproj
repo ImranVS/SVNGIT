@@ -176,6 +176,10 @@
       <Project>{94F6BE04-8F1E-4EEE-B6E0-B04125395C10}</Project>
       <Name>MaintenanceDLL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VitalSigns Services\VitalSignsLicensing\VitalSignsLicensing.csproj">
+      <Project>{723d8395-0a54-41bb-b893-b4e6a1828d79}</Project>
+      <Name>VitalSignsLicensing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VSFramework\VSFramework\VSFramework.vbproj">
       <Project>{6C0FFC43-9F5B-4832-820B-D274D0FBAC09}</Project>
       <Name>VSFramework</Name>

@@ -1706,19 +1706,19 @@ Public Class VSMaster
         End Try
 
         'Gets the version of the VS scripts last executed
-        Dim dbVersion As String = ""
-        Try
-            strSQL = "select Value from VS_MANAGEMENT WHERE Category='VS_VERSION'"
-            Dim ds As New DataSet()
-            ds.Tables.Add("VersionValue")
+        'Dim dbVersion As String = ""
+        'Try
+        '    strSQL = "select Value from VS_MANAGEMENT WHERE Category='VS_VERSION'"
+        '    Dim ds As New DataSet()
+        '    ds.Tables.Add("VersionValue")
 
-            vsobj.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "VersionValue")
+        '    vsobj.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "VersionValue")
 
-            dbVersion = ds.Tables("VersionValue").Rows(0)(0).ToString()
+        '    dbVersion = ds.Tables("VersionValue").Rows(0)(0).ToString()
 
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error in SendPulse while getting the VS DB Version.  Error: " & ex.Message.ToString())
-        End Try
+        'Catch ex As Exception
+        '    WriteAuditEntry(Now.ToString & " Error in SendPulse while getting the VS DB Version.  Error: " & ex.Message.ToString())
+        'End Try
 
         Dim VSWebVersion As String = ""
         Try
@@ -1777,27 +1777,29 @@ Public Class VSMaster
 
             If NodeName <> "" Then
                 Try
-                    Dim isConfiged As Integer = 0
-                    If (VSWebVersion = dbVersion) Then
-                        isConfiged = 1
-                    End If
+                    Dim vsLic As New VitalSignsLicensing.Licensing
+                    vsLic.doMasterPing(NodeName, hostname)
+                    'Dim isConfiged As Integer = 0
+                    'If (VSWebVersion = dbVersion) Then
+                    '    isConfiged = 1
+                    'End If
 
-                    strSQL = " IF NOT EXISTS(SELECT * FROM Nodes WHERE Name='" & NodeName & "') "
-                    strSQL += " INSERT INTO Nodes (Name, IsConfiguredPrimaryNode) VALUES ('" & NodeName & "','" & isConfiged.ToString() & "') "
+                    'strSQL = " IF NOT EXISTS(SELECT * FROM Nodes WHERE Name='" & NodeName & "') "
+                    'strSQL += " INSERT INTO Nodes (Name, IsConfiguredPrimaryNode) VALUES ('" & NodeName & "','" & isConfiged.ToString() & "') "
 
 
-                    Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Nodes)(connectionString)
-                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Nodes) = repository.Filter.Eq(Function(x) x.Name, NodeName)
-                    Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Nodes) = repository.Updater.Set(Function(x) x.NodeTime, Now)
+                    'Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Nodes)(connectionString)
+                    'Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Nodes) = repository.Filter.Eq(Function(x) x.Name, NodeName)
+                    'Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Nodes) = repository.Updater.Set(Function(x) x.Pulse, Now)
 
-                    If (hostname <> "") Then
-                        updateDef = updateDef.Set(Function(x) x.HostName, hostname)
-                    End If
-                    If (productVersion <> "") Then
-                        updateDef = updateDef.Set(Function(x) x.Version, productVersion)
-                    End If
+                    'If (hostname <> "") Then
+                    '    updateDef = updateDef.Set(Function(x) x.HostName, hostname)
+                    'End If
+                    ''If (productVersion <> "") Then
+                    ''    updateDef = updateDef.Set(Function(x) x.Version, productVersion)
+                    ''End If
 
-                    repository.Update(filterDef, updateDef)
+                    'repository.Update(filterDef, updateDef)
 
                 Catch ex As Exception
                     WriteAuditEntry(Now.ToString & " Error in SendPulse while updating Nodes table.  Error: " & ex.Message.ToString())
