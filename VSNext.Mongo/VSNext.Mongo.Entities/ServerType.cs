@@ -31,7 +31,17 @@ namespace VSNext.Mongo.Entities
         [BsonElement("tabs")]
         [BsonIgnoreIfNull]
         public int[] Tabs { get; set; }
-        
+
+        [DataMember]
+        [BsonElement("unit_cost")]
+        [BsonIgnoreIfNull]
+        public double UnitCost { get; set; }
+
+        [DataMember]
+        [BsonElement("enc_unit_cost")]
+        [BsonIgnoreIfNull]
+        public string EncUnitCost { get; set; }
+
     }
 
     [DataContract]
