@@ -5,10 +5,11 @@ using System.IO;
 using VitalSigns.API.Models;
 using System.Linq;
 
-namespace VitalSigns.API.Utils
+namespace VitalSigns.API
 {
     public class Common
     {
+
         public static Dictionary<string, string> GetServerTypeIcons()
         {
             Dictionary<string, string> serverTypeIcons = new Dictionary<string, string>();
@@ -24,6 +25,11 @@ namespace VitalSigns.API.Utils
             List<ServerType> serverTypeList = (List<ServerType>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerType>));
             var serverType = serverTypeList.Where(x => x.ServerTypeName == serverTypeName).FirstOrDefault();
             return serverType;
+        }
+        public static APIResponse CreateResponse(object data,string status="OK",string message = "Success")
+        {
+            return new APIResponse {Data=data,Status=status,Message=message };
+            
         }
     }
 }

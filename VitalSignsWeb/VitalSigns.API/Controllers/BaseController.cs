@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNet.Mvc;
+﻿using Microsoft.AspNet.Mvc;
+using VitalSigns.API.Models;
 
-// For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace VitalSigns.API.Controllers
 {
     public class BaseController : Controller
     {
+        //public BaseController()
+        //{
+        //    Response = new APIResponse();
+        //}
         public string ConnectionString
         {
             get { return Startup.ConnectionString + @"/" + Startup.DataBaseName; }
@@ -26,5 +26,6 @@ namespace VitalSigns.API.Controllers
                 return _tenantId; }
          
         }
+        protected APIResponse Response { get; set;}
     }
 }

@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace VitalSigns.API.Models
 {
-    public class StatisticsRequest
+    public class StatsData
     {
+        [JsonProperty("device_id")]
+
+        public int DeviceId { get; set; }
 
         [JsonProperty("stat_name")]
         public string StatName { get; set; }
 
-        [JsonProperty("operation")]
-        public string Operation { get; set; }
+        [JsonProperty("stat_value")]
+        public double StatValue { get; set; }
     }
 }
