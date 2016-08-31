@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -76,10 +76,13 @@ namespace VitalSigns.API.Controllers
         /// <author>Kiran Dadireddy</author>
         /// <param name="id"></param>
         /// <returns>Server details</returns>
-        [HttpGet("device_list/{id}")]
+        [HttpGet("device_details")]
         public APIResponse GetServerDetails(string id)
         {
             statusRepository = new Repository<Status>(ConnectionString);
+            
+            var queryItems = Request.RequestUri.ParseQueryString();
+	    string id = queryItems["device_id"];
 
             try
             {
@@ -122,6 +125,9 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetDailyStatName([FromBody]StatisticsRequest request)
         {
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
+            var queryItems = Request.RequestUri.ParseQueryString();
+	    string StatName = queryItems["statname"];
+            
             try
             {
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == request.StatName);
