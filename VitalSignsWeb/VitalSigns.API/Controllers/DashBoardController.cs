@@ -21,6 +21,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<DiskHealth> diskHealthRepository;
         private IRepository<StatusDetails> statusdetailsRepository;
+        private IRepository<Database> databaseRepository;
         /// <summary>
         /// 
         /// </summary>
@@ -361,6 +362,33 @@ namespace VitalSigns.API.Controllers
                 Result = x.Result,
                 Details = x.Details
 
+            });
+            return result.ToList();
+        }
+
+        [HttpGet("{id}/database")]
+
+        public IEnumerable<ServerDatabase> GetDatabase(string id)
+        {
+            databaseRepository = new Repository<Database>(ConnectionString);
+            Expression<Func<Database, bool>> expression = (p => p.Id == id);
+            var result = databaseRepository.Find(expression).Select(x => new ServerDatabase
+            {
+                Title = x.Title, 
+                Status = x.Status,
+                ServerName = x.ServerName,
+                Folder = x.Folder,
+                FolderCount = x.FolderCount,
+                Details = x.Details,
+                FileName = x.FileName,
+                DesignTemplateName = x.DesignTemplateName,
+                FileSize = x.FileSize,
+                Quota = x.Quota,
+                InboxDocCount = x.InboxDocCount,
+                ScanDateTime = x.ScanDateTime,
+                ReplicaId = x.ReplicaId,
+                DocumentCount = x.DocumentCount,
+                Categories = x.Categories
             });
             return result.ToList();
         }

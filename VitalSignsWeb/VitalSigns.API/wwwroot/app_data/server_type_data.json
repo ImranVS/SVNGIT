@@ -28,8 +28,8 @@
             "tab_id": 4,
             "title": "Database",
             "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServiceDatabaseTab",
+            "path": "/app/services/components/service-database-tab.component"
           },
           {
             "tab_id": 5,
