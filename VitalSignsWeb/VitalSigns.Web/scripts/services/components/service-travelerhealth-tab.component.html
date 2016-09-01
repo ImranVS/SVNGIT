@@ -1,0 +1,24 @@
+﻿ <div role="tabpanel" class="tab-pane active" id="overall">
+
+    <div class="visible-xs titleTabMobile">Main Health</div>
+    <div class="row">
+        <div id="zeusContent">
+            <div class="row">
+                <div class="{{widget.css}}" *ngFor="let widget of widgets">
+                    <div class="widgetWrapper">
+                        <div class="widgetTitle">
+                            {{widget.title}}
+                        </div>
+                        <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+                        <div class="widgetContent" id="{{widget.id}}">
+                            <my-widget [title]="widget.title"
+                                       [path]="widget.path"
+                                       [name]="widget.name"
+                                       [settings]="widget.settings">loading...</my-widget>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
