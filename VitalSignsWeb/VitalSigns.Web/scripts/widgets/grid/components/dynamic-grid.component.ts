@@ -23,7 +23,7 @@ export class DynamicGrid implements WidgetComponent, OnInit {
     constructor(private service: RESTService) { }
 
     ngOnInit() {
-       // alert(this.settings.columns[0].header);
+        alert(this.settings.url);
         this.service.get(this.settings.url)
             .subscribe(
             data => this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data)),
