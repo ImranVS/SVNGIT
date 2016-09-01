@@ -32,9 +32,9 @@ export class ServicesView implements OnInit, AfterViewChecked {
     }
 
     loadData() {
-        this.service.get('/services')
+        this.service.get('/Services/device_list')
             .subscribe(
-            data => this.services = data,
+            data => this.services = data.data,
             error => this.errorMessage = <any>error
             );
     }

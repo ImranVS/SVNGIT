@@ -55,18 +55,21 @@ export class ServiceDetails implements OnInit {
         this.route.params.subscribe(params => {
 
             this.serviceId = params['service'];
-
+           
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/${this.serviceId}`)
+            this.dataProvider.get(`/services/device_details?id=${this.serviceId}&destination=dashboard`)
                 .subscribe(
-                data => {
-                    this.service = data;
+                response => {
+                   
+                    this.service = response.data;
                     this.selectTab(this.service.tabs[0]);
                 },
                 error => this.errorMessage = <any>error
                 );
 
+
         });
+       
         
     }
 
