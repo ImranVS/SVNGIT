@@ -21,7 +21,12 @@ namespace VitalSigns.API.Controllers
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<DiskHealth> diskHealthRepository;
         private IRepository<StatusDetails> statusdetailsRepository;
+
+        private IRepository<Status> statusRepository;
+        private IRepository<TravelerStats> travelerRepository;
+
         private IRepository<Database> databaseRepository;
+
         /// <summary>
         /// 
         /// </summary>
@@ -366,6 +371,48 @@ namespace VitalSigns.API.Controllers
             return result.ToList();
         }
 
+
+        [HttpGet("{id}/traveler-health")]
+
+        public IEnumerable<TravelerHealth> GetTravelerHealth(string id)
+        {
+            statusRepository = new Repository<Status>(ConnectionString);
+
+            Expression<Func<Status, bool>> expression = (p => p.Id == id);
+            var result = statusRepository.Find(expression).Select(x => new TravelerHealth
+            {
+               // ID = x.ID,
+                ResourceConstraint = x.ResourceConstraint,
+                TravelerDetails = x.TravelerDetails,
+                TravelerHeartBeat = x.TravelerHeartBeat,
+                TravelerServlet = x.TravelerServlet,
+                TravelerUsers = x.TravelerUsers,
+                TravelerHA = x.TravelerHA,
+                TravelerIncrementalSyncs = x.TravelerIncrementalSyncs,
+                HttpStatus = x.HttpStatus,
+                TravelerDevicesAPIStatus = x.TravelerDevicesAPIStatus,
+            });
+            return result.ToList();
+        }
+
+        [HttpGet("{id}/traveler-mailservers")]
+        public IEnumerable<TravelerHealth> GetTravelerHealthGrid(string id)
+        {
+            travelerRepository = new Repository<TravelerStats>(ConnectionString);
+
+            Expression<Func<TravelerStats, bool>> expression = (p => p.Id == id);
+            var result = travelerRepository.Find(expression).Select(x => new TravelerHealth
+            {
+                // ID = x.ID,
+               MailServerName = x.MailServerName,
+                DateUpdated = x.DateUpdated
+
+
+            });
+            return result.ToList();
+        }
+
+
         [HttpGet("{id}/database")]
 
         public IEnumerable<ServerDatabase> GetDatabase(string id)
@@ -392,5 +439,6 @@ namespace VitalSigns.API.Controllers
             });
             return result.ToList();
         }
+
     }
 }
