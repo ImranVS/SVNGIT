@@ -1,13 +1,11 @@
-﻿<wj-flex-grid [itemsSource]="data"></wj-flex-grid>
+﻿<!--<wj-flex-grid [itemsSource]="data"></wj-flex-grid>-->
 
-<wj-flex-grid #flex
-              [itemsSource]="data"
-              [allowDragging]="'Both'"
-               selectionMode="None">
-            <wj-flex-grid-column *ngFor="let col of settings.columns"
-                             [header]="col.header"
-                             [binding]="col.binding"
-                             [name]="col.name"
-                             [width]="col.width">
-        </wj-flex-grid-column>
+<wj-flex-grid [itemsSource]="data">
+              
+ <wj-flex-grid-column *ngFor="let col of settings.columns"
+                         [header]="col.header"
+                         [binding]="col.binding"
+                         [name]="col.name"
+                         [width]="col.width">
+    </wj-flex-grid-column>
 </wj-flex-grid>
