@@ -39,7 +39,7 @@ namespace VitalSigns.API.Controllers
             {
                 var serviceIcons = Common.GetServerTypeIcons();
                 var result = statusRepository.All().AsQueryable()
-                                     .Select(x => new ServiceStatus
+                                     .Select(x => new ServerStatus
                                      {
                                          Id = x.Id,
                                          Type = x.Type,
@@ -51,7 +51,7 @@ namespace VitalSigns.API.Controllers
                                          Status = x.StatusCode
 
                                      }).ToList();
-                foreach (ServiceStatus item in result)
+                foreach (ServerStatus item in result)
                 {
 
                     if (item.LastUpdated.HasValue)
@@ -77,17 +77,17 @@ namespace VitalSigns.API.Controllers
         /// <param name="id"></param>
         /// <returns>Server details</returns>
         [HttpGet("device_details")]
-        public APIResponse GetServerDetails(string id,string destination,string secondaryRole)
+        public APIResponse GetServerDetails(string id, string destination, string secondaryRole)
         {
 
             statusRepository = new Repository<Status>(ConnectionString);
-            
-          
+
+
             try
             {
                 Expression<Func<Status, bool>> expression = (p => p.Id == id);
                 var result = (statusRepository.Find(expression)
-                                     .Select(x => new ServiceStatus
+                                     .Select(x => new ServerStatus
                                      {
                                          Id = x.Id,
                                          Type = x.Type,
@@ -101,7 +101,7 @@ namespace VitalSigns.API.Controllers
                                      })).FirstOrDefault();
                 var serviceIcons = Common.GetServerTypeIcons();
                 Models.ServerType serverType = Common.GetServerTypeTabs(result.Type);
-                result.Tabs = serverType.Tabs.Where(x=>x.Type.ToUpper()==destination.ToUpper()).ToList();
+                result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper()).ToList();
                 result.Description = "Last Updated: " + result.LastUpdated.Value.ToShortDateString();
                 result.Icon = serverType.Icon;
                 Response = Common.CreateResponse(result);
@@ -114,7 +114,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-      
+
         /// <summary>
         /// Returns daily stats data by deviceid
         /// </summary>
@@ -125,7 +125,7 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetDailyStat(int deviceId, string statName, string operation)
         {
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
-            
+
             try
             {
                 if (deviceId == 0 && !string.IsNullOrEmpty(statName))
@@ -133,11 +133,11 @@ namespace VitalSigns.API.Controllers
                     Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName);
                     var result = dailyRepository.Find(expression).Select(x => new StatsData
                     {
-                        // DeviceId = x.Id,
+                        DeviceId = x.DeviceId,
                         StatName = x.StatName,
                         StatValue = x.StatValue
 
-                    }).Take(100).ToList();
+                    }).ToList();
                     Response = Common.CreateResponse(result);
 
                 }
@@ -150,11 +150,11 @@ namespace VitalSigns.API.Controllers
 
                         var result = dailyRepository.Find(expression).Select(x => new StatsData
                         {
-                            //  DeviceId = x.DeviceId,
+                            DeviceId = x.DeviceId,
                             StatName = x.StatName,
                             StatValue = x.StatValue
 
-                        }).FirstOrDefault();
+                        }).ToList();
                         Response = Common.CreateResponse(result);
                     }
                     else if (!string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
@@ -238,6 +238,8 @@ namespace VitalSigns.API.Controllers
         }
 
 
+
+       
 
     }
 }
