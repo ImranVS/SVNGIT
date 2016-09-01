@@ -18,76 +18,110 @@ namespace VitalSignsLicensing
     {
         //string cs = "mongodb://192.168.1.10:27017/vitalsigns_reference";
         string cs = ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
-        List<ServerType> deviceTypeList;
-        List<Nodes> nodesListAlive;
+        //List<ServerType> deviceTypeList;
+        //List<Nodes> nodesListAlive;
         /// <summary>
         /// reassigns the nodes to all server based on the license and active nodes
         /// first sets all the servers to node "-1" (no node), then checks to see if any nodes are active and if the licenses are adequately available, then does the node assignemnt to the server
         /// </summary>
         private void assignNodesToServers()
         {
-            VSNext.Mongo.Repository.Repository<ServerType> repoDeviceLic = new VSNext.Mongo.Repository.Repository<ServerType>(cs);
-            deviceTypeList = repoDeviceLic.Find(i => i.Name != "").ToList();
-
-            VSNext.Mongo.Repository.Repository<Nodes> repoLiveNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
-            nodesListAlive = repoLiveNodes.Find(i => i.IsAlive == true).ToList();
-
-            bool isHAMode = false;
-            int validUnits = checkLicenseValidity();
-            if (validUnits > 0)
-                isHAMode = getLicenseType();
-
-            VSNext.Mongo.Repository.Repository<Server> repo = new VSNext.Mongo.Repository.Repository<Server>(cs);
-
-            //VSNext.Mongo.Repository.Repository<Nodes> repoNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
-            //List<Nodes> nodesList = repoNodes.Find(i => i.Name != "").ToList();
-
-            //first set all to -1:  do not assign any node
-            FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repo.Filter.Where(i => i.IsEnabled == true);
-            UpdateDefinition<VSNext.Mongo.Entities.Server> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Server>);
-            updatedef = repo.Updater
-                .Set(i => i.CurrentNode, "-1")
-                .Set(i => i.LicenseCost, 0);
-            repo.Update(filterdef, updatedef);
-            if (nodesListAlive.Count >0)
+            try
             {
 
-            List<Server> serverList = repo.Find(i => i.IsEnabled == true).ToList();
-            //check units
-            if (validUnits>0)
-            {
-                VSNext.Mongo.Repository.Repository<Server> repo2 = new VSNext.Mongo.Repository.Repository<Server>(cs);
-                //loop thru each server and assign node
-                foreach (Server s in serverList)
+                VSNext.Mongo.Repository.Repository<ServerType> repoDeviceLic = new VSNext.Mongo.Repository.Repository<ServerType>(cs);
+                List<ServerType> deviceTypeList = repoDeviceLic.All().ToList();
+
+                VSNext.Mongo.Repository.Repository<Nodes> repoLiveNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
+                List<Nodes> nodesListAlive = repoLiveNodes.Find(i => i.IsAlive == true).ToList();
+
+                VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(cs);
+                List<License> licenseList = repoLic.Find(i => i.LicenseKey != "").ToList();
+
+                bool isHAMode = false;
+                int validUnits = checkLicenseValidity(licenseList);
+                if (validUnits > 0)
+                    isHAMode = getLicenseType(licenseList);
+
+                revokeNodeFromAllServers();
+
+                if (validUnits == 0)
                 {
-                    if (canAssignServerToNode(s.DeviceType, validUnits))
+                    //raise system message about insufficient license
+                    return;
+                }
+                    
+                VSNext.Mongo.Repository.Repository<Server> repo = new VSNext.Mongo.Repository.Repository<Server>(cs);
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repo.Filter.Where(i => i.IsEnabled == true);
+                ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDef = repo.Project.Include(i => i.CurrentNode).Include(i => i.DeviceType).Include(i => i.LicenseCost).Include(i => i.DeviceName);
+                List<Server> serverList = repo.Find(filterdef, projectDef).ToList();
+                   
+                //first set all servers node to -1 and cost to 0
+                serverList= serverList.Select(c => {c.CurrentNode = "-1"; c.CostPerUser =0; return c;}).ToList();
+
+                if (nodesListAlive.Count > 0)
+                {
+
+                    VSNext.Mongo.Repository.Repository<Server> repo2 = new VSNext.Mongo.Repository.Repository<Server>(cs);
+                    //loop thru each server and assign node
+                    foreach (Server s in serverList)
                     {
-                        FilterDefinition<VSNext.Mongo.Entities.Server> filterdef1 = repo2.Filter.Where(i => i.DeviceName == s.DeviceName );
+                        FilterDefinition<VSNext.Mongo.Entities.Server> filterdef1 = repo2.Filter.Where(i => i.DeviceName == s.DeviceName);
                         UpdateDefinition<VSNext.Mongo.Entities.Server> updatedef1 = default(UpdateDefinition<VSNext.Mongo.Entities.Server>);
-                        string n = getFreeNode(s);
-                        double licenseCost = getLicenseCost(s.DeviceType);
-                        if (n == "")
+                        string n = "-1";
+                        double licenseCost = 0;
+                        if (isFreeLicenseAvailable(s.DeviceType, validUnits, serverList, deviceTypeList))
                         {
-                            n = "-1";
-                            licenseCost = 0;
+                            n = getFreeNode(s, nodesListAlive, serverList);
+                            licenseCost = getLicenseCost(s.DeviceType, deviceTypeList);
+                            if (n == "")
+                            {
+                                n = "-1";
+                                licenseCost = 0;
+                            }
                         }
                         updatedef1 = repo2.Updater
-                            .Set(i => i.LicenseCost, licenseCost )
-                            .Set(i => i.CurrentNode, n);
+                              .Set(i => i.LicenseCost, licenseCost)
+                              .Set(i => i.CurrentNode, n);
                         repo2.Update(filterdef1, updatedef1);
+                        s.CurrentNode = n;
+                        s.LicenseCost = licenseCost;
                     }
                 }
-            }
-        }
-           
+                else
+                    revokeNodeFromAllServers();
 
+            }
+            catch(Exception ex )
+            {
+                string s = ex.Message.ToString();
+            }
+
+        }
+        private void revokeNodeFromAllServers()
+        {
+            try
+            {
+                VSNext.Mongo.Repository.Repository<Server> repo = new VSNext.Mongo.Repository.Repository<Server>(cs);
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repo.Filter.Where(i => i.IsEnabled == true);
+                UpdateDefinition<VSNext.Mongo.Entities.Server> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Server>);
+                updatedef = repo.Updater
+                    .Set(i => i.CurrentNode, "-1")
+                    .Set(i => i.LicenseCost, 0);
+                repo.Update(filterdef, updatedef);
+            }
+            catch
+            {
+
+            }
+           
         }
         /// <summary>
         /// gets the license cost for this type of device
         /// </summary>
         /// <param name="deviceType"></param>
         /// <returns></returns>
-        private double getLicenseCost(string deviceType)
+        private double getLicenseCost(string deviceType,List<ServerType> deviceTypeList)
         {
             double tempCost = 0;
             try
@@ -111,132 +145,169 @@ namespace VitalSignsLicensing
             checkNodeHealth();
             assignNodesToServers();
         }
-        private string getFreeNode(Server s1)
+        private string getFreeNode(Server s1, List<Nodes> nodesListAlive, List<Server> serverListAll)
         {
             string returnNode = "";
-            double loadFactor = 0;
-            bool isLoadBalanced = true;
-            if (nodesListAlive.Count == 0)
-                return "-1";
-            //VSNext.Mongo.Repository.Repository<Nodes> repo = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
-            //List<Nodes> nodesList = repo.Find(i => i.IsAlive == true).ToList();
+            try
+            {
+                double loadFactor = 0;
+                bool isLoadBalanced = true;
+                if (nodesListAlive.Count == 0)
+                    return "-1";
+                //VSNext.Mongo.Repository.Repository<Nodes> repo = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
+                //List<Nodes> nodesList = repo.Find(i => i.IsAlive == true).ToList();
                 //loop thru each server and assign node
-            if (nodesListAlive.Count == 1)
-            {
-                //just return the one node
-                returnNode = nodesListAlive[0].Name;
-                return returnNode;
-            }
-            else
-            {
-                //compute the load factor. It has to be equal to 100%
-                foreach (Nodes s in nodesListAlive)
+                if (nodesListAlive.Count == 1)
                 {
-                    if (s.LoadFactor != null)
-                        loadFactor += s.LoadFactor;
+                    //just return the one node
+                    returnNode = nodesListAlive[0].Name;
+                    return returnNode;
                 }
-                //if the user has made an error of not properly distributing the load, we will divide equally
-                if (loadFactor !=100)
-                {
-                    isLoadBalanced = false;
-                    loadFactor = 100 / nodesListAlive.Count;
-
-                }
-            }
-               
-
-            bool isPreferredNodeAlive =false;
-
-            //check if preferred node is alive
-            if (s1.AssignedNode != "")
-            {
-                foreach (Nodes s in nodesListAlive)
-                {
-                    if (s.Name == s1.AssignedNode)
-                        isPreferredNodeAlive = true;
-                }
-            }
-            VSNext.Mongo.Repository.Repository<Server> repoServers = new VSNext.Mongo.Repository.Repository<Server>(cs);
-            double useLoadFactor = 100;
-           //get the appropriate node
-            foreach (Nodes s in nodesListAlive)
-            {
-                List<Server> serverListNode = repoServers.Find(i => i.IsEnabled == true && i.CurrentNode == s.Name).ToList();
-                List<Server> serverListAll = repoServers.Find(i => i.IsEnabled == true).ToList();
-                //if load on the node is less or the node is set as preferred node
-                if (serverListNode.Count == 0)
-                {
-                    returnNode = s.Name;
-                    break;
-                }
-                if (isLoadBalanced)
-                    useLoadFactor = s.LoadFactor;
                 else
-                    useLoadFactor = loadFactor;
-
-                double nodeLoad = Convert.ToDouble(serverListNode.Count) / Convert.ToDouble(serverListAll.Count);
-                nodeLoad = nodeLoad * 100;
-
-                if ((nodeLoad < useLoadFactor) || (s1.AssignedNode != "" && isPreferredNodeAlive))
                 {
-                    //code to set the preferred node
-                    if ( isPreferredNodeAlive && s.Name ==s1.AssignedNode)
+                    //compute the load factor. It has to be equal to 100%
+                    foreach (Nodes s in nodesListAlive)
+                    {
+                        if (s.LoadFactor != null)
+                            loadFactor += s.LoadFactor;
+                    }
+                    //if the user has made an error of not properly distributing the load, we will divide equally
+                    if (loadFactor != 100)
+                    {
+                        isLoadBalanced = false;
+                        loadFactor = 100 / nodesListAlive.Count;
+
+                    }
+                }
+
+
+                bool isPreferredNodeAlive = false;
+
+                //check if preferred node is alive
+                if (s1.AssignedNode != "")
+                {
+                    foreach (Nodes s in nodesListAlive)
+                    {
+                        if (s.Name == s1.AssignedNode)
+                            isPreferredNodeAlive = true;
+                    }
+                }
+                VSNext.Mongo.Repository.Repository<Server> repoServers = new VSNext.Mongo.Repository.Repository<Server>(cs);
+                double useLoadFactor = 100;
+                //get the appropriate node
+                foreach (Nodes s in nodesListAlive)
+                {
+                    //List<Server> serverListNode = repoServers.Find(i => i.IsEnabled == true && i.CurrentNode == s.Name).ToList();
+                    FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repoServers.Filter.Where(i => i.IsEnabled == true && i.CurrentNode == s.Name);
+                    ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDef = repoServers.Project.Include(i => i.CurrentNode);
+                    List<Server> serverListNode = repoServers.Find(filterdef, projectDef).ToList();
+
+                    //List<Server> serverListAll = repoServers.Find(i => i.IsEnabled == true).ToList();
+                    //if load on the node is less or the node is set as preferred node
+                    if (serverListNode.Count == 0)
                     {
                         returnNode = s.Name;
                         break;
                     }
-                    returnNode = s.Name;
+                    if (isLoadBalanced)
+                        useLoadFactor = s.LoadFactor;
+                    else
+                        useLoadFactor = loadFactor;
+
+                    double nodeLoad = Convert.ToDouble(serverListNode.Count) / Convert.ToDouble(serverListAll.Count);
+                    nodeLoad = nodeLoad * 100;
+
+                    if ((nodeLoad < useLoadFactor) || (s1.AssignedNode != "" && isPreferredNodeAlive))
+                    {
+                        //code to set the preferred node
+                        if (isPreferredNodeAlive && s.Name == s1.AssignedNode)
+                        {
+                            returnNode = s.Name;
+                            break;
+                        }
+                        returnNode = s.Name;
                         break;
-                   
+
+                    }
                 }
             }
+            catch
+            {
+            }
+
             return returnNode;
         }
-        private bool  canAssignServerToNode(string deviceType,int units)
+        private bool isFreeLicenseAvailable(string deviceType, int units, List<Server> serverList, List<ServerType> deviceTypeList)
         {
-           
-            double tempCost=0;
-            double totalCost = 0;
-            foreach (ServerType s in deviceTypeList)
+            bool licAvailable = false;
+            try
             {
-                if (s.Name == deviceType)
-                    tempCost = s.UnitCost;
-            }
-               
-            VSNext.Mongo.Repository.Repository<Server> repo = new VSNext.Mongo.Repository.Repository<Server>(cs);
-            List<Server> serverList = repo.Find(i => i.IsEnabled == true).ToList();
-                //loop thru each server and assign node
+                double tempCost = 0;
+                double totalCost = 0;
+                try
+                {
+                    tempCost = deviceTypeList.Single(c => c.Name == deviceType).UnitCost;
+                }
+                catch
+                {
+                    tempCost = 0;
+                }
 
-            foreach (Server s in serverList)
-                totalCost += s.LicenseCost;
-            double remainingUnits = units - totalCost;
-            if (remainingUnits >= tempCost)
-                return true;
-            else
-                return false;
+                try
+                {
+                    totalCost = serverList.Sum(s => s.LicenseCost);
+                }
+                catch
+                {
+                }
+
+                
+                //    totalCost += s.LicenseCost;
+                double remainingUnits = units - totalCost;
+                if (remainingUnits >= tempCost)
+                    licAvailable= true;
+                else
+                    licAvailable= false;
+            }
+            catch
+            {
+
+            }
+            return licAvailable;
+            
         }
-        private int checkLicenseValidity()
+        private int checkLicenseValidity(List<License> licenseList)
         {
             int units = 0;
-            VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(cs);
-            List<License> licenseList = repoLic.Find(i => i.LicenseKey != "").ToList();
-            foreach (License s in licenseList)
+            units=licenseList.Where(c => c.ExpirationDate > DateTime.Now && c.units > 0).Sum(c => c.units);
+            try
             {
-                if (s.ExpirationDate >DateTime.Now && s.units >0)
-                    units= s.units;
+                foreach (License s in licenseList)
+                {
+                    if (s.ExpirationDate > DateTime.Now && s.units > 0)
+                        units = s.units;
+                }
             }
+            catch
+            {
+            }
+           
             return units;
         }
-        private bool getLicenseType()
+        private bool getLicenseType(List<License> licenseList)
         {
             bool isHAMode = false;
-            VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(cs);
-            List<License> licenseList = repoLic.Find(i => i.LicenseKey != "").ToList();
-            foreach (License s in licenseList)
+            try
             {
-                if (s.InstallType == "HA")
-                    isHAMode = true;
+            if ( licenseList.Where(c => c.InstallType == "HA").Count() > 0)
+                        isHAMode = true;
             }
+                
+            catch
+            {
+
+            }
+           
             return isHAMode;
         }
         /// <summary>
@@ -246,22 +317,29 @@ namespace VitalSignsLicensing
         /// <param name="hostName"></param>
         private void createNode(string nodeName,string hostName)
         {
-            //update the last ping time in the appropriate node
-            VSNext.Mongo.Repository.Repository<Nodes> repoNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
-            List<Nodes> nodesList = repoNodes.Find(i => i.Name == nodeName).ToList();
-            List<Nodes> allLiveNodes = repoNodes.Find(i => i.IsAlive ==true ).ToList();
-
-            if (nodesList.Count == 0)
+            try
             {
-                Nodes n = new Nodes();
-                //if none of the nodes are alive mark this as primary
-                if (allLiveNodes.Count == 0)
-                    n.IsPrimary = true;
-                n.Pulse = DateTime.UtcNow;
-                n.Name = nodeName;
-                n.HostName = hostName;
-                repoNodes.Insert(n);
+                //update the last ping time in the appropriate node
+                VSNext.Mongo.Repository.Repository<Nodes> repoNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
+                List<Nodes> nodesList = repoNodes.Find(i => i.Name == nodeName).ToList();
+                List<Nodes> allLiveNodes = repoNodes.Find(i => i.IsAlive == true).ToList();
+
+                if (nodesList.Count == 0)
+                {
+                    Nodes n = new Nodes();
+                    //if none of the nodes are alive mark this as primary
+                    if (allLiveNodes.Count == 0)
+                        n.IsPrimary = true;
+                    n.Pulse = DateTime.UtcNow;
+                    n.Name = nodeName;
+                    n.HostName = hostName;
+                    repoNodes.Insert(n);
+                }
             }
+            catch
+            {
+            }
+           
         }
         /// <summary>
         /// Master service should call this sub every minute. 
@@ -273,56 +351,72 @@ namespace VitalSignsLicensing
         {
             //createLicense();
             createNode(node, hostName);
-            //createDeviceTypeLicense();
-            //update the last ping time in the appropriate node
-            VSNext.Mongo.Repository.Repository<Nodes> repoNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
-            List<Nodes> nodesList = repoNodes.Find(i => i.Name == node).ToList();
-            bool triggerServerRefresh = false;
-            foreach (Nodes s in nodesList)
+            try
             {
-                if (!s.IsAlive)
-                     triggerServerRefresh = true;
-               
+                //createDeviceTypeLicense();
+                //update the last ping time in the appropriate node
+                VSNext.Mongo.Repository.Repository<Nodes> repoNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
+                List<Nodes> nodesList = repoNodes.Find(i => i.Name == node).ToList();
+                bool triggerServerRefresh = false;
+                foreach (Nodes s in nodesList)
+                {
+                    if (!s.IsAlive)
+                        triggerServerRefresh = true;
 
-                //update the nodetime
-                FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == node);
-                UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
-                updatedef = repoNodes.Updater
-                    .Set(i => i.IsAlive, true)
-                    .Set(i => i.Pulse, DateTime.UtcNow);
-                repoNodes.Update(filterdef, updatedef);
+
+                    //update the nodetime
+                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == node);
+                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
+                    updatedef = repoNodes.Updater
+                        .Set(i => i.IsAlive, true)
+                        .Set(i => i.Pulse, DateTime.UtcNow);
+                    repoNodes.Update(filterdef, updatedef);
+                }
+
+                //node up or down
+                if (checkNodeHealth() || triggerServerRefresh)
+                    assignNodesToServers();
             }
-
-            //node up or down
-            if (checkNodeHealth() || triggerServerRefresh)
-                assignNodesToServers();
+            catch
+            {
+            }
+           
         }
         //check if all the nodes are pinging and set the alive status accordingly
         private bool  checkNodeHealth()
         {
-            //update the last ping time in the appropriate node
-            VSNext.Mongo.Repository.Repository<Nodes> repoNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
-            List<Nodes> nodesListAll = repoNodes.All().ToList();
             bool triggerServerRefresh = false;
-            foreach (Nodes s in nodesListAll)
-            {
-                if ( (s.Pulse < DateTime.UtcNow.AddMinutes(-5) || s.Pulse ==null) && s.IsAlive )
-                {
-                    //update the nodetime
-                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
-                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
-                    updatedef = repoNodes.Updater
-                        .Set(i => i.IsAlive, false);
-                    repoNodes.Update(filterdef, updatedef);
-                    //node went down
-                    triggerServerRefresh = true;
 
+            try
+            {
+                //update the last ping time in the appropriate node
+                VSNext.Mongo.Repository.Repository<Nodes> repoNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
+                List<Nodes> nodesListAll = repoNodes.All().ToList();
+                foreach (Nodes s in nodesListAll)
+                {
+                    if ((s.Pulse < DateTime.UtcNow.AddMinutes(-5) || s.Pulse == null) && s.IsAlive)
+                    {
+                        //update the nodetime
+                        FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
+                        UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
+                        updatedef = repoNodes.Updater
+                            .Set(i => i.IsAlive, false);
+                        repoNodes.Update(filterdef, updatedef);
+                        //node went down
+                        triggerServerRefresh = true;
+
+                    }
                 }
-            }
-            //code to trigger system message that master is not running
-            //List<Nodes> nodesListAlive = repoNodes.Find(i => i.IsAlive == true).ToList();
-            //if (nodesListAlive.Count ==0)
+                //code to trigger system message that master is not running
+                //List<Nodes> nodesListAlive = repoNodes.Find(i => i.IsAlive == true).ToList();
+                //if (nodesListAlive.Count ==0)
                 //trigger system message
+            }
+            catch
+            {
+            }
+
+           
             return triggerServerRefresh;
         }
         #region utilities
