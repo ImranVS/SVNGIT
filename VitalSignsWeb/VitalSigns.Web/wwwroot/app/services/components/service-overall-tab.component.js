@@ -130,7 +130,7 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                             settings: {
-                                url: "/services/statistics?statname=Platform.System.PctCombinedCpuUtil&serverid=" + this.serviceId,
+                                url: "http://localhost:50278/services/" + this.serviceId + "/overall/cpu-usage",
                                 chart: {
                                     chart: {
                                         renderTo: 'cpuUsage',

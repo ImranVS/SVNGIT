@@ -47,11 +47,12 @@
 	margin-bottom:0;
 	margin-top: 10px;
 }
-#mobileUsersTable .notificationIcon {
+
+.notificationIcon {
 	cursor: pointer;
 }
 
-#mobileUsersTable .notificationIcon.active {
+.notificationIcon.active {
 	color: #5fbe7f;
 }
 
@@ -124,6 +125,8 @@
 #serversListWrapper .aServer .serverIcon svg {
 	fill: #FFFFFF;
 	vertical-align: middle;
+    height: 41px;
+    width: 41px;
 }
 
 #serversListWrapper .aServer .serverIcon .helper {

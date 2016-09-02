@@ -5,12 +5,21 @@ import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
+import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
+import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
+import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 
 @Component({
-    template: `
-<wj-flex-grid [itemsSource]="data" selectionMode="None"></wj-flex-grid>
-`,
-    directives: [wjFlexGrid.WjFlexGrid, wjFlexGrid.WjFlexGridColumn],
+    templateUrl: './app/widgets/grid/components/sample-grid.component.html',
+    directives: [
+        wjFlexGrid.WjFlexGrid,
+        wjFlexGrid.WjFlexGridColumn,
+        wjFlexGrid.WjFlexGridCellTemplate,
+        wjFlexGridFilter.WjFlexGridFilter,
+        wjFlexGridGroup.WjGroupPanel,
+        wjFlexInput.WjMenu,
+        wjFlexInput.WjMenuItem
+    ],
     providers: [
         HTTP_PROVIDERS,
         RESTService
@@ -23,14 +32,41 @@ export class SampleGrid implements WidgetComponent, OnInit {
     errorMessage: string;
     
     constructor(private service: RESTService) { }
-    
+
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+        }
+    }
+
     ngOnInit() {
-    
-        this.service.get('/mobile_user_devices')
+
+        this.service.get('/mobile_users')
             .subscribe(
-            data => this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data)),
-            error => this.errorMessage = <any>error
+            (data) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data));
+                this.data.pageSize = 10;
+            },
+            (error) => this.errorMessage = <any>error
             );
+
+    }
+
+    getAccessColor(access: string) {
+
+        switch (access) {
+            case 'Allow':
+                return 'green';
+            case 'Blocked':
+                return 'red';
+            default:
+                return '';
+        }
 
     }
 }
