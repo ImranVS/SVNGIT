@@ -69,76 +69,76 @@
         ]
 
       },
+  {
+    "server_type": "Domino",
+    "icon": "/img/servers/ServerDaysUp.svg",
+    "tabs": [
       {
-        "server_type": "Domino",
-        "icon": "/img/servers/Paintbrush.svg",
-        "tabs": [
-          {
-            "tab_id": 1,
-            "title": "Overall",
-            "type": "Dashboard",
-            "component": "ServiceOverallTab",
-            "path": "/app/services/components/service-overall-tab.component"
-          },
-          {
-            "tab_id": 2,
-            "title": "Main Health",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-          {
-            "tab_id": 3,
-            "title": "Traveler Health",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-          {
-            "tab_id": 4,
-            "title": "Database",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-          {
-            "tab_id": 5,
-            "title": "Tasks",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-          {
-            "tab_id": 6,
-            "title": "Maintenance",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-          {
-            "tab_id": 7,
-            "title": "Alerts",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-          {
-            "tab_id": 8,
-            "title": "Outages",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-          {
-            "tab_id": 9,
-            "title": "Admin",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          }
-        ]
-
+        "tab_id": 1,
+        "title": "Overall",
+        "type": "Dashboard",
+        "component": "ServiceOverallTab",
+        "path": "/app/services/components/service-overall-tab.component"
       },
+      {
+        "tab_id": 2,
+        "title": "Main Health",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "Traveler Health",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 4,
+        "title": "Database",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 5,
+        "title": "Tasks",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 6,
+        "title": "Maintenance",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 7,
+        "title": "Alerts",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 8,
+        "title": "Outages",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 9,
+        "title": "Admin",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      }
+    ]
+
+  },
 
       {
         "server_type": "Database Availability Group",
