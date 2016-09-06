@@ -1,6 +1,7 @@
 ﻿Imports System.Threading
 Imports VSFramework
 Imports VSNext.Mongo.Entities
+Imports MongoDB.Driver
 
 Partial Public Class VitalSignsPlusDomino
 
@@ -58,56 +59,63 @@ Partial Public Class VitalSignsPlusDomino
         'start with fresh data
 
         'Connect to the data source
-        Dim dsNotesDatabases As New Data.DataSet
 
         WriteAuditEntry(vbCrLf & Now.ToString & " Creating a dataset in CreateNotesDatabaseCollection." & vbCrLf)
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
         Try
 
-            Dim strSQL As String
-            'Dim strSQL As String = " SELECT Category, Enabled, FileName, ID, Name, OffHoursScanInterval, ResponseThreshold, RetryInterval, ScanInterval, ServerName, TriggerType, TriggerValue, AboveBelow, ReplicationDestination, InitiateReplication FROM NotesDatabases"
-
-			strSQL = " Select ds.ID, srv.ServerName AS ServerName, ds.Name, ds.Category, loc.Location, ScanInterval, Enabled, OffHoursScanInterval, ds.ResponseThreshold, RetryInterval, FileName, TriggerType, "
-			strSQL += " TriggerValue, AboveBelow, ReplicationDestination, InitiateReplication, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID "
-			strSQL += " FROM "
-			strSQL += " dbo.NotesDatabases ds "
-			strSQL += " inner join dbo.Servers srv on ds.ServerId=srv.ID "
-			strSQL += " inner join dbo.Locations Loc  on srv.LocationId=Loc.Id "
-			If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
-
-				Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-
-				strSQL += " inner join DeviceInventory di on ds.ID=di.DeviceID and di.DeviceTypeId=9  "
-				strSQL += " inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" & NodeName & "' "
-			End If
-
-			strSQL += " left outer join Status st on st.Type=(select ServerType From ServerTypes Where ID=9) and st.Name=ds.Name  "
-
-			strSQL += " WHERE ds.Enabled = 1 "
+            'Removed AboveBelow...does not appear to be used anymore
 
 
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.Category) _
+                .Include(Function(x) x.LocationId) _
+                .Include(Function(x) x.ScanInterval) _
+                .Include(Function(x) x.IsEnabled) _
+                .Include(Function(x) x.OffHoursScanInterval) _
+                .Include(Function(x) x.ResponseTime) _
+                .Include(Function(x) x.RetryInterval) _
+                .Include(Function(x) x.DatabaseFileName) _
+                .Include(Function(x) x.TriggerType) _
+                .Include(Function(x) x.TriggerValue) _
+                .Include(Function(x) x.InitiateReplication) _
+                .Include(Function(x) x.ReplicationDestination) _
+                .Include(Function(x) x.CurrentNode)
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
+            Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
+            Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+                .Include(Function(x) x.StatusCode) _
+                .Include(Function(x) x.CurrentStatus) _
+                .Include(Function(x) x.LastUpdated) _
+                .Include(Function(x) x.Type) _
+                .Include(Function(x) x.Name)
 
+            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
-			WriteAuditEntry(Now.ToString & " SQL statement is: " & vbCrLf & strSQL & vbCrLf)
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsNotesDatabases, "NotesDatabases")
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateNotesDatabaseCollection processing code. Exception: " & ex.Message)
+            Exit Sub
+        End Try
 
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateNotesDatabaseCollection processing code. Exception: " & ex.Message)
-			Exit Sub
-		End Try
-
+        WriteAuditEntry(Now.ToString & " There are " & listOfServers.Count().ToString() & " Notes Database servers found in the database", LogLevel.Normal)
 
         '***
         'but first delete any that are in the collection but not in the database anymore
         'Delete propagation
-        Dim myDataRow As System.Data.DataRow
         Dim MyServerNames As String = ""
         If MyNotesDatabases.Count > 0 Then
             WriteAuditEntry(Now.ToString & " Checking to see if any Notes databases should be deleted. ")
             'Get all the names of all the servers in the data table
-            For Each myDataRow In dsNotesDatabases.Tables("NotesDatabases").Rows()
-                MyServerNames += myDataRow.Item("Name") & "  "
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                MyServerNames += entity.DeviceName & "  "
             Next
         End If
 
@@ -146,16 +154,15 @@ Partial Public Class VitalSignsPlusDomino
         'Add / Update Notes databases
 
         Dim i As Integer = 0
-		WriteAuditEntry(Now.ToString & "  Reading configuration settings for Notes Databases.", LogLevel.Verbose)
+        WriteAuditEntry(Now.ToString & "  Reading configuration settings for Notes Databases.", LogLevel.Verbose)
         'Add the network Devices to the collection
 
         Try
             Dim myString As String = ""
-            Dim dr As DataRow
-            For Each dr In dsNotesDatabases.Tables("NotesDatabases").Rows
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
                 i += 1
                 Dim MyName As String
-                MyName = dr.Item("Name")
+                MyName = entity.DeviceName
 
                 If InStr(MyName, "'") > 0 Then
                     MyName = MyName.Replace("'", "")
@@ -191,37 +198,55 @@ Partial Public Class VitalSignsPlusDomino
                 With MyNotesDatabase
 
                     Try
-                        If dr.Item("FileName") Is Nothing Then
-                            .FileName = ""
+                        If entity.Id Is Nothing Then
+                            .ServerObjectID = ""
                             WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
                         Else
-                            .FileName = dr.Item("FileName")
+                            .ServerObjectID = entity.Id
                         End If
                     Catch ex As Exception
-                        .FileName = ""
-                        WriteAuditEntry(Now.ToString & " Error:  No filename specified for " & .Name)
+                        .ServerObjectID = ""
+                        WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
                     End Try
 
                     Try
-						.OffHours = OffHours(MyName)
+                        If entity.DatabaseFileName Is Nothing Then
+                            .FileName = ""
+                            WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                        Else
+                            .FileName = entity.DatabaseFileName
+                        End If
+                    Catch ex As Exception
+                        .FileName = ""
+                        WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                    End Try
+
+                    Try
+                        .OffHours = OffHours(MyName)
                     Catch ex As Exception
                         .OffHours = False
                     End Try
 
                     Try
-                        .Location = dr.Item("Location")
+
+                        Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
+                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                        Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias.ToString()
+
+                        .Location = locationAlias
                         WriteAuditEntry(Now.ToString & " The location for this Notes database is " & .Location)
+
                     Catch ex As Exception
                         .Location = "Unknown"
                     End Try
 
 
                     Try
-                        If dr.Item("ServerName") Is Nothing Then
+                        If entity.DeviceName Is Nothing Then
                             .ServerName = ""
                             WriteAuditEntry(Now.ToString & " Error: No Server Name specified for " & .Name)
                         Else
-                            .ServerName = dr.Item("ServerName")
+                            .ServerName = entity.DeviceName
                         End If
                     Catch ex As Exception
                         .ServerName = ""
@@ -229,25 +254,25 @@ Partial Public Class VitalSignsPlusDomino
                         WriteAuditEntry(Now.ToString & " Error:  No Server Name specified for " & .Name)
                     End Try
 
+                    'Commented out since it does not appear to be used
+                    'Try
+                    '    If dr.Item("AboveBelow") Is Nothing Then
+                    '        .AboveBelow = "Above"
+                    '        WriteAuditEntry(Now.ToString & " Note: Whether to alert above or below the threshold value not specified for " & .Name & ", 'above' assumed.")
+                    '    Else
+                    '        .AboveBelow = dr.Item("AboveBelow")
+                    '    End If
+                    'Catch ex As Exception
+                    '    .AboveBelow = "Above"
+                    '    'WriteAuditEntry(Now.ToString & " Error: Above or Below threshold value not specified for " & .Name & ", 'above' assumed.  Error: " & ex.ToString)
+                    'End Try
 
                     Try
-                        If dr.Item("AboveBelow") Is Nothing Then
-                            .AboveBelow = "Above"
-                            WriteAuditEntry(Now.ToString & " Note: Whether to alert above or below the threshold value not specified for " & .Name & ", 'above' assumed.")
-                        Else
-                            .AboveBelow = dr.Item("AboveBelow")
-                        End If
-                    Catch ex As Exception
-                        .AboveBelow = "Above"
-                        'WriteAuditEntry(Now.ToString & " Error: Above or Below threshold value not specified for " & .Name & ", 'above' assumed.  Error: " & ex.ToString)
-                    End Try
-
-                    Try
-                        If dr.Item("TriggerType") Is Nothing Then
+                        If entity.TriggerType Is Nothing Then
                             .TriggerType = "Database Disappearance"
                             WriteAuditEntry(Now.ToString & " Error: No trigger type specified for " & .Name)
                         Else
-                            .TriggerType = dr.Item("TriggerType")
+                            .TriggerType = entity.TriggerType
                         End If
                     Catch ex As Exception
                         .TriggerType = "Database Disappearance"
@@ -258,10 +283,10 @@ Partial Public Class VitalSignsPlusDomino
 
                     Dim myTriggerThreshold As Long
                     Try
-                        If dr.Item("TriggerValue") Is Nothing Then
+                        If entity.TriggerValue Is Nothing Then
                             WriteAuditEntry(Now.ToString & " Error: No trigger threshold specified for " & .Name)
                         Else
-                            myTriggerThreshold = dr.Item("TriggerValue")
+                            myTriggerThreshold = entity.TriggerValue
                             WriteAuditEntry(Now.ToString & " This Notes database uses trigger: " & .TriggerType)
                             Select Case .TriggerType
                                 Case "Database Size"
@@ -284,11 +309,11 @@ Partial Public Class VitalSignsPlusDomino
                                     'Read the keys of the servers it is supposed to replicate with
 
                                     Try
-                                        If dr.Item("ReplicationDestination") Is Nothing Then
+                                        If entity.ReplicationDestination Is Nothing Then
                                             .ReplicationDestination = ""
                                             WriteAuditEntry(Now.ToString & " Note: Replication Destination value not specified for " & .Name)
                                         Else
-                                            .ReplicationDestination = dr.Item("ReplicationDestination")
+                                            .ReplicationDestination = String.Join(",", entity.ReplicationDestination)
                                             ' WriteAuditEntry(Now.ToString & " Note: Replication Destination value is " & .ReplicationDestination)
                                         End If
                                     Catch ex As Exception
@@ -298,11 +323,11 @@ Partial Public Class VitalSignsPlusDomino
 
                                     'InitiateReplication
                                     Try
-                                        If dr.Item("InitiateReplication") Is Nothing Then
+                                        If entity.InitiateReplication Is Nothing Then
                                             .InitiateReplication = False
                                             WriteAuditEntry(Now.ToString & " Note: Initiate Replication value not specified for " & .Name)
                                         Else
-                                            .InitiateReplication = dr.Item("InitiateReplication")
+                                            .InitiateReplication = entity.InitiateReplication
                                             WriteAuditEntry(Now.ToString & " Note: Replication Destination value is " & .ReplicationDestination)
                                         End If
                                     Catch ex As Exception
@@ -364,10 +389,10 @@ Partial Public Class VitalSignsPlusDomino
                     myTriggerThreshold = Nothing
 
                     Try
-                        If dr.Item("Enabled") Is Nothing Then
+                        If entity.IsEnabled Is Nothing Then
                             .Enabled = True
                         Else
-                            .Enabled = dr.Item("Enabled")
+                            .Enabled = entity.IsEnabled
                         End If
 
                     Catch ex As Exception
@@ -382,22 +407,22 @@ Partial Public Class VitalSignsPlusDomino
                         .Status = "Not Scanned"
                     End If
 
-					Try
-						If dr.Item("ResponseThreshold") Is Nothing Then
-							.ResponseThreshold = 100
-						Else
-							.ResponseThreshold = dr.Item("ResponseThreshold")
-						End If
-					Catch ex As Exception
-						.ResponseThreshold = 100
-					End Try
+                    Try
+                        If entity.ResponseTime Is Nothing Then
+                            .ResponseThreshold = 100
+                        Else
+                            .ResponseThreshold = entity.ResponseTime
+                        End If
+                    Catch ex As Exception
+                        .ResponseThreshold = 100
+                    End Try
 
 
                     Try
-                        If dr.Item("ScanInterval") Is Nothing Then
+                        If entity.ScanInterval Is Nothing Then
                             .ScanInterval = 10
                         Else
-                            .ScanInterval = dr.Item("ScanInterval")
+                            .ScanInterval = entity.ScanInterval
                         End If
                     Catch ex As Exception
                         .ScanInterval = 10
@@ -405,20 +430,20 @@ Partial Public Class VitalSignsPlusDomino
                     WriteAuditEntry(Now.ToString & " Scan Interval is " & .ScanInterval)
 
                     Try
-                        If dr.Item("OffHoursScanInterval") Is Nothing Then
+                        If entity.OffHoursScanInterval Is Nothing Then
                             .OffHoursScanInterval = 30
                         Else
-                            .OffHoursScanInterval = dr.Item("OffHoursScanInterval")
+                            .OffHoursScanInterval = entity.OffHoursScanInterval
                         End If
                     Catch ex As Exception
                         .OffHoursScanInterval = 30
                     End Try
                     Try
                         '   WriteAuditEntry(Now.ToString & "Adding Category")
-                        If dr.Item("Category") Is Nothing Then
+                        If entity.Category Is Nothing Then
                             .Category = "Not Categorized"
                         Else
-                            .Category = dr.Item("Category")
+                            .Category = entity.Category
                         End If
                     Catch ex As Exception
                         .Category = "Not Categorized"
@@ -427,109 +452,123 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Try
-                        If dr.Item("RetryInterval") Is Nothing Then
+                        If entity.RetryInterval Is Nothing Then
                             .RetryInterval = 2
                             WriteAuditEntry(Now.ToString & " " & .Name & " Notes Database retry scan interval not set, using default of 10 minutes.")
                         Else
-                            .RetryInterval = dr.Item("RetryInterval")
+                            .RetryInterval = entity.RetryInterval
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Notes Database retry scan interval not set, using default of 10 minutes.")
                         .RetryInterval = 2
-					End Try
+                    End Try
 
-					Try
-						If dr.Item("Status") Is Nothing Then
-							.Status = "Not Scanned"
-						Else
-							.Status = dr.Item("Status")
-						End If
-					Catch ex As Exception
-						.Status = "Not Scanned"
-					End Try
+                    If listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName) And x.Type.Equals(entity.DeviceType)).ToList().Count() > 0 Then
 
-					Try
-						If dr.Item("LastUpdate") Is Nothing Then
-							.LastScan = Now
-						Else
-							.LastScan = dr.Item("LastUpdate")
-						End If
-					Catch ex As Exception
-						.LastScan = Now
-					End Try
+                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName) And x.Type.Equals(entity.DeviceType)).ToList()(0)
 
-					Try
-						If dr.Item("CurrentNodeID") Is Nothing Then
-							.InsufficentLicenses = True
-						Else
-							If dr.Item("CurrentNodeID").ToString() = "-1" Then
-								.InsufficentLicenses = True
-							Else
-								.InsufficentLicenses = False
-							End If
 
-						End If
+                        Try
+                            If entityStatus.CurrentStatus Is Nothing Then
+                                .Status = "Not Scanned"
+                            Else
+                                .Status = entityStatus.CurrentStatus
+                            End If
+                        Catch ex As Exception
+                            .Status = "Not Scanned"
+                        End Try
+
+                        Try
+                            If entityStatus.LastUpdated Is Nothing Then
+                                .LastScan = Now
+                            Else
+                                .LastScan = entityStatus.LastUpdated
+                            End If
+                        Catch ex As Exception
+                            .LastScan = Now
+                        End Try
+
+                    End If
+
+
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+
+                        End If
                     Catch ex As Exception
                         '7/8/2015 NS modified for VSPLUS-1959
                         WriteAuditEntry(Now.ToString & " " & .Name & " Notes Databases insufficient licenses not set.")
 
-					End Try
+                    End Try
 
                 End With
                 MyNotesDatabase = Nothing
             Next
-            dr = Nothing
 
         Catch exception As DataException
             WriteAuditEntry(Now.ToString & " Notes Databases data exception " & exception.Message)
 
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Notes Databases general exception " & ex.ToString)
-		End Try
+        End Try
 
-		InsufficentLicensesTest(MyNotesDatabases)
+        InsufficentLicensesTest(MyNotesDatabases)
 
-        dsNotesDatabases.Dispose()
     End Sub
 
 
     Private Sub CreateTravelerBackEndCollection()
-        Dim dsTravelerDataStore As New Data.DataSet
         myTravelerBackends.Clear()
 
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
         Try
-            dsTravelerDataStore.Tables.Add("Traveler_Backends")
-            Dim strSQL As String
 
-			strSQL = "SELECT  TravelerServicePoolName, ServerName ,DataStore, Port, UserName, Password, IntegratedSecurity, TestScanServer, UsedByServers,DatabaseName  "
-			strSQL += " FROM vitalsigns.dbo.Traveler_HA_Datastore ds "
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.TravelerHaDatastore.ToDescription())
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.Datastore) _
+                .Include(Function(x) x.PortNumber) _
+                .Include(Function(x) x.Username) _
+                .Include(Function(x) x.Password) _
+                .Include(Function(x) x.RequireSSL) _
+                .Include(Function(x) x.TestScanServer) _
+                .Include(Function(x) x.UsedByServers) _
+                .Include(Function(x) x.DatabaseName) _
+                .Include(Function(x) x.CurrentNode)
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
-            WriteAuditEntry(vbCrLf & Now.ToString & " My Traveler Backend data store SQL statement is " & strSQL)
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "Servers", strSQL, dsTravelerDataStore, "Traveler_Backends")
-
-            WriteAuditEntry(Now.ToString & " Created a Domino servers dataset with " & dsTravelerDataStore.Tables(0).Rows.Count & " records found.")
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateTravelerBackEndCollection processing code. Exception: " & ex.Message)
             Exit Sub
         End Try
 
-        Dim dr As DataRow
+        WriteAuditEntry(Now.ToString & " There are " & listOfServers.Count().ToString() & " Traveler servers found in the database", LogLevel.Normal)
 
         Try
-            For Each dr In dsTravelerDataStore.Tables("Traveler_Backends").Rows
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
                 Dim myTravelerBackend As New MonitoredItems.Traveler_Backend
                 With myTravelerBackend
-                    .TravelerServicePoolName = dr.Item("TravelerServicePoolName")
-                    .ServerName = dr.Item("ServerName")
-                    .DataStore = dr.Item("DataStore")
-                    .Port = dr.Item("Port")
-                    .UserName = dr.Item("UserName")
-                    .Password = dr.Item("Password")
-                    .IntegratedSecurity = dr.Item("IntegratedSecurity")
-                    .TestScanServer = dr.Item("TestScanServer")
-                    .UsedByServers = dr.Item("UsedByServers")
-                    .DatabaseName = dr.Item("DatabaseName")
+                    .TravelerServicePoolName = entity.DeviceName
+                    .ServerName = entity.TravelerServiceServerName
+                    .DataStore = entity.Datastore
+                    .Port = entity.PortNumber
+                    .UserName = entity.Username
+                    .Password = entity.Password
+                    .IntegratedSecurity = entity.RequireSSL
+                    .TestScanServer = entity.TestScanServer
+                    .UsedByServers = entity.UsedByServers
+                    .DatabaseName = entity.DatabaseName
                     WriteAuditEntry(Now.ToString & " Adding " & .TravelerServicePoolName)
                 End With
 
@@ -546,42 +585,75 @@ Partial Public Class VitalSignsPlusDomino
 
         'start with fresh data
         '***  Build the data set dynamically
-        Dim dsDominoServers As New Data.DataSet
         Dim MyDominoServer As MonitoredItems.DominoServer
 
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
+
         Try
-            dsDominoServers.Tables.Add("DominoServers")
-            Dim strSQL As String
 
-            '2/22/2016 NS modified for VSPLUS-2641
-			strSQL = " SELECT srv.ID, ServerName AS Name, [Scan Interval], ds.Category, Enabled, RequireSSL,ExternalAlias,ScanTravelerServer,ds.PendingThreshold, ds.DeadThreshold, LOC.Location, Loc.ID as LocationID, ServerType, "
-			strSQL += " MailDirectory, OffHoursScanInterval, RetryInterval, ds.ServerID AS [Key], ds.ResponseThreshold, srv.IPAddress, BES_Server, BES_Threshold, FailureThreshold,  "
-            strSQL += " SearchString, DeadMailDeleteThreshold, DiskSpaceThreshold, HeldThreshold, ScanDBHealth, CheckMailThreshold, scanlog, scanagentlog, srv.Description, NotificationGroup, Memory_Threshold, "
-            strSQL += " CPU_Threshold, Cluster_Rep_Delays_Threshold, ServerDaysAlert, AliasName, SendRouterRestart, st.LastUpdate, st.Status, st.StatusCode, ds.ScanServlet, di.CurrentNodeID, ds.AvailabilityIndexThreshold  "
-			strSQL += " FROM dbo.DominoServers ds  "
-			strSQL += " LEFT OUTER JOIN  Credentials c on ds.CredentialsID=c.ID "
-			strSQL += " inner join Servers srv on srv.ID = ds.ServerID "
-			strSQL += " inner join ServerTypes srvt on srvt.id=srv.ServerTypeId "
-			strSQL += " inner join Locations Loc on srv.LocationId = Loc.ID "
-			If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
-				Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-				strSQL += " inner join DeviceInventory di on srv.ID=di.DeviceID and di.DeviceTypeID=srv.ServerTypeId "
-				strSQL += " inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" & NodeName & "'   "
-			End If
-			strSQL += " left outer join Status st on st.Type=(select ServerType From ServerTypes where Id=srv.ServerTypeId) and st.Name=srv.ServerName   "
-			strSQL += " WHERE(ds.Enabled = 1) "
+            'Removed DominoServers.DiskSpaceThreshold, DominoServers.NotificationGroup, DominoServer.ScanServlet
 
-			WriteAuditEntry(vbCrLf & Now.ToString & " My Domino servers SQL statement is " & strSQL)
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "Servers", strSQL, dsDominoServers, "DominoServers")
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.ScanInterval) _
+                .Include(Function(x) x.Category) _
+                .Include(Function(x) x.IsEnabled) _
+                .Include(Function(x) x.RequireSSL) _
+                .Include(Function(x) x.TravelerExternalAlias) _
+                .Include(Function(x) x.ScanTravelerServer) _
+                .Include(Function(x) x.PendingMailThreshold) _
+                .Include(Function(x) x.DeadMailThreshold) _
+                .Include(Function(x) x.LocationId) _
+                .Include(Function(x) x.MailDirectory) _
+                .Include(Function(x) x.OffHoursScanInterval) _
+                .Include(Function(x) x.RetryInterval) _
+                .Include(Function(x) x.ResponseTime) _
+                .Include(Function(x) x.IPAddress) _
+                .Include(Function(x) x.ConsecutiveFailuresBeforeAlert) _
+                .Include(Function(x) x.SearchString) _
+                .Include(Function(x) x.DeadMailDeleteThreshold) _
+                .Include(Function(x) x.HeldMailThreshold) _
+                .Include(Function(x) x.ScanDBHealth) _
+                .Include(Function(x) x.CheckMailThreshold) _
+                .Include(Function(x) x.ScanLog) _
+                .Include(Function(x) x.ScanAgentLog) _
+                .Include(Function(x) x.Description) _
+                .Include(Function(x) x.MemoryThreshold) _
+                .Include(Function(x) x.CpuThreshold) _
+                .Include(Function(x) x.ClusterReplicationDelayThreshold) _
+                .Include(Function(x) x.ServerDaysAlert) _
+                .Include(Function(x) x.SendRouterRestart) _
+                .Include(Function(x) x.AvailabilityIndexThreshold) _
+                .Include(Function(x) x.CredentialsId) _
+                .Include(Function(x) x.DominoCustomStats) _
+                .Include(Function(x) x.ServerTasks) _
+                .Include(Function(x) x.CurrentNode)
 
-			WriteAuditEntry(Now.ToString & " Created a Domino servers dataset with " & dsDominoServers.Tables(0).Rows.Count & " records found.")
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateDominoServersCollection processing code. Exception: " & ex.Message)
-			Exit Sub
-		End Try
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
+            Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
+            Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+                .Include(Function(x) x.StatusCode) _
+                .Include(Function(x) x.CurrentStatus) _
+                .Include(Function(x) x.LastUpdated) _
+                .Include(Function(x) x.Type) _
+                .Include(Function(x) x.Name)
 
+            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
+
+            '"ds.ServerID As [Key], st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID, "
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateDominoServersCollection processing code. Exception: " & ex.Message)
+            Exit Sub
+        End Try
+
+        WriteAuditEntry(Now.ToString & " There are " & listOfServers.Count().ToString() & " Domino servers found in the database", LogLevel.Normal)
 
         Dim myDataRow As System.Data.DataRow
         Dim MyServerNames As String = ""
@@ -590,9 +662,9 @@ Partial Public Class VitalSignsPlusDomino
             If MyDominoServers.Count > 0 Then
 
                 'Get all the names of all the servers in the data table
-                For Each myDataRow In dsDominoServers.Tables("DominoServers").Rows()
-                    WriteAuditEntry(Now.ToString & " I have " & myDataRow.Item("Name"), LogLevel.Verbose)
-                    MyServerNames += myDataRow.Item("Name") & "  "
+                For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                    WriteAuditEntry(Now.ToString & " I have " & entity.DeviceName, LogLevel.Verbose)
+                    MyServerNames += entity.DeviceName & "  "
                 Next
             End If
         Catch ex As Exception
@@ -641,19 +713,18 @@ Partial Public Class VitalSignsPlusDomino
         WriteAuditEntry(Now.ToString & " Reading configuration settings for Domino Servers.", LogLevel.Verbose)
 
         Try
-            Dim dr As DataRow
-            For Each dr In dsDominoServers.Tables("DominoServers").Rows
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
                 i += 1
-                If dr.Item("Description") Is Nothing Then
+                If entity.Description Is Nothing Then
                     Description = "Lotus Domino Server"
                 Else
-                    Description = dr.Item("Description")
+                    Description = entity.Description
                 End If
 
-                If dr.Item("Name") Is Nothing Then
+                If entity.DeviceName Is Nothing Then
                     MyName = "DominoServer" & i.ToString
                 Else
-                    MyName = dr.Item("Name")
+                    MyName = entity.DeviceName
                 End If
 
 
@@ -704,10 +775,10 @@ Partial Public Class VitalSignsPlusDomino
                     MyDominoServer.ClusterOpenRedirects_Previous_LoadBalanceUnSuccessful = -1
                     MyDominoServer.ClusterOpenRedirects_Previous_FailoverUnSuccessful = -1
                     MyDominoServer.ClusterOpenRedirects_Previous_FailoverSuccessful = 1
-					MyDominoServer.OffHours = OffHours(MyName)
-					MyDominoServer.AlertCondition = False
-					'MyDominoServer.Status = "Not Scanned"
-					'MyDominoServer.LastScan = Date.Now
+                    MyDominoServer.OffHours = OffHours(MyName)
+                    MyDominoServer.AlertCondition = False
+                    'MyDominoServer.Status = "Not Scanned"
+                    'MyDominoServer.LastScan = Date.Now
                     MyDominoServer.IncrementUpCount()
                     MyDominoServer.MailboxCount = 999  'this flag tells app to check for mailbox count
                     MyDominoServer.UserCount = 0
@@ -735,34 +806,41 @@ Partial Public Class VitalSignsPlusDomino
                 End If
 
                 With MyDominoServer
-                    WriteAuditEntry(Now.ToString & " Configuring Domino Server: " & dr.Item("Name"), LogLevel.Verbose)
+                    WriteAuditEntry(Now.ToString & " Configuring Domino Server: " & entity.DeviceName, LogLevel.Verbose)
+
+                    Try
+                        If entity.Id Is Nothing Then
+                            .ServerObjectID = ""
+                            WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                        Else
+                            .ServerObjectID = entity.Id
+                        End If
+                    Catch ex As Exception
+                        .ServerObjectID = ""
+                        WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                    End Try
 
                     'Get the HTTP username and password, if any
                     Try
                         WriteAuditEntry(Now.ToString & " Getting server credentials.", LogLevel.Verbose)
-                        If dr.Item("AliasName") Is Nothing Then
+                        If entity.CredentialsId Is Nothing Then
                             .HTTP_UserName = ""
                             .HTTP_Password = ""
                         Else
                             'Run a query here, then parse the results
-                            Dim strSQL As String = "select UserID from dbo.Credentials where AliasName = '" & dr.Item("AliasName") & "' "
-                            Dim objVSAdaptor As New VSAdaptor
 
-                            .HTTP_UserName = objVSAdaptor.ExecuteScalarAny("VitalSigns", "Servers", strSQL)
+                            Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
+                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.ObjectId, entity.CredentialsId)
+                            Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
+
+                            .HTTP_UserName = entityCredentials.UserId
                             WriteAuditEntry(Now.ToString & " HTTP Username is " & .HTTP_UserName, LogLevel.Verbose)
 
-                            strSQL = "select  Password from dbo.Credentials where AliasName = '" & dr.Item("AliasName") & "' "
-                            'Get the passwords from the settings table
                             Dim strEncryptedPassword As String
                             Dim Password As String
                             Dim myPass As Byte()
 
-                            Try
-                                strEncryptedPassword = objVSAdaptor.ExecuteScalarAny("VitalSigns", "Servers", strSQL)
-                            Catch ex As Exception
-                                WriteAuditEntry(Now.ToString & " Exception retrieving encrypted HTTP password  " & ex.ToString, LogLevel.Verbose)
-                                strEncryptedPassword = Nothing
-                            End Try
+                            strEncryptedPassword = entityCredentials.Password
 
                             Try
                                 Dim strValue As Object
@@ -798,119 +876,119 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If dr.Item("ServerDaysAlert") Is Nothing Then
+                        If entity.ServerDaysAlert Is Nothing Then
                             .ServerDaysAlert = 0
                             '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
                         Else
-                            If Trim(dr.Item("ServerDaysAlert")) <> "" Then
-                                .ServerDaysAlert = dr.Item("ServerDaysAlert")
-                                WriteAuditEntry(Now.ToString & " " & .Name & " ServerDaysAlert for this server is " & .ServerDaysAlert)
+                            If Trim(entity.ServerDaysAlert) <> "" Then
+                                .ServerDaysAlert = entity.ServerDaysAlert
+                                WriteAuditEntry(Now.ToString & " " & .Name & " ServerDaysAlert For this server Is " & .ServerDaysAlert)
                             End If
 
                         End If
                     Catch ex As Exception
                         .ServerDaysAlert = 0
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Custom notification group not set for this server, using default alert settings.")
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Custom notification group Not Set For this server, using default alert settings.")
                     End Try
 
 
-                    Try
-                        If dr.Item("NotificationGroup") Is Nothing Then
-                            .NotificationGroup = ""
-                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
-                        Else
-                            .NotificationGroup = dr.Item("NotificationGroup")
-                        End If
-                    Catch ex As Exception
-                        .NotificationGroup = ""
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Custom notification group not set for this server, using default alert settings.")
-                    End Try
+                    'Try
+                    '    If dr.Item("NotificationGroup") Is Nothing Then
+                    '        .NotificationGroup = ""
+                    '        '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
+                    '    Else
+                    '        .NotificationGroup = dr.Item("NotificationGroup")
+                    '    End If
+                    'Catch ex As Exception
+                    '    .NotificationGroup = ""
+                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Custom notification group Not set for this server, using default alert settings.")
+                    'End Try
 
                     'CheckMailThreshold
                     'This value is set to 1 if we are supposed to stop counting once the pending or held thresholds are met
                     Try
-                        If dr.Item("CheckMailThreshold") Is Nothing Then
+                        If entity.CheckMailThreshold Is Nothing Then
                             .MailChecking = 0
-                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
+                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
                         Else
-                            .MailChecking = dr.Item("CheckMailThreshold")
+                            .MailChecking = entity.CheckMailThreshold
                         End If
                     Catch ex As Exception
                         .MailChecking = 0
                         WriteAuditEntry(Now.ToString & " " & .Name & " CheckMailThreshold was set to zero in an exception.")
                     Finally
-                        ' WriteAuditEntry(Now.ToString & " " & .Name & " Domino server CheckMailThreshold value is " & .MailChecking)
+                        ' WriteAuditEntry(Now.ToString & " " & .Name & " Domino server CheckMailThreshold value Is " & .MailChecking)
                     End Try
 
                     Try
-                        If dr.Item("Cluster_Rep_Delays_Threshold") Is Nothing Then
+                        If entity.ClusterReplicationDelayThreshold Is Nothing Then
                             .ClusterRep_Threshold = 240
-                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
+                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
                         Else
-                            .ClusterRep_Threshold = dr.Item("Cluster_Rep_Delays_Threshold")
+                            .ClusterRep_Threshold = entity.ClusterReplicationDelayThreshold
                         End If
                     Catch ex As Exception
                         .ClusterRep_Threshold = 240
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Cluster Replication Delays threshold not set, using default of 240 seconds.")
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Cluster Replication Delays threshold Not set, using default of 240 seconds.")
                     End Try
 
                     Try
-                        If dr.Item("CPU_Threshold") Is Nothing Then
+                        If entity.CpuThreshold Is Nothing Then
                             .CPU_Threshold = 90
-                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
+                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
                         Else
-                            .CPU_Threshold = dr.Item("CPU_Threshold") * 100
+                            .CPU_Threshold = entity.CpuThreshold * 100
                         End If
                     Catch ex As Exception
                         .CPU_Threshold = 90
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server CPU Utilization threshold not set, using default of 90%.")
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server CPU Utilization threshold Not set, using default of 90%.")
                     End Try
 
                     Try
-                        If dr.Item("Memory_Threshold") Is Nothing Then
+                        If entity.MemoryThreshold Is Nothing Then
                             .Memory_Threshold = 90
-                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
+                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
                         Else
-                            .Memory_Threshold = dr.Item("Memory_Threshold") * 100
+                            .Memory_Threshold = entity.MemoryThreshold * 100
                         End If
                     Catch ex As Exception
                         .Memory_Threshold = 90
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server memory usage threshold not set, using default of 90%.")
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server memory usage threshold Not set, using default of 90%.")
                     End Try
 
 
                     Try
-                        If dr.Item("PendingThreshold") Is Nothing Then
+                        If entity.PendingMailThreshold Is Nothing Then
                             .PendingThreshold = 50
-                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
+                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
                         Else
-                            .PendingThreshold = dr.Item("PendingThreshold")
+                            .PendingThreshold = entity.PendingMailThreshold
                         End If
                     Catch ex As Exception
                         .PendingThreshold = 50
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
                     End Try
 
-                    Try
-                        If dr.Item("DiskSpaceThreshold") Is Nothing Then
-                            .DiskThreshold = 0.1  'Set to 10%
-                            WriteAuditEntry(Now.ToString & " " & .Name & " Domino server disk space threshold is the default value of 10%", LogLevel.Verbose)
-                        Else
-                            .DiskThreshold = dr.Item("DiskSpaceThreshold")
-                            WriteAuditEntry(Now.ToString & " " & .Name & " Domino server disk space threshold is " & .DiskThreshold * 100 & "%", LogLevel.Verbose)
-                        End If
-                    Catch ex As Exception
-                        .DiskThreshold = 0.1  'Set to 10%
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server disk space threshold not set, using default of 10%.")
-                    End Try
+                    'Try
+                    '    If dr.Item("DiskSpaceThreshold") Is Nothing Then
+                    '        .DiskThreshold = 0.1  'Set to 10%
+                    '        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server disk space threshold Is the default value of 10%", LogLevel.Verbose)
+                    '    Else
+                    '        .DiskThreshold = dr.Item("DiskSpaceThreshold")
+                    '        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server disk space threshold Is " & .DiskThreshold * 100 & "%", LogLevel.Verbose)
+                    '    End If
+                    'Catch ex As Exception
+                    '    .DiskThreshold = 0.1  'Set to 10%
+                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Domino server disk space threshold Not set, using default of 10%.")
+                    'End Try
 
 
 
                     Try
-                        If dr.Item("IPAddress") Is Nothing Then
+                        If entity.IPAddress Is Nothing Then
                             .IPAddress = ""
                         Else
-                            .IPAddress = dr.Item("IPAddress")
+                            .IPAddress = entity.IPAddress
                         End If
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino server IP Address is " & .IPAddress, LogLevel.Verbose)
 
@@ -924,9 +1002,12 @@ Partial Public Class VitalSignsPlusDomino
                             .IPAddress = GetDominoServerHostName(.Name)
                             WriteAuditEntry(Now.ToString & " " & .Name & " I figure the host name is " & .IPAddress, LogLevel.Verbose)
                             If .IPAddress.Length > 4 Then
-                                Dim vsObj As New VSAdaptor
-                                Dim strSQL As String = "Update Servers SET IPAddress='" & .IPAddress & "' WHERE ServerName ='" & .Name & "' AND ServerTypeID =1"
-                                vsObj.ExecuteNonQueryAny("VitalSigns", "Servers", strSQL)
+
+                                Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)
+                                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.ObjectId, entity.ObjectId)
+                                Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Updater.Set(Function(x) x.IPAddress, .IPAddress)
+                                repositoryServers.Update(filterDef, updateDef)
+
                             End If
                         Else
                             WriteAuditEntry(Now.ToString & " " & .Name & " host name is " & .IPAddress, LogLevel.Verbose)
@@ -936,10 +1017,10 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If dr.Item("Enabled") Is Nothing Then
+                        If entity.IsEnabled Is Nothing Then
                             .Enabled = True
                         Else
-                            .Enabled = dr.Item("Enabled")
+                            .Enabled = entity.IsEnabled
                         End If
 
                     Catch ex As Exception
@@ -955,72 +1036,73 @@ Partial Public Class VitalSignsPlusDomino
                     End If
 
                     Try
-                        If dr.Item("RequireSSL") Is Nothing Then
+                        If entity.RequireSSL Is Nothing Then
                             .RequireSSL = False
                         Else
-                            .RequireSSL = Convert.ToBoolean(dr.Item("RequireSSL"))
+                            .RequireSSL = entity.RequireSSL
                         End If
 
                     Catch ex As Exception
                         .RequireSSL = False
                     End Try
 
-					Try
-						If dr.Item("ScanTravelerServer") Is Nothing Then
-							.ScanTravelerServer = True
-						Else
-							.ScanTravelerServer = Convert.ToBoolean(dr.Item("ScanTravelerServer"))
-						End If
+                    Try
+                        If entity.ScanTravelerServer Is Nothing Then
+                            .ScanTravelerServer = True
+                        Else
+                            .ScanTravelerServer = entity.ScanTravelerServer
+                        End If
 
-					Catch ex As Exception
-						.ScanTravelerServer = True
-					End Try
+                    Catch ex As Exception
+                        .ScanTravelerServer = True
+                    End Try
 
-                    .ExternalAlias = dr.Item("ExternalAlias").ToString()
-
-					Try
-						.ShowTaskStringsToSearchFor = dr.Item("SearchString")
-						If .ShowTaskStringsToSearchFor = "None" Then
-							.ShowTaskStringsToSearchFor = ""
-						End If
-					Catch ex As Exception
-						.ShowTaskStringsToSearchFor = ""
-					End Try
+                    .ExternalAlias = entity.TravelerExternalAlias
 
                     Try
-						.OffHours = OffHours(MyName)
+                        .ShowTaskStringsToSearchFor = entity.SearchString
+                        If .ShowTaskStringsToSearchFor = "None" Then
+                            .ShowTaskStringsToSearchFor = ""
+                        End If
+                    Catch ex As Exception
+                        .ShowTaskStringsToSearchFor = ""
+                    End Try
+
+                    Try
+                        .OffHours = OffHours(MyName)
                     Catch ex As Exception
                         .OffHours = False
                     End Try
 
-                    Try
-                        If dr.Item("Key") Is Nothing Then
-                        Else
-                            .Key = dr.Item("Key")
-                            WriteAuditEntry(Now.ToString & " " & .Name & " Domino server 'Key' in Servers table is " & .Key, LogLevel.Verbose)
-                        End If
-                    Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server 'Key' field not found. " & ex.ToString)
-                    End Try
+                    'Try
+                    '    If entity.ObjectId.ToString() Is Nothing Then
+                    '    Else
+                    '        .Key = entity.ObjectId.ToString()
+                    '        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server 'Key' in Servers table is " & .Key, LogLevel.Verbose)
+                    '    End If
+                    'Catch ex As Exception
+                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Domino server 'Key' field not found. " & ex.ToString)
+                    'End Try
+
+                    'AdvancedMailScan is not being used in the service and is not from SQL
+                    'Try
+                    '    If dr.Item("AdvancedMailScan") Is Nothing Then
+                    '        .AdvancedMailScan = True
+                    '        '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
+                    '    Else
+                    '        .AdvancedMailScan = dr.Item("AdvancedMailScan")
+                    '    End If
+                    'Catch ex As Exception
+                    '    .AdvancedMailScan = True
+                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Advanced Mail Scan setting not found, set to True.", LogLevel.Verbose)
+                    'End Try
 
                     Try
-                        If dr.Item("AdvancedMailScan") Is Nothing Then
-                            .AdvancedMailScan = True
-                            '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
-                        Else
-                            .AdvancedMailScan = dr.Item("AdvancedMailScan")
-                        End If
-                    Catch ex As Exception
-                        .AdvancedMailScan = True
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Advanced Mail Scan setting not found, set to True.", LogLevel.Verbose)
-                    End Try
-
-                    Try
-                        If dr.Item("HeldThreshold") Is Nothing Then
+                        If entity.HeldMailThreshold Is Nothing Then
                             .HeldThreshold = 50
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .HeldThreshold = dr.Item("HeldThreshold")
+                            .HeldThreshold = entity.HeldMailThreshold
                         End If
                     Catch ex As Exception
                         .HeldThreshold = 50
@@ -1028,11 +1110,11 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If dr.Item("DeadThreshold") Is Nothing Then
+                        If entity.DeadMailThreshold Is Nothing Then
                             .DeadThreshold = 50
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .DeadThreshold = dr.Item("DeadThreshold")
+                            .DeadThreshold = entity.DeadMailThreshold
                         End If
                     Catch ex As Exception
                         .DeadThreshold = 50
@@ -1041,11 +1123,11 @@ Partial Public Class VitalSignsPlusDomino
 
                     'DeadMailDeleteThreshold
                     Try
-                        If dr.Item("DeadMailDeleteThreshold") Is Nothing Then
+                        If entity.DeadMailDeleteThreshold Is Nothing Then
                             .DeleteDeadThreshold = 0
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .DeleteDeadThreshold = dr.Item("DeadMailDeleteThreshold")
+                            .DeleteDeadThreshold = entity.DeadMailDeleteThreshold
                         End If
                     Catch ex As Exception
                         .DeleteDeadThreshold = 0
@@ -1053,23 +1135,23 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If dr.Item("FailureThreshold") Is Nothing Then
+                        If entity.ConsecutiveFailuresBeforeAlert Is Nothing Then
                             .FailureThreshold = 1
                         Else
-                            .FailureThreshold = dr.Item("FailureThreshold")
+                            .FailureThreshold = entity.ConsecutiveFailuresBeforeAlert
                         End If
                     Catch ex As Exception
                         .FailureThreshold = 1
                     End Try
 
                     Try
-                        If dr.Item("Category") Is Nothing Then
+                        If entity.Category Is Nothing Then
                             .Category = "Domino"
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Category not set, using default of 'Domino'.")
-                        ElseIf dr.Item("Category").ToString.Contains("Traveler") Then
+                        ElseIf entity.Category.ToString.Contains("Traveler") Then
                             .SecondaryRole = "Traveler"
                         ElseIf .ClusterMember = "" Then
-                            .Category = dr.Item("Category")
+                            .Category = entity.Category
                         ElseIf .ClusterMember <> "" And Not (InStr(.ClusterMember, "*ERROR*") > 0) And Not (InStr(.ClusterMember.ToUpper, "RESTRICTED") > 0) Then
                             .Category = "Cluster: " & .ClusterMember
                         End If
@@ -1087,36 +1169,36 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
 
-                    Try
-                        '  WriteAuditEntry(Now.ToString & " " & .Name & " Checking Domino server value of BES_Server for ")
-                        If dr.Item("BES_Server") Is Nothing Then
-                            .BES_Server = False
-                        Else
-                            .BES_Server = dr.Item("BES_Server")
-                            '     WriteAuditEntry(Now.ToString & " " & .Name & " BES Server value: " & .BES_Server)
-                        End If
-                    Catch ex As Exception
-                        ' WriteAuditEntry(Now.ToString & " Exception ERROR: " & ex.Message)
-                        .BES_Server = False
-                    End Try
+                    'Try
+                    '    '  WriteAuditEntry(Now.ToString & " " & .Name & " Checking Domino server value of BES_Server for ")
+                    '    If dr.Item("BES_Server") Is Nothing Then
+                    '        .BES_Server = False
+                    '    Else
+                    '        .BES_Server = dr.Item("BES_Server")
+                    '        '     WriteAuditEntry(Now.ToString & " " & .Name & " BES Server value: " & .BES_Server)
+                    '    End If
+                    'Catch ex As Exception
+                    '    ' WriteAuditEntry(Now.ToString & " Exception ERROR: " & ex.Message)
+                    '    .BES_Server = False
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("BES_Threshold") Is Nothing Then
+                    '        .BES_Threshold = 3000
+                    '    Else
+                    '        .BES_Threshold = dr.Item("BES_Threshold")
+                    '    End If
+                    'Catch ex As Exception
+                    '    .BES_Threshold = 3000
+                    'End Try
+
 
                     Try
-                        If dr.Item("BES_Threshold") Is Nothing Then
-                            .BES_Threshold = 3000
-                        Else
-                            .BES_Threshold = dr.Item("BES_Threshold")
-                        End If
-                    Catch ex As Exception
-                        .BES_Threshold = 3000
-                    End Try
-
-
-                    Try
-                        If dr.Item("Scan Interval") Is Nothing Then
+                        If entity.ScanInterval Is Nothing Then
                             .ScanInterval = 10
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server  scan interval not set, using default of 10 minutes.")
                         Else
-                            .ScanInterval = dr.Item("Scan Interval")
+                            .ScanInterval = entity.ScanInterval
                         End If
                     Catch ex As Exception
                         .ScanInterval = 10
@@ -1124,23 +1206,23 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If dr.Item("RetryInterval") Is Nothing Then
+                        If entity.RetryInterval Is Nothing Then
                             .RetryInterval = 2
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server  retry scan interval not set, using default of 10 minutes.")
                         Else
-                            .RetryInterval = dr.Item("RetryInterval")
+                            .RetryInterval = entity.RetryInterval
                         End If
                     Catch ex As Exception
                         .RetryInterval = 2
                     End Try
 
                     Try
-                        If dr.Item("MailDirectory") Is Nothing Then
+                        If entity.MailDirectory Is Nothing Then
                             .MailDirectory = "mail"
                             .CountMailFiles = True
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server  mail directory not set, using default 'mail'.")
                         Else
-                            .MailDirectory = dr.Item("MailDirectory")
+                            .MailDirectory = entity.MailDirectory
                             .CountMailFiles = True
                             If .MailDirectory = "None" Then
                                 .CountMailFiles = False
@@ -1154,11 +1236,11 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Try
-                        If dr.Item("OffHoursScanInterval") Is Nothing Then
+                        If entity.OffHoursScanInterval Is Nothing Then
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server off hours scan interval not set, using default of 20 minutes.")
                             .OffHoursScanInterval = 20
                         Else
-                            .OffHoursScanInterval = dr.Item("OffHoursScanInterval")
+                            .OffHoursScanInterval = entity.OffHoursScanInterval
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino server off hours scan interval not set, using default of 20 minutes.")
@@ -1166,10 +1248,10 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If dr.Item("ResponseThreshold") Is Nothing Then
+                        If entity.OffHoursScanInterval Is Nothing Then
                             .ResponseThreshold = 100
                         Else
-                            .ResponseThreshold = dr.Item("ResponseThreshold")
+                            .ResponseThreshold = entity.OffHoursScanInterval
                         End If
                     Catch ex As Exception
                         .ResponseThreshold = 100
@@ -1177,70 +1259,75 @@ Partial Public Class VitalSignsPlusDomino
 
                     '2/22/2016 NS added for VSPLUS-2641
                     Try
-                        If dr.Item("AvailabilityIndexThreshold") Is Nothing Then
+                        If entity.AvailabilityIndexThreshold Is Nothing Then
                             .AvailabilityIndexThreshold = 0
                         Else
-                            .AvailabilityIndexThreshold = dr.Item("AvailabilityIndexThreshold")
+                            .AvailabilityIndexThreshold = entity.AvailabilityIndexThreshold
                         End If
                     Catch ex As Exception
                         .AvailabilityIndexThreshold = 0
                     End Try
 
                     Try
-                        If dr.Item("Location") Is Nothing Then
+                        If entity.LocationId Is Nothing Then
                             .Location = "Not Set"
                         Else
-                            .Location = dr.Item("Location")
+
+                            Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
+                            Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                            .Location = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias
+
                         End If
                     Catch ex As Exception
                         .Location = "Not Set"
                     End Try
 
                     Try
-                        If dr.Item("SendRouterRestart") Is Nothing Then
+                        If entity.SendRouterRestart Is Nothing Then
                             .RestartRouter = False
                         Else
-                            .RestartRouter = Convert.ToBoolean(dr.Item("SendRouterRestart"))
+                            .RestartRouter = entity.SendRouterRestart
                         End If
                     Catch ex As Exception
                         .RestartRouter = False
                     End Try
 
-					Try
-						If dr.Item("Status") Is Nothing Then
-							.Status = "Not Scanned"
-						Else
-							.Status = Convert.ToBoolean(dr.Item("Status"))
-						End If
-					Catch ex As Exception
-						.Status = "Not Scanned"
-					End Try
+                    Try
+                        Dim entityStatus As VSNext.Mongo.Entities.Status
+                        Try
+                            entityStatus = listOfStatus.Where(Function(x) x.Type.Equals(entity.DeviceType) And x.Name.Equals(entity.DeviceName)).ToList()(0)
+                        Catch ex As Exception
+                        End Try
 
-					Try
-						If dr.Item("LastUpdate") Is Nothing Then
-							.LastScan = Now
-						Else
-							.LastScan = dr.Item("LastUpdate")
-						End If
-					Catch ex As Exception
-						.LastScan = Now
-					End Try
+                        Try
+                            If entityStatus.CurrentStatus Is Nothing Then
+                                .Status = "Not Scanned"
+                            Else
+                                .Status = entityStatus.CurrentStatus
+                            End If
+                        Catch ex As Exception
+                            .Status = "Not Scanned"
+                        End Try
 
-					Try
-						If dr.Item("ScanServlet") Is Nothing Then
-							.scanServlet = True
-						Else
-							.scanServlet = dr.Item("ScanServlet")
-						End If
-					Catch ex As Exception
-						.scanServlet = True
+                        Try
+                            If entityStatus.LastUpdated Is Nothing Then
+                                .LastScan = Now
+                            Else
+                                .LastScan = entityStatus.LastUpdated
+                            End If
+                        Catch ex As Exception
+                            .LastScan = Now
+                        End Try
+
+                    Catch ex As Exception
+
                     End Try
 
                     Try
-                        If dr.Item("ScanLog") Is Nothing Then
+                        If entity.ScanLog Is Nothing Then
                             .ScanLog = True
                         Else
-                            .ScanLog = dr.Item("ScanLog")
+                            .ScanLog = entity.ScanLog
                         End If
                     Catch ex As Exception
                         .ScanLog = True
@@ -1248,10 +1335,10 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Try
-                        If dr.Item("ScanAgentLog") Is Nothing Then
+                        If entity.ScanAgentLog Is Nothing Then
                             .ScanAgentLog = True
                         Else
-                            .ScanAgentLog = dr.Item("ScanAgentLog")
+                            .ScanAgentLog = entity.ScanAgentLog
                         End If
                     Catch ex As Exception
                         .ScanAgentLog = True
@@ -1261,54 +1348,25 @@ Partial Public Class VitalSignsPlusDomino
                     'Create and add a collection of custom statistics to monitor
                     '****************************************************
 
-                    Dim dsDominoStatisticsSettings As New Data.DataSet
                     Try
-                        'Dim myCommand As New OleDb.OleDbCommand
-                        'Dim myOleDbDataAdapter As New Data.OleDb.OleDbDataAdapter
-                        'myCommand.CommandText = "SELECT StatName, ThresholdValue, GreaterThanOrLessThan, ConsoleCommand, TimesInARow " & _
-                        '"FROM DominoCustomStatValues " & _
-                        '"WHERE ServerName='" & .Name & "'"
-
-                        ''WriteAuditEntry(Now.ToString & " Custom Statistics Select Command is: " & myCommand.CommandText)
-
-                        'myCommand.Connection = OleDbConnectionServers
-                        'myOleDbDataAdapter.SelectCommand = myCommand
-
-                        'dsDominoStatisticsSettings.Clear()
-                        'myOleDbDataAdapter.Fill(dsDominoStatisticsSettings, "Stats")
-                        'myCommand.Dispose()
-                        'myOleDbDataAdapter.Dispose()
-                        Dim strSQL As String = "SELECT StatName, ThresholdValue, GreaterThanOrLessThan, ConsoleCommand, TimesInARow " & _
-                        "FROM DominoCustomStatValues " & _
-                        "WHERE ServerName='" & .Name & "'"
-                        Dim objVSAdaptor As New VSAdaptor
-                        objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsDominoStatisticsSettings, "Stats")
-
-                    Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " Error Configuring Server Custom Statistics: " & ex.Message)
-                    End Try
-
-
-                    Try
-                        Dim drTask As DataRow
-                        If dsDominoStatisticsSettings.Tables("Stats").Rows.Count = 0 Then
+                        If entity.DominoCustomStats Is Nothing Or entity.DominoCustomStats.Count = 0 Then
                             WriteAuditEntry(Now.ToString & " No custom stats defined for " & .Name, LogLevel.Verbose)
-                            dsDominoStatisticsSettings.Dispose()
                             Exit Try
                         End If
-                        For Each drTask In dsDominoStatisticsSettings.Tables("Stats").Rows
+
+                        For Each customStat As VSNext.Mongo.Entities.DominoCustomStat In entity.DominoCustomStats
 
                             Dim MyCustomStatistic As MonitoredItems.DominoCustomStatistic
                             'Check to see if this stat  is already configured
                             'If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Searching for statistic: " & drTask.Item("StatName"))
                             Try
-                                MyCustomStatistic = MyDominoServer.CustomStatisticsSettings.Search(drTask.Item("StatName"))
+                                MyCustomStatistic = MyDominoServer.CustomStatisticsSettings.Search(customStat.StatName)
                                 'if not, add it to the server's collection
                             Catch ex As Exception
                                 'an exception will be thrown if there are no servertaskSettings to search
                                 'so we need to create a new blank collection that we can add to
                                 MyCustomStatistic = Nothing
-                                WriteAuditEntry(Now.ToString & " Exception while Searching for statistic: " & drTask.Item("StatName") & " " & ex.Message)
+                                WriteAuditEntry(Now.ToString & " Exception while Searching for statistic: " & customStat.StatName & " " & ex.Message)
                             End Try
 
                             If MyCustomStatistic Is Nothing Then
@@ -1317,11 +1375,11 @@ Partial Public Class VitalSignsPlusDomino
                                     Dim MyNewCustomStatisticSetting As New MonitoredItems.DominoCustomStatistic
                                     'WriteAuditEntry(Now.ToString & " Adding Task: " & drTask.Item("TaskName"))
                                     With MyNewCustomStatisticSetting
-                                        .Statistic = drTask.Item("StatName")
-                                        .ThresholdValue = drTask.Item("ThresholdValue")
-                                        .ComparisonOperator = drTask.Item("GreaterThanOrLessThan")
-                                        .RepeatThreshold = drTask.Item("TimesInARow")
-                                        .ConsoleCommand = drTask.Item("ConsoleCommand")
+                                        .Statistic = customStat.StatName
+                                        .ThresholdValue = customStat.ThresholdValue
+                                        .ComparisonOperator = customStat.GreaterThanOrLessThan
+                                        .RepeatThreshold = customStat.TimesInARow
+                                        .ConsoleCommand = customStat.ConsoleCommand
                                     End With
                                     MyDominoServer.CustomStatisticsSettings.Add(MyNewCustomStatisticSetting)
                                     WriteAuditEntry(Now.ToString & " Added a new Custom Statistic " & MyNewCustomStatisticSetting.Statistic & " " & MyNewCustomStatisticSetting.ComparisonOperator & " " & MyNewCustomStatisticSetting.ThresholdValue & " for " & MyDominoServer.Name, LogLevel.Verbose)
@@ -1334,19 +1392,18 @@ Partial Public Class VitalSignsPlusDomino
                                 Try
                                     With MyCustomStatistic
                                         WriteAuditEntry(Now.ToString & " Checking settings for existing Custom Statistic " & MyCustomStatistic.Statistic, LogLevel.Verbose)
-                                        .ThresholdValue = drTask.Item("ThresholdValue")
-                                        .ComparisonOperator = drTask.Item("GreaterThanOrLessThan")
-                                        .RepeatThreshold = drTask.Item("TimesInARow")
-                                        .ConsoleCommand = drTask.Item("ConsoleCommand")
+                                        .ThresholdValue = customStat.ThresholdValue
+                                        .ComparisonOperator = customStat.GreaterThanOrLessThan
+                                        .RepeatThreshold = customStat.TimesInARow
+                                        .ConsoleCommand = customStat.ConsoleCommand
                                     End With
                                 Catch ex As Exception
-                                    WriteAuditEntry(Now.ToString & " Domino server " & .Name & " error configuring existing custom Statistic.  Error: " & ex.Message)
+                                    WriteAuditEntry(Now.ToString & " Domino server " & .Name & " error configuring existing custom Statistic.  Error:  " & ex.Message)
                                 End Try
 
                             End If
                         Next
-                        dsDominoStatisticsSettings.Dispose()
-                        drTask = Nothing
+
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error Configuring Domino custom statistics: " & ex.Message)
                     End Try
@@ -1363,207 +1420,212 @@ Partial Public Class VitalSignsPlusDomino
 
                     WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings-- start.", LogLevel.Verbose)
 
-                    Dim myServerTaskSettings As New MonitoredItems.ServerTaskSettingCollection
-                    Dim dsDominoServerTaskSettings As New Data.DataSet
                     Try
 
-                        Dim strSQL As String = " Select ServerTaskSettings.Enabled, DominoServerTasks.FreezeDetect, ServerTaskSettings.SendLoadCommand, ServerTaskSettings.SendRestartCommand, ServerTaskSettings.RestartOffHours,  ServerTaskSettings.SendExitCommand, DominoServerTasks.ConsoleString, DominoServerTasks.TaskName, DominoServerTasks.RetryCount, DominoServerTasks.MaxBusyTime,  DominoServerTasks.LoadString, ServerTaskSettings.MyID " & _
-                          "FROM " & _
-                          "ServerTaskSettings INNER JOIN DominoServerTasks " & _
-                          "ON ServerTaskSettings.TaskID = DominoServerTasks.TaskID " & _
-                          "Where ServerTaskSettings.ServerID = " & dr.Item("Key")
-                        Dim objVSAdaptor As New VSAdaptor
-                        objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsDominoServerTaskSettings, "Tasks")
+                        If .ServerTaskSettings Is Nothing Then
+                            Dim myServerTaskCollection As New MonitoredItems.ServerTaskSettingCollection
+                            .ServerTaskSettings = myServerTaskCollection
+                        Else
+                            WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " This server is configured to monitor " & .ServerTaskSettings.Count & " server tasks.", LogLevel.Verbose)
 
-                    Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " First Error Configuring Server Tasks: " & ex.Message)
-                    End Try
+                            For Each task As MonitoredItems.ServerTaskSetting In .ServerTaskSettings
+                                WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " This server is configured to monitor " & task.Name, LogLevel.Verbose)
+                            Next
 
-                    If .ServerTaskSettings Is Nothing Then
-                        Dim myServerTaskCollection As New MonitoredItems.ServerTaskSettingCollection
-                        .ServerTaskSettings = myServerTaskCollection
-                    Else
-                        WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " This server is configured to monitor " & .ServerTaskSettings.Count & " server tasks.", LogLevel.Verbose)
+                        End If
 
-                        For Each task As MonitoredItems.ServerTaskSetting In .ServerTaskSettings
-                            WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " This server is configured to monitor " & task.Name, LogLevel.Verbose)
-                        Next
+                        Try
+                            For Each Task As VSNext.Mongo.Entities.DominoServerTask In entity.ServerTasks
 
-                    End If
-
-                    Try
-                        Dim drTask As DataRow
-                        For Each drTask In dsDominoServerTaskSettings.Tables("Tasks").Rows
-
-                            Dim MyConfiguredDominoServerTaskSetting As MonitoredItems.ServerTaskSetting
-                            MyConfiguredDominoServerTaskSetting = Nothing
-                            'Check to see if this task is already configured
-                            ' WriteAuditEntry(Now.ToString & " Searching for Task: " & drTask.Item("TaskName"))
-                            WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings. Searching for Task: " & drTask.Item("TaskName"), LogLevel.Verbose)
-                            Try
-                                MyConfiguredDominoServerTaskSetting = MyDominoServer.ServerTaskSettings.Search(drTask.Item("TaskName"))
-                                'if not, add it to the server's collection
-                                WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " >> Found " & MyConfiguredDominoServerTaskSetting.Name, LogLevel.Verbose)
-
-                            Catch ex As Exception
-                                'an exception will be thrown if there are no servertaskSettings to search
-                                'so we need to create a new blank collection that we can add to
+                                Dim MyConfiguredDominoServerTaskSetting As MonitoredItems.ServerTaskSetting
                                 MyConfiguredDominoServerTaskSetting = Nothing
+                                'Check to see if this task is already configured
+                                ' WriteAuditEntry(Now.ToString & " Searching for Task: " & drTask.Item("TaskName"))
+                                WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings. Searching for Task: " & Task.TaskName, LogLevel.Verbose)
+                                Try
+                                    MyConfiguredDominoServerTaskSetting = MyDominoServer.ServerTaskSettings.Search(Task.TaskName)
+                                    'if not, add it to the server's collection
+                                    WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " >> Found " & MyConfiguredDominoServerTaskSetting.Name, LogLevel.Verbose)
 
-                            End Try
+                                Catch ex As Exception
+                                    'an exception will be thrown if there are no servertaskSettings to search
+                                    'so we need to create a new blank collection that we can add to
+                                    MyConfiguredDominoServerTaskSetting = Nothing
 
-                            Try
-                                ' If Trim(MyConfiguredDominoServerTaskSetting.Name) <> "" Then
-                                If Not (MyConfiguredDominoServerTaskSetting) Is Nothing Then
-                                    With MyConfiguredDominoServerTaskSetting
-                                        ' WriteAuditEntry(Now.ToString & " Checking settings for Task: " & MyConfiguredDominoServerTaskSetting.Name)
-                                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Updating server task settings...now updating existing task: " & .Name, LogLevel.Verbose)
-                                        Try
-                                            .Enabled = drTask.Item("Enabled")
-                                        Catch ex As Exception
+                                End Try
 
-                                        End Try
+                                Try
+                                    ' If Trim(MyConfiguredDominoServerTaskSetting.Name) <> "" Then
+                                    If Not (MyConfiguredDominoServerTaskSetting) Is Nothing Then
+                                        With MyConfiguredDominoServerTaskSetting
+                                            ' WriteAuditEntry(Now.ToString & " Checking settings for Task: " & MyConfiguredDominoServerTaskSetting.Name)
+                                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Updating server task settings...now updating existing task: " & .Name, LogLevel.Verbose)
+                                            Try
+                                                .Enabled = Task.Enabled
+                                            Catch ex As Exception
 
-                                        Try
-                                            .LoadIfMissing = drTask.Item("SendLoadCommand")
-                                            .ConsoleString = drTask.Item("ConsoleString")
-                                            .RestartServerIfMissingASAP = drTask.Item("SendRestartCommand")
-                                            .RestartServerIfMissingOFFHOURS = drTask.Item("RestartOffHours")
-                                            .DisallowTask = drTask.Item("SendExitCommand")
-                                            .LoadCommand = drTask.Item("LoadString")
-                                            .FreezeDetection = drTask.Item("FreezeDetect")
-                                            .FailureThreshold = drTask.Item("RetryCount")
-                                        Catch ex As Exception
-                                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino server " & MyDominoServer.Name & " error configuring existing task " & MyConfiguredDominoServerTaskSetting.Name & "  Error: " & ex.Message)
-                                        End Try
+                                            End Try
 
-                                    End With
-                                End If
-                            Catch ex As Exception
-                                WriteAuditEntry(Now.ToString & " Domino server " & .Name & " error configuring existing tasks.  Error: " & ex.Message)
-                            End Try
+                                            Try
+                                                .LoadIfMissing = Task.SendLoadCmd
+                                                .ConsoleString = Task.ConsoleString
+                                                .RestartServerIfMissingASAP = Task.SendRestartCmd
+                                                .RestartServerIfMissingOFFHOURS = Task.SendRestartCmdOffhours
+                                                .DisallowTask = Task.SendExitCmd
+                                                .LoadCommand = Task.SendLoadCmd
+                                                .FreezeDetection = Task.FreezeDetect
+                                                .FailureThreshold = Task.RetryCount
+                                            Catch ex As Exception
+                                                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino server " & MyDominoServer.Name & " Error configuring existing task " & MyConfiguredDominoServerTaskSetting.Name & "  Error: " & ex.Message)
+                                            End Try
 
-                            Try
-                                If MyConfiguredDominoServerTaskSetting Is Nothing Then
-
-                                    Dim MyNewDominoServerTaskSetting As New MonitoredItems.ServerTaskSetting
-                                    If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings.  Adding new task: " & drTask.Item("TaskName"))
-
-                                    If InStr(drTask.Item("TaskName"), "Traveler") Then
-                                        WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " This server is configured to monitor Traveler, so it MUST BE a Traveler server.")
-                                        .Traveler_Server = True
-                                        .SecondaryRole = "Traveler"
+                                        End With
                                     End If
+                                Catch ex As Exception
+                                    WriteAuditEntry(Now.ToString & " Domino server " & .Name & " error configuring existing tasks.  Error: " & ex.Message)
+                                End Try
 
-                                    'WriteAuditEntry(Now.ToString & " Adding Task: " & drTask.Item("TaskName"))
-                                    With MyNewDominoServerTaskSetting
-                                        .Enabled = drTask.Item("Enabled")
-                                        '    WriteAuditEntry(Now.ToString & " Enabled=" & .Enabled)
-                                        .LoadIfMissing = drTask.Item("SendLoadCommand")
-                                        '   WriteAuditEntry(Now.ToString & " SendLoadCommand=" & .LoadIfMissing)
-                                        .Name = drTask.Item("TaskName")
-                                        .FreezeDetection = drTask.Item("FreezeDetect")
-                                        '  WriteAuditEntry(Now.ToString & " FreezeDetect=" & .FreezeDetection)
-                                        .ConsoleString = drTask.Item("ConsoleString")
-                                        ' WriteAuditEntry(Now.ToString & " ConsoleString=" & .ConsoleString)
-                                        .RestartServerIfMissingASAP = drTask.Item("SendRestartCommand")
-                                        .RestartServerIfMissingOFFHOURS = drTask.Item("RestartOffHours")
-                                        'WriteAuditEntry(Now.ToString & " SendRestartCommand=" & .RestartServerIfMissing)
-                                        .DisallowTask = drTask.Item("SendExitCommand")
-                                        ' WriteAuditEntry(Now.ToString & " Disallow=" & .DisallowTask)
-                                        .LoadCommand = drTask.Item("LoadString")
-                                        .MaxRunTime = drTask.Item("MaxBusyTime")
-                                        .FailureCount = 0
-                                        .FailureThreshold = drTask.Item("RetryCount")
-                                    End With
-                                    MyDominoServer.ServerTaskSettings.Add(MyNewDominoServerTaskSetting)
-                                    '  WriteAuditEntry(Now.ToString & " Domino server " & .Name & " has " & MyDominoServer.ServerTaskSettings.Count & " tasks configured.")
-                                End If
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " error configuring new tasks.  Error: " & ex.Message)
-                            End Try
+                                Try
+                                    If MyConfiguredDominoServerTaskSetting Is Nothing Then
+
+                                        Dim MyNewDominoServerTaskSetting As New MonitoredItems.ServerTaskSetting
+                                        If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings.  Adding new task: " & Task.TaskName)
+
+                                        If InStr(Task.TaskName, "Traveler") Then
+                                            WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " This server is configured to monitor Traveler, so it MUST BE a Traveler server.")
+                                            .Traveler_Server = True
+                                            .SecondaryRole = "Traveler"
+                                        End If
+
+                                        'WriteAuditEntry(Now.ToString & " Adding Task: " & drTask.Item("TaskName"))
+                                        With MyNewDominoServerTaskSetting
+                                            .Enabled = Task.Enabled
+                                            '    WriteAuditEntry(Now.ToString & " Enabled=" & .Enabled)
+                                            .LoadIfMissing = Task.SendLoadCmd
+                                            '   WriteAuditEntry(Now.ToString & " SendLoadCommand=" & .LoadIfMissing)
+                                            .Name = Task.TaskName
+                                            .FreezeDetection = Task.FreezeDetect
+                                            '  WriteAuditEntry(Now.ToString & " FreezeDetect=" & .FreezeDetection)
+                                            .ConsoleString = Task.ConsoleString
+                                            ' WriteAuditEntry(Now.ToString & " ConsoleString=" & .ConsoleString)
+                                            .RestartServerIfMissingASAP = Task.SendRestartCmd
+                                            .RestartServerIfMissingOFFHOURS = Task.SendRestartCmdOffhours
+                                            'WriteAuditEntry(Now.ToString & " SendRestartCommand=" & .RestartServerIfMissing)
+                                            .DisallowTask = Task.SendExitCmd
+                                            ' WriteAuditEntry(Now.ToString & " Disallow=" & .DisallowTask)
+                                            .LoadCommand = Task.SendLoadCmd
+                                            .MaxRunTime = Task.MaxBusyTime
+                                            .FailureCount = 0
+                                            .FailureThreshold = Task.RetryCount
+                                        End With
+                                        MyDominoServer.ServerTaskSettings.Add(MyNewDominoServerTaskSetting)
+                                        '  WriteAuditEntry(Now.ToString & " Domino server " & .Name & " has " & MyDominoServer.ServerTaskSettings.Count & " tasks configured.")
+                                    End If
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " error configuring New tasks.  Error:  " & ex.Message)
+                                End Try
 
 
 
 
-                        Next
+                            Next
 
-                        If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings-- end.")
+                            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings-- end.")
 
-                        drTask = Nothing
-                        dsDominoServerTaskSettings.Dispose()
+                        Catch ex As Exception
+                            WriteAuditEntry(Now.ToString & " Error Configuring Server Tasks 1: " & ex.Message)
+                        End Try
+
                     Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " Error Configuring Server Tasks: " & ex.Message)
+                        WriteAuditEntry(Now.ToString & " Error Configuring Server Tasks 2: " & ex.Message)
                     End Try
 
-					Try
-						If dr.Item("CurrentNodeID") Is Nothing Then
-							.InsufficentLicenses = True
-						Else
-							If dr.Item("CurrentNodeID").ToString() = "-1" Then
-								.InsufficentLicenses = True
-							Else
-								.InsufficentLicenses = False
-							End If
 
-						End If
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+
+                        End If
                     Catch ex As Exception
+
                         '7/8/2015 NS modified for VSPLUS-1959
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino Servers insufficient licenses not set.")
 
-					End Try
+                    End Try
 
-                End With
+        End With
 
-                MyDominoServer = Nothing
+        MyDominoServer = Nothing
 
             Next
-
-            dr = Nothing
 
         Catch exception As DataException
             WriteAuditEntry(Now.ToString & " Domino servers error: " & exception.Message)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Domino servers error: " & ex.Message)
-		End Try
+        End Try
 
 
-		InsufficentLicensesTest(MyDominoServers)
+        InsufficentLicensesTest(MyDominoServers)
 
-		dsDominoServers.Dispose()
-
-	End Sub
+    End Sub
 
     Private Sub CreateNotesMailProbeCollection()
         'start with fresh data
         WriteAuditEntry(Now.ToString & " Building a collection of NotesMail Probes")
         'Connect to the data source
-        Dim dsNotesMailSettings As New Data.DataSet
         Dim myPath As String
         Dim myRegistry As New RegistryHandler
 
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
+
         Try
-			Dim strSQL As String
 
-			strSQL = "SELECT NotesMailProbe.Category, DeliveryThreshold, DestinationDatabase, ServerName DestinationServer, Enabled, NotesMailProbe.Name, NotesMailAddress, "
-			strSQL += " OffHoursScanInterval, RetryInterval, ScanInterval, SourceServer, EchoService, ReplyTo, Filename, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID "
-			strSQL += " FROM NotesMailProbe "
-			strSQL += " inner join Servers on DestinationServerID=ID AND Enabled=1  "
-			If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
+            'Removed DominoServers.DiskSpaceThreshold, DominoServers.NotificationGroup, DominoServer.ScanServlet
 
-				Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-				strSQL += " inner join DeviceInventory di on NotesMailProbe.Name=di.Name and di.DeviceTypeId=13   "
-				strSQL += " inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" & NodeName & "' "
-			End If
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription())
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.Category) _
+                .Include(Function(x) x.DeliveryThreshold) _
+                .Include(Function(x) x.FileName) _
+                .Include(Function(x) x.TargetDatabase) _
+                .Include(Function(x) x.TargetServer) _
+                .Include(Function(x) x.IsEnabled) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.SendToAddress) _
+                .Include(Function(x) x.OffHoursScanInterval) _
+                .Include(Function(x) x.RetryInterval) _
+                .Include(Function(x) x.ScanInterval) _
+                .Include(Function(x) x.SourceServer) _
+                .Include(Function(x) x.SendToEchoService) _
+                .Include(Function(x) x.ReplyToAddress) _
+                .Include(Function(x) x.CurrentNode)
 
-			strSQL += " left outer join Status st on st.Type=(select ServerType From ServerTypes where Id=13) and st.Name=NotesMailProbe.Name "
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
-			WriteAuditEntry(Now.ToString & " NotesMail Probes query is: " & strSQL)
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsNotesMailSettings, "NotesMailProbe")
+            Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription())
+            Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+                .Include(Function(x) x.StatusCode) _
+                .Include(Function(x) x.CurrentStatus) _
+                .Include(Function(x) x.LastUpdated) _
+                .Include(Function(x) x.Type) _
+                .Include(Function(x) x.Name)
 
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Failed to create dataset in Create NotesMail Probe processing code. Exception: " & ex.Message)
+            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Failed to create dataset in Create NotesMail Probe processing code. Exception: " & ex.Message)
 			Exit Sub
 		End Try
 
@@ -1574,13 +1636,12 @@ Partial Public Class VitalSignsPlusDomino
 
 
         'Build a collection of what is in the database
-        Dim myDataRow As System.Data.DataRow
         Dim MyMailProbeNames As String = ""
         If MyNotesMailProbes.Count > 0 Then
             WriteAuditEntry(Now.ToString & " Performing Delete Propagation for NotesMail Probes.")
             'Get all the names of all the servers in the data table
-            For Each myDataRow In dsNotesMailSettings.Tables("NotesMailProbe").Rows()
-                MyMailProbeNames += myDataRow.Item("Name") & "  "
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                MyMailProbeNames += entity.DeviceName & "  "
             Next
         End If
 
@@ -1621,287 +1682,309 @@ Partial Public Class VitalSignsPlusDomino
 		WriteAuditEntry(Now.ToString & " Reading configuration settings for NotesMail Probes.")
 		Dim i As Integer = 0
 
-		With dsNotesMailSettings
-			Try
-				Dim dr As DataRow
-				For Each dr In dsNotesMailSettings.Tables("NotesMailProbe").Rows
-					WriteAuditEntry(Now.ToString & " Processing NotesMail Probe: " & dr.Item("Name"))
-					i += 1
-					Dim MyName As String
-					Try
-						MyName = dr.Item("Name")
-					Catch ex As Exception
-						MyName = "NotesMail Probe" & i.ToString
-					End Try
+
+        Try
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                WriteAuditEntry(Now.ToString & " Processing NotesMail Probe: " & entity.DeviceName)
+                i += 1
+                Dim MyName As String
+                Try
+                    MyName = entity.DeviceName
+                Catch ex As Exception
+                    MyName = "NotesMail Probe" & i.ToString
+                End Try
 
 
-					MyNotesMailProbe = MyNotesMailProbes.Search(MyName)
-					If MyNotesMailProbe Is Nothing Then
-						'this is a new one
-						MyNotesMailProbe = New MonitoredItems.DominoMailProbe(MyName)
-						MyNotesMailProbe.IncrementUpCount()
-						WriteAuditEntry(Now.ToString & " Adding NotesMail Probe: " & MyName)
-						MyNotesMailProbes.Add(MyNotesMailProbe)
-						With MyNotesMailProbe
-							.OffHours = False
-							.AlertCondition = False
-							.Status = "Not Scanned"
-							.LastScan = Now.AddMinutes(-15)
-							.Description = "Sends NotesMail to target address and verifies delivery."
-							.ResponseDetails = ""
-							.ResponseTime = 0
-                            .ServerType = VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription()
-						End With
-					End If
+                MyNotesMailProbe = MyNotesMailProbes.Search(MyName)
+                If MyNotesMailProbe Is Nothing Then
+                    'this is a new one
+                    MyNotesMailProbe = New MonitoredItems.DominoMailProbe(MyName)
+                    MyNotesMailProbe.IncrementUpCount()
+                    WriteAuditEntry(Now.ToString & " Adding NotesMail Probe: " & MyName)
+                    MyNotesMailProbes.Add(MyNotesMailProbe)
+                    With MyNotesMailProbe
+                        .OffHours = False
+                        .AlertCondition = False
+                        .Status = "Not Scanned"
+                        .LastScan = Now.AddMinutes(-15)
+                        .Description = "Sends NotesMail to target address and verifies delivery."
+                        .ResponseDetails = ""
+                        .ResponseTime = 0
+                        .ServerType = VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription()
+                    End With
+                End If
 
 
-					With MyNotesMailProbe
-						WriteAuditEntry(Now.ToString & " Updating NotesMail Probe: " & MyName, LogLevel.Verbose)
+                With MyNotesMailProbe
+                    WriteAuditEntry(Now.ToString & " Updating NotesMail Probe: " & MyName, LogLevel.Verbose)
 
-						Try
-							If dr.Item("ReplyTo") Is Nothing Then
-								.ReplyTo = ""
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail reply to value not set'.")
-							Else
-								.ReplyTo = dr.Item("ReplyTo")
-							End If
-						Catch ex As Exception
-							.Category = "NotesMail Probe"
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe Category not set, using default of 'NotesMail Probe'.")
-						End Try
+                    Try
+                        If entity.Id Is Nothing Then
+                            .ServerObjectID = ""
+                            WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                        Else
+                            .ServerObjectID = entity.Id
+                        End If
+                    Catch ex As Exception
+                        .ServerObjectID = ""
+                        WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                    End Try
 
-
-						Try
-							If dr.Item("Category") Is Nothing Then
-								.Category = "NotesMail Probe"
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe Category not set, using default of 'NotesMail Probe'.")
-							Else
-								.Category = dr.Item("Category")
-							End If
-						Catch ex As Exception
-							.Category = "NotesMail Probe"
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe Category not set, using default of 'NotesMail Probe'.")
-						End Try
-
-						Try
-							If dr.Item("Filename") Is Nothing Then
-								.FileName = ""
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe file attachment not specified.")
-							Else
-								.FileName = dr.Item("Filename")
-							End If
-						Catch ex As Exception
-							.FileName = ""
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe file attachment not specified.")
-						End Try
-
-						Try
-							If dr.Item("ScanInterval") Is Nothing Then
-								.ScanInterval = 10
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  scan interval not set, using default of 10 minutes.")
-							Else
-								.ScanInterval = dr.Item("ScanInterval")
-							End If
-						Catch ex As Exception
-							.ScanInterval = 10
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe scan interval not set, using default of 10 minutes.")
-						End Try
-
-						Try
-							If dr.Item("NotesMailAddress") Is Nothing Then
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  NotesMailAddress not set, this probe will be disabled.")
-								.Enabled = False
-							Else
-								.NotesMailAddress = dr.Item("NotesMailAddress")
-							End If
-						Catch ex As Exception
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  NotesMailAddress not set, this probe will be disabled.")
-							.Enabled = False
-						End Try
+                    Try
+                        If entity.ReplyToAddress Is Nothing Then
+                            .ReplyTo = ""
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail reply to value not set'.")
+                        Else
+                            .ReplyTo = entity.ReplyToAddress
+                        End If
+                    Catch ex As Exception
+                        .Category = "NotesMail Probe"
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe Category not set, using default of 'NotesMail Probe'.")
+                    End Try
 
 
-						Dim myServer As Object
-						myServer = myRegistry.ReadFromRegistry("Primary Server")
-						Try
-							If dr.Item("SourceServer") Is Nothing Then
-								If myServer <> Nothing Then
-									.SourceServer = CType(myServer, String)
-									WriteAuditEntry(Now.ToString & " " & .Name & "  Probe source server not set, using default, " & .SourceServer)
-								End If
-							Else
-								.SourceServer = dr.Item("SourceServer")
-							End If
-						Catch ex As Exception
-							If myServer <> Nothing Then
-								.SourceServer = CType(myServer, String)
-								WriteAuditEntry(Now.ToString & " " & .Name & "  Probe source server not set, using default, " & .SourceServer)
-							End If
-						End Try
+                    Try
+                        If entity.Category Is Nothing Then
+                            .Category = "NotesMail Probe"
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe Category Not Set, using default of 'NotesMail Probe'.")
+                        Else
+                            .Category = entity.Category
+                        End If
+                    Catch ex As Exception
+                        .Category = "NotesMail Probe"
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe Category not set, using default of 'NotesMail Probe'.")
+                    End Try
 
+                    Try
+                        If entity.FileName Is Nothing Then
+                            .FileName = ""
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe file attachment not specified.")
+                        Else
+                            .FileName = entity.FileName
+                        End If
+                    Catch ex As Exception
+                        .FileName = ""
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe file attachment not specified.")
+                    End Try
+
+                    Try
+                        If entity.ScanInterval Is Nothing Then
+                            .ScanInterval = 10
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  scan interval not set, using default of 10 minutes.")
+                        Else
+                            .ScanInterval = entity.ScanInterval
+                        End If
+                    Catch ex As Exception
+                        .ScanInterval = 10
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe scan interval not set, using default of 10 minutes.")
+                    End Try
+
+                    Try
+                        If entity.SendToAddress Is Nothing Then
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  NotesMailAddress not set, this probe will be disabled.")
+                            .Enabled = False
+                        Else
+                            .NotesMailAddress = entity.SendToAddress
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  NotesMailAddress not set, this probe will be disabled.")
+                        .Enabled = False
+                    End Try
+
+
+                    Dim myServer As Object
+                    myServer = myRegistry.ReadFromRegistry("Primary Server")
+                    Try
+                        If entity.SourceServer Is Nothing Then
+                            If myServer <> Nothing Then
+                                .SourceServer = CType(myServer, String)
+                                WriteAuditEntry(Now.ToString & " " & .Name & "  Probe source server not set, using default, " & .SourceServer)
+                            End If
+                        Else
+                            .SourceServer = entity.SourceServer
+                        End If
+                    Catch ex As Exception
+                        If myServer <> Nothing Then
+                            .SourceServer = CType(myServer, String)
+                            WriteAuditEntry(Now.ToString & " " & .Name & "  Probe source server not set, using default, " & .SourceServer)
+                        End If
+                    End Try
+
+                    Try
+                        '1/21/2016 NS modified for VSPLUS-2332
+                        '.OffHours = OffHours(MyName)
+                        .OffHours = OffHours(.SourceServer)
+                    Catch ex As Exception
+                        .OffHours = False
+                    End Try
+
+                    myServer = Nothing
+
+                    Try
+                        If entity.TargetServer Is Nothing Then
+                            .TargetServer = ""
+                            .Enabled = False
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe destination server not set.")
+                        Else
+                            .TargetServer = entity.TargetServer
+                        End If
+                    Catch ex As Exception
+                        .TargetServer = ""
+                        .Enabled = False
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe TargetServer  not set. ")
+                    End Try
+
+                    Try
+                        If entity.TargetDatabase Is Nothing Then
+                            .TargetDatabase = ""
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe target database not set.")
+                        Else
+                            .TargetDatabase = entity.TargetDatabase
+                        End If
+                    Catch ex As Exception
+                        .TargetDatabase = ""
+                        .Enabled = False
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe TargetServer  not set. ")
+                    End Try
+
+                    Try
+                        If entity.DeliveryThreshold Is Nothing Then
+                            .DeliveryThreshold = 5
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  DeliveryThreshold not set, using default of 5 minutes.")
+                        Else
+                            .DeliveryThreshold = entity.DeliveryThreshold
+                        End If
+                    Catch ex As Exception
+                        .DeliveryThreshold = 5
+                    End Try
+
+                    Try
+                        If entity.RetryInterval Is Nothing Then
+                            .RetryInterval = 2
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  retry scan interval not set, using default of 10 minutes.")
+                        Else
+                            .RetryInterval = entity.RetryInterval
+                        End If
+                    Catch ex As Exception
+                        .RetryInterval = 2
+                    End Try
+
+                    Try
+                        If entity.OffHoursScanInterval Is Nothing Then
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe off hours scan interval not set, using default of 20 minutes.")
+                            .OffHoursScanInterval = 20
+                        Else
+                            .OffHoursScanInterval = entity.OffHoursScanInterval
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe off hours scan interval not set, using default of 20 minutes.")
+                        .OffHoursScanInterval = 20
+                    End Try
+
+                    'Try
+                    '    If dr.Item("Location") Is Nothing Then
+                    '        .Location = "From " & .SourceServer & " to " & .TargetServer
+                    '    Else
+                    '        .Location = dr.Item("Location")
+                    '    End If
+                    'Catch ex As Exception
+                    '    .Location = "From " & .SourceServer & " to " & .TargetServer
+                    'End Try
+
+
+                    Try
+                        Dim myDominoServer As MonitoredItems.DominoServer
+                        myDominoServer = MyDominoServers.Search(.SourceServer)
+                        .Location = myDominoServer.Location
+                    Catch ex As Exception
+                        .Location = "NotesMail Probe"
+                    End Try
+
+                    Try
+                        If entity.IsEnabled Is Nothing Then
+                            .Enabled = True
+                        Else
+                            .Enabled = entity.IsEnabled
+                        End If
+                    Catch ex As Exception
+                        .Enabled = True
+                    End Try
+
+                    If .Enabled = False Then
+                        .Status = "Disabled"
+                    End If
+
+                    Try
+                        Dim entityStatus As VSNext.Mongo.Entities.Status
                         Try
-                            '1/21/2016 NS modified for VSPLUS-2332
-                            '.OffHours = OffHours(MyName)
-                            .OffHours = OffHours(.SourceServer)
+                            entityStatus = listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName))
                         Catch ex As Exception
-                            .OffHours = False
+                            entityStatus = New VSNext.Mongo.Entities.Status()
                         End Try
 
-						myServer = Nothing
-
-						Try
-							If dr.Item("DestinationServer") Is Nothing Then
-								.TargetServer = ""
-								.Enabled = False
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe destination server not set.")
-							Else
-								.TargetServer = dr.Item("DestinationServer")
-							End If
-						Catch ex As Exception
-							.TargetServer = ""
-							.Enabled = False
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe TargetServer  not set. ")
-						End Try
-
-						Try
-							If dr.Item("DestinationDatabase") Is Nothing Then
-								.TargetDatabase = ""
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe target database not set.")
-							Else
-								.TargetDatabase = dr.Item("DestinationDatabase")
-							End If
-						Catch ex As Exception
-							.TargetDatabase = ""
-							.Enabled = False
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe TargetServer  not set. ")
-						End Try
-
-						Try
-							If dr.Item("DeliveryThreshold") Is Nothing Then
-								.DeliveryThreshold = 5
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  DeliveryThreshold not set, using default of 5 minutes.")
-							Else
-								.DeliveryThreshold = dr.Item("DeliveryThreshold")
-							End If
-						Catch ex As Exception
-							.DeliveryThreshold = 5
-						End Try
-
-						Try
-							If dr.Item("RetryInterval") Is Nothing Then
-								.RetryInterval = 2
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  retry scan interval not set, using default of 10 minutes.")
-							Else
-								.RetryInterval = dr.Item("RetryInterval")
-							End If
-						Catch ex As Exception
-							.RetryInterval = 2
-						End Try
-
-						Try
-							If dr.Item("OffHoursScanInterval") Is Nothing Then
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe off hours scan interval not set, using default of 20 minutes.")
-								.OffHoursScanInterval = 20
-							Else
-								.OffHoursScanInterval = dr.Item("OffHoursScanInterval")
-							End If
-						Catch ex As Exception
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe off hours scan interval not set, using default of 20 minutes.")
-							.OffHoursScanInterval = 20
-						End Try
-
-						'Try
-						'    If dr.Item("Location") Is Nothing Then
-						'        .Location = "From " & .SourceServer & " to " & .TargetServer
-						'    Else
-						'        .Location = dr.Item("Location")
-						'    End If
-						'Catch ex As Exception
-						'    .Location = "From " & .SourceServer & " to " & .TargetServer
-                        'End Try
-
-
                         Try
-                            Dim myDominoServer As MonitoredItems.DominoServer
-                            myDominoServer = MyDominoServers.Search(.SourceServer)
-                            .Location = myDominoServer.Location
+                            If entityStatus.CurrentStatus Is Nothing Then
+                                .Status = "Not Scanned"
+                                WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  Status not set, using default of Not Scanned.")
+                            Else
+                                .Status = entityStatus.CurrentStatus
+                            End If
                         Catch ex As Exception
-                            .Location = "NotesMail Probe"
+                            .Status = "Not Scanned"
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe scan interval not set, using default of Not Scanned.")
                         End Try
 
-						Try
-							If dr.Item("Enabled") Is Nothing Then
-								.Enabled = True
-							Else
-								.Enabled = dr.Item("Enabled")
-							End If
-						Catch ex As Exception
-							.Enabled = True
-						End Try
-
-						If .Enabled = False Then
-							.Status = "Disabled"
-						End If
-
-						Try
-							If dr.Item("Status") Is Nothing Then
-								.Status = "Not Scanned"
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  Status not set, using default of Not Scanned.")
-							Else
-								.Status = dr.Item("Status")
-							End If
-						Catch ex As Exception
-							.Status = "Not Scanned"
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe scan interval not set, using default of Not Scanned.")
-						End Try
-
-						Try
-							If dr.Item("LastUpdate") Is Nothing Then
-								.LastScan = Now
-								WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  scan interval not set, using default of Now.")
-							Else
-								.LastScan = dr.Item("LastUpdate")
-							End If
-						Catch ex As Exception
-							.LastScan = Now
-							WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe scan interval not set, using default of Now.")
-						End Try
-
-						Try
-							If dr.Item("CurrentNodeID") Is Nothing Then
-								.InsufficentLicenses = True
-							Else
-								If dr.Item("CurrentNodeID").ToString() = "-1" Then
-									.InsufficentLicenses = True
-								Else
-									.InsufficentLicenses = False
-								End If
-
-							End If
+                        Try
+                            If entityStatus.LastUpdated Is Nothing Then
+                                .LastScan = Now
+                                WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  scan interval not set, using default of Now.")
+                            Else
+                                .LastScan = entityStatus.LastUpdated
+                            End If
                         Catch ex As Exception
-                            '7/8/2015 NS modified for VSPLUS-1959
-                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probes insufficient licenses not set.")
+                            .LastScan = Now
+                            WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe scan interval not set, using default of Now.")
+                        End Try
 
-						End Try
+                    Catch ex As Exception
 
-					End With
+                    End Try
 
-					MyNotesMailProbe = Nothing
-				Next
-				dr = Nothing
-				myRegistry = Nothing
 
-			Catch exception As DataException
-				WriteAuditEntry(Now.ToString & " " & exception.Message)
-			Catch ex As Exception
-				WriteAuditEntry(Now.ToString & " Exception looping through database records: " & ex.Message)
-			End Try
-		End With
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
 
-		InsufficentLicensesTest(MyNotesMailProbes)
+                        End If
+                    Catch ex As Exception
+                        '7/8/2015 NS modified for VSPLUS-1959
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probes insufficient licenses not set.")
+
+                    End Try
+
+                End With
+
+                MyNotesMailProbe = Nothing
+            Next
+            myRegistry = Nothing
+
+        Catch exception As DataException
+            WriteAuditEntry(Now.ToString & " " & exception.Message)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Exception looping through database records: " & ex.Message)
+        End Try
+
+
+
+        InsufficentLicensesTest(MyNotesMailProbes)
 
         'free memory
-        dsNotesMailSettings.Dispose()
-        myDataRow = Nothing
         MyMailProbeNames = Nothing
         WriteAuditEntry(Now.ToString & " Done configuring NotesMail Probes")
     End Sub
@@ -1910,14 +1993,20 @@ Partial Public Class VitalSignsPlusDomino
         'start with fresh data
         myKeywords.Clear()
         'Connect to the data source
-        Dim dsKeywords As New Data.DataSet
-		'VSPLUS-2300 ticket,Sowjanya
+        'VSPLUS-2300 ticket,Sowjanya
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
         Try
-			Dim strSQL As String = "select Keyword,ServerID,ServerName, RepeatOnce,NotRequiredKeyword,log,AgentLog FROM Logfile inner join [DominoEventLogServers] on logfile.DominoEventLogId=[DominoEventLogServers].DominoEventLogId  inner join Servers on servers.id=[DominoEventLogServers].serverid "
 
-			'changed the query for getting serverid'
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsKeywords, "Keywords")
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DominoLogScanning.ToDescription())
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.LogFileServers) _
+                .Include(Function(x) x.LogFileKeywords)
+
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Failed to create dataset in Create Keywords Collection processing code. Exception: " & ex.Message)
@@ -1929,24 +2018,38 @@ Partial Public Class VitalSignsPlusDomino
         Try
             Dim dr As DataRow
             Dim i As Integer = 0
-            For Each dr In dsKeywords.Tables("Keywords").Rows
-                Dim MyKeyword As New LogFileKeyword
-                MyKeyword.Keyword = dr.Item("Keyword")
-                MyKeyword.RepeatOnce = dr.Item("RepeatOnce")
-                MyKeyword.NotRequiredKeyword = dr.Item("NotRequiredKeyword")
-                MyKeyword.ScanLog = dr.Item("Log")
-				MyKeyword.ScanAgentLog = dr.Item("AgentLog")
-				'MyKeyword.ServerID = dr.Item("ServerID")
-				MyKeyword.ServerName = dr.Item("ServerName")
-				'added Server Name'
-                myKeywords.Add(MyKeyword)
-                If MyKeyword.ScanAgentLog = True Then
-                    WriteAuditEntry(Now.ToString & "  Watching Domino agent log file for " & MyKeyword.Keyword)
-                End If
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                For Each entityKeyword As VSNext.Mongo.Entities.LogFileKeyword In entity.LogFileKeywords
+                    For Each serverObjectId As MongoDB.Bson.ObjectId In entity.LogFileServers
+                        Try
 
-                If MyKeyword.ScanLog = True Then
-                    WriteAuditEntry(Now.ToString & "  Watching Domino log file for " & MyKeyword.Keyword)
-                End If
+
+                            Dim MyKeyword As New LogFileKeyword()
+                            MyKeyword.Keyword = entityKeyword.Keyword
+                            MyKeyword.RepeatOnce = entityKeyword.OneAlertPerDay
+                            MyKeyword.NotRequiredKeyword = entityKeyword.Exclude
+                            MyKeyword.ScanLog = entityKeyword.ScanLog
+                            MyKeyword.ScanAgentLog = entityKeyword.ScanAgentLog
+                            'MyKeyword.ServerID = dr.Item("ServerID")
+                            Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+                            Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.ObjectId, serverObjectId)
+                            Dim projectionDefServers As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Project.Include(Function(x) x.DeviceName)
+                            MyKeyword.ServerName = repositoryServers.Find(filterDefServers, projectionDefServers).ToList()(0).DeviceName
+                            'added Server Name'
+                            myKeywords.Add(MyKeyword)
+                            If MyKeyword.ScanAgentLog = True Then
+                                WriteAuditEntry(Now.ToString & "  Watching Domino agent log file for " & MyKeyword.Keyword)
+                            End If
+
+                            If MyKeyword.ScanLog = True Then
+                                WriteAuditEntry(Now.ToString & "  Watching Domino log file for " & MyKeyword.Keyword)
+                            End If
+                        Catch ex As Exception
+                            WriteAuditEntry(Now.ToString & " Exception creating Domino log file collection: " & ex.Message)
+                        End Try
+                    Next
+                Next
+
             Next
             ' ReDim Preserve Keywords(i - 1)
             dr = Nothing
@@ -1956,46 +2059,61 @@ Partial Public Class VitalSignsPlusDomino
             WriteAuditEntry(Now.ToString & " Random Exception creating Domino log file collection:  " & ex.Message)
         End Try
 
-        'Free the memory
-        dsKeywords.Dispose()
-
     End Sub
 
     Private Sub CreateDominoClusterCollection()
 
         'start with fresh data
         '***  Build the data set dynamically
-        Dim dsDominoClusters As New Data.DataSet
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfDominoServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
 
         Try
-            '4/20/2016 NS modified for VSPLUS-2724 
-            Dim strSelect As String = ""
-            Dim strJoins As String = ""
-            Dim strSQL As String = ""
-            strSelect = "select d.ID myID,*,s.ID ClustID, s.ServerName A,s2.ServerName B, s3.ServerName C,st.LastUpdate, st.Status, st.StatusCode "
 
-            strJoins = " from DominoCluster d "
-            strJoins += " left join Servers s on ServerID_A=s.ID "
-            strJoins += "inner join Servers s2 on ServerID_B=s2.ID left join Servers s3 on ServerID_C=s3.ID AND d.Enabled=1 "
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DominoCluster.ToDescription())
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DominoServerA) _
+                .Include(Function(x) x.DominoServerAExcludeFolders) _
+                .Include(Function(x) x.DominoServerAFileMask) _
+                .Include(Function(x) x.DominoServerB) _
+                .Include(Function(x) x.DominoServerBExcludeFolders) _
+                .Include(Function(x) x.DominoServerBFileMask) _
+                .Include(Function(x) x.DominoServerC) _
+                .Include(Function(x) x.DominoServerCExcludeFolders) _
+                .Include(Function(x) x.DominoServerCFileMask) _
+                .Include(Function(x) x.FirstAlertThreshold) _
+                .Include(Function(x) x.IsEnabled) _
+                .Include(Function(x) x.Category) _
+                .Include(Function(x) x.ScanInterval) _
+                .Include(Function(x) x.RetryInterval) _
+                .Include(Function(x) x.OffHoursScanInterval) _
+                .Include(Function(x) x.CurrentNode)
 
-			If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
-				Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-                strSelect += ", di.CurrentNodeID "
-                strJoins += "	inner join DeviceInventory di on d.ID=di.DeviceID and di.DeviceTypeId=(select id from ServerTypes where ServerType = 'Domino Cluster')"
-                strJoins += " inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" & NodeName & "'"
-			End If
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
-            strJoins += " left outer join Status st on st.Type='Domino Cluster database' and st.Name=d.Name"
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            projectionDef = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName)
+            listOfDominoServers = repository.Find(filterDef, projectionDef).ToList()
 
-            strJoins += " where(Enabled = 1)"
+            Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
+            Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+                .Include(Function(x) x.StatusCode) _
+                .Include(Function(x) x.CurrentStatus) _
+                .Include(Function(x) x.LastUpdated) _
+                .Include(Function(x) x.Type) _
+                .Include(Function(x) x.Name)
 
-            strSQL = strSelect + strJoins
-            WriteAuditEntry(Now.ToString & " SQL query for cluster: " & strSQL, LogLevel.Verbose)
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsDominoClusters, "DominoClusters")
+            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
-			WriteAuditEntry(Now.ToString & " Created a dataset with " & dsDominoClusters.Tables("DominoClusters").Rows.Count & " Domino clusters defined.")
-		Catch ex As Exception
+        Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateDominoClustersCollection processing code. Exception: " & ex.Message)
             Exit Sub
         End Try
@@ -2004,14 +2122,13 @@ Partial Public Class VitalSignsPlusDomino
         'but first delete any that are in the collection but not in the database anymore
         'Delete propagation
 
-        Dim myDataRow As System.Data.DataRow
         Dim MyServerNames As String = ""
 
         If myDominoClusters.Count > 0 Then
             '  WriteAuditEntry(Now.ToString & " Checking to see if any Domino servers should be deleted. ")
             'Get all the names of all the servers in the data table
-            For Each myDataRow In dsDominoClusters.Tables("DominoClusters").Rows()
-                MyServerNames += myDataRow.Item("Name") & "  "
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                MyServerNames += entity.DeviceName & "  "
             Next
         End If
 
@@ -2029,7 +2146,7 @@ Partial Public Class VitalSignsPlusDomino
                     Else
                         'the server has been deleted, so delete from the collection
                         Try
-							myDominoClusters.Delete(Dom.Name)
+                            myDominoClusters.Delete(Dom.Name)
                             If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Domino Cluster " & Dom.Name & " has been deleted by the service.")
                         Catch ex As Exception
                             WriteAuditEntry(Now.ToString & " " & Dom.Name & " was not deleted by the service because " & ex.Message)
@@ -2053,18 +2170,15 @@ Partial Public Class VitalSignsPlusDomino
         WriteAuditEntry(Now.ToString & " Reading configuration settings for Domino Clusters.")
 
         Try
-            Dim dr As DataRow
-            For Each dr In dsDominoClusters.Tables("DominoClusters").Rows
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
                 i += 1
 
-                If dr.Item("Name") Is Nothing Then
+                If entity.DeviceName Is Nothing Then
                     MyName = "Domino Cluster #" & i.ToString
                 Else
-                    MyName = dr.Item("Name")
+                    MyName = entity.DeviceName
                 End If
 
-                Dim ClusterId As String = ""
-                ClusterId = dr.Item("myID")
 
                 'See if this server is already in the collection; if so, update its settings otherwise create a new one
                 myDominoCluster = myDominoClusters.Search(MyName)
@@ -2072,7 +2186,6 @@ Partial Public Class VitalSignsPlusDomino
                     'this server is new
                     myDominoCluster = New MonitoredItems.DominoMailCluster
                     myDominoCluster.Name = MyName
-                    myDominoCluster.ClusterID = ClusterId
                     myDominoCluster.Status = "Not Scanned"
                     myDominoClusters.Add(myDominoCluster)
                     myDominoCluster.IncrementUpCount()
@@ -2092,13 +2205,25 @@ Partial Public Class VitalSignsPlusDomino
                 End If
 
                 With myDominoCluster
-                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Configuring Domino Cluster: " & dr.Item("Name"))
+                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Configuring Domino Cluster: " & entity.DeviceName)
 
                     Try
-                        If dr.Item("Enabled") Is Nothing Then
+                        If entity.Id Is Nothing Then
+                            .ServerObjectID = ""
+                            WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                        Else
+                            .ServerObjectID = entity.Id
+                        End If
+                    Catch ex As Exception
+                        .ServerObjectID = ""
+                        WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                    End Try
+
+                    Try
+                        If entity.IsEnabled Is Nothing Then
                             .Enabled = True
                         Else
-                            .Enabled = dr.Item("Enabled")
+                            .Enabled = entity.IsEnabled
                         End If
 
                     Catch ex As Exception
@@ -2113,51 +2238,63 @@ Partial Public Class VitalSignsPlusDomino
                         .Status = "Not Scanned"
                     End If
 
-					Try
-						'Category
-						.Category = dr.Item("Category")
-					Catch ex As Exception
-						.Category = "Mail"
-						WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster category exception : " & ex.Message)
+                    Try
+                        'Category
+                        .Category = entity.Category
+                    Catch ex As Exception
+                        .Category = "Mail"
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster category exception : " & ex.Message)
 
-					End Try
+                    End Try
 
                     WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster category is : " & .Category)
 
                     Try
-						.OffHours = OffHours(MyName)
+                        .OffHours = OffHours(MyName)
                     Catch ex As Exception
                         .OffHours = False
                     End Try
 
                     Try
-                        If dr.Item("A") Is Nothing Then
+                        If entity.DominoServerA Is Nothing Then
                             .Server_A_Name = ""
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .Server_A_Name = dr.Item("A")
+                            Try
+                                .Server_A_Name = listOfDominoServers.Where(Function(x) x.ObjectId.Equals(entity.DominoServerA)).ToList()(0).DeviceName
+                            Catch ex As Exception
+                                .Server_A_Name = ""
+                            End Try
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server A name not set.")
                     End Try
 
                     Try
-                        If dr.Item("B") Is Nothing Then
+                        If entity.DominoServerB Is Nothing Then
                             .Server_B_Name = ""
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .Server_B_Name = dr.Item("B")
+                            Try
+                                .Server_B_Name = listOfDominoServers.Where(Function(x) x.ObjectId.Equals(entity.DominoServerB)).ToList()(0).DeviceName
+                            Catch ex As Exception
+                                .Server_B_Name = ""
+                            End Try
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server B name not set.")
                     End Try
 
                     Try
-                        If dr.Item("C") Is Nothing Then
+                        If entity.DominoServerC Is Nothing Then
                             .Server_C_Name = ""
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .Server_C_Name = dr.Item("C")
+                            Try
+                                .Server_C_Name = listOfDominoServers.Where(Function(x) x.ObjectId.Equals(entity.DominoServerC)).ToList()(0).DeviceName
+                            Catch ex As Exception
+                                .Server_C_Name = ""
+                            End Try
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server C name not set.")
@@ -2165,30 +2302,30 @@ Partial Public Class VitalSignsPlusDomino
 
                     '4/20/2016 NS added for VSPLUS-2724
                     Try
-                        If dr.Item("Server_A_ExcludeList") Is Nothing Then
+                        If entity.DominoServerAExcludeFolders Is Nothing Then
                             .Server_A_ExcludeList = ""
                         Else
-                            .Server_A_ExcludeList = dr.Item("Server_A_ExcludeList")
+                            .Server_A_ExcludeList = entity.DominoServerAExcludeFolders
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server A folder exclusion not set.")
                     End Try
 
                     Try
-                        If dr.Item("Server_B_ExcludeList") Is Nothing Then
+                        If entity.DominoServerBExcludeFolders Is Nothing Then
                             .Server_B_ExcludeList = ""
                         Else
-                            .Server_B_ExcludeList = dr.Item("Server_B_ExcludeList")
+                            .Server_B_ExcludeList = entity.DominoServerBExcludeFolders
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server B folder exclusion not set.")
                     End Try
 
                     Try
-                        If dr.Item("Server_C_ExcludeList") Is Nothing Then
+                        If entity.DominoServerCExcludeFolders Is Nothing Then
                             .Server_C_ExcludeList = ""
                         Else
-                            .Server_C_ExcludeList = dr.Item("Server_C_ExcludeList")
+                            .Server_C_ExcludeList = entity.DominoServerCExcludeFolders
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server C folder exclusion not set.")
@@ -2205,33 +2342,33 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If dr.Item("Server_A_Directory") Is Nothing Then
+                        If entity.DominoServerAFileMask Is Nothing Then
                             .Server_A_Directory = "mail\"
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .Server_A_Directory = dr.Item("Server_A_Directory")
+                            .Server_A_Directory = entity.DominoServerAFileMask
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server A folder not set. Using default of Mail")
                     End Try
 
                     Try
-                        If dr.Item("Server_B_Directory") Is Nothing Then
+                        If entity.DominoServerBFileMask Is Nothing Then
                             .Server_B_Directory = "mail\"
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .Server_B_Directory = dr.Item("Server_B_Directory")
+                            .Server_B_Directory = entity.DominoServerBFileMask
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server B folder not set. Using default of Mail")
                     End Try
 
                     Try
-                        If dr.Item("Server_C_Directory") Is Nothing Then
+                        If entity.DominoServerCFileMask Is Nothing Then
                             .Server_C_Directory = "mail\"
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
-                            .Server_C_Directory = dr.Item("Server_C_Directory")
+                            .Server_C_Directory = entity.DominoServerCFileMask
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster server C folder not set. Using default of Mail")
@@ -2253,11 +2390,11 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Try
-                        If dr.Item("First_Alert_Threshold") Is Nothing Then
+                        If entity.FirstAlertThreshold Is Nothing Then
                             .FirstAlertThreshold = 10
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster first alert not set, using default of 10.")
                         Else
-                            .FirstAlertThreshold = dr.Item("First_Alert_Threshold")
+                            .FirstAlertThreshold = entity.FirstAlertThreshold
                         End If
                     Catch ex As Exception
                         .FirstAlertThreshold = 10
@@ -2273,11 +2410,11 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Try
-                        If dr.Item("ScanInterval") Is Nothing Then
+                        If entity.ScanInterval Is Nothing Then
                             .ScanInterval = 60
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster  scan interval not set, using default of 60 minutes.")
                         Else
-                            .ScanInterval = dr.Item("ScanInterval")
+                            .ScanInterval = entity.ScanInterval
                         End If
                     Catch ex As Exception
                         .ScanInterval = 60
@@ -2287,11 +2424,11 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Try
-                        If dr.Item("RetryInterval") Is Nothing Then
+                        If entity.RetryInterval Is Nothing Then
                             .RetryInterval = 30
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster  retry scan interval not set, using default of 30 minutes.")
                         Else
-                            .RetryInterval = dr.Item("RetryInterval")
+                            .RetryInterval = entity.RetryInterval
                         End If
                     Catch ex As Exception
                         .RetryInterval = 30
@@ -2299,11 +2436,11 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Try
-                        If dr.Item("OffHoursScanInterval") Is Nothing Then
+                        If entity.OffHoursScanInterval Is Nothing Then
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server off hours scan interval not set, using default of 20 minutes.")
                             .OffHoursScanInterval = 20
                         Else
-                            .OffHoursScanInterval = dr.Item("OffHoursScanInterval")
+                            .OffHoursScanInterval = entity.OffHoursScanInterval
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino server off hours scan interval not set, using default of 20 minutes.")
@@ -2325,51 +2462,61 @@ Partial Public Class VitalSignsPlusDomino
                         End If
                     Catch ex As Exception
 
-					End Try
+                    End Try
 
-					Try
-						If dr.Item("Status") Is Nothing Then
-							.Status = "Not Scanned"
-						Else
-							.Status = dr.Item("Status")
-						End If
-					Catch ex As Exception
-						.Status = "Not Scanned"
-					End Try
+                    Try
+                        Dim entityStatus As VSNext.Mongo.Entities.Status
+                        Try
+                            entityStatus = listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName)).ToList()(0)
+                        Catch ex As Exception
 
-					Try
-						If dr.Item("LastUpdate") Is Nothing Then
-							.LastScan = Now
-						Else
-							.LastScan = dr.Item("LastUpdate")
-						End If
-					Catch ex As Exception
-						.LastScan = Now
-					End Try
+                        End Try
+                        Try
+                            If entityStatus.CurrentStatus Is Nothing Then
+                                .Status = "Not Scanned"
+                            Else
+                                .Status = entityStatus.CurrentStatus
+                            End If
+                        Catch ex As Exception
+                            .Status = "Not Scanned"
+                        End Try
 
-					Try
-						If dr.Item("CurrentNodeID") Is Nothing Then
-							.InsufficentLicenses = True
-						Else
-							If dr.Item("CurrentNodeID").ToString() = "-1" Then
-								.InsufficentLicenses = True
-							Else
-								.InsufficentLicenses = False
-							End If
+                        Try
+                            If entityStatus.LastUpdated Is Nothing Then
+                                .LastScan = Now
+                            Else
+                                .LastScan = entityStatus.LastUpdated
+                            End If
+                        Catch ex As Exception
+                            .LastScan = Now
+                        End Try
+                    Catch ex As Exception
 
-						End If
+                    End Try
+
+
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+
+                        End If
                     Catch ex As Exception
                         '7/8/2015 NS modified for VSPLUS-1959
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino Cluster insufficient licenses not set.")
 
-					End Try
+                    End Try
 
                 End With
 
                 myDominoCluster = Nothing
             Next
 
-            dr = Nothing
 
         Catch exception As DataException
             WriteAuditEntry(Now.ToString & " Domino servers error: " & exception.Message)
@@ -2377,17 +2524,14 @@ Partial Public Class VitalSignsPlusDomino
             WriteAuditEntry(Now.ToString & " Domino servers error: " & ex.Message)
         End Try
 
-		InsufficentLicensesTest(myDominoClusters)
-
-        dsDominoClusters.Dispose()
-
+        InsufficentLicensesTest(myDominoClusters)
 
     End Sub
 
 
-	Private Sub InsufficentLicensesTest(ByRef coll As System.Collections.CollectionBase)
+    Private Sub InsufficentLicensesTest(ByRef coll As System.Collections.CollectionBase)
 
-		If (coll.Count = 0) Then
+        If (coll.Count = 0) Then
 			Return
 		End If
 

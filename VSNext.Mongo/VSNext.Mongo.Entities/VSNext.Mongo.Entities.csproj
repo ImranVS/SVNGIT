@@ -68,6 +68,7 @@
     <Compile Include="EventsMaster.cs" />
     <Compile Include="License.cs" />
     <Compile Include="ExJournalStats.cs" />
+    <Compile Include="Location.cs" />
     <Compile Include="Mailbox.cs" />
     <Compile Include="MenuItems.cs" />
     <Compile Include="MobileDevices.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="ServerType.cs" />
     <Compile Include="NameValue.cs" />
     <Compile Include="Status.cs" />
+    <Compile Include="StatusHistory.cs" />
     <Compile Include="SumamryStatistics.cs" />
     <Compile Include="Tenant.cs" />
     <Compile Include="TravelerStats.cs" />

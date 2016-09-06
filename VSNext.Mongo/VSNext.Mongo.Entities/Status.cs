@@ -39,6 +39,12 @@ namespace VSNext.Mongo.Entities
         [BsonElement("name")]
         [BsonIgnoreIfNullAttribute]
         public string Name { get; set; }
+
+        [DataMember]
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNullAttribute]
+        public ObjectId? DeviceId { get; set; }
+
         //"last_update" : "2015-08-05T08:40:51.620Z",
         [DataMember]
         [BsonElement("next_Scan")]
@@ -1464,6 +1470,26 @@ namespace VSNext.Mongo.Entities
         [BsonElement("send_restart_cmd_offhours")]
         [BsonIgnoreIfNullAttribute]
         public Boolean? SendRestartCmdOffhours { get; set; }
+
+        [DataMember]
+        [BsonElement("console_string")]
+        [BsonIgnoreIfNullAttribute]
+        public String ConsoleString { get; set; }
+
+        [DataMember]
+        [BsonElement("freeze_detect")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean? FreezeDetect { get; set; }
+
+        [DataMember]
+        [BsonElement("retry_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? RetryCount { get; set; }
+
+        [DataMember]
+        [BsonElement("max_busy_time")]
+        [BsonIgnoreIfNullAttribute]
+        public int? MaxBusyTime { get; set; }
     }
 
 

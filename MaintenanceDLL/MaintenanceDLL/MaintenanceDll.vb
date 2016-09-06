@@ -263,44 +263,44 @@ Public Class MaintenanceDll
 
 
 	'VSPLUS-1298 Durga
-	Public Function OffHours() As Boolean
-		Dim strSQL As String
-		Dim dt As New DataTable
-		Dim ds As New DataSet
-		Dim vsobj As New VSAdaptor
-		Dim isoffhours As Boolean
+    'Public Function OffHours() As Boolean
+    '	Dim strSQL As String
+    '	Dim dt As New DataTable
+    '	Dim ds As New DataSet
+    '	Dim vsobj As New VSAdaptor
+    '	Dim isoffhours As Boolean
 
-		Try
-			strSQL = "select Starttime,Duration from HoursIndicator where ID=0"
+    '	Try
+    '		strSQL = "select Starttime,Duration from HoursIndicator where ID=0"
 
-			dt.TableName = "HoursIndicator"
-			ds.Tables.Add(dt)
+    '		dt.TableName = "HoursIndicator"
+    '		ds.Tables.Add(dt)
 
-			vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "HoursIndicator")
-			If dt.Rows.Count = 0 Then
-				Return False
-			End If
-			If dt.Rows.Count > 0 Then
+    '		vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "HoursIndicator")
+    '		If dt.Rows.Count = 0 Then
+    '			Return False
+    '		End If
+    '		If dt.Rows.Count > 0 Then
 
-				Dim currenttime As DateTime = DateTime.Now
-				'Dim starttime As String = dt.Rows(0)(1).ToString()
-				Dim starttime As DateTime = Convert.ToDateTime(dt.Rows(0)(0).ToString())
-				Dim duration As Int32 = Convert.ToInt32(dt.Rows(0)(1).ToString())
-				Dim endtime As DateTime = starttime.AddMinutes(duration)
-				If currenttime > starttime And currenttime < endtime Then
-					isoffhours = False
-				Else
-					isoffhours = True
-				End If
-			End If
+    '			Dim currenttime As DateTime = DateTime.Now
+    '			'Dim starttime As String = dt.Rows(0)(1).ToString()
+    '			Dim starttime As DateTime = Convert.ToDateTime(dt.Rows(0)(0).ToString())
+    '			Dim duration As Int32 = Convert.ToInt32(dt.Rows(0)(1).ToString())
+    '			Dim endtime As DateTime = starttime.AddMinutes(duration)
+    '			If currenttime > starttime And currenttime < endtime Then
+    '				isoffhours = False
+    '			Else
+    '				isoffhours = True
+    '			End If
+    '		End If
 
-		Catch ex As Exception
-			WriteHistoryEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
-		End Try
-		Return isoffhours
-	End Function
-	'VSPLUS-1298 Durga
-	'Returns true if in off-hours, false otherwise
+    '	Catch ex As Exception
+    '		WriteHistoryEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
+    '	End Try
+    '	Return isoffhours
+    'End Function
+    'VSPLUS-1298 Durga
+    'Returns true if in off-hours, false otherwise
 	Public Function OffHours(ByVal servername As String) As Boolean
 		Dim strSQL As String
 		Dim dt As New DataTable

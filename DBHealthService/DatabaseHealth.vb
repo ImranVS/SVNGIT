@@ -958,7 +958,7 @@ NextServer:
 
 
         Catch ex As Exception
-
+            WriteDeviceHistoryEntry("Database_Health", Server.Name, Now.ToString & " Error assigning the Database Count to the server. Error: " & ex.Message)
         End Try
 
         Try

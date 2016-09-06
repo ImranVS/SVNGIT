@@ -1923,7 +1923,8 @@ namespace VitalSignsMicrosoftClasses
          {
 
              DailyStatistics dailyStatistics = new DailyStatistics();
-             dailyStatistics.DeviceId = int.Parse(server.ServerId);
+			//WS commented out due to microsoft not being supported in inital release of 4.0
+             //dailyStatistics.DeviceId = int.Parse(server.ServerId);
              dailyStatistics.StatName = StatName;
              dailyStatistics.StatValue = double.Parse(StatValue);
 
@@ -2205,10 +2206,15 @@ namespace VitalSignsMicrosoftClasses
 			 objFromParent.CheckForInsufficentLicenses(objServers, ServerType, ServerTypeForTypeAndName);
 		 }
 
+        public static Boolean UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType ServerType, string NodeName)
+        {
+            return objFromParent.UpdateServiceCollection(ServerType, NodeName);
+        }
 
-		#endregion
 
-	}
+        #endregion
+
+    }
 
      public class ActiveSyncDevice
      {
@@ -2774,7 +2780,6 @@ if ($ModPath -ne '')
 
 		 public void CheckForTableChanges()
 		 {
-			 MonitoredItems.ServicesFlags flags = new MonitoredItems.ServicesFlags();
 			 string NodeName = "";
 			 while (true)
 			 {
@@ -2796,49 +2801,49 @@ if ($ModPath -ne '')
 				 {
 					 try
 					 {
-						 if (flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Active_Directory, NodeName))
+						 if (Common.UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.ActiveDirectory, NodeName))
 						 {
 							 Common.WriteDeviceHistoryEntry("All", "Exchange", "Refreshing AD Collection on demand");
 							 adMain.RefreshActiveDirectoryCollection();
 						 }
 
-						 if (flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Database_Availability_Group, NodeName))
+						 if (Common.UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.DatabaseAvailabilityGroup, NodeName))
 						 {
 							 Common.WriteDeviceHistoryEntry("All", "Exchange", "Refreshing DAG Collection on demand");
 							 exMain.RefreshDAGCollection();
 						 }
 
-						 if (flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Exchange, NodeName))
+						 if (Common.UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.Exchange, NodeName))
 						 {
 							 Common.WriteDeviceHistoryEntry("All", "Exchange", "Refreshing Exchange Collection on demand");
 							 exMain.RefreshExchangeCollection();
 						 }
 
-						 if (flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Skype_for_Business, NodeName))
+						 if (Common.UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.SkypeForBusiness, NodeName))
 						 {
 							 Common.WriteDeviceHistoryEntry("All", "Exchange", "Refreshing Skype for Business Collection on demand");
 							 exMain.RefreshLyncCollection();
 						 }
 
-						 if (flags.UpdateServiceCollection(MonitoredItems.ServerTypes.SharePoint, NodeName))
+						 if (Common.UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.SharePoint, NodeName))
 						 {
 							 Common.WriteDeviceHistoryEntry("All", "Exchange", "Refreshing SP Collection on demand");
 							 spMain.RefreshSharePointCollection();
 						 }
 
-						 if (flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Windows, NodeName))
+						 if (Common.UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.Windows, NodeName))
 						 {
 							 Common.WriteDeviceHistoryEntry("All", "Exchange", "Refreshing Windows Collection on demand");
 							 wnMain.RefreshWindowsCollection();
 						 }
 
-						 if (flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Network_Latency, NodeName))
+						 if (Common.UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.NetworkLatency, NodeName))
 						 {
 							 Common.WriteDeviceHistoryEntry("All", "Exchange", "Refreshing Network Latency Collection on demand");
 							 wnMain.RefreshLatencyCollection();
 						 }
 
-						 if (flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Office_365, NodeName))
+						 if (Common.UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.Office365, NodeName))
 						 {
 							 Common.WriteDeviceHistoryEntry("All", "Exchange", "Refreshing O365 Collection on demand");
 							 ofMain.RefreshOffice365Collction();

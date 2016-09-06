@@ -1293,7 +1293,6 @@ Public Class VitalSignsPlusCore
 
 
         Dim myRegistry As New VSFramework.RegistryHandler
-        Dim flags As New MonitoredItems.ServicesFlags()
         Dim NodeName As String = ""
         '********** Refresh Collection of Devices and Monitor settings
 
@@ -1306,7 +1305,7 @@ Public Class VitalSignsPlusCore
                     End If
                 End If
                 If NodeName <> "" Then
-                    If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Sametime, NodeName) Then
+                    If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.Sametime, NodeName) Then
                         Try
                             '' MonitorDominoSettings()
                             WriteAuditEntry(Now.ToString & " Refreshing configuration of Sametime servers")
@@ -1326,7 +1325,7 @@ Public Class VitalSignsPlusCore
 
                     Try
                         'Update the settings anytime the registry indicates a change has been made
-                        If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Black_Berry_Servers, NodeName) Then
+                        If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.BES, NodeName) Then
                             Try
                                 '' MonitorDominoSettings()
                                 WriteAuditEntry(Now.ToString & " Refreshing configuration of BlackBerry Servers")
@@ -1349,7 +1348,7 @@ Public Class VitalSignsPlusCore
 
                     Try
                         'Update the settings anytime the registry indicates a change has been made
-                        If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Mail, NodeName) Then
+                        If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.Mail, NodeName) Then
                             Try
                                 '' MonitorDominoSettings()
                                 WriteAuditEntry(Now.ToString & " Refreshing configuration of Mail Services")
@@ -1372,7 +1371,7 @@ Public Class VitalSignsPlusCore
 
                     Try
                         'Update the settings anytime the registry indicates a change has been made
-                        If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.URL, NodeName) Then
+                        If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.URL, NodeName) Then
                             Try
                                 '' MonitorDominoSettings()
                                 WriteAuditEntry(Now.ToString & " Refreshing configuration of URLs")
@@ -1389,7 +1388,7 @@ Public Class VitalSignsPlusCore
 
                     Try
                         'Update the settings anytime the registry indicates a change has been made
-                        If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.WebSphere, NodeName) Then
+                        If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.WebSphere, NodeName) Then
                             Try
                                 '' MonitorDominoSettings()
                                 WriteAuditEntry(Now.ToString & " Refreshing configuration of WebSphere")
@@ -1407,7 +1406,7 @@ Public Class VitalSignsPlusCore
 
                     Try
                         'Update the settings anytime the registry indicates a change has been made
-                        If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Cloud, NodeName) Then
+                        If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.Cloud, NodeName) Then
                             Try
                                 '' MonitorDominoSettings()
                                 WriteAuditEntry(Now.ToString & " Refreshing configuration of Cloud Applications")
@@ -1424,7 +1423,7 @@ Public Class VitalSignsPlusCore
 
                     Try
                         'Update the settings anytime the registry indicates a change has been made
-                        If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.IBM_Connections, NodeName) Then
+                        If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.IBMConnections, NodeName) Then
                             Try
                                 '' MonitorDominoSettings()
                                 WriteAuditEntry(Now.ToString & " Refreshing configuration of IBM Connections")

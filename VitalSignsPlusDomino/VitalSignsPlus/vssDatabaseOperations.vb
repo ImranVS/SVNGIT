@@ -192,7 +192,8 @@ Partial Public Class VitalSignsPlusDomino
                                                                                      .Set(Function(x) x.UpMinutes, .UpMinutes) _
                                                                                      .Set(Function(x) x.DownMinutes, .DownMinutes) _
                                                                                      .Set(Function(x) x.UpPercentMinutes, 0) _
-                                                                                     .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan))
+                                                                                     .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan)) _
+                                                                                     .Set(Function(x) x.DeviceId, MongoDB.Bson.ObjectId.Parse(.ServerObjectID))
 
                 Try
                     repository.Upsert(filterDef, updateDef)
@@ -297,7 +298,9 @@ Partial Public Class VitalSignsPlusDomino
                         .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                         .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan)) _
                         .Set(Function(x) x.Details, .ResponseDetails) _
-                        .Set(Function(x) x.Category, .Category)
+                        .Set(Function(x) x.Category, .Category) _
+                        .Set(Function(x) x.DeviceId, MongoDB.Bson.ObjectId.Parse(.ServerObjectID))
+
 
                     Try
                         repository.Upsert(filterDef, updateDef)
@@ -376,7 +379,8 @@ Partial Public Class VitalSignsPlusDomino
                     .Set(Function(x) x.UpPercent, .UpPercentCount) _
                     .Set(Function(x) x.ResponseTime, Convert.ToInt32(.ResponseTime)) _
                     .Set(Function(x) x.ResponseThreshold, Convert.ToInt32(.ResponseThreshold)) _
-                    .Set(Function(x) x.StatusCode, .StatusCode)
+                    .Set(Function(x) x.StatusCode, .StatusCode) _
+                    .Set(Function(x) x.DeviceId, MongoDB.Bson.ObjectId.Parse(.ServerObjectID))
 
                 Try
                     repository.Upsert(filterDef, updateDef)
@@ -437,7 +441,8 @@ Partial Public Class VitalSignsPlusDomino
                     .Set(Function(x) x.UpPercent, .UpPercentCount) _
                     .Set(Function(x) x.ResponseTime, Convert.ToInt32(.ResponseTime)) _
                     .Set(Function(x) x.ResponseThreshold, Convert.ToInt32(.ResponseThreshold)) _
-                    .Set(Function(x) x.StatusCode, .StatusCode)
+                    .Set(Function(x) x.StatusCode, .StatusCode) _
+                    .Set(Function(x) x.DeviceId, MongoDB.Bson.ObjectId.Parse(.ServerObjectID))
 
 
                 Try
@@ -878,7 +883,8 @@ Partial Public Class VitalSignsPlusDomino
                                                                                      .Set(Function(x) x.MyPercent, Double.Parse(strPercent)) _
                                                                                      .Set(Function(x) x.PercentageChange, PercentageChange) _
                                                                                      .Set(Function(x) x.UpMinutes, .UpMinutes) _
-                                                                                     .Set(Function(x) x.DownMinutes, .DownMinutes)
+                                                                                     .Set(Function(x) x.DownMinutes, .DownMinutes) _
+                                                                                     .Set(Function(x) x.DeviceId, MongoDB.Bson.ObjectId.Parse(.ServerObjectID))
 
 
                 repository.Upsert(filterDef, updateDef)
@@ -1289,8 +1295,9 @@ Partial Public Class VitalSignsPlusDomino
     End Sub
 
     Private Sub UpdateDominoDailyStatTable(ByRef MyDominoServer As MonitoredItems.DominoServer, ByVal StatName As String, ByVal StatValue As Double)
-
-        If StatValue = -999 Then Exit Sub
+        Try
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " In UpdateDominoDailyStatTable. " & MyDominoServer.ServerObjectID.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+            If StatValue = -999 Then Exit Sub
 
         '**
 
@@ -1303,17 +1310,23 @@ Partial Public Class VitalSignsPlusDomino
         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Week Number: " & MyWeekNumber, LogUtilities.LogUtils.LogLevel.Verbose)
 
         Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
-        Dim entity As New VSNext.Mongo.Entities.DailyStatistics() With {
-            .DeviceId = MyDominoServer.ServerObjectID,
+            Dim entity As New VSNext.Mongo.Entities.DailyStatistics() With {
+            .DeviceId = MongoDB.Bson.ObjectId.Parse(MyDominoServer.ServerObjectID),
+            .ServerName = MyDominoServer.Name,
+            .DeviceType = MyDominoServer.ServerType,
             .StatName = StatName,
             .StatValue = StatValue
         }
-        repository.Insert(entity)
+            repository.Insert(entity)
 
-        Try
-            GC.Collect()
+            Try
+                GC.Collect()
+            Catch ex As Exception
+
+            End Try
+
         Catch ex As Exception
-
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error in UpdateDominoDailyStatTable. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
     End Sub
 
@@ -1970,7 +1983,7 @@ Partial Public Class VitalSignsPlusDomino
 
 
 
-            filterDef = repo.Filter.In(Function(x) x.Id, activeList.Select(Function(y) y.Id.ToString()).ToList()) 
+            filterDef = repo.Filter.In(Function(x) x.Id, activeList.Select(Function(y) y.Id.ToString()).ToList())
             updateDef = repo.Updater.Set(Function(x) x.IsActive, True)
 
             repo.Update(filterDef, updateDef)
@@ -1982,7 +1995,7 @@ Partial Public Class VitalSignsPlusDomino
         End Try
 
     End Sub
-    Private Sub UpdateTravelerServerStatusTable(ByVal TravelerVersion As String, ByVal HTTP_MaxConfiguredSessions As Integer, ByVal HTTP_PeakSessions As Integer, ByVal HTTP_Status As String, ByVal HTTP_Details As String, ByVal ServerName As String, ByVal Status As String, ByVal Details As String, ByVal Users As Integer, ByVal IncrementalSyncs As Integer)
+    Private Sub UpdateTravelerServerStatusTable(ByVal TravelerVersion As String, ByVal HTTP_MaxConfiguredSessions As Integer, ByVal HTTP_PeakSessions As Integer, ByVal HTTP_Status As String, ByVal HTTP_Details As String, ByVal ServerName As String, ByVal Status As String, ByVal Details As String, ByVal Users As Integer, ByVal IncrementalSyncs As Integer, ByVal ServerObjectId As String)
         '*************************************************************
         'Update the Status Table
         '*************************************************************
@@ -2000,7 +2013,8 @@ Partial Public Class VitalSignsPlusDomino
                                                                                  .Set(Function(x) x.HttpPeakConnections, HTTP_PeakSessions) _
                                                                                  .Set(Function(x) x.HttpMaxConfiguredConnections, HTTP_MaxConfiguredSessions) _
                                                                                  .Set(Function(x) x.HttpStatus, HTTP_Status) _
-                                                                                 .Set(Function(x) x.HttpDetails, HTTP_Details)
+                                                                                 .Set(Function(x) x.HttpDetails, HTTP_Details) _
+                                                                                 .Set(Function(x) x.DeviceId, MongoDB.Bson.ObjectId.Parse(ServerObjectId))
 
             repository.Upsert(filterDef, updateDef)
 
@@ -2072,7 +2086,8 @@ Partial Public Class VitalSignsPlusDomino
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                     .Set(Function(x) x.ElapsedDays, DominoServer2.ElapsedTime / 60 / 60 / 24) _
                                                                                     .Set(Function(x) x.VersionArchitecture, DominoServer2.VersionArchitecture) _
-                                                                                    .Set(Function(x) x.CpuCount, DominoServer2.CPUCount)
+                                                                                    .Set(Function(x) x.CpuCount, DominoServer2.CPUCount) _
+                                                                                    .Set(Function(x) x.DeviceId, MongoDB.Bson.ObjectId.Parse(DominoServer2.ServerObjectID))
             repository.Update(filterDef, updateDef)
 
         Catch ex As Exception

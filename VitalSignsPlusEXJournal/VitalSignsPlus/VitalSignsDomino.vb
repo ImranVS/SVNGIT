@@ -699,7 +699,6 @@ Public Class VitalSignsPlusExJournal
 
 
         Dim myRegistry As New VSFramework.RegistryHandler
-        Dim flags As New MonitoredItems.ServicesFlags()
         Dim NodeName As String = ""
         '********** Refresh Collection of Devices and Monitor settings
 
@@ -712,7 +711,7 @@ Public Class VitalSignsPlusExJournal
                     End If
                 End If
                 If NodeName <> "" Then
-                    If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.ExJournal, NodeName) Then
+                    If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.EXJournal, NodeName) Then
                         Try
                             '' MonitorDominoSettings()
                             WriteAuditEntry(Now.ToString & " Refreshing configuration of ExJournal servers")

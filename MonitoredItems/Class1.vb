@@ -4596,18 +4596,18 @@ Public Class DominoCollection
         End Get
     End Property
 
-    Public Overloads Function SearchByKey(ByVal Key As String) As DominoServer
-        Dim iIndex As Integer
-        Dim DominoServer As MonitoredItems.DominoServer
-        For iIndex = 0 To Me.List.Count - 1
-            DominoServer = Me.List(iIndex)
-            If DominoServer.Key = Key Then
-                Return Me.List(iIndex)
-                Exit Function
-            End If
-        Next
-        Return Nothing
-    End Function
+    'Public Overloads Function SearchByKey(ByVal Key As String) As DominoServer
+    '    Dim iIndex As Integer
+    '    Dim DominoServer As MonitoredItems.DominoServer
+    '    For iIndex = 0 To Me.List.Count - 1
+    '        DominoServer = Me.List(iIndex)
+    '        If DominoServer.Key = Key Then
+    '            Return Me.List(iIndex)
+    '            Exit Function
+    '        End If
+    '    Next
+    '    Return Nothing
+    'End Function
 
     Public Overloads Function Search(ByVal Name As String) As DominoServer
         Dim iIndex As Integer
@@ -6256,59 +6256,3 @@ End Class
 
 #End Region
 
-#Region "Flags"
-
-Public Enum ServerTypes
-    Exchange
-    Active_Directory
-    SharePoint
-    Lync
-    Database_Availability_Group
-    Windows
-    Domino
-    URL
-    Sametime
-    Domino_Cluster
-    Notes_Databases
-    Notes_Mail_Probe
-    Traverler
-    Key_Words
-    Network_Devices
-    Black_Berry_Servers
-    Mail
-    Network_Latency
-    Office_365
-    Skype_for_Business
-    WebSphere
-    ExJournal
-    Cloud
-    IBM_Connections
-End Enum
-
-Public Class ServicesFlags
-    Public Function UpdateServiceCollection(ServerTypes As ServerTypes, NodeName As String) As Boolean
-
-        Try
-            Dim adapter As New VSAdaptor
-            Dim sql As String = "Select * from NodeDetails where NodeId=(Select ID from Nodes where Name='" & NodeName & "') and Name='" & ServerTypes.ToString().Replace("_", " ") & " - UpdateCollection' and Value=1"
-            Dim dt As New DataTable()
-            Dim ds As New DataSet()
-            adapter.FillDatasetAny("VitalSigns", "VitalSigns", sql, ds, "NodeDetails")
-            dt = ds.Tables("NodeDetails")
-
-            If dt.Rows.Count > 0 Then
-                Dim Names As String = String.Join(",", dt.AsEnumerable().Select(Function(r) r.Field(Of String)("Name").ToString()))
-                Dim IDs As String = String.Join(",", dt.AsEnumerable().Select(Function(r) r.Field(Of Int32)("ID").ToString()))
-                sql = "UPDATE NodeDetails set Value=0 where ID in (" & IDs & ")"
-                adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql)
-                Return True
-            End If
-            Return False
-        Catch ex As Exception
-
-        End Try
-        Return True
-    End Function
-End Class
-
-#End Region

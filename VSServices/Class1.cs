@@ -11,6 +11,8 @@ using LogUtilities;
 using System.Diagnostics;
 using System.Reflection;
 
+using MongoDB.Driver;
+
 namespace RPRWyatt.VitalSigns.Services
 {
 	public abstract class VSServices : System.ServiceProcess.ServiceBase
@@ -175,49 +177,90 @@ namespace RPRWyatt.VitalSigns.Services
 			
 			String sql = "";
 			VSFramework.VSAdaptor adapter = new VSFramework.VSAdaptor();
+            try
+            {
+                if (servers.Count > 0)
+                {
+                    for (int i = 0; i < servers.Count; i++)
+                    {
+                        MonitoredItems.MonitoredDevice server = servers.get_Item(i);
+                        Type t = server.GetType();
+                        if (server.InsufficentLicenses)
+                        {
 
-			if (servers.Count > 0)
-			{
-				for (int i = 0; i < servers.Count; i++)
-				{
-				    MonitoredItems.MonitoredDevice server = servers.get_Item(i);
-				    Type t = server.GetType();
-				    if (server.InsufficentLicenses)
-				    {
+                            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>();
+                            FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.Type.Equals(server.ServerType) && p.Name.Equals(server.Name));
+                            UpdateDefinition<VSNext.Mongo.Entities.Status> updateDef = repository.Updater
+                                .Set(p => p.CurrentStatus, "Insufficient Licenses")
+                                .Set(p => p.Details, "There are not enough licenses to scan this server.")
+                                .Set(p => p.LastUpdated, DateTime.Now)
+                                .Set(p => p.Description, "There are not enough licenses to scan this server.")
+                                .Set(p => p.NextScan, DateTime.Now.AddDays(1))
+                                .Set(p => p.StatusCode, "Maintenance");
+                            repository.Update(filterDef, updateDef);
 
-				        //7/8/2015 NS modified for VSPLUS-1959
-				        sql = "DELETE FROM Status WHERE TypeANDName='" + server.Name + "-" + ServerTypeForTypeAndName + "';"
-				            + " INSERT INTO Status (Type, Location, Category, Name, Status, Details, LastUpdate, Description, NextScan, TypeANDName, StatusCode) VALUES "
-				            + "('" + ServerType + "','" + server.Location + "','" + server.Category + "','" + server.Name + "','Insufficient Licenses','There are not enough licenses to scan this server.',getDate(),"
-				            + "'There are not enough licenses to scan this server.',dateadd(day,1,getdate()),'" + server.Name + "-" + ServerTypeForTypeAndName + "','Maintenance');";
-				        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql);
+                            servers.Delete(server.Name);
+                            i--;
+                        }
+                        if (!server.isMasterRunning)
+                        {
+                            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>();
+                            FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.Type.Equals(server.ServerType) && p.Name.Equals(server.Name));
+                            UpdateDefinition<VSNext.Mongo.Entities.Status> updateDef = repository.Updater
+                                .Set(p => p.CurrentStatus, "Insufficient Licenses")
+                                .Set(p => p.Details, "Master Service stopped running. Could not assign the server to a Node.")
+                                .Set(p => p.LastUpdated, DateTime.Now)
+                                .Set(p => p.Description, "Master Service stopped running. Could not assign the server to a Node.")
+                                .Set(p => p.NextScan, DateTime.Now.AddDays(1))
+                                .Set(p => p.StatusCode, "Maintenance");
+                            repository.Update(filterDef, updateDef);
+                            
+                            servers.Delete(server.Name);
+                            i--;
+                        }
+                    }
 
-				        servers.Delete(server.Name);
-				        i--;
-				    }
-				    if (!server.isMasterRunning)
-				    {
-				        sql = "DELETE FROM Status WHERE TypeANDName='" + server.Name + "-" + ServerTypeForTypeAndName + "';"
-				            + " INSERT INTO Status (Type, Location, Category, Name, Status, Details, LastUpdate, Description, NextScan, TypeANDName, StatusCode) VALUES "
-				            + "('" + ServerType + "','" + server.Location + "','" + server.Category + "','" + server.Name + "','Master Service Stopped.','Master Service stopped running. Could not assign the server to a Node.',getDate(),"
-				            + "'Master Service stopped running. Could not assign the server to a Node.',dateadd(day,1,getdate()),'" + server.Name + "-" + ServerTypeForTypeAndName + "','Maintenance');";
-				        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql);
+                    AlertLibrary.Alertdll myAlert = new AlertLibrary.Alertdll();
+                    myAlert.SysMessageForLicenses();
 
-				        servers.Delete(server.Name);
-				        i--;
-				    }
-				}
+                }
+            }
+            catch(Exception ex)
+            {
 
-				AlertLibrary.Alertdll myAlert = new AlertLibrary.Alertdll();
-				myAlert.SysMessageForLicenses();
-
-			}
+            }
 		}
 
 
 
+    
+        public static Boolean UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType ServerType, String NodeName)
+        {
 
-		public class MicrosoftHelperObject
+            try
+            {
+                String connectionString = "";
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes>(connectionString);
+                FilterDefinition<VSNext.Mongo.Entities.Nodes> filterDef = repository.Filter.Eq(i => i.Name, NodeName);
+                if (repository.Find(filterDef).ToList()[0].CollectionResets.Contains(ServerType))
+                {
+                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updateDef = repository.Updater.PullFilter(i => i.CollectionResets, new FilterDefinitionBuilder<VSNext.Mongo.Entities.Enums.ServerType>().Eq(p => p, ServerType));
+                    try
+                    {
+                        repository.Update(filterDef, updateDef);
+                    }
+                    catch (Exception ex) { }
+                    return true; 
+                }
+                    
+                return false;
+            }
+            catch (Exception ex)
+            { }
+            return false;
+        } 
+
+        public class MicrosoftHelperObject
 		{
 			
 			public void CheckForInsufficentLicenses(Object objServers, string ServerType, string ServerTypeForTypeAndName)
@@ -225,7 +268,12 @@ namespace RPRWyatt.VitalSigns.Services
 				VSServices.CheckForInsufficentLicenses(objServers, ServerType, ServerTypeForTypeAndName);
 			}
 
-		}
+            public Boolean UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType ServerType, String NodeName)
+            {
+                return VSServices.UpdateServiceCollection(ServerType, NodeName);
+            }
+
+        }
 
 	}
 }

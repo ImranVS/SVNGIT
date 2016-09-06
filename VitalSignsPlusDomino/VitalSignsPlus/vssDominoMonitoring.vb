@@ -103,11 +103,10 @@ Partial Public Class VitalSignsPlusDomino
 	Protected Sub CheckForDominoTableChanges()
 
 		Dim myRegistry As New VSFramework.RegistryHandler
-		Dim flags As New MonitoredItems.ServicesFlags()
-		Dim NodeName As String = ""
-		'********** Refresh Collection of Devices and Monitor settings
+        Dim NodeName As String = ""
+        '********** Refresh Collection of Devices and Monitor settings
 
-		Do Until boolTimeToStop = True
+        Do Until boolTimeToStop = True
 			Try
 				'Update the settings anytime the registry indicates a change has been made
 				If (NodeName = "") Then
@@ -115,93 +114,93 @@ Partial Public Class VitalSignsPlusDomino
 						NodeName = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
 					End If
 				End If
-				If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Domino, NodeName) Then
-					Try
-						'' MonitorDominoSettings()
-						WriteAuditEntry(Now.ToString & " Refreshing configuration of Domino servers")
-						CreateDominoServersCollection()
-						WriteAuditEntry(Now.ToString & " Refreshing Status Table for Domino")
+                If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.Domino, NodeName) Then
+                    Try
+                        '' MonitorDominoSettings()
+                        WriteAuditEntry(Now.ToString & " Refreshing configuration of Domino servers")
+                        CreateDominoServersCollection()
+                        WriteAuditEntry(Now.ToString & " Refreshing Status Table for Domino")
                         UpdateStatusTableWithDomino()
                         StartMonitoringThreads()
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " Error Refreshing Domino server settings on demand: " & ex.Message)
-					End Try
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Error Refreshing Domino server settings on demand: " & ex.Message)
+                    End Try
 
-				End If
-			Catch ex As Exception
-
-			End Try
-
-			Try
-				If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Domino_Cluster, NodeName) Then
-					Try
-						WriteAuditEntry(Now.ToString & " Refreshing configuration of Domino clusters, on requst.", LogLevel.Verbose)
-						CreateDominoClusterCollection()
-						WriteAuditEntry(Now.ToString & " Refreshing Status Table for clusters.", LogLevel.Verbose)
-						UpdateStatusTableWithDominoClusters()
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " Error Refreshing Domino cluster settings on demand: " & ex.Message)
-					End Try
-
-				End If
-
-			Catch ex As Exception
+                End If
+            Catch ex As Exception
 
 			End Try
 
 			Try
-				If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Notes_Databases, NodeName) Then
-					Try
-						WriteAuditEntry(Now.ToString & " Refreshing configuration of Notes databases, on request.", LogLevel.Verbose)
-						CreateNotesDatabaseCollection()
-						WriteAuditEntry(Now.ToString & " Refreshing Status Table for Notes Databases, on request. ", LogLevel.Verbose)
-						UpdateStatusTableWithNotesDatabases()
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " Error Refreshing Notes Database settings on demand: " & ex.Message)
-					End Try
-				End If
-			Catch ex As Exception
+                If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.DominoCluster, NodeName) Then
+                    Try
+                        WriteAuditEntry(Now.ToString & " Refreshing configuration of Domino clusters, on requst.", LogLevel.Verbose)
+                        CreateDominoClusterCollection()
+                        WriteAuditEntry(Now.ToString & " Refreshing Status Table for clusters.", LogLevel.Verbose)
+                        UpdateStatusTableWithDominoClusters()
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Error Refreshing Domino cluster settings on demand: " & ex.Message)
+                    End Try
+
+                End If
+
+            Catch ex As Exception
 
 			End Try
 
 			Try
-				If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Notes_Mail_Probe, NodeName) Then
-					Try
-						WriteAuditEntry(Now.ToString & " Refreshing configuration of NotesMail Probes, on request.", LogLevel.Verbose)
-						CreateNotesMailProbeCollection()
-						WriteAuditEntry(Now.ToString & " Refreshing Status Table for NotesMail Probes, on request. ", LogLevel.Verbose)
-						UpdateStatusTableWithNotesMailProbes()
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " Error Refreshing NotesMail Probe settings on demand: " & ex.Message)
-					End Try
-				End If
-			Catch ex As Exception
+                If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase, NodeName) Then
+                    Try
+                        WriteAuditEntry(Now.ToString & " Refreshing configuration of Notes databases, on request.", LogLevel.Verbose)
+                        CreateNotesDatabaseCollection()
+                        WriteAuditEntry(Now.ToString & " Refreshing Status Table for Notes Databases, on request. ", LogLevel.Verbose)
+                        UpdateStatusTableWithNotesDatabases()
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Error Refreshing Notes Database settings on demand: " & ex.Message)
+                    End Try
+                End If
+            Catch ex As Exception
 
 			End Try
 
 			Try
-				If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Traverler, NodeName) Then
-					Try
-						WriteAuditEntry(Now.ToString & " Refreshing configuration of Traveler Back End, on request.", LogLevel.Verbose)
-						CreateTravelerBackEndCollection()
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " Error Refreshing Traveler Back End settings on demand: " & ex.Message)
-					End Try
-				End If
-			Catch ex As Exception
+                If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe, NodeName) Then
+                    Try
+                        WriteAuditEntry(Now.ToString & " Refreshing configuration of NotesMail Probes, on request.", LogLevel.Verbose)
+                        CreateNotesMailProbeCollection()
+                        WriteAuditEntry(Now.ToString & " Refreshing Status Table for NotesMail Probes, on request. ", LogLevel.Verbose)
+                        UpdateStatusTableWithNotesMailProbes()
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Error Refreshing NotesMail Probe settings on demand: " & ex.Message)
+                    End Try
+                End If
+            Catch ex As Exception
 
 			End Try
 
 			Try
-				If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Key_Words, NodeName) Then
-					Try
-						WriteAuditEntry(Now.ToString & " Refreshing configuration of Keywords, on request.", LogLevel.Verbose)
-						CreateKeywordsCollection()
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " Error Refreshing Keywords settings on demand: " & ex.Message)
-					End Try
-				End If
-			Catch ex As Exception
+                If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.Traveler, NodeName) Then
+                    Try
+                        WriteAuditEntry(Now.ToString & " Refreshing configuration of Traveler Back End, on request.", LogLevel.Verbose)
+                        CreateTravelerBackEndCollection()
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Error Refreshing Traveler Back End settings on demand: " & ex.Message)
+                    End Try
+                End If
+            Catch ex As Exception
+
+			End Try
+
+			Try
+                If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.DominoLogScanning, NodeName) Then
+                    Try
+                        WriteAuditEntry(Now.ToString & " Refreshing configuration of Keywords, on request.", LogLevel.Verbose)
+                        CreateKeywordsCollection()
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Error Refreshing Keywords settings on demand: " & ex.Message)
+                    End Try
+                End If
+            Catch ex As Exception
 
 			End Try
 
@@ -5591,6 +5590,7 @@ skipdrive2:
 
             End If
             ' WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & ": Incremental Transferred Mail value is " & DominoServer.TransferredMail)
+            WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": calculating Mail.Transferred " & DominoServer.ServerObjectID.ToString())
             UpdateDominoDailyStatTable(DominoServer, "Mail.Transferred", TransferredMail)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " " & DominoServer.Name & ": Error calculating Mail.Transferred " & ex.Message)
@@ -6619,8 +6619,6 @@ skipdrive2:
 
     Private Sub SendDominoConsoleCommands(ByVal ServerName As String, ByVal Command As String, ByVal Comments As String)
         'This function submits a record in the DominoConsoleCommands table to be processed by the Console Service
-        Dim StrSQL As String
-        Dim vsAdapter As New VSFramework.VSAdaptor
         Try
             'WriteDeviceHistoryEntry("Domino", ServerName, "Step3 - region DCC")
             WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " sending " & Command & " to " & ServerName)

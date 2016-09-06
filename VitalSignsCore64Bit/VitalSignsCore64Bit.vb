@@ -630,12 +630,10 @@ Partial Class VitalSignsCore
 	Protected Sub CheckForCoreTableChanges()
 
 
-		Dim myRegistry As New VSFramework.RegistryHandler
-		Dim NodeName As String = ""
-		Dim flags As New MonitoredItems.ServicesFlags()
-		'********** Refresh Collection of Devices and Monitor settings
+        Dim NodeName As String = ""
+        '********** Refresh Collection of Devices and Monitor settings
 
-		Do Until boolTimeToStop = True
+        Do Until boolTimeToStop = True
 			If (NodeName = "") Then
 				If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
 					NodeName = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
@@ -643,14 +641,14 @@ Partial Class VitalSignsCore
 			End If
 			If NodeName <> "" Then
 				Try
-					'Update the settings anytime the registry indicates a change has been made
-					If flags.UpdateServiceCollection(MonitoredItems.ServerTypes.Network_Devices, NodeName) Then
-						WriteAuditEntry(Now.ToString & " Refreshing configuration of Network Devices")
-						CreateNetworkDevicesCollection()
-						WriteAuditEntry(Now.ToString & " Refreshing Status Table for Network Devices")
-						UpdateStatusTableWithNetworkDevices()
-					End If
-				Catch ex As Exception
+                    'Update the settings anytime the registry indicates a change has been made
+                    If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.NetworkDevice, NodeName) Then
+                        WriteAuditEntry(Now.ToString & " Refreshing configration of Network Devices")
+                        CreateNetworkDevicesCollection()
+                        WriteAuditEntry(Now.ToString & " Refreshing Status Table for Network Devices")
+                        UpdateStatusTableWithNetworkDevices()
+                    End If
+                Catch ex As Exception
 
 				End Try
 			Else

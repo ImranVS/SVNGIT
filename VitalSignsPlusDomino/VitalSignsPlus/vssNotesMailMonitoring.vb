@@ -1356,7 +1356,7 @@ Cleanup:
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
             Dim entity As New VSNext.Mongo.Entities.DailyStatistics With {
-                .DeviceId = ProbeID,
+                .DeviceId = MongoDB.Bson.ObjectId.Parse(ProbeID),
                 .StatName = StatName,
                 .StatValue = StatValue
             }

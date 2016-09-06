@@ -827,15 +827,6 @@ Partial Public Class VitalSignsPlusCore
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
             With MySametimeServer
 
-                strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-Sametime') BEGIN " & _
-                 "INSERT INTO Status (StatusCode, Category,  Description, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon,  MyPercent, NextScan,  UpMinutes, DownMinutes, PendingThreshold, DeadThreshold) " & _
-                 " VALUES ('" & myStatusCode & "', '" & .Category & "', '" & .Description & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
-                 "'Sametime', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-Sametime', " & IconList.Sametime & ", '" & Percent & "', '" & .NextScan & "', '" & Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1") & "', '" & Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1") & "', " & .Chat_Sessions_Threshold & ", " & .nWay_Chat_Sessions_Threshold & ")" & _
-                 "END"
-
-                strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-Sametime'"
-
-                
                 updatedef = repo.Updater _
                            .Set(Function(i) i.Name, .Name) _
                            .[Set](Function(i) i.CurrentStatus, myStatusCode) _
@@ -853,9 +844,7 @@ Partial Public Class VitalSignsPlusCore
                            .[Set](Function(i) i.MyPercent, Double.Parse(Percent)) _
                            .[Set](Function(i) i.NextScan, .NextScan) _
                            .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
-                           .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
-                           .[Set](Function(i) i.PendingThreshold, Integer.Parse(.Chat_Sessions_Threshold)) _
-                           .[Set](Function(i) i.DeadThreshold, Integer.Parse(.nWay_Chat_Sessions_Threshold))
+                           .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1")))
 
             End With
             If MySametimeServer.Enabled = True Then
@@ -2064,14 +2053,6 @@ Partial Public Class VitalSignsPlusCore
             WriteDeviceHistoryEntry("Sametime", MySametimeServer.Name, Now.ToString & " Status Details for " & MySametimeServer.Name & " are " & StatusDetails)
         End If
 
-        Dim Percent As Double
-        Try
-            Percent = MySametimeServer.Chat_Sessions / MySametimeServer.Chat_Sessions_Threshold
-        Catch ex As Exception
-            Percent = 0
-        End Try
-
-
         Try
             MySametimeServer.StatusCode = ServerStatusCode(MySametimeServer.Status)
         Catch ex As Exception
@@ -2086,26 +2067,7 @@ Partial Public Class VitalSignsPlusCore
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
           
             With MySametimeServer
-                strSQL = "Update Status SET DeadMail= " & .nWay_Chat_Sessions & ", DownCount= " & .DownCount & _
-                 ", PendingMail=" & .Chat_Sessions & ", Status='" & .Status & "', Upcount=" & .UpCount & _
-                ", UpPercent= " & .UpPercentCount & _
-                ", Details='" & StatusDetails & _
-                 "', Description='" & .Description & _
-                 "', StatusCode='" & .StatusCode & _
-                "', LastUpdate='" & Now & _
-                "', Category='" & .Category & _
-                "', ResponseTime='" & Str(.ResponseTime) & _
-                "', PendingThreshold='" & .Chat_Sessions_Threshold & _
-                "', DeadThreshold='" & .nWay_Chat_Sessions_Threshold & _
-                "', ResponseThreshold='" & .ResponseThreshold & _
-                "', UserCount='" & .Users & _
-                "', NextScan='" & .NextScan & _
-                "', Name='" & .Name & _
-                "', DominoVersion='Current Chats: " & .Chat_Sessions & _
-                "', OperatingSystem='IBM Sametime server'" & _
-                " , UpMinutes='" & Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1") & _
-                "', DownMinutes='" & Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1") & "'" & _
-                "  WHERE TypeANDName='" & .Name & "-Sametime'"
+                
 
                 updatedef = repo.Updater _
                                     .Set(Function(i) i.Name, .Name) _
@@ -2129,9 +2091,7 @@ Partial Public Class VitalSignsPlusCore
                                     .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
                                     .[Set](Function(i) i.DominoVersion, "Current Chats: " & .Chat_Sessions) _
                 .[Set](Function(i) i.OperatingSystem, "IBM Sametime server") _
-                .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
-                .[Set](Function(i) i.PendingThreshold, Integer.Parse(.Chat_Sessions_Threshold)) _
-                .[Set](Function(i) i.DeadThreshold, Integer.Parse(.nWay_Chat_Sessions_Threshold))
+                .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
             End With
 
             strSQL = strSQL.Replace("NaN", "0")

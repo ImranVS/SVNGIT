@@ -140,6 +140,7 @@ namespace VSNext.Mongo.Entities
         public double? SoftwareVersion { get; set; }
 
 
+
         #region Domino
 
         [DataMember]
@@ -246,6 +247,50 @@ namespace VSNext.Mongo.Entities
         [BsonElement("database_count")]
         [BsonIgnoreIfNull]
         public int? DatabaseCount { get; set; }
+
+        [DataMember]
+        [BsonElement("scan_traveler_server")]
+        [BsonIgnoreIfNull]
+        public Boolean? ScanTravelerServer { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_custom_stats")]
+        [BsonIgnoreIfNull]
+        public List<DominoCustomStat> DominoCustomStats { get; set; }
+
+        #endregion
+
+        #region TravelerHA
+
+        //[DataMember]
+        //[BsonElement("traveler_service_pool_name")]
+        //[BsonIgnoreIfNull]
+        //public string TravelerServicePoolName { get; set; }
+
+        [DataMember]
+        [BsonElement("traveler_service_server_name")]
+        [BsonIgnoreIfNull]
+        public string TravelerServiceServerName { get; set; }
+
+        [DataMember]
+        [BsonElement("datastore")]
+        [BsonIgnoreIfNull]
+        public string Datastore { get; set; }
+
+        [DataMember]
+        [BsonElement("test_scan_server")]
+        [BsonIgnoreIfNull]
+        public string TestScanServer { get; set; }
+
+        [DataMember]
+        [BsonElement("used_by_servers")]
+        [BsonIgnoreIfNull]
+        public string UsedByServers { get; set; }
+
+        [DataMember]
+        [BsonElement("database_name")]
+        [BsonIgnoreIfNull]
+        public string DatabaseName { get; set; }
 
         #endregion
 
@@ -523,6 +568,26 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string DatabaseFileName { get; set; }
 
+        [DataMember]
+        [BsonElement("trigger_type")]
+        [BsonIgnoreIfNull]
+        public string TriggerType { get; set; }
+
+        [DataMember]
+        [BsonElement("trigger_value")]
+        [BsonIgnoreIfNull]
+        public int? TriggerValue { get; set; }
+
+        [DataMember]
+        [BsonElement("initiate_replication")]
+        [BsonIgnoreIfNull]
+        public bool? InitiateReplication { get; set; }
+
+        [DataMember]
+        [BsonElement("replication_destination")]
+        [BsonIgnoreIfNull]
+        public List<String> ReplicationDestination { get; set; }
+
         #endregion
 
         #region NotesDatabaseReplica
@@ -577,6 +642,13 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string DominoServerCExcludeFolders { get; set; }
 
+        [DataMember]
+        [BsonElement("first_alert_threshold")]
+        [BsonIgnoreIfNull]
+        public int? FirstAlertThreshold { get; set; }
+
+
+
         #endregion
 
         #region NotesMailProbe
@@ -607,9 +679,14 @@ namespace VSNext.Mongo.Entities
         public string TargetServer { get; set; }
 
         [DataMember]
-        [BsonElement("target_database_filename")]
+        [BsonElement("target_database")]
         [BsonIgnoreIfNullAttribute]
-        public string TargetDatabaseFilename { get; set; }
+        public string TargetDatabase { get; set; }
+
+        [DataMember]
+        [BsonElement("file_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string FileName { get; set; }
 
         [DataMember]
         [BsonElement("delivery_threshold")]
@@ -765,6 +842,16 @@ namespace VSNext.Mongo.Entities
         [BsonElement("node_id")]
         public ObjectId? NodeId { get; set; }
 
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("node_name")]
+        public String NodeName { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("cell_name")]
+        public String CellName { get; set; }
+
         #endregion
 
         #region NetworkLatency
@@ -810,6 +897,19 @@ namespace VSNext.Mongo.Entities
         //[BsonElement("tests")]
         //public List<Tests> Tests { get; set; }
 
+        #endregion
+
+        #region DominoLogScanning
+
+        [DataMember]
+        [BsonElement("log_file_keywords")]
+        [BsonIgnoreIfNull]
+        public List<LogFileKeyword> LogFileKeywords { get; set; }
+
+        [DataMember]
+        [BsonElement("log_file_servers")]
+        [BsonIgnoreIfNullAttribute]
+        public List<ObjectId> LogFileServers { get; set; }
 
         #endregion
 
@@ -1033,5 +1133,83 @@ namespace VSNext.Mongo.Entities
         public int? RedThreshold { get; set; }
     }
 
+    public class DominoCustomStat
+    {
+
+        public DominoCustomStat()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+
+        }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("stat_name")]
+        public String StatName { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("yellow_threshold")]
+        public String ThresholdValue { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("greater_than_or_less_than")]
+        public String GreaterThanOrLessThan { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("times_in_a_row")]
+        public int? TimesInARow { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("console_command")]
+        public String ConsoleCommand { get; set; }
+    }
+
+    public class LogFileKeyword
+    {
+
+        public LogFileKeyword()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+
+        }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("keyword")]
+        public String Keyword { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("exclude")]
+        public String Exclude { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("one_alert_per_day")]
+        public Boolean? OneAlertPerDay { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("scan_log")]
+        public Boolean? ScanLog { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("scan_agent_log")]
+        public Boolean? ScanAgentLog { get; set; }
+
+    }
 
 }

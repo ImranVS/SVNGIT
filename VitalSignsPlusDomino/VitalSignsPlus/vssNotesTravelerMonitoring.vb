@@ -77,7 +77,7 @@ Partial Public Class VitalSignsPlusDomino
 
 
 		Try
-            UpdateTravelerServerStatusTable(myDominoServer.Traveler_Version, myDominoServer.HTTP_Configured_Max_Sessions, myDominoServer.HTTP_Actual_Max_Sessions, Status, Details, myDominoServer.Name, myDominoServer.Traveler_Status, myDominoServer.Traveler_Details, myDominoServer.Traveler_UserCount, 1)
+            UpdateTravelerServerStatusTable(myDominoServer.Traveler_Version, myDominoServer.HTTP_Configured_Max_Sessions, myDominoServer.HTTP_Actual_Max_Sessions, Status, Details, myDominoServer.Name, myDominoServer.Traveler_Status, myDominoServer.Traveler_Details, myDominoServer.Traveler_UserCount, 1, myDominoServer.ServerObjectID)
 
         Catch ex As Exception
 
@@ -2097,8 +2097,8 @@ Partial Public Class VitalSignsPlusDomino
         'This function is for Traveler 9+ servers, where the data is only available from a servlet
 
         WriteDeviceHistoryEntry("All", "Traveler_Users_MoreDetails", Now.ToString & " Checking the Traveler server's devices list via JSON availablity....")
-
         Dim myServletURL As New MonitoredItems.URL
+        WriteDeviceHistoryEntry("All", "Traveler_Users_MoreDetails", Now.ToString & " Checking the Traveler server's devices list via JSON availablity....2")
         With myServletURL
             .URL = FullURL
             WriteDeviceHistoryEntry("All", "Traveler_Users_MoreDetails", Now.ToString & " I figure that the servlet location is " & myServletURL.URL)
@@ -3429,7 +3429,7 @@ Alerts:
     Private Sub CheckTravelerServlet(ByRef MyDominoServer As MonitoredItems.DominoServer)
         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Checking the Traveler server's servlet availablity....")
 
-        If Not MyDominoServer.scanServlet Then
+        If Not MyDominoServer.ScanTravelerServer Then
             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Stopping scan on servlet due to configuration of the server.")
         End If
 
