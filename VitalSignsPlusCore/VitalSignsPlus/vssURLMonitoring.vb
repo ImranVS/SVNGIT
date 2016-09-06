@@ -361,7 +361,7 @@ Update:
                                                                                  .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                                                                                  .[Set](Function(i) i.Location, myURL.Location) _
                                                                                  .[Set](Function(i) i.Category, myURL.Category) _
-                                                                                 .[Set](Function(i) i.TypeAndName, myURL.Name & "-URL' ") _
+                                                                                 .[Set](Function(i) i.TypeAndName, Typeandname) _
                                                                                  .[Set](Function(i) i.Description, StatusDetails) _
                                                                                  .[Set](Function(i) i.ResponseTime, Integer.Parse(myURL.ResponseTime.ToString())) _
                                                                                  .[Set](Function(i) i.ResponseThreshold, Integer.Parse(myURL.ResponseThreshold.ToString())) _
