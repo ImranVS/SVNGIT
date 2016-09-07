@@ -21,7 +21,7 @@ export class ServiceDetails implements OnInit {
 
     errorMessage: string;
 
-    serviceId: any;
+    deviceId: any;
     service: any;
 
     activeTabComponent: ComponentRef<ServiceTab>;
@@ -44,7 +44,7 @@ export class ServiceDetails implements OnInit {
                 .resolveComponent(component[tab.component])
                 .then((factory: ComponentFactory<any>) => {
                     this.activeTabComponent = this.target.createComponent(factory);
-                    this.activeTabComponent.instance.serviceId = this.serviceId;
+                    this.activeTabComponent.instance.serviceId = this.deviceId;
                 });
         });
         
@@ -54,10 +54,10 @@ export class ServiceDetails implements OnInit {
     
         this.route.params.subscribe(params => {
 
-            this.serviceId = params['service'];
+            this.deviceId = params['service'];
            
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/device_details?id=${this.serviceId}&destination=dashboard`)
+            this.dataProvider.get(`/services/device_details?device_id=${this.deviceId}&destination=dashboard`)
                 .subscribe(
                 response => {
                    
@@ -76,13 +76,13 @@ export class ServiceDetails implements OnInit {
     getStatusDescription(status: string) {
 
         switch (status) {
-            case 'noIssue':
-                return 'No <br /> issue';
-            case 'notResponding':
+            case 'ok':
+                return 'OK';
+            case 'notresponding':
                 return 'No <br /> resp.';
-            case 'issues':
-                return 'Issues';
-            case 'inMaintenance':
+            case 'issue':
+                return 'Issue';
+            case 'maintenance':
                 return 'Mainten.';
         }
 

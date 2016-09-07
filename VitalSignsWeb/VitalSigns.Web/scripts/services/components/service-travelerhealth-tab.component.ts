@@ -1,5 +1,5 @@
 ﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 
 import {WidgetController, WidgetContainer, WidgetContract} from '../../core/widgets';
 import {AppNavigator} from '../../navigation/app.navigator.component';
@@ -11,20 +11,23 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/services/components/service-travelerhealth-tab.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator]
+    directives: [ WidgetContainer, AppNavigator]
 })
 export class ServiceTravelerHealth extends WidgetController implements OnInit {
-
+    deviceId: any;
     widgets: WidgetContract[]; 
        
        
     
-    constructor(protected resolver: ComponentResolver) {
+    constructor(protected resolver: ComponentResolver, private route: ActivatedRoute) {
         super(resolver);
     }
 
     ngOnInit() {
-       
+        this.route.params.subscribe(params => {
+            this.deviceId = params['service'];
+
+        });
         this.widgets = [
             {
                 id: 'dynamicGrid',
@@ -34,7 +37,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 css: 'col-xs-12',
                 settings: {
                     
-                    url: '/DashBoard/578fc2e21d2f58b3d1a398ff/traveler-health',
+                    url: '/DashBoard/' + this.deviceId +'/traveler-health',
                     columns: [{ header: "Resource Constraint", binding: "resource_constraint", name: "resource_constraint", width: "*" },
                         { header: "Traveler Details", binding: "traveler_details", name: "traveler_details", width: "*" },
                         { header: "Traveler HeartBeat", binding: "traveler_heartbeat", name: "traveler_heartbeat", width: "*" },
@@ -56,7 +59,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: 'http://localhost:1234/services/statistics?statName=Traveler.IncrementalDeviceSyncs&deviceid=4&operation=hourly',
+                    url: '/services/statistics?statName=Traveler.IncrementalDeviceSyncs&deviceid=' + this.deviceId +'&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'successfuldevicesyncs',
@@ -93,7 +96,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: 'http://localhost:1234/services/statistics?statName=Http.CurrentConnections&deviceid=4&operation=hourly',
+                    url: '/services/statistics?statName=Http.CurrentConnections&deviceid=' + this.deviceId +'&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'httpsessions',
@@ -129,7 +132,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: 'http://localhost:1234/services/statistics?statName=Traveler.Memory.Java.Current&deviceid=4&operation=hourly',
+                    url: '/services/statistics?statName=Traveler.Memory.Java.Current&deviceid=' + this.deviceId +'&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'allocatedjavamemory',
@@ -166,7 +169,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: 'http://localhost:1234/services/statistics?statName=Traveler.Memory.C.Current&deviceid=4&operation=hourly',
+                    url: '/services/statistics?statName=Traveler.Memory.C.Current&deviceid=' + this.deviceId +'&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'allocatedCmemory',
@@ -203,7 +206,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'SampleGrid',
                 css: 'col-xs-12',
                 settings: {
-                    url: 'http://localhost:1234/DashBoard/57ad00715c6c6c0efcdf6a73/traveler-mailservers'
+                    url: '/DashBoard/' + this.deviceId +'/traveler-mailservers'
                 }
             }
 

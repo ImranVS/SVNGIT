@@ -15,7 +15,7 @@ declare var bootstrapNavigator: any;
     directives: [ WidgetContainer, AppNavigator]
 })
 export class ServiceMainHealthTab extends WidgetController implements OnInit {
-    serviceId: any;
+    deviceId: any;
     service: any;
     
     widgets: WidgetContract[];
@@ -27,7 +27,7 @@ export class ServiceMainHealthTab extends WidgetController implements OnInit {
 
     ngOnInit() {
         this.route.params.subscribe(params => {
-            this.serviceId = params['service'];
+            this.deviceId = params['service'];
 
         });
         this.widgets = [
@@ -38,8 +38,8 @@ export class ServiceMainHealthTab extends WidgetController implements OnInit {
                 name: 'DynamicGrid',
                 css: 'col-xs-12',
                 settings: {
-                   // url: '/DashBoard/'+this.serviceId+'/health-assessment',
-                    url: '/DashBoard/5786a3ddb4ec91be7589c822/health-assessment',
+                     url: '/DashBoard/'+this.deviceId+'/health-assessment',
+                    //url: '/DashBoard/5786a3ddb4ec91be7589c822/health-assessment',
                     columns: [{ header: "Category", binding: "category", name: "category", width: "*" },
                         { header: "Test Name", binding: "test_name", name: "test_name", width: "*" },
                         { header: "Result", binding: "result", name: "result", width: "*" },

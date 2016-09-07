@@ -28,7 +28,7 @@ export class ServicesView implements OnInit, AfterViewChecked {
         this.services.forEach(service => service.active = false);
         service.active = true;  
 
-        this.router.navigate(['services', service.id]);
+        this.router.navigate(['services', service.device_id]);
     }
 
     loadData() {

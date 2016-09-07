@@ -1,5 +1,5 @@
 ﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 
 import {WidgetController, WidgetContainer, WidgetContract} from '../../core/widgets';
 import {AppNavigator} from '../../navigation/app.navigator.component';
@@ -12,34 +12,31 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/services/components/service-database-tab.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator]
+    directives: [WidgetContainer, AppNavigator]
 })
 export class ServiceDatabaseTab extends WidgetController implements OnInit {
-
+    deviceId: any;
     widgets: WidgetContract[]; 
 
-    constructor(protected resolver: ComponentResolver) {
+    constructor(protected resolver: ComponentResolver, private route: ActivatedRoute) {
         super(resolver);
     }
 
     ngOnInit() {
-      
+        this.route.params.subscribe(params => {
+            this.deviceId = params['service'];
 
-
-        //this.route.params.subscribe(params => {
-        //    this.serviceId = params['service'];
-
-        //});
+        });
         this.widgets = [
             {
                 id: 'dynamicGrid',
-                title: 'Health Assessment',
+                title: 'All Databases',
                 path: '/app/widgets/grid/components/dynamic-grid.component',
                 name: 'DynamicGrid',
                 css: 'col-xs-12',
                 settings: {
-                    // url: '/DashBoard/'+this.serviceId+'/health-assessment',
-                    url: '/DashBoard/57af28415c6c6c02d4fce747/database',
+                    url: '/DashBoard/' + this.deviceId +'/database',
+                    //url: '/DashBoard/57af28415c6c6c02d4fce747/database',
                     columns: [
                         { header: "Title", binding: "title", name: "title", width: "*" },
                         { header: "Status", binding: "status", name: "status", width: "*" },

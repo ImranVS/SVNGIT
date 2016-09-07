@@ -15,7 +15,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
 
     widgets: WidgetContract[];
     serviceId: string;
-
+    deviceId: any;
     constructor(protected resolver: ComponentResolver) {
         super(resolver);
     }
@@ -30,7 +30,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/1/overall/hourly-connections',
+                    url: '/services/statistics?statname=Server.Users&deviceId=57ace45abf46711cd4681e01&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'usersConnectionsDuringTheDay',
@@ -119,7 +119,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statname=Platform.System.PctCombinedCpuUtil&serverid=${this.serviceId}`,
+                    url: `/services/statistics?statname=Platform.System.PctCombinedCpuUtil&deviceId=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'cpuUsage',
@@ -158,7 +158,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: `http://USDOPVSDEV11SVC.jnittech.com/services/${this.serviceId}/overall/memory-usage`,
+                    url: `/services/statistics?statname=Mem.PercentUsed&deviceId=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'memoryUsage',
