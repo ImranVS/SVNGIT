@@ -418,9 +418,10 @@ namespace VitalSigns.API.Controllers
         public IEnumerable<ServerDatabase> GetDatabase(string id)
         {
             databaseRepository = new Repository<Database>(ConnectionString);
-            Expression<Func<Database, bool>> expression = (p => p.Id == id);
+            Expression<Func<Database, bool>> expression = (p => p.DeviceId == id);
             var result = databaseRepository.Find(expression).Select(x => new ServerDatabase
             {
+                DeviceId = x.DeviceId,
                 Title = x.Title, 
                 Status = x.Status,
                 ServerName = x.ServerName,
