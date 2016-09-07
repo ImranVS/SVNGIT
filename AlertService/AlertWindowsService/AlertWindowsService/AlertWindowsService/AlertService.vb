@@ -551,8 +551,8 @@ Public Class VitalSignsAlertService
 
         Dim dt As New DataTable
         Dim dr As DataRow
-        Dim oid As ObjectId
-        Dim eid As ObjectId
+        Dim oid As String
+        Dim eid As String
 
         dt.Columns.Add("AlertKey")
         dt.Columns.Add("EventName")
@@ -576,13 +576,13 @@ Public Class VitalSignsAlertService
         notificationsEntity = repoNotifications.Find(filterNotifications).ToArray()
         If notificationsEntity.Length > 0 Then
             For i As Integer = 0 To notificationsEntity.Length - 1
-                oid = notificationsEntity(i).ObjectId
+                oid = notificationsEntity(i).ObjectId.ToString()
                 filterEvents = repoEventsMaster.Filter.And(repoEventsMaster.Filter.Exists(Function(j) j.NotificationList, True),
-                        repoEventsMaster.Filter.AnyEq(Of ObjectId)(Function(j) j.NotificationList, oid))
+                        repoEventsMaster.Filter.AnyEq(Of String)(Function(j) j.NotificationList, oid))
                 eventsEntity = repoEventsMaster.Find(filterEvents).ToArray()
 
                 filterServers = repoServers.Filter.And(repoServers.Filter.Exists(Function(j) j.NotificationList, True),
-                        repoServers.Filter.AnyEq(Of ObjectId)(Function(j) j.NotificationList, oid))
+                        repoServers.Filter.AnyEq(Of String)(Function(j) j.NotificationList, oid))
                 serversEntity = repoServers.Find(filterServers).ToArray()
 
                 If eventsEntity.Length > 0 And serversEntity.Length > 0 Then
@@ -627,7 +627,7 @@ Public Class VitalSignsAlertService
                                     dr("StartTime") = ""
                                     dr("Duration") = 0
                                     dr("Day") = ""
-                                    filterBusHrs = repoBusHrs.Filter.Eq(Of ObjectId)("_id", sendlist(k).BusinessHoursId)
+                                    filterBusHrs = repoBusHrs.Filter.Eq(Of String)("_id", sendlist(k).BusinessHoursId)
                                     bushrsEntity = repoBusHrs.Find(filterBusHrs).ToArray()
                                     If bushrsEntity.Length > 0 Then
                                         dr("StartTime") = bushrsEntity(0).StartTime
@@ -1186,13 +1186,13 @@ Public Class VitalSignsAlertService
                 notificationsEntity = repoNotifications.Find(filterNotifications).ToArray()
                 If notificationsEntity.Length > 0 Then
                     For i As Integer = 0 To notificationsEntity.Length - 1
-                        oid = notificationsEntity(i).ObjectId
+                        oid = notificationsEntity(i).ObjectId.ToString()
                         'Get Escalation documents
                         notifications = notificationsEntity(i).SendList.Where(Function(j) j.Interval IsNot Nothing).ToArray()
                         notifications = notifications.ToList().OrderBy(Function(j) j.Interval).ToArray()
                         For z As Integer = 0 To notifications.Length - 1
                             If Not IsNothing(notifications(z).Interval) Then
-                                eid = notifications(z).ObjectId
+                                eid = notifications(z).ObjectId.ToString()
                                 'Find all events for which notifications have gone out (no Log File events)
                                 filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
                                                                                      repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
@@ -1895,8 +1895,8 @@ Public Class VitalSignsAlertService
                 filterEventsDetected = repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, AlertID)
                 eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsCreated.Length > 0 Then
-                    Dim oid As ObjectId
-                    oid = New ObjectId(AlertKey)
+                    Dim oid As String
+                    oid = AlertKey
                     Dim notificationentity As New NotificationsSent With {.NotificationId = oid, .NotificationSentTo = SentMails, .EventDetectedSent = strdt}
                     If eventsCreated(0).NotificationsSent Is Nothing Then
                         notificationsSent = New List(Of NotificationsSent)
@@ -1941,7 +1941,7 @@ Public Class VitalSignsAlertService
         End Try
 
     End Sub
-    Private Sub InsertSentEscalation(ByRef eventCreated As EventsDetected, ByVal oid As ObjectId, ByVal eid As ObjectId, ByVal EscalateTo As String)
+    Private Sub InsertSentEscalation(ByRef eventCreated As EventsDetected, ByVal oid As String, ByVal eid As String, ByVal EscalateTo As String)
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
         Dim notificationsSent As List(Of NotificationsSent)
