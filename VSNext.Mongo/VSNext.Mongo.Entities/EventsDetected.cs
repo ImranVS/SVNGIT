@@ -63,7 +63,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("notification_id")]
         [BsonIgnoreIfNullAttribute]
-        public ObjectId NotificationId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string NotificationId { get; set; }
 
         [DataMember]
         [BsonElement("event_detected_sent")]
@@ -83,6 +84,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("escalation_id")]
         [BsonIgnoreIfNullAttribute]
-        public ObjectId? EscalationId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string EscalationId { get; set; }
     }
 }

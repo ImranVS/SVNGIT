@@ -32,7 +32,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("business_hours_id")]
         [BsonIgnoreIfNullAttribute]
-        public ObjectId BusinessHoursId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string BusinessHoursId { get; set; }
 
         [DataMember]
         [BsonElement("b_id")]
