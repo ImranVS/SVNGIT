@@ -48,7 +48,8 @@ namespace VitalSigns.API.Controllers
                                          Version = x.SoftwareVersion,
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
-                                         Status = x.StatusCode
+                                         Status = x.StatusCode,
+                                         DeviceId = x.DeviceId 
 
                                      }).ToList();
                 foreach (ServerStatus item in result)
@@ -56,10 +57,15 @@ namespace VitalSigns.API.Controllers
 
                     if (item.LastUpdated.HasValue)
                         item.Description = "Last Updated: " + item.LastUpdated.Value.ToShortDateString();
-                    if (serviceIcons.ContainsKey(item.Type))
-                        item.Icon = serviceIcons[item.Type];
-                    else
-                        item.Icon = @"/img/servers/Paintbrush.svg";
+                    if (item.Type != null)
+                    {
+                        if (serviceIcons.ContainsKey(item.Type))
+                            item.Icon = serviceIcons[item.Type];
+                        else
+                            item.Icon = @"/img/servers/Paintbrush.svg";
+                    }
+                    if(!string.IsNullOrEmpty(item.Status))
+                        item.Status = item.Status.ToLower().Replace(" ", "");
                 }
                 Response = Common.CreateResponse(result);
             }
@@ -77,7 +83,7 @@ namespace VitalSigns.API.Controllers
         /// <param name="id"></param>
         /// <returns>Server details</returns>
         [HttpGet("device_details")]
-        public APIResponse GetServerDetails(string id, string destination, string secondaryRole)
+        public APIResponse GetServerDetails(string device_id, string destination, string secondaryRole)
         {
 
             statusRepository = new Repository<Status>(ConnectionString);
@@ -85,7 +91,7 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                Expression<Func<Status, bool>> expression = (p => p.Id == id);
+                Expression<Func<Status, bool>> expression = (p => p.DeviceId == ObjectId.Parse(device_id));
                 var result = (statusRepository.Find(expression)
                                      .Select(x => new ServerStatus
                                      {
@@ -96,7 +102,9 @@ namespace VitalSigns.API.Controllers
                                          Version = x.SoftwareVersion,
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
-                                         Status = x.StatusCode
+                                         Status = x.StatusCode,
+                                         DeviceId=x.DeviceId
+                                         
 
                                      })).FirstOrDefault();
                 var serviceIcons = Common.GetServerTypeIcons();
@@ -104,6 +112,8 @@ namespace VitalSigns.API.Controllers
                 result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper()).ToList();
                 result.Description = "Last Updated: " + result.LastUpdated.Value.ToShortDateString();
                 result.Icon = serverType.Icon;
+                if (!string.IsNullOrEmpty(result.Status))
+                    result.Status = result.Status.ToLower().Replace(" ", "");
                 Response = Common.CreateResponse(result);
             }
             catch (Exception exception)
