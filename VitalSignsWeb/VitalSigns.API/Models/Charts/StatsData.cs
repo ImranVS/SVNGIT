@@ -10,7 +10,7 @@ namespace VitalSigns.API.Models
     {
         [JsonProperty("device_id")]
 
-        public int DeviceId { get; set; }
+        public string DeviceId { get; set; }
 
         [JsonProperty("stat_name")]
         public string StatName { get; set; }
