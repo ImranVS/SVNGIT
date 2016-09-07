@@ -10,6 +10,7 @@ using VSNext.Mongo.Entities;
 using MongoDB.Driver;
 using System.Linq.Expressions;
 using System.Globalization;
+using MongoDB.Bson;
 
 namespace VitalSigns.API.Controllers
 {
@@ -132,7 +133,7 @@ namespace VitalSigns.API.Controllers
                     Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName);
                     var result = dailyRepository.Find(expression).Select(x => new StatsData
                     {
-                      //DeviceId = x.DeviceId,
+                     // DeviceId = x.DeviceId,
                         StatName = x.StatName,
                         StatValue = x.StatValue
 
@@ -142,14 +143,14 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName && p.DeviceId == MongoDB.Bson.ObjectId.Parse(deviceId));
+                    Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName && p.DeviceId == ObjectId.Parse(deviceId));
 
                     if (string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
                     {
 
                         var result = dailyRepository.Find(expression).Select(x => new StatsData
                         {
-                          // DeviceId = x.DeviceId,
+                         //  DeviceId = x.DeviceId,
                             StatName = x.StatName,
                             StatValue = x.StatValue
 
@@ -176,6 +177,7 @@ namespace VitalSigns.API.Controllers
                                 break;
                             case "COUNT":
                                 var statsCount = dailyRepository.Find(expression).Count();
+                              
                                 statsData = new StatsData { StatName = statName, StatValue = statsCount, DeviceId = deviceId };
                                 Response = Common.CreateResponse(statsCount);
                                 break;
@@ -275,7 +277,7 @@ namespace VitalSigns.API.Controllers
                 else if (!string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
 
-                    Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatName == statName && p.DeviceId == MongoDB.Bson.ObjectId.Parse(deviceId));
+                    Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatName == statName && p.DeviceId == ObjectId.Parse(deviceId));
                     var statsHourly = summaryRepository.Find(expression);
                     var result = statsHourly
                                 .GroupBy(row => row.CreatedOn.Date)
@@ -336,7 +338,84 @@ namespace VitalSigns.API.Controllers
         }
 
 
-       
+
+        [HttpGet("status_list")]
+        public APIResponse GetStatusList(string type)
+        {
+            statusRepository = new Repository<Status>(ConnectionString);
+
+            try
+            {
+                if (string.IsNullOrEmpty(type))
+                {
+                    var result = statusRepository.Collection.AsQueryable()
+                                     .Select(x => new ServerStatus
+                                     {
+                                 
+                                       DeviceId = x.DeviceId,
+                                         Name  = x.Name,
+                                          Status = x.StatusCode,
+                                         Country=x.Location,
+                                         Details = x.Details,
+                                         UserCount=x.UserCount,
+                                         CPU=x.CPU,
+                                         Type=x.Type
+                                         // LastUpdated = x.LastUpdated,
+                                         // Description = x.Description,
+                                         
+
+                                      });
+                    Response = Common.CreateResponse(result);
+
+                }
+                else if (!string.IsNullOrEmpty(type))
+                {
+
+                    Expression<Func<Status, bool>> expression = (p => p.Type == type);
+                    var result = statusRepository.Find(expression).AsQueryable()
+                                                                    .Select(x => new ServerStatus
+                                                                    {
+
+                                                                        // Id = x.Id,
+                                                                        DeviceId=x.DeviceId,
+                                                                        Name = x.Name,
+                                                                        Status = x.StatusCode,
+                                                                        Country = x.Location,
+                                                                        Details = x.Details,
+                                                                        UserCount = x.UserCount,
+                                                                        CPU = x.CPU,
+                                                                        Type = x.Type
+                                                                        // LastUpdated = x.LastUpdated,
+                                                                        // Description = x.Description,
+
+
+                                                                    });
+
+                    Response = Common.CreateResponse(result);
+                    
+                   
+
+                   
+
+
+
+                   // Response = Common.CreateResponse(chart);
+                    //Response = Common.CreateResponse(result);
+
+                }
+                return Response;
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+
+
 
 
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using MongoDB.Bson;
 
 namespace VitalSigns.API.Models
 {
@@ -11,6 +12,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("id")]
         public string Id { get; set; }
+
+        [JsonProperty("device_id")]
+        public ObjectId? DeviceId { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -33,6 +37,15 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("description")]
         public string Description { get; set; }
+
+        [JsonProperty("details")]
+        public string Details { get; set; }
+
+        [JsonProperty("cpu")]
+        public double? CPU { get; set; }
+
+        [JsonProperty("user_count")]
+        public int? UserCount { get; set; }
 
         [JsonProperty("last_updated")]
         public DateTime? LastUpdated { get; set; }
