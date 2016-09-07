@@ -894,6 +894,11 @@ NextServer:
             dbPathlist3.Add("Thread 3")
             dbPathlist4.Add("Thread 4")
 
+            dbPathlist1.Add(Server.ServerObjectID)
+            dbPathlist2.Add(Server.ServerObjectID)
+            dbPathlist3.Add(Server.ServerObjectID)
+            dbPathlist4.Add(Server.ServerObjectID)
+
             While Not (db Is Nothing)
                 WriteDeviceHistoryEntry("Database_Health", Server.Name, Now.ToString & " Processing " & db.Title)
                 intTotalCount += 1
@@ -1108,9 +1113,11 @@ NextServer:
 
         Dim ServerName As String = dbPathlist.Item(0)
         Dim ThreadName As String = dbPathlist.Item(1)
+        Dim DeviceId As String = dbPathlist.Item(2)
 
 
-        'Remove the first two items from the list
+        'Remove the first three items from the list
+        dbPathlist.RemoveAt(0)
         dbPathlist.RemoveAt(0)
         dbPathlist.RemoveAt(0)
 
@@ -1176,7 +1183,9 @@ NextServer:
                     .ServerName = ndb.Server,
                     .CurrentAccessLevel = ndb.CurrentAccessLevel,
                     .Details = ndb.Details,
-                    .Folder = ndb.Folder}
+                    .Folder = ndb.Folder,
+                    .DeviceId = DeviceId
+                }
 
                 repo.Insert(entity)
 
