@@ -167,98 +167,98 @@
 
 
 
-#serversListWrapper .aServer[data-status="notResponding"] {
+#serversListWrapper .aServer[data-status="notresponding"] {
 	background-color: rgba(239, 58, 36, 0.15);
 }
-#serversListWrapper .aServer[data-status="notResponding"] .statusIndicator {
+#serversListWrapper .aServer[data-status="notresponding"] .statusIndicator {
 	background-color: rgba(239, 58, 36, 1);
 }
-#serversListWrapper .aServer[data-status="notResponding"]:hover {
+#serversListWrapper .aServer[data-status="notresponding"]:hover {
 	background-color: rgba(239, 58, 36, 0.25);
 }
-#serversListWrapper .aServer[data-status="notResponding"].active {
+#serversListWrapper .aServer[data-status="notresponding"].active {
 	background-color: rgba(239, 58, 36, 1);
 }
-#serversListWrapper .aServer[data-status="notResponding"].active:hover {
+#serversListWrapper .aServer[data-status="notresponding"].active:hover {
 	background-color: rgba(239, 58, 36, 0.85);
 }
-#serversListWrapper .aServer[data-status="notResponding"].active .serverIcon {
+#serversListWrapper .aServer[data-status="notresponding"].active .serverIcon {
 	background-color: #FFFFFF;
 }
-#serversListWrapper .aServer[data-status="notResponding"].active .serverIcon svg {
+#serversListWrapper .aServer[data-status="notresponding"].active .serverIcon svg {
 	fill: rgba(239, 58, 36, 1);
 }
 
 
 
 
-#serversListWrapper .aServer[data-status="noIssues"] {
+#serversListWrapper .aServer[data-status="ok"] {
 	background-color: rgba(95, 190, 127, 0.15);
 }
-#serversListWrapper .aServer[data-status="noIssues"] .statusIndicator {
+#serversListWrapper .aServer[data-status="ok"] .statusIndicator {
 	background-color: rgba(95, 190, 127, 1);
 }
-#serversListWrapper .aServer[data-status="noIssues"]:hover {
+#serversListWrapper .aServer[data-status="ok"]:hover {
 	background-color: rgba(95, 190, 127, 0.25);
 }
-#serversListWrapper .aServer[data-status="noIssues"].active {
+#serversListWrapper .aServer[data-status="ok"].active {
 	background-color: rgba(95, 190, 127, 1);
 }
-#serversListWrapper .aServer[data-status="noIssues"].active:hover {
+#serversListWrapper .aServer[data-status="ok"].active:hover {
 	background-color: rgba(95, 190, 127, 0.85);
 }
-#serversListWrapper .aServer[data-status="noIssues"].active .serverIcon {
+#serversListWrapper .aServer[data-status="ok"].active .serverIcon {
 	background-color: #FFFFFF;
 }
-#serversListWrapper .aServer[data-status="noIssues"].active .serverIcon svg {
+#serversListWrapper .aServer[data-status="ok"].active .serverIcon svg {
 	fill: rgba(95, 190, 127, 1);
 }
 
 
 
-#serversListWrapper .aServer[data-status="issues"] {
+#serversListWrapper .aServer[data-status="issue"] {
 	background-color: rgba(249, 156, 28, 0.15);
 }
-#serversListWrapper .aServer[data-status="issues"] .statusIndicator {
+#serversListWrapper .aServer[data-status="issue"] .statusIndicator {
 	background-color: rgba(249, 156, 28, 1);
 }
-#serversListWrapper .aServer[data-status="issues"]:hover {
+#serversListWrapper .aServer[data-status="issue"]:hover {
 	background-color: rgba(249, 156, 28, 0.25);
 }
-#serversListWrapper .aServer[data-status="issues"].active {
+#serversListWrapper .aServer[data-status="issue"].active {
 	background-color: rgba(249, 156, 28, 1);
 }
-#serversListWrapper .aServer[data-status="issues"].active:hover {
+#serversListWrapper .aServer[data-status="issue"].active:hover {
 	background-color: rgba(249, 156, 28, 0.85);
 }
-#serversListWrapper .aServer[data-status="issues"].active .serverIcon {
+#serversListWrapper .aServer[data-status="issue"].active .serverIcon {
 	background-color: #FFFFFF;
 }
-#serversListWrapper .aServer[data-status="issues"].active .serverIcon svg {
+#serversListWrapper .aServer[data-status="issue"].active .serverIcon svg {
 	fill: rgba(249, 156, 28, 1);
 }
 
 
 
-#serversListWrapper .aServer[data-status="inMaintenance"] {
+#serversListWrapper .aServer[data-status="maintenance"] {
 	background-color: rgba(132, 132, 132, 0.15);
 }
-#serversListWrapper .aServer[data-status="inMaintenance"] .statusIndicator {
+#serversListWrapper .aServer[data-status="maintenance"] .statusIndicator {
 	background-color: rgba(132, 132, 132, 1);
 }
-#serversListWrapper .aServer[data-status="inMaintenance"]:hover {
+#serversListWrapper .aServer[data-status="maintenance"]:hover {
 	background-color: rgba(132, 132, 132, 0.25);
 }
-#serversListWrapper .aServer[data-status="inMaintenance"].active {
+#serversListWrapper .aServer[data-status="maintenance"].active {
 	background-color: rgba(132, 132, 132, 1);
 }
-#serversListWrapper .aServer[data-status="inMaintenance"].active:hover {
+#serversListWrapper .aServer[data-status="maintenance"].active:hover {
 	background-color: rgba(132, 132, 132, 0.85);
 }
-#serversListWrapper .aServer[data-status="inMaintenance"].active .serverIcon {
+#serversListWrapper .aServer[data-status="maintenance"].active .serverIcon {
 	background-color: #FFFFFF;
 }
-#serversListWrapper .aServer[data-status="inMaintenance"].active .serverIcon svg {
+#serversListWrapper .aServer[data-status="maintenance"].active .serverIcon svg {
 	fill: rgba(132, 132, 132, 1);
 }
 
@@ -346,16 +346,16 @@
     padding-top: 14px;
 }
 
-.serverDetailWrapper #serverOverview .serverStatus.noIssue {
+.serverDetailWrapper #serverOverview .serverStatus.ok {
 	background-color: #5fbe7f;
 }
-.serverDetailWrapper #serverOverview .serverStatus.notResponding {
+.serverDetailWrapper #serverOverview .serverStatus.notresponding {
 	background-color: #EF3A24;
 }
-.serverDetailWrapper #serverOverview .serverStatus.issues {
+.serverDetailWrapper #serverOverview .serverStatus.issue {
 	background-color: #F99C1C;
 }
-.serverDetailWrapper #serverOverview .serverStatus.inMaintenance {
+.serverDetailWrapper #serverOverview .serverStatus.maintenance {
 	background-color: #8c8c8c;
 }
 
