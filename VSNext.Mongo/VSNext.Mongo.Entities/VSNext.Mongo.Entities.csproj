@@ -61,6 +61,7 @@
     <Compile Include="ConsoleCommands.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="DailyStatistics.cs" />
+    <Compile Include="DailyTasks.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DiskSpace.cs" />
     <Compile Include="Enums.cs" />
