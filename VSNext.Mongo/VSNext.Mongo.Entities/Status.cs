@@ -42,8 +42,9 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("device_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
         [BsonIgnoreIfNullAttribute]
-        public ObjectId? DeviceId { get; set; }
+        public string DeviceId { get; set; }
 
         //"last_update" : "2015-08-05T08:40:51.620Z",
         [DataMember]
