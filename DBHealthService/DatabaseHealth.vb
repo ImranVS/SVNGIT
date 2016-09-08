@@ -431,25 +431,47 @@ Public Class VitalSignsDBHealth
 
         'start with fresh data
         '***  Build the data set dynamically
-        Dim dsDominoServers As New Data.DataSet
+
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
 
         Try
-            Dim strSQL As String '= "SELECT BES_Server, Memory_Threshold, CPU_Threshold, Cluster_Rep_Delays_Threshold, NotificationGroup, HeldThreshold, DiskSpaceThreshold, IPAddress, BES_Threshold, Category, DeadThreshold, Description, Enabled, FailureThreshold, [Key], Location, MailDirectory, Name, OffHoursScanInterval, PendingThreshold, ResponseThreshold, RetryInterval, [Scan Interval], SearchString, AdvancedMailScan, DeadMailDeleteThreshold FROM DominoServers"
-			strSQL = "select ServerName AS Name, [Scan Interval], Category, Enabled, PendingThreshold, DeadThreshold, Location, ServerType, MailDirectory, OffHoursScanInterval, RetryInterval,  [Key], ResponseThreshold, " & _
-			"BES_Server, BES_Threshold, FailureThreshold, SearchString, DeadMailDeleteThreshold, DiskSpaceThreshold, HeldThreshold, ScanDBHealth, Description, NotificationGroup, Memory_Threshold, CPU_Threshold, Cluster_Rep_Delays_Threshold "
-			strSQL += " FROM dbo.DominoServers ds  "
-			strSQL += " LEFT OUTER JOIN  Credentials c on ds.CredentialsID=c.ID "
-			strSQL += " inner join Servers srv on srv.ID = ds.ServerID "
-			strSQL += " inner join ServerTypes srvt on srvt.id=srv.ServerTypeId "
-			strSQL += " inner join Locations Loc on srv.LocationId = Loc.ID "
-			strSQL += " where ds.ServerID = srv.ID And srv.ServerTypeID = srvt.id And srv.LocationID = Loc.ID"
 
+            'Removed DominoServers.DiskSpaceThreshold, DominoServers.NotificationGroup, DominoServer.ScanServlet
 
-			WriteAuditEntry(Now.ToString & " My SQL statement is " & strSQL)
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsDominoServers, "DominoServers")
-			WriteAuditEntry(Now.ToString & " Created a dataset with " & dsDominoServers.Tables(0).Rows.Count)
-		Catch ex As Exception
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.ScanInterval) _
+                .Include(Function(x) x.Category) _
+                .Include(Function(x) x.IsEnabled) _
+                .Include(Function(x) x.PendingMailThreshold) _
+                .Include(Function(x) x.DeadMailThreshold) _
+                .Include(Function(x) x.LocationId) _
+                .Include(Function(x) x.MailDirectory) _
+                .Include(Function(x) x.OffHoursScanInterval) _
+                .Include(Function(x) x.RetryInterval) _
+                .Include(Function(x) x.ResponseTime) _
+                .Include(Function(x) x.IPAddress) _
+                .Include(Function(x) x.ConsecutiveFailuresBeforeAlert) _
+                .Include(Function(x) x.SearchString) _
+                .Include(Function(x) x.DeadMailDeleteThreshold) _
+                .Include(Function(x) x.DiskInfo) _
+                .Include(Function(x) x.HeldMailThreshold) _
+                .Include(Function(x) x.ScanDBHealth) _
+                .Include(Function(x) x.Description) _
+                .Include(Function(x) x.NotificationList) _
+                .Include(Function(x) x.MemoryThreshold) _
+                .Include(Function(x) x.CpuThreshold) _
+                .Include(Function(x) x.ClusterReplicationDelayThreshold)
+
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
+
+            WriteAuditEntry(Now.ToString & " Created a dataset with " & listOfServers.Count)
+        Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateDominoServersCollection processing code. Exception: " & ex.Message)
 			Exit Sub
 		End Try
@@ -461,19 +483,18 @@ Public Class VitalSignsDBHealth
         WriteAuditEntry(Now.ToString & " Reading configuration settings for Domino Servers.")
 
         Try
-            Dim dr As DataRow
-            For Each dr In dsDominoServers.Tables("DominoServers").Rows
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
                 i += 1
-                If dr.Item("Description") Is Nothing Then
+                If entity.Description Is Nothing Then
                     Description = "Lotus Domino Server"
                 Else
-                    Description = dr.Item("Description")
+                    Description = entity.Description
                 End If
 
-                If dr.Item("Name") Is Nothing Then
+                If entity.DeviceName Is Nothing Then
                     MyName = "DominoServer" & i.ToString
                 Else
-                    MyName = dr.Item("Name")
+                    MyName = entity.DeviceName
                 End If
 
 
@@ -503,31 +524,25 @@ Public Class VitalSignsDBHealth
                 End If
 
                 With MyDominoServer
-                    WriteAuditEntry(Now.ToString & " Configuring Domino Server: " & dr.Item("Name"), LogLevel.Verbose)
+                    WriteAuditEntry(Now.ToString & " Configuring Domino Server: " & entity.DeviceName, LogLevel.Verbose)
 
                     Try
-                        If dr.Item("NotificationGroup") Is Nothing Then
-                            .NotificationGroup = ""
-                            '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold not set, using default of 50.")
+                        If entity.Id Is Nothing Then
+                            .ServerObjectID = ""
+                            WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
                         Else
-                            If Trim(dr.Item("NotificationGroup")) <> "" Then
-                                .NotificationGroup = dr.Item("NotificationGroup")
-                                WriteAuditEntry(Now.ToString & " " & .Name & " Notifications for this server will go to " & .NotificationGroup)
-                            End If
-
+                            .ServerObjectID = entity.Id
                         End If
                     Catch ex As Exception
-                        .NotificationGroup = ""
-                        'WriteAuditEntry(Now.ToString & " " & .Name & " Custom notification group not set for this server, using default alert settings.")
+                        .ServerObjectID = ""
+                        WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
                     End Try
 
-
-
                     Try
-                        If dr.Item("Enabled") Is Nothing Then
+                        If entity.IsEnabled Is Nothing Then
                             .Enabled = True
                         Else
-                            .Enabled = dr.Item("Enabled")
+                            .Enabled = entity.IsEnabled
                         End If
 
                     Catch ex As Exception
@@ -540,10 +555,10 @@ Public Class VitalSignsDBHealth
 
 
                     Try
-                        If dr.Item("ScanDBHealth") Is Nothing Then
+                        If entity.ScanDBHealth Is Nothing Then
                             .ScanDBHealth = False
                         Else
-                            .ScanDBHealth = dr.Item("ScanDBHealth")
+                            .ScanDBHealth = entity.ScanDBHealth
                         End If
 
                         If .ScanDBHealth = True And .Enabled = True Then
@@ -562,11 +577,11 @@ Public Class VitalSignsDBHealth
 
 
                     Try
-                        If dr.Item("Category") Is Nothing Then
+                        If entity.Category Is Nothing Then
                             .Category = "Domino"
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Category not set, using default of 'Domino'.")
                         ElseIf .ClusterMember = "" Then
-                            .Category = dr.Item("Category")
+                            .Category = entity.Category
                         ElseIf .ClusterMember <> "" And Not (InStr(.ClusterMember, "*ERROR*") > 0) And Not (InStr(.ClusterMember.ToUpper, "RESTRICTED") > 0) Then
                             .Category = "Cluster: " & .ClusterMember
                         End If
@@ -579,11 +594,11 @@ Public Class VitalSignsDBHealth
 
 
                     Try
-                        If dr.Item("Scan Interval") Is Nothing Then
+                        If entity.ScanInterval Is Nothing Then
                             .ScanInterval = 10
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server  scan interval not set, using default of 10 minutes.")
                         Else
-                            .ScanInterval = dr.Item("Scan Interval")
+                            .ScanInterval = entity.ScanInterval
                         End If
                     Catch ex As Exception
                         .ScanInterval = 10
@@ -591,11 +606,11 @@ Public Class VitalSignsDBHealth
                     End Try
 
                     Try
-                        If dr.Item("RetryInterval") Is Nothing Then
+                        If entity.RetryInterval Is Nothing Then
                             .RetryInterval = 2
                             WriteAuditEntry(Now.ToString & " " & .Name & " Domino server  retry scan interval not set, using default of 10 minutes.")
                         Else
-                            .RetryInterval = dr.Item("RetryInterval")
+                            .RetryInterval = entity.RetryInterval
                         End If
                     Catch ex As Exception
                         .RetryInterval = 2
@@ -608,7 +623,6 @@ Public Class VitalSignsDBHealth
 
             Next
 
-            dr = Nothing
 
         Catch exception As DataException
             WriteAuditEntry(Now.ToString & " Domino servers error: " & exception.Message)
@@ -616,7 +630,6 @@ Public Class VitalSignsDBHealth
             WriteAuditEntry(Now.ToString & " Domino servers error: " & ex.Message)
         End Try
 
-        dsDominoServers.Dispose()
 
     End Sub
 
@@ -660,6 +673,7 @@ Public Class VitalSignsDBHealth
         Public QuickrPlaceBotCount As Integer
         Public PersonDocID As String
         Public FileNamePath As String
+        Public DeviceId As String
     End Class
 
     Private Sub MonitorNotesDatabaseHealth()
@@ -1134,7 +1148,7 @@ NextServer:
         WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " ")
         WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " This collection has " & dbPathlist.Count & " databases to analyze.")
         WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " ")
-
+        WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " DeviceId : " & DeviceId)
 
         'reset the counter
         Dim dbCounter As Integer = 0
@@ -1254,6 +1268,8 @@ NextServer:
                     If InStr(.FileName, "'") Then
                         .FileName = .FileName.Replace("'", "")
                     End If
+
+                    .DeviceId = DeviceId
 
                 Catch ex As Exception
 
@@ -1749,7 +1765,7 @@ NextServer:
                 Try
                     If .IsMailFile = True Then
                         If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " Entering this database into the Mail File Stat table ")
-                        UpdateDominoDailyMailFileStatTable(Date.Now, db.Server, .FileNamePath, .Title, .FileSize, .DesignTemplateName, .Quota, .FTIndexed, False, .EnabledForClusterReplication, .ReplicaID, .ODS)
+                        UpdateDominoDailyMailFileStatTable(Date.Now, db.Server, .FileNamePath, .Title, .FileSize, .DesignTemplateName, .Quota, .FTIndexed, False, .EnabledForClusterReplication, .ReplicaID, .ODS, .DeviceId)
                     End If
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " Exception entering data into the Mail File Stat table: " & ex.ToString)
@@ -1847,7 +1863,8 @@ SkipDatabase:
                     .LastFTIndexed = myNotesDatabase.LastFTIndexed,
                     .LastModified = myNotesDatabase.LastModified,
                     .IsMailFile = myNotesDatabase.IsMailFile,
-                    .PersonDocId = myNotesDatabase.PersonDocID
+                    .PersonDocId = myNotesDatabase.PersonDocID,
+                    .DeviceId = myNotesDatabase.DeviceId
                     }
 
                 repo.Insert(entity)
@@ -1916,7 +1933,7 @@ SkipDatabase:
     'End Sub
 
 
-    Private Sub UpdateDominoDailyMailFileStatTable(ByVal ScanDate As DateTime, ByVal MailServer As String, ByVal FileName As String, ByVal FileTitle As String, ByVal FileSize As Double, ByVal TemplateName As String, ByVal Quota As Double, ByVal FTIndexed As Boolean, ByVal OutOfOfficeAgentEnabled As Boolean, ByVal EnabledForClusterReplication As Boolean, ByVal ReplicaID As String, ByVal ODS As Double)
+    Private Sub UpdateDominoDailyMailFileStatTable(ByVal ScanDate As DateTime, ByVal MailServer As String, ByVal FileName As String, ByVal FileTitle As String, ByVal FileSize As Double, ByVal TemplateName As String, ByVal Quota As Double, ByVal FTIndexed As Boolean, ByVal OutOfOfficeAgentEnabled As Boolean, ByVal EnabledForClusterReplication As Boolean, ByVal ReplicaID As String, ByVal ODS As Double, ByVal DeviceId As String)
         Dim strSQL As String = ""
         If TemplateName = "" Then
             TemplateName = "None"
@@ -1929,8 +1946,8 @@ SkipDatabase:
 
         '11/10 - changed temp to true
 
-		Try
-			'change by somaraj fixdate as fixdatetime
+        Try
+            'change by somaraj fixdate as fixdatetime
 
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
             Dim entity As New VSNext.Mongo.Entities.Database() With {
@@ -1944,16 +1961,17 @@ SkipDatabase:
                 .FTIndexed = FTIndexed,
                 .ReplicaId = ReplicaID,
                 .ODS = ODS,
-                .ScanDateTime = GetFixedDateTime(ScanDate)
+                .ScanDateTime = GetFixedDateTime(ScanDate),
+                .DeviceId = DeviceId
                 }
 
             repo.Insert(entity)
 
 
-		Catch ex2 As Exception
-			WriteAuditEntry(Now.ToString & " Error Inserting Mail Stats: " & ex2.Message & vbCrLf & strSQL)
+        Catch ex2 As Exception
+            WriteAuditEntry(Now.ToString & " Error Inserting Mail Stats: " & ex2.Message & vbCrLf & strSQL)
 
-		End Try
+        End Try
 
 
 
@@ -1964,7 +1982,7 @@ SkipDatabase:
     '       ' Return dt.ToUniversalTime.ToString
     '       Return objDateUtils.FixDate(dt, strDateFormat)
     'End Function
-	Private Function FixDateTime(ByVal dt As DateTime) As String 'change by somaraj
+    Private Function FixDateTime(ByVal dt As DateTime) As String 'change by somaraj
 		' Return dt.ToUniversalTime.ToString
 		Return objDateUtils.FixDateTime(dt, strDateFormat)
     End Function
