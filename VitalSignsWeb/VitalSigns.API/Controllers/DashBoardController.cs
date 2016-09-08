@@ -413,33 +413,42 @@ namespace VitalSigns.API.Controllers
         }
 
 
-        [HttpGet("{id}/database")]
-
-        public IEnumerable<ServerDatabase> GetDatabase(string id)
+        [HttpGet("{device_id}/database")]
+        public APIResponse GetDatabase(string device_id)
         {
-            databaseRepository = new Repository<Database>(ConnectionString);
-            Expression<Func<Database, bool>> expression = (p => p.DeviceId == id);
-            var result = databaseRepository.Find(expression).Select(x => new ServerDatabase
-            {
-                DeviceId = x.DeviceId,
-                Title = x.Title, 
-                Status = x.Status,
-                ServerName = x.ServerName,
-                Folder = x.Folder,
-                FolderCount = x.FolderCount,
-                Details = x.Details,
-                FileName = x.FileName,
-                DesignTemplateName = x.DesignTemplateName,
-                FileSize = x.FileSize,
-                Quota = x.Quota,
-                InboxDocCount = x.InboxDocCount,
-                ScanDateTime = x.ScanDateTime,
-                ReplicaId = x.ReplicaId,
-                DocumentCount = x.DocumentCount,
-                Categories = x.Categories
-            });
-            return result.ToList();
-        }
 
+            databaseRepository = new Repository<Database>(ConnectionString);
+
+            try
+            {
+                Expression<Func<Database, bool>> expression = (p => p.DeviceId == device_id);
+                var result = databaseRepository.Find(expression).Select(x => new ServerDatabase
+                {
+                    DeviceId = x.DeviceId,
+                    Title = x.Title,
+                    Status = x.Status,
+                    ServerName = x.ServerName,
+                    Folder = x.Folder,
+                    FolderCount = x.FolderCount,
+                    Details = x.Details,
+                    FileName = x.FileName,
+                    DesignTemplateName = x.DesignTemplateName,
+                    FileSize = x.FileSize,
+                    Quota = x.Quota,
+                    InboxDocCount = x.InboxDocCount,
+                    ScanDateTime = x.ScanDateTime,
+                    ReplicaId = x.ReplicaId,
+                    DocumentCount = x.DocumentCount,
+                    Categories = x.Categories
+                });
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
     }
 }
