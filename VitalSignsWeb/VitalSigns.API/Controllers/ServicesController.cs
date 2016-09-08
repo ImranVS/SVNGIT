@@ -49,7 +49,7 @@ namespace VitalSigns.API.Controllers
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
                                          Status = x.StatusCode,
-                                         DeviceId = x.DeviceId 
+                                         DeviceId = x.DeviceId
 
                                      }).ToList();
                 foreach (ServerStatus item in result)
@@ -64,7 +64,7 @@ namespace VitalSigns.API.Controllers
                         else
                             item.Icon = @"/img/servers/Paintbrush.svg";
                     }
-                    if(!string.IsNullOrEmpty(item.Status))
+                    if (!string.IsNullOrEmpty(item.Status))
                         item.Status = item.Status.ToLower().Replace(" ", "");
                 }
                 Response = Common.CreateResponse(result);
@@ -91,7 +91,7 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                Expression<Func<Status, bool>> expression = (p => p.DeviceId == ObjectId.Parse(device_id));
+                Expression<Func<Status, bool>> expression = (p => p.DeviceId == device_id);
                 var result = (statusRepository.Find(expression)
                                      .Select(x => new ServerStatus
                                      {
@@ -103,8 +103,8 @@ namespace VitalSigns.API.Controllers
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
                                          Status = x.StatusCode,
-                                         DeviceId=x.DeviceId
-                                         
+                                         DeviceId = x.DeviceId
+
 
                                      })).FirstOrDefault();
                 var serviceIcons = Common.GetServerTypeIcons();
@@ -135,94 +135,138 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetDailyStat(string deviceId, string statName, string operation)
         {
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
-          
+
             try
             {
+                var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
-                    Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName);
+
+
+                    Expression<Func<DailyStatistics, bool>> expression = (p => statNames.Contains(p.StatName));
                     var result = dailyRepository.Find(expression).Select(x => new StatsData
                     {
-                     // DeviceId = x.DeviceId,
+                        DeviceId = x.DeviceId,
                         StatName = x.StatName,
                         StatValue = x.StatValue
 
-                    }).Take(500).ToList();
+                    }).OrderBy(x => x.StatName).ToList();
+
+
                     Response = Common.CreateResponse(result);
 
                 }
                 else
                 {
-                    Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName && p.DeviceId == ObjectId.Parse(deviceId));
+                    Expression<Func<DailyStatistics, bool>> expression = (p => statNames.Contains(p.StatName) && p.DeviceId == deviceId);
 
                     if (string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
                     {
 
                         var result = dailyRepository.Find(expression).Select(x => new StatsData
                         {
-                         //  DeviceId = x.DeviceId,
+                            DeviceId = x.DeviceId,
                             StatName = x.StatName,
                             StatValue = x.StatValue
 
-                        }).Take(5000).ToList();
+                        }).OrderBy(x => x.StatName).ToList();
                         Response = Common.CreateResponse(result);
                     }
                     else if (!string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
                     {
 
-                        StatsData statsData;
+                        // StatsData statsData;
+
+
                         switch (operation.ToUpper())
                         {
                             case "SUM":
 
-                                var statsSum = dailyRepository.Find(expression).Sum(x => x.StatValue);
-                                statsData = new StatsData { StatName = statName, StatValue = statsSum, DeviceId = deviceId };
-                                Response = Common.CreateResponse(statsSum);
+                                var statsSum = dailyRepository.Find(expression);
+
+                                var statsSumData = statsSum
+                                              .GroupBy(row => row.StatName)
+                                              .Select(grp => new
+                                              {
+                                                  StatName = grp.Key,
+                                                  Value = grp.Sum(x => x.StatValue),
+                                                  DeviceId = deviceId
+                                              }).ToList();
+
+                                // statsData = new StatsData { StatName = statName, StatValue = statsSum, DeviceId = deviceId };
+                                Response = Common.CreateResponse(statsSumData);
+
                                 break;
+
                             case "AVG":
 
-                                var statsAvg = dailyRepository.Find(expression).Average(x => x.StatValue);
-                                statsData = new StatsData { StatName = statName, StatValue = statsAvg, DeviceId = deviceId };
-                                Response = Common.CreateResponse(statsAvg);
+                                var statsAvg = dailyRepository.Find(expression);
+
+                                var statsAvgData = statsAvg
+                                          .GroupBy(row => row.StatName)
+                                          .Select(grp => new
+                                          {
+                                              StatName = grp.Key,
+                                              Value = grp.Average(x => x.StatValue),
+                                              DeviceId = deviceId
+                                          }).ToList();
+                                Response = Common.CreateResponse(statsAvgData);
                                 break;
                             case "COUNT":
-                                var statsCount = dailyRepository.Find(expression).Count();
-                              
-                                statsData = new StatsData { StatName = statName, StatValue = statsCount, DeviceId = deviceId };
-                                Response = Common.CreateResponse(statsCount);
+                                var statsCount = dailyRepository.Find(expression);
+
+                                var statsCountData = statsCount
+                                       .GroupBy(row => row.StatName)
+                                       .Select(grp => new
+                                       {
+                                           StatName = grp.Key,
+                                           Value = grp.Count(),
+                                           DeviceId = deviceId
+                                       }).ToList();
+                                Response = Common.CreateResponse(statsCountData);
                                 break;
                             case "HOURLY":
                                 var statsHourly = dailyRepository.Find(expression);
+                               
+                               
                                 var result = statsHourly
-                                            .GroupBy(row => row.CreatedOn.Hour)
-                                            .Select(grp => new
+                                            .GroupBy( row=> new
                                             {
-                                                Hour = grp.Key,
-                                                Value = grp.Average(x => x.StatValue)
+                                                row.CreatedOn.Hour,
+                                                row.StatName
+                                               
+                                            })
+                                            .Select(row => new
+                                            {
+                                                Hour = row.Key.Hour,
+                                                Value = row.Average(x => x.StatValue),
+                                                StatName=row.Key.StatName
+                                                
                                             }).ToList();
+
                                 List<Segment> segments = new List<Segment>();
-                              // DateTime moment = DateTime.Now.Hour;
-                               // int onhour = moment.Hour;
-
-                                for (int hour = 1; hour <= 24; hour++)
+                                foreach (string name in statNames)
                                 {
-                                    // To do
-                                    // string hourString =hour<12?hour.ToString()+ " A.M " 
-                                    var item = result.Where(x => x.Hour == hour).FirstOrDefault();
-                                    if (item != null)
+                                    for (int hour = 1; hour <= 24; hour++)
                                     {
-                                        DateTime time = DateTime.Today.AddDays(-1).AddHours(hour);
-                                        string displayTime = time.ToString("hh:mm tt");
-                                        segments.Add(new Segment { Label = displayTime.ToString(), Value = item.Value });
-                                    }
-                                    else
-                                    {
+                                        // To do
+                                        // string hourString =hour<12?hour.ToString()+ " A.M " 
+                                        var item = result.Where(x => x.Hour == hour && x.StatName==name).FirstOrDefault();
+                                        if (item != null)
+                                        {
+                                            DateTime time = DateTime.Today.AddDays(-1).AddHours(hour);
+                                            string displayTime = time.ToString("hh:mm tt");
+                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = item.Value, StatName = item.StatName });
+                                        }
+                                        else
+                                        {
 
-                                       // TimeSpan timespan = new TimeSpan(hour);
-                                        DateTime time = DateTime.Today.AddHours(hour);
-                                        string displayTime = time.ToString("hh:mm tt");
-                                        segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
-                                        
+                                            // TimeSpan timespan = new TimeSpan(hour);
+                                            DateTime time = DateTime.Today.AddHours(hour);
+                                            string displayTime = time.ToString("hh:mm tt");
+                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = 0, StatName = name });
+
+                                        }
                                     }
                                 }
                                 Serie serie = new Serie();
@@ -239,8 +283,11 @@ namespace VitalSigns.API.Controllers
 
 
                                 Response = Common.CreateResponse(chart);
+
                                 break;
                         }
+                                
+                        
 
 
                     }
@@ -293,12 +340,12 @@ namespace VitalSigns.API.Controllers
                                 .GroupBy(row => row.CreatedOn.Date)
                                 .Select(grp => new
                                 {
-                                   Date  = grp.Key,
+                                    Date = grp.Key,
                                     Value = grp.Average(x => x.StatValue)
                                 }).ToList();
                     List<Segment> segments = new List<Segment>();
 
-                    DateTime now = DateTime.Now.AddDays(-28);                   
+                    DateTime now = DateTime.Now.AddDays(-28);
                     var startDate = new DateTime(now.Year, now.Month, 1);
                     var endDate = startDate.AddMonths(1).AddDays(-1);
 
@@ -314,11 +361,11 @@ namespace VitalSigns.API.Controllers
                         {
                             string y = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
                             segments.Add(new Segment { Label = y.ToString(), Value = 0 });
-           
+
                         }
-                        
+
                     }
-                   
+
                     Serie serie = new Serie();
                     serie.Title = statName;
                     serie.Segments = segments;
@@ -361,20 +408,20 @@ namespace VitalSigns.API.Controllers
                     var result = statusRepository.Collection.AsQueryable()
                                      .Select(x => new ServerStatus
                                      {
-                                 
-                                       DeviceId = x.DeviceId,
-                                         Name  = x.Name,
-                                          Status = x.StatusCode,
-                                         Country=x.Location,
+
+                                         DeviceId = x.DeviceId,
+                                         Name = x.Name,
+                                         Status = x.StatusCode,
+                                         Country = x.Location,
                                          Details = x.Details,
-                                         UserCount=x.UserCount,
-                                         CPU=x.CPU,
-                                         Type=x.Type
+                                         UserCount = x.UserCount,
+                                         CPU = x.CPU,
+                                         Type = x.Type
                                          // LastUpdated = x.LastUpdated,
                                          // Description = x.Description,
-                                         
 
-                                      });
+
+                                     });
                     Response = Common.CreateResponse(result);
 
                 }
@@ -387,7 +434,7 @@ namespace VitalSigns.API.Controllers
                                                                     {
 
                                                                         // Id = x.Id,
-                                                                        DeviceId=x.DeviceId,
+                                                                        DeviceId = x.DeviceId,
                                                                         Name = x.Name,
                                                                         Status = x.StatusCode,
                                                                         Country = x.Location,
@@ -402,14 +449,14 @@ namespace VitalSigns.API.Controllers
                                                                     });
 
                     Response = Common.CreateResponse(result);
-                    
-                   
-
-                   
 
 
 
-                   // Response = Common.CreateResponse(chart);
+
+
+
+
+                    // Response = Common.CreateResponse(chart);
                     //Response = Common.CreateResponse(result);
 
                 }

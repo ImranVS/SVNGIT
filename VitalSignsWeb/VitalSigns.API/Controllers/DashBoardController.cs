@@ -10,6 +10,7 @@ using VitalSigns.API.Models.Charts;
 using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -374,25 +375,36 @@ namespace VitalSigns.API.Controllers
 
         [HttpGet("{id}/traveler-health")]
 
-        public IEnumerable<TravelerHealth> GetTravelerHealth(string id)
+        public APIResponse GetTravelerHealth(string deviceid)
         {
-            statusRepository = new Repository<Status>(ConnectionString);
-
-            Expression<Func<Status, bool>> expression = (p => p.Id == id);
-            var result = statusRepository.Find(expression).Select(x => new TravelerHealth
+            try
             {
-               // ID = x.ID,
-                ResourceConstraint = x.ResourceConstraint,
-                TravelerDetails = x.TravelerDetails,
-                TravelerHeartBeat = x.TravelerHeartBeat,
-                TravelerServlet = x.TravelerServlet,
-                TravelerUsers = x.TravelerUsers,
-                TravelerHA = x.TravelerHA,
-                TravelerIncrementalSyncs = x.TravelerIncrementalSyncs,
-                HttpStatus = x.HttpStatus,
-                TravelerDevicesAPIStatus = x.TravelerDevicesAPIStatus,
-            });
-            return result.ToList();
+                statusRepository = new Repository<Status>(ConnectionString);
+
+                Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
+                var result = statusRepository.Find(expression).Select(x => new TravelerHealth
+                {
+                    // ID = x.ID,
+                    ResourceConstraint = x.ResourceConstraint,
+                    TravelerDetails = x.TravelerDetails,
+                    TravelerHeartBeat = x.TravelerHeartBeat,
+                    TravelerServlet = x.TravelerServlet,
+                    TravelerUsers = x.TravelerUsers,
+                    TravelerHA = x.TravelerHA,
+                    TravelerIncrementalSyncs = x.TravelerIncrementalSyncs,
+                    HttpStatus = x.HttpStatus,
+                    TravelerDevicesAPIStatus = x.TravelerDevicesAPIStatus,
+                });
+                Response = Common.CreateResponse(result);
+                return Response;
+            }
+            
+             catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
         }
 
         [HttpGet("{id}/traveler-mailservers")]
