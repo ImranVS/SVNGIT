@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "AlertLibrary", "..\AlertService\AlertLibrary\AlertLibrary\AlertLibrary.vbproj", "{BDA12085-9E5C-456D-BA3D-2D509B0CAD92}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -61,6 +61,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSNext.Mongo.Entities", "..\VSNext.Mongo\VSNext.Mongo.Entities\VSNext.Mongo.Entities.csproj", "{B6E35DE1-EDF3-40E3-879F-E65D87C03B85}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VitalSignsLicensing", "VitalSignsLicensing\VitalSignsLicensing.csproj", "{723D8395-0A54-41BB-B893-B4E6A1828D79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VitalSignsDailyStats", "..\VitalSignsDailyStats\VitalSignsDailyStats.csproj", "{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -304,6 +306,18 @@ Global
 		{723D8395-0A54-41BB-B893-B4E6A1828D79}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{723D8395-0A54-41BB-B893-B4E6A1828D79}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{723D8395-0A54-41BB-B893-B4E6A1828D79}.Release|x86.ActiveCfg = Release|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Debug|x86.Build.0 = Debug|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Release|x86.ActiveCfg = Release|Any CPU
+		{D4ACF709-3773-4EAF-B41A-A6CC5128C1AD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
