@@ -919,8 +919,9 @@ Update:
         Try
             Dim DailyStats As New DailyStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceId = MyDevice.ServerObjectID
             DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription()
-            DailyStats.ServerName = MyDevice.Name
+            DailyStats.DeviceName = MyDevice.Name
             DailyStats.StatName = Name
             DailyStats.StatValue = Value
             repo.Insert(DailyStats)

@@ -126,8 +126,8 @@ Public Class ConsoleProcessor
                     For Each command As VSNext.Mongo.Entities.ConsoleCommands In listOfCommands
                         Try
                             If IsAuthorized(command.Submitter) = True Then
-                                WriteHistoryEntry(Now.ToString & " Sending '" & command.Command & "' to " & command.ServerName & ", as requested by " & command.Submitter, LogLevel.Normal)
-                                strResult = s.SendConsoleCommand(command.ServerName, command.Command)
+                                WriteHistoryEntry(Now.ToString & " Sending '" & command.Command & "' to " & command.DeviceName & ", as requested by " & command.Submitter, LogLevel.Normal)
+                                strResult = s.SendConsoleCommand(command.DeviceName, command.Command)
                                 WriteHistoryEntry(Now.ToString & " The result from SendConsoleCommand is " & strResult)
 
                                 If InStr(strResult, "You are not authorized") > 0 Then
@@ -141,7 +141,7 @@ Public Class ConsoleProcessor
                             Else
                                 command.Result = "Not Authorized"
                                 command.DateTimeProcessed = DateTime.Now
-                                WriteHistoryEntry(Now.ToString & " NOT Sending '" & command.Command & "' to " & command.ServerName & ", as requested by " & command.Submitter & ".  This user is not authorized to send console commands via VitalSigns.", LogLevel.Normal)
+                                WriteHistoryEntry(Now.ToString & " NOT Sending '" & command.Command & "' to " & command.DeviceName & ", as requested by " & command.Submitter & ".  This user is not authorized to send console commands via VitalSigns.", LogLevel.Normal)
                             End If
 
                         Catch ex As Exception

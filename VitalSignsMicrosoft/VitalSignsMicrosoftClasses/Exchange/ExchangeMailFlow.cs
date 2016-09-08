@@ -292,8 +292,9 @@ namespace VitalSignsMicrosoftClasses
                         foreach (VSNext.Mongo.Entities.LatencyResults entity in listOfResults)
                             listOfStats.Add(new VSNext.Mongo.Entities.DailyStatistics()
                             {
+                                DeviceId = myServer.ServerObjectID,
                                 DeviceType = "ExchangeMailFlow",
-                                ServerName = "ExchangeMailFlow",
+                                DeviceName = "ExchangeMailFlow",
                                 StatName = entity.SourceServer + "-to-" + entity.DestinationServer,
                                 StatValue = Convert.ToDouble(entity.Latency)
                             });

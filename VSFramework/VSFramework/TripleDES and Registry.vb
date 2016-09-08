@@ -302,11 +302,41 @@ Public Class XMLOperation
 		Return sConnectionString
 	End Function
 
+    Public Function GetMongoDBConnectionString() As String
+        'These two settings must be in machine.config's connectionstring section
+        '<add name="VitalSignsConnectionString" connectionString="Data Source=localhost;Initial Catalog=VitalSigns;User ID=xx;Password=xx;Persist Security Info=True;multipleactiveresultsets=true; Min Pool Size=20;Max Pool Size=500; Connection Timeout=30;" providerName="System.Data.SqlClient"/>
+        '<add name="VSS_StatisticsConnectionString" connectionString="Data Source=localhost;Initial Catalog=VSS_Statistics;User ID=xx;Password=xx;Persist Security Info=True;multipleactiveresultsets=true; Min Pool Size=20;Max Pool Size=500; Connection Timeout=30;" providerName="System.Data.SqlClient"/>
+
+        'Dim connectionStringName As String = ""
+        'If SQLDatabaseName = "" Then
+        '    SQLDatabaseName = "VitalSigns"
+        'End If
+        'connectionStringName = SQLDatabaseName + "ConnectionString"
+        'Dim sConnectionString As String = ConfigurationManager.ConnectionStrings(connectionStringName).ToString()
+        Dim sConnectionString As String = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
+
+        'Dim pSQLServerName As String, pSQLIntegratedSecurity As String, pSQLDBName As String, pSQLUserName As String, pSQLPassword As String, pWorkstationName As String
+        'pSQLServerName = ReadFromXML("pSQLServerName", "Value")
+        'pSQLIntegratedSecurity = ReadFromXML("pSQLIntegratedSecurity", "Value")
+        ''pSQLDBName = ReadFromXML("pSQLDBName", "Value")
+        'pSQLDBName = SQLDatabaseName
+        'pSQLUserName = ReadFromXML("pSQLUserName", "Value")
+        'pSQLPassword = ReadFromXML("pSQLPassword", "Value")
+        'pWorkstationName = ReadFromXML("pWorkstationName", "Value")
+
+        'sConnectionString = "Data Source=" & pSQLServerName & "; Integrated Security=" & _
+        '                   pSQLIntegratedSecurity & ";Initial Catalog=" & pSQLDBName & ";Persist Security Info=False;User ID=" & _
+        '                   pSQLUserName & ";Password=" & pSQLPassword & ";Min Pool Size=20;Max Pool Size=500; Connection Timeout=30;"
+
+        Return sConnectionString
+    End Function
+
+
     Public Function ReadSettingsSQL(ByVal strSetting As String) As Object
         Dim returnVal As String
 
         Try
-            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NameValue)("")
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NameValue)(GetMongoDBConnectionString())
             Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.NameValue) = repository.Filter.Eq(Function(x) x.Name, strSetting)
             returnVal = repository.Find(filterDef).ToList()(0).Value.ToString()
         Catch ex As Exception

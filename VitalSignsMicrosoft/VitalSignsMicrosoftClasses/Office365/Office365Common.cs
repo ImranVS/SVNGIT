@@ -740,7 +740,7 @@ namespace VitalSignsMicrosoftClasses
                             ////AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery2, DatabaseName = "VSS_Statistics" });
 
                             MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
-                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.ServerName == myServer.Name);
+                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == myServer.Name);
                             mongoStatement.updateDef = mongoStatement.repo.Updater
                                 //.Set(i => i.IssueWarningQuota, IssueWarningQuota)
                                 //.Set(i => i.ProhibitSendQuota, ProhibitSendQuota)
@@ -848,7 +848,7 @@ namespace VitalSignsMicrosoftClasses
                             //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery2, DatabaseName = "VSS_Statistics" });
 
                             MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
-                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.ServerName == myServer.Name);
+                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == myServer.Name);
                             mongoStatement.updateDef = mongoStatement.repo.Updater
                                 .Set(i => i.IssueWarningQuota, IssueWarningQuota)
                                 .Set(i => i.ProhibitSendQuota, ProhibitSendQuota)

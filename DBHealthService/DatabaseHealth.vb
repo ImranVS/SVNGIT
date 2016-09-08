@@ -811,7 +811,7 @@ NextServer:
             Try
 
                 Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = repo.Filter.Eq(Function(x) x.ServerName, server.Name)
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = repo.Filter.Eq(Function(x) x.DeviceName, server.Name)
                 intRecordCount = repo.Collection.Count(filterDef)
 
                 'strSQL = "Select COUNT(ID) FROM DAILY WHERE Server ='" & server.Name & "'"
@@ -983,8 +983,8 @@ NextServer:
         Try
             Dim intResult As Integer
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = _
-                repo.Filter.Eq(Function(x) x.ServerName, Server.Name) And _
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) =
+                repo.Filter.Eq(Function(x) x.DeviceName, Server.Name) And
                 repo.Filter.Eq(Function(x) x.Temp, True)
 
             repo.Delete(filterDef)
@@ -1040,15 +1040,15 @@ NextServer:
             WriteDeviceHistoryEntry("Database_Health", Server.Name, Now.ToString & " Deleting the prior records for " & Server.Name)
 
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = _
-                repo.Filter.Eq(Function(x) x.ServerName, Server.Name) And _
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) =
+                repo.Filter.Eq(Function(x) x.DeviceName, Server.Name) And
                 repo.Filter.Eq(Function(x) x.Temp, False)
 
             repo.Delete(filterDef)
 
             'UPDATE table_name SET column1=value1,column2=value2,... WHERE some_column=some_value;
 
-            filterDef = repo.Filter.Eq(Function(x) x.ServerName, Server.Name) And _
+            filterDef = repo.Filter.Eq(Function(x) x.DeviceName, Server.Name) And
                 repo.Filter.Eq(Function(x) x.Temp, True)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Database) = repo.Updater.Set(Function(x) x.Temp, False)
 
@@ -1194,7 +1194,7 @@ NextServer:
                     .ScanDateTime = GetFixedDateTime(DateTime.Now),
                     .FileName = ndb.FileName,
                     .Title = ndb.Title,
-                    .ServerName = ndb.Server,
+                    .DeviceName = ndb.Server,
                     .CurrentAccessLevel = ndb.CurrentAccessLevel,
                     .Details = ndb.Details,
                     .Folder = ndb.Folder,
@@ -1835,7 +1835,7 @@ SkipDatabase:
                     .ScanDateTime = GetFixedDateTime(DateTime.Now),
                     .FileName = myNotesDatabase.FileName,
                     .Title = myNotesDatabase.Title,
-                    .ServerName = myNotesDatabase.Server,
+                    .DeviceName = myNotesDatabase.Server,
                     .Details = myDetails,
                     .Folder = myNotesDatabase.Folder,
                     .FolderCount = myNotesDatabase.FolderCount,
@@ -1954,7 +1954,7 @@ SkipDatabase:
                 .Temp = True,
                 .FileName = FileName,
                 .Title = FileTitle,
-                .ServerName = MailServer,
+                .DeviceName = MailServer,
                 .FileSize = FileSize,
                 .DesignTemplateName = TemplateName,
                 .Quota = Quota,
@@ -2171,7 +2171,7 @@ SkipDatabase:
                     Server.LastDBHealthScan = Date.Today.AddDays(-7)
 
                     Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
-                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = repo.Filter.Eq(Function(x) x.ServerName, Server.Name)
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Database) = repo.Filter.Eq(Function(x) x.DeviceName, Server.Name)
 
                     Dim list As List(Of VSNext.Mongo.Entities.Database) = repo.Find(filterDef)
 

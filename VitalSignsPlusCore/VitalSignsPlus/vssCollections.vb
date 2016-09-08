@@ -737,7 +737,7 @@ Partial Public Class VitalSignsPlusCore
                     Else
 
                         Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
-                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
                         .Location = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias
 
                     End If
@@ -1361,7 +1361,7 @@ Partial Public Class VitalSignsPlusCore
                         Else
 
                             Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
-                            Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                            Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
                             .Location = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias
 
                         End If
@@ -1595,7 +1595,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
 
                         Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
-                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.ObjectId, entity.User1CredentialsId)
+                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.User1CredentialsId)
                         Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
 
                         userOne = entityCredentials.UserId
@@ -1629,7 +1629,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
 
                         Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
-                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.ObjectId, entity.User2CredentialsId)
+                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.User2CredentialsId)
                         Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
 
                         userTwo = entity.Username
@@ -1710,7 +1710,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
 
                         Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
-                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.ObjectId, entity.DatabaseSettingsCredentialsId)
+                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.DatabaseSettingsCredentialsId)
                         Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
 
                         Dim user As String = entity.Username
@@ -2068,7 +2068,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
 
                         Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
-                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
                         Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias.ToString()
 
                         .Location = locationAlias
@@ -2577,7 +2577,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
 
                         Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
-                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
                         Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias.ToString()
 
                         .Location = locationAlias
@@ -2808,7 +2808,7 @@ Partial Public Class VitalSignsPlusCore
                                 'Run a query here, then parse the results
 
                                 Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
-                                Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.ObjectId, cell.CredentialsId)
+                                Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, cell.CredentialsId)
                                 Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
 
                                 .UserName = entityCredentials.UserId
@@ -3123,7 +3123,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
 
                         Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
-                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
                         Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias.ToString()
 
                         .Location = locationAlias
@@ -3401,7 +3401,7 @@ Partial Public Class VitalSignsPlusCore
                             'Run a query here, then parse the results
 
                             Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
-                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.ObjectId, entity.CredentialsId)
+                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.CredentialsId)
                             Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
 
                             .UserName = entityCredentials.UserId
@@ -3509,7 +3509,7 @@ Partial Public Class VitalSignsPlusCore
                             'Run a query here, then parse the results
 
                             Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
-                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.ObjectId, entity.DatabaseSettingsCredentialsId)
+                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.DatabaseSettingsCredentialsId)
                             Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
 
                             .DBUserName = entityCredentials.UserId

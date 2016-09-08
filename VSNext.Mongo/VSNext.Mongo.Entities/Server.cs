@@ -42,7 +42,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("location_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? LocationId { get ; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string LocationId { get ; set; }
 
         [DataMember]
         [BsonElement("ip_address")]
@@ -52,12 +53,14 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("profile_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? ProfileId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string ProfileId { get; set; }
 
         [DataMember]
         [BsonElement("business_hours_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? BusinessHoursId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string BusinessHoursId { get; set; }
 
         [DataMember]
         [BsonElement("monthly_operating_cost")]
@@ -122,7 +125,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("credentials_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? CredentialsId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string CredentialsId { get; set; }
 
         [DataMember]
         [BsonElement("disk_info")]
@@ -382,12 +386,14 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("user1_credentials_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? User1CredentialsId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string User1CredentialsId { get; set; }
 
         [DataMember]
         [BsonElement("user2_credentials_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? User2CredentialsId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string User2CredentialsId { get; set; }
 
         [DataMember]
         [BsonElement("proxy_server_type")]
@@ -472,7 +478,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("websphere_node_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? WebSphereNodeId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string WebSphereNodeId { get; set; }
 
 
         #endregion
@@ -556,7 +563,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("domino_server_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? DominoServerId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DominoServerId { get; set; }
 
         [DataMember]
         [BsonElement("domino_server_name")]
@@ -725,12 +733,14 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("primary_server_id")]
         [BsonIgnoreIfNullAttribute]
-        public ObjectId? PrimaryServerId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string PrimaryServerId { get; set; }
 
         [DataMember]
         [BsonElement("backup_server_id")]
         [BsonIgnoreIfNullAttribute]
-        public ObjectId? BackupServerId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string BackupServerId { get; set; }
 
         [DataMember]
         [BsonElement("database_info")]
@@ -776,7 +786,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("node_ids")]
         [BsonIgnoreIfNullAttribute]
-        public List<ObjectId> NodeIds { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> NodeIds { get; set; }
 
         [DataMember]
         [BsonElement("pass_fail_tests")]
@@ -820,12 +831,14 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("cell_id")]
-        public ObjectId? CellId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string CellId { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("server_id")]
-        public List<ObjectId> ServerId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> ServerId { get; set; }
 
         #endregion
 
@@ -840,7 +853,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("node_id")]
-        public ObjectId? NodeId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string NodeId { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]
@@ -884,7 +898,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("database_settings_credentials_id")]
-        public ObjectId? DatabaseSettingsCredentialsId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DatabaseSettingsCredentialsId { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]
@@ -909,7 +924,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("log_file_servers")]
         [BsonIgnoreIfNullAttribute]
-        public List<ObjectId> LogFileServers { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> LogFileServers { get; set; }
 
         #endregion
 
@@ -926,7 +942,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("notifications")]
-        public List<ObjectId> NotificationList { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> NotificationList { get; set; }
 
         [DataMember]
         [BsonElement("assigned_node")]
@@ -1016,7 +1033,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("credentials_id")]
-        public ObjectId? CredentialsId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string CredentialsId { get; set; }
     }
 
     public class Tests
@@ -1060,7 +1078,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("node_id")]
-        public ObjectId? NodeId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string NodeId { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]
@@ -1095,7 +1114,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("server_id")]
-        public ObjectId? ServerId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string ServerId { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]
@@ -1119,8 +1139,9 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonIgnoreIfNull]
-        [BsonElement("server_id")]
-        public ObjectId? ServerId { get; set; }
+        [BsonElement("device_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]

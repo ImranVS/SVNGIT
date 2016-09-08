@@ -190,7 +190,7 @@ WaitHere:
                 End If
                 myAlert.ResetAlert("URL", myURL.Name, "Not Responding", myURL.Location)
                 myURL.Description = "URL responded in " & myURL.ResponseTime & " ms."
-                UpdateURLStatisticsTable(myURL.Name, myURL.ResponseTime)
+                UpdateURLStatisticsTable(myURL.Name, myURL.ResponseTime, myURL.ServerObjectID)
 
                 Try
                     Percent = myURL.ResponseTime / myURL.ResponseThreshold
@@ -250,7 +250,7 @@ WaitHere:
 
             If myURL.ResponseTime = 0 Then
                 myURL.IncrementDownCount()
-                UpdateURLStatisticsTable(myURL.Name, 0)
+                UpdateURLStatisticsTable(myURL.Name, 0, myURL.ServerObjectID)
                 If myURL.ResponseDetails <> "" Then
                     StatusDetails = myURL.ResponseDetails
                 Else

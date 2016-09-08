@@ -408,7 +408,7 @@ Partial Public Class VitalSignsPlusDomino
 					Details = intSuccessfulSyncCount & " successful device syncs since the last scan."
 
                     Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.Name = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Name, DominoServerName) And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
                     Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                          .Set(Function(x) x.TravelerIncrementalSyncs, intSuccessfulSyncCount)
                     repository.Update(filterDef, updateDef)

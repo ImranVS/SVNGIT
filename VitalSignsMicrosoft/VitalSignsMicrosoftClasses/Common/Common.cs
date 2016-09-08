@@ -1924,7 +1924,7 @@ namespace VitalSignsMicrosoftClasses
 
              DailyStatistics dailyStatistics = new DailyStatistics();
 			//WS commented out due to microsoft not being supported in inital release of 4.0
-             //dailyStatistics.DeviceId = int.Parse(server.ServerId);
+             dailyStatistics.DeviceId = server.ServerObjectID;
              dailyStatistics.StatName = StatName;
              dailyStatistics.StatValue = double.Parse(StatValue);
 
@@ -1938,7 +1938,7 @@ namespace VitalSignsMicrosoftClasses
          {
 
              SummaryStatistics dailyStatistics = new SummaryStatistics();
-             dailyStatistics.DeviceId = int.Parse(server.ServerId);
+             dailyStatistics.DeviceId = server.ServerObjectID;
              dailyStatistics.StatName = StatName;
              dailyStatistics.StatValue = double.Parse(StatValue);
 

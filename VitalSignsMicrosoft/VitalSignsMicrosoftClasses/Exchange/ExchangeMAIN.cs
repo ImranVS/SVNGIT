@@ -21,6 +21,7 @@ using VSFramework;
 using System;
 
 using MongoDB.Driver;
+using VSNext.Mongo.Entities;
 
 namespace VitalSignsMicrosoftClasses
 {
@@ -2921,6 +2922,7 @@ namespace VitalSignsMicrosoftClasses
 		}
 		private MonitoredItems.ExchangeServer SetMailProbeSettings(MonitoredItems.ExchangeServer MyExchangeServer, DataRow DR)
 		{
+            MyExchangeServer.ServerType = VSNext.Mongo.Entities.Enums.ServerType.ExchangeMailFlow.ToDescription();
 			MyExchangeServer.IPAddress = DR["IPAddress"].ToString();
 			MyExchangeServer.Name = DR["NAME"].ToString();
 			MyExchangeServer.UserName = DR["UserID"].ToString();

@@ -284,9 +284,10 @@ Partial Class VitalSignsCore
 					MyNetworkDevice = New MonitoredItems.NetworkDevice(MyName)
 					'MyNetworkDevice.LastScan = Now
 					MyNetworkDevice.NextScan = Now
-					MyNetworkDevice.AlertCondition = False
-					'MyNetworkDevice.Status = "Not Scanned"
-					MyNetworkDevice.IncrementUpCount()
+                    MyNetworkDevice.AlertCondition = False
+                    MyNetworkDevice.ServerType = VSNext.Mongo.Entities.Enums.ServerType.NetworkDevice.ToDescription()
+                    'MyNetworkDevice.Status = "Not Scanned"
+                    MyNetworkDevice.IncrementUpCount()
 					MyNetworkDevices.Add(MyNetworkDevice)
 					If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Adding new network device-- " & MyNetworkDevice.Name & " -- to the collection.")
 				Else
@@ -588,11 +589,11 @@ Partial Class VitalSignsCore
 	Public Sub InitializeStatusTable()
 
 		Try
-			WriteAuditEntry(Now.ToString & " Inserting " & MyNetworkDevices.Count & " monitored Network Devices into the status table.")
-			If MyNetworkDevices.Count > 0 Then
-				UpdateStatusTableWithNetworkDevices()
-			End If
-		Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Inserting " & MyNetworkDevices.Count & " monitored Network Devices into the status table.")
+            If MyNetworkDevices.Count > 0 Then
+                UpdateStatusTableWithNetworkDevices()
+            End If
+        Catch ex As Exception
 
 		End Try
 
@@ -792,44 +793,45 @@ Partial Class VitalSignsCore
 
 #Region "StatusTableStuff"
 
-	Private Sub UpdateNDStatisticsTable(ByVal DeviceName As String, ByVal ResponseTime As Long)
+    Private Sub UpdateNDStatisticsTable(ByVal DeviceName As String, ByVal ResponseTime As Long, ByVal DeviceId As String)
 
-		Dim objVSAdaptor As New VSAdaptor
+        Dim objVSAdaptor As New VSAdaptor
 
-		Dim strSQL As String
-		Dim MyWeekNumber As Integer
-		MyWeekNumber = GetWeekNumber(Date.Today)
-		Try
+        Dim strSQL As String
+        Dim MyWeekNumber As Integer
+        MyWeekNumber = GetWeekNumber(Date.Today)
+        Try
             'strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
             '   " VALUES ('Network Device', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
-			'If boolUseSQLServer = True Then
-			'    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
-			'Else
-			'    myCommand.CommandText = strSQL
-			'    myCommand.ExecuteNonQuery()
-			'End If
+            'If boolUseSQLServer = True Then
+            '    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
+            'Else
+            '    myCommand.CommandText = strSQL
+            '    myCommand.ExecuteNonQuery()
+            'End If
 
             'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
             Dim DailyStats As New DailyStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceId =
             DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription()
-            DailyStats.ServerName = DeviceName
+            DailyStats.DeviceName = DeviceName
             DailyStats.StatName = "ResponseTime"
             DailyStats.StatValue = ResponseTime
             repo.Insert(DailyStats)
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Network Device Stats table insert failed becase: " & ex.Message)
-			WriteAuditEntry(Now.ToString & " The failed stats table insert comand was " & strSQL)
-		Finally
-			'myConnection.Close()
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Network Device Stats table insert failed becase: " & ex.Message)
+            WriteAuditEntry(Now.ToString & " The failed stats table insert comand was " & strSQL)
+        Finally
+            'myConnection.Close()
 
-		End Try
+        End Try
 
-		'myConnection.Dispose()
-		'myCommand.Dispose()
-	End Sub
+        'myConnection.Dispose()
+        'myCommand.Dispose()
+    End Sub
 
-	Public Sub UpdateStatusTable(ByVal SQLUpdateStatement As String, Optional ByVal SQLInsertStatement As String = "", Optional ByVal Comment As String = "")
+    Public Sub UpdateStatusTable(ByVal SQLUpdateStatement As String, Optional ByVal SQLInsertStatement As String = "", Optional ByVal Comment As String = "")
 		'     WriteAuditEntry(Now.ToString + " ********************* Common STATUS UPDATE ******************** ")
 		'If Comment <> "" Then
 		'    WriteAuditEntry(Now.ToString + " *********************")
@@ -965,8 +967,8 @@ Partial Class VitalSignsCore
 		Try
 			Dim n As Integer
 			Dim myStatus As String = ""
-			Dim MyNetworkDevice As MonitoredItems.MonitoredDevice
-			For n = 0 To MyNetworkDevices.Count - 1
+            Dim MyNetworkDevice As MonitoredItems.MonitoredDevice
+            For n = 0 To MyNetworkDevices.Count - 1
 				MyNetworkDevice = MyNetworkDevices.Item(n)
 				'   WriteAuditEntry(Now.ToString & " Adding " & MyNetworkDevice.Name & " to status table.")
                 myStatus = ServerStatusCode(MyNetworkDevice.Status)
@@ -999,7 +1001,7 @@ Partial Class VitalSignsCore
 
                     repo.Upsert(filterdef, updatedef)
                 Catch ex As Exception
-
+                    WriteAuditEntry("Failure updating status table with Network Device info 1: " & ex.Message)
                 End Try
             Next n
 			n = Nothing

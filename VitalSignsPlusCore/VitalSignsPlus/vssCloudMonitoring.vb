@@ -372,7 +372,7 @@ WaitHere:
                 End If
                 myAlert.ResetAlert("Cloud", myCloud.Name, "Not Responding", myCloud.Location)
                 myCloud.Description = "Cloud URL responded in " & myCloud.ResponseTime & " ms."
-                UpdateCloudURLStatisticsTable(myCloud.Name, myCloud.ResponseTime)
+                UpdateCloudURLStatisticsTable(myCloud.Name, myCloud.ResponseTime, myCloud.ServerObjectID)
 
                 Try
                     Percent = myCloud.ResponseTime / myCloud.ResponseThreshold
@@ -416,7 +416,7 @@ WaitHere:
 
             If myCloud.ResponseTime = 0 Then
                 myCloud.IncrementDownCount()
-                UpdateURLStatisticsTable(myCloud.Name, 0)
+                UpdateURLStatisticsTable(myCloud.Name, 0, myCloud.ServerObjectID)
                 If myCloud.ResponseDetails <> "" Then
                     StatusDetails = myCloud.ResponseDetails
                 Else

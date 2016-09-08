@@ -1196,9 +1196,9 @@ CleanUp:
 				End If
 
 			End If
-            UpdateBESDailyStatTable(BES_Server.Name, "BES_Messages_Filtered", FilteredMessages)
+            UpdateBESDailyStatTable(BES_Server.Name, "BES_Messages_Filtered", FilteredMessages, BES_Server.ServerObjectID)
 
-		Catch ex As Exception
+        Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " " & BES_Server.Name & ": Error calculating BES_Messages_Filtered " & ex.Message)
 		End Try
 
@@ -1249,9 +1249,9 @@ CleanUp:
 				End If
 
 			End If
-			UpdateBESDailyStatTable(BES_Server.Name, "BES_Messages_Received", ReceivedMail)
+            UpdateBESDailyStatTable(BES_Server.Name, "BES_Messages_Received", ReceivedMail, BES_Server.ServerObjectID)
 
-		Catch ex As Exception
+        Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " " & BES_Server.Name & ": Error calculating BES_Total_Messages_Rcvd " & ex.Message)
 		End Try
 
@@ -1274,9 +1274,9 @@ CleanUp:
 				End If
 
 			End If
-			UpdateBESDailyStatTable(BES_Server.Name, "BES_Messages_Sent", SentMail)
+            UpdateBESDailyStatTable(BES_Server.Name, "BES_Messages_Sent", SentMail, BES_Server.ServerObjectID)
 
-		Catch ex As Exception
+        Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " " & BES_Server.Name & ": Error calculating BES_Messages_Sent " & ex.Message)
 		End Try
 

@@ -36,7 +36,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("parent_id")]
         [BsonIgnoreIfNull]
-        public ObjectId? ParentId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string ParentId { get; set; }
 
         [DataMember]
         [BsonElement("order_id")]

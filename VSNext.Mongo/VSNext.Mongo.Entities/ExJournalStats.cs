@@ -14,8 +14,8 @@ namespace VSNext.Mongo.Entities
     public class ExJournalStats : Entity
     {
         [DataMember]
-        [BsonElement("server_name")]
-        public string ServerName { get; set; }
+        [BsonElement("device_name")]
+        public string DeviceName { get; set; }
 
         [DataMember]
         [BsonElement("exjournal_database")]

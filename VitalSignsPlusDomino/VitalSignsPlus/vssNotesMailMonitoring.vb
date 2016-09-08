@@ -640,7 +640,7 @@ Cleanup:
             Dim entity As New VSNext.Mongo.Entities.NotesMailProbeHistory() With {
                 .DeliveryThresholdMinutes = MyNotesMailProbe.DeliveryThreshold,
                 .SubjectKey = myKey,
-                .DeviceID = MongoDB.Bson.ObjectId.Parse(MyNotesMailProbe.ServerObjectID),
+                .DeviceID = MyNotesMailProbe.ServerObjectID,
                 .DeviceName = MyNotesMailProbe.Name,
                 .Status = "Sent",
                 .TargetServer = MyNotesMailProbe.TargetServer,
@@ -1356,7 +1356,7 @@ Cleanup:
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
             Dim entity As New VSNext.Mongo.Entities.DailyStatistics With {
-                .DeviceId = MongoDB.Bson.ObjectId.Parse(ProbeID),
+                .DeviceId = ProbeID,
                 .StatName = StatName,
                 .StatValue = StatValue
             }

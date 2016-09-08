@@ -6647,7 +6647,7 @@ skipdrive2:
                 .Comments = Comments,
                 .DateTimeSubmitted = Now,
                 .Result = "Command Request Sent",
-                .ServerName = ServerName,
+                .DeviceName = ServerName,
                 .Submitter = "VitalSigns Domino Service"
             }
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ConsoleCommands)(connectionString)

@@ -223,7 +223,7 @@ namespace VitalSignsMicrosoftClasses
 					}
 
                     MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
-                    mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.ServerName == "Exchange");
+                    mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == "Exchange");
                     mongoStatement.updateDef = mongoStatement.repo.Updater
                         .Set(i => i.IssueWarningQuota, IssueWarningQuota)
                         .Set(i => i.ProhibitSendQuota, ProhibitSendQuota)

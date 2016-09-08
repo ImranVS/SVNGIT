@@ -894,19 +894,19 @@ Public Class VitalSignsPlusCore
 
             Try
 
-                RecordCountAvailability("Sametime", ST.Name, ST.UpPercentCount * 100)
+                RecordCountAvailability("Sametime", ST.Name, ST.UpPercentCount * 100, ST.ServerObjectID)
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Error recording count availability: " & ex.Message)
             End Try
 
             Try
-                RecordTimeAvailability("Sametime", ST.Name, ST.UpPercentMinutes * 100)
+                RecordTimeAvailability("Sametime", ST.Name, ST.UpPercentMinutes * 100, ST.ServerObjectID)
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Error recording time availability: " & ex.Message)
             End Try
 
             Try
-                RecordDownTime("Sametime", ST.Name, ST.DownMinutes)
+                RecordDownTime("Sametime", ST.Name, ST.DownMinutes, ST.ServerObjectID)
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Error recording down minutes: " & ex.Message)
             End Try
@@ -924,7 +924,7 @@ Public Class VitalSignsPlusCore
             For Each URL In MyURLs
                 If URL.Enabled = True Then
                     Try
-                        RecordTimeAvailability("URL", URL.Name, URL.UpPercentMinutes * 100)
+                        RecordTimeAvailability("URL", URL.Name, URL.UpPercentMinutes * 100, URL.ServerObjectId)
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording time availability: " & ex.Message)
                     End Try
@@ -3643,7 +3643,7 @@ CleanUp:
                     'Created Correctly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created activity in " & createTime & " ms", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
-                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Activity.TimeMs", createTime.ToString())
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Activity.TimeMs", createTime.ToString(), myServer.ServerObjectID)
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Activity failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
@@ -3809,7 +3809,7 @@ CleanUp:
                     'Created Correctly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created blog in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
-                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Blog.TimeMs", createTime.ToString())
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Blog.TimeMs", createTime.ToString(), myServer.ServerObjectID)
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Blog failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
@@ -3985,7 +3985,7 @@ CleanUp:
                     'Created Correctly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created bookmark in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
-                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Bookmark.TimeMs", createTime.ToString())
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Bookmark.TimeMs", createTime.ToString(), myServer.ServerObjectID)
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Bookmark failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
@@ -4137,7 +4137,7 @@ CleanUp:
                     'Created Correctly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created community in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
-                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Community.TimeMs", createTime.ToString())
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Community.TimeMs", createTime.ToString(), myServer.ServerObjectID)
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Community failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
@@ -4311,7 +4311,7 @@ CleanUp:
                     'Created Correctly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created file in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
-                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.File.TimeMs", createTime.ToString())
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.File.TimeMs", createTime.ToString(), myServer.ServerObjectID)
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " File failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
@@ -4508,7 +4508,7 @@ CleanUp:
                             'Created Correctly...do things
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created forum in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                             alertReset = True
-                            InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Forum.TimeMs", createTime.ToString())
+                            InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Forum.TimeMs", createTime.ToString(), myServer.ServerObjectID)
                         Else
                             'Created wrongly...do things
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Forum failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
@@ -4669,7 +4669,7 @@ CleanUp:
                     Else
                         myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The search on the profiles was successfully done in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
                     End If
-                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Search.Profile.TimeMs", createTime.ToString())
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Search.Profile.TimeMs", createTime.ToString(), myServer.ServerObjectID)
                 Else
                     'It failed to delete...send alert
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete file.", LogUtilities.LogUtils.LogLevel.Normal)
@@ -4749,7 +4749,7 @@ CleanUp:
                     'Created Correctly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created wiki in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
-                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Wiki.TimeMs", createTime.ToString())
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Wiki.TimeMs", createTime.ToString(), myServer.ServerObjectID)
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Wiki failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
@@ -5567,7 +5567,7 @@ CleanUp:
                     'log in succedded
                     loggedIn = True
                     myAlert.ResetAlert(myServer.DeviceType, myServer.Name, "Login Test", myServer.Location, "The account logged in after " & createTime & " ms.")
-                    InsertIntoIBMConnectionsDailyStats(myServer.Name, "ResponseTime", createTime)
+                    InsertIntoIBMConnectionsDailyStats(myServer.Name, "ResponseTime", createTime, myServer.ServerObjectID)
                     myServer.ResponseTime = createTime
 
                 End If
@@ -7405,25 +7405,25 @@ CleanUp:
 
         'Update Statistics
         Try
-            UpdateSametimeStatTable(Server.Name, "Users", Server.Users)
+            UpdateSametimeStatTable(Server.Name, "Users", Server.Users, Server.ServerObjectID)
         Catch ex As Exception
 
         End Try
 
         Try
-            UpdateSametimeStatTable(Server.Name, "Chat Sessions", Server.Chat_Sessions)
+            UpdateSametimeStatTable(Server.Name, "Chat Sessions", Server.Chat_Sessions, Server.ServerObjectID)
         Catch ex As Exception
 
         End Try
 
         Try
-            UpdateSametimeStatTable(Server.Name, "n-Way Chat Sessions", Server.nWay_Chat_Sessions)
+            UpdateSametimeStatTable(Server.Name, "n-Way Chat Sessions", Server.nWay_Chat_Sessions, Server.ServerObjectID)
         Catch ex As Exception
 
         End Try
 
         Try
-            UpdateSametimeStatTable(Server.Name, "Places", Server.Places)
+            UpdateSametimeStatTable(Server.Name, "Places", Server.Places, Server.ServerObjectID)
         Catch ex As Exception
 
         End Try
@@ -7435,7 +7435,7 @@ CleanUp:
                     Try
                         '5/5/2016 NS modified - if stat.Name is empty, it causes a SQL error
                         If CType(stat.Value, Double) And stat.Name <> "" Then
-                            UpdateSametimeStatTable(Server.Name, stat.Name, stat.Value)
+                            UpdateSametimeStatTable(Server.Name, stat.Name, stat.Value, Server.ServerObjectID)
                         End If
                     Catch ex As Exception
 
@@ -8106,10 +8106,10 @@ CleanUp:
         Try
             If Server.Time_Login <> 0 Then
                 Server.ResponseTime = Server.Time_Login
-                InsertSametimeResponseTime(Server.Name, Server.ResponseTime)
+                InsertSametimeResponseTime(Server.Name, Server.ResponseTime, Server.ServerObjectID)
             ElseIf Server.Time_Resolve <> 0 Then
                 Server.ResponseTime = Server.Time_Resolve
-                InsertSametimeResponseTime(Server.Name, Server.ResponseTime)
+                InsertSametimeResponseTime(Server.Name, Server.ResponseTime, Server.ServerObjectID)
             End If
 
         Catch ex As Exception

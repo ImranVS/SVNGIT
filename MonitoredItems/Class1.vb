@@ -3614,7 +3614,6 @@ End Class
 Public Class NetworkDevice
     Inherits MonitoredDevice
     Public Property ID As Integer
-    Public Property ServerType As String
     Public Property UserName As String
     Public Property Password As String
     Public Property NetworkType As String
@@ -3885,7 +3884,6 @@ Public Class WebSphere
     Public GlobalSecurity As Boolean
     Public SametimeID As Integer
     Public Realm As String
-    Public ServerType As String
     Public ServerTypeID As Integer
     Public UserName As String
     Public Password As String

@@ -230,7 +230,7 @@ Partial Public Class VitalSignsPlusDomino
                     Try
 
                         Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
-                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
                         Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias.ToString()
 
                         .Location = locationAlias
@@ -830,7 +830,7 @@ Partial Public Class VitalSignsPlusDomino
                             'Run a query here, then parse the results
 
                             Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
-                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.ObjectId, entity.CredentialsId)
+                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.CredentialsId)
                             Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
 
                             .HTTP_UserName = entityCredentials.UserId
@@ -1274,7 +1274,7 @@ Partial Public Class VitalSignsPlusDomino
                         Else
 
                             Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
-                            Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.ObjectId, entity.LocationId)
+                            Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
                             .Location = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias
 
                         End If
@@ -1380,7 +1380,9 @@ Partial Public Class VitalSignsPlusDomino
                                         .ComparisonOperator = customStat.GreaterThanOrLessThan
                                         .RepeatThreshold = customStat.TimesInARow
                                         .ConsoleCommand = customStat.ConsoleCommand
+
                                     End With
+
                                     MyDominoServer.CustomStatisticsSettings.Add(MyNewCustomStatisticSetting)
                                     WriteAuditEntry(Now.ToString & " Added a new Custom Statistic " & MyNewCustomStatisticSetting.Statistic & " " & MyNewCustomStatisticSetting.ComparisonOperator & " " & MyNewCustomStatisticSetting.ThresholdValue & " for " & MyDominoServer.Name, LogLevel.Verbose)
 
@@ -2020,7 +2022,7 @@ Partial Public Class VitalSignsPlusDomino
             Dim i As Integer = 0
             For Each entity As VSNext.Mongo.Entities.Server In listOfServers
                 For Each entityKeyword As VSNext.Mongo.Entities.LogFileKeyword In entity.LogFileKeywords
-                    For Each serverObjectId As MongoDB.Bson.ObjectId In entity.LogFileServers
+                    For Each serverObjectId As String In entity.LogFileServers
                         Try
 
 
@@ -2032,7 +2034,7 @@ Partial Public Class VitalSignsPlusDomino
                             MyKeyword.ScanAgentLog = entityKeyword.ScanAgentLog
                             'MyKeyword.ServerID = dr.Item("ServerID")
                             Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-                            Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.ObjectId, serverObjectId)
+                            Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.Id, serverObjectId)
                             Dim projectionDefServers As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Project.Include(Function(x) x.DeviceName)
                             MyKeyword.ServerName = repositoryServers.Find(filterDefServers, projectionDefServers).ToList()(0).DeviceName
                             'added Server Name'

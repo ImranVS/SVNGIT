@@ -14,7 +14,8 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("device_id")]
-        public ObjectId DeviceId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
         [DataMember]
         [BsonElement("stat_name")]
         public string StatName { get; set; }

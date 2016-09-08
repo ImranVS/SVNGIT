@@ -862,7 +862,7 @@ Partial Public Class VitalSignsPlusDomino
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
             Dim entity As New VSNext.Mongo.Entities.DailyStatistics() With {
-                .DeviceId = MongoDB.Bson.ObjectId.Parse(DeviceId),
+                .DeviceId = DeviceId,
                 .StatName = "ResponseTime",
                 .StatValue = ResponseTime}
 

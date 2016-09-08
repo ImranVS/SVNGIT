@@ -63,9 +63,9 @@ namespace VSNext.Mongo.Entities
         public string DatabaseName { get; set; }
 
         [DataMember]
-        [BsonElement("server_name")]
+        [BsonElement("device_name")]
         [BsonIgnoreIfNullAttribute]
-        public string ServerName { get; set; }
+        public string DeviceName { get; set; }
 
         [DataMember]
         [BsonElement("last_logon_time")]

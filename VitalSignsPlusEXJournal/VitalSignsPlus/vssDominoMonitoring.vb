@@ -514,8 +514,9 @@ Update:
                     Try
                         Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
                         Dim entity As New VSNext.Mongo.Entities.DailyStatistics() With {
+                            .DeviceId = MyDominoServer.ServerObjectID,
                             .DeviceType = VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription(),
-                            .ServerName = MyDominoServer.Name,
+                            .DeviceName = MyDominoServer.Name,
                             .StatName = "EXJournal.DocCount.Total",
                             .StatValue = mySum.ToString()
                         }
@@ -669,7 +670,7 @@ Update:
                 Try
 
                     filterDef = repository.Filter.Eq(Function(x) x.ExJournalDatabase, dbArr(i)) _
-                        And repository.Filter.Eq(Function(x) x.ServerName, myDominoServer.Name)
+                        And repository.Filter.Eq(Function(x) x.DeviceName, myDominoServer.Name)
 
                     entity = repository.Find(filterDef, Function(x) x.ModifiedOn, 0, 1, True)(0)
 
@@ -710,7 +711,7 @@ Update:
                     entity.ExJournalDatabase = dbArr(i)
                     entity.Delta = deltaVal
                     entity.DocumentCount = countVal
-                    entity.ServerName = myDominoServer.Name
+                    entity.DeviceName = myDominoServer.Name
                     repository.Insert(entity)
 
                     '10/19/2015 NS added - reset delta
@@ -762,7 +763,7 @@ Update:
 
                 Try
                     filterDef = repository.Filter.Eq(Function(x) x.ExJournalDatabase, dbArr(i)) _
-                        And repository.Filter.Eq(Function(x) x.ServerName, myDominoServer.Name)
+                        And repository.Filter.Eq(Function(x) x.DeviceName, myDominoServer.Name)
 
                     entity = repository.Find(filterDef, Function(x) x.ModifiedOn, 0, 1, True)(0)
 
@@ -784,7 +785,7 @@ Update:
                 Try
 
                     filterDef = repository.Filter.Eq(Function(x) x.ExJournalDatabase, dbArr(i)) _
-                        And repository.Filter.Eq(Function(x) x.ServerName, myDominoServer.Name)
+                        And repository.Filter.Eq(Function(x) x.DeviceName, myDominoServer.Name)
 
                     entity = repository.Find(filterDef, Function(x) x.ModifiedOn, 0, 1, True)(0)
 

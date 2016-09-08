@@ -14,12 +14,12 @@ namespace VSNext.Mongo.Entities
     public class DiskHealth :Entity
     {
         [DataMember]
-        [BsonElement("server_name")]
-        public string ServerName { get; set; }
+        [BsonElement("device_name")]
+        public string DeviceName { get; set; }
 
         [DataMember]
-        [BsonElement("server_type")]
-        public string ServerType { get; set; }
+        [BsonElement("device_type")]
+        public string DeviceType { get; set; }
 
         [DataMember]
         [BsonElement("drives")]

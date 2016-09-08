@@ -812,7 +812,7 @@ Public Class VSMaster
 
                     Dim repositoryDatabase As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
                     Dim filterDefDatabase As FilterDefinition(Of VSNext.Mongo.Entities.Database) = repositoryDatabase.Filter.Lte(Function(x) x.ModifiedOn, Now.AddDays(-1)) _
-                                                                                                   And repositoryDatabase.Filter.In(Function(x) x.ServerName, listOfServers.Select(Of String)(Function(x) x.DeviceName).ToList())
+                                                                                                   And repositoryDatabase.Filter.In(Function(x) x.DeviceName, listOfServers.Select(Of String)(Function(x) x.DeviceName).ToList())
 
 
                     numOfServersNotDBScanned = repositoryDatabase.Find(filterDefDatabase).Count()

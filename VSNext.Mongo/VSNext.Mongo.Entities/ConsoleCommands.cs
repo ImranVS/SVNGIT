@@ -27,14 +27,15 @@ namespace VSNext.Mongo.Entities
         }
 
         [DataMember]
-        [BsonElement("server_name")]
+        [BsonElement("device_name")]
         [BsonIgnoreIfNullAttribute]
-        public string ServerName { get; set; }
+        public string DeviceName { get; set; }
         
         [DataMember]
-        [BsonElement("server_id")]
+        [BsonElement("device_id")]
         [BsonIgnoreIfNullAttribute]
-        public ObjectId? ServerId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("command")]
