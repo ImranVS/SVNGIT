@@ -72,7 +72,11 @@ namespace VitalSignsDailyStats
             base.OnStop();
         }
 
-        public void ServiceOnStart(string[] args=null)
+        //public void ServiceStart()
+        //{
+        //    ServiceOnStart();
+        //}
+        protected override void ServiceOnStart(string[] args=null)
         {
             try
             {
@@ -83,9 +87,9 @@ namespace VitalSignsDailyStats
                     culture = ConfigurationManager.AppSettings[cultureName];
 
                 RegistryHandler myRegistry = new RegistryHandler();
-
-                logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
-
+                ConsolidateStatistics();
+               // logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
+                logLevel = LogUtils.LogLevel.Verbose;
 
                 appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                 appPath = string.IsNullOrEmpty(appPath) ? @"c:\" : appPath;
@@ -98,7 +102,7 @@ namespace VitalSignsDailyStats
                 }
                 myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
                 myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
-                productName = Convert.ToString(myRegistry.ReadFromRegistry("ProductName"));
+               // productName = Convert.ToString(myRegistry.ReadFromRegistry("ProductName"));
                 if (string.IsNullOrEmpty(productName))
                     productName = "VitalSigns";
 
@@ -702,20 +706,20 @@ namespace VitalSignsDailyStats
                 {
                     case "AVG":
                         var avgResult= dailyStatasticsRepository.Collection.Aggregate()
-                            .Match(x => x.StatName==dailyTask.StatName && (x.CreatedOn >= SearchDate && x.CreatedOn< SearchDate.AddDays(1) ))
-                           .Group(g => g.DeviceId, g => new { key = g.Key, value = g.Average(s=>s.StatValue) })
+                       .Match(x => x.StatName==dailyTask.StatName)// && (x.CreatedOn >= SearchDate && x.CreatedOn< SearchDate.AddDays(1) ))
+                           .Group(g => g.DeviceId,  g => new { key = g.Key, value = g.Average(s=>s.StatValue) })
                            .Project(x => new SummaryStatistics
                            {
                                DeviceId = x.key,
-                               StatName = dailyTask.StatName,
+                              // StatName = dailyTask.StatName,
                                StatValue=x.value
                            }).ToList();
-                        summaryStatasticsRepository.Insert(avgResult);
+                       // summaryStatasticsRepository.Insert(avgResult);
 
                         break;
                     case "SUM":
                         var sumResult = dailyStatasticsRepository.Collection.Aggregate()
-                            .Match(x => x.StatName == dailyTask.StatName && (x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1)))
+                          //  .Match(x => x.StatName == dailyTask.StatName)// && (x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1)))
                            .Group(g => g.DeviceId, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
                            .Project(x => new SummaryStatistics
                            {
@@ -723,12 +727,12 @@ namespace VitalSignsDailyStats
                                StatName = dailyTask.StatName,
                                StatValue = x.value
                            }).ToList();
-                        summaryStatasticsRepository.Insert(sumResult);
+                       // summaryStatasticsRepository.Insert(sumResult);
 
                         break;
                     case "MAX":
                         var maxResult = dailyStatasticsRepository.Collection.Aggregate()
-                            .Match(x => x.StatName == dailyTask.StatName && (x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1)))
+                         //   .Match(x => x.StatName == dailyTask.StatName)// && (x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1)))
                            .Group(g => g.DeviceId, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
                            .Project(x => new SummaryStatistics
                            {
@@ -736,7 +740,7 @@ namespace VitalSignsDailyStats
                                StatName = dailyTask.StatName,
                                StatValue = x.value
                            }).ToList();
-                        summaryStatasticsRepository.Insert(maxResult);
+                       // summaryStatasticsRepository.Insert(maxResult);
 
                         break;
                 }
