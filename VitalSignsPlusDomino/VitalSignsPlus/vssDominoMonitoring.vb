@@ -2019,6 +2019,24 @@ WaitHere:
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception in QueryDominoServer thread at #10: " & ex.ToString)
             End Try
 
+            Try
+                'If the server is a member of a cluster, set 'Cluster' as a secondary role
+                If MyDominoServer.ClusterMember.Trim <> "" And Not (InStr(MyDominoServer.ClusterMember, "ERROR") > 0) Then
+                    If MyDominoServer.SecondaryRole.Contains("Cluster") = False Then
+                        If MyDominoServer.SecondaryRole.Trim = "" Then
+                            MyDominoServer.SecondaryRole = "Cluster"
+                        Else
+                            MyDominoServer.SecondaryRole += "; Cluster"
+                        End If
+                    End If
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception setting cluster as secondary role: " & ex.ToString)
+            End Try
+
+
+
+
 
             Try
                 MyDominoServer.Statistics_Replica = ""
