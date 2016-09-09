@@ -84,7 +84,7 @@
     <Compile Include="NameValue.cs" />
     <Compile Include="Status.cs" />
     <Compile Include="StatusHistory.cs" />
-    <Compile Include="SumamryStatistics.cs" />
+    <Compile Include="SummaryStatistics.cs" />
     <Compile Include="Tenant.cs" />
     <Compile Include="TravelerStats.cs" />
   </ItemGroup>

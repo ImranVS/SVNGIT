@@ -48,7 +48,7 @@ namespace VSNext.Mongo.Entities
 
         //"last_update" : "2015-08-05T08:40:51.620Z",
         [DataMember]
-        [BsonElement("next_Scan")]
+        [BsonElement("next_scan")]
         [BsonIgnoreIfNullAttribute]
         public DateTime? NextScan { get; set; }
 
