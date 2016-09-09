@@ -56,8 +56,8 @@
             "tab_id": 8,
             "title": "Outages",
             "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServiceOutagesTab",
+            "path": "/app/services/components/service-outages-tab.component"
           },
           {
             "tab_id": 9,
@@ -126,8 +126,8 @@
           "tab_id": 8,
           "title": "Outages",
           "type": "Dashboard",
-          "component": "NotYetImplemented",
-          "path": "/app/not-yet-implemented.component"
+          "component": "ServiceOutagesTab",
+          "path": "/app/services/components/service-outages-tab.component"
         },
           {
             "tab_id": 9,

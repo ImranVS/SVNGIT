@@ -27,6 +27,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<TravelerStats> travelerRepository;
 
         private IRepository<Database> databaseRepository;
+        private IRepository<Outages> outagesRepository;
 
         /// <summary>
         /// 
@@ -438,9 +439,11 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceId = x.DeviceId,
                     Title = x.Title,
+                    ServerName =x.DeviceName,
                     Status = x.Status,
-                    ServerName = x.ServerName,
+                    //ServerName = x.ServerName,
                     Folder = x.Folder,
+                 
                     FolderCount = x.FolderCount,
                     Details = x.Details,
                     FileName = x.FileName,
@@ -461,6 +464,20 @@ namespace VitalSigns.API.Controllers
 
             }
             return Response;
+        }
+
+        [HttpGet("{id}/outages")]
+        public IEnumerable<Outage> GetOutages(string id)
+        {
+            outagesRepository = new Repository<Outages>(ConnectionString);
+            Expression<Func<Outages, bool>> expression = (p => p.Id == id);
+            var result = outagesRepository.Find(expression).Select(x => new Outage
+            {
+                DeviceName = x.DeviceName,
+                DateTimeDown = x.DateTimeDown,
+                DateTimeUp = x.DateTimeUp,
+            });
+            return result.ToList();
         }
     }
 }
