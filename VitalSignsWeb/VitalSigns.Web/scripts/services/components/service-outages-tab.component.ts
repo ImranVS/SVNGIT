@@ -1,7 +1,7 @@
 ﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
-import {WidgetController, WidgetContainer, WidgetContract} from '../../core/widgets';
+import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
 import {AppNavigator} from '../../navigation/app.navigator.component';
 
 
@@ -12,14 +12,15 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/services/components/service-outages-tab.component.html',
-    directives: [WidgetContainer, AppNavigator]
+    directives: [WidgetContainer, AppNavigator],
+    providers: [WidgetService]
 })
 export class ServiceOutagesTab extends WidgetController implements OnInit {
     deviceId: any;
     widgets: WidgetContract[];
 
-    constructor(protected resolver: ComponentResolver, private route: ActivatedRoute) {
-        super(resolver);
+    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+        super(resolver, widgetService);
     }
 
     ngOnInit() {

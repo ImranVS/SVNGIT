@@ -3,7 +3,7 @@ import {ROUTER_DIRECTIVES} from '@angular/router';
 
 import 'rxjs/Rx';
 
-import {WidgetController, WidgetContainer, WidgetContract} from '../../core/widgets';
+import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
 import {AppNavigator} from '../../navigation/app.navigator.component';
 
 declare var injectSVG: any;
@@ -12,47 +12,40 @@ declare var bootstrapNavigator: any;
 @Component({
     selector: 'traveler-dashboard',
     templateUrl: '/app/dashboards/components/overall-dashboard.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator]
+    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
+    providers: [WidgetService]
 })
 export class OverallDashboard extends WidgetController implements OnInit {
 
     widgetAppsStatus: WidgetContract[] = [
         {
-            id: 'widgetOnPremisesApps',
-            title: null,
+            id: 'widgetOnPremisesApps1',
             path: '/app/widgets/main-dashboard/components/app-status.component',
             name: 'AppStatus',
-            css: null,
             settings: {
                 serviceId: 1
             }
         },
         {
-            id: 'widgetOnPremisesApps',
-            title: null,
+            id: 'widgetOnPremisesApps2',
             path: '/app/widgets/main-dashboard/components/app-status.component',
             name: 'AppStatus',
-            css: null,
             settings: {
                 serviceId: 2
             }
         },
         {
-            id: 'widgetOnPremisesApps',
-            title: null,
+            id: 'widgetOnPremisesApps3',
             path: '/app/widgets/main-dashboard/components/app-status.component',
             name: 'AppStatus',
-            css: null,
             settings: {
                 serviceId: 3
             }
         },
         {
-            id: 'widgetOnPremisesApps',
-            title: null,
+            id: 'widgetOnPremisesApps4',
             path: '/app/widgets/main-dashboard/components/app-status.component',
             name: 'AppStatus',
-            css: null,
             settings: {
                 serviceId: 4
             }
@@ -70,10 +63,8 @@ export class OverallDashboard extends WidgetController implements OnInit {
 
     widgetStatusSummary: WidgetContract = {
         id: 'widgetStatusSummary',
-        title: null,
         path: '/app/widgets/main-dashboard/components/status-summary.component',
         name: 'StatusSummary',
-        css: null,
         settings: {}
     }
 
@@ -162,13 +153,17 @@ export class OverallDashboard extends WidgetController implements OnInit {
         }
     }
 
-    constructor(protected resolver: ComponentResolver) {
-        super(resolver);
+    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+
+        super(resolver, widgetService);
+        
     }
 
     ngOnInit() {
+    
         injectSVG();
         bootstrapNavigator();
+
     }
 
 }

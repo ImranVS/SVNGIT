@@ -3,7 +3,7 @@ import {ROUTER_DIRECTIVES} from '@angular/router';
 
 import 'rxjs/Rx';
 
-import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
+import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
 declare var injectSVG: any;
@@ -12,7 +12,8 @@ declare var bootstrapNavigator: any;
 @Component({
     selector: 'traveler-dashboard',
     templateUrl: '/app/dashboards/components/ibm-traveler/ibm-traveler-dashboard.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator]
+    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
+    providers: [WidgetService]
 })
 export class IBMTravelerDashboard extends WidgetController implements OnInit {
 
@@ -226,8 +227,8 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
         }
     ]
 
-    constructor(protected resolver: ComponentResolver) {
-        super(resolver);
+    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+        super(resolver, widgetService);
     }
 
     ngOnInit() {

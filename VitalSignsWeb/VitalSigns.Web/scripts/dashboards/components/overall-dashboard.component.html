@@ -41,10 +41,7 @@
 
             <div class="row">
 
-                <my-widget [title]="widgetStatusSummary.title"
-                           [path]="widgetStatusSummary.path"
-                           [name]="widgetStatusSummary.name"
-                           [settings]="widgetStatusSummary.settings">loading...</my-widget>
+                <my-widget [contract]="widgetStatusSummary">loading...</my-widget>
 
             </div>
 
@@ -63,10 +60,7 @@
                                 </div>
                                 <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
                                 <div id="{{weeklyEvents.id}}">
-                                    <my-widget [title]="weeklyEvents.title"
-                                               [path]="weeklyEvents.path"
-                                               [name]="weeklyEvents.name"
-                                               [settings]="weeklyEvents.settings">loading...</my-widget>
+                                    <my-widget [contract]="weeklyEvents">loading...</my-widget>
                                 </div>
                             </div>
                         </div>
@@ -88,28 +82,16 @@
 
                 <div class="col-md-6 col-lg-3">
 
-                    <my-widget [title]="widgetAppsStatus[0].title"
-                               [path]="widgetAppsStatus[0].path"
-                               [name]="widgetAppsStatus[0].name"
-                               [settings]="widgetAppsStatus[0].settings">loading...</my-widget>
+                    <my-widget [contract]="widgetAppsStatus[0]">loading...</my-widget>
 
-                    <my-widget [title]="widgetAppsStatus[1].title"
-                               [path]="widgetAppsStatus[1].path"
-                               [name]="widgetAppsStatus[1].name"
-                               [settings]="widgetAppsStatus[1].settings">loading...</my-widget>
+                    <my-widget [contract]="widgetAppsStatus[1]">loading...</my-widget>
 
                 </div>
                 <div class="col-md-6 col-lg-3">
 
-                    <my-widget [title]="widgetAppsStatus[2].title"
-                               [path]="widgetAppsStatus[2].path"
-                               [name]="widgetAppsStatus[2].name"
-                               [settings]="widgetAppsStatus[2].settings">loading...</my-widget>
+                    <my-widget [contract]="widgetAppsStatus[2]">loading...</my-widget>
 
-                    <my-widget [title]="widgetAppsStatus[3].title"
-                               [path]="widgetAppsStatus[3].path"
-                               [name]="widgetAppsStatus[3].name"
-                               [settings]="widgetAppsStatus[3].settings">loading...</my-widget>
+                    <my-widget [contract]="widgetAppsStatus[3]">loading...</my-widget>
 
                 </div>
 
@@ -191,10 +173,7 @@
 
                         <div class="widgetContent">
 
-                            <my-widget [title]="widgetOnPremisesApps.title"
-                                       [path]="widgetOnPremisesApps.path"
-                                       [name]="widgetOnPremisesApps.name"
-                                       [settings]="widgetOnPremisesApps.settings">loading...</my-widget>
+                            <my-widget [contract]="widgetOnPremisesApps">loading...</my-widget>
 
                         </div>
 
@@ -209,10 +188,7 @@
                         </div>
                         <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
                         <div id="{{lastMonthEvents.id}}" class="widgetContent">
-                            <my-widget [title]="lastMonthEvents.title"
-                                       [path]="lastMonthEvents.path"
-                                       [name]="lastMonthEvents.name"
-                                       [settings]="lastMonthEvents.settings">loading...</my-widget>
+                            <my-widget [contract]="lastMonthEvents">loading...</my-widget>
                         </div>
                     </div>
                 </div>

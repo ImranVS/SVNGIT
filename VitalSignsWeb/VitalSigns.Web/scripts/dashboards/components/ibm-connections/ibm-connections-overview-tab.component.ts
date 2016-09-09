@@ -1,6 +1,6 @@
 ﻿import {Component, ComponentResolver, OnInit, Injector} from '@angular/core';
 
-import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
+import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
@@ -9,15 +9,16 @@ declare var injectSVG: any;
 @Component({
     selector: 'tab-overall',
     templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-overview-tab.component.html',
-    directives: [WidgetContainer]
+    directives: [WidgetContainer],
+    providers: [WidgetService]
 })
 export class IBMConnectionsOverviewTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
 
-    constructor(protected resolver: ComponentResolver) {
-        super(resolver);
+    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+        super(resolver, widgetService);
     }
     
     ngOnInit() {

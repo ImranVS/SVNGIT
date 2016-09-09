@@ -1,7 +1,7 @@
 ﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
 import {ROUTER_DIRECTIVES} from '@angular/router';
 
-import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
+import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
 declare var injectSVG: any;
@@ -9,7 +9,8 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/office365-overall.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator]
+    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
+    providers: [WidgetService]
 })
 export class Office365Overall extends WidgetController implements OnInit {
 
@@ -294,8 +295,8 @@ export class Office365Overall extends WidgetController implements OnInit {
         }
     ]
     
-    constructor(protected resolver: ComponentResolver) {
-        super(resolver);
+    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+        super(resolver, widgetService);
     }
 
     ngOnInit() {
