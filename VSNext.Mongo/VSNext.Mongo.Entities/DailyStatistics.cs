@@ -64,4 +64,6 @@ namespace VSNext.Mongo.Entities
         public double? StatValue { get; set; }
 
     }
+
+    
 }

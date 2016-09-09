@@ -22,6 +22,9 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("stat_value")]
         public double StatValue { get; set; }
+        [DataMember]
+        [BsonElement("device_name")]
+        public int DeviceName { get; set; }
 
     }
 }

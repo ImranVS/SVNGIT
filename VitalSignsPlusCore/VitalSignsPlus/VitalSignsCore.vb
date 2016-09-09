@@ -61,6 +61,7 @@ Imports System.Linq
 
 Imports RPRWyatt.VitalSigns.Services
 Imports System.Security.Cryptography.X509Certificates
+Imports MongoDB.Driver
 
 
 Public Class VitalSignsPlusCore
@@ -1133,7 +1134,7 @@ Public Class VitalSignsPlusCore
             Catch ex As Exception
 
             End Try
-            
+
 
 
             MyDate = Now.ToShortDateString
@@ -5667,7 +5668,7 @@ CleanUp:
                 con = New IBM.Data.DB2.DB2Connection("Database=OPNACT;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & "")
                 con.Open()
 
-                Dim cmd As New IBM.Data.DB2.DB2Command(Sql, con)
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
                 adapter.Fill(ds)
 
@@ -5712,7 +5713,7 @@ CleanUp:
 
                 dict.Add("NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_ACTIVITIES_FOLLOWED_YESTERDAY"))
 
-                Sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
@@ -5726,13 +5727,13 @@ CleanUp:
                         End If
                     End If
 
-                    Sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
 
-
+                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
                 Dim adapter As New VSAdaptor()
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", Sql.Substring(0, Sql.Length - 1))
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
@@ -5917,12 +5918,25 @@ CleanUp:
                     Dim counter As Integer = 1
                     If (ds.Tables(12).Rows.Count > 0) Then
 
-                        sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfBlogTagUses'; INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
+                        'sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfBlogTagUses'; INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
                         For Each row As DataRow In ds.Tables(12).Rows
-                            sql += "('" & myServer.ID & "', '" & myServer.Name & "', '" & counter & "', '" & row("Name").ToString() & "', '" & row("Num_Of_Blog_Tags").ToString() & "', 'NumOfBlogTagUses', GetDate()),"
+                            'sql += "('" & myServer.ID & "', '" & myServer.Name & "', '" & counter & "', '" & row("Name").ToString() & "', '" & row("Num_Of_Blog_Tags").ToString() & "', 'NumOfBlogTagUses', GetDate()),"
                             counter += 1
+
+                            Dim DailyStats As New VSNext.Mongo.Entities.IbmConnectionsTopStats
+                            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsTopStats)(connectionString)
+                            Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsTopStats) = repo.Filter.Where(Function(i) i.Type.Equals("NumOfBlogTagUses"))
+                            repo.Delete(filterdef)
+
+                            DailyStats.DeviceId = myServer.ServerObjectID
+                            DailyStats.DeviceName = myServer.Name
+                            DailyStats.Ranking = counter
+                            DailyStats.Name = row("Name").ToString()
+                            DailyStats.UsageCount = row("Num_Of_Blog_Tags").ToString()
+                            DailyStats.Type = "NumOfBlogTagUses"
+                            repo.Insert(DailyStats)
                         Next
-                        adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                        'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
                     End If
                 Catch ex As Exception
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Blog Stats 1. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -5932,13 +5946,25 @@ CleanUp:
                 Try
                     Dim counter As Integer = 1
                     If (ds.Tables(13).Rows.Count > 0) Then
-
-                        sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfEntryTagUses'; INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
+                        Dim IbmConnectionsTopStats As New VSNext.Mongo.Entities.IbmConnectionsTopStats
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsTopStats)(connectionString)
+                        Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsTopStats) = repo.Filter.Where(Function(i) i.Type.Equals("NumOfEntryTagUses"))
+                        repo.Delete(filterdef)
+                        'sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfEntryTagUses'; INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
                         For Each row As DataRow In ds.Tables(13).Rows
-                            sql += "('" & myServer.ID & "', '" & myServer.Name & "', '" & counter & "', '" & row("Name").ToString() & "', '" & row("Num_Of_Entry_Tags").ToString() & "', 'NumOfEntryTagUses', GetDate()),"
+                            'sql += "('" & myServer.ID & "', '" & myServer.Name & "', '" & counter & "', '" & row("Name").ToString() & "', '" & row("Num_Of_Entry_Tags").ToString() & "', 'NumOfEntryTagUses', GetDate()),"
                             counter += 1
+
+
+                            IbmConnectionsTopStats.DeviceId = myServer.ServerObjectID
+                            IbmConnectionsTopStats.DeviceName = myServer.Name
+                            IbmConnectionsTopStats.Ranking = counter
+                            IbmConnectionsTopStats.Name = row("Name").ToString()
+                            IbmConnectionsTopStats.UsageCount = row("Num_Of_Entry_Tags").ToString()
+                            IbmConnectionsTopStats.Type = "NumOfEntryTagUses"
+                            repo.Insert(IbmConnectionsTopStats)
                         Next
-                        adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                        'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
                     End If
                 Catch ex As Exception
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Blog Stats 2. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -5953,7 +5979,8 @@ CleanUp:
 
                 dict.Add("NUM_OF_BLOGS_NOTIFICATIONS_CREATED_YESTERDAY", ds.Tables(17).Rows(0)("NUM_OF_NOTIFICATIONS_CREATED_YESTERDAY"))
 
-                sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                Dim repoSummary As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
@@ -5966,88 +5993,141 @@ CleanUp:
                             Val = Int(20 * Rnd()) + 1
                         End If
                     End If
-
-                    sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
+                    SummaryStats.Id = myServer.ServerObjectID
+                    SummaryStats.StatName = Name.ToUpper()
+                    SummaryStats.StatValue = Val
+                    repoSummary.Insert(SummaryStats)
+                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
 
                 Next
 
 
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
-                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+                'Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
 
-                    Dim cmd As New SqlClient.SqlCommand()
-                    cmd.Connection = sqlConn
-                    cmd.CommandText = "DELETE FROM IbmConnectionsObjects WHERE ServerID = @ServerId AND Type = 'Activity'"
-                    cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                'Dim cmd As New SqlClient.SqlCommand()
+                'cmd.Connection = sqlConn
+                'cmd.CommandText = "DELETE FROM IbmConnectionsObjects WHERE ServerID = @ServerId AND Type = 'Activity'"
+                'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                Dim serverId As String = myServer.ID
+                Dim serverName As String = myServer.Name
+                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                Dim repoObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                Dim filterdefObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.DeviceId.Equals(serverId) And i.Type.Equals("Activity"))
+                repoObjects.Delete(filterdefObjects)
 
+                'cmd.ExecuteNonQuery()
+                Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsUsers)(connectionString)
+
+                Dim connectionsUserId As String = ""
+
+                For Each row As DataRow In ds.Tables(18).Rows()
+
+                    ' first get the 
+                    Dim filterdefIbmConnectionsUsers As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.ServerName.Equals(serverName) And i.GUID.Equals(row("EXTID").ToString()))
+                    Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                    'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).ToList()
+                    Dim s As VSNext.Mongo.Entities.IbmConnectionsUsers = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).Take(1)
+                    'For Each s As VSNext.Mongo.Entities.IbmConnectionsUsers In serverList
+                    connectionsUserId = s.Id
+                    'Next
+                    Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    IbmConnectionsObjects2.DeviceName = row("NAME").ToString()
+                    IbmConnectionsObjects2.Type = "Blog"
+                    IbmConnectionsObjects2.OwnerId = connectionsUserId
+                    IbmConnectionsObjects2.GUID = row("ID").ToString()
+
+                    'cmd = New SqlClient.SqlCommand()
+                    'cmd.Connection = sqlConn
+                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
+                    '    "(@Name, 'Blog', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @BlogGUID)"
+                    'cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
+                    'cmd.Parameters.AddWithValue("@Created", row("DATECREATED").ToString())
+                    'cmd.Parameters.AddWithValue("@Modified", row("LASTMODIFIED").ToString())
+                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'cmd.Parameters.AddWithValue("@GUID", row("EXTID").ToString())
+                    'cmd.Parameters.AddWithValue("@BlogGUID", row("ID").ToString())
+                    'cmd.ExecuteNonQuery()
+                    Dim tags As List(Of String)
+
+                    For Each tagRow As DataRow In ds.Tables(19).Select("WEBSITEID = '" & row("ID").ToString() & "'")
+                        tags.Add(tagRow("NAME").ToString())
+                        'Dim IbmConnectionsObjects3 As New VSNext.Mongo.Entities.IbmConnectionsObjectsTags
+                        'IbmConnectionsObjects3.ServerName = row("NAME").ToString()
+                        'IbmConnectionsObjects3.TagName = tagRow("NAME").ToString()
+                        'IbmConnectionsObjects3.GUID = tagRow("WEBSITEID").ToString()
+                        'repoObjects.Insert(IbmConnectionsObjects3)
+
+                        '    cmd = New SqlClient.SqlCommand()
+                        '    cmd.Connection = sqlConn
+                        '    cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
+                        '    cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
+                        '    cmd.ExecuteNonQuery()
+
+
+
+                        '    cmd = New SqlClient.SqlCommand()
+                        '    cmd.Connection = sqlConn
+                        '    cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@GUID AND" & _
+                        '    " Type = 'Blog' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
+                        '    cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
+                        '    cmd.Parameters.AddWithValue("@GUID", tagRow("WEBSITEID").ToString())
+                        '    cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+
+                        '    cmd.ExecuteNonQuery()
+
+                    Next
+                    IbmConnectionsObjects2.tags = tags
+                    repoIbmConnectionsUsers.Insert(IbmConnectionsObjects2)
+
+                Next
+
+
+
+                'SELECT entry.ID, entry.Title, 'Blog Entry' as TYPE, entry.PUBTIME, entry.UPDATETIME, users.EXTID, entry.WEBSITEID FROM BLOGS.WEBLOGENTRY entry INNER JOIN BLOGS.ROLLERUSER users ON entry.USERID = users.ID;
+                Dim myServerName As String = myServer.Name
+                Dim ParentObjectID As String = ""
+                For Each row As DataRow In ds.Tables(20).Rows()
+
+                    Dim FilterDefIbmConnectionsObjects4 As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.GUID.Equals(row("WEBSITEID").ToString()) And i.DeviceName.Equals(myServerName))
+                    Dim projectDefIbmConnections4 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Project.Include(Function(i) i.Id)
+                    'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                    Dim s As VSNext.Mongo.Entities.IbmConnectionsObjects = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+
+                    'For Each s As VSNext.Mongo.Entities.IbmConnectionsObjects In serverList
+                    ParentObjectID = s.Id
+                    'Next
+
+                    Dim IbmConnectionsObjects4 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    IbmConnectionsObjects4.DeviceName = row("TITLE").ToString()
+                    IbmConnectionsObjects4.GUID = row("EXTID").ToString()
+                    IbmConnectionsObjects4.OwnerId = connectionsUserId
+                    'IbmConnectionsObjects4.owner = row("EXTID").ToString()
+                    IbmConnectionsObjects4.ParentGUID = ParentObjectID
+                    IbmConnectionsObjects4.Type = "Blog Entry"
+                    repoObjects.Insert(IbmConnectionsObjects4)
+
+                    'cmd = New SqlClient.SqlCommand()
+                    'cmd.Connection = sqlConn
+                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID, ParentObjectID) VALUES " & _
+                    '    "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @EntryGUID, (SELECT ID FROM IbmConnectionsObjects WHERE GUID = @BlogGUID AND ServerID = @ServerId))"
+                    'cmd.Parameters.AddWithValue("@Name", row("TITLE").ToString())
+                    'cmd.Parameters.AddWithValue("@Created", row("PUBTIME").ToString())
+                    'cmd.Parameters.AddWithValue("@Modified", row("UPDATETIME").ToString())
+                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'cmd.Parameters.AddWithValue("@GUID", row("EXTID").ToString())
+                    'cmd.Parameters.AddWithValue("@EntryGUID", row("ID").ToString())
+                    'cmd.Parameters.AddWithValue("@BlogGUID", row("WEBSITEID").ToString())
+                    'cmd.Parameters.AddWithValue("@Type", "Blog Entry")
                     'cmd.ExecuteNonQuery()
 
-                    For Each row As DataRow In ds.Tables(18).Rows()
+                Next
 
-
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
-                            "(@Name, 'Blog', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @BlogGUID)"
-                        cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("DATECREATED").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("LASTMODIFIED").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@GUID", row("EXTID").ToString())
-                        cmd.Parameters.AddWithValue("@BlogGUID", row("ID").ToString())
-                        cmd.ExecuteNonQuery()
-
-                        For Each tagRow As DataRow In ds.Tables(19).Select("WEBSITEID = '" & row("ID").ToString() & "'")
-
-
-
-                            cmd = New SqlClient.SqlCommand()
-                            cmd.Connection = sqlConn
-                            cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                            cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
-                            cmd.ExecuteNonQuery()
-
-
-
-                            cmd = New SqlClient.SqlCommand()
-                            cmd.Connection = sqlConn
-                            cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@GUID AND" & _
-                            " Type = 'Blog' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
-                            cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
-                            cmd.Parameters.AddWithValue("@GUID", tagRow("WEBSITEID").ToString())
-                            cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-
-                            cmd.ExecuteNonQuery()
-
-                        Next
-
-
-                    Next
-
-
-                    'SELECT entry.ID, entry.Title, 'Blog Entry' as TYPE, entry.PUBTIME, entry.UPDATETIME, users.EXTID, entry.WEBSITEID FROM BLOGS.WEBLOGENTRY entry INNER JOIN BLOGS.ROLLERUSER users ON entry.USERID = users.ID;
-                    For Each row As DataRow In ds.Tables(20).Rows()
-
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID, ParentObjectID) VALUES " & _
-                            "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @EntryGUID, (SELECT ID FROM IbmConnectionsObjects WHERE GUID = @BlogGUID AND ServerID = @ServerId))"
-                        cmd.Parameters.AddWithValue("@Name", row("TITLE").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("PUBTIME").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("UPDATETIME").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@GUID", row("EXTID").ToString())
-                        cmd.Parameters.AddWithValue("@EntryGUID", row("ID").ToString())
-                        cmd.Parameters.AddWithValue("@BlogGUID", row("WEBSITEID").ToString())
-                        cmd.Parameters.AddWithValue("@Type", "Blog Entry")
-                        cmd.ExecuteNonQuery()
-
-                    Next
-
-                End Using
+                'End Using
 
 
 
@@ -6063,7 +6143,19 @@ CleanUp:
         End Try
 
     End Sub
+    Public Sub addSummaryStats(serverName As String, statName As String, statVal As String)
+        Try
+            Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
+            SummaryStats.DeviceName = serverName
+            SummaryStats.StatName = statName
+            SummaryStats.StatValue = Double.Parse(statVal)
+            repo.Insert(SummaryStats)
+        Catch ex As Exception
 
+        End Try
+        
+    End Sub
     Public Sub GetCommunityStats(ByRef myServer As MonitoredItems.IBMConnect)
 
         Dim sql As String = "SELECT COMMUNITY_TYPE, COUNT(*) Num_Of_Communities FROM SNCOMM.COMMUNITY WHERE DELETE_STATE = 0 GROUP BY COMMUNITY_TYPE;" & _
@@ -6146,7 +6238,7 @@ CleanUp:
                 dict.Add("NUM_OF_COMMUNITIES_COMMUNITIES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_COMMUNITIES_CREATED_YESTERDAY"))
 
 
-                sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
@@ -6160,12 +6252,12 @@ CleanUp:
                         End If
                     End If
 
-                    sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-
+                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
@@ -6397,7 +6489,7 @@ CleanUp:
                 dict.Add("NUM_OF_FILES_FILES_REVISIONED_YESTERDAY", ds.Tables(15).Rows(0)("NUM_OF_FILES_REVISIONED_YESTERDAY"))
 
 
-                sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
@@ -6411,12 +6503,12 @@ CleanUp:
                         End If
                     End If
 
-                    sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-
+                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
@@ -6618,7 +6710,7 @@ CleanUp:
 
 
 
-                sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
@@ -6633,12 +6725,12 @@ CleanUp:
                         End If
                     End If
 
-                    sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-
+                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
@@ -6714,7 +6806,7 @@ CleanUp:
                 dict.Add("NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY"))
 
 
-                sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
@@ -6728,12 +6820,12 @@ CleanUp:
                         End If
                     End If
 
-                    sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-
+                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
                 Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
@@ -6901,12 +6993,12 @@ CleanUp:
                         End If
                     End If
 
-                    sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-
+                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
@@ -7138,12 +7230,13 @@ CleanUp:
                         Try
                             WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Querying the server as an end user...")
                             TestSametimeServerAsUser(myServer)
+                            WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " after Querying the server as an end user...")
                         Catch ex As Exception
                             WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Exception querying as end user: " & ex.ToString)
                         End Try
 
                         Try
-
+                            WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Getting XML and Conference stats.")
                             GetSametimeXMLStats(myServer)
                             GetSametimeConfStats(myServer)
                             Thread.Sleep(1000)
@@ -7156,7 +7249,7 @@ CleanUp:
                             WriteDeviceHistoryEntry("Sametime", myServer.Name, " Error querying server: " & ex.ToString)
                         End Try
 
-
+                        WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Updating sametime status table")
                         UpdateSametimeStatusTable(myServer)
                     End If
                 End If
@@ -7831,7 +7924,7 @@ CleanUp:
                 SummaryDict.Add("ActiveMeetingRoomCount", ds.Tables(5).Rows(0)("NUM_OF_ROOMS_ACTIVE_WITHIN_A_WEEK"))
 
 
-                sql = "INSERT INTO SametimeSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                'sql = "INSERT INTO SametimeSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
@@ -7845,12 +7938,19 @@ CleanUp:
                         End If
                     End If
 
-                    sql += "('" & Server.Name & "', GetDate(), '" & Name & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
+                    SummaryStats.DeviceId = Server.ServerObjectID
+                    SummaryStats.StatName = Name
+                    SummaryStats.StatValue = Val
+                    repo.Insert(SummaryStats)
+
+                    ' sql += "('" & Server.Name & "', GetDate(), '" & Name & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
 
                 Next
 
 
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
@@ -8050,7 +8150,7 @@ CleanUp:
             SametimeProcess = Process.Start(ProcessProperties)
             WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Calling Process.Start")
             strResults = SametimeProcess.StandardOutput.ReadToEnd()
-            ' WriteDeviceHistoryEntry("Sametime", Server.Name, strResults)
+            WriteDeviceHistoryEntry("Sametime", Server.Name, strResults)
             'WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Calling Process.Kill")
             ' If myProcess IsNot Nothing Then myProcess.Kill()
             If Not SametimeProcess.HasExited Then

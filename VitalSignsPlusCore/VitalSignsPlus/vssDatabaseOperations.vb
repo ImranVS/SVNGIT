@@ -823,35 +823,49 @@ Partial Public Class VitalSignsPlusCore
         For n = 0 To mySametimeServers.Count - 1
             MySametimeServer = mySametimeServers.Item(n)
             Dim myStatusCode As String = ServerStatusCode(MySametimeServer.Status)
-            Dim TypeAndName As String = MySametimeServer.Name & "-Sametime"
+            Dim TypeAndName As String = MySametimeServer.Name & "-" & VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()
             Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
             With MySametimeServer
 
-                updatedef = repo.Updater _
+                'strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-Sametime') BEGIN " & _
+                ' "INSERT INTO Status (StatusCode, Category,  Description, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime, TypeANDName, Icon,  MyPercent, NextScan,  UpMinutes, DownMinutes, PendingThreshold, DeadThreshold) " & _
+                ' " VALUES ('" & myStatusCode & "', '" & .Category & "', '" & .Description & "', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
+                ' "'Sametime', '" & .UpCount & "', '" & .UpPercentCount & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-Sametime', " & IconList.Sametime & ", '" & Percent & "', '" & .NextScan & "', '" & Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1") & "', '" & Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1") & "', " & .Chat_Sessions_Threshold & ", " & .nWay_Chat_Sessions_Threshold & ")" & _
+                ' "END"
+
+                'strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-Sametime'"
+                Try
+                    updatedef = repo.Updater _
                            .Set(Function(i) i.Name, .Name) _
-                           .[Set](Function(i) i.CurrentStatus, myStatusCode) _
+                           .[Set](Function(i) i.CurrentStatus, .Status) _
                            .[Set](Function(i) i.StatusCode, myStatusCode) _
                            .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                            .[Set](Function(i) i.TypeAndName, TypeAndName) _
                            .[Set](Function(i) i.Description, .Description) _
-                           .[Set](Function(i) i.Type, "Sametime") _
+                           .[Set](Function(i) i.Type, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) _
                            .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                            .[Set](Function(i) i.Location, .Location) _
                            .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
-                           .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
-                           .[Set](Function(i) i.LastUpdated, Now) _
+                           .[Set](Function(i) i.UpPercent, Double.Parse(.UpPercentCount)) _
                            .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
-                           .[Set](Function(i) i.MyPercent, Double.Parse(Percent)) _
                            .[Set](Function(i) i.NextScan, .NextScan) _
                            .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
                            .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1")))
+                    If MySametimeServer.Enabled = True Then
+                        'UpdateStatusTable(strSqlUpdate, strSQL, MySametimeServer.Name)
+                        repo.Upsert(filterdef, updatedef)
+                    End If
+                Catch ex As Exception
+                    WriteAuditEntry(Now.ToString & " Exception writing to mongo: " & ex.Message.ToString())
+                End Try
 
             End With
-            If MySametimeServer.Enabled = True Then
-                'UpdateStatusTable(strSqlUpdate, strSQL, MySametimeServer.Name)
-                repo.Upsert(filterdef, updatedef)
-            End If
+                  
+                
+                
+
+            
 
         Next n
 
@@ -1969,8 +1983,7 @@ Partial Public Class VitalSignsPlusCore
 
             Dim DailyStats As New DailyStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
-            DailyStats.DeviceId = DeviceId
-            DailyStats.DeviceType = "BES"
+            DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.BES.ToDescription()
             DailyStats.DeviceName = ServerName
             DailyStats.StatName = "ResponseTime"
             DailyStats.StatValue = ResponseTime
@@ -2081,17 +2094,17 @@ Partial Public Class VitalSignsPlusCore
                                     .[Set](Function(i) i.Description, .Description) _
                                     .[Set](Function(i) i.Details, StatusDetails) _
                                     .[Set](Function(i) i.Category, .Category) _
-                                    .[Set](Function(i) i.Type, "Sametime") _
+                                    .[Set](Function(i) i.Type, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) _
                                     .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                                     .[Set](Function(i) i.Location, .Location) _
                                     .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
-                                    .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                                    .[Set](Function(i) i.UpPercent, Double.Parse(.UpPercentCount)) _
                                     .[Set](Function(i) i.LastUpdated, Now) _
                                     .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
                                     .[Set](Function(i) i.PendingMail, Integer.Parse(.Chat_Sessions)) _
                                     .[Set](Function(i) i.NextScan, .NextScan) _
-                                    .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
-                                    .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
+                                    .[Set](Function(i) i.UpMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
+                                    .[Set](Function(i) i.DownMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
                                     .[Set](Function(i) i.DominoVersion, "Current Chats: " & .Chat_Sessions) _
                 .[Set](Function(i) i.OperatingSystem, "IBM Sametime server") _
                 .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
@@ -2150,8 +2163,7 @@ Partial Public Class VitalSignsPlusCore
 
         Dim DailyStats As New DailyStatistics
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
-        DailyStats.DeviceId = DeviceId
-        DailyStats.DeviceType = "Sametime"
+        DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()
         DailyStats.DeviceName = ServerName
         DailyStats.StatName = StatName
         DailyStats.StatValue = StatValue
@@ -2171,11 +2183,11 @@ Partial Public Class VitalSignsPlusCore
 
         End Try
 
-        Dim strSQL As String
-        Dim MyWeekNumber As Integer
-        MyWeekNumber = GetWeekNumber(Date.Today)
+        'Dim strSQL As String
+        'Dim MyWeekNumber As Integer
+        'MyWeekNumber = GetWeekNumber(Date.Today)
 
-        Dim objVSAdaptor As New VSAdaptor
+        'Dim objVSAdaptor As New VSAdaptor
 
         For Each Stat As MonitoredItems.SametimeStatistic In Server.StatisticsCollection
             Try
@@ -2229,19 +2241,20 @@ Partial Public Class VitalSignsPlusCore
                         translatedStatName = "Currentnumberofusersinsidemeetings"
 
                 End Select
+                WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & "Stat Name:" + Stat.Name)
+
                 '5/5/2016 NS modified - if stat.Name is empty, it causes a SQL error
                 If translatedStatName <> "" Then
-                    strSQL = "INSERT INTO SametimeDailyStats (ServerName, [Date], StatName, StatValue,  WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" & _
-                        " VALUES ('" & Server.Name & "', '" & Now.ToString & "', '" + translatedStatName + "', '" & Stat.Value & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "', '" & Now.Hour & "')"
+                    'strSQL = "INSERT INTO SametimeDailyStats (ServerName, [Date], StatName, StatValue,  WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" & _
+                    '    " VALUES ('" & Server.Name & "', '" & Now.ToString & "', '" + translatedStatName + "', '" & Stat.Value & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "', '" & Now.Hour & "')"
                     'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "SametimeStats", strSQL)
 
                     Dim DailyStats As New DailyStatistics
                     Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
-                    DailyStats.DeviceId = Server.ServerObjectID
-                    DailyStats.DeviceType = "Sametime"
+                    DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()
                     DailyStats.DeviceName = Server.Name
                     DailyStats.StatName = translatedStatName
-                    DailyStats.StatValue = Stat.Value
+                    DailyStats.StatValue = Double.Parse(Stat.Value)
                     repo.Insert(DailyStats)
                 End If
 
@@ -2307,14 +2320,14 @@ Partial Public Class VitalSignsPlusCore
 
 
             Catch ex As Exception
-                '     WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Error Updating Sametime Advanced Statistics table: " & ex.ToString)
+                WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Error Updating Sametime Advanced Statistics table: " & ex.ToString)
                 '    WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " SQL Statement: " & strSQL)
             End Try
         Next
 
 
-        strSQL = Nothing
-        MyWeekNumber = Nothing
+        'strSQL = Nothing
+        'MyWeekNumber = Nothing
     End Sub
 
     '1/11/2016 NS added for VSPLUS-1921,VSPLUS-1823
@@ -2330,31 +2343,48 @@ Partial Public Class VitalSignsPlusCore
 
         WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Updating Sametime Summary table in VSS_Statistics")
         Try
-            strSQL = "SELECT * FROM SametimeSummaryStats WHERE DATEADD(dd,0,DATEDIFF(dd,0,Date)) < DATEADD(dd,0,DATEDIFF(dd,0,GETDATE())) AND " &
-                "DATEADD(dd,0,DATEDIFF(dd,0,Date)) >= DATEADD(dd,-1,DATEDIFF(dd,0,GETDATE())) AND ServerName='" & Server.Name & "' "
-            WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & "   SQL select: " & strSQL, LogUtilities.LogUtils.LogLevel.Verbose)
-            dt = objVSAdaptor.FetchData(myConnectionString.GetDBConnectionString("VSS_Statistics"), strSQL)
-            If dt.Rows.Count = 0 Then
-                Try
-                    GetSametimeStatsFromLog(Server)
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Error retrieving statistics from Sametime Log:  " & ex.ToString)
-                End Try
-                For Each Stat As MonitoredItems.SametimeStatistic In Server.StatisticsCollection
-                    Select Case Stat.Name
-                        Case "PeakLogins", "Total2WayChats", "TotalnWayChats"
-                            Try
-                                strSQL = "INSERT INTO SametimeSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) " & _
-                                    "VALUES ('" & Server.Name & "', '" & Date.Today.AddDays(-1) & "', '" & Stat.Name & "', " & Stat.Value & ", " & MyWeekNumber & ", " & nowDate.Month & ", " & nowDate.Year & ", " & nowDate.Day & ")"
-                                objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "Status", strSQL)
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Error inserting " & Stat.Name & " into the SametimeSummaryStats table:  " & ex.ToString)
-                            End Try
-                        Case Else
-                            'do nothing
-                    End Select
-                Next
-            End If
+            'strSQL = "SELECT * FROM SametimeSummaryStats WHERE DATEADD(dd,0,DATEDIFF(dd,0,Date)) < DATEADD(dd,0,DATEDIFF(dd,0,GETDATE())) AND " &
+            '    "DATEADD(dd,0,DATEDIFF(dd,0,Date)) >= DATEADD(dd,-1,DATEDIFF(dd,0,GETDATE())) AND ServerName='" & Server.Name & "' "
+            'WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & "   SQL select: " & strSQL, LogUtilities.LogUtils.LogLevel.Verbose)
+            'dt = objVSAdaptor.FetchData(myConnectionString.GetDBConnectionString("VSS_Statistics"), strSQL)
+            'If dt.Rows.Count = 0 Then
+            '    Try
+            '        GetSametimeStatsFromLog(Server)
+            '    Catch ex As Exception
+            '        WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Error retrieving statistics from Sametime Log:  " & ex.ToString)
+            '    End Try
+            For Each Stat As MonitoredItems.SametimeStatistic In Server.StatisticsCollection
+                Select Case Stat.Name
+                    Case "PeakLogins", "Total2WayChats", "TotalnWayChats"
+                        Try
+                            'strSQL = "INSERT INTO SametimeSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) " & _
+                            '    "VALUES ('" & Server.Name & "', '" & Date.Today.AddDays(-1) & "', '" & Stat.Name & "', " & Stat.Value & ", " & MyWeekNumber & ", " & nowDate.Month & ", " & nowDate.Year & ", " & nowDate.Day & ")"
+                            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "Status", strSQL)
+                            'Dim SummaryStats As New SummaryStatistics
+                            'Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
+                            'SummaryStats.DeviceId = Server.ServerObjectID
+                            'SummaryStats.StatName = Stat.Name
+                            'SummaryStats.StatValue = Double.Parse(Stat.Value)
+                            'repo.Insert(SummaryStats)
+                            Dim repo1 As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
+                            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.SummaryStatistics)
+                            Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.SummaryStatistics)
+                            
+                            filterdef = repo1.Filter.Where(Function(i) i.CreatedOn.ToShortDateString.Equals(DateTime.UtcNow.ToShortDateString))
+                            updatedef = repo1.Updater _
+                            .Set(Function(i) i.Id, Server.ServerObjectID) _
+                            .[Set](Function(i) i.StatName, Stat.Name) _
+                            .[Set](Function(i) i.StatValue, Double.Parse(Stat.Value))
+
+                            repo1.Upsert(filterdef, updatedef)
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Error inserting " & Stat.Name & " into the SametimeSummaryStats table:  " & ex.ToString)
+                        End Try
+                    Case Else
+                                'do nothing
+                End Select
+            Next
+            'End If
         Catch ex As Exception
             WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Error selecting from the SametimeSummaryStats table:  " & ex.ToString)
         End Try
@@ -3044,25 +3074,57 @@ Partial Public Class VitalSignsPlusCore
     End Sub
 
     Public Sub InsertIntoWebSphereDailyStats(ByVal ServerName As String, ByVal StatName As String, ByVal StatValue As String, ByVal Details As String)
-        Dim dtNow As DateTime = Now
+        'Dim dtNow As DateTime = Now
 
-        If StatValue IsNot Nothing Then
+        'If StatValue IsNot Nothing Then
 
-            Dim strSql As String = "Insert into VSS_Statistics.dbo.WebSphereDailyStats(ServerName,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) " & _
-             " values('" & ServerName & "','" & dtNow & "','" & StatName & "','" & StatValue & "'," & GetWeekNumber(dtNow) & ", " & dtNow.Month.ToString() & _
-             ", " & dtNow.Year.ToString() & ", " & dtNow.Day.ToString() & ", " & dtNow.Hour.ToString() & ",'')"
+        '    Dim strSql As String = "Insert into VSS_Statistics.dbo.WebSphereDailyStats(ServerName,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) " & _
+        '     " values('" & ServerName & "','" & dtNow & "','" & StatName & "','" & StatValue & "'," & GetWeekNumber(dtNow) & ", " & dtNow.Month.ToString() & _
+        '     ", " & dtNow.Year.ToString() & ", " & dtNow.Day.ToString() & ", " & dtNow.Hour.ToString() & ",'')"
 
-            Dim objVSAdaptor As New VSAdaptor
+        '    Dim objVSAdaptor As New VSAdaptor
 
-            Try
-                objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", strSql)
-            Catch ex As Exception
+        '    Try
+        '        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", strSql)
+        '    Catch ex As Exception
 
-            End Try
+        '    End Try
 
-        Else
-            WriteDeviceHistoryEntry("WebSphere", StatName, Now.ToString & " the following stat is empty: " & StatName)
-        End If
+        'Else
+        '    WriteDeviceHistoryEntry("WebSphere", StatName, Now.ToString & " the following stat is empty: " & StatName)
+        'End If
+
+
+       
+        Try
+            'strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
+            '   " VALUES ('Network Device', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
+            'If boolUseSQLServer = True Then
+            '    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
+            'Else
+            '    myCommand.CommandText = strSQL
+            '    myCommand.ExecuteNonQuery()
+            'End If
+
+            'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
+            Dim DailyStats As New DailyStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+            DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription()
+            DailyStats.DeviceName = ServerName
+            DailyStats.StatName = StatName
+            DailyStats.StatValue = StatValue
+
+            repo.Insert(DailyStats)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & ex.Message)
+            'WriteAuditEntry(Now.ToString & " The failed stats table insert comand was " & strSQL)
+        Finally
+            'myConnection.Close()
+
+        End Try
+
+        'myConnection.Dispose()
+        'myCommand.Dispose()
 
     End Sub
 
@@ -3279,9 +3341,9 @@ Partial Public Class VitalSignsPlusCore
     End Sub
 
     Public Sub InsertIntoIBMConnectionsDailyStats(ByVal ServerName As String, ByVal StatName As String, ByVal StatValue As String, ByVal DeviceId As String)
-        Dim dtNow As DateTime = Now
+		Dim dtNow As DateTime = Now
 
-        If StatValue IsNot Nothing Then
+		If StatValue IsNot Nothing Then
 
             '         Dim strSql As String = "Insert into VSS_Statistics.dbo.IBMConnectionsDailyStats(ServerName,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber) " & _
             '          " values('" & ServerName & "','" & dtNow & "','" & StatName & "','" & StatValue & "'," & GetWeekNumber(dtNow) & ", " & dtNow.Month.ToString() & _
@@ -3304,17 +3366,17 @@ Partial Public Class VitalSignsPlusCore
 
             End Try
 
-        Else
-            WriteDeviceHistoryEntry("WebSphere", StatName, Now.ToString & " the following stat is empty: " & StatName)
-        End If
+		Else
+			WriteDeviceHistoryEntry("WebSphere", StatName, Now.ToString & " the following stat is empty: " & StatName)
+		End If
 
-    End Sub
+	End Sub
 
 
 #End Region
 
 
-    Public Function ServerStatusCode(ByVal Status As String) As String
+	Public Function ServerStatusCode(ByVal Status As String) As String
 
 		Dim StatusCode As String = "OK"
 		Try
@@ -3346,25 +3408,25 @@ Partial Public Class VitalSignsPlusCore
 	End Function
 
     Private Sub RecordCountAvailability(ByVal DeviceType As String, ByVal DeviceName As String, ByVal UpPercent As Double, ByVal DeviceId As String)
-        'This sub records the overall availability based on up and down counts
-        WriteAuditEntry(Now.ToString & " Writing hourly Count Availability stats for " & DeviceName)
+		'This sub records the overall availability based on up and down counts
+		WriteAuditEntry(Now.ToString & " Writing hourly Count Availability stats for " & DeviceName)
 
-        Dim strSQL As String
-        Dim MyWeekNumber As Integer
-        Dim StatDate As DateTime = Now
+		Dim strSQL As String
+		Dim MyWeekNumber As Integer
+		Dim StatDate As DateTime = Now
 
-        MyWeekNumber = GetWeekNumber(StatDate)
-        Dim objVSAdaptor As New VSAdaptor
-        Try
+		MyWeekNumber = GetWeekNumber(StatDate)
+		Dim objVSAdaptor As New VSAdaptor
+		Try
             'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
             ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyUpPercent', '" & UpPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
-            '  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
-            'If boolUseSQLServer = True Then
-            '    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
-            'Else
-            '    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
-            '    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
-            'End If
+			'  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
+			'If boolUseSQLServer = True Then
+			'    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
+			'Else
+			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
+			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
+			'End If
 
             Dim DailyStats As New DailyStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
@@ -3376,37 +3438,37 @@ Partial Public Class VitalSignsPlusCore
             repo.Insert(DailyStats)
 
             'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " RecordCountAvailability insert failed becase: " & ex.Message)
-            WriteAuditEntry(Now.ToString & " The failed RecordCountAvailability insert comand was " & strSQL)
-        End Try
+		Catch ex As Exception
+			WriteAuditEntry(Now.ToString & " RecordCountAvailability insert failed becase: " & ex.Message)
+			WriteAuditEntry(Now.ToString & " The failed RecordCountAvailability insert comand was " & strSQL)
+		End Try
 
-        strSQL = Nothing
-        MyWeekNumber = Nothing
-        StatDate = Nothing
+		strSQL = Nothing
+		MyWeekNumber = Nothing
+		StatDate = Nothing
 
-    End Sub
+	End Sub
 
     Private Sub RecordOnTargetAvailability(ByVal DeviceType As String, ByVal DeviceName As String, ByVal OnTargetPercent As Double, ByVal DeviceId As String)
-        WriteAuditEntry(Now.ToString & " Writing hourly On-Target Availability stats for " & DeviceName)
-        'This sub records the percentage of times the device responded within its target response time
-        Dim strSQL As String = ""
-        Dim MyWeekNumber As Integer
-        Dim StatDate As DateTime = Now
+		WriteAuditEntry(Now.ToString & " Writing hourly On-Target Availability stats for " & DeviceName)
+		'This sub records the percentage of times the device responded within its target response time
+		Dim strSQL As String = ""
+		Dim MyWeekNumber As Integer
+		Dim StatDate As DateTime = Now
 
-        MyWeekNumber = GetWeekNumber(StatDate)
-        Dim objVSAdaptor As New VSAdaptor
-        Try
+		MyWeekNumber = GetWeekNumber(StatDate)
+		Dim objVSAdaptor As New VSAdaptor
+		Try
             'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
             ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyOnTargetPercent', '" & OnTargetPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
-            '  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
+			'  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
 
-            'If boolUseSQLServer = True Then
-            '    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
-            'Else
-            '    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
-            '    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
-            'End If
+			'If boolUseSQLServer = True Then
+			'    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
+			'Else
+			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
+			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
+			'End If
             objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
             Dim DailyStats As New DailyStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
@@ -3416,36 +3478,36 @@ Partial Public Class VitalSignsPlusCore
             DailyStats.StatName = "HourlyOnTargetPercent"
             DailyStats.StatValue = OnTargetPercent
             repo.Insert(DailyStats)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Record On Target Availability insert failed becase: " & ex.Message)
-            WriteAuditEntry(Now.ToString & " The failed Record On Target Availability insert comand was " & strSQL)
-        End Try
-        strSQL = Nothing
-        MyWeekNumber = Nothing
-        StatDate = Nothing
+		Catch ex As Exception
+			WriteAuditEntry(Now.ToString & " Record On Target Availability insert failed becase: " & ex.Message)
+			WriteAuditEntry(Now.ToString & " The failed Record On Target Availability insert comand was " & strSQL)
+		End Try
+		strSQL = Nothing
+		MyWeekNumber = Nothing
+		StatDate = Nothing
 
-    End Sub
+	End Sub
 
     Private Sub RecordBusinessHoursOnTargetAvailability(ByVal DeviceType As String, ByVal DeviceName As String, ByVal OnTargetPercent As Double, ByVal DeviceId As String)
-        WriteAuditEntry(Now.ToString & " Writing hourly Business Hours On-Target Availability stats for " & DeviceName)
-        'This sub records the percentage of times the device responded within its target response time during business Hours only
-        Dim strSQL As String
-        Dim MyWeekNumber As Integer
-        Dim StatDate As DateTime = Now
+		WriteAuditEntry(Now.ToString & " Writing hourly Business Hours On-Target Availability stats for " & DeviceName)
+		'This sub records the percentage of times the device responded within its target response time during business Hours only
+		Dim strSQL As String
+		Dim MyWeekNumber As Integer
+		Dim StatDate As DateTime = Now
 
-        MyWeekNumber = GetWeekNumber(StatDate)
-        Dim objVSAdaptor As New VSAdaptor
-        Try
+		MyWeekNumber = GetWeekNumber(StatDate)
+		Dim objVSAdaptor As New VSAdaptor
+		Try
             'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
             ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyBusinessHoursOnTargetPercent', '" & OnTargetPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
-            '  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
+			'  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
 
-            'If boolUseSQLServer = True Then
-            '    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
-            'Else
-            '    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
-            '    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
-            'End If
+			'If boolUseSQLServer = True Then
+			'    ExecuteNonQuerySQL_VSS_Statistics(strSQL)
+			'Else
+			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.CommandText = strSQL
+			'    OleDbDataAdapterDeviceDailyStats.InsertCommand.ExecuteNonQuery()
+			'End If
             'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
             'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "statistics", strSQL)
             Dim DailyStats As New DailyStatistics
@@ -3456,28 +3518,28 @@ Partial Public Class VitalSignsPlusCore
             DailyStats.StatName = "HourlyBusinessHoursOnTargetPercent"
             DailyStats.StatValue = OnTargetPercent
             repo.Insert(DailyStats)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Record On Target Availability insert failed becase: " & ex.Message)
-            WriteAuditEntry(Now.ToString & " The failed Record On Target Availability insert comand was " & strSQL)
-        End Try
-        strSQL = Nothing
-        MyWeekNumber = Nothing
-        StatDate = Nothing
+		Catch ex As Exception
+			WriteAuditEntry(Now.ToString & " Record On Target Availability insert failed becase: " & ex.Message)
+			WriteAuditEntry(Now.ToString & " The failed Record On Target Availability insert comand was " & strSQL)
+		End Try
+		strSQL = Nothing
+		MyWeekNumber = Nothing
+		StatDate = Nothing
 
 
-    End Sub
+	End Sub
 
     Private Sub RecordTimeAvailability(ByVal DeviceType As String, ByVal DeviceName As String, ByVal UpPercent As Double, ByVal DeviceId As String)
-        'This sub records the overall availability based on up and down counts
-        WriteAuditEntry(Now.ToString & " Writing hourly Time Availability stats for " & DeviceName)
+		'This sub records the overall availability based on up and down counts
+		WriteAuditEntry(Now.ToString & " Writing hourly Time Availability stats for " & DeviceName)
 
-        Dim strSQL As String
-        Dim MyWeekNumber As Integer
-        Dim StatDate As DateTime = Now
+		Dim strSQL As String
+		Dim MyWeekNumber As Integer
+		Dim StatDate As DateTime = Now
 
-        MyWeekNumber = GetWeekNumber(StatDate)
-        Dim objVSAdaptor As New VSAdaptor
-        Try
+		MyWeekNumber = GetWeekNumber(StatDate)
+		Dim objVSAdaptor As New VSAdaptor
+		Try
             'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
             ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyUpTimePercent', '" & UpPercent & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
             ''  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
@@ -3492,31 +3554,31 @@ Partial Public Class VitalSignsPlusCore
             DailyStats.StatName = "HourlyUpTimePercent"
             DailyStats.StatValue = UpPercent
             repo.Insert(DailyStats)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " RecordTimeAvailability insert failed because: " & ex.Message)
-            WriteAuditEntry(Now.ToString & " The failed RecordTimeAvailability insert command was " & strSQL)
-        End Try
+		Catch ex As Exception
+			WriteAuditEntry(Now.ToString & " RecordTimeAvailability insert failed because: " & ex.Message)
+			WriteAuditEntry(Now.ToString & " The failed RecordTimeAvailability insert command was " & strSQL)
+		End Try
 
-        strSQL = Nothing
-        MyWeekNumber = Nothing
-        StatDate = Nothing
+		strSQL = Nothing
+		MyWeekNumber = Nothing
+		StatDate = Nothing
 
-    End Sub
+	End Sub
 
     Private Sub RecordDownTime(ByVal DeviceType As String, ByVal DeviceName As String, ByVal DownMinutes As Double, ByVal DeviceId As String)
-        'This sub records the overall availability based on up and down counts
-        WriteAuditEntry(Now.ToString & " Writing hourly Downtime  stats for " & DeviceName)
-        If DownMinutes > 60 Then
-            DownMinutes = 60
-        End If
+		'This sub records the overall availability based on up and down counts
+		WriteAuditEntry(Now.ToString & " Writing hourly Downtime  stats for " & DeviceName)
+		If DownMinutes > 60 Then
+			DownMinutes = 60
+		End If
 
-        Dim strSQL As String
-        Dim MyWeekNumber As Integer
-        Dim StatDate As DateTime = Now
+		Dim strSQL As String
+		Dim MyWeekNumber As Integer
+		Dim StatDate As DateTime = Now
 
-        MyWeekNumber = GetWeekNumber(StatDate)
-        Dim objVSAdaptor As New VSAdaptor
-        Try
+		MyWeekNumber = GetWeekNumber(StatDate)
+		Dim objVSAdaptor As New VSAdaptor
+		Try
             'strSQL = "INSERT INTO DeviceUpTimeStats (DeviceType, DeviceName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
             ' " VALUES ('" & DeviceType & "', '" & DeviceName & "', '" & StatDate.ToString & "', 'HourlyDownTimeMinutes', '" & DownMinutes & "', '" & MyWeekNumber & "', '" & StatDate.Month & "', '" & StatDate.Year & "', '" & StatDate.Day & "')"
             ''  WriteAuditEntry(Now.ToString & " Updating hourly stats with : " & strSQL)
@@ -3536,19 +3598,19 @@ Partial Public Class VitalSignsPlusCore
             DailyStats.StatName = "HourlyDownTimeMinutes"
             DailyStats.StatValue = DownMinutes
             repo.Insert(DailyStats)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " RecordTimeAvailability insert failed because: " & ex.Message)
-            WriteAuditEntry(Now.ToString & " The failed RecordTimeAvailability insert command was " & strSQL)
-        End Try
+		Catch ex As Exception
+			WriteAuditEntry(Now.ToString & " RecordTimeAvailability insert failed because: " & ex.Message)
+			WriteAuditEntry(Now.ToString & " The failed RecordTimeAvailability insert command was " & strSQL)
+		End Try
 
-        strSQL = Nothing
-        MyWeekNumber = Nothing
-        StatDate = Nothing
+		strSQL = Nothing
+		MyWeekNumber = Nothing
+		StatDate = Nothing
 
-    End Sub
+	End Sub
 
 
-    Private Function FixDate(ByVal dt As DateTime) As String
+	Private Function FixDate(ByVal dt As DateTime) As String
 		' Return dt.ToUniversalTime.ToString
 		'Mukund 28May14: FixDate called to convert date to current date format of the SQL Server, using strDateFormat
 		Dim strdt As String

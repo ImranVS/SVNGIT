@@ -5,12 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VSFramework;
-using LogUtilities;
 using System.IO;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Threading;
-using static LogUtilities.LogUtils;
 using Ionic.Zip;
 using VSNext.Mongo.Entities;
 using VSNext.Mongo.Repository;
@@ -18,6 +16,7 @@ using System.Collections.Generic;
 using RPRWyatt.VitalSigns.Services;
 using System.Linq.Expressions;
 using MongoDB.Driver;
+using LogUtilities;
 
 
 namespace VitalSignsDailyStats
@@ -652,7 +651,7 @@ namespace VitalSignsDailyStats
 
         public void ProcessSpecificDate(System.DateTime SearchDate, string SearchDateSQL = "")
         {
-            WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks service is consolidating statistics for " + SearchDate, LogLevel.Normal);
+            WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks service is consolidating statistics for " + SearchDate, LogUtilities.LogUtils.LogLevel.Normal);
 
             VSAdaptor objVSAdaptor = new VSAdaptor();
            
@@ -681,12 +680,12 @@ namespace VitalSignsDailyStats
             {
                 if (AlreadyProcessed == "Success")
                 {
-                    WriteAuditEntry(DateTime.Now.ToString() + " " + FixDate(SearchDate) + " has already been processed", LogLevel.Normal);
+                    WriteAuditEntry(DateTime.Now.ToString() + " " + FixDate(SearchDate) + " has already been processed", LogUtilities.LogUtils.LogLevel.Normal);
                     //return;
                 }
                 else
                 {
-                    WriteAuditEntry(DateTime.Now.ToString() + " " + FixDate(SearchDate) + " has NOT already been processed", LogLevel.Normal);
+                    WriteAuditEntry(DateTime.Now.ToString() + " " + FixDate(SearchDate) + " has NOT already been processed", LogUtilities.LogUtils.LogLevel.Normal);
                     objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "Stats", "Insert INTO ConsolidationResults (ScanDate, Result) VALUES ('" + FixDate(SearchDate) + "', 'Success')");
                 }
 

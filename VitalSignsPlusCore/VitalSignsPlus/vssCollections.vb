@@ -1074,7 +1074,6 @@ Partial Public Class VitalSignsPlusCore
                     End Try
 
                     'BEGIN Running Processes to monitor *****************
-#Region "NotUsed"
                     'Dim myMonitoredServices As New MonitoredItems.SametimeMonitoredProcessCollection
 
                     'Try
@@ -1342,7 +1341,6 @@ Partial Public Class VitalSignsPlusCore
                     'End Try
 
                     'END Running Processes to monitor *****************
-
                     Try
                         WriteAuditEntry(Now.ToString & " The following processes will be monitored for this Sametime server: ")
                         For Each Process As MonitoredItems.SametimeMonitoredProcess In MySametimeServer.MonitoredProcesses
@@ -1351,7 +1349,7 @@ Partial Public Class VitalSignsPlusCore
                     Catch ex As Exception
 
                     End Try
-#End Region
+
 
                     'Standard attributes
 
