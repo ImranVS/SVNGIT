@@ -44,12 +44,17 @@ namespace VitalSignsLicensing
                     isHAMode = getLicenseType(licenseList);
 
                 revokeNodeFromAllServers();
+                string msg = "Insufficient Licenses";
+                AlertLibrary.Alertdll myAlert = new AlertLibrary.Alertdll();
 
                 if (validUnits == 0)
                 {
                     //raise system message about insufficient license
+                    myAlert.QueueSysMessage(msg);
                     return;
                 }
+                else
+                    myAlert.ResetSysMessage(msg);
                     
                 VSNext.Mongo.Repository.Repository<Server> repo = new VSNext.Mongo.Repository.Repository<Server>(cs);
                 FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repo.Filter.Where(i => i.IsEnabled == true);
@@ -72,7 +77,11 @@ namespace VitalSignsLicensing
                         double licenseCost = 0;
                         if (isFreeLicenseAvailable(s.DeviceType, validUnits, serverList, deviceTypeList))
                         {
-                            n = getFreeNode(s, nodesListAlive, serverList);
+                            FilterDefinition<VSNext.Mongo.Entities.Server> filterdefType = repo.Filter.Where(i => i.IsEnabled == true && i.DeviceType==s.DeviceType);
+                            ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDefType = repo.Project.Include(i => i.CurrentNode).Include(i => i.DeviceType).Include(i => i.LicenseCost).Include(i => i.DeviceName);
+                            List<Server> serverListType = repo.Find(filterdefType, projectDefType).ToList();
+
+                            n = getFreeNode(s, nodesListAlive, serverList, serverListType);
                             licenseCost = getLicenseCost(s.DeviceType, deviceTypeList);
                             if (n == "")
                             {
@@ -145,7 +154,7 @@ namespace VitalSignsLicensing
             checkNodeHealth();
             assignNodesToServers();
         }
-        private string getFreeNode(Server s1, List<Nodes> nodesListAlive, List<Server> serverListAll)
+        private string getFreeNode(Server s1, List<Nodes> nodesListAlive, List<Server> serverListAll, List<Server> serverTypeListAll)
         {
             string returnNode = "";
             try
@@ -198,7 +207,7 @@ namespace VitalSignsLicensing
                 foreach (Nodes s in nodesListAlive)
                 {
                     //List<Server> serverListNode = repoServers.Find(i => i.IsEnabled == true && i.CurrentNode == s.Name).ToList();
-                    FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repoServers.Filter.Where(i => i.IsEnabled == true && i.CurrentNode == s.Name);
+                    FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repoServers.Filter.Where(i => i.IsEnabled == true && i.CurrentNode == s.Name && i.DeviceType ==s1.DeviceType );
                     ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDef = repoServers.Project.Include(i => i.CurrentNode);
                     List<Server> serverListNode = repoServers.Find(filterdef, projectDef).ToList();
 
@@ -214,7 +223,7 @@ namespace VitalSignsLicensing
                     else
                         useLoadFactor = loadFactor;
 
-                    double nodeLoad = Convert.ToDouble(serverListNode.Count) / Convert.ToDouble(serverListAll.Count);
+                    double nodeLoad = Convert.ToDouble(serverListNode.Count) / Convert.ToDouble(serverTypeListAll.Count);
                     nodeLoad = nodeLoad * 100;
 
                     if ((nodeLoad < useLoadFactor) || (s1.AssignedNode != "" && isPreferredNodeAlive))
@@ -407,10 +416,77 @@ namespace VitalSignsLicensing
 
                     }
                 }
+                //appropriately set the primary node. If the configured primary goes down, set the other active node as primary
+                //if the node is configured to be primary and it's down, we need to set another node as primary
+                List<Nodes> nodesListPrimary = repoNodes.Find(i => i.IsAlive == false && i.IsConfiguredPrimary ==true && i.IsPrimary==true ).ToList();
+                if (nodesListPrimary.Count > 0)
+                {
+                    List<Nodes> nodesListAlive2 = repoNodes.Find(i => i.IsAlive == true && i.IsPrimary == false ).ToList();
+                    foreach (Nodes s in nodesListAlive2)
+                    {
+                            FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
+                            UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
+                            updatedef = repoNodes.Updater
+                                .Set(i => i.IsPrimary, true );
+                            repoNodes.Update(filterdef, updatedef);
+                            break;
+                    }
+                }
+
+                //set the configured primary node as primary if it was not
+                List<Nodes> nodesListPrimary2 = repoNodes.Find(i => i.IsAlive == true  && i.IsConfiguredPrimary == true && i.IsPrimary == false).ToList();
+                foreach (Nodes s in nodesListPrimary2)
+                {
+                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
+                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
+                    updatedef = repoNodes.Updater
+                        .Set(i => i.IsPrimary, true);
+                    repoNodes.Update(filterdef, updatedef);
+                    break;
+                }
+                //set rest other not primary
+                List<Nodes> nodesListPrimary3 = repoNodes.Find(i => i.IsAlive == true && i.IsConfiguredPrimary == false  && i.IsPrimary == true ).ToList();
+                foreach (Nodes s in nodesListPrimary3)
+                {
+                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
+                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
+                    updatedef = repoNodes.Updater
+                        .Set(i => i.IsPrimary, false );
+                    repoNodes.Update(filterdef, updatedef);
+                    break;
+                }
+                List<Nodes> nodesListPrimary4 = repoNodes.Find(i => i.IsAlive == false  && i.IsPrimary == true).ToList();
+                foreach (Nodes s in nodesListPrimary4)
+                {
+                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
+                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
+                    updatedef = repoNodes.Updater
+                        .Set(i => i.IsPrimary, false);
+                    repoNodes.Update(filterdef, updatedef);
+                    break;
+                }
+
                 //code to trigger system message that master is not running
-                //List<Nodes> nodesListAlive = repoNodes.Find(i => i.IsAlive == true).ToList();
-                //if (nodesListAlive.Count ==0)
-                //trigger system message
+                List<Nodes> nodesListAlive = repoNodes.Find(i => i.IsAlive == true).ToList();
+                 string msg = "Master Service is not running";
+                AlertLibrary.Alertdll myAlert = new AlertLibrary.Alertdll();
+                if (nodesListAlive.Count == 0)
+                    myAlert.QueueSysMessage(msg);
+                else
+                {
+                    if (nodesListAlive.Count == 1)
+                    {
+                        foreach (Nodes s in nodesListAlive)
+                        {
+                            FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
+                            UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
+                            updatedef = repoNodes.Updater
+                                .Set(i => i.IsPrimary, true);
+                            repoNodes.Update(filterdef, updatedef);
+                        }
+                    }
+                }
+                    myAlert.ResetSysMessage(msg);
             }
             catch
             {
