@@ -72,10 +72,10 @@ namespace VitalSignsDailyStats
             base.OnStop();
         }
 
-        //public void ServiceStart()
-        //{
-        //    ServiceOnStart();
-        //}
+        public void ServiceStart()
+        {
+            ServiceOnStart();
+        }
         protected override void ServiceOnStart(string[] args=null)
         {
             try
@@ -87,13 +87,20 @@ namespace VitalSignsDailyStats
                     culture = ConfigurationManager.AppSettings[cultureName];
 
                 RegistryHandler myRegistry = new RegistryHandler();
-                ConsolidateStatistics();
+             
                // logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
                 logLevel = LogUtils.LogLevel.Verbose;
 
                 appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                 appPath = string.IsNullOrEmpty(appPath) ? @"c:\" : appPath;
-                dateFormat = objDateUtils.GetDateFormat();
+                try
+                {
+                    dateFormat = objDateUtils.GetDateFormat();
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("Exception while handling DateFormate.  Error: " + ex.Message);
+                }
                 logDest = appPath + @"\Log_Files\Daily_Tasks_Log.txt";
                 if (File.Exists(logDest))
                 {
@@ -162,7 +169,16 @@ namespace VitalSignsDailyStats
                 {
                     WriteAuditEntry("Exception building Microsoft server disk drives list ...." + ex.ToString());
                 }
-                ConsolidateStatistics();
+                try
+                {
+                    ConsolidateStatistics();
+                }
+
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("Exception building Microsoft server disk drives list ...." + ex.ToString());
+                }
+               
                try
                 {
                  //  CleanUpObsoleteData();
@@ -714,7 +730,7 @@ namespace VitalSignsDailyStats
                               // StatName = dailyTask.StatName,
                                StatValue=x.value
                            }).ToList();
-                       // summaryStatasticsRepository.Insert(avgResult);
+                        summaryStatasticsRepository.Insert(avgResult);
 
                         break;
                     case "SUM":
@@ -727,7 +743,7 @@ namespace VitalSignsDailyStats
                                StatName = dailyTask.StatName,
                                StatValue = x.value
                            }).ToList();
-                       // summaryStatasticsRepository.Insert(sumResult);
+                       summaryStatasticsRepository.Insert(sumResult);
 
                         break;
                     case "MAX":
@@ -740,7 +756,7 @@ namespace VitalSignsDailyStats
                                StatName = dailyTask.StatName,
                                StatValue = x.value
                            }).ToList();
-                       // summaryStatasticsRepository.Insert(maxResult);
+                        summaryStatasticsRepository.Insert(maxResult);
 
                         break;
                 }
@@ -1684,7 +1700,7 @@ namespace VitalSignsDailyStats
                 try
                 {
                     SummaryStatistics summaryStats = new SummaryStatistics();
-                    summaryStats.StatName = drv["StatName"].ToString();
+                    summaryStats.StatName = drv["DiskName"].ToString();
                     summaryStats.StatValue =Convert.ToDouble(myNumberString);
                     //summaryStats.DeviceId=
 
