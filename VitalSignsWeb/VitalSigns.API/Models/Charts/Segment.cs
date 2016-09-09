@@ -28,6 +28,14 @@ namespace VitalSigns.API.Models.Charts
         [BsonElement("statname")]
         public string StatName { get; set; }
 
+        [JsonProperty("time")]
+        [BsonElement("time")]
+        public List<string> Time { get; set; }
+
+        [JsonProperty("statvalues")]
+        [BsonElement("statvalues")]
+        public List<double> Statvalues { get; set; }
+
 
     }
 }

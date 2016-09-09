@@ -227,64 +227,91 @@ namespace VitalSigns.API.Controllers
                                 break;
                             case "HOURLY":
                                 var statsHourly = dailyRepository.Find(expression);
-                               
-                               
-                                var result = statsHourly
-                                            .GroupBy( row=> new
-                                            {
-                                                row.CreatedOn.Hour,
-                                                row.StatName
-                                               
-                                            })
-                                            .Select(row => new
-                                            {
-                                                Hour = row.Key.Hour,
-                                                Value = row.Average(x => x.StatValue),
-                                                StatName=row.Key.StatName
-                                                
-                                            }).ToList();
-
                                 List<Segment> segments = new List<Segment>();
+                               
+                                    var result = statsHourly
+                                           .GroupBy(row => new
+                                           {
+                                               row.CreatedOn.Hour,
+                                               row.StatName
+
+                                           })
+                                           .Select(row => new
+                                           {
+                                               Hour = row.Key.Hour,
+                                               Value = row.Average(x => x.StatValue),
+                                               StatName = row.Key.StatName
+
+                                           }).ToList();
+
+                                DateTime time = new DateTime();
+                                string displayTime = "";
+                               // List<string> lstinternalcounter = result.Select(c => c.()).ToList();
+                                List<double> values = new List<double>();
+                                // int onhour = moment.Hour;
                                 foreach (string name in statNames)
                                 {
                                     for (int hour = 1; hour <= 24; hour++)
                                     {
-                                        // To do
-                                        // string hourString =hour<12?hour.ToString()+ " A.M " 
-                                        var item = result.Where(x => x.Hour == hour && x.StatName==name).FirstOrDefault();
-                                        if (item != null)
-                                        {
-                                            DateTime time = DateTime.Today.AddDays(-1).AddHours(hour);
-                                            string displayTime = time.ToString("hh:mm tt");
-                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = item.Value, StatName = item.StatName });
-                                        }
+                                        var item = result.Where(x => x.Hour == hour && x.StatName==name).ToList();
+                                        var statdata = result.Where(x => x.Hour == hour).FirstOrDefault();
+                                        var output = result.Where(x=>x.StatName==name).Select(x => x.Value).ToList();
+
+                                       
+                                            if (statdata != null && statNames.Length==1)
+                                            {
+
+                                                time = DateTime.Today.AddDays(-1).AddHours(hour);
+                                                displayTime = time.ToString("hh:mm tt");
+                                                segments.Add(new Segment { Label = displayTime.ToString(), Value = statdata.Value, StatName = statdata.StatName });
+
+
+                                            }
+                                        
+                                        
+                                        else if (item != null && statNames.Length>1)
+                                            {
+                                                time = DateTime.Today.AddDays(-1).AddHours(hour);
+                                                displayTime += time.ToString("hh:mm tt");
+                                                values = output.ToList();
+                                            }
+                                        
+
                                         else
                                         {
-
-                                            // TimeSpan timespan = new TimeSpan(hour);
-                                            DateTime time = DateTime.Today.AddHours(hour);
-                                            string displayTime = time.ToString("hh:mm tt");
-                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = 0, StatName = name });
+                                            time = DateTime.Today.AddHours(hour);
+                                            displayTime = time.ToString("hh:mm tt");
+                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
 
                                         }
+
+
                                     }
+                                    // displayTime = displayTime.ToList<string>();
+                                    List<string> timevalue = new List<string>();
+                                    timevalue.Add(displayTime);
+                                    if (statNames.Length > 1)
+                                    {
+                                        segments.Add(new Segment { Time = timevalue.ToList(), StatName = name, Statvalues = values.ToList() });
+                                    }
+                                  
                                 }
-                                Serie serie = new Serie();
-                                serie.Title = statName;
-                                serie.Segments = segments;
+                                    Serie serie = new Serie();
+                                    serie.Title = statName;
+                                    serie.Segments = segments;
 
-                                List<Serie> series = new List<Serie>();
-                                series.Add(serie);
+                                    List<Serie> series = new List<Serie>();
+                                    series.Add(serie);
 
-                                Chart chart = new Chart();
-                                chart.Title = statName;
-                                chart.Series = series;
+                                    Chart chart = new Chart();
+                                    chart.Title = statName;
+                                    chart.Series = series;
 
 
 
-                                Response = Common.CreateResponse(chart);
-
-                                break;
+                                    Response = Common.CreateResponse(chart);
+                                    break;
+                                
                         }
                                 
                         
