@@ -35,8 +35,8 @@
             "tab_id": 5,
             "title": "Tasks",
             "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServerTasks",
+            "path": "/app/services/components/service-servertasks-tab.component"
           },
           {
             "tab_id": 6,
