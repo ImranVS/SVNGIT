@@ -1842,36 +1842,36 @@ Public Class VSMaster
 
             End If
             ' do system messages thread
-            doDBSystemMessages()
+            'doDBSystemMessages()
             Thread.Sleep(1000 * 60)
         Loop
 
     End Sub
-    Private Sub doDBSystemMessages()
-        Try
-            Dim strSQL As String = "select ID,Details,MessageType from SystemMessagesTemp "
-            Dim ds As New DataSet()
-            ds.Tables.Add("SystemMessagesTemp")
-            Dim id As String = ""
-            vsobj.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "SystemMessagesTemp")
-            For Each dr As DataRow In ds.Tables(0).Rows
-                If dr(2).ToString() = "1" Or dr(2).ToString().ToLower() = "true" Then
-                    myAlert.QueueSysMessage(dr(1).ToString())
-                    id = dr(0).ToString()
-                Else
-                    myAlert.ResetSysMessage(dr(1).ToString())
-                    id = dr(0).ToString()
-                End If
-                'delete the message
-                If id <> "" Then
-                    vsobj.ExecuteScalarAny("VitalSigns", "", "DELETE FROM SystemMessagesTemp WHERE ID=" + id)
-                End If
-            Next
-            ds.Dispose()
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Error in Generating System Messages.  Error: " & ex.Message.ToString())
-        End Try
-    End Sub
+    'Private Sub doDBSystemMessages()
+    '    Try
+    '        Dim strSQL As String = "select ID,Details,MessageType from SystemMessagesTemp "
+    '        Dim ds As New DataSet()
+    '        ds.Tables.Add("SystemMessagesTemp")
+    '        Dim id As String = ""
+    '        vsobj.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "SystemMessagesTemp")
+    '        For Each dr As DataRow In ds.Tables(0).Rows
+    '            If dr(2).ToString() = "1" Or dr(2).ToString().ToLower() = "true" Then
+    '                myAlert.QueueSysMessage(dr(1).ToString())
+    '                id = dr(0).ToString()
+    '            Else
+    '                myAlert.ResetSysMessage(dr(1).ToString())
+    '                id = dr(0).ToString()
+    '            End If
+    '            'delete the message
+    '            If id <> "" Then
+    '                vsobj.ExecuteScalarAny("VitalSigns", "", "DELETE FROM SystemMessagesTemp WHERE ID=" + id)
+    '            End If
+    '        Next
+    '        ds.Dispose()
+    '    Catch ex As Exception
+    '        WriteAuditEntry(Now.ToString & " Error in Generating System Messages.  Error: " & ex.Message.ToString())
+    '    End Try
+    'End Sub
 
     Protected Sub MonitorNotResponding()
         Dim lastID As Integer = -2  'setting to -2 so if there are no entries, the maxID will be -1 and then it will end the loop and pick up entry 0
@@ -2004,16 +2004,22 @@ Public Class VSMaster
 
                 If Not (System.Configuration.ConfigurationManager.AppSettings("VSNodeName") Is Nothing) Then
 
-                    Dim myConnectionString As New VSFramework.XMLOperation
+                    'Dim myConnectionString As New VSFramework.XMLOperation
 
                     Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-                    sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" & NodeName & "'"
+                    'sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" & NodeName & "'"
 
-                    Dim dt As DataTable = vsobj.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sql)
-                    If (dt.Rows.Count > 0) Then
-                        isPriamry = Convert.ToBoolean(dt.Rows(0)(0).ToString())
-                    End If
-
+                    'Dim dt As DataTable = vsobj.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sql)
+                    'If (dt.Rows.Count > 0) Then
+                    '    isPriamry = Convert.ToBoolean(dt.Rows(0)(0).ToString())
+                    'End If
+                    Dim repoLiveNodes As New VSNext.Mongo.Repository.Repository(Of Nodes)(connectionString)
+                    Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(Function(i) i.Name = NodeName).ToList()
+                    For Each n As Nodes In nodesListAlive
+                        If n.IsPrimary Then
+                            isPriamry = True
+                        End If
+                    Next
                 End If
 
             Catch ex As Exception
@@ -2451,16 +2457,22 @@ Public Class VSMaster
 
                 If Not (System.Configuration.ConfigurationManager.AppSettings("VSNodeName") Is Nothing) Then
 
-                    Dim myConnectionString As New VSFramework.XMLOperation
+                    'Dim myConnectionString As New VSFramework.XMLOperation
 
                     Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-                    strSQL = "SELECT IsPrimaryNode From Nodes WHERE Name='" & NodeName & "'"
+                    'strSQL = "SELECT IsPrimaryNode From Nodes WHERE Name='" & NodeName & "'"
 
-                    dt = vsobj.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), strSQL)
-                    If (dt.Rows.Count > 0) Then
-                        boolIsPrimary = Convert.ToBoolean(dt.Rows(0)(0).ToString())
-                    End If
-
+                    'dt = vsobj.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), strSQL)
+                    'If (dt.Rows.Count > 0) Then
+                    '    boolIsPrimary = Convert.ToBoolean(dt.Rows(0)(0).ToString())
+                    'End If
+                    Dim repoLiveNodes As New VSNext.Mongo.Repository.Repository(Of Nodes)(connectionString)
+                    Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(Function(i) i.Name = NodeName).ToList()
+                    For Each n As Nodes In nodesListAlive
+                        If n.IsPrimary Then
+                            boolIsPrimary = True
+                        End If
+                    Next
                 End If
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Error in SetBooleansOfServices checking if Priamry Node.  Error: " & ex.Message)
@@ -2515,19 +2527,51 @@ Public Class VSMaster
         Try
             If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") Then
                 Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-                sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" & NodeName & "'"
-                isPriamry = Convert.ToBoolean(vsobj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql).ToString())
+                'sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" & NodeName & "'"
+                'isPriamry = Convert.ToBoolean(vsobj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql).ToString())
+
+                Dim repoLiveNodes As New VSNext.Mongo.Repository.Repository(Of Nodes)(connectionString)
+                Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(Function(i) i.Name = NodeName).ToList()
+                For Each n As Nodes In nodesListAlive
+                    If n.IsPrimary Then
+                        isPriamry = True
+                    End If
+                Next
+
             End If
 
             If isPriamry Then
-                sql = "DELETE FROM Status"
-                vsobj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql).ToString()
+                'sql = "DELETE FROM Status"
+                'vsobj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql).ToString()
+                Dim DailyStats As New VSNext.Mongo.Entities.Status
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim statusList As List(Of Status) = repo.All()
+                For Each s As Status In statusList
+                    Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.Name.Equals(s.Name))
+                    repo.Delete(filterdef)
+                Next
+                
+                Dim NotesMailProbeHistory As New VSNext.Mongo.Entities.NotesMailProbeHistory
+                Dim repo1 As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NotesMailProbeHistory)(connectionString)
+                Dim NotesMailProbeHistoryList As List(Of NotesMailProbeHistory) = repo1.All()
+                For Each s As NotesMailProbeHistory In NotesMailProbeHistoryList
+                    Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.NotesMailProbeHistory) = repo1.Filter.Where(Function(i) i.DeviceName.Equals(s.DeviceName))
+                    repo1.Delete(filterdef)
+                Next
 
-                sql = "DELETE FROM NotesMailProbeHistory"
-                vsobj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql).ToString()
+                'sql = "DELETE FROM NotesMailProbeHistory"
+                'vsobj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql).ToString()
 
-                sql = "DELETE FROM Traveler_Status"
-                vsobj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql).ToString()
+                Dim TravelerStats As New VSNext.Mongo.Entities.TravelerStats
+                Dim repo2 As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.TravelerStats)(connectionString)
+                Dim TravelerStatsList As List(Of TravelerStats) = repo2.All()
+                For Each s As TravelerStats In TravelerStatsList
+                    Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.TravelerStats) = repo2.Filter.Where(Function(i) i.TravelerServerName.Equals(s.TravelerServerName))
+                    repo2.Delete(filterdef)
+                Next
+
+                'sql = "DELETE FROM Traveler_Status"
+                'vsobj.ExecuteNonQueryAny("VitalSigns", "VitalSigns", sql).ToString()
             End If
 
         Catch ex As Exception
