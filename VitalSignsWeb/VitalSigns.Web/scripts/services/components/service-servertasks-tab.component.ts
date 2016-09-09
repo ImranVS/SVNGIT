@@ -14,7 +14,7 @@ declare var bootstrapNavigator: any;
     templateUrl: '/app/services/components/service-servertasks-tab.component.html',
     directives: [WidgetContainer, AppNavigator]
 })
-export class ServiceDatabaseTab extends WidgetController implements OnInit {
+export class ServiceTasksTab extends WidgetController implements OnInit {
     deviceId: any;
     widgets: WidgetContract[]; 
 
@@ -30,13 +30,13 @@ export class ServiceDatabaseTab extends WidgetController implements OnInit {
         this.widgets = [
             {
                 id: 'dynamicGrid',
-                title: 'All Databases',
+                title: 'Monitered Tasks',
                 path: '/app/widgets/grid/components/dynamic-grid.component',
                 name: 'DynamicGrid',
                 css: 'col-xs-12',
                 settings: {
-                    url: '/DashBoard/' + this.deviceId +'/database',
-                    //url: '/DashBoard/57af28415c6c6c02d4fce747/database',
+                    //url: '/DashBoard/' + this.deviceId +'/monitored_tasks',
+                    url: '/DashBoard/57af28415c6c6c02d4fce747/monitored_tasks',
                     columns: [
                         { header: "TaskName", binding: "task_name", name: "task_name", width: "*" },
                         { header: "PrimaryStatus", binding: "primary_status", name: "primary_status", width: "*" },
@@ -77,3 +77,6 @@ export class ServiceDatabaseTab extends WidgetController implements OnInit {
     }
 
 }
+
+
+
