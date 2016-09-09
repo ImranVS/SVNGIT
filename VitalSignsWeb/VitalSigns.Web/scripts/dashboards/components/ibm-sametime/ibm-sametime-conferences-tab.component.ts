@@ -21,7 +21,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
     }
     
     ngOnInit() {
-    
+        this.serviceId = '57ace45abf46711cd4681e4c';
         this.widgets = [
             {
                 id: 'oneOnOneCalls',
@@ -30,7 +30,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/one_on_one_calls',
+                    url: '/services/statistics?statName=Totalcountofall1x1calls&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'oneOnOneCalls',
@@ -42,7 +42,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },
@@ -66,7 +66,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/multi_user_calls',
+                    url: '/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'multiUserCalls',
@@ -78,7 +78,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },
@@ -102,7 +102,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/all_calls',
+                    url: '/services/statistics?statName=Totalcountofallcalls&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'allCalls',
@@ -114,7 +114,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },
@@ -150,7 +150,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },
@@ -186,7 +186,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },
@@ -222,7 +222,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },

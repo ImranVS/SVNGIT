@@ -51,13 +51,13 @@ export class IBMSametimeDetails implements OnInit {
     }
     
     ngOnInit() {
-    
+
         this.route.params.subscribe(params => {
 
             this.serviceId = '1';
 
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/sametime/${this.serviceId}`)
+            this.dataProvider.get(`http://private-ad10c-ibm.apiary-mock.com/services/sametime/1`)
                 .subscribe(
                 data => {
                     this.service = data;

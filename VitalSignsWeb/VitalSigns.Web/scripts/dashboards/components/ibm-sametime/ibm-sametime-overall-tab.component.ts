@@ -21,7 +21,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
     }
     
     ngOnInit() {
-    
+        this.serviceId = '57ace45abf46711cd4681e4c';
         this.widgets = [
             {
                 id: 'responseTimes',
@@ -30,7 +30,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/response_times',
+                    url: '/services/statistics?statName=ResponseTime&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'responseTimes',
@@ -42,7 +42,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },
@@ -66,7 +66,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/daily_user_logins',
+                    url: '/services/statistics?statName=Users&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'dailyUserLogins',
@@ -78,7 +78,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },

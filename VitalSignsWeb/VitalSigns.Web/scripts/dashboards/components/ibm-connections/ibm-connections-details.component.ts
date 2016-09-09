@@ -57,7 +57,7 @@ export class IBMConnectionsDetails implements OnInit {
             this.serviceId = '2';
 
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/connections/${this.serviceId}`)
+            this.dataProvider.get(`http://private-ad10c-ibm.apiary-mock.com/services/connections/${this.serviceId}`)
                 .subscribe(
                 data => {
                     this.service = data;

@@ -11,17 +11,17 @@ declare var bootstrapNavigator: any;
 
 @Component({
     selector: 'traveler-dashboard',
-    templateUrl: '/app/dashboards/components/ibm-traveler-dashboard.component.html',
+    templateUrl: '/app/dashboards/components/ibm-traveler/ibm-traveler-dashboard.component.html',
     directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator]
 })
 export class IBMTravelerDashboard extends WidgetController implements OnInit {
 
     widgets: WidgetContract[] = [
         {
-            id: 'mobileUsersTable',
+            id: 'mobileUsersGrid',
             title: 'Mobile users',
-            path: '/app/widgets/mobile-users/components/mobile-users-list.component',
-            name: 'MobileUsers',
+            path: '/app/dashboards/components/ibm-traveler/ibm-traveler-grid.component',
+            name: 'MobileUsersGrid',
             css: 'col-xs-12 col-sm-12 col-md-12 col-lg-8',
             settings: {}
         },

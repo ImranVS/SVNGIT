@@ -17,10 +17,10 @@ declare var bootstrapNavigator: any;
 export class IBMDominoDashboard extends WidgetController implements OnInit {
     widgets: WidgetContract[] = [
         {
-            id: 'dominoInfo',
+            id: 'dominoGrid',
             title: 'Domino Info',
-            path: '/app/widgets/main-dashboard/components/domino-server-list.component',
-            name: 'DominoServersInfo',
+            path: '/app/dashboards/components/ibm-domino/ibm-domino-grid.component',
+            name: 'IBMDominoGrid',
             css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
             settings: {
                 

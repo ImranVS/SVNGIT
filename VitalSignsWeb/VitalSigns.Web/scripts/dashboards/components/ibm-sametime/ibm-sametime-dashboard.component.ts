@@ -16,20 +16,19 @@ export class IBMSametimeDashboard extends WidgetController implements OnInit {
 
     widgets: WidgetContract[] = [
         {
-            id: 'sampleGrid',
+            id: 'sametimeGrid',
             title: 'Sametime Info',
-            path: '/app/widgets/grid/components/sample-grid.component',
-            name: 'SampleGrid',
+            path: '/app/dashboards/components/ibm-sametime/ibm-sametime-grid.component',
+            name: 'IBMSametimeGrid',
             css: 'col-xs-12',
             settings: {}
         },
         {
             id: 'sametimeDetails',
-            title: '',
+            title: null,
             path: '/app/dashboards/components/ibm-sametime/ibm-sametime-details.component',
             name: 'IBMSametimeDetails',
-            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
-
+            css: 'col-xs-12',
             settings: {}
         }
     ]

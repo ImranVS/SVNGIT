@@ -16,8 +16,16 @@ export class IBMConnectionsDashboard extends WidgetController implements OnInit 
 
     widgets: WidgetContract[] = [
         {
-            id: 'connectionsDetails',
+            id: 'connectionsGrid',
             title: 'Connections Info',
+            path: '/app/dashboards/components/ibm-connections/ibm-connections-grid.component',
+            name: 'IBMConnectionsGrid',
+            css: 'col-xs-12',
+            settings: {}
+        },
+        {
+            id: 'connectionsDetails',
+            title: null,
             path: '/app/dashboards/components/ibm-connections/ibm-connections-details.component',
             name: 'IBMConnectionsDetails',
             css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
