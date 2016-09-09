@@ -272,7 +272,7 @@ namespace VitalSigns.API.Controllers
                                         else if (item != null && statNames.Length>1)
                                             {
                                                 time = DateTime.Today.AddDays(-1).AddHours(hour);
-                                                displayTime += time.ToString("hh:mm tt");
+                                                displayTime += time.ToString("hh:mm tt")+",";
                                                 values = output.ToList();
                                             }
                                         
