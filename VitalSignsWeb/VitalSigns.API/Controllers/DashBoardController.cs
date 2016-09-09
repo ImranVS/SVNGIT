@@ -479,5 +479,35 @@ namespace VitalSigns.API.Controllers
             });
             return result.ToList();
         }
+
+        //[HttpGet("{id}/monitoredtasks")]
+
+        //public APIResponse GetMonitoredTasks(string deviceid)
+        //{
+        //    try
+        //    {
+        //        statusRepository = new Repository<Status>(ConnectionString);
+
+        //        Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
+        //        var result = statusRepository.Find(expression).Select(x => new MonitoredTasks
+        //        {
+        //            // ID = x.ID,
+        //            //TaskName = x.TaskName,
+        //            //Monitored = x.Monitored,
+        //            //PrimaryStatus = x.PrimaryStatus,
+        //            //SecondaryStatus = x.SecondaryStatus,
+                  
+        //        });
+        //        Response = Common.CreateResponse(result);
+        //        return Response;
+        //    }
+
+        //    catch (Exception exception)
+        //    {
+        //        Response = Common.CreateResponse(null, "Error", exception.Message);
+
+        //        return Response;
+        //    }
+        //}
     }
 }
