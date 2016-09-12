@@ -1333,7 +1333,8 @@ NextServer:
 
 
                 Try
-                    If InStr(db.FileName.ToUpper, "MAIL") Then
+                    '7/28/2016 NS modified for VSPLUS-3141
+                    If InStr(db.FilePath.ToUpper, "MAIL") Then
                         .IsMailFile = True
                         If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " This database is being marked as a mail database because the file name is " & db.FileName)
                     End If
@@ -1341,6 +1342,25 @@ NextServer:
 
                 End Try
 
+                '7/28/2016 NS added for VSPLUS-3141
+                Try
+                    If InStr(.DesignTemplateName.ToUpper, "MBE open NTF 8.5 VC") > 0 And Trim(.DesignTemplateName) <> "" Then
+                        .IsMailFile = True
+                        If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " This database is being marked as a mail database because the template name is " & db.DesignTemplateName)
+                    End If
+                Catch ex As Exception
+                    '   If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString &" This database is being marked as a mail database because the template name is " & db.DesignTemplateName)
+                End Try
+
+                '7/28/2016 NS added for VSPLUS-3141
+                Try
+                    If InStr(.DesignTemplateName.ToUpper, "OpenNTFDWA7a") > 0 And Trim(.DesignTemplateName) <> "" Then
+                        .IsMailFile = True
+                        If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString & " This database is being marked as a mail database because the template name is " & db.DesignTemplateName)
+                    End If
+                Catch ex As Exception
+                    '   If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Database_Health", ServerName & "_" & ThreadName, Now.ToString &" This database is being marked as a mail database because the template name is " & db.DesignTemplateName)
+                End Try
 
                 Try
                     If InStr(.DesignTemplateName.ToUpper, "MAIL") > 0 And Trim(.DesignTemplateName) <> "" Then
