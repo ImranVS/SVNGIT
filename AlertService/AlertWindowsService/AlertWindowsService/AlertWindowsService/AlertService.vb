@@ -893,6 +893,7 @@ Public Class VitalSignsAlertService
                     dontNeedToSend = False
                     resend = False
                     Try
+                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get records from AlertSentDetails", LogLevel.Verbose)
                         Dim dtmail As DataTable = New DataTable
                         dtmail.Columns.Add("SentTo")
                         dtmail.Columns.Add("AlertClearedDateTime")
@@ -918,6 +919,7 @@ Public Class VitalSignsAlertService
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found records in events_detected", LogLevel.Verbose)
                             '8.1. Found rows for alerts sent for the current AlertKey, now need to check if the current recipient is
                             'the same one as the record in the AlertSentDetails table
+                            '8/9/2016 NS modified for VSPLUS-3166
                             Dim foundRowsMail() As DataRow
                             If ADef.SendTo <> "" Then
                                 foundRowsMail = dtmail.Select("SentTo like '%" & ADef.SendTo & "%'")
@@ -1025,7 +1027,7 @@ Public Class VitalSignsAlertService
                                 If SendTo <> "" Then
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send new alert via email", LogLevel.Verbose)
                                     WriteServiceHistoryEntry(Now.ToString & " Attempting to send a new alert via e-mail:", LogLevel.Normal)
-                                    WriteServiceHistoryEntry(Now.ToString & "   SendTo = " & SendTo & ",   ServerName = " & ADef.ServerName & ",    AlertKey = " & ADef.AlertKey, LogLevel.Normal)
+                                    WriteServiceHistoryEntry(Now.ToString & "   SendTo = " & SendTo & IIf(CC = "", "", ",    CopyTo = " + CC) & IIf(BCC = "", "", ",    BlindCopyTo = " + BCC) & ",   ServerName = " & ADef.ServerName & ",    AlertKey = " & ADef.AlertKey, LogLevel.Normal)
                                     If (ADef.EventName.ToString = "Services") Then
                                         Dim newString As String = ADef.Details.Substring(ADef.Details.IndexOf(" ") + 1)
                                         Dim newStrings As String() = ADef.Details.Split(New String() {" "}, StringSplitOptions.None)
@@ -1117,7 +1119,7 @@ Public Class VitalSignsAlertService
                                 mails = mails & "," & BCC
                             End If
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email information", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, mails, resend, ADef.AlertKey)
+                            InsertingSentMails(ADef.AlertHistoryId, SendTo, mails, resend, ADef.AlertKey)
                             If (ADef.Details = "This is a TEST alert.") Or InStr(ADef.EventName, "Log File") Then
                                 If (ADef.Details = "This is a TEST alert.") Then
                                     WriteServiceHistoryEntry(Now.ToString & " This is a TEST alert and will be cleared instantly", LogLevel.Normal)
@@ -1146,7 +1148,7 @@ Public Class VitalSignsAlertService
                     Try
                         If smssent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent SMS info", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, SMSTo, resend, ADef.AlertKey)
+                            InsertingSentMails(ADef.AlertHistoryId, SMSTo, SMSTo, resend, ADef.AlertKey)
                         End If
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for SMS " & ex.ToString, LogLevel.Normal)
@@ -1154,7 +1156,7 @@ Public Class VitalSignsAlertService
                     Try
                         If scriptsent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent Script info", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, ScriptName, resend, ADef.AlertKey)
+                            InsertingSentMails(ADef.AlertHistoryId, ScriptName, ScriptName, resend, ADef.AlertKey)
                         End If
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for Script " & ex.ToString, LogLevel.Normal)
@@ -1440,8 +1442,24 @@ Public Class VitalSignsAlertService
                             AlertDictOut.Add(SentID, SentID)
                             Try
                                 SendTo = ADef.SendTo.Replace(",,", "")
-                                CC = ADef.CopyTo
-                                BCC = ADef.BlindCopyTo
+                                '9/2/2016 NS modified for VSPLUS-3194
+                                CC = ""
+                                BCC = ""
+                                If InStr(SendTo, ",") > 0 Then
+                                    Dim words As String() = SendTo.Split(New Char() {","c})
+                                    Dim word As String
+                                    Dim count As Integer = 0
+                                    For Each word In words
+                                        If count = 0 Then
+                                            SendTo = word
+                                        ElseIf count = 1 Then
+                                            CC = word
+                                        ElseIf count = 2 Then
+                                            BCC = word
+                                        End If
+                                        count += 1
+                                    Next
+                                End If
                                 SMSTo = ADef.SMSTo
                                 ScriptName = ADef.ScriptName
                                 ScriptCommand = ADef.ScriptCommand
