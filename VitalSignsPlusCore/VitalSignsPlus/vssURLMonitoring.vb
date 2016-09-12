@@ -664,11 +664,13 @@ Update:
                 If n > 15 Then Exit Do
             Loop
             If (myURL.HTML = "") Then
-                myURL.ResponseDetails = "Page returned with no data. "
-                myURL.Status = "Not Responding"
-                myURL.Description = "Page returned with no data. "
-                myURL.ResponseTime = 0
-                Exit Sub
+                If (r IsNot Nothing AndAlso (r.StatusCode <> 200)) Then
+                    myURL.ResponseDetails = "Page returned with no data. "
+                    myURL.Status = "Not Responding"
+                    myURL.Description = "Page returned with no data. "
+                    myURL.ResponseTime = 0
+                    Exit Sub
+                End If
             End If
             'should cover all the 400's and 500's errors
             'If (ChilkatHTTP.LastStatus > 399 And ChilkatHTTP.LastStatus < 600) Then
