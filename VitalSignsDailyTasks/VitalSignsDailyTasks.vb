@@ -1248,13 +1248,33 @@ Public Class VitalSignsDailyTasks
     End Sub
 
     'Durga VSPLUS 1874 6/26/2015
-    Private Sub Shrinkdb(ByVal connection As String)
-        Dim myAdapter As New VSFramework.XMLOperation
+	Private Sub Shrinkdb(ByVal connection As String)
+		Dim myAdapter As New VSFramework.XMLOperation
 		Using con As New System.Data.SqlClient.SqlConnection(myAdapter.GetDBConnectionString(connection))
 			Try
-			con.Open()
-			Dim command As New SqlCommand("DBCC SHRINKDATABASE(0)", con)
-				command.ExecuteNonQuery()
+				con.Open()
+				Try
+					Dim sql As String = "ALTER DATABASE " + connection + " SET RECOVERY SIMPLE"
+					Dim command1 As New SqlCommand(sql, con)
+					command1.ExecuteNonQuery()
+				Catch ex As Exception
+
+				End Try
+
+				Dim command2 As New SqlCommand("DBCC SHRINKDATABASE(0)", con)
+				'Increase the timeout
+				command2.CommandTimeout = 1000
+				command2.ExecuteNonQuery()
+
+				'reset it back
+				Try
+					Dim sql As String = "ALTER DATABASE " + connection + " SET RECOVERY FULL"
+					Dim command1 As New SqlCommand(sql, con)
+					command1.ExecuteNonQuery()
+				Catch ex As Exception
+
+				End Try
+
 			Catch ex As Exception
 			Finally
 				If con.State = ConnectionState.Open Then
@@ -1262,7 +1282,7 @@ Public Class VitalSignsDailyTasks
 				End If
 			End Try
 		End Using
-    End Sub
+	End Sub
 
     '2/12/2016 Durga Modified for VSPLUS 2174
     Private Sub CleanUpTravelerSummaryData()
