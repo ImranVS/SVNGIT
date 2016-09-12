@@ -1862,26 +1862,11 @@ Public Class VitalSignsAlertService
     End Function
     Public Function getSettings(ByVal sname As String) As String
         '12/16/2014 NS added for VSPLUS-1267
-        Dim myConnectionString As New VSFramework.XMLOperation
-        Dim myAdapter As New VSFramework.VSAdaptor
-        Dim str As String = ""
-        Try
-            Dim sqlQuery As String = "Select svalue from Settings where sname='" & sname & "'"
-            '12/16/2014 NS modified for VSPLUS-1267
-            'Dim SqlDA As New SqlDataAdapter(sqlQuery, con)
-            'Dim ds As New DataSet
-            'SqlDA.Fill(ds, "Settings")
-            'Dim dt As DataTable = ds.Tables(0)
-            Dim dt As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlQuery)
-            '5/7/2015 NS modified for VSPLUS-1553
-            If dt.Rows.Count > 0 Then
-                str = dt.Rows(0)("svalue").ToString()
-            End If
-        Catch ex As Exception
-            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of getting value of " & sname & " from Settings Table " & ex.Message, LogLevel.Normal)
-        End Try
 
-        Return str
+        Dim registry As New VSFramework.RegistryHandler
+        Return registry.ReadFromRegistry(sname).ToString()
+
+
     End Function
     Private Sub InsertingSentMails(ByVal AlertID As String, ByVal SentMails As String, ByVal resent As Boolean, ByVal AlertKey As String)
         Dim connString As String = GetDBConnection()
