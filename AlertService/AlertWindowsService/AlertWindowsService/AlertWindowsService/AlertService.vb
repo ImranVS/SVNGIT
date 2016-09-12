@@ -896,6 +896,8 @@ Public Class VitalSignsAlertService
                         WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get records from AlertSentDetails", LogLevel.Verbose)
                         Dim dtmail As DataTable = New DataTable
                         dtmail.Columns.Add("SentTo")
+                        dtmail.Columns.Add("CcdTo")
+                        dtmail.Columns.Add("BccdTo")
                         dtmail.Columns.Add("AlertClearedDateTime")
                         dtmail.Columns.Add("AlertCreatedDateTime")
                         filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
@@ -907,6 +909,8 @@ Public Class VitalSignsAlertService
                                 For x As Integer = 0 To notificationsSent.Length - 1
                                     dr = dtmail.NewRow()
                                     dr("SentTo") = notificationsSent(x).NotificationSentTo
+                                    dr("CcdTo") = notificationsSent(x).NotificationCcdTo
+                                    dr("BccdTo") = notificationsSent(x).NotificationBccdTo
                                     dr("AlertClearedDateTime") = notificationsSent(x).EventDismissedSent
                                     dr("AlertCreatedDateTime") = notificationsSent(x).EventDetectedSent
                                     dtmail.Rows.Add(dr)
@@ -922,7 +926,7 @@ Public Class VitalSignsAlertService
                             '8/9/2016 NS modified for VSPLUS-3166
                             Dim foundRowsMail() As DataRow
                             If ADef.SendTo <> "" Then
-                                foundRowsMail = dtmail.Select("SentTo like '%" & ADef.SendTo & "%'")
+                                foundRowsMail = dtmail.Select("SentTo like '%" & ADef.SendTo & "%' " & IIf(ADef.CopyTo <> "", " AND CcdTo like '%" & ADef.CopyTo & "%' ", "") & IIf(ADef.BlindCopyTo <> "", " AND BccdTo like '%" & ADef.BlindCopyTo & "%' ", ""))
                             ElseIf ADef.SMSTo <> "" Then
                                 foundRowsMail = dtmail.Select("SentTo like '%" & ADef.SMSTo & "%'")
                             ElseIf ADef.SendSNMPTrap <> "False" Then
@@ -1110,16 +1114,8 @@ Public Class VitalSignsAlertService
                     End If
                     Try
                         If mailsent = True Then
-                            Dim mails As String = ""
-                            mails = SendTo
-                            If CC <> "" Then
-                                mails = mails & "," & CC
-                            End If
-                            If BCC <> "" Then
-                                mails = mails & "," & BCC
-                            End If
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email information", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, SendTo, mails, resend, ADef.AlertKey)
+                            InsertingSentMails(ADef.AlertHistoryId, SendTo, CC, BCC, resend, ADef.AlertKey)
                             If (ADef.Details = "This is a TEST alert.") Or InStr(ADef.EventName, "Log File") Then
                                 If (ADef.Details = "This is a TEST alert.") Then
                                     WriteServiceHistoryEntry(Now.ToString & " This is a TEST alert and will be cleared instantly", LogLevel.Normal)
@@ -1135,7 +1131,7 @@ Public Class VitalSignsAlertService
                                     repoEventsDetected.Update(filterEventsDetected, updateEventsDetected)
 
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to update event_dismissed_sent in events_detected.notifications_sent", LogLevel.Verbose)
-                                    UpdatingSentMails(ADef.AlertHistoryId, mails, ADef.AlertKey)
+                                    UpdatingSentMails(ADef.AlertHistoryId, SendTo, CC, BCC, ADef.AlertKey)
                                 Catch ex As Exception
                                     WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating the events_detected for the Alert with ID of " & ADef.AlertHistoryId & ": " & ex.Message, LogLevel.Normal)
                                 End Try
@@ -1148,7 +1144,7 @@ Public Class VitalSignsAlertService
                     Try
                         If smssent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent SMS info", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, SMSTo, SMSTo, resend, ADef.AlertKey)
+                            InsertingSentMails(ADef.AlertHistoryId, SMSTo, "", "", resend, ADef.AlertKey)
                         End If
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for SMS " & ex.ToString, LogLevel.Normal)
@@ -1156,7 +1152,7 @@ Public Class VitalSignsAlertService
                     Try
                         If scriptsent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent Script info", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, ScriptName, ScriptName, resend, ADef.AlertKey)
+                            InsertingSentMails(ADef.AlertHistoryId, ScriptName, "", "", resend, ADef.AlertKey)
                         End If
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for Script " & ex.ToString, LogLevel.Normal)
@@ -1297,7 +1293,9 @@ Public Class VitalSignsAlertService
             Try
                 Historytable.Columns.Add("ID")
                 Historytable.Columns.Add("sentid")
-                Historytable.Columns.Add("sentTo")
+                Historytable.Columns.Add("sentto")
+                Historytable.Columns.Add("ccdto")
+                Historytable.Columns.Add("bccdto")
                 Historytable.Columns.Add("DeviceName")
                 Historytable.Columns.Add("DeviceType")
                 Historytable.Columns.Add("AlertType")
@@ -1318,6 +1316,8 @@ Public Class VitalSignsAlertService
                                     dr("ID") = eventsCreated(i).ObjectId.ToString() 'notificationsSent(k).ObjectId.ToString()
                                     dr("sentid") = eventsCreated(i).ObjectId.ToString()
                                     dr("sentto") = notificationsSent(k).NotificationSentTo
+                                    dr("ccdto") = notificationsSent(k).NotificationCcdTo
+                                    dr("bccdto") = notificationsSent(k).NotificationBccdTo
                                     dr("DeviceName") = eventsCreated(i).Device
                                     dr("DeviceType") = eventsCreated(i).DeviceType
                                     dr("AlertType") = eventsCreated(i).EventType
@@ -1343,7 +1343,9 @@ Public Class VitalSignsAlertService
                             ADef = New AlertDefinition
                             ADef.AlertKey = Historytable.Rows(hst)("ID")
                             ADef.SentID = Historytable.Rows(hst)("sentid")
-                            ADef.SendTo = Historytable.Rows(hst)("sentTo")
+                            ADef.SendTo = Historytable.Rows(hst)("sentto")
+                            ADef.CopyTo = Historytable.Rows(hst)("ccdto")
+                            ADef.BlindCopyTo = Historytable.Rows(hst)("bccdto")
                             ADef.ServerName = Historytable.Rows(hst)("DeviceName").ToString()
                             ADef.ServerType = Historytable.Rows(hst)("DeviceType").ToString()
                             ADef.EventName = Historytable.Rows(hst)("AlertType").ToString()
@@ -1381,8 +1383,8 @@ Public Class VitalSignsAlertService
                                             ADefOut.ServerName = AHist.ServerName
                                             ADefOut.SendTo = ADef.SendTo
                                             ADefOut.SendTo = AHist.SendTo
-                                            ADefOut.CopyTo = ADef.CopyTo
-                                            ADefOut.BlindCopyTo = ADef.BlindCopyTo
+                                            ADefOut.CopyTo = AHist.CopyTo
+                                            ADefOut.BlindCopyTo = AHist.BlindCopyTo
                                             ADefOut.StartTime = ADef.StartTime
                                             ADefOut.Duration = ADef.Duration
                                             ADefOut.Days = ADef.Days
@@ -1539,30 +1541,24 @@ Public Class VitalSignsAlertService
                             End If
                             Try
                                 If mailsent = True Then
-                                    Dim mails As String = ""
-                                    mails = SendTo
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsClearSendNotification - trying to update sent mail info", LogLevel.Verbose)
-                                    UpdatingSentMails(AlertID, mails, SentID)
+                                    UpdatingSentMails(AlertID, SendTo, CC, BCC, SentID)
                                 End If
                             Catch ex As Exception
                                 WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsClearSendNotification: Error while attempting to update Cleared Alert mail history for E-mail: " & ex.ToString(), LogLevel.Normal)
                             End Try
                             Try
                                 If smssent = True Then
-                                    Dim mails As String = ""
-                                    mails = SMSTo
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsClearSendNotification - trying to update sent SMS info", LogLevel.Verbose)
-                                    UpdatingSentMails(AlertID, mails, SentID)
+                                    UpdatingSentMails(AlertID, SMSTo, "", "", SentID)
                                 End If
                             Catch ex As Exception
                                 WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsClearSendNotification: Error while attempting to update Cleared Alert mail history for SMS: " & ex.ToString(), LogLevel.Normal)
                             End Try
                             Try
                                 If scriptsent = True Then
-                                    Dim mails As String = ""
-                                    mails = ScriptName
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsClearSendNotification - trying to update sent Scipt info", LogLevel.Verbose)
-                                    UpdatingSentMails(AlertID, mails, SentID)
+                                    UpdatingSentMails(AlertID, ScriptName, "", "", SentID)
                                 End If
                             Catch ex As Exception
                                 WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsClearSendNotification: Error while attempting to update Cleared Alert mail history for Script: " & ex.ToString(), LogLevel.Normal)
@@ -1861,14 +1857,11 @@ Public Class VitalSignsAlertService
         Return success
     End Function
     Public Function getSettings(ByVal sname As String) As String
-        '12/16/2014 NS added for VSPLUS-1267
-
         Dim registry As New VSFramework.RegistryHandler
         Return registry.ReadFromRegistry(sname).ToString()
-
-
     End Function
-    Private Sub InsertingSentMails(ByVal AlertID As String, ByVal SentMails As String, ByVal resent As Boolean, ByVal AlertKey As String)
+    Private Sub InsertingSentMails(ByVal AlertID As String, ByVal SentTo As String, ByVal CcdTo As String, ByVal BccdTo As String,
+                                   ByVal resent As Boolean, ByVal AlertKey As String)
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
         Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
@@ -1886,7 +1879,8 @@ Public Class VitalSignsAlertService
                 If eventsCreated.Length > 0 Then
                     notificationsArr = eventsCreated(0).NotificationsSent.ToArray()
                     For i As Integer = 0 To notificationsArr.Length - 1
-                        If notificationsArr(i).NotificationSentTo = SentMails Then
+                        If notificationsArr(i).NotificationSentTo = SentTo And notificationsArr(i).NotificationCcdTo = CcdTo And
+                            notificationsArr(i).NotificationBccdTo = BccdTo Then
                             notificationsArr(i).EventDetectedSent = strdt
                             eventsCreated(0).NotificationsSent(i) = notificationsArr(i)
                             repoEventsDetected.Replace(eventsCreated(0))
@@ -1900,7 +1894,7 @@ Public Class VitalSignsAlertService
                 If eventsCreated.Length > 0 Then
                     Dim oid As String
                     oid = AlertKey
-                    Dim notificationentity As New NotificationsSent With {.NotificationId = oid, .NotificationSentTo = SentMails, .EventDetectedSent = strdt}
+                    Dim notificationentity As New NotificationsSent With {.NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
                     If eventsCreated(0).NotificationsSent Is Nothing Then
                         notificationsSent = New List(Of NotificationsSent)
                         notificationsSent.Add(notificationentity)
@@ -1912,10 +1906,11 @@ Public Class VitalSignsAlertService
                 End If
             End If
         Catch ex As ApplicationException
-            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating document " & AlertID & " , " & SentMails & " in the events_detected collection " & ex.Message, LogLevel.Normal)
+            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating document " & AlertID & " , " & SentTo & "," & CcdTo & "," & BccdTo & " in the events_detected collection " & ex.Message, LogLevel.Normal)
         End Try
     End Sub
-    Private Sub UpdatingSentMails(ByVal AlertID As String, ByVal SentMails As String, ByVal id As String)
+    Private Sub UpdatingSentMails(ByVal AlertID As String, ByVal SentTo As String, ByVal CcdTo As String, ByVal BccdTo As String,
+                                  ByVal id As String)
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
         Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
@@ -1931,7 +1926,8 @@ Public Class VitalSignsAlertService
             If eventsCreated.Length > 0 Then
                 notificationsArr = eventsCreated(0).NotificationsSent.ToArray()
                 For i As Integer = 0 To notificationsArr.Length - 1
-                    If notificationsArr(i).NotificationSentTo = SentMails Then
+                    If notificationsArr(i).NotificationSentTo = SentTo And notificationsArr(i).NotificationCcdTo = CcdTo And
+                        notificationsArr(i).NotificationBccdTo = BccdTo Then
                         notificationsArr(i).EventDismissedSent = strdt
                         eventsCreated(0).NotificationsSent(i) = notificationsArr(i)
                     End If
@@ -1940,7 +1936,7 @@ Public Class VitalSignsAlertService
             End If
             WriteServiceHistoryEntry(Now.ToString & " Updated the events_detected collection, the notifications_sent.event_dismissed_sent value for " & id, LogLevel.Normal)
         Catch ex As ApplicationException
-            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating a document with id: " & id & " , sentto: " & SentMails & " in the events_detected collection: " & ex.Message, LogLevel.Normal)
+            WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating a document with id: " & id & " , sentto: " & SentTo & "," & CcdTo & "," & BccdTo & " in the events_detected collection: " & ex.Message, LogLevel.Normal)
         End Try
 
     End Sub
@@ -2137,73 +2133,67 @@ Public Class VitalSignsAlertService
         Return success
     End Function
     Public Sub GetEmergencyAlertInfo()
-		'7/17/2015 NS added for VSPLUS-1562
-		Dim con As New SqlConnection
-		Dim myConnectionString As New VSFramework.XMLOperation
-		Dim myAdapter As New VSFramework.VSAdaptor
-		Dim sqlStr As String
-		Dim dt As DataTable
-		Dim emergencyContacts As String = ""
-		Dim PHostName As String = ""
-		Dim Pport As String = ""
-		Dim PEmail As String = ""
-		Dim Ppwd As String = ""
-		Dim PFrom As String = ""
-		Dim PAuth As String = ""
-		Dim PSSL As String = ""
+        '7/17/2015 NS added for VSPLUS-1562
+        Dim dt As DataTable
+        Dim emergencyContacts As String = ""
+        Dim PHostName As String = ""
+        Dim Pport As String = ""
+        Dim PEmail As String = ""
+        Dim Ppwd As String = ""
+        Dim PFrom As String = ""
+        Dim PAuth As String = ""
+        Dim PSSL As String = ""
+        Dim connString As String = GetDBConnection()
+        Dim repoSettings As New Repository(Of NameValue)(connString)
+        Dim filterSettings As FilterDefinition(Of NameValue)
+        Dim settings() As NameValue
 
-		con.ConnectionString = myConnectionString.GetDBConnectionString("VitalSigns")
-		con.Open()
-		Try
-			sqlStr = "SELECT Email FROM  AlertEmergencyContacts"
-			WriteServiceHistoryEntry(Now.ToString & " GetEmergencyAlertInfo - trying to get records from AlertEmergencyContacts", LogLevel.Verbose)
-			dt = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlStr)
-			If dt.Rows.Count > 0 Then
-				Try
-					PHostName = getSettings("PrimaryHostName")
-					Pport = getSettings("primaryport")
-					PEmail = getSettings("primaryUserID")
-					Ppwd = getSettings("primarypwd")
-					PFrom = getSettings("primaryFrom")
-					PAuth = Convert.ToBoolean(getSettings("primaryAuth").ToString())
-					PSSL = Convert.ToBoolean(getSettings("primarySSL").ToString())
-					If PFrom.ToString = "" Then
-						PFrom = "VS Plus"
-					End If
-					For i As Integer = 0 To dt.Rows.Count - 1
-						emergencyContacts += dt.Rows(i)("Email") + ","
-					Next
-					'11/17/2015 NS modified for VSPLUS-1562
-					myRegistry.WriteToRegistry("Alert Emergency Contacts", emergencyContacts)
-					myRegistry.WriteToRegistry("Alert Emergency PrimaryHostName", PHostName)
-					myRegistry.WriteToRegistry("Alert Emergency primaryport", Pport)
-					myRegistry.WriteToRegistry("Alert Emergency primaryUserID", PEmail)
-					myRegistry.WriteToRegistry("Alert Emergency primarypwd", Ppwd)
-					myRegistry.WriteToRegistry("Alert Emergency primaryFrom", PFrom)
-					myRegistry.WriteToRegistry("Alert Emergency primaryAuth", PAuth)
-					myRegistry.WriteToRegistry("Alert Emergency primarySSL", PSSL)
-				Catch ex As Exception
-					WriteServiceHistoryEntry(Now.ToString & " Error getting primary settings from the Settings table:  " & ex.ToString, LogLevel.Normal)
-				End Try
-			Else
-				'11/17/2015 NS modified for VSPLUS-1562
-				WriteServiceHistoryEntry(Now.ToString & " GetEmergencyAlertInfo - no records found in AlertEmergencyContacts", LogLevel.Verbose)
-				myRegistry.WriteToRegistry("Alert Emergency Contacts", "")
-				myRegistry.WriteToRegistry("Alert Emergency PrimaryHostName", "")
-				myRegistry.WriteToRegistry("Alert Emergency primaryport", "")
-				myRegistry.WriteToRegistry("Alert Emergency primaryUserID", "")
-				myRegistry.WriteToRegistry("Alert Emergency primarypwd", "")
-				myRegistry.WriteToRegistry("Alert Emergency primaryFrom", "")
-				myRegistry.WriteToRegistry("Alert Emergency primaryAuth", "")
-				myRegistry.WriteToRegistry("Alert Emergency primarySSL", "")
-			End If
-		Catch ex As Exception
-			WriteServiceHistoryEntry(Now.ToString & " Error writing emergency contact info into registry: " & ex.ToString, LogLevel.Normal)
-		End Try
-		If Not IsNothing(con) Then
-			con.Close()
-		End If
-	End Sub
+        Try
+            filterSettings = repoSettings.Filter.Eq(Function(j) j.Name, "EmergencyAlertEmail")
+            settings = repoSettings.Find(filterSettings).ToArray()
+            If settings.Length > 0 Then
+                Try
+                    PHostName = getSettings("PrimaryHostName")
+                    Pport = getSettings("primaryport")
+                    PEmail = getSettings("primaryUserID")
+                    Ppwd = getSettings("primarypwd")
+                    PFrom = getSettings("primaryFrom")
+                    PAuth = Convert.ToBoolean(getSettings("primaryAuth").ToString())
+                    PSSL = Convert.ToBoolean(getSettings("primarySSL").ToString())
+                    If PFrom.ToString = "" Then
+                        PFrom = "VS Plus"
+                    End If
+                    For i As Integer = 0 To settings.Length - 1
+                        emergencyContacts += settings(i).Value + ","
+                    Next
+                    '11/17/2015 NS modified for VSPLUS-1562
+                    myRegistry.WriteToRegistry("Alert Emergency Contacts", emergencyContacts)
+                    myRegistry.WriteToRegistry("Alert Emergency PrimaryHostName", PHostName)
+                    myRegistry.WriteToRegistry("Alert Emergency primaryport", Pport)
+                    myRegistry.WriteToRegistry("Alert Emergency primaryUserID", PEmail)
+                    myRegistry.WriteToRegistry("Alert Emergency primarypwd", Ppwd)
+                    myRegistry.WriteToRegistry("Alert Emergency primaryFrom", PFrom)
+                    myRegistry.WriteToRegistry("Alert Emergency primaryAuth", PAuth)
+                    myRegistry.WriteToRegistry("Alert Emergency primarySSL", PSSL)
+                Catch ex As Exception
+                    WriteServiceHistoryEntry(Now.ToString & " Error getting primary settings from the Settings table:  " & ex.ToString, LogLevel.Normal)
+                End Try
+            Else
+                '11/17/2015 NS modified for VSPLUS-1562
+                WriteServiceHistoryEntry(Now.ToString & " GetEmergencyAlertInfo - no records found in AlertEmergencyContacts", LogLevel.Verbose)
+                myRegistry.WriteToRegistry("Alert Emergency Contacts", "")
+                myRegistry.WriteToRegistry("Alert Emergency PrimaryHostName", "")
+                myRegistry.WriteToRegistry("Alert Emergency primaryport", "")
+                myRegistry.WriteToRegistry("Alert Emergency primaryUserID", "")
+                myRegistry.WriteToRegistry("Alert Emergency primarypwd", "")
+                myRegistry.WriteToRegistry("Alert Emergency primaryFrom", "")
+                myRegistry.WriteToRegistry("Alert Emergency primaryAuth", "")
+                myRegistry.WriteToRegistry("Alert Emergency primarySSL", "")
+            End If
+        Catch ex As Exception
+            WriteServiceHistoryEntry(Now.ToString & " Error writing emergency contact info into registry: " & ex.ToString, LogLevel.Normal)
+        End Try
+    End Sub
 End Class
 Public Class RegistryHandler
 

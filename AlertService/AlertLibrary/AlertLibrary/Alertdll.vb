@@ -61,12 +61,17 @@ Public Class Alertdll
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
         Dim repoEventsMaster As New Repository(Of EventsMaster)(connString)
+        Dim repoOutages As New Repository(Of Outages)(connString)
+        Dim repoServers As New Repository(Of Server)(connString)
+        Dim filterServers As MongoDB.Driver.FilterDefinition(Of Server)
         Dim filterEventsMaster As MongoDB.Driver.FilterDefinition(Of EventsMaster)
         Dim filterEventsDetected As MongoDB.Driver.FilterDefinition(Of EventsDetected)
         Dim updateEventsDetected As MongoDB.Driver.UpdateDefinition(Of EventsDetected)
         Dim eventsMasterEntity() As EventsMaster
         Dim eventsDetectedEntity() As EventsDetected
         Dim repeatEventsEntity() As EventsDetected
+        Dim servers() As Server
+        Dim deviceId As String
 
         qalert = True
         AlertsRepeatOn = False
@@ -150,6 +155,16 @@ Public Class Alertdll
                     If AlertType = "Not Responding" Then
                         '6/15/2016 NS added
                         'OUTAGES
+                        WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update started: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                        filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Function(j) j.DeviceName, DeviceName),
+                                                               repoServers.Filter.Eq(Function(j) j.DeviceType, DeviceType))
+                        servers = repoServers.Find(filterServers).ToArray()
+                        If servers.Length > 0 Then
+                            deviceId = servers(0).Id.ToString()
+                            Dim outages As New Outages With {.DeviceId = deviceId, .DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
+                            repoOutages.Insert(outages)
+                            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                        End If
                     End If
                 Else
                     If (AlertType = "Dead Mail" Or AlertType = "Pending Mail" Or AlertType = "Held Mail") Then
@@ -275,6 +290,7 @@ Public Class Alertdll
         Dim updateDefEvents As MongoDB.Driver.UpdateDefinition(Of EventsDetected)
         Dim eventsEntity() As EventsDetected
         Dim servers() As Server
+        Dim deviceId As String
         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Received notice to reset alert for " & DeviceType & "/" & DeviceName & ": " & AlertType)
 
         Try
@@ -298,7 +314,8 @@ Public Class Alertdll
                                                            repoServers.Filter.Eq(Function(j) j.DeviceType, DeviceType))
                     servers = repoServers.Find(filterServers).ToArray()
                     If servers.Length > 0 Then
-                        Dim outages As New Outages With {.DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
+                        deviceId = servers(0).Id.ToString()
+                        Dim outages As New Outages With {.DeviceId = deviceId, .DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
                         repoOutages.Insert(outages)
                         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
                     End If
