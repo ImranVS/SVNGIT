@@ -2441,7 +2441,7 @@ Public Class VSMaster
                 boolDominoService = False
             End If
 
-            If SelectedFeaturesDataView.Find("Exchange") <> -1 Or SelectedFeaturesDataView.Find("Skype for Business") <> -1 Or SelectedFeaturesDataView.Find("Active Directory") <> -1 Or SelectedFeaturesDataView.Find("SharePoint") <> -1 Or SelectedFeaturesDataView.Find("Windows") <> -1 Then
+			If SelectedFeaturesDataView.Find("Exchange") <> -1 Or SelectedFeaturesDataView.Find("Skype for Business") <> -1 Or SelectedFeaturesDataView.Find("Active Directory") <> -1 Or SelectedFeaturesDataView.Find("SharePoint") <> -1 Or SelectedFeaturesDataView.Find("Windows") <> -1 Or SelectedFeaturesDataView.Find("Office 365") <> -1 Then
                 boolMicrosoftService = True
             Else
                 boolMicrosoftService = False
