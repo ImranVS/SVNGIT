@@ -869,7 +869,33 @@ Public Class ExchangeServer
 	Public Property CASAutoDiscovery As Boolean
 	Public Property CASOAB As Boolean
 	Public Property ActiveSyncUserName As String
-	Public Property ActiveSyncPassword As String
+    Public Property ActiveSyncPassword As String
+    Public Property TestId As Integer
+    Public Property SMTPURLs As String
+    Public Property SMTPCASUserName As String
+    Public Property SMTPCASPassword As String
+    Public Property POP3URLs As String
+    Public Property POP3CASUserName As String
+    Public Property POP3CASPassword As String
+    Public Property IMAPURLs As String
+    Public Property IMAPCASUserName As String
+    Public Property IMAPCASPassword As String
+    Public Property OutlookAnywhereURLs As String
+    Public Property OutlookAnywhereCASUserName As String
+    Public Property OutlookAnywhereCASPassword As String
+    Public Property AutoDiscoveryURLs As String
+    Public Property AutoDiscoveryCASUserName As String
+    Public Property AutoDiscoveryCASPassword As String
+    Public Property ActiveSyncURLs As String
+    Public Property ActiveSyncCASUserName As String
+    Public Property ActiveSyncCASPassword As String
+    Public Property OWAURLs As String
+    Public Property OWACASUserName As String
+    Public Property OWACASPassword As String
+    Public Property RPCURLs As String
+    Public Property RPCCASUserName As String
+    Public Property RPCCASPassword As String
+
 
 	'   Public Property CPU_Threshold As Double
 	'   Public Property Memory_Threshold As Double
@@ -1068,7 +1094,15 @@ End Class
 Public Class SharepointServer
 	Inherits MicrosoftServer
 	Public Property Role As String
-	Public Property Farm As String
+    Public Property Farm As String
+    Public Property IsSearchServer As Boolean
+    Public Property ConflictingContentType As Boolean
+    Public Property CustomizedFiles As Boolean
+    Public Property MissingGalleries As Boolean
+    Public Property MissingParentContentTypes As Boolean
+    Public Property MissingSiteTemplates As Boolean
+    Public Property UnsupportedLanguagePack As Boolean
+    Public Property UnsupportedMUI As Boolean
 End Class
 Public Class Office365Server
 	Inherits MicrosoftServer
@@ -1262,6 +1296,11 @@ Public Class DominoServer
     Public Property ClusterRep_Threshold As Double
     Public Property LastLogDocScanned As String  'Used to remember which log file document you last scanned so you can start on the next one
     Public Property LastAgentLogDocScanned As String   'Same as above, except for the Agentlog.nsf database
+    '7/15/2016 NS added for VSPLUS-3120
+    Public Property LogLineCounter As Integer
+    '8/12/2016 NS added for VSPLUS-3167
+    Public Property LastDocCreatedDate As DateTime
+    Public Property IsLogFileBeingScanned As Boolean
     Public Property EXJournal1_DocCount As Long
     Public Property EXJournal2_DocCount As Long
     Public Property EXJournal_DocCount As Long
@@ -4477,17 +4516,23 @@ Public Class ServerTasksCollection
             Return Me.List(iIndex)
         End Get
     End Property
-
-    Public Function Search(ByVal Name As String) As ServerTask
+    '8/16/2016 NS modified for VSPLUS-2380
+    Public Function Search(ByVal Name As String, Optional ByVal exactSearch As Boolean = True) As ServerTask
         Dim iIndex As Integer
         Dim MyCommand As MonitoredItems.ServerTask
         For iIndex = 0 To Me.List.Count - 1
             MyCommand = Me.List(iIndex)
-            If MyCommand.Name = Name Then
-                Return Me.List(iIndex)
-                Exit Function
+            If exactSearch Then
+                If MyCommand.Name = Name Then
+                    Return Me.List(iIndex)
+                    Exit Function
+                End If
+            Else
+                If InStr(MyCommand.Name.ToLower, Name.ToLower) > 0 Then
+                    Return Me.List(iIndex)
+                    Exit Function
+                End If
             End If
-
         Next
         Return Nothing
     End Function
@@ -6156,10 +6201,13 @@ Public Class DominoCustomStatistic
     Dim mStatName As String   'i.e.,  Server.Users
     Dim mStatValue As Double ' The current value of the statistic
     Dim mThreshold As Double ' The value of the stat that triggers an alert
-    Dim mRepeat As Integer 'the number of successive times the threshold must be met
+    Public mRepeat As Integer 'the number of successive times the threshold must be met
     Dim mComparison As String  'will be 'Greater Than' or 'Less Than'
     Dim mRepeatActual As Integer = 0 'the number of successive times the threshold HAS be met
     Dim mConsoleCommand As String
+
+
+
 
     Public Property Value() As Double
         Get
@@ -6167,21 +6215,25 @@ Public Class DominoCustomStatistic
         End Get
 
         Set(ByVal Value As Double)
+            If Value <> -999 Then
+                ' -999 is used as a reset/junk value to make sure the stat is current.  Ignore this value
             mStatValue = Value
-            Select Case mComparison
-                Case "Greater Than"
-                    If mStatValue >= mThreshold Then
+                Select Case mComparison
+                    Case "Greater Than"
+                        If mStatValue >= mThreshold + 1 Then
                         IncrementCounter()
                     Else
                         ResetCounter()
                     End If
-                Case "Less Than"
+                    Case "Less than"
                     If mStatValue <= mThreshold Then
                         IncrementCounter()
                     Else
                         ResetCounter()
                     End If
             End Select
+            End If
+           
         End Set
     End Property
 
@@ -6193,13 +6245,13 @@ Public Class DominoCustomStatistic
         End If
     End Function
 
-    Private Function ResetCounter()
+    Private Sub ResetCounter()
         mRepeatActual = 0
-    End Function
+    End Sub
 
-    Private Function IncrementCounter()
+    Private Sub IncrementCounter()
         mRepeatActual += 1
-    End Function
+    End Sub
 
     Public Property Statistic() As String
         Get
@@ -6233,7 +6285,7 @@ Public Class DominoCustomStatistic
             Return mComparison
         End Get
         Set(ByVal Value As String)
-            If Value = "Greater Than" Or Value = "Less Than" Then
+            If Value = "Greater Than" Or Value = "Less Than" Or Value = "Less than" Then
                 mComparison = Value
             Else
                 mComparison = "Greater Than"
@@ -6247,6 +6299,15 @@ Public Class DominoCustomStatistic
         End Get
         Set(ByVal Value As String)
             mConsoleCommand = Value
+        End Set
+    End Property
+    '8/30/2016 NS added for VPLUS-3176
+    Public Property ConsecutiveRepeat() As Integer
+        Get
+            Return mRepeatActual
+        End Get
+        Set(ByVal Value As Integer)
+            mRepeatActual = Value
         End Set
     End Property
 
