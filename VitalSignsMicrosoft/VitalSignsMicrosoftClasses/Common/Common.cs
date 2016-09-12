@@ -2690,6 +2690,7 @@ if ($ModPath -ne '')
 			 Database_Site_Max_Count,
 			 Site_Health_Check,
 			 Network_Latency_Test,
+             Search_Crawl,
 
              //Exch_Mailflow
              Mail_flow,
@@ -2703,11 +2704,13 @@ if ($ModPath -ne '')
 			 Delete_Site,
 			 Inbox,
 			 Create_Mail_Folder,
+			 Delete_Mail_Folder,
 			 ADFS,
 			 DirSync_Import,
 			 DirSync_Export,
 			 URL,
-			 Authentication
+			 Authentication,
+             MAPI_Connectivity
 			  
 		 }
 

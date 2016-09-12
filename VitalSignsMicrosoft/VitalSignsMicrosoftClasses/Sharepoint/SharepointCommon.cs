@@ -127,7 +127,10 @@ namespace VitalSignsMicrosoftClasses
 						GetVersion(Server, ref AllTestsList, results);
 						GetSPConfigurationStats(Server, ref AllTestsList, results);
 						GetRequiredServices(Server, ref AllTestsList, results);
-						//CheckTimerJobs(Server, ref AllTestsList, results);
+                        if (Server.IsSearchServer == true)
+                        {
+                            SearchCrawl(Server, ref AllTestsList, results, true);
+                        }
 						break;
 
 				}
@@ -457,49 +460,34 @@ namespace VitalSignsMicrosoftClasses
 					string PassedCount = ps.Properties["PassedCount"].Value == null ? "0" : ps.Properties["PassedCount"].Value.ToString();
 					string FailedWarningCount = ps.Properties["FailedWarningCount"].Value == null ? "" : ps.Properties["FailedWarningCount"].Value.ToString();
 					string FailedErrorCount = ps.Properties["FailedErrorCount"].Value == null ? "" : ps.Properties["FailedErrorCount"].Value.ToString();
+                    System.Collections.ArrayList obj = (System.Collections.ArrayList)((PSObject)ps.Properties["Results"].Value).ImmediateBaseObject;
 
-					if (FailedErrorCount != "0" || FailedWarningCount != "0")
+                    foreach(string rule in obj)
 					{
-						failedAlert = true;
-						siteList.Add(Site);
+                        string status = rule.Substring(rule.IndexOf("Status=") + "Status=".Length, rule.IndexOf(" ", rule.IndexOf("Status=")) - rule.IndexOf("Status=") - "Status=".Length);
+                        string RuleParseString = "RuleName=\"";
+                        string RuleName2 = rule.Substring(rule.IndexOf(RuleParseString) + RuleParseString.Length, rule.IndexOf("\"", rule.IndexOf(RuleParseString) + RuleParseString.Length) - rule.IndexOf(RuleParseString) - RuleParseString.Length);
 
-						List<string> RulesList = new List<string>();
-						while (true)
+                        if (status == "Passed")
+                            continue;
+
+                        if(
+                            (myServer.ConflictingContentType ? RuleName2 == "Conflicting Content Types" : false) ||
+                            (myServer.CustomizedFiles ? RuleName2 == "Customized Files" : false) ||
+                            (myServer.MissingGalleries ? RuleName2 == "Missing Galleries" : false) ||
+                            (myServer.MissingParentContentTypes ? RuleName2 == "Missing Parent Content Types" : false) ||
+                            (myServer.MissingSiteTemplates ? RuleName2 == "Missing Site Templates" : false) ||
+                            (myServer.UnsupportedLanguagePack ? RuleName2 == "Unsupported Language Pack References" : false) ||
+                            (myServer.UnsupportedMUI ? RuleName2 == "Unsupported MUI References" : false)
+                            )
 						{
-							if (Rules == "")
-								break;
-							string s = "";
-							if (Rules.IndexOf('\n') >= 0)
-							{
-								s = Rules.Substring(0, Rules.IndexOf('\n'));
-								Rules = Rules.Substring(Rules.IndexOf('\n') + 1);
-							}
-							else
-							{
-								s = Rules;
-								Rules = "";
+                            failedAlert = true;
+                            if (!siteList.Contains(Site)) siteList.Add(Site);
+                            if (!ruleList.Contains(RuleName2)) ruleList.Add(RuleName2);
 							}
 
-							if (s.Trim() != "")
-								RulesList.Add(s);
 						}
-
-						foreach (string line in RulesList)
-						{
-							//"SPSiteHealthResult Status=Passed RuleName=\"Conflicting Content Types\" RuleId=befe203b-a8c0-48c2-b5f0-27c10f9e1622 "
-							string status = line.Substring(line.IndexOf("Status=") + "Status=".Length, line.IndexOf(" ", line.IndexOf("Status=")) - line.IndexOf("Status=") - "Status=".Length);
-							if (status != "Passed")
-							{
-								string RuleParseString = "RuleName=\"";
-								string currRule = line.Substring(line.IndexOf(RuleParseString) + RuleParseString.Length, line.IndexOf("\"", line.IndexOf(RuleParseString) + RuleParseString.Length) - line.IndexOf(RuleParseString) - RuleParseString.Length);
-								ruleList.Add(currRule);
 							}
-						}						
-					}
-					else
-					{
-					}
-				}
 
 				if (failedAlert)
 				{
@@ -588,9 +576,26 @@ namespace VitalSignsMicrosoftClasses
 				{
 					string Name = ps.Properties["Name"].Value == null ? "" : ps.Properties["Name"].Value.ToString();
 					string Status = ps.Properties["Status"].Value == null ? "" : ps.Properties["Status"].Value.ToString();
+                    string DisplayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Status  results: " + Status.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-                    if (!myServer.ListOfRequiredServices.Contains(Name)) myServer.ListOfRequiredServices.Add(Name);
+                    if (DisplayName.ToString().Contains("SharePoint Server Search"))
+                    {
+                        if (Status.ToString() == "Running")
+                        {
+                            {
+                                myServer.IsSearchServer = true;
+                                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "IsSearchServer  results true " + myServer.IsSearchServer +Status.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
+                            }
+                        }
+                    }
+                    //else
+                    //{
+                    //    myServer.IsSearchServer = false;
+                    //    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "IsSearchServer  results false " + myServer.IsSearchServer + Status.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                    //}
 					dict.Add(Name, Status);
 				}
 				
@@ -644,7 +649,85 @@ namespace VitalSignsMicrosoftClasses
 			{
 
 			}
+		
+
+	
+
 		}
+
+        private void SearchCrawl(MonitoredItems.SharepointServer myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj, bool IsSearchServer)
+        {
+            string strMsg = "";
+            Common.WriteDeviceHistoryEntry("All", "SearchCrawl", "In SearchCrawl ", Common.LogLevel.Normal);
+            try
+            {
+
+                // Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "In GetUserAndSiteActivity", Common.LogLevel.Normal);
+
+                Common.WriteDeviceHistoryEntry("All", "SearchCrawl", "IsSearchServer is " + IsSearchServer + "", Common.LogLevel.Normal);
+               
+                    System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+
+                    String path = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SharePointCrawl.ps1";
+                    String str2 = "Invoke-Command -Session $ra -FilePath '" + path + "'";
+                    powershellobj.PS.Commands.Clear();
+                    powershellobj.PS.Streams.ClearStreams();
+                    powershellobj.PS.AddScript(str2);
+
+                    results = powershellobj.PS.Invoke();
+
+                    Common.WriteDeviceHistoryEntry("All", "SearchCrawl", "SearchCrawl output results: " + results.Count.ToString(), Common.LogLevel.Normal);
+
+                    if (results.Count > 0)
+                    {
+
+                        foreach (PSObject ps in results)
+                        {
+
+                            string FullUrl = ps.Properties["FullUrl"].Value == null ? "" : ps.Properties["FullUrl"].Value.ToString();
+                            string TimeStamp = ps.Properties["TimeStamp"].Value == null ? "" : ps.Properties["TimeStamp"].Value.ToString();
+                            string StatusMessage = ps.Properties["StatusMessage"].Value == null ? "" : ps.Properties["StatusMessage"].Value.ToString();
+                            string ErrorID = ps.Properties["ErrorID"].Value == null ? "" : ps.Properties["ErrorID"].Value.ToString();
+
+                            Common.WriteDeviceHistoryEntry("All", "SearchCrawl", "URL: " + FullUrl + Environment.NewLine + "TimeStamp: " + TimeStamp + Environment.NewLine + "StatusMessage: " + StatusMessage + " ", Common.LogLevel.Normal);
+
+                            if (StatusMessage.ToString().Contains("timeout period"))
+                            {
+                                StatusMessage = "The URL " + FullUrl + " could not be crawled because the repository did not respond within the specified timeout period";
+                            }
+                            else
+                            {
+                                StatusMessage = "The URL " + FullUrl + " could not be crawled";
+                            }
+                            if (Convert.ToInt32(ps.Properties["ErrorID"].Value.ToString()) > 0)
+                            {
+
+
+                                Common.makeAlert(false, myServer, commonEnums.AlertType.Search_Crawl, ref AllTestsList, StatusMessage, "SharePoint");
+                            }
+                            else
+                            {
+
+                                Common.makeAlert(true, myServer, commonEnums.AlertType.Search_Crawl, ref AllTestsList, StatusMessage, "SharePoint");
+
+                            }
+                        }
+
+
+                    }
+                
+            }
+            catch (Exception ex)
+            {
+
+                Common.WriteDeviceHistoryEntry("All", "SearchCrawl", "Error in SearchCrawl: " + ex.Message, Common.LogLevel.Normal);
+
+            }
+            finally
+            {
+
+            }
+        }
 
 	}
 }

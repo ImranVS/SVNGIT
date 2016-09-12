@@ -16,8 +16,11 @@ namespace VitalSignsMicrosoftClasses
 {
 	public class O365RESTApi
 	{
+		System.IO.Stream os;
 		CultureInfo culture = CultureInfo.CurrentCulture;
 		public string nodeName = "";
+		DateTime time = DateTime.Now;              // Use current time
+		string format = "t";
 		public void doADFSCheck(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList)
 		{
 			string response = submitRequest("https://login.microsoftonline.com/common/userrealm/?user=" + myServer.UserName +"&api-version=2.1&stsRequest=&checkForMicrosoftAccount=true", "GET", "", "", "");
@@ -43,13 +46,13 @@ namespace VitalSignsMicrosoftClasses
 							else
 							{
 								myServer.ADFSRedirectTest = true;
-								Common.makeAlert(true, myServer, commonEnums.AlertType.ADFS, ref AllTestsList, "", "Connectivity");
+								Common.makeAlert(true, myServer, commonEnums.AlertType.ADFS, ref AllTestsList, "Successfully connected to ADFS mode", "Connectivity");
 							}
 						}
 						else
 						{
 							myServer.ADFSMode = false;
-							//Common.makeAlert(true, myServer, commonEnums.AlertType.ADFS, ref AllTestsList, "", myServer.Category);
+							Common.makeAlert(true, myServer, commonEnums.AlertType.ADFS, ref AllTestsList, "This account does not have  ADFS mode", myServer.Category);
 						}
 					}
 						
@@ -96,6 +99,7 @@ namespace VitalSignsMicrosoftClasses
 							   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
 						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
                         AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "ResponseTime@" + nodeName, elapsed.TotalMilliseconds.ToString()));
+						myServer.ResponseTime = elapsed.TotalMilliseconds;
 
 					}
 				}
@@ -149,7 +153,9 @@ namespace VitalSignsMicrosoftClasses
 					{ Common.WriteDeviceHistoryEntry(Server.ServerType,Server.Name, "Error with uploadFile: " + ex.Message.ToString(), Common.LogLevel.Normal); }
 				if (Server.EnableOneDriveDownloadTest)
 					try
-					{ downloadSPFile(Server, ref AllTestsList); }
+					{
+						
+						downloadSPFile(Server, ref AllTestsList); }
 					catch (Exception ex)
 					{ Common.WriteDeviceHistoryEntry(Server.ServerType,Server.Name, "Error with downloadSPFile: " + ex.Message.ToString(), Common.LogLevel.Normal); }
 				if (Server.EnableCreateFolderTest)
@@ -247,10 +253,11 @@ namespace VitalSignsMicrosoftClasses
 		public string submitRequest(string URL, string requestMethod, string message, string userId, string pwd)
 		{
 			string responseFromServer = "";
+		
 			try
 			{
 
-
+				ServicePointManager.DefaultConnectionLimit = 200;
 				//SharePointOnlineCredentials creds = new SharePointOnlineCredentials(userId, Common.String2SecureString(pwd));
 				System.Net.WebRequest request = System.Net.WebRequest.Create(URL);
 				System.Net.CredentialCache c = new System.Net.CredentialCache();
@@ -268,12 +275,16 @@ namespace VitalSignsMicrosoftClasses
 					message = message.Replace("'", s);
 					byte[] bytes = System.Text.Encoding.ASCII.GetBytes(message);
 					request.ContentLength = bytes.Length;
-					System.IO.Stream os = request.GetRequestStream();
-					os.Write(bytes, 0, bytes.Length); //Push it out there
-					os.Close();
+					using (os = request.GetRequestStream())
+					{
+						//System.IO.Stream os = request.GetRequestStream();
+						os.Write(bytes, 0, bytes.Length); //Push it out there
+						os.Close();
+					}
 				}
 				//SharePointOnlineCredentials 
 				//Microsoft.SharePoint.Client.ClientRuntimeContext.SetupRequestCredential(
+			//	request.Timeout = Timeout.Infinite;
 
 				System.Net.WebResponse ws = request.GetResponse();
 				Stream dataStream = ws.GetResponseStream();
@@ -285,6 +296,14 @@ namespace VitalSignsMicrosoftClasses
 			{
 				responseFromServer = "-1";
 				string s = ex.Message.ToString();
+			}
+			finally
+			{
+				if (os!=null)
+				{
+					os.Close();
+				}
+				
 			}
 			return responseFromServer;
 		}
@@ -451,7 +470,7 @@ namespace VitalSignsMicrosoftClasses
 			done = DateTime.Now.Ticks;
 			elapsed = new TimeSpan(done - start);
 			if (response != "" && response != "-1" && response.ToLower().Contains("we don't recognize this user id or password") == false)
-				Common.makeAlert(false, myServer, commonEnums.AlertType.OWA, ref AllTestsList, "Could not connect to OWA.","Performance");
+				Common.makeAlert(false, myServer, commonEnums.AlertType.OWA, ref AllTestsList, "Could not connect to OWA","Performance");
 			else
 			{
 				DateTime dtNow = DateTime.Now;
@@ -461,7 +480,7 @@ namespace VitalSignsMicrosoftClasses
 					   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
 				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
                 AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "ComposeEMail" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
-				Common.makeAlert(true, myServer, commonEnums.AlertType.OWA, ref AllTestsList, "Successfully connected to OWA.", "Performance");
+				Common.makeAlert(true, myServer, commonEnums.AlertType.OWA, ref AllTestsList, "Successfully connected to OWA", "Performance");
 			}
 		}
 		
@@ -502,6 +521,7 @@ namespace VitalSignsMicrosoftClasses
 		#region calendarTask
 		private string doNewTaskTest(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList)
 		{
+			
 			long done;
 			long start;
 			TimeSpan elapsed = new TimeSpan(0);
@@ -510,12 +530,32 @@ namespace VitalSignsMicrosoftClasses
 				day = "0" + day;
 			string fromDate = DateTime.Now.Year.ToString() + "-" + "12" + "-" + day + "T" + "22" + ":00:00Z";
 			string toTime = DateTime.Now.Year.ToString() + "-" + "12" + "-" + day + "T" + "23" + ":00:00Z";
-
-			string message = "{  'Subject': 'VS Task',  'Body': {    'ContentType': 'HTML',    'Content': 'New event'  },  'Start': '" + fromDate + "', 'StartTimeZone':'Eastern Standard Time',  'End': '" + toTime + "','EndTimeZone':'Eastern Standard Time',  'Attendees': [    {      'EmailAddress': {        'Address': '" + myServer.UserName + "'      },      'Type': 'Required'    }  ]}";
+			string Subject = "VS calendar";
+			string message = "{  'Subject': '" + Subject + "', 'Body': {    'ContentType': 'HTML',    'Content': 'New event'  },  'Start': '" + fromDate + "', 'StartTimeZone':'Eastern Standard Time',  'End': '" + toTime + "','EndTimeZone':'Eastern Standard Time',  'Attendees': [    {      'EmailAddress': {        'Address': '" + myServer.UserName + "'      },      'Type': 'Required'    }  ]}";
 			start = DateTime.Now.Ticks;
-			string response = submitRequest("https://outlook.office365.com/api/v1.0/me/events", "POST", message, myServer.UserName, myServer.Password);
+			string response = "";
+			 response = submitRequest("https://outlook.office365.com/api/v1.0/me/events", "POST", message, myServer.UserName, myServer.Password);
+			
 			done = DateTime.Now.Ticks;
 			elapsed = new TimeSpan(done - start);
+			Thread.Sleep(8000);
+			List<string> SentMessageIds = GetSentOrDeleteMessage(Subject, myServer, "sentitems");
+			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "SentMessageIds count: " + SentMessageIds.Count);
+
+			if (SentMessageIds != null)
+			{
+
+				DeleteSentOrDeleteMessages(SentMessageIds, myServer, "sentitems");
+			}
+
+			List<string> DeleteMessageIds = GetSentOrDeleteMessage(Subject, myServer, "deleteditems");
+			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "DeleteMessageIds count: " + DeleteMessageIds.Count);
+			if (DeleteMessageIds != null)
+			{
+
+				DeleteSentOrDeleteMessages(DeleteMessageIds, myServer, "deleteditems");
+			}
+			
 			string calendarId = "";
 			if (response != "")
 			{
@@ -536,7 +576,7 @@ namespace VitalSignsMicrosoftClasses
 			}
 			if (calendarId != "")
 			{
-				Common.makeAlert(true, myServer, commonEnums.AlertType.Create_Calendar_Entry, ref AllTestsList, " Successfully created test Calender entry.", "Performance");
+				Common.makeAlert(true, myServer, commonEnums.AlertType.Create_Calendar_Entry, ref AllTestsList, " Successfully created test Calender entry", "Performance");
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
@@ -545,12 +585,42 @@ namespace VitalSignsMicrosoftClasses
 				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
                 AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CreateTask" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 				if (deleteTask(calendarId, myServer))
-					Common.makeAlert(true, myServer, commonEnums.AlertType.Delete_Calendar_Entry, ref AllTestsList, "Successfully deleted test Calender entry.", "Performance");
+				{
+					
+					string CanceledSubject = "Canceled: " + Subject;
+					Thread.Sleep(8000);
+					SentMessageIds = GetSentOrDeleteMessage(CanceledSubject, myServer, "sentitems");
+					Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "SentMessageIds1 count:" + SentMessageIds.Count);
+					
+					DeleteSentOrDeleteMessages(SentMessageIds, myServer, "sentitems");
+					DeleteMessageIds = GetSentOrDeleteMessage(CanceledSubject, myServer, "deleteditems");
+					Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "DeleteMessageIds2 count:" + DeleteMessageIds.Count);
+					
+					DeleteSentOrDeleteMessages(DeleteMessageIds, myServer, "deleteditems");
+					Thread.Sleep(7000);
+					SentMessageIds = GetSentOrDeleteMessage(Subject, myServer, "sentitems");
+
+					if (SentMessageIds.Count != 0)
+					{
+
+						DeleteSentOrDeleteMessages(SentMessageIds, myServer, "sentitems");
+					}
+					DeleteMessageIds = GetSentOrDeleteMessage(Subject, myServer, "deleteditems");
+
+					if (DeleteMessageIds.Count != 0)
+					{
+
+						DeleteSentOrDeleteMessages(DeleteMessageIds, myServer, "deleteditems");
+					}
+					Common.makeAlert(true, myServer, commonEnums.AlertType.Delete_Calendar_Entry, ref AllTestsList, "Successfully deleted test Calender entry", "Performance");
+				}
 				else
-					Common.makeAlert(false, myServer, commonEnums.AlertType.Delete_Calendar_Entry, ref AllTestsList, "Calender entry could not be deleted.", "Performance");
-			}
+				{
+					Common.makeAlert(false, myServer, commonEnums.AlertType.Delete_Calendar_Entry, ref AllTestsList, "Calender entry could not be deleted", "Performance");
+				}
+		   }
 			else
-				Common.makeAlert(false, myServer, commonEnums.AlertType.Create_Calendar_Entry, ref AllTestsList, "Calender entry cannot be created.", "Performance");
+				Common.makeAlert(false, myServer, commonEnums.AlertType.Create_Calendar_Entry, ref AllTestsList, "Calender entry cannot be created", "Performance");
 
 			return calendarId;
 			//create a new event
@@ -611,7 +681,7 @@ namespace VitalSignsMicrosoftClasses
 				elapsed = new TimeSpan(done - start);
 			}
 			if (messageId == "")
-				Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was not delivered in the specified threshold time plus additional 30 secs.", "Performance");
+				Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was not delivered in the specified threshold time plus additional 30 secs", "Performance");
 			else
 			{
 				if ((myServer.MailFlowThreshold!=0)&&(myServer.MailFlowThreshold>0)&&(myServer.MailFlowThreshold < elapsed.TotalMilliseconds))
@@ -623,11 +693,12 @@ namespace VitalSignsMicrosoftClasses
 						   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
 					//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
                     AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "MailLatency" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
-					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered,but it did not meet the threshold value of " + myServer.MailFlowThreshold, "Performance");
+					//Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered, but it did not meet the threshold value of " + myServer.MailFlowThreshold+" ms", "Performance");
+					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail flow: The Mail was delivered in " + elapsed.TotalMilliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + myServer.MailFlowThreshold + " ms", "Performance");
 				}
 				else
 				{
-					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered" + myServer.MailFlowThreshold, "Performance");
+					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered" + myServer.MailFlowThreshold + " ms", "Performance");
 				}
 			
 			}
@@ -666,6 +737,45 @@ namespace VitalSignsMicrosoftClasses
 			}
 			return messageId;
 		}
+		public List<string> GetSentOrDeleteMessage(string Subject, MonitoredItems.Office365Server myServer, string FolderName)
+		{string response=string.Empty;
+			List<string> messageIds = new List<string>();
+			
+				response = submitRequest("https://outlook.office365.com/api/v1.0/me/Folders/" + FolderName + "/messages?$top=20", "GET", "", myServer.UserName, myServer.Password);
+			//do
+			//{
+				if (response != "")
+				{
+					
+					RootObject myDevices = new RootObject();
+					DataContractJsonSerializer serializer = new DataContractJsonSerializer(myDevices.GetType());
+					MemoryStream ms = new MemoryStream(System.Text.Encoding.Unicode.GetBytes(response));
+					try
+					{
+						myDevices = (RootObject)serializer.ReadObject(ms);
+						for (int i = 0; i < myDevices.value.Count; i++)
+						{
+							if (myDevices.value[i].Subject.Contains(Subject))
+								messageIds.Add(myDevices.value[i].Id);
+						}
+					}
+					catch (Exception ex)
+					{
+						
+						string s = ex.Message.ToString();
+					}
+					
+				}
+				//else
+				//{
+				//    Thread.Sleep(10000);
+
+				//}
+			//} while (string.IsNullOrEmpty(response));
+			
+			return messageIds;
+		}
+		
 		public void doInboxTest(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList)
 		{
 			long done;
@@ -704,11 +814,11 @@ namespace VitalSignsMicrosoftClasses
 					   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
 				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
                 AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Inbox" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
-				Common.makeAlert(bInboxTest, myServer, commonEnums.AlertType.Inbox, ref AllTestsList, "Successfully connected to Inbox.", "Performance");
+				Common.makeAlert(bInboxTest, myServer, commonEnums.AlertType.Inbox, ref AllTestsList, "Successfully connected to Inbox", "Performance");
 			}
 			else
 			{
-				Common.makeAlert(bInboxTest, myServer, commonEnums.AlertType.Inbox, ref AllTestsList, "Connection to Inbox failed.", "Performance");
+				Common.makeAlert(bInboxTest, myServer, commonEnums.AlertType.Inbox, ref AllTestsList, "Connection to Inbox failed", "Performance");
 			}
 		}
 		public bool deleteMessage(string messageId, MonitoredItems.Office365Server myServer)
@@ -716,6 +826,18 @@ namespace VitalSignsMicrosoftClasses
 			bool isMessageDeleted = false;
 			string response = submitRequest("https://outlook.office365.com/api/v1.0/me/messages/" + messageId, "DELETE", "", myServer.UserName, myServer.Password);
 			return isMessageDeleted;
+		}
+		public bool DeleteSentOrDeleteMessages(List<string> messageIds, MonitoredItems.Office365Server myServer, string FolderName)
+		{
+			bool isMessageDeleted = false;
+			string response = "";
+			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Message Id Count:" + messageIds.Count);
+			foreach (string messageId in messageIds)
+			{
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Message Id:" + messageId);
+				response = submitRequest("https://outlook.office365.com/api/v1.0/me/Folders/" + FolderName + "/messages/" + messageId, "DELETE", "", myServer.UserName, myServer.Password);
+			}
+				return isMessageDeleted;
 		}
 		#endregion
 		#region calendar
@@ -745,28 +867,38 @@ namespace VitalSignsMicrosoftClasses
 		}
 		#endregion
 		#region sharepointFiles
-		public void uploadFile(MonitoredItems.Office365Server Server, ref TestResults AllTestsList)
-		{
-			//first get the folder. or just upload to root?
-			//string URL1 = "https://rprvitalsigns-my.sharepoint.com/_api/v1.0/me/files/01KJ5FF2WLRQDGXS25KVGIDBIHBGT2I5DY/children/0365.png/content";
-			//string URL2 = "https://" + Server.tenantName + "-my.sharepoint.com/_api/v1.0/me/files/root/children/test.txt/content";
-			string URL = "https://" + Server.tenantName + ".sharepoint.com";
-			//string URL = "https://" + Server.tenantName + "-my.sharepoint.com/_api/v1.0/me/files/root";
-			//uploadSharePointfile(URL, URL2, Server, ref AllTestsList);
-			SharePointOnlineCredentials creds = new SharePointOnlineCredentials(Server.UserName, Common.String2SecureString(Server.Password));
-			string fileName = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\TestFiles\\VSTestText.txt";
-			bool fileUploadStatus = UploadFile(URL, creds, "Documents", fileName, Server, ref AllTestsList);
-			if (fileUploadStatus == true)
-			{
-				Common.makeAlert(fileUploadStatus, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "Successfully uploaded a test document.", "Performance");
-			}
-			else
-			{
-				Common.makeAlert(fileUploadStatus, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "Upload document test failed.", "Performance");
-			}
-			//bool fileDownloadStatus = DownloadDocument(URL, "VSTestText.txt", creds, "Documents");
-			//Common.makeAlert(fileDownloadStatus, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "", Server.ServerType);
-		}
+        public void uploadFile(MonitoredItems.Office365Server Server, ref TestResults AllTestsList)
+        {
+            //first get the folder. or just upload to root?
+            //string URL1 = "https://rprvitalsigns-my.sharepoint.com/_api/v1.0/me/files/01KJ5FF2WLRQDGXS25KVGIDBIHBGT2I5DY/children/0365.png/content";
+            //string URL2 = "https://" + Server.tenantName + "-my.sharepoint.com/_api/v1.0/me/files/root/children/test.txt/content";
+            string URL = "https://" + Server.tenantName + ".sharepoint.com";
+            //string URL = "https://" + Server.tenantName + "-my.sharepoint.com/_api/v1.0/me/files/root";
+            //uploadSharePointfile(URL, URL2, Server, ref AllTestsList);
+            SharePointOnlineCredentials creds = new SharePointOnlineCredentials(Server.UserName, Common.String2SecureString(Server.Password));
+            string fileName = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\TestFiles\\VSTestText.txt";
+            long done;
+            long start;
+            TimeSpan elapsed = new TimeSpan(0);
+            start = DateTime.Now.Ticks;
+            bool fileUploadStatus = UploadFile(URL, creds, "Documents", fileName, Server, ref AllTestsList);
+            done = DateTime.Now.Ticks;
+            elapsed = new TimeSpan(done - start);
+            if (fileUploadStatus == true)
+            {
+                if ((Server.OneDriveUplaodThreshold != 0) && (Server.OneDriveUplaodThreshold > 0) && (Server.OneDriveUplaodThreshold < elapsed.TotalMilliseconds))
+					// Common.makeAlert(false, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "Successfully uploaded a test document but it did not meet the threshold time of " + Server.OneDriveUplaodThreshold.ToString() + " ms", "Performance");
+					Common.makeAlert(elapsed.TotalMilliseconds, Server.OneDriveUplaodThreshold, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "OneDrive Upload Document: The document was Upload in " + elapsed.TotalMilliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + Server.OneDriveUplaodThreshold + " ms", "Performance");
+                else
+                    Common.makeAlert(fileUploadStatus, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "Successfully uploaded a test document", "Performance");
+            }
+            else
+            {
+                Common.makeAlert(fileUploadStatus, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "Upload document test failed", "Performance");
+            }
+            //bool fileDownloadStatus = DownloadDocument(URL, "VSTestText.txt", creds, "Documents");
+            //Common.makeAlert(fileDownloadStatus, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "", Server.ServerType);
+        }
 		private bool UploadFile(string url, System.Net.ICredentials creds, string listTitle, string fileName, MonitoredItems.Office365Server Server, ref TestResults AllTestsList)
 		{
 			bool fileUploadSuccess = false;
@@ -816,20 +948,38 @@ namespace VitalSignsMicrosoftClasses
 
 			return fileUploadSuccess;
 		}
-		public void downloadSPFile(MonitoredItems.Office365Server Server, ref TestResults AllTestsList)
-		{
-			string URL = "https://" + Server.tenantName + ".sharepoint.com";
-			SharePointOnlineCredentials creds = new SharePointOnlineCredentials(Server.UserName, Common.String2SecureString(Server.Password));
-			bool fileDownloadStatus = DownloadDocument(URL, "VSTestText.txt", creds, "Documents", Server, ref AllTestsList);
-			if (fileDownloadStatus == true)
-			{
-				Common.makeAlert(fileDownloadStatus, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "Download document test passed.", "Performance");
-			}
-			else
-			{
-				Common.makeAlert(fileDownloadStatus, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "Download document test  failed.", "Performance");
-			}
-		}
+        public void downloadSPFile(MonitoredItems.Office365Server Server, ref TestResults AllTestsList)
+        {
+			
+            string URL = "https://" + Server.tenantName + ".sharepoint.com";
+            SharePointOnlineCredentials creds = new SharePointOnlineCredentials(Server.UserName, Common.String2SecureString(Server.Password));
+            long done;
+            long start;
+            TimeSpan elapsed = new TimeSpan(0);
+            start = DateTime.Now.Ticks;
+            bool fileDownloadStatus = DownloadDocument(URL, "VSTestText.txt", creds, "Documents", Server, ref AllTestsList);
+            done = DateTime.Now.Ticks;
+            elapsed = new TimeSpan(done - start);
+            if (fileDownloadStatus == true)
+            {
+				
+				if ((Server.OneDriveDownlaodThreshold != 0) && (Server.OneDriveDownlaodThreshold > 0) && (Server.OneDriveDownlaodThreshold < elapsed.TotalMilliseconds))
+				{
+
+					// Common.makeAlert(false, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "Successfully downloaded a test document but it did not meet the threshold time of " + Server.OneDriveUplaodThreshold.ToString() + " ms", "Performance");
+					Common.makeAlert(elapsed.TotalMilliseconds, Server.OneDriveDownlaodThreshold, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "	OneDrive Download Document: The Document was downloaded in " + elapsed.TotalMilliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + Server.OneDriveDownlaodThreshold + " ms", "Performance");
+				}
+				else
+					
+					Common.makeAlert(fileDownloadStatus, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "Successfully downloaded a test document", "Performance");
+
+            }
+            else
+            {
+				
+                Common.makeAlert(fileDownloadStatus, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "Download document test  failed", "Performance");
+            }
+        }
 		public bool DownloadDocument(string siteURL, string documentName, System.Net.ICredentials creds, string documentListName, MonitoredItems.Office365Server Server, ref TestResults AllTestsList)
 		{
 			long done;
@@ -1001,6 +1151,7 @@ namespace VitalSignsMicrosoftClasses
 			
 			long done;
 			long start;
+		
 			TimeSpan elapsed = new TimeSpan(0);
 			start = DateTime.Now.Ticks;
 
@@ -1017,18 +1168,33 @@ namespace VitalSignsMicrosoftClasses
 				string Id = response.Substring(response.IndexOf("\"Id") + "\"Id\":".Length);
 				Id = Id.Substring(0, Id.IndexOf('"', 2)).Replace("\"", "").Trim();
 
-				response = submitRequest("https://outlook.office365.com/api/v1.0/me/folders/" + Id, "DELETE", "", Server.UserName, Server.Password);
-
-
 				//Alerting and SQLs
 				string sql = Common.GetInsertIntoDailyStats(Server.Name, Server.ServerTypeId.ToString(), "CreateFolder"+ "@" + nodeName  , elapsed.Milliseconds.ToString());
 				//AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sql });
                 AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "CreateFolder" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
-				Common.makeAlert(elapsed.Milliseconds, Server.CreateFolderThreshold, Server, commonEnums.AlertType.Create_Mail_Folder, ref AllTestsList, "Performance");
 
+		     //  Common.makeAlert(elapsed.Milliseconds, Server.CreateFolderThreshold, Server, commonEnums.AlertType.Create_Mail_Folder, ref AllTestsList, "Performance");
+				if ((Server.CreateFolderThreshold != 0) && (Server.CreateFolderThreshold > 0) && (Server.CreateFolderThreshold < elapsed.Milliseconds))
+				{
+					Common.makeAlert(elapsed.Milliseconds, Server.CreateFolderThreshold, Server, commonEnums.AlertType.Create_Mail_Folder, ref AllTestsList, "Create Mail Folder: The folder was created in " + elapsed.Milliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + Server.CreateFolderThreshold + " ms", "Performance");
+				}
+				else
+				{
+					Common.makeAlert(elapsed.Milliseconds, Server.CreateFolderThreshold, Server, commonEnums.AlertType.Create_Mail_Folder, ref AllTestsList, "The Create Mail Folder test was successful", "Performance");
+
+				}
+				response = submitRequest("https://outlook.office365.com/api/v1.0/me/folders/" + Id, "DELETE", "", Server.UserName, Server.Password);
+				if (response=="")
+					Common.makeAlert(true, Server, commonEnums.AlertType.Delete_Mail_Folder, ref AllTestsList, "Successfully deleted test Mail Folder", "Performance");
+				else
+					Common.makeAlert(false, Server, commonEnums.AlertType.Delete_Mail_Folder, ref AllTestsList, "Failed to delete a Mail Folder", "Performance");
+				}
+			else
+			{
+				Common.makeAlert(false, Server, commonEnums.AlertType.Create_Mail_Folder, ref AllTestsList, "Mail Folder cannot be created", "Performance");
 			}
 		}
-		#endregion
+		#endregion 
 
 		#region sampleTestCode
 		private void testBasicAuthO365OWA()
@@ -2453,6 +2619,7 @@ namespace VitalSignsMicrosoftClasses
 		public bool IsReadReceiptRequested { get; set; }
 		public bool IsDraft { get; set; }
 		public bool IsRead { get; set; }
+		public string DisplayName { get; set; }
 	}
 
 	public class RootObject

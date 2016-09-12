@@ -527,11 +527,13 @@ namespace VitalSignsMicrosoftClasses
 			CommonDB DB = new CommonDB();
 			StringBuilder SQL = new StringBuilder();
 			SQL.Append(" select distinct Sr.ID,Sr.ServerName,S.ServerType, S.ID as ServerTypeId,L.Location,sa.ScanInterval,sa.RetryInterval,sa.OffHourInterval,sa.Enabled,sr.ipaddress,sa.category,cr.UserID,cr.Password,sa.ResponseTime,spf.Farm, ");
-			SQL.Append(" (select RoleName from RolesMaster where id=(select RoleID from ServerRoles where ServerID=sr.ID)) as RoleName, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID, sa.CPU_Threshold, sa.MemThreshold  ");
+			SQL.Append(" (select RoleName from RolesMaster where id=(select RoleID from ServerRoles where ServerID=sr.ID)) as RoleName, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID, sa.CPU_Threshold, sa.MemThreshold,  ");
+            SQL.Append("  spss.ConflictingContentType ,spss.CustomizedFiles, spss.MissingGalleries, spss.MissingParentContentTypes, spss.MissingSiteTemplates, spss.UnsupportedLanguagePack, spss.UnsupportedMUI ");
 			SQL.Append("  from Servers Sr ");
 			SQL.Append(" inner join ServerTypes S on Sr.ServerTypeID=S.ID  inner join Locations L on Sr.LocationID =L.ID  left outer join ServerAttributes sa on sr.ID=sa.serverid ");
 			SQL.Append(" inner join credentials cr on sa.CredentialsId=cr.ID ");
 			SQL.Append(" left join SharePointFarms spf on spf.ServerId=sr.ID ");
+            SQL.Append(" left join SharePointServerSettings spss on spss.ServerId=sr.ID ");
 			if (ConfigurationManager.AppSettings["VSNodeName"] != null)
 			{
 				string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
@@ -650,6 +652,13 @@ namespace VitalSignsMicrosoftClasses
 			MySPServer.Category = DR["Category"].ToString();
 			MySPServer.ServerId = DR["ID"].ToString();
 			MySPServer.Farm = DR["Farm"] == null ? "" : DR["Farm"].ToString();
+            MySPServer.ConflictingContentType = DR["ConflictingContentType"] == null || DR["ConflictingContentType"].ToString() == "" ? true : Convert.ToBoolean(DR["ConflictingContentType"].ToString());
+            MySPServer.CustomizedFiles = DR["CustomizedFiles"] == null || DR["CustomizedFiles"].ToString() == "" ? true : Convert.ToBoolean(DR["CustomizedFiles"].ToString());
+            MySPServer.MissingGalleries = DR["MissingGalleries"] == null || DR["MissingGalleries"].ToString() == "" ? true : Convert.ToBoolean(DR["MissingGalleries"].ToString());
+            MySPServer.MissingParentContentTypes = DR["MissingParentContentTypes"] == null || DR["MissingParentContentTypes"].ToString() == "" ? true : Convert.ToBoolean(DR["MissingParentContentTypes"].ToString());
+            MySPServer.MissingSiteTemplates = DR["MissingSiteTemplates"] == null || DR["MissingSiteTemplates"].ToString() == "" ? true : Convert.ToBoolean(DR["MissingSiteTemplates"].ToString());
+            MySPServer.UnsupportedLanguagePack = DR["UnsupportedLanguagePack"] == null || DR["UnsupportedLanguagePack"].ToString() == "" ? true : Convert.ToBoolean(DR["UnsupportedLanguagePack"].ToString());
+            MySPServer.UnsupportedMUI = DR["UnsupportedMUI"] == null || DR["UnsupportedMUI"].ToString() == "" ? true : Convert.ToBoolean(DR["UnsupportedMUI"].ToString());
 
 			MySPServer.InsufficentLicenses = DR["CurrentNodeID"] != null && DR["CurrentNodeID"].ToString() == "-1" ? true : false;
 
@@ -892,7 +901,7 @@ namespace VitalSignsMicrosoftClasses
 						//TestSiteCollCreationAndFileUplaod(myServer, AllTestsList, powershellobj, DummyServerForLogs);
 						//TestSiteCollectionSize(myServer, AllTestsList, powershellobj, DummyServerForLogs);
 
-                        if ((new string[] { "WebFrontEnd", "SingleServer" }).Contains(myServer.Role))
+                        if ((new string[] { "WebFrontEnd", "SingleServer", "Application" }).Contains(myServer.Role))
                         {
                             GetUserAndSiteActivity(myServer, AllTestsList, powershellobj, DummyServerForLogs);
                         }
@@ -1319,95 +1328,116 @@ namespace VitalSignsMicrosoftClasses
 		public void GetUserAndSiteActivity(MonitoredItems.SharepointServer myServer, TestResults AllTestsList, ReturnPowerShellObjects powershellobj, MonitoredItems.SharepointServer DummyServerForLogs)
 		{
 
-			try
-			{
 
-				Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "In GetUserAndSiteActivity", Common.LogLevel.Normal);
 
-				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+			Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "In GetUserAndSiteActivity", Common.LogLevel.Normal);
 
-				String path = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SP_UserAndSiteActivity.ps1";
-				String str = "Invoke-Command -Session $ra -FilePath '" + path + "'";
 
-				powershellobj.PS.Commands.Clear();
-				powershellobj.PS.Streams.ClearStreams();
-				powershellobj.PS.AddScript(str);
 
-				results = powershellobj.PS.Invoke();
+            PowerShell powershell = powershellobj.PS;
 
-				Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SP_SiteCollectionSize Results: " + results.Count, Common.LogLevel.Normal);
+            //Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In GetRequiredServices ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-				if (powershellobj.PS.Streams != null && powershellobj.PS.Streams.Error != null && powershellobj.PS.Streams.Error.Count > 0)
-					for (int i = 0; i < powershellobj.PS.Streams.Error.Count; i++)
-					{
-						Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SP_SiteCollectionSize Error: " + powershellobj.PS.Streams.Error[i].ErrorDetails, Common.LogLevel.Normal);
-						Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SP_SiteCollectionSize Error: " + powershellobj.PS.Streams.Error[i].Exception, Common.LogLevel.Normal);
-					}
-                    
+            String sr = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SP_UserAndSiteActivity.ps1";
+            String str = "Invoke-Command -Session $ra -FilePath '" + sr + "'";
+            powershell.Streams.Error.Clear();
 
-				if(results.Count == 1)
+            powershell.AddScript(str);
+
+            Collection<PSObject> results = powershell.Invoke();
+
+            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "GetUserAndSiteActivity output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+            
+            Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SP_UserAndSiteActivity Results: " + results.Count, Common.LogLevel.Normal);
+
+			if (powershellobj.PS.Streams != null && powershellobj.PS.Streams.Error != null && powershellobj.PS.Streams.Error.Count > 0)
+				for (int i = 0; i < powershellobj.PS.Streams.Error.Count; i++)
 				{
-					DateTime dateTime = DateTime.Now;
-
-					List<String> list = new List<String>();
-					List<String> listForCounts = new List<String>();
-
-                    List<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics> listOfWebTraffic = new List<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics>();
-
-                    if (results[0].Properties["path"] != null)
-                    {
-                            System.Collections.ArrayList obj = (System.Collections.ArrayList)(((PSObject)results[0].Properties["path"].Value).BaseObject);
-
-                            foreach (PSObject paths in obj)
-                            {
-                                string Url = paths.Properties["Name"].Value.ToString();
-                                string Count = paths.Properties["Count"].Value.ToString();
-
-                                listOfWebTraffic.Add(new VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics()
-                                {
-                                    StatValue = Convert.ToInt32(Count),
-                                    ServerName = myServer.Name,
-                                    RelativeUrl = Url
-                                });
-
-
-                            }
-
-                        }
-
-                    if (results[0].Properties["users"] != null)
-                    {
-                            System.Collections.ArrayList obj = (System.Collections.ArrayList)(((PSObject)results[0].Properties["users"].Value).BaseObject);
-
-                            foreach (PSObject paths in obj)
-                            {
-                                string User = paths.Properties["Name"].Value.ToString();
-                                string Count = paths.Properties["Count"].Value.ToString();
-
-                                listOfWebTraffic.Add(new VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics()
-                                {
-                                    StatValue = Convert.ToInt32(Count),
-                                    ServerName = myServer.Name,
-                                    UserName = User
-                                });
-                            }
-
-                        }
-
-                    MongoStatementsInsert<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics> mongoInsert = new MongoStatementsInsert<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics>();
-                    mongoInsert.listOfEntities = listOfWebTraffic;
-                    AllTestsList.MongoEntity.Add(mongoInsert);
-
+                Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SP_UserAndSiteActivity Error: " + powershellobj.PS.Streams.Error[i].ErrorDetails, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SP_UserAndSiteActivity Error: " + powershellobj.PS.Streams.Error[i].Exception, Common.LogLevel.Normal);
 				}
 
 
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "Error in SP_SiteCollectionSize.  Error: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-			}
+            if (results.Count > 0)
+            {
+                //Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "BaseObj: " + results[0].BaseObject.ToString(), Common.LogLevel.Normal);
+                DateTime dateTime = DateTime.Now;
+
+                List<String> listForURLs = new List<String>();
+                List<String> listForUsers = new List<String>();
+                List<String> listForCounts = new List<String>();
+
+                List<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics> listOfWebTraffic = new List<VSNext.Mongo.Entities.SharePointWebTrafficDailyStatistics>();
+
+                try
+                {
+                    string Url, Count, User, DisplayCount;
 
 
+                    foreach (PSObject paths in results)
+                    {
+                        Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "path: " + paths.Properties["Name"].Value, Common.LogLevel.Normal);
+                        if (paths.Properties["Name"].Value != null)
+                        {
+
+                            Url = paths.Properties["Name"].Value.ToString();
+                            Count = paths.Properties["Count"].Value == null ? "" : paths.Properties["Count"].Value.ToString();
+                            listForURLs.Add("SELECT '" + Url + "' Name");
+                            listForCounts.Add("('" + myServer.Name + "',(SELECT ID FROM SharePointSiteRelativeUrl WHERE ServerRelativeUrl = '" + Url + "'), null, '" + Count + "', '" + dateTime + "', '"
+                                + Common.GetWeekNumber(dateTime) + "', '" + dateTime.Month + "', '" + dateTime.Year + "', '" + dateTime.Day + "', '" + dateTime.Hour + "')");
+
+
+
+                            // sqlForURLs += String.Join(" union ", listForURLs) + ")tbl where tbl.Name not in (select ServerRelativeUrl from SharePointSiteRelativeUrl)";
+                        }
+
+                        if (paths.Properties["UName"].Value != null)
+                        {
+                            //string Url = paths.Properties["Name"].Value == null ? "" : paths.Properties["Name"].Value.ToString();
+                            // Url = paths.Properties["Name"].Value == null ? "" : paths.Properties["Name"].Value.ToString();
+
+                            User = paths.Properties["UName"].Value == null ? "" : paths.Properties["UName"].Value.ToString();
+                            DisplayCount = paths.Properties["UDisplacount"].Value == null ? "" : paths.Properties["UDisplacount"].Value.ToString();
+
+                            listForUsers.Add("SELECT '" + User + "' Name");
+                            listForCounts.Add("('" + myServer.Name + "',null, (SELECT ID FROM SharePointUsers WHERE UserName = '" + User + "'), '" + DisplayCount + "', '" + dateTime + "', '"
+                                + Common.GetWeekNumber(dateTime) + "', '" + dateTime.Month + "', '" + dateTime.Year + "', '" + dateTime.Day + "', '" + dateTime.Hour + "')");
+                            // sqlForUsers += String.Join(" union ", listForUsers) + ")tbl where tbl.Name not in (select UserName from SharePointUsers)";
+                            //  sqlForCounts += String.Join(",", listForCounts);
+                        }
+                    }
+                    /*
+                    if (listForURLs.Count > 0)
+                    {
+                        sqlForURLs += String.Join(" union ", listForURLs) + ")tbl where tbl.Name not in (select ServerRelativeUrl from SharePointSiteRelativeUrl)";
+                        AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlForURLs });
+                        Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SQL: " + sqlForURLs, Common.LogLevel.Normal);
+
+                    }
+                    if (listForUsers.Count > 0)
+                    {
+                        sqlForUsers += String.Join(" union ", listForUsers) + ")tbl where tbl.Name not in (select UserName from SharePointUsers)";
+                        AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlForUsers });
+                        Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SQL: " + sqlForUsers, Common.LogLevel.Normal);
+                    }
+                    if (listForCounts.Count > 0)
+                    {
+                        sqlForCounts += String.Join(",", listForCounts);
+                        AllTestsList.SQLStatements.Add(new SQLstatements() { DatabaseName = "VSS_Statistics", SQL = sqlForCounts });
+                        Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "SQL: " + sqlForCounts, Common.LogLevel.Normal);
+				}
+
+
+
+                */
+
+                }
+
+                catch (Exception ex)
+                {
+                    Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "Error in GetUserAndSiteActivity.  Error: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                }
+            }
 
 		}
 

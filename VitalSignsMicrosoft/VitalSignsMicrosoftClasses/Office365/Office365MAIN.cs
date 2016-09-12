@@ -91,7 +91,7 @@ namespace VitalSignsMicrosoftClasses
 					CreateOffice365ServersCollection();
 					InitStatusTable(myOffice365Servers);
 
-					StartO365Threads();
+					StartO365Threads(false );
 
 					//sleep for one minute to allow time for the collection to be made 
 					Thread.Sleep(60 * 1000 * 1);
@@ -104,21 +104,12 @@ namespace VitalSignsMicrosoftClasses
 					HourlyTasksThread.Start();
 					Thread.Sleep(2000);
 
-					//Being handled elsewhere...Common -> MonitorTables -> CheckForTableChanges
-					/*Thread monitorChanges = new Thread(new ThreadStart(CheckForTableChanges));
-					monitorChanges.CurrentCulture = c;
-					monitorChanges.IsBackground = true;
-					monitorChanges.Priority = ThreadPriority.Normal;
-					monitorChanges.Name = "CheckForTableChanges";
-					monitorChanges.Start();
-					Thread.Sleep(2000);
-					*/
-					Thread DailyTasksThread = new Thread(new ThreadStart(DailyTasks));
-					DailyTasksThread.CurrentCulture = c;
-					DailyTasksThread.IsBackground = true;
-					DailyTasksThread.Priority = ThreadPriority.Normal;
-					DailyTasksThread.Name = "DailyTasks - O365";
-					DailyTasksThread.Start();
+                    Thread DailyTasksThread = new Thread(new ThreadStart(DailyTasks));
+                    DailyTasksThread.CurrentCulture = c;
+                    DailyTasksThread.IsBackground = true;
+                    DailyTasksThread.Priority = ThreadPriority.Normal;
+                    DailyTasksThread.Name = "DailyTasks - O365";
+                    DailyTasksThread.Start();
 					Thread.Sleep(2000);
 				}
 				else
@@ -135,17 +126,19 @@ namespace VitalSignsMicrosoftClasses
 			catch (Exception ex)
 			{
 				Common.WriteDeviceHistoryEntry("All", serverType, "Error starting StartProcess exception CreateO365ServersCollection: " + ex.StackTrace.ToString(), Common.LogLevel.Normal);
-				throw ex;
+				//throw ex;
 
 			}
 
 		}
 		int serverThreadCount = 0;
 		int initialServerThreadCount = 0;
-		System.Collections.ArrayList AliveServerMainThreads = new System.Collections.ArrayList();
-		private void StartO365Threads()
+		System.Collections.ArrayList AliveServerMainThreads;
+		private void StartO365Threads(bool killThreads)
 		{
 			int startThreads = 0;
+            if (!killThreads)
+                AliveServerMainThreads = new System.Collections.ArrayList();
 			serverThreadCount = myOffice365Servers.Count / 3;
 			if (serverThreadCount <= 1)
 				if (myOffice365Servers.Count > 1)
@@ -164,6 +157,7 @@ namespace VitalSignsMicrosoftClasses
 				int j = initialServerThreadCount - serverThreadCount;
 				//if inital threads are 5 and current threads are 3
 				//5-3=2: //remove 2 threads
+                if(killThreads)
 				foreach (Thread th in AliveServerMainThreads)
 				{
 					if (j > 0)
@@ -176,8 +170,8 @@ namespace VitalSignsMicrosoftClasses
 			}
 			initialServerThreadCount = serverThreadCount;
 
-			Common.WriteDeviceHistoryEntry("All", serverType, "There are startThreads-" + startThreads + " threads open", Common.LogLevel.Normal);
-			Common.WriteDeviceHistoryEntry("All", serverType, "There are " + serverThreadCount + " threads open", Common.LogLevel.Normal);
+			Common.WriteDeviceHistoryEntry("All", serverType, "There are startThreads-" + startThreads + " threads open");
+			Common.WriteDeviceHistoryEntry("All", serverType, "There are " + serverThreadCount + " threads open");
 			for (int i = startThreads; i < serverThreadCount; i++)
 			{
 				Common.WriteDeviceHistoryEntry("All", serverType, "Getting the server to monitor-", Common.LogLevel.Normal);
@@ -451,24 +445,6 @@ namespace VitalSignsMicrosoftClasses
 							//Office365Common.checkServer(thisServer, ref AllTestResults, ref isResponding);
 							ReturnPowerShellObjects results = Office365Common.testO365ServerConnectivity(thisServer, ref AllTestResults, ref isResponding);
 
-							//Thread workingThread;
-							//System.Collections.ArrayList AliveThreads = new System.Collections.ArrayList();
-							//workingThread = new Thread(() => startWindowsMonitoring(thisServer, ref AllTestResults));
-							//workingThread.CurrentCulture = c;
-							//workingThread.IsBackground = true;
-							//workingThread.Priority = ThreadPriority.Normal;
-							//workingThread.Name = "WIN - Exchange";
-							//workingThread.Start();
-							//AliveThreads.Add(workingThread);
-
-							//MicrosoftCommon MSCommon = new MicrosoftCommon();
-							//MSCommon.PrereqForWindows(thisServer, ref AllTestResults);
-
-							//if (DB.GetData("SELECT * FROM WindowsServices WHERE ServerName='" + thisServer.Name + "'").Rows.Count == 0)
-							//{
-							//    string sql = "UPDATE WindowsServices SET Monitored=1, ServerRequired=1 WHERE ServerName='" + thisServer.Name + "' AND DisplayName like '%Active Directory%'";
-							//    AllTestResults.SQLStatements.Add(new SQLstatements { DatabaseName = "vitalsigns", SQL = sql }); 
-							//}
 							string errorMessage = "";
 							if (thisServer.ADFSMode && thisServer.ADFSRedirectTest == false)
 								errorMessage = "ADFS Service Unavailable";
@@ -625,136 +601,50 @@ repo.Upsert(filterdef, updatedef);
 			Boolean nodeScan=false;
 			if (ConfigurationManager.AppSettings["VSNodeName"] != null)
 				NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
-
-			//string sSQL = "select * from O365Nodes,Nodes where Nodes.Id=O365Nodes.NodeId and Nodes.Name='" + NodeName + "'";
-			//DataTable dtNodes = DB.GetData(sSQL.ToString());
-			//if (dtNodes.Rows.Count > 0)
-			//    nodeScan = true;
 			
 			StringBuilder SQL = new StringBuilder();
-			//SQL.Append(" select distinct Sr.ID,Sr.ServerName,S.ServerType, S.ID as ServerTypeId,L.Location,sa.ScanInterval,sa.RetryInterval,sa.OffHourInterval,sa.Enabled,sr.ipaddress,sa.category,cr.UserID,cr.Password,sa.ResponseTime ");
-			//SQL.Append("  from Servers Sr ");
-			//SQL.Append(" inner join ServerTypes S on Sr.ServerTypeID=S.ID  inner join Locations L on Sr.LocationID =L.ID  left outer join ServerAttributes sa on sr.ID=sa.serverid ");
-			//SQL.Append(" inner join credentials cr on sa.CredentialsId=cr.ID ");
-			//SQL.Append(" where S.ServerType='" + serverType+"' and sa.Enabled = 1 order by sr.id");
 			SQL.Append("select O365.ID,o365.Name,Category,ScanInterval,OffHoursScanInterval,ResponseThreshold,RetryInterval,UserName,PW,O365.ServerTypeId,ST.ServerType,Mode,ServerName,Cred.UserId,Cred.Password ");
 			if (nodeScan)
 				SQL.Append(",L.Location Location ");
 			else
 				SQL.Append(",L.Location ");
 			SQL.Append(" from O365Server O365 inner join ServerTypes ST on O365.ServerTypeid=ST.ID ");
+			SQL.Append(" inner join O365Nodes ONDT on ONDT.O365ServerId=O365.Id ");
+			SQL.Append(" inner join Nodes on Nodes.Id=ONDT.NodeId and Nodes.Name='" + NodeName + "'");
+			SQL.Append(" inner join Locations L on Nodes.LocationId=L.Id ");
+			SQL.Append(" left outer join Credentials Cred on Cred.Id=o365.CredentialsId ");
 
-			//if (nodeScan)
-			//{
-				SQL.Append(" inner join O365Nodes ONDT on ONDT.O365ServerId=O365.Id ");
-				SQL.Append(" inner join Nodes on Nodes.Id=ONDT.NodeId and Nodes.Name='" + NodeName + "'");
-				SQL.Append(" inner join Locations L on Nodes.LocationId=L.Id ");
-				SQL.Append(" left outer join Credentials Cred on Cred.Id=o365.CredentialsId ");
-
-			//}
-			//else
-			//{
-			//    if (ConfigurationManager.AppSettings["VSNodeName"] != null)
-			//    {
-			//        NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
-			//        SQL.Append(" inner join DeviceInventory di on O365.ID=di.DeviceID and ST.ID=di.DeviceTypeId ");
-			//        SQL.Append(" inner join Nodes on Nodes.ID=di.CurrentNodeId and Nodes.Name='" + NodeName + "' ");
-			//        SQL.Append(" inner join Locations L on Nodes.LocationID=L.ID ");
-			//        SQL.Append(" left outer join Credentials Cred on Cred.Id=o365.CredentialsId ");
-			//    }
-			//}
+		
 			SQL.Append(" WHERE enabled=1 ");
 			DataTable dtServers = DB.GetData(SQL.ToString());
 			//Loop through servers
-			//MonitoredItems.ExchangeThresholdSettings ExchgThreshold = new MonitoredItems.ExchangeThresholdSettings();
 			if (dtServers.Rows.Count > 0)
 			{
+				int updatedServers = 0;
+				int newServers = 0;
+
+				// adds/updates new servers
 				for (int i = 0; i < dtServers.Rows.Count; i++)
 				{
 					DataRow DR = dtServers.Rows[i];
-
-					MonitoredItems.Office365Server MyO365Server = new MonitoredItems.Office365Server();
-					//myExchangeServer.ThresholdSetting = ExchgThreshold;
-					newCollection.Add(SetO365ServerSettings(MyO365Server, DR));
-
-				}
-
-				int updatedServers = 0;
-				int newServers = 0;
-				int removedServers = 0;
-
-				//Removes servers not in the new lsit
-				foreach (MonitoredItems.Office365Server server in myOffice365Servers)
-				{
-					string currName = server.Name;
-					try
+					MonitoredItems.Office365Server oldServer = myOffice365Servers.SearchByName(DR["Name"].ToString());
+					if (oldServer == null)
 					{
-						MonitoredItems.Office365Server newServer = newCollection.SearchByName(currName);
-						if (newServer == null)
-						{
-							//incase it doesnt throw and exception, if not found, removed server from list
-							myOffice365Servers.Delete(currName);
-							removedServers++;
-
-						}
-					}
-					catch (Exception ex)
-					{
-						//server not found
-						myOffice365Servers.Delete(currName);
-						removedServers++;
-
-					}
-
-				}
-
-
-				// adds/updates new servers
-				foreach (MonitoredItems.Office365Server server in newCollection)
-				{
-					string currName = server.Name;
-					try
-					{
-						MonitoredItems.Office365Server oldServer = myOffice365Servers.SearchByName(currName);
-
-						if (oldServer != null)
-						{
-
-							oldServer.IPAddress = server.IPAddress;
-							oldServer.Name = server.Name;
-							oldServer.UserName = server.UserName;
-							oldServer.Password = server.Password;
-							oldServer.Location = server.Location;
-							oldServer.ResponseThreshold = server.ResponseThreshold;
-							oldServer.ScanInterval = server.ScanInterval;
-							oldServer.OffHoursScanInterval = server.OffHoursScanInterval;
-							oldServer.RetryInterval = server.RetryInterval;
-							
-							oldServer.ServerDaysAlert = server.ServerDaysAlert;
-							oldServer.FailureThreshold = server.FailureThreshold;
-							oldServer.Category = server.Category;
-
-							oldServer.Enabled = true;
-
-							updatedServers++;
-						}
-						else
-						{
-							myOffice365Servers.Add(server);
-							newServers++;
-						}
-					}
-					catch (NullReferenceException ex)
-					{
-						myOffice365Servers.Add(server);
+						oldServer = new MonitoredItems.Office365Server();
+						oldServer = SetO365ServerSettings(oldServer, DR);
+						myOffice365Servers.Add(oldServer);
 						newServers++;
 					}
+					else
+					{
+                        oldServer = SetO365ServerSettings(oldServer, DR);
+                        myOffice365Servers.Delete(DR["Name"].ToString());
+                        myOffice365Servers.Add(oldServer);
+						updatedServers++;
+					}
 
 				}
 
-
-				//myExchangeServers = newCollection;
-				/**********************************************************/
 				Common.WriteDeviceHistoryEntry("All",serverType , "There are " + myOffice365Servers.Count + " servers in the collection.  " + newServers + " were new and " + updatedServers + " were updated.");
 			}
 			else
@@ -828,7 +718,7 @@ repo.Upsert(filterdef, updatedef);
 							MyO365Server.EnableSMTPTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
 							//MyO365Server.ComposeEmailThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
 							break;
-						case "POP":
+						case "POP3":
 							MyO365Server.EnablePOPTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
 							break;
 						case "IMAP":
@@ -968,11 +858,11 @@ repo.Upsert(filterdef, updatedef);
 		}
 
 		#region DailyTasks
-
 		private void DailyTasks()
 		{
 			MonitoredItems.Office365Server DummyServerForLogs = new MonitoredItems.Office365Server() { Name = "DailyTasks" };
 			Thread DailyTasksThread = null;
+			
 			int Day = -1;
 			while (true)
 			{
@@ -1004,7 +894,6 @@ repo.Upsert(filterdef, updatedef);
 
 		#region HourlyTasks
 
-
 		private void HourlyTasks()
 		{
 			MonitoredItems.Office365Server DummyServerForLogs = new MonitoredItems.Office365Server() { Name = "HourlyTasks" };
@@ -1016,8 +905,10 @@ repo.Upsert(filterdef, updatedef);
 				{
 					if (HourlyTasksThread != null && HourlyTasksThread.IsAlive)
 					{
-						Common.WriteDeviceHistoryEntry(serverType, DummyServerForLogs.Name, "The thread for Horly Tasks got hung up and will be killed to start the next cycle.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-						HourlyTasksThread.Abort();
+						Common.WriteDeviceHistoryEntry(serverType, DummyServerForLogs.Name, "The thread for Hourly Tasks is still running from the previous hour, will let that thread finish without terminating.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+						//HourlyTasksThread.Abort();
+                        //dont kill the running thread but skip this cycle.
+                        goto skip;
 					}
 
 					HourlyTasksThread = new Thread(() => HourlyTasksMainThread(DummyServerForLogs));
@@ -1027,8 +918,10 @@ repo.Upsert(filterdef, updatedef);
 					HourlyTasksThread.Name = "HourlyTaskWorkerThread - O365";
 					HourlyTasksThread.Start();
 					//Thread.Sleep(60 * 60 * 1000); //sleeps for 1 hour
+                skip:
 					hour = DateTime.Now.Hour;
 				}
+            
 				//sleep for 5 mins
 				Thread.Sleep(1000 * 60 * 5);
 
@@ -1067,12 +960,25 @@ repo.Upsert(filterdef, updatedef);
 					Office365Common Office365Common = new Office365Common();
 					bool isResponding = true;
 					ReturnPowerShellObjects results = Office365Common.testO365ServerConnectivity(testServer, ref AllTestResults, ref isResponding);
-
+                    CommonDB DB = new CommonDB();
 					using (results)
 					{
 						Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Hourly Task started.", Common.LogLevel.Normal);
-						Office365Common.getMobileUsersHourly(testServer, ref AllTestResults, results);
+						//Office365Common.getMobileUsersHourly(testServer, ref AllTestResults, results);
 						Office365Common.getUserswithLicencesandServices(testServer, ref AllTestResults, results);
+                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                         AllTestResults = new TestResults();
+                        Office365Common.getMsolUsers(testServer, ref AllTestResults, results);
+                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                         AllTestResults = new TestResults();
+                        Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
+                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        AllTestResults = new TestResults();
+                        Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
+                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        AllTestResults = new TestResults();
+                        Office365Common.getMailboxeDetails(testServer, ref AllTestResults, results);
+                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
 						//Office365Common.Deletesummarystatsdata(testServer, ref AllTestResults, testServer.ServerType);
 						//Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
 						//Office365Common.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myOffice365Servers, results);
@@ -1080,13 +986,13 @@ repo.Upsert(filterdef, updatedef);
 					}
 
 					GC.Collect();
-					while (testServer.IsBeingScanned)
-					{
-						string doSomething;
-					}
+                    //while (testServer.IsBeingScanned)
+                    //{
+                    //    string doSomething;
+                    //}
 					
-					CommonDB DB = new CommonDB();
-					DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+					
+					
 					Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Hourly Task Ended.", Common.LogLevel.Normal);
 				}
 				else
@@ -1133,20 +1039,22 @@ repo.Upsert(filterdef, updatedef);
 					Office365Common Office365Common = new Office365Common();
 					bool isResponding = true;
 					ReturnPowerShellObjects results = Office365Common.testO365ServerConnectivity(testServer, ref AllTestResults, ref isResponding);
-
+                    CommonDB DB = new CommonDB();
 					using (results)
 					{
 
 						Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Daily Task started.", Common.LogLevel.Normal);
 						//Office365Common.getMailBoxInfo(testServer, ref AllTestResults, results);
-						Office365Common.getMsolUsers(testServer, ref AllTestResults, results);
-						Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
+                        ////Office365Common.getMsolCompanyInfo(testServer, ref AllTestResults, results);
+                        //Office365Common.getMsolUsers(testServer, ref AllTestResults, results);
+                        //Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
+                        //Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
 						Office365Common.getMailboxes(testServer, ref AllTestResults, results);
+                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        AllTestResults = new TestResults();
 						Office365Common.getMailStatusInfo(testServer, ref AllTestResults, results);
-						Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
+                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
 					//	Office365Common.getUserswithLicencesandServices(testServer, ref AllTestResults, results);
-
-
 
 					}
 
@@ -1157,8 +1065,8 @@ repo.Upsert(filterdef, updatedef);
 					//}
 					//let the main thread sql get executed. 2 mins should be enough.
 					//Thread.Sleep(120 * 1000);
-					CommonDB DB = new CommonDB();
-					DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+					
+					
 
 					Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Daily Task Ended.", Common.LogLevel.Normal);
 					AllTestResults = new TestResults();
@@ -1188,9 +1096,21 @@ repo.Upsert(filterdef, updatedef);
 
 		public void RefreshOffice365Collction()
 		{
+
 			CreateOffice365ServersCollection();
-			StartO365Threads();
+            foreach (Thread th in AliveServerMainThreads)
+            {
+                    if (th.IsAlive)
+                        th.Abort();
+            }
+             serverThreadCount = 0;
+             initialServerThreadCount = 0;
+             AliveServerMainThreads = new System.Collections.ArrayList();
+			StartO365Threads(true );
+
+			
 		}
+       
 
 	}
 }

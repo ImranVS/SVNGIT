@@ -115,13 +115,11 @@ Public Class FrmTest
 			Thread.Sleep(2000)
 		End If
 
-		Dim vsClasses As New Office365MAIN()
-		'//vsClasses.StartProcess()
-		MasterO365Thread = New Thread(Sub() vsClasses.StartProcess(New MicrosoftHelperObject))
+		MasterO365Thread = New Thread(Sub() vsClassesOffice365.StartProcess(New MicrosoftHelperObject))
 		'Thread MasterExchangeThread = new Thread(new ThreadStart(exMain.StartProcess));
-		MasterO365Thread.Name = "O365 Main Thread"
 		MasterO365Thread.IsBackground = True
 		MasterO365Thread.Priority = ThreadPriority.Normal
+		MasterO365Thread.Name = "O365 Main Thread"
 		MasterO365Thread.Start()
 		Thread.Sleep(2000)
 

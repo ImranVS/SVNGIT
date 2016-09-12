@@ -33,6 +33,8 @@ namespace VitalSignsMicrosoftClasses
 		CultureInfo culture = CultureInfo.CurrentCulture;
 		public string vbCrLf = System.Environment.NewLine;
 		public string nodeName = "";
+		DateTime time = DateTime.Now;              // Use current time
+		string format = "t";
 		DataTable Ostranslationdata = new DataTable();
 		#region main
 		public void checkServer(MonitoredItems.Office365Server Server, ref TestResults AllTestsList, ReturnPowerShellObjects results)
@@ -50,6 +52,8 @@ namespace VitalSignsMicrosoftClasses
 				p.myServer = Server;
 				p.PSO = results;
 				p.TS = AllTestsList;
+                getMsolAccountSku(Server, ref AllTestsList, results);
+                //getMsolCompanyInfo(Server, ref AllTestsList, results);
 				//getUserswithLicencesandServices(Server, ref AllTestsList, results);
 				//getServiceStatus(Server, ref AllTestsList, results);
 				//getMobileStats(p);//soma
@@ -101,12 +105,13 @@ namespace VitalSignsMicrosoftClasses
 				//o365Th = new Thread(() => getMailBoxStats(p));
 				//o365Th.Name = Server.Name + " getMailBoxStats";
 				//WaitForThread(o365Th, Server);
-				getMailBoxStats(p);
+				//getMailBoxStats(p);
 
 				//o365Th = new Thread(() => getMobileStats(p));
 				//o365Th.Name = Server.Name + " getMobileStats";
 				//WaitForThread(o365Th, Server);
 				getMobileStats(p);
+                getMobileUsersHourly(p.myServer, ref p.TS, p.PSO);
 				//Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "do REST API Tests ", Common.LogLevel.Normal);
 
 				//o365Th = new Thread(() => doAPITests(p));
@@ -115,11 +120,11 @@ namespace VitalSignsMicrosoftClasses
 
 				//getMailboxes(Server, ref AllTestsList, results);
 				//getMailboxeDetails(Server, ref AllTestsList, results);
-				getMsolAccountSku(Server, ref AllTestsList, results);
+				
 				//getAllUsers(Server, ref AllTestsList, results);
 				//getMobileUsers(Server, ref AllTestsList, results);
 				//getMailboxActivity(Server, ref AllTestsList, results);
-				getMsolCompanyInfo(Server, ref AllTestsList, results);
+
 
 				//getLyncStats(Server, ref AllTestsList, results);
 				//getLyncDevices(Server, ref AllTestsList, results);
@@ -266,11 +271,11 @@ namespace VitalSignsMicrosoftClasses
 				if (Server.AuthenticationTest == false)
 				{
 					Common.makeAlert(false, Server, commonEnums.AlertType.Authentication, ref AllTestsList, "Failed to Authenticate ", "Connectivity");
-					Common.makeAlert(false, Server, commonEnums.AlertType.Not_Responding, ref AllTestsList, "Server is Not Responding. Failed to Authenticate with the provided Credentials.", "Connectivity");
+					Common.makeAlert(false, Server, commonEnums.AlertType.Not_Responding, ref AllTestsList, "Tenant is Not Responding. Failed to Authenticate with the provided credentials", "Connectivity");
 				}
 				else
 				{
-					Common.makeAlert(true, Server, commonEnums.AlertType.Authentication, ref AllTestsList, "Pass.", "Connectivity");
+					Common.makeAlert(true, Server, commonEnums.AlertType.Authentication, ref AllTestsList, "Successfully authenticated using provided credentials", "Connectivity");
 					Common.makeAlert(false, Server, commonEnums.AlertType.Not_Responding, ref AllTestsList, "Tenant is Not Responding. Power Shell connectivity failed ", "Connectivity");
 				}
 
@@ -283,8 +288,8 @@ namespace VitalSignsMicrosoftClasses
 			}
 			else
 			{
-				Common.makeAlert(true, Server, commonEnums.AlertType.Authentication, ref AllTestsList, "Pass", "Connectivity");
-				Common.makeAlert(true, Server, commonEnums.AlertType.Not_Responding, ref AllTestsList, "Server is Responding.", "Connectivity");
+				Common.makeAlert(true, Server, commonEnums.AlertType.Authentication, ref AllTestsList, "Successfully authenticated using provided credentials", "Connectivity");
+				Common.makeAlert(true, Server, commonEnums.AlertType.Not_Responding, ref AllTestsList, "Tenant is Responding", "Connectivity");
 			}
 			return results;
 		}
@@ -340,21 +345,30 @@ namespace VitalSignsMicrosoftClasses
 					Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "in runStatus getDirSyncStats: " + runStatus, Common.LogLevel.Verbose);
 					if (runProfile == "Export")
 					{
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "in DirSyncExportTest getDirSyncStats: ", Common.LogLevel.Verbose);
-						if (myServer.DirSyncExportTest)
-						{
-							if (runStatus.ToLower() == "success" || runStatus.ToLower() == "in-progress")
-								Common.makeAlert(true, myServer, commonEnums.AlertType.DirSync_Export, ref AllTestsList, " Dir Sync Last Exported UTC time at: " + runEndTime, "Dir Sync");
-							else
-								Common.makeAlert(true, myServer, commonEnums.AlertType.DirSync_Export, ref AllTestsList, "Dir Sync Failed. Last Successful UTC time at: " + runEndTime, "Dir Sync");
-						}
+						
 						if (runNumber != "")
 						{
 							string lastTime = getDirSyncLastRun(myServer, creds, servername, AllTestsList, PSO, dRunNumber.ToString());
 							//calculate the difference between this run and last run
 							DateTime dtThisRun = Convert.ToDateTime(runStartTime);
 							DateTime dtLastRun = Convert.ToDateTime(lastTime);
-							double iTimeDiff = dtThisRun.Subtract(dtLastRun).TotalMilliseconds;
+							double iTimeDiff = dtThisRun.Subtract(dtLastRun).TotalMinutes;
+                            
+						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "in DirSyncExportTest getDirSyncStats: ", Common.LogLevel.Verbose);
+						if (myServer.DirSyncExportTest)
+						{
+							if (runStatus.ToLower() == "success" || runStatus.ToLower() == "in-progress")
+                            {
+                                if ((myServer.DirSyncExportThreshold != 0) && (myServer.DirSyncExportThreshold > 0) && (myServer.DirSyncExportThreshold < iTimeDiff))
+									Common.makeAlert(false, myServer, commonEnums.AlertType.DirSync_Export, ref AllTestsList, "Dir Sync Export in " + iTimeDiff + " minutes last successful at UTC time: " + runEndTime + " , but it did not meet the threshold of " + myServer.DirSyncExportThreshold.ToString(), "Dir Sync");
+							else
+                                    Common.makeAlert(true, myServer, commonEnums.AlertType.DirSync_Export, ref AllTestsList, " Dir Sync Export was last successful at UTC time: " + runEndTime, "Dir Sync");
+						}
+								
+							else
+								Common.makeAlert(false, myServer, commonEnums.AlertType.DirSync_Export, ref AllTestsList, "Dir Sync Failed. Last Successful UTC time at: " + runEndTime, "Dir Sync");
+						}
+
 							DateTime dtNow = DateTime.Now;
 							int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 							string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
@@ -369,13 +383,26 @@ namespace VitalSignsMicrosoftClasses
                             AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "DirSyncEstimated" + "@" + nodeName, myServer.DirSyncExportThreshold.ToString()));
 
 						}
+
 					}
 					else
 					{
 						if (myServer.DirSyncImportTest)
 						{
+                            string lastTime = getDirSyncLastRun(myServer, creds, servername, AllTestsList, PSO, dRunNumber.ToString());
+                            //calculate the difference between this run and last run
+                            DateTime dtThisRun = Convert.ToDateTime(runStartTime);
+                            DateTime dtLastRun = Convert.ToDateTime(lastTime);
+                            double iTimeDiff = dtThisRun.Subtract(dtLastRun).TotalMinutes;
+
 							if (runStatus.ToLower() == "success" || runStatus.ToLower() == "in-progress")
-								Common.makeAlert(true, myServer, commonEnums.AlertType.DirSync_Import, ref AllTestsList, " Dir Sync Last Imported at UTC time: " + runEndTime, "Dir Sync");
+                            {
+                                if ((myServer.DirSyncImportThreshold != 0) && (myServer.DirSyncImportThreshold > 0) && (myServer.DirSyncImportThreshold < iTimeDiff))
+									Common.makeAlert(false, myServer, commonEnums.AlertType.DirSync_Import, ref AllTestsList, " Dir Sync import in " + iTimeDiff + " minutes last successful at UTC time: " + runEndTime + " , but it did not meet the threshold of " + myServer.DirSyncImportThreshold.ToString() + " minutes", "Dir Sync");
+							else
+                                    Common.makeAlert(true, myServer, commonEnums.AlertType.DirSync_Import, ref AllTestsList, " Dir Sync Import was last successful at UTC time: " + runEndTime, "Dir Sync");
+
+                            }
 							else
 								Common.makeAlert(false, myServer, commonEnums.AlertType.DirSync_Import, ref AllTestsList, "Dir Sync Failed. Last Successful UTC time at: " + runEndTime, "Dir Sync");
 						}
@@ -642,7 +669,16 @@ namespace VitalSignsMicrosoftClasses
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
-				string str = "Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Select DisplayName,Database,TotalItemSize,ItemCount,StorageLimitStatus,ServerName,LastLogonTime,LastLogoffTime";
+				//string str = "Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Select DisplayName,Database,TotalItemSize,ItemCount,StorageLimitStatus,ServerName,LastLogonTime,LastLogoffTime";
+                string str ="$results=@() \n";
+str +="Get-Mailbox -ResultSize unlimited| select Database,ServerName,identity | % { \n";
+str +="$stats=Get-MailboxStatistics -Identity $_.identity |select TotalItemSize,ItemCount,StorageLimitStatus,LastLogonTime,LastLogoffTime,DisplayName \n";
+str +="$stats |Add-Member -Type NoteProperty -Name Database -Value $_.Database    \n";
+str +="$stats |Add-Member -Type NoteProperty -Name ServerName -Value $_.ServerName  \n";
+str +="$results +=($stats) \n";
+str +="} \n";
+str +="$results \n";
+str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				//Get - Mailbox | select *
 				//Get-Mailbox | select RecipientTypeDetails,ProhibitSendQuota,ProhibitSendReceiveQuota,IssueWarningQuota,IsInactiveMailbox
 				powershellobj.PS.Commands.Clear();
@@ -868,6 +904,8 @@ namespace VitalSignsMicrosoftClasses
 
 						}
 					}
+                    results = null;
+                    GC.Collect();
 
 				}
 				else
@@ -875,6 +913,7 @@ namespace VitalSignsMicrosoftClasses
 					//myServer.ADQueryTest = "Fail";
 					//Common.makeAlert(true, myServer, commonEnums.AlertType.AD_Query_Latency, ref AllTestsList, myServer.ServerType);
 				}
+                
 			}
 			catch (Exception ex)
 			{
@@ -1021,11 +1060,15 @@ namespace VitalSignsMicrosoftClasses
 							}
                             s.Members = msil.listOfEntities.ToArray();
 						}
+                        results = null;
+                        GC.Collect();
 
 					}
                     AllTestsList.MongoEntity.Add(msi);
 
 				}
+                results = null;
+                GC.Collect();
 			}
 			catch (Exception ex)
 			{
@@ -1138,6 +1181,8 @@ namespace VitalSignsMicrosoftClasses
                     AllTestsList.MongoEntity.Add(msi);
 
 				}
+                results = null;
+                GC.Collect();
 			}
 			catch (Exception ex)
 			{
@@ -1341,9 +1386,35 @@ namespace VitalSignsMicrosoftClasses
 		}
 		public void getMobileUsersHourly(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
 		{
+            DataTable dt;
+            string keyDevices = "";
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            CommonDB db = new CommonDB();
 			try
 			{
-				CommonDB db = new CommonDB();
+                //get key devices
+                //if (db.RecordExists("SELECT * FROM [vitalsigns].[dbo].[MobileUserThreshold]"))
+                //{
+                    dt = db.GetData("select DeviceId,SyncTimeThreshold from [vitalsigns].[dbo].[MobileUserThreshold]");
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        if (keyDevices=="")
+                            keyDevices= "'" + dr[0].ToString() + "'";
+                        else
+                            keyDevices += ",'" + dr[0].ToString() + "'";
+
+                        dict.Add(dr[0].ToString(), dr[1].ToString());
+                    }
+                //}
+            }
+            catch
+            {
+            }
+            if (keyDevices != "")
+            {
+                try
+                {
+
 				if (db.RecordExists("SELECT * FROM [vitalsigns].[dbo].[OSTypeTranslation]"))
 				{
 					Ostranslationdata = db.GetData("select * from [vitalsigns].[dbo].[OSTypeTranslation]");
@@ -1352,7 +1423,10 @@ namespace VitalSignsMicrosoftClasses
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-MobileDevice";
-				string str = "$MB = Get-MobileDevice -Resultsize unlimited " + "\n";
+                    //string str = "$MB = Get-MobileDevice -Resultsize unlimited " + "\n";
+                    string str = "";
+                    if (keyDevices != "")
+                        str = "$MB = Get-MobileDevice |Where-Object DeviceId -In ( " + keyDevices + ")" + "\n";
 				str += "$MB | foreach {Get-MobileDeviceStatistics $_.identity} | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,DeviceFriendlyName,DeviceOS,DeviceOSLanguage,Identity,DeviceAccessState,NumberOfFoldersSynced ,DevicePolicyApplied,Status,DeviceUserAgent,DeviceActiveSyncVersion,DeviceMobileOperator" + "\n";
 				//string str = "Get-MobileDevice | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,DeviceFriendlyName,DeviceOS,DeviceOSLanguage,Identity,DeviceAccessState,NumberOfFoldersSynced ,DeviceOSLanguage,DevicePolicyApplied,Status,DeviceUserAgent,DeviceAccessState,DeviceActiveSyncVersion,DeviceMobileOperator";
 				//str += " $MB | foreach {Get-MobileDevice |Select UserDisplayName} | Select-Object *  ";
@@ -1407,6 +1481,8 @@ namespace VitalSignsMicrosoftClasses
 						{
 							if ((myDevice.DeviceOS).ToLower().Contains("ios"))
 							{
+                                    if (myDevice.DeviceUserAgent != null)
+                                    {
 								if (myDevice.DeviceUserAgent.Contains("/"))
 								{
 									DeviceName = (myDevice.DeviceUserAgent).Split('-');
@@ -1420,6 +1496,7 @@ namespace VitalSignsMicrosoftClasses
 									OsType = aDeviceType[1];
 
 								}
+                                    }
 
 							}
 							else if ((myDevice.DeviceOS).ToLower().Contains("android"))
@@ -1510,6 +1587,26 @@ namespace VitalSignsMicrosoftClasses
                             .Set(i => i.IsActive, true)
                             .Set(i => i.SyncType, "ActiveSync");
                         AllTestsList.MongoEntity.Add(mongoStatement);
+                            string val = dict[myDevice.DeviceID].ToString();
+                            DateTime dtNowUtc = DateTime.UtcNow;
+                            DateTime dtLastSyncUtc = new DateTime();
+                            if (myDevice.LastSuccessSync != "")
+                                 dtLastSyncUtc = Convert.ToDateTime(myDevice.LastSuccessSync);
+                            TimeSpan elapsed = dtNow.Subtract(dtLastSyncUtc);
+//                            string alertDesc= "Active Sync device for user: " + Username  + " and device is overdue. The threshold was set at " + val + " but the device was last synced " +  elapsed.Minutes.ToString() + " ago.";
+                            string alertDesc = myDevice.DeviceID + " for " + Username + " last synced at: " + dtLastSyncUtc.ToString();
+                            MonitoredItems.MicrosoftServer m = new MonitoredItems.MicrosoftServer();
+                            m.Name = Username;
+                            m.ServerTypeId = 11;
+                            m.ServerType = "Mobile Users";
+
+                            if (elapsed.TotalMinutes  > Convert.ToInt32(val))
+                                Common.makeAlert(true, m, commonEnums.AlertType.Active_Sync_Devices, ref AllTestsList, alertDesc,"ActiveSync");
+                            else
+                                Common.makeAlert(false, m, commonEnums.AlertType.Active_Sync_Devices, ref AllTestsList, alertDesc, "ActiveSync");
+                            
+
+
 					}
 
 				}
@@ -1521,6 +1618,7 @@ namespace VitalSignsMicrosoftClasses
 				//myServer.ADQueryTest = "Fail";
 				//Common.makeAlert(false, myServer, commonEnums.AlertType., ref AllTestsList, myServer.ServerType);
 			}
+		}
 		}
 		#endregion
 		#region SendAndReceiveMailStats
@@ -1641,7 +1739,11 @@ namespace VitalSignsMicrosoftClasses
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				System.Security.SecureString securePassword = Common.String2SecureString(myServer.Password);
 				PSCredential creds = new PSCredential(myServer.UserName, securePassword);
-				String str = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\servicestatus.ps1" + "  " + myServer.UserName + "  " + myServer.Password;
+				//String str = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\servicestatus.ps1" + "  " + myServer.UserName + "  " + myServer.Password;
+                System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\servicestatus.ps1");
+                string startOfScript = "$uname= '" + myServer.UserName + "'; \n $pwd= '" + myServer.Password + "';\n";
+                String str = startOfScript + sr.ReadToEnd();
+
 				powershellobj.PS.Streams.Error.Clear();
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
@@ -1659,6 +1761,9 @@ namespace VitalSignsMicrosoftClasses
 					foreach (PSObject ps in results)
 					{
                         VSNext.Mongo.Entities.Office365ServiceDetails O365ServiceDetail = new VSNext.Mongo.Entities.Office365ServiceDetails();
+                        try
+                        {
+                       
 						O365ServiceDetail.ServerId = Convert.ToInt32(myServer.ServerId == null ? "" : myServer.ServerId);
 						O365ServiceDetail.ServiceName = (ps.Properties["ServiceName"].Value == null ? "" : ps.Properties["ServiceName"].Value).ToString();
 						O365ServiceDetail.ServiceID = (ps.Properties["Id"].Value == null ? "" : ps.Properties["Id"].Value).ToString();
@@ -1672,6 +1777,9 @@ namespace VitalSignsMicrosoftClasses
 								O365ServiceDetail.EndTime + "', '" + O365ServiceDetail.Status + "', '" + O365ServiceDetail.EventType + "', '" + O365ServiceDetail.Message + "')";
 						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL + strSQLValues });
 						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL, DatabaseName = "Vitalsigns" });
+                        }
+                        catch
+                        {
 
                         MongoStatementsUpsert<VSNext.Mongo.Entities.Office365ServiceDetails> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365ServiceDetails>();
                         updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.ServerId == O365ServiceDetail.ServerId);
@@ -1684,8 +1792,11 @@ namespace VitalSignsMicrosoftClasses
 
                         AllTestsList.MongoEntity.Add(updateStatement);
 					}
+					}
 
 				}
+                results = null;
+                GC.Collect();
 			}
 			catch (Exception ex)
 			{
@@ -1703,11 +1814,14 @@ namespace VitalSignsMicrosoftClasses
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				System.Security.SecureString securePassword = Common.String2SecureString(myServer.Password);
 				PSCredential creds = new PSCredential(myServer.UserName, securePassword);
-				String str = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\O365UserswithLicensesandServices.ps1" + "  " + myServer.UserName + "  " + myServer.Password;
+				//String str = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\O365UserswithLicensesandServices.ps1" + "  " + myServer.UserName + "  " + myServer.Password;
+                
+                System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\O365UserswithLicensesandServices.ps1");
+                
 				powershellobj.PS.Streams.Error.Clear();
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
-				powershellobj.PS.AddScript(str);
+				powershellobj.PS.AddScript(sr.ReadToEnd());
 				//////string str = "Get-MsolUser |Where {$_.IsLicensed -eq $true }| Select-Object DisplayName,Licenses, @{Name='MDM';Expression={$_.Licenses[0].ServiceStatus[0].ProvisioningStatus}}, @{Name='Yammer';Expression={$_.Licenses[0].ServiceStatus[1].ProvisioningStatus}}, @{Name='AD RMS';Expression={$_.Licenses[0].ServiceStatus[2].ProvisioningStatus}}, @{Name='OfficePro';Expression={$_.Licenses[0].ServiceStatus[3].ProvisioningStatus}}, @{Name='Skype';Expression={$_.Licenses[0].ServiceStatus[4].ProvisioningStatus}}, @{Name='OfficeWeb';Expression={$_.Licenses[0].ServiceStatus[5].ProvisioningStatus}}, @{Name='SharePoint';Expression={$_.Licenses[0].ServiceStatus[6].ProvisioningStatus}}, @{Name='Exchange';Expression={$_.Licenses[0].ServiceStatus[7].ProvisioningStatus}}";
 				results = powershellobj.PS.Invoke();
 				
@@ -1716,6 +1830,8 @@ namespace VitalSignsMicrosoftClasses
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				string strSQL = "";
 				string strSQLValues = "";
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Users with Licences and Services Results: errors: " + powershellobj.PS.Streams.Error.Count.ToString(), Common.LogLevel.Normal);
+                
 				if (results.Count > 0)
 				{
 					List<O365UserswithLicensesandServices> userLicenseList = new List<O365UserswithLicensesandServices>();
@@ -1823,13 +1939,13 @@ namespace VitalSignsMicrosoftClasses
 						{
 							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Auto Discovery Status:" + "PASS");
 							//AutoDiscoveryIssueList.StatusDetails.Add(new TestList() { Details = "Auto discover service responded.", TestName = "Discovery Service", Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Pass });
-							Common.makeAlert(true, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "Auto Discovery service responded.", "Overall");
+							Common.makeAlert(true, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "Auto Discovery service responded", "Overall");
 						}
 						else
 						{
 							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Auto Discovery Status:" + "FAIL");
 							//AutoDiscoveryIssueList.StatusDetails.Add(new TestList() { Details = "Auto discover service did not respond.", TestName = "Discovery Service", Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Fail });
-							Common.makeAlert(false, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "Auto discover service responded.", "Overall");
+							Common.makeAlert(false, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "Auto discover service responded", "Overall");
 						}
 						// Common.WriteTestResults(myServer.Name , "IMAP", "Pass",  "Service answered with  " + strResponse.Trim() + " at " + System.DateTime.Now.ToShortTimeString());
 
@@ -1952,6 +2068,15 @@ namespace VitalSignsMicrosoftClasses
 					{
 						Socket.SendString("EHLO");
 						strResponse = Socket.ReceiveString();
+
+                        // 22/7/2016 Durga Modified for VSPLUS-3114
+                        int index = strResponse.IndexOf("at");
+                        int lastindex = strResponse.LastIndexOf(" +0000");
+                        string time = strResponse.Substring(index + 2, strResponse.Length - index - 2);
+                        DateTime Converttedtime = Convert.ToDateTime(time);
+                        strResponse = strResponse.Substring(0, index + 2);
+                        strResponse += " " + Converttedtime.ToString();
+
 						done = DateTime.Now.Ticks;
 						elapsed = new TimeSpan(done - start);
 						//myServer.ResponseTime = elapsed.TotalMilliseconds;
@@ -2079,7 +2204,7 @@ namespace VitalSignsMicrosoftClasses
 					//Common.WriteTestResults(myServer.Name, "Client Access", "POP3", "Fail", myServer.Description);
 
 					//POPIssueList.AlertDetails.Add(new Alerting() { DeviceType = commonEnums.AlertDevice.Exchange, DeviceName = myServer.Name, AlertType = commonEnums.AlertType.POP, Details = "The POP server did not respond, detected at " + DateTime.Now.ToString(), Location = myServer.Location, ResetAlertQueue = commonEnums.ResetAlert.No });
-					Common.makeAlert(false, myServer, commonEnums.AlertType.POP3, ref POPIssueList, "Unable to connect to the POP3 server.", "Overall");
+					Common.makeAlert(false, myServer, commonEnums.AlertType.POP3, ref POPIssueList, "Unable to connect to the POP3 server", "Overall");
 				}
 				else
 				{
@@ -2100,7 +2225,7 @@ namespace VitalSignsMicrosoftClasses
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, myServer.ResponseDetails);
 
 						//POPIssueList.AlertDetails.Add(new Alerting() { DeviceType = commonEnums.AlertDevice.Exchange, DeviceName = myServer.Name, AlertType = commonEnums.AlertType.POP, Details = "The POP server is OK, detected at " + DateTime.Now.ToString(), Location = myServer.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes });
-						Common.makeAlert(true, myServer, commonEnums.AlertType.POP3, ref POPIssueList, "Service answered with  " + strResponse.Trim(), "Overall");
+						Common.makeAlert(true, myServer, commonEnums.AlertType.POP3, ref POPIssueList, "Successfully connected via POP3", "Overall");
 						DateTime dtNow = DateTime.Now;
 						int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 						string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
@@ -2235,7 +2360,7 @@ namespace VitalSignsMicrosoftClasses
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, myServer.ResponseDetails);
 
 						//IMAPIssueList.AlertDetails.Add(new Alerting() { DeviceType = commonEnums.AlertDevice.Exchange, DeviceName = myServer.Name, AlertType = commonEnums.AlertType.IMAP, Details = "The IMAP server is OK, detected at " + DateTime.Now.ToString(), Location = myServer.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes });
-						Common.makeAlert(true, myServer, commonEnums.AlertType.IMAP, ref IMAPIssueList, commonEnums.AlertType.IMAP.ToString(), "Overall");
+						Common.makeAlert(true, myServer, commonEnums.AlertType.IMAP, ref IMAPIssueList, "Successfully connected via IMAP", "Overall");
 
 						CultureInfo culture = CultureInfo.CurrentCulture;
 						//myServer.ResponseTime = elapsed.TotalMilliseconds;
@@ -2298,9 +2423,9 @@ namespace VitalSignsMicrosoftClasses
 						string Result = ps.Properties["Result"].Value == null ? "" : ps.Properties["Result"].Value.ToString();
 						string Err = ps.Properties["Error"].Value == null ? "" : ps.Properties["Error"].Value.ToString();
 						if (Result == "Success")
-							Common.makeAlert(true, myServer, commonEnums.AlertType.RPC, ref AllTestsList, "IMAP Connectivity Succeeded at: " + DateTime.Now.ToString("HH:mm:ss tt"), "Overall");
+							Common.makeAlert(true, myServer, commonEnums.AlertType.MAPI_Connectivity, ref AllTestsList, "MAPI Connectivity Succeeded at: " + DateTime.Now.ToString("HH:mm:ss tt"), "Overall");
 						else
-							Common.makeAlert(false, myServer, commonEnums.AlertType.RPC, ref AllTestsList, "Unable to connect to the IMAP server at " + DateTime.Now.ToString("HH:mm:ss tt") + " because " + Err, "Overall");
+							Common.makeAlert(false, myServer, commonEnums.AlertType.MAPI_Connectivity, ref AllTestsList, "Unable to connect to the IMAP server at " + DateTime.Now.ToString("HH:mm:ss tt") + " because " + Err, "Overall");
 					}
 
 				}
@@ -2308,7 +2433,7 @@ namespace VitalSignsMicrosoftClasses
 				{
 					//myServer.ADQueryTest = "Fail";
 					//Common.makeAlert(true, myServer, commonEnums.AlertType.AD_Query_Latency, ref AllTestsList, myServer.ServerType);
-					Common.makeAlert(false, myServer, commonEnums.AlertType.RPC, ref AllTestsList, "Unable to connect to the IMAP server at " + DateTime.Now.ToString("HH:mm:ss tt") + " because It did not fetch any result.", "Overall");
+					Common.makeAlert(false, myServer, commonEnums.AlertType.MAPI_Connectivity, ref AllTestsList, "Unable to connect to the IMAP server at " + DateTime.Now.ToString("HH:mm:ss tt") + " because It did not fetch any result.", "Overall");
 				}
 			}
 			catch (Exception ex)
@@ -2350,7 +2475,12 @@ namespace VitalSignsMicrosoftClasses
 				results = powershellobj.PS.Invoke();
 				if (results.Count > 0)
 				{
-					Common.makeAlert(true, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Successfully created a test site.", "Performance");
+                    if ((myServer.CreateSiteThreshold != 0) && (myServer.CreateSiteThreshold > 0) && (myServer.CreateSiteThreshold < elapsed.TotalMilliseconds))
+                        //Common.makeAlert(false, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Successfully created a test site, but it did not meet the threshold time of " + myServer.CreateSiteThreshold.ToString() + " ms", "Performance");
+						Common.makeAlert(elapsed.TotalMilliseconds, myServer.CreateSiteThreshold, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Create Site: The Site was created in " + elapsed.TotalMilliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + myServer.CreateSiteThreshold + " ms", "Performance");
+					else
+                        Common.makeAlert(true, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Successfully created a test site", "Performance");
+
 					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
 							+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'CreateSite" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
 						   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
@@ -2358,7 +2488,7 @@ namespace VitalSignsMicrosoftClasses
                     AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CreateSite" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 				}
 				else
-					Common.makeAlert(false, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Failed to create a test site.", "Performance");
+                    Common.makeAlert(false, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Failed to create a test site", "Performance");
 
 			}
 			catch (Exception ex)
@@ -2391,9 +2521,9 @@ namespace VitalSignsMicrosoftClasses
 				powershellobj.PS.AddScript(str);
 				results = powershellobj.PS.Invoke();
 				if (results.Count > 0)
-					Common.makeAlert(false, myServer, commonEnums.AlertType.Delete_Site, ref AllTestsList, "Failed to delete a test site.", "Performance");
+					Common.makeAlert(false, myServer, commonEnums.AlertType.Delete_Site, ref AllTestsList, "Failed to delete a test site", "Performance");
 				else
-					Common.makeAlert(true, myServer, commonEnums.AlertType.Delete_Site, ref AllTestsList, "Successfully deleted a test site.", "Performance");
+					Common.makeAlert(true, myServer, commonEnums.AlertType.Delete_Site, ref AllTestsList, "Successfully deleted a test site", "Performance");
 			}
 			catch (Exception ex)
 			{

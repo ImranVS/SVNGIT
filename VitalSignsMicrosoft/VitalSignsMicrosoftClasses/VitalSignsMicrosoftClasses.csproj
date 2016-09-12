@@ -101,9 +101,7 @@
     <Compile Include="mailcount.cs" />
     <Compile Include="O365ServiceDetails.cs" />
     <Compile Include="O365UserswithLicensesandServices.cs" />
-    <Compile Include="Office365\O365RESTApi.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Office365\O365RESTApi.cs" />
     <Compile Include="Office365\Office365Common.cs" />
     <Compile Include="Office365\Office365MAIN.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

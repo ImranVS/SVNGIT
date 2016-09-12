@@ -203,6 +203,7 @@ namespace VitalSignsMicrosoftClasses
             {
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Attempting to contact SMTP service.", commonEnums.ServerRoles.CAS);
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using address " + myServer.IPAddress, commonEnums.ServerRoles.CAS);
+                Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using URL " + myServer.SMTPURLs, commonEnums.ServerRoles.CAS);
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using port " + myServer.Port, commonEnums.ServerRoles.CAS);
 
             }
@@ -242,8 +243,8 @@ namespace VitalSignsMicrosoftClasses
                 ssl = false;
                 int maxWaitMillisec = 0;
                 maxWaitMillisec = 60000;
-                success = Socket.Connect(myServer.IPAddress, 25, ssl, maxWaitMillisec);
-
+                //success = Socket.Connect(myServer.IPAddress, 25, ssl, maxWaitMillisec);
+                success = Socket.Connect(myServer.SMTPURLs, 25, ssl, maxWaitMillisec);
             }
             catch (Exception ex)
             {
@@ -337,6 +338,7 @@ namespace VitalSignsMicrosoftClasses
             {
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Attempting to contact POP service", commonEnums.ServerRoles.CAS);
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using address " + myServer.IPAddress, commonEnums.ServerRoles.CAS);
+                Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using URL " + myServer.POP3URLs, commonEnums.ServerRoles.CAS);
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using port " + myServer.Port, commonEnums.ServerRoles.CAS);
 
             }
@@ -376,7 +378,8 @@ namespace VitalSignsMicrosoftClasses
                 int maxWaitMillisec = 0;
                 maxWaitMillisec = 60000;
                 myServer.Port = 110;
-                success = Socket.Connect(myServer.IPAddress, myServer.Port, ssl, maxWaitMillisec);
+                //success = Socket.Connect(myServer.IPAddress, myServer.Port, ssl, maxWaitMillisec);
+                success = Socket.Connect(myServer.POP3URLs, myServer.Port, ssl, maxWaitMillisec);
 
             }
             catch (Exception ex)
@@ -467,6 +470,7 @@ namespace VitalSignsMicrosoftClasses
             {
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Attempting to contact IMAP service.", commonEnums.ServerRoles.CAS);
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using address " + myServer.IPAddress, commonEnums.ServerRoles.CAS);
+                Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using URL " + myServer.IMAPURLs, commonEnums.ServerRoles.CAS);
 
             }
             catch (Exception ex)
@@ -502,7 +506,8 @@ namespace VitalSignsMicrosoftClasses
                 ssl = false;
                 int maxWaitMillisec = 0;
                 maxWaitMillisec = 60000;
-                success = Socket.Connect(myServer.IPAddress, myServer.Port, ssl, maxWaitMillisec);
+                //success = Socket.Connect(myServer.IPAddress, myServer.Port, ssl, maxWaitMillisec);
+                success = Socket.Connect(myServer.IMAPURLs, myServer.Port, ssl, maxWaitMillisec);
 
             }
             catch (Exception ex)
@@ -708,16 +713,26 @@ namespace VitalSignsMicrosoftClasses
 				//if activesyncuserid is empty, try to revert back to regular userid and pwd
 				string pwd = "";
 				string userId = "";
-				if (myServer.ActiveSyncUserName.ToString() == "")
-				{
-					userId = myServer.UserName;
-					pwd = myServer.Password;
-				}
-				else
-				{
-					userId = myServer.ActiveSyncUserName;
-					pwd = myServer.ActiveSyncPassword;
-				}
+                //if (myServer.ActiveSyncUserName.ToString() == "")
+                //{
+                //    userId = myServer.UserName;
+                //    pwd = myServer.Password;
+                //}
+                //else
+                //{
+                //    userId = myServer.ActiveSyncUserName;
+                //    pwd = myServer.ActiveSyncPassword;
+                //}
+                if (myServer.ActiveSyncUserName.ToString() == "")
+                {
+                    userId = myServer.UserName;
+                    pwd = myServer.Password;
+                }
+                else
+                {
+                    userId = myServer.ActiveSyncUserName;
+                    pwd = myServer.ActiveSyncPassword;
+                }
 
 
 				System.Security.SecureString securePassword = Common.String2SecureString(pwd);
@@ -739,7 +754,7 @@ namespace VitalSignsMicrosoftClasses
                         Console.WriteLine(er.ErrorDetails);
                     //AllTestsList.StatusDetails.Add(new TestList() { TestName="ActiveSync", Details = "TestActiveSync Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), Result = commonEnums.ServerResult.Fail });
 					//AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = commonEnums.AlertDevice.Exchange, DeviceName = myServer.Name, AlertType = commonEnums.AlertType.ActiveSync, Details = "The ActiveSync is not OK, detected at " + DateTime.Now.ToString(), Location = myServer.Location, ResetAlertQueue = commonEnums.ResetAlert.No });
-					Common.makeAlert(false, myServer, commonEnums.AlertType.Active_Sync, ref AllTestsList, "TestActiveSync Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "CAS");
+					Common.makeAlert(false, myServer, commonEnums.AlertType.Active_Sync, ref AllTestsList, "ActiveSync failed to connect", "CAS");
 					overallActiveSyncPassed = false;
                 }
 				else if (results.Count == 0)
@@ -836,14 +851,18 @@ namespace VitalSignsMicrosoftClasses
                 System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
                 PowerShell powershell = pso.PS;
 
+                //System.Uri uri = new Uri(myServer.IPAddress + "/powershell?serializationLevel=Full");
                 System.Uri uri = new Uri(myServer.IPAddress + "/powershell?serializationLevel=Full");
-                System.Security.SecureString securePassword = Common.String2SecureString(myServer.Password);
-                PSCredential creds = new PSCredential(myServer.UserName, securePassword);
+                //System.Security.SecureString securePassword = Common.String2SecureString(myServer.Password);
+                //PSCredential creds = new PSCredential(myServer.UserName, securePassword);
+                System.Security.SecureString securePassword = Common.String2SecureString(myServer.UserName);
+                PSCredential creds = new PSCredential(myServer.Password, securePassword);
                 powershell.AddCommand("Set-Variable");
                 powershell.AddParameter("Name", "cred");
                 powershell.AddParameter("Value", creds);
 
                 String script = "Test-ActiveSyncConnectivity -ClientAccessServer " + myServer.Name + "-TrustAnySSLCertificate  -MailboxCredential ";
+                //powershell.AddScript("Test-ActiveSyncConnectivity -ClientAccessServer " + myServer.IPAddress.Replace("https://", "").Replace("http://", "") + " -TrustAnySSLCertificate  -MailboxCredential ");
                 powershell.AddScript("Test-ActiveSyncConnectivity -ClientAccessServer " + myServer.IPAddress.Replace("https://", "").Replace("http://", "") + " -TrustAnySSLCertificate  -MailboxCredential ");
                 //powershell.AddScript(script);
 
@@ -944,7 +963,7 @@ namespace VitalSignsMicrosoftClasses
                 
 				if (powershell.Streams.Error.Count > 0)
                 {
-					Common.makeAlert(false, myServer, commonEnums.AlertType.Active_Sync_Devices, ref AllTestsList, "There were errors gathering the ActivSync Devices. Please refer to the logs for more information. Test was run ", "CAS");
+					Common.makeAlert(false, myServer, commonEnums.AlertType.Active_Sync_Devices, ref AllTestsList, "There were errors gathering the ActivSync Devices. Please view the log file in the VitalSignsPlus folder at Log_Files/Microsoft/Exchange/Exchange_" + servername + "/Exchange_" + servername + "_CAS.txt for more info ", "CAS");
                 }
                 else
                 {
@@ -1039,7 +1058,8 @@ namespace VitalSignsMicrosoftClasses
         {
 
             string strResponse = "";
-            string strURL = myServer.IPAddress + "/autodiscover/autodiscover.xml";
+            string strURL = myServer.AutoDiscoveryURLs + "/autodiscover/autodiscover.xml";
+           // string strURL = myServer.IPAddress + "/autodiscover/autodiscover.xml";
             try
             {
 				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Attempting to verify Auto discovery service.", commonEnums.ServerRoles.CAS);
@@ -1054,8 +1074,10 @@ namespace VitalSignsMicrosoftClasses
             bool success = false;
             try
             {
-                WebPage.Password = myServer.Password;
-                WebPage.Login = myServer.UserName;
+                //WebPage.Password = myServer.Password;
+                //WebPage.Login = myServer.UserName;
+                WebPage.Password = myServer.AutoDiscoveryCASPassword;
+                WebPage.Login = myServer.AutoDiscoveryCASUserName;
 
                 success = WebPage.UnlockComponent("MZLDADHttp_efwTynJYYR3X");
                 if ((success != true))
@@ -1102,13 +1124,13 @@ namespace VitalSignsMicrosoftClasses
                         {
 							Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Auto Discovery Status:" + "PASS", commonEnums.ServerRoles.CAS);
                             //AutoDiscoveryIssueList.StatusDetails.Add(new TestList() { Details = "Auto discover service responded.", TestName = "Discovery Service", Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Pass });
-							Common.makeAlert(true, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "Auto discover service did not responded.", "CAS");
+							Common.makeAlert(true, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "The Auto discovery service responded", "CAS");
                         }
                         else
                         {
 							Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Auto Discovery Status:" + "FAIL", commonEnums.ServerRoles.CAS);
                             //AutoDiscoveryIssueList.StatusDetails.Add(new TestList() { Details = "Auto discover service did not respond.", TestName = "Discovery Service", Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Fail });
-							Common.makeAlert(false, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "Auto discover service responded.", "CAS"); 
+                            Common.makeAlert(false, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "The Auto discovery service did not responded", "CAS"); 
                         }
                        // Common.WriteTestResults(myServer.Name, "CAS", "IMAP", "Pass",  "Service answered with  " + strResponse.Trim() + " at " + System.DateTime.Now.ToShortTimeString());
                        
@@ -1144,11 +1166,16 @@ namespace VitalSignsMicrosoftClasses
 			try
 			{
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, " OWA Test:Preparing the first call: GET ", commonEnums.ServerRoles.CAS, Common.LogLevel.Normal);
-				string URL1 = myServer.IPAddress + "/owa/auth/logon.aspx?url=" + myServer.IPAddress + "/owa/&reason=0";
-				string URL2 = myServer.IPAddress + "/owa/auth.owa";
-				string URL3 = myServer.IPAddress + "/owa";
-				string USERNAME = myServer.UserName;
-				string PASSWORD = myServer.Password;
+                //string URL1 = myServer.IPAddress + "/owa/auth/logon.aspx?url=" + myServer.IPAddress + "/owa/&reason=0";
+                //string URL2 = myServer.IPAddress + "/owa/auth.owa";
+                //string URL3 = myServer.IPAddress + "/owa";
+                //string USERNAME = myServer.UserName;
+                //string PASSWORD = myServer.Password;
+                string URL1 = myServer.OWAURLs + "/owa/auth/logon.aspx?url=" + myServer.OWAURLs + "/owa/&reason=0";
+                string URL2 = myServer.OWAURLs + "/owa/auth.owa";
+                string URL3 = myServer.OWAURLs + "/owa";
+                string USERNAME = myServer.OWACASUserName;
+                string PASSWORD = myServer.OWACASPassword;
 				string ck1 = "logondata=acc=1&lgn=" + HttpUtility.UrlEncode(myServer.UserName);
 				string ck2 = "";
 
@@ -1301,11 +1328,16 @@ namespace VitalSignsMicrosoftClasses
 			try
 			{
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, " Comose Email Test:Preparing the first call: GET ", commonEnums.ServerRoles.CAS, Common.LogLevel.Normal);
-				string URL1 = myServer.IPAddress + "/owa/?ae=Item&t=IPM.Note&a=New";
-				string URL2 = myServer.IPAddress + "/owa/auth.owa";
-				string URL3 = myServer.IPAddress + "/owa";
-				string USERNAME = myServer.UserName;
-				string PASSWORD = myServer.Password;
+                //string URL1 = myServer.IPAddress + "/owa/?ae=Item&t=IPM.Note&a=New";
+                //string URL2 = myServer.IPAddress + "/owa/auth.owa";
+                //string URL3 = myServer.IPAddress + "/owa";
+                //string USERNAME = myServer.UserName;
+                //string PASSWORD = myServer.Password;
+                string URL1 = myServer.IPAddress + "/owa/?ae=Item&t=IPM.Note&a=New";
+                string URL2 = myServer.IPAddress + "/owa/auth.owa";
+                string URL3 = myServer.IPAddress + "/owa";
+                string USERNAME = myServer.UserName;
+                string PASSWORD = myServer.Password;
 				string ck1 = "logondata=acc=1&lgn=" + HttpUtility.UrlEncode(myServer.UserName);
 				string ck2 = "";
 
@@ -1361,12 +1393,18 @@ namespace VitalSignsMicrosoftClasses
 			try
 			{
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, " OWA Test:Preparing the first call: GET ", commonEnums.ServerRoles.CAS, Common.LogLevel.Normal);
-				string URL1 = myServer.IPAddress + "/owa/auth/logon.aspx?url=" + myServer.IPAddress + "/owa/&reason=0";
-				string URL2 = myServer.IPAddress + "/owa/auth.owa";
-				string URL3 = myServer.IPAddress + "/owa/#authRedirect=true";
-				string URL4 = myServer.IPAddress + "/owa/userspecificresourceinjector.ashx?ver=15.0.1044.25&appcacheclient=1&layout=mouse";
-				string USERNAME = myServer.UserName;
-				string PASSWORD = myServer.Password;
+                //string URL1 = myServer.IPAddress + "/owa/auth/logon.aspx?url=" + myServer.IPAddress + "/owa/&reason=0";
+                //string URL2 = myServer.IPAddress + "/owa/auth.owa";
+                //string URL3 = myServer.IPAddress + "/owa/#authRedirect=true";
+                //string URL4 = myServer.IPAddress + "/owa/userspecificresourceinjector.ashx?ver=15.0.1044.25&appcacheclient=1&layout=mouse";
+                //string USERNAME = myServer.UserName;
+                //string PASSWORD = myServer.Password;
+                string URL1 = myServer.IPAddress + "/owa/auth/logon.aspx?url=" + myServer.IPAddress + "/owa/&reason=0";
+                string URL2 = myServer.IPAddress + "/owa/auth.owa";
+                string URL3 = myServer.IPAddress + "/owa/#authRedirect=true";
+                string URL4 = myServer.IPAddress + "/owa/userspecificresourceinjector.ashx?ver=15.0.1044.25&appcacheclient=1&layout=mouse";
+                string USERNAME = myServer.UserName;
+                string PASSWORD = myServer.Password;
 				
 
 				//---------------- FIRST CALL GET-----------------------

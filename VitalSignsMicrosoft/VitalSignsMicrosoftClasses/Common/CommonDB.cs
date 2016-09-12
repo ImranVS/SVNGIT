@@ -240,7 +240,7 @@ namespace VitalSignsMicrosoftClasses
 				if (!Server.FastScan)
 				{
 				if (serverType =="Office365")
-					strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + Server.Location + "' AND Category = '" + Server.Category + "'";
+					strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + Server.Location + "'";
 				else
                     strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + serverType + "' AND Category != 'Mailbox' AND TestName not in ('" + (Server.HourlyAlerts != null ? string.Join("','", Array.ConvertAll(Server.HourlyAlerts.ToArray(), i => i.AlertType.ToString().Replace('_', ' '))) : "") + "')";
                 
@@ -254,7 +254,9 @@ namespace VitalSignsMicrosoftClasses
 					if (T.ResetAlertQueue == commonEnums.ResetAlert.No)
 					{
 						TestStatusPass = false;
-                        if (T.AlertTypeString.ToString().Contains("Services") || T.AlertType.ToString() == "DAG_Member_Health" || T.AlertType.ToString() == "DAG_Database_Health" || T.AlertType.ToString() == "DAG_Activation_Preference" || T.AlertType.ToString() == "DAG_Replay_Queue" || T.AlertType.ToString() == "DAG_Copy_Queue")
+						if (T.AlertTypeString.ToString().Contains("Services") || T.AlertType.ToString() == "DAG_Member_Health" || T.AlertType.ToString() == "DAG_Database_Health" || T.AlertType.ToString() == "DAG_Activation_Preference" || T.AlertType.ToString() == "DAG_Replay_Queue" || T.AlertType.ToString() == "DAG_Copy_Queue"
+
+								|| T.AlertType.ToString() == "Create_Mail_Folder" || T.AlertType.ToString() == "Mail_flow" || T.AlertType.ToString() == "Create_Site" || T.AlertType.ToString() == "OneDrive_Upload_Document" || T.AlertType.ToString() == "OneDrive_Download_Document")
 						{
 							Details = T.Details;
 							//break;
@@ -510,7 +512,9 @@ namespace VitalSignsMicrosoftClasses
                         if (AlertStmt.ResetAlertQueue == commonEnums.ResetAlert.No)
                         {
 
-                            if (AlertStmt.AlertTypeString.ToString().Contains("Services") || AlertStmt.AlertType.ToString() == "DAG_Member_Health" || AlertStmt.AlertType.ToString() == "DAG_Database_Health" || AlertStmt.AlertType.ToString() == "DAG_Activation_Preference" || AlertStmt.AlertType.ToString() == "DAG_Replay_Queue" || AlertStmt.AlertType.ToString() == "DAG_Copy_Queue")
+							if (AlertStmt.AlertTypeString.ToString().Contains("Services") || AlertStmt.AlertType.ToString() == "DAG_Member_Health" || AlertStmt.AlertType.ToString() == "DAG_Database_Health" || AlertStmt.AlertType.ToString() == "DAG_Activation_Preference" || AlertStmt.AlertType.ToString() == "DAG_Replay_Queue" || AlertStmt.AlertType.ToString() == "DAG_Copy_Queue"
+
+								|| AlertStmt.AlertType.ToString() == "Create_Mail_Folder" || AlertStmt.AlertType.ToString() == "Mail_flow" || AlertStmt.AlertType.ToString() == "Create_Site" || AlertStmt.AlertType.ToString() == "OneDrive_Upload_Document" || AlertStmt.AlertType.ToString() == "OneDrive_Download_Document")
                             {
                                 AlertStmt.Details = AlertStmt.Details;
                                 //break;
@@ -613,7 +617,7 @@ namespace VitalSignsMicrosoftClasses
 
 
         }
-		private void ProcessSQLStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server)
+		public void ProcessSQLStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server)
 		{
 			ProcessSQLStatements(AllTestsList, Server, Server.ServerType);
 		}
@@ -673,11 +677,11 @@ namespace VitalSignsMicrosoftClasses
 
 				if (Server.GetType() == typeof(MonitoredItems.Office365Server) && ((MonitoredItems.Office365Server)(Server)).AuthenticationTest == false)
 				{
-					Details = "The Authentication test failed to connect to the tennant.";
+					Details = "The Authentication test failed to connect to the tenant.";
 				}
                 else if (Server.GetType() == typeof(MonitoredItems.Office365Server) && (((MonitoredItems.Office365Server)(Server)).AuthenticationTest == true))
                 {
-					Details = "The Authentication test passed, PowerShell Connection failed to connect to the tennant.";
+					Details = "The Authentication test passed, PowerShell Connection failed to connect to the tenant.";
 
                 }
                 else
