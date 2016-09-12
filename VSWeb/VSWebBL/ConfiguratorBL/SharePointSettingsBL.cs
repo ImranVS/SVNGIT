@@ -131,5 +131,34 @@ namespace VSWebBL
 		   }
 		  
 	   }
+
+       public DataTable GetSharePointSiteCollectionSettings(int ID)
+	   {
+		   try
+		   {
+               return VSWebDAL.SharePointSettingsDAL.Ins.GetSharePointSiteCollectionSettings(ID);
+		   }
+		   catch (Exception ex)
+		   {
+			   
+			   throw ex;
+		   }
+		  
+	   }
+
+       public bool UpdateSharePointServerSettings(SharePointSettings sps)
+	   {
+		   try
+		   {
+               return VSWebDAL.SharePointSettingsDAL.Ins.UpdateSharePointServerSettings(sps);
+		   }
+		   catch (Exception ex)
+		   {
+			   
+			   throw ex;
+		   }
+		  
+	   }
+       
     }
 }

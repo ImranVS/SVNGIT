@@ -17,7 +17,7 @@
     	});
 
     	function ServerTypeComboBox_IndexChanged(s, e) {
-    		if (ServerTypeComboBoxClient.GetSelectedItem() != null && ServerTypeComboBoxClient.GetSelectedItem().value == 2) {
+    	    if (ServerTypeComboBoxClient.GetSelectedItem() != null && (ServerTypeComboBoxClient.GetSelectedItem().value == 2 || ServerTypeComboBoxClient.GetSelectedItem().value == 1)) {
     			AuthenticationTypeComboBoxClient.SetVisible(true);
     			AuthenticationTypeLabelClient.SetVisible(true);
     		}

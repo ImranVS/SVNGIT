@@ -273,7 +273,8 @@ namespace VSWebDAL.DashboardDAL
             return dt;
         }
 
-        public DataTable GetActivities(string statname1, string statname2)
+        //7/1/2016 NS modified for VSPLUS-3100
+        public DataTable GetActivities(string servername, string statname1, string statname2)
         {
             DataTable dt = new DataTable();
             try
@@ -289,8 +290,8 @@ namespace VSWebDAL.DashboardDAL
                 {
                     strQuery += "WHERE StatName LIKE '" + statname1 + "%' ";
                 }
+                strQuery += "AND ServerName='" + servername + "' ";
                 //29/4/2016 Durga Modified for VSPLUS-2909
-
                 strQuery += "AND DATEDIFF(dd,0,Date)=DATEDIFF(dd,0,DATEADD(dd,0,GETDATE())) order by StatName ";
                 dt = adaptor.FetchData(strQuery);
             }
@@ -301,7 +302,8 @@ namespace VSWebDAL.DashboardDAL
             return dt;
         }
 
-        public DataTable GetDailyActivities()
+        //7/1/2016 NS modified for VSPLUS-3100
+        public DataTable GetDailyActivities(string servername)
         {
             DataTable dt = new DataTable();
             try
@@ -314,6 +316,18 @@ namespace VSWebDAL.DashboardDAL
                     "AND StatName NOT LIKE '%_LAST_%' " +
                     "AND StatName NOT LIKE '%_YESTERDAY') " +
                     "AND DATEDIFF(dd,0,Date) = DATEDIFF(dd,0,DATEADD(dd,0,GETDATE())) order by StatName";
+
+                //6/21/2016 WS replaced string with this one for the time being. This is a temperary thing since Natallya is on vacation and will be removed by her when returned.
+                //any changes to above string in the meantime, please apply to both strings
+
+                //7/1/2016 NS
+                strQuery = "SELECT ID,(CASE WHEN StatName LIKE 'NUM_OF%' THEN SUBSTRING(StatName,CHARINDEX(StatName,'NUM_OF_')+LEN('NUM_OF_')+1,LEN(StatName)-LEN('NUM_OF_')) ELSE StatName END) StatName, StatValue  " +
+                    "FROM [VSS_Statistics].[dbo].[IbmConnectionsSummaryStats] " +
+                    "WHERE ServerName='" + servername + "' AND ((StatName LIKE 'NUM_OF%' " +
+                    "AND StatName NOT LIKE '%_LAST_%' " +
+                    "AND StatName NOT LIKE '%_YESTERDAY') OR StatName IN ('PROFILES_AVERAGE_DAYS_SINCE_EDIT', 'NUM_OF_PROFILES_EDITED_YESTERDAY')) " +
+                    "AND DATEDIFF(dd,0,Date) = DATEDIFF(dd,0,DATEADD(dd,0,GETDATE())) order by StatName";
+
                 dt = adaptor.FetchData(strQuery);
             }
             catch (Exception ex)
@@ -399,21 +413,28 @@ namespace VSWebDAL.DashboardDAL
             return dt;
         }
 
-        public DataTable GetTopTags(string statname)
+        //7/1/2016 NS modified for VSPLUS-3100
+        public DataTable GetTopTags(string servername,string statname)
         {
             DataTable dt = new DataTable();
             try
             {
-                string strQuery = "SELECT TOP 5 SUM(UsageCount) StatValue,Name StatName " +
-                  "FROM [VSS_Statistics].[dbo].[IbmConnectionsTopStats] " +
-                  "WHERE DATEDIFF(dd,0,DateTime)=DATEDIFF(dd,0,DATEADD(dd,0,GETDATE())) ";
+
+
+                //WS Modifies due to Tags being collected in a more compelte way. VSPLUS-
+                string strQuery = "SELECT TOP 5 Tag StatName, Count(*) StatValue FROM IbmConnectionsTags tags " +
+                    " INNER JOIN IbmConnectionsObjectTags objtag ON tags.ID = objtag.TagId " +
+                    " INNER JOIN IbmConnectionsObjects obj on obj.ID = objtag.ObjectId " +
+                    " INNER JOIN Servers s ON s.ID=obj.ServerId " +
+                    " WHERE ServerName='" + servername + "' ";
                 if (statname != "")
                 {
-                    strQuery += "AND Type='" + statname + "' ";
+                    strQuery += " AND obj.Type='" + statname + "' ";
                 }
-                strQuery += "GROUP BY Name " +
-                    "ORDER BY SUM(UsageCount) DESC ";
-                dt = objAdaptor.FetchData(strQuery);
+                strQuery += " GROUP BY Tag " +
+                    " ORDER BY COUNT(*) DESC";
+
+                dt = adaptor.FetchData(strQuery);
             }
             catch (Exception ex)
             {
@@ -422,7 +443,8 @@ namespace VSWebDAL.DashboardDAL
             return dt;
         }
 
-        public DataTable GetStatByName(string statname, bool isExact)
+        //7/1/2016 NS modified for VSPLUS-3100
+        public DataTable GetStatByName(string servername, string statname, bool isExact)
         {
             DataTable dt = new DataTable();
             try
@@ -430,6 +452,10 @@ namespace VSWebDAL.DashboardDAL
                 string strQuery = "SELECT StatName,StatValue " +
                   "FROM [VSS_Statistics].[dbo].[IbmConnectionsSummaryStats] " +
                   "WHERE DATEDIFF(dd,0,Date)=DATEDIFF(dd,0,DATEADD(dd,0,GETDATE())) ";
+                if (servername != "")
+                {
+                    strQuery += "AND ServerName='" + servername + "' ";
+                }
                 if (statname != "")
                 {
                     //5/31/2016 NS modified for VSPLUS-3009
@@ -441,7 +467,8 @@ namespace VSWebDAL.DashboardDAL
                     {
                         strQuery = "SELECT SUBSTRING(StatName,CHARINDEX('COMMUNITY_TYPE_',StatName)+LEN('COMMUNITY_TYPE_'),LEN(StatName)-LEN('COMMUNITY_TYPE_')) StatName,StatValue " +
                           "FROM [VSS_Statistics].[dbo].[IbmConnectionsSummaryStats] " +
-                          "WHERE DATEDIFF(dd,0,Date)=DATEDIFF(dd,0,DATEADD(dd,0,GETDATE())) AND StatName LIKE '%" + statname + "%' ";
+                          "WHERE DATEDIFF(dd,0,Date)=DATEDIFF(dd,0,DATEADD(dd,0,GETDATE())) AND StatName LIKE '%" + statname + "%' " +
+                          "AND ServerName='" + servername + "' ";
                     }
                 }
                 dt = objAdaptor.FetchData(strQuery);
@@ -471,9 +498,9 @@ namespace VSWebDAL.DashboardDAL
 
                 string SqlQuery = "SELECT Case when StatName='NUM_OF_ACTIVITIES_ACTIVITIES_CREATED_YESTERDAY' then 'ACTIVITIES_CREATED' when StatName='NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY' then 'ACTIVITIES_FOLLOWED' when StatName='ACTIVITY_LOGINS_LAST_DAY' then 'ACTIVITY_LOGINS' else StatName end StatName ,DATEADD(dd,0,DATEDIFF(dd,0,Date)) Date " +
                     "  ,MAX(StatValue) StatValue FROM IbmConnectionsSummaryStats INNER JOIN vitalsigns.dbo.Status ON ServerName=Name " +
-                        "WHERE StatName LIKE '%" + statname + "%" + statname2 + "%' OR StatName LIKE 'ACTIVITY_LOGINS_LAST_DAY' AND ServerName='" + servername + "' " +
+                        "WHERE (StatName LIKE '%" + statname + "%" + statname2 + "%' OR StatName LIKE 'ACTIVITY_LOGINS_LAST_DAY') AND ServerName='" + servername + "' " +
                         "AND DATEADD(dd,0,DATEDIFF(dd,0,Date)) BETWEEN DATEADD(dd,-7,DATEDIFF(dd,0,GETDATE())) AND DATEADD(dd,0,DATEDIFF(dd,0,GETDATE())) " +
-                        "GROUP BY DATEADD(dd,0,DATEDIFF(dd,0,Date)),StatName ";
+                        "GROUP BY DATEADD(dd,0,DATEDIFF(dd,0,Date)),StatName,ServerName ";
                 dt = objAdaptor.FetchData(SqlQuery);
             }
             catch
@@ -483,12 +510,14 @@ namespace VSWebDAL.DashboardDAL
         }
         
         //6/1/2016 NS added for VSPLUS-3015
-        public DataTable GetConnectionsUsers()
+        //7/1/2016 NS modified for VSPLUS-3100
+        public DataTable GetConnectionsUsers(string servername)
         {
             DataTable dt = new DataTable();
             try
             {
-                string strQuery = "SELECT DISTINCT DisplayName FROM IbmConnectionsUsers " +
+                string strQuery = "SELECT DISTINCT DisplayName FROM IbmConnectionsUsers t1 " +
+                    "INNER JOIN Servers t2 ON t1.ServerID=t2.ID WHERE ServerName='" + servername + "' " + 
                     "ORDER BY DisplayName ";
                 dt = adaptor.FetchData(strQuery);
             }
@@ -549,14 +578,17 @@ namespace VSWebDAL.DashboardDAL
         }
 
         //6/2/2016 NS added for VSPLUS-3011
-        public DataTable GetMostActiveCommunity()
+        //7/1/2016 NS modified for VSPLUS-3100
+        public DataTable GetMostActiveCommunity(string servername)
         {
             DataTable dt = new DataTable();
             try
             {
                 string strQuery = "SELECT COUNT(*) Total, a.Type, b.Name " +
                     "FROM IbmConnectionsObjects AS a LEFT JOIN IbmConnectionsObjects AS b ON a.ParentObjectID = b.ID " +
+                    "INNER JOIN Servers s ON s.ID=a.ServerID " +
                     "WHERE a.ParentObjectID IS NOT NULL AND a.ParentObjectID!='' " +
+                    "AND s.ServerName='" + servername + "' " +
                     "AND DATEDIFF(dd,0,DATEADD(dd,0,a.DateLastModified))>=DATEDIFF(dd,0,DATEADD(dd,-7,GETDATE())) " +
                     "AND b.Name=(SELECT TOP 1 b.Name " +
                     "FROM IbmConnectionsObjects AS a LEFT JOIN IbmConnectionsObjects AS b ON a.ParentObjectID = b.ID " +
@@ -607,12 +639,13 @@ GROUP BY CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog'
 WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName
                  */
                 string strQuery = "SELECT COUNT(*) Total,CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog' " +
-                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END Type ,DisplayName  " +
+                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END Type ,DisplayName,ServerName  " +
                     "FROM dbo.IbmConnectionsObjects t1 " +
                     "INNER JOIN dbo.IbmConnectionsUsers t2 ON t2.ID=t1.OwnerId " +
+                    "INNER JOIN Servers t3 ON t1.ServerID=t3.ID " +
                     "WHERE Type!='Community' AND DATEDIFF(dd,0,DATEADD(dd,0,DateCreated))>=DATEDIFF(dd,0,DATEADD(dd,-90,GETDATE())) " +
                     "GROUP BY CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog'  " +
-                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName";
+                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName,ServerName";
                 dt = adaptor.FetchData(strQuery);
             }
             catch (Exception ex)
@@ -629,28 +662,31 @@ WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName
             try
             {
                 string strQuery = "SELECT COUNT(*) Total,CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog' " +
-                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END Type ,DisplayName,'Last 7 days' LastDate, 0 OrdNum   " +
+                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END Type ,DisplayName,'Last 7 days' LastDate, 0 OrdNum, ServerName   " +
                     "FROM dbo.IbmConnectionsObjects t1  " +
                     "INNER JOIN dbo.IbmConnectionsUsers t2 ON t2.ID=t1.OwnerId  " +
+                    "INNER JOIN Servers t3 ON t1.ServerID=t3.ID " +
                     "WHERE Type!='Community' AND DATEDIFF(dd,0,DATEADD(dd,0,DateCreated))>=DATEDIFF(dd,0,DATEADD(dd,-7,GETDATE()))  " +
                     "GROUP BY CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog'   " +
-                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName " +
+                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName,ServerName " +
                     "UNION " +
                     "SELECT COUNT(*) Total,CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog'  " +
-                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END Type ,DisplayName,'Last 30 days' LastDate, 1 OrdNum   " +
+                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END Type ,DisplayName,'Last 30 days' LastDate, 1 OrdNum, ServerName   " +
                     "FROM dbo.IbmConnectionsObjects t1  " +
                     "INNER JOIN dbo.IbmConnectionsUsers t2 ON t2.ID=t1.OwnerId  " +
+                    "INNER JOIN Servers t3 ON t1.ServerID=t3.ID " +
                     "WHERE Type!='Community' AND DATEDIFF(dd,0,DATEADD(dd,0,DateCreated))>=DATEDIFF(dd,0,DATEADD(dd,-30,GETDATE()))  " +
                     "GROUP BY CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog'   " +
-                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName " +
+                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName,ServerName " +
                     "UNION " +
                     "SELECT COUNT(*) Total,CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog'  " +
-                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END Type ,DisplayName,'Last 90 days' LastDate, 2 OrdNum   " +
+                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END Type ,DisplayName,'Last 90 days' LastDate, 2 OrdNum, ServerName   " +
                     "FROM dbo.IbmConnectionsObjects t1  " +
                     "INNER JOIN dbo.IbmConnectionsUsers t2 ON t2.ID=t1.OwnerId  " +
+                    "INNER JOIN Servers t3 ON t1.ServerID=t3.ID " +
                     "WHERE Type!='Community' AND DATEDIFF(dd,0,DATEADD(dd,0,DateCreated))>=DATEDIFF(dd,0,DATEADD(dd,-90,GETDATE()))  " +
                     "GROUP BY CASE WHEN (Type='Blog' OR Type='Blog Entry') THEN 'Blog'   " +
-                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName";
+                    "WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName,ServerName";
                 dt = adaptor.FetchData(strQuery);
             }
             catch (Exception ex)
@@ -661,14 +697,16 @@ WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName
         }
 
         //6/2/2016 NS added for VSPLUS-3016
-        public DataTable GetSourceCommunity(string objtype)
+        //7/1/2016 NS modified for VSPLUS-3100
+        public DataTable GetSourceCommunity(string servername,string objtype)
         {
             DataTable dt = new DataTable();
             try
             {
                 string strQuery = "SELECT TOP 5 COUNT(*) AS Total,b.Name FROM IbmConnectionsObjects a " +
                     "INNER JOIN IbmConnectionsObjects b ON a.ParentObjectId=b.ID " +
-                    "WHERE a.Type='" + objtype + "' " +
+                    "INNER JOIN Servers s ON s.ID=a.ServerId " + 
+                    "WHERE a.Type='" + objtype + "' AND s.ServerName='" + servername + "' " +
                     "GROUP BY b.Name " +
                     "ORDER BY Total DESC";
                 dt = adaptor.FetchData(strQuery);
@@ -687,28 +725,31 @@ WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName
             try
             {
                 string strQuery = "SELECT COUNT(*) Total,CASE WHEN (t1.Type='Blog' OR t1.Type='Blog Entry') THEN 'Blog' " +
-                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END Type ,t2.Name,'Last 7 days' LastDate, 0 OrdNum   " +
+                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END Type ,t2.Name,'Last 7 days' LastDate, 0 OrdNum, ServerName   " +
                     "FROM dbo.IbmConnectionsObjects t1  " +
                     "INNER JOIN dbo.IbmConnectionsObjects t2 ON t2.ID=t1.ParentObjectID  " +
+                    "INNER JOIN Servers t3 ON t1.ServerID=t3.ID " +
                     "WHERE t1.Type!='Community' AND DATEDIFF(dd,0,DATEADD(dd,0,t1.DateCreated))>=DATEDIFF(dd,0,DATEADD(dd,-7,GETDATE()))  " +
                     "GROUP BY CASE WHEN (t1.Type='Blog' OR t1.Type='Blog Entry') THEN 'Blog'   " +
-                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END,t2.Name " +
+                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END,t2.Name,ServerName  " +
                     "UNION " +
                     "SELECT COUNT(*) Total,CASE WHEN (t1.Type='Blog' OR t1.Type='Blog Entry') THEN 'Blog'  " +
-                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END Type ,t2.Name,'Last 30 days' LastDate, 1 OrdNum   " +
+                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END Type ,t2.Name,'Last 30 days' LastDate, 1 OrdNum, ServerName   " +
                     "FROM dbo.IbmConnectionsObjects t1  " +
                     "INNER JOIN dbo.IbmConnectionsObjects t2 ON t2.ID=t1.ParentObjectID  " +
+                    "INNER JOIN Servers t3 ON t1.ServerID=t3.ID " +
                     "WHERE t1.Type!='Community' AND DATEDIFF(dd,0,DATEADD(dd,0,t1.DateCreated))>=DATEDIFF(dd,0,DATEADD(dd,-30,GETDATE()))  " +
                     "GROUP BY CASE WHEN (t1.Type='Blog' OR t1.Type='Blog Entry') THEN 'Blog'   " +
-                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END,t2.Name " +
+                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END,t2.Name,ServerName  " +
                     "UNION " +
                     "SELECT COUNT(*) Total,CASE WHEN (t1.Type='Blog' OR t1.Type='Blog Entry') THEN 'Blog'  " +
-                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END Type ,t2.Name,'Last 90 days' LastDate, 2 OrdNum   " +
+                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END Type ,t2.Name,'Last 90 days' LastDate, 2 OrdNum, ServerName   " +
                     "FROM dbo.IbmConnectionsObjects t1  " +
                     "INNER JOIN dbo.IbmConnectionsObjects t2 ON t2.ID=t1.ParentObjectID  " +
+                    "INNER JOIN Servers t3 ON t1.ServerID=t3.ID " +
                     "WHERE t1.Type!='Community' AND DATEDIFF(dd,0,DATEADD(dd,0,t1.DateCreated))>=DATEDIFF(dd,0,DATEADD(dd,-90,GETDATE()))  " +
                     "GROUP BY CASE WHEN (t1.Type='Blog' OR t1.Type='Blog Entry') THEN 'Blog'   " +
-                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END,t2.Name";
+                    "WHEN (t1.Type='Wiki' OR t1.Type='Wiki Entry') THEN 'Wiki' ELSE t1.Type END,t2.Name,ServerName ";
                 dt = adaptor.FetchData(strQuery);
             }
             catch (Exception ex)
@@ -719,29 +760,155 @@ WHEN (Type='Wiki' OR Type='Wiki Entry') THEN 'Wiki' ELSE Type END,DisplayName
         }
 
         //6/3/2016 NS added for VSPLUS-3012
-        public DataTable GetTop5MostActiveCommunities()
+        //7/1/2016 NS modified for VSPLUS-3100
+        public DataTable GetTop5MostActiveCommunities(string servername)
         {
             DataTable dt = new DataTable();
             try
             {
-                string strQuery = "SELECT COUNT(*) Total, a.Type, b.Name " +
-                    "FROM IbmConnectionsObjects AS a LEFT JOIN IbmConnectionsObjects AS b ON a.ParentObjectID = b.ID  " +
-                    "WHERE a.ParentObjectID IS NOT NULL AND a.ParentObjectID!=''  " +
-                    "AND DATEDIFF(dd,0,DATEADD(dd,0,a.DateLastModified))>=DATEDIFF(dd,0,DATEADD(dd,-7,GETDATE()))  " +
-                    "AND b.Name IN (SELECT TOP 5 b.Name  " +
-                    "FROM IbmConnectionsObjects AS a LEFT JOIN IbmConnectionsObjects AS b ON a.ParentObjectID = b.ID  " +
-                    "WHERE a.ParentObjectID IS NOT NULL AND a.ParentObjectID!=''  " +
-                    "AND DATEDIFF(dd,0,DATEADD(dd,0,a.DateLastModified))>=DATEDIFF(dd,0,DATEADD(dd,-7,GETDATE()))  " +
-                    "GROUP BY b.Name  " +
-                    "ORDER BY COUNT(*) desc  " +
-                    ")  " +
-                    "GROUP BY b.Name,a.Type " +
-                    "ORDER BY a.Type,b.Name";
+                string strQuery = "SELECT COUNT(*) AS Total, a.Type, b.Name, c.ItemCount,s.ServerName " +
+                    "FROM IbmConnectionsObjects AS a  " +
+                    "LEFT JOIN IbmConnectionsObjects AS b ON a.ParentObjectID = b.ID  " +
+                    "RIGHT OUTER JOIN ( " +
+                    " SELECT TOP 5 b.ID, count(*) as ItemCount " +
+                    " FROM IbmConnectionsObjects AS a  " +
+                    " LEFT JOIN IbmConnectionsObjects AS b ON a.ParentObjectID = b.ID  " +
+                    " WHERE a.ParentObjectID IS NOT NULL AND a.ParentObjectID!=''  " +
+                    " AND DATEDIFF(dd,0,DATEADD(dd,0,a.DateLastModified))>=DATEDIFF(dd,0,DATEADD(dd,-7,GETDATE()))  " +
+                    " GROUP BY b.ID  " +
+                    " ORDER BY COUNT(*) desc " +
+                    ") AS c ON c.ID = a.ParentObjectId " +
+                    "INNER JOIN Servers s ON s.ID=a.ServerId " +
+                    "WHERE a.ParentObjectID IS NOT NULL AND a.ParentObjectID!=''  ";
+                if (servername != "")
+                {
+                    strQuery += "AND s.ServerName='" + servername + "' ";
+                }
+                strQuery += "AND DATEDIFF(dd,0,DATEADD(dd,0,a.DateLastModified))>=DATEDIFF(dd,0,DATEADD(dd,-7,GETDATE()))  " +
+                    "GROUP BY b.Name,a.Type, c.ItemCount,s.ServerName " +
+                    "order by c.ItemCount desc,b.Name,a.Type";
                 dt = adaptor.FetchData(strQuery);
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+            return dt;
+        }
+
+        //6/6/2016 NS added for VSPLUS-3020
+        public DataTable GetCommunitiesMonthly(string servername)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                string strQuery = "SELECT COUNT(Name) Total,MONTH(DateCreated),CAST(DATENAME(month,DateCreated) as char(3)) + ' ' + CAST(YEAR(DateCreated) as char(4)) AS MName, ServerName " +
+                    "FROM IbmConnectionsObjects t1 " +
+                    "INNER JOIN Servers t2 ON t1.ServerId=t2.ID " +
+                    "WHERE Type='Community' AND YEAR(DateCreated)=YEAR(GETDATE())  " +
+                    "AND ServerName='" + servername + "' " + 
+                    "GROUP BY MONTH(DateCreated),CAST(DATENAME(month,DateCreated) as char(3)) + ' ' + CAST(YEAR(DateCreated) as char(4)), ServerName " +
+                    "ORDER BY MONTH(DateCreated)";
+                dt = adaptor.FetchData(strQuery);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+
+        //6/6/2016 NS added for VSPLUS-3020
+        public DataTable GetCommunityItemsMonthly(string servername)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                //7/5/2016 NS modified for VSPLUS-3100
+                string strQuery = "SELECT COUNT(Name) Total,CONVERT(CHAR(3),DATENAME(month,DateCreated)) AS MName, MONTH(DateCreated), YEAR(DateCreated),ServerName  " +
+                    "FROM IbmConnectionsObjects t1 " +
+                    "INNER JOIN Servers t2 ON t1.ServerId=t2.ID " +
+                    "WHERE Type!='Community' AND YEAR(DateCreated)=YEAR(GETDATE()) " +
+                    "AND ServerName='" + servername + "' " + 
+                    "GROUP BY CONVERT(CHAR(3),DATENAME(month,DateCreated)),MONTH(DateCreated), YEAR(DateCreated),ServerName " +
+                    "ORDER BY YEAR(DateCreated),MONTH(DateCreated)";
+                dt = adaptor.FetchData(strQuery);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+
+        //6/6/2016 NS added for VSPLUS-3020
+        public DataTable GetCommunityItemsMonthlyByType(string servername)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                string strQuery = "SELECT COUNT(*) AS Total, a.Type, CAST(MONTH(a.DateCreated) as varchar(2)) + '/' + CAST(YEAR(a.DateCreated) as char(4)) AS MonthYear,ServerName  " +
+                    "FROM IbmConnectionsObjects AS a  " +
+                    "LEFT JOIN IbmConnectionsObjects AS b ON a.ParentObjectID = b.ID  " +
+                    "INNER JOIN Servers t1 ON a.ServerID=t1.ID " + 
+                    "WHERE a.ParentObjectID IS NOT NULL AND a.ParentObjectID!=''  " +
+                    "AND ServerName='" + servername + "' " + 
+                    "AND YEAR(a.DateCreated)=YEAR(GETDATE()) " +
+                    "GROUP BY a.Type, CAST(MONTH(a.DateCreated) as varchar(2)) + '/' + CAST(YEAR(a.DateCreated) as char(4)),ServerName  " +
+                    "ORDER BY CAST(MONTH(a.DateCreated) as varchar(2)) + '/' + CAST(YEAR(a.DateCreated) as char(4))";
+                dt = adaptor.FetchData(strQuery);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+        //20/6/2016 Durga Modified for VSPLUS-2889
+        public DataTable GetLibraries(string statname,string ServerName)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                string strQuery = "SELECT  StatName,StatValue " +
+                    "FROM [VSS_Statistics].[dbo].[IbmConnectionsSummaryStats] WHERE StatName LIKE '" + statname + "%' AND ServerName= '" + ServerName + "' ";
+               
+                strQuery += "AND DATEDIFF(dd,0,Date)=DATEDIFF(dd,0,DATEADD(dd,0,GETDATE())) order by StatName ";
+                dt = adaptor.FetchData(strQuery);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+        public DataTable GetUserStatsForLibraries(string statname, string statname2, string servername, string fromdate, string todate)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                if (fromdate == "" && todate == "")
+                {
+                    fromdate = "DATEADD(dd,-7,DATEDIFF(dd,0,GETDATE()))";
+                    todate = "DATEADD(dd, 0, DATEDIFF(dd, 0, GETDATE()))";
+                }
+                else
+                {
+                    fromdate = "'" + fromdate + "'";
+                    todate = "'" + todate + "'";
+                }
+                string SqlQuery = "SELECT case when statname='" + statname + "' then 'LIBRARIES_CREATED' when   statname='" + statname2 + "' then 'LIBRARIES_MODIFIED ' end as statname, " +
+                    "DATEADD(dd,0,DATEDIFF(dd,0,Date)) Date,MAX(StatValue) StatValue " +
+                    "FROM IbmConnectionsSummaryStats INNER JOIN vitalsigns.dbo.Status ON " +
+                    "ServerName=Name " +
+                    "WHERE StatName in('" + statname + "','" + statname2 + "') AND ServerName='" + servername + "' " +
+                    "AND DATEADD(dd,0,DATEDIFF(dd,0,Date)) BETWEEN DATEADD(dd,-7,DATEDIFF(dd,0,GETDATE())) AND DATEADD(dd,0,DATEDIFF(dd,0,GETDATE())) " +
+                    "GROUP BY DATEADD(dd,0,DATEDIFF(dd,0,Date)),StatName ";
+             
+                dt = objAdaptor.FetchData(SqlQuery);
+            }
+            catch
+            {
             }
             return dt;
         }

@@ -61,7 +61,8 @@
                 <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
                     <ContentTemplate>
                         <dx:ASPxPivotGrid ID="UserAdoptionPivotGrid" runat="server" 
-                    ClientIDMode="AutoID" EnableTheming="True" Theme="Office2003Blue">
+                    ClientIDMode="AutoID" EnableTheming="True" Theme="Office2003Blue" 
+                            onunload="UserAdoptionPivotGrid_Unload">
                     <Fields>
                         <dx:PivotGridField ID="fieldType" Area="ColumnArea" AreaIndex="0" 
                             Caption="Type" FieldName="Type">
@@ -69,12 +70,20 @@
                         <dx:PivotGridField ID="fieldTotal" Area="DataArea" AreaIndex="0" 
                             Caption="Total" FieldName="Total">
                         </dx:PivotGridField>
-                        <dx:PivotGridField ID="fieldDisplayName" Area="RowArea" AreaIndex="0" 
+                        <dx:PivotGridField ID="fieldServerName" Area="RowArea" AreaIndex="0" 
+                            Caption="Server Name" FieldName="ServerName" 
+                            SortBySummaryInfo-FieldName="fieldTotal">
+                        </dx:PivotGridField>
+                        <dx:PivotGridField ID="fieldDisplayName" Area="RowArea" AreaIndex="1" 
                             Caption="Name" FieldName="DisplayName" 
                             SortBySummaryInfo-FieldName="fieldTotal">
                         </dx:PivotGridField>
                     </Fields>
                             <OptionsView ShowRowTotals="False" />
+                            <OptionsPager AlwaysShowPager="True">
+                                <PageSizeItemSettings Visible="True">
+                                </PageSizeItemSettings>
+                            </OptionsPager>
                     <OptionsBehavior SortBySummaryDefaultOrder="Ascending" />
                 </dx:ASPxPivotGrid>
                 <dx:ASPxPivotGridExporter ID="ServerGridViewExporter" runat="server" ASPxPivotGridID="UserAdoptionPivotGrid">

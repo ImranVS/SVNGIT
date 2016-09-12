@@ -29,10 +29,10 @@ namespace VSWebUI.DashboardReports
             DataTable dt = new DataTable();
 
             dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetIBMConnectionsServerlist(statname1);
-            ServerListFilterListBox.DataSource = dt;
-            ServerListFilterListBox.TextField = "ServerName";
-            ServerListFilterListBox.ValueField = "ServerName";
-            ServerListFilterListBox.DataBind();
+            ServerComboBox.DataSource = dt;
+            ServerComboBox.TextField = "ServerName";
+            ServerComboBox.ValueField = "ServerName";
+            ServerComboBox.DataBind();
         }
 
         protected void Page_PreInit(object sender, EventArgs e)
@@ -58,22 +58,10 @@ namespace VSWebUI.DashboardReports
         public void FillReport()
         {
             string selectedServer = "";
-            if (this.ServerListFilterListBox.SelectedItems.Count > 0)
+           
+            if (ServerComboBox.SelectedIndex != -1)
             {
-                selectedServer = "";
-                for (int i = 0; i < this.ServerListFilterListBox.SelectedItems.Count; i++)
-                {
-                    selectedServer += "'" + this.ServerListFilterListBox.SelectedItems[i].Text + "'" + ",";
-                }
-                try
-                {
-                    selectedServer = selectedServer.Substring(0, selectedServer.Length - 1);
-                }
-                catch
-                {
-                    selectedServer = "";     // throw ex; 
-                }
-                finally { }
+                selectedServer = ServerComboBox.SelectedItem.Value.ToString();
             }
             string strfrom = "";
             string strto = "";

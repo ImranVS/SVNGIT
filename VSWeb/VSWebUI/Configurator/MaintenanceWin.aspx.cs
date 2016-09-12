@@ -213,6 +213,11 @@ namespace VSWebUI.Configurator
                     }
                     lblDurationType.ClientVisible = true;
                     RadioButtonListEndDate.ClientVisible = true;
+                    // 7/26/2016 Sowjanya modified for   VSPLUs-3127
+                    if (lblEndDate.Text != "")
+                    {
+                        MaintEndDateEdit.Text = lblEndDate.Text;
+                    }
                     break;
                 //Weekly
                 case "3":
@@ -347,6 +352,7 @@ namespace VSWebUI.Configurator
                 endDateTime = endDateTime.AddMinutes(Convert.ToDouble(MaintDurationTextBox.Text));
                 lblEndDate.Text = endDateTime.ToShortDateString();
                 MaintEndDateEdit.Value = lblEndDate.Text;
+                MaintEndDateEdit.Text = lblEndDate.Text;
                 lblEndTime.Text = MaintStartTimeEdit.Text;
             }
             else if (NameTextBox.Text!= "")
@@ -1568,11 +1574,16 @@ namespace VSWebUI.Configurator
                 endDateTime = DateTime.Parse(MaintStartDateEdit.Text + " " + "12:00 AM");
             }
             endDateTime = endDateTime.AddMinutes(Convert.ToDouble(MaintDurationTextBox.Value));
-            if (MaintRepeatRadioButtonList.SelectedItem.Value.ToString() == "1")
+            // 7/26/2016 Sowjanya modified for   VSPLUs-3127
+            if (MaintRepeatRadioButtonList.SelectedItem.Value.ToString() == "1" || MaintRepeatRadioButtonList.SelectedItem.Value.ToString() == "2")
             {
-                lblEndDate.Text = endDateTime.ToShortDateString();
-                MaintEndDateEdit.Text = lblEndDate.Text;
+                if (DateTime.Parse(MaintEndDateEdit.Text) <= DateTime.Parse(MaintStartDateEdit.Text))
+                {
+                    lblEndDate.Text = endDateTime.ToShortDateString();
+                    MaintEndDateEdit.Text = lblEndDate.Text;
+                }
             }
+          
         }
 
       
@@ -1875,5 +1886,7 @@ namespace VSWebUI.Configurator
 
             ServersTreeList.SettingsPager.Summary.Text = "Page {0} of {1} (" + itemCount + " items)";
         }
+
+       
     }
 }

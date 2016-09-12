@@ -4,11 +4,6 @@
 <%@ Register Assembly="DevExpress.Web.v14.2, Version=14.2.7.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
 	Namespace="DevExpress.Web" TagPrefix="dx" %>
 
-
-
-
-
-
 <%@ Register Assembly="DevExpress.Web.ASPxTreeList.v14.2, Version=14.2.7.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
 	Namespace="DevExpress.Web.ASPxTreeList" TagPrefix="dx" %>
 
@@ -20,15 +15,26 @@
 	<script src="../js/jquery-1.9.1.js" type="text/javascript"></script>
 	<script src="../js/bootstrap.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		$(document).ready(function () {
-			$('.alert-success').delay(10000).fadeOut("slow", function () {
-			});
-		});
-
 		function OnItemClick(s, e) {
 			if (e.item.parent == s.GetRootItem())
 				e.processOnServer = false;
-		}
+}
+var visibleIndex;
+function OnCustomButtonClick(s, e) {
+    visibleIndex = e.visibleIndex;
+
+    if (e.buttonID == "deleteButton")
+        CASGridView.GetRowValues(e.visibleIndex, 'TestName', OnGetRowValues);
+
+    function OnGetRowValues(values) {
+        var id = values[0];
+        var name = values[1];
+        var OK = (confirm('Are you sure you want to delete the test - ' + values + '?'))
+        if (OK == true) {
+            CASGridView.DeleteRow(visibleIndex);
+        }
+    }
+}
 	</script>
 	<style type="text/css">
 		.dxeBase
@@ -96,7 +102,8 @@
 			<td>
 				<%--<asp:UpdatePanel ID="PanelControl2" runat="server">
 					<ContentTemplate>--%>
-						<dx:ASPxPageControl Font-Bold="True" ID="ASPxPageControlWindow" runat="server" ActiveTabIndex="0"
+						<dx:ASPxPageControl Font-Bold="True" ID="ASPxPageControlWindow" 
+                    runat="server" ActiveTabIndex="0"
 							CssFilePath="~/App_Themes/Glass/{0}/styles.css" CssPostfix="Glass" SpriteCssFilePath="~/App_Themes/Glass/{0}/sprite.css"
 							TabSpacing="0px" Width="100%" EnableHierarchyRecreation="False">
 							<TabPages>
@@ -849,39 +856,186 @@
 															</HeaderStyle>
 															<PanelCollection>
 																<dx:PanelContent ID="PanelContent3" runat="server" SupportsDisabledAttribute="True">
-																	<asp:Label ID="Label8" runat="server" Style="color: #0033CC" Text="Check any items you would like to be tested upon scanning this server."></asp:Label>
-																	<table>
+																	<asp:Label ID="Label8" runat="server" Style="color: #0033CC" Text="Check any items you would like scanned by this server. The URL and credentials should only be applied to those tests which are different from that which the server uses. If left blank, the server's information will be used for the test."></asp:Label>
+                                                                   <%-- 14/07/2016 sowmya added for VSPLUS-3097--%>
+                                                                  <table>
+                                                                  <tr>
+                                                                        <td>
+                                                                            <dx:ASPxButton ID="NewButton" runat="server" Text="New" CssClass="sysButton" AutoPostBack="False">
+                                                                                <ClientSideEvents Click="function() { CASGridView.AddNewRow(); }" />
+                                                                                <Image Url="~/images/icons/add.png">
+                                                                                </Image>
+                                                                            </dx:ASPxButton>
+                                                                        </td>
+                                                                    </tr>
+                                                                    </table>
+                                                                    <table>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <dx:ASPxGridView runat="server" KeyFieldName="id" AutoGenerateColumns="False" ID="CASGridView"
+                                                                                ClientInstanceName="CASGridView" Theme="Office2003Blue" EnableTheming="True"
+                                                                                CssFilePath="~/App_Themes/Office2010Blue/{0}/styles.css" CssPostfix="Office2010Blue"
+                                                                                OnAutoFilterCellEditorInitialize="CASGridView_AutoFilterCellEditorInitialize"
+                                                                                OnCellEditorInitialize="CASGridView_CellEditorInitialize" OnCustomErrorText="CASGridView_CustomErrorText"
+                                                                                OnPageSizeChanged="CASGridView_PageSizeChanged" 
+                                                                                OnRowInserting="CASGridView_RowInserting" 
+                                                                                OnRowDeleting="CASGridView_RowDeleting" OnRowUpdating="CASGridView_RowUpdating">
+                                                                              <ClientSideEvents CustomButtonClick="OnCustomButtonClick" />
+                                                                                <Columns>
+                                                                               
+                                                                                    <dx:GridViewDataTextColumn FieldName="id" Visible="False" VisibleIndex="5">
+                                                                                        <EditFormSettings Visible="False"></EditFormSettings>
+                                                                                    </dx:GridViewDataTextColumn>
+                                                                                    <dx:GridViewDataComboBoxColumn FieldName="TestName" VisibleIndex="2">
+                                                                                  <PropertiesComboBox >
+                                                                                    <ValidationSettings>
+                                                                                    <RequiredField IsRequired = "true" />
+                                                                                    </ValidationSettings>
+                                                                                    </PropertiesComboBox>
+                                                                                        <Settings AllowAutoFilter="True" AllowHeaderFilter="False" />
+                                                                                        <EditCellStyle CssClass="GridCss">
+                                                                                        </EditCellStyle>
+                                                                                        <EditFormCaptionStyle CssClass="GridCss">
+                                                                                        </EditFormCaptionStyle>
+                                                                                        <HeaderStyle CssClass="GridCssHeader" />
+                                                                                        <CellStyle CssClass="GridCss">
+                                                                                        </CellStyle>
+                                                                                    </dx:GridViewDataComboBoxColumn>
+                                                                                    <dx:GridViewDataTextColumn FieldName="URLs" VisibleIndex="3" Caption="URL">
+                                                                                        <Settings AutoFilterCondition="Contains"></Settings>
+                                                                                        <EditCellStyle CssClass="GridCss">
+                                                                                        </EditCellStyle>
+                                                                                        <EditFormCaptionStyle CssClass="GridCss">
+                                                                                        </EditFormCaptionStyle>
+                                                                                        <HeaderStyle CssClass="GridCssHeader" />
+                                                                                        <CellStyle CssClass="GridCss">
+                                                                                        </CellStyle>
+                                                                                    </dx:GridViewDataTextColumn>  
+                                                                                    <dx:GridViewDataComboBoxColumn FieldName="AliasName" VisibleIndex="4" 
+                                                                                        Caption="Credentials">
+                                                                                        <Settings AllowAutoFilter="True" AllowHeaderFilter="False" />
+                                                                                        <EditCellStyle CssClass="GridCss">
+                                                                                        </EditCellStyle>
+                                                                                        <EditFormCaptionStyle CssClass="GridCss">
+                                                                                        </EditFormCaptionStyle>
+                                                                                        <HeaderStyle CssClass="GridCssHeader" />
+                                                                                        <CellStyle CssClass="GridCss">
+                                                                                        </CellStyle>
+                                                                                    </dx:GridViewDataComboBoxColumn>
+                                                                                    <dx:GridViewCommandColumn ButtonType="Image" Caption="Actions" 
+                                                                                        ShowInCustomizationForm="True" VisibleIndex="0" Width="60px">
+                                                                                        <EditButton Visible="True">
+                    <Image Url="../images/edit.png">
+                    </Image>
+                </EditButton>
+                <NewButton Visible="True">
+                    <Image Url="../images/icons/add.png">
+                    </Image>
+                </NewButton>
+                <DeleteButton Visible="False">
+                    <Image Url="../images/delete.png">
+                    </Image>
+                </DeleteButton>
+                <CancelButton Visible="True">
+                    <Image Url="~/images/cancel.gif">
+                    </Image>
+                </CancelButton>
+                <UpdateButton Visible="True">
+                    <Image Url="~/images/update.gif">
+                    </Image>
+                </UpdateButton>
+                                                                                        <HeaderStyle CssClass="GridCssHeader1" />
+                                                                                        <CellStyle CssClass="GridCss1">
+                                                                                        </CellStyle>
+                                                                                    </dx:GridViewCommandColumn>
+                                                                                    <dx:GridViewCommandColumn ButtonType="Image" Caption="Delete" 
+                                                                                        ShowInCustomizationForm="True" VisibleIndex="1" Width="60px">
+                                                                                        <CustomButtons>
+                    <dx:GridViewCommandColumnCustomButton ID="deleteButton" Image-Url="../images/delete.png"
+                        Text="Delete">
+                        <Image Url="../images/delete.png">
+                        </Image>
+                    </dx:GridViewCommandColumnCustomButton>
+                </CustomButtons>
+                                                                                        <HeaderStyle CssClass="GridCssHeader1" />
+                                                                                        <CellStyle CssClass="GridCss1">
+                                                                                        </CellStyle>
+                                                                                    </dx:GridViewCommandColumn>
+                                                                                    <dx:GridViewDataTextColumn Caption="ServerId" FieldName="ServerId" 
+                                                                                        ShowInCustomizationForm="True" Visible="False" VisibleIndex="7">
+                                                                                    </dx:GridViewDataTextColumn>
+                                                                                    <dx:GridViewDataTextColumn Caption="TestId" FieldName="TestId" 
+                                                                                        ShowInCustomizationForm="True" Visible="False" VisibleIndex="6">
+                                                                                    </dx:GridViewDataTextColumn>
+                                                                                </Columns>
+                                                                                <SettingsBehavior ConfirmDelete="True"></SettingsBehavior>
+                                                                                <Styles CssPostfix="Office2010Blue" CssFilePath="~/App_Themes/Office2010Blue/{0}/styles.css">
+                                                                                    <Header SortingImageSpacing="5px" ImageSpacing="5px">
+                                                                                    </Header>
+                                                                                    <LoadingPanel ImageSpacing="5px">
+                                                                                    </LoadingPanel>
+                                                                                    <AlternatingRow CssClass="GridAltRow" Enabled="True">
+                                                                                    </AlternatingRow>
+                                                                                    <EditForm CssClass="GridCssEditForm">
+                                                                                    </EditForm>
+                                                                                </Styles>
+                                                                                <StylesPager>
+                                                                                    <PageNumber ForeColor="#3E4846">
+                                                                                    </PageNumber>
+                                                                                    <Summary ForeColor="#1E395B">
+                                                                                    </Summary>
+                                                                                </StylesPager>
+                                                                                <StylesEditors ButtonEditCellSpacing="0">
+                                                                                    <ProgressBar Height="21px">
+                                                                                    </ProgressBar>
+                                                                                </StylesEditors>
+                                                                                <SettingsPager PageSize="10" SEOFriendly="Enabled">
+                                                                                    <PageSizeItemSettings Visible="true" />
+                                                                                    <PageSizeItemSettings Visible="True">
+                                                                                    </PageSizeItemSettings>
+                                                                                </SettingsPager>
+                                                                            </dx:ASPxGridView>
+                                                                        </td>
+                                                                    </tr>
+                                                                    
+                                                                    </table>
+                                                                 
+                                                                    <table>
 																		<tr>
 																			<td>
-																				<dx:ASPxCheckBox ID="CASSmtp" runat="server" CheckState="Unchecked" Text="SMTP">
+																				<dx:ASPxCheckBox ID="CASSmtp" runat="server" CheckState="Unchecked" Text="SMTP" Visible="false">
 																				</dx:ASPxCheckBox>
 																			</td>
 																			<td>
-																				<dx:ASPxCheckBox ID="CASEWS" runat="server" CheckState="Unchecked" Text="Outlook Anywhere">
+																				<dx:ASPxCheckBox ID="CASEWS" runat="server" CheckState="Unchecked" Text="Outlook Anywhere"
+                                                                                    Visible="false">
 																				</dx:ASPxCheckBox>
 																			</td>
 																			<td>
-																				<dx:ASPxCheckBox ID="CASOWA" runat="server" CheckState="Unchecked" Text="OWA (Outlook Web App)">
+																				<dx:ASPxCheckBox ID="CASOWA" runat="server" CheckState="Unchecked" Text="OWA (Outlook Web App)"
+                                                                                    Visible="false">
 																				</dx:ASPxCheckBox>
 																			</td>
 																		</tr>
 																		<tr>
 																			<td>
-																				<dx:ASPxCheckBox ID="CASPop3" runat="server" CheckState="Unchecked" Text="POP3">
+																				<dx:ASPxCheckBox ID="CASPop3" runat="server" CheckState="Unchecked" Text="POP3" Visible="false">
 																				</dx:ASPxCheckBox>
 																			</td>
 																			<td>
-																				<dx:ASPxCheckBox ID="CASAutoDiscovery" runat="server" CheckState="Unchecked" Text="Auto Discovery">
+																				<dx:ASPxCheckBox ID="CASAutoDiscovery" runat="server" CheckState="Unchecked" Text="Auto Discovery"
+                                                                                    Visible="false">
 																				</dx:ASPxCheckBox>
 																			</td>
 																			<td>
-																				<dx:ASPxCheckBox ID="CASOARPC" runat="server" CheckState="Unchecked" Text="Outlook Native RPC">
+																				<dx:ASPxCheckBox ID="CASOARPC" runat="server" CheckState="Unchecked" Text="Outlook Native RPC"
+                                                                                    Visible="false">
 																				</dx:ASPxCheckBox>
 																			</td>
 																		</tr>
 																		<tr>
 																			<td>
-																				<dx:ASPxCheckBox ID="CASImap" runat="server" CheckState="Unchecked" Text="IMAP">
+																				<dx:ASPxCheckBox ID="CASImap" runat="server" CheckState="Unchecked" Text="IMAP" Visible="false">
 																				</dx:ASPxCheckBox>
 																			</td>
 																			<%--<td>
@@ -893,7 +1047,8 @@
 																				</dx:ASPxCheckBox>
 																			</td>--%>
                                                                             <td>
-																				<dx:ASPxCheckBox ID="CASActiveSync" runat="server" CheckState="Unchecked" Text="Active Sync">
+																				<dx:ASPxCheckBox ID="CASActiveSync" runat="server" CheckState="Unchecked" Text="Active Sync"
+                                                                                    Visible="false">
 																				</dx:ASPxCheckBox>
 																			</td>
 																		</tr>
@@ -908,16 +1063,18 @@
 																		</tr>
 																		<tr>
 																			<td>
-																				<dx:ASPxLabel ID="ASPxLabel10" runat="server" CssClass="lblsmallFont" Text="Active Sync Credentials:">
+																				<dx:ASPxLabel ID="ASPxLabel10" runat="server" CssClass="lblsmallFont" Text="Active Sync Credentials:"
+                                                                                    Visible="false">
 																				</dx:ASPxLabel>
 																			</td>
 																			<td>
-																				<dx:ASPxComboBox ID="ActiveSyncCredentialsComboBox" runat="server" AutoPostBack="false">
+																				<dx:ASPxComboBox ID="ActiveSyncCredentialsComboBox" runat="server" AutoPostBack="false"
+                                                                                    Visible="false">
 																				</dx:ASPxComboBox>
 																			</td>
                                                                             <td>
 																					<dx:ASPxButton ID="ASPxButton2" runat="server" Text="Add Credentials" CssClass="sysButton"
-																						OnClick="btn_clickcopyprofile" CausesValidation="false" Visible="true" UseSubmitBehavior="false">
+																						OnClick="btn_clickcopyprofile" CausesValidation="false" Visible="false" UseSubmitBehavior="false" >
 																					</dx:ASPxButton>
 																				</td>
 																		</tr>

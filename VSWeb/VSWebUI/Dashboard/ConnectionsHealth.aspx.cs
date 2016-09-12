@@ -68,6 +68,7 @@ namespace VSWebUI.Dashboard
                     selectedServer = ConnectionsGridView.GetRowValues(index, "ServerName").ToString();
                 }
             }
+            FillLibrariesGrid();
             FillActivitiesGridView();
             FillActivitiesHeader();
             FillUsersCombo();
@@ -94,6 +95,7 @@ namespace VSWebUI.Dashboard
             SetGraphForTop5Objects();
             SetGraphForTop5MostActiveCommunities();
             FillCommunitiesGrid();
+            SetGraphForLibraries();
         }
 
         private void FillConnectionsGridView()
@@ -125,7 +127,7 @@ namespace VSWebUI.Dashboard
             try
             {
                 DataTable dt = new DataTable();
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetDailyActivities();
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetDailyActivities(selectedServer);
                 if (dt.Rows.Count > 0)
                 {
                     Session["ConnectionsDailyActivitiesGrid"] = dt;
@@ -149,7 +151,7 @@ namespace VSWebUI.Dashboard
             try
             {
                 DataTable dt = new DataTable();
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities("NUM_OF_ACTIVITIES");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities(selectedServer,"NUM_OF_ACTIVITIES");
                 if (dt.Rows.Count > 0)
                 {
                     Session["ConnectionsActivitiesGrid"] = dt;
@@ -173,7 +175,7 @@ namespace VSWebUI.Dashboard
             try
             {
                 DataTable dt = new DataTable();
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities("NUM_OF_BLOGS");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities(selectedServer, "NUM_OF_BLOGS");
                 if (dt.Rows.Count > 0)
                 {
                     Session["ConnectionsBlogsGrid"] = dt;
@@ -197,7 +199,7 @@ namespace VSWebUI.Dashboard
             try
             {
                 DataTable dt = new DataTable();
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities("NUM_OF_BOOKMARKS");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities(selectedServer, "NUM_OF_BOOKMARKS");
                 if (dt.Rows.Count > 0)
                 {
                     Session["ConnectionsBookmarksGrid"] = dt;
@@ -221,7 +223,7 @@ namespace VSWebUI.Dashboard
             try
             {
                 DataTable dt = new DataTable();
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities("NUM_OF_FILES");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities(selectedServer, "NUM_OF_FILES");
                 if (dt.Rows.Count > 0)
                 {
                     Session["ConnectionsFilesGrid"] = dt;
@@ -245,7 +247,7 @@ namespace VSWebUI.Dashboard
             try
             {
                 DataTable dt = new DataTable();
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities("NUM_OF_FORUMS");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities(selectedServer, "NUM_OF_FORUMS");
                 if (dt.Rows.Count > 0)
                 {
                     Session["ConnectionsForumsGrid"] = dt;
@@ -269,7 +271,7 @@ namespace VSWebUI.Dashboard
             try
             {
                 DataTable dt = new DataTable();
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities("NUM_OF_WIKIS");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetActivities(selectedServer, "NUM_OF_WIKIS");
                 if (dt.Rows.Count > 0)
                 {
                     Session["ConnectionsWikisGrid"] = dt;
@@ -356,8 +358,8 @@ namespace VSWebUI.Dashboard
                 UsersDailyWebChart.Titles.Add(title);
                 UsersDailyWebChart.DataSource = dt;
                 UsersDailyWebChart.DataBind();
-                UI uiobj = new UI();
-                uiobj.RecalibrateChartAxes(UsersDailyWebChart.Diagram, "Y", "int", "int");
+                //UI uiobj = new UI();
+                //uiobj.RecalibrateChartAxes(UsersDailyWebChart.Diagram, "Y", "int", "int");
                 
             }
             return dt;
@@ -548,7 +550,7 @@ namespace VSWebUI.Dashboard
         public DataTable SetGraphForTop5Tags()
         {
             Top5TagsWebChart.Series.Clear();
-            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetTopTags("");
+            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetTopTags(selectedServer,"");
             if (dt.Rows.Count > 0)
             {
                 Top5TagsWebChart.SeriesDataMember = "StatName";
@@ -694,7 +696,7 @@ namespace VSWebUI.Dashboard
             DataTable dt = new DataTable();
             try
             {
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName("NUM_OF_BOOKMARKS_BOOKMARKS");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName(selectedServer,"NUM_OF_BOOKMARKS_BOOKMARKS");
                 if (dt.Rows.Count > 0)
                 {
                     BookmarksLabel.Text = dt.Rows[0]["StatValue"].ToString();
@@ -708,7 +710,7 @@ namespace VSWebUI.Dashboard
             finally { }
             try
             {
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName("NUM_OF_DISTINCT_BOOKMARK_URLS");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName(selectedServer, "NUM_OF_DISTINCT_BOOKMARK_URLS");
                 if (dt.Rows.Count > 0)
                 {
                     BookmarkURLsLabel.Text = dt.Rows[0]["StatValue"].ToString();
@@ -727,7 +729,7 @@ namespace VSWebUI.Dashboard
             DataTable dt = new DataTable();
             try
             {
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName("NUM_OF_USERS_FOLLOWING_ACTIVITY");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName(selectedServer, "NUM_OF_USERS_FOLLOWING_ACTIVITY");
                 if (dt.Rows.Count > 0)
                 {
                     UsersActivityLabel.Text = dt.Rows[0]["StatValue"].ToString();
@@ -741,7 +743,7 @@ namespace VSWebUI.Dashboard
             finally { }
             try
             {
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName("NUM_OF_ACTIVITY_OWNERS");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName(selectedServer, "NUM_OF_ACTIVITY_OWNERS");
                 if (dt.Rows.Count > 0)
                 {
                     ActivityOwnersLabel.Text = dt.Rows[0]["StatValue"].ToString();
@@ -759,7 +761,7 @@ namespace VSWebUI.Dashboard
         {
             CommunitiesByTypeChart.Series.Clear();
             string statname = "COMMUNITY_TYPE_";
-            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName(statname, false);
+            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName(selectedServer, statname, false);
             Series series = new Series("StatName", ViewType.Pie);
 
             series.ArgumentDataMember = dt.Columns["StatName"].ToString();
@@ -782,18 +784,23 @@ namespace VSWebUI.Dashboard
             DataTable dt = new DataTable();
             try
             {
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetConnectionsUsers();
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetConnectionsUsers(selectedServer);
+                User1ComboBox.DataSource = dt;
+                //22/07/2016 Sowmya added for VSPLUS-3129
                 if (dt.Rows.Count > 0)
                 {
-                    User1ComboBox.DataSource = dt;
                     User1ComboBox.ValueField = "DisplayName";
                     User1ComboBox.TextField = "DisplayName";
-                    User1ComboBox.DataBind();
-                    User2ComboBox.DataSource = dt;
+                }
+                User1ComboBox.DataBind();
+                User2ComboBox.DataSource = dt;
+                if (dt.Rows.Count > 0)
+                {
                     User2ComboBox.ValueField = "DisplayName";
                     User2ComboBox.TextField = "DisplayName";
-                    User2ComboBox.DataBind();
                 }
+                User2ComboBox.DataBind();
+                
             }
             catch (Exception ex)
             {
@@ -803,7 +810,7 @@ namespace VSWebUI.Dashboard
             finally { }
             try
             {
-                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName("NUM_OF_ACTIVITY_OWNERS");
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetStatByName(selectedServer, "NUM_OF_ACTIVITY_OWNERS");
                 if (dt.Rows.Count > 0)
                 {
                     ActivityOwnersLabel.Text = dt.Rows[0]["StatValue"].ToString();
@@ -871,7 +878,14 @@ namespace VSWebUI.Dashboard
         private void SetGraphForMostActiveCommunity()
         {
             MostActiveCommunityChart.Series.Clear();
-            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetMostActiveCommunity();
+            ChartTitle title = new ChartTitle();
+            title.Text = "Most Active Community";
+            System.Drawing.Font font = new System.Drawing.Font(title.Font.FontFamily.Name, 12);
+            title.Font = font;
+            MostActiveCommunityChart.Titles.Clear();
+            MostActiveCommunityChart.Titles.Add(title);
+            MostActiveCommunityChart.DataBind();
+            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetMostActiveCommunity(selectedServer);
             if (dt.Rows.Count > 0)
             {
                 Series series = new Series("Type", ViewType.Doughnut);
@@ -886,12 +900,8 @@ namespace VSWebUI.Dashboard
                 seriesValueDataMembers.AddRange(dt.Columns["Total"].ToString());
                 MostActiveCommunityChart.Series.Add(series);
 
-                ChartTitle title = new ChartTitle();
-
                 title.Text = "Most Active Community is \"" + dt.Rows[0]["Name"].ToString() + "\"";
-                System.Drawing.Font font = new System.Drawing.Font(title.Font.FontFamily.Name, 12);
-                title.Font = font;
-
+                
                 MostActiveCommunityChart.Titles.Clear();
                 MostActiveCommunityChart.Titles.Add(title);
                 MostActiveCommunityChart.DataSource = dt;
@@ -911,7 +921,7 @@ namespace VSWebUI.Dashboard
         private void SetGraphForTop5(string objtype,object objchart)
         {
             ((WebChartControl)objchart).Series.Clear();
-            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetSourceCommunity(objtype);
+            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetSourceCommunity(selectedServer,objtype);
             if (dt.Rows.Count > 0)
             {
                 ((WebChartControl)objchart).SeriesDataMember = "Name";
@@ -932,7 +942,7 @@ namespace VSWebUI.Dashboard
             try
             {
                 DataTable dt = new DataTable();
-                dt = dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetCommList("");
+                dt = dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetCommList("",selectedServer);
                 if (dt.Rows.Count > 0)
                 {
                     
@@ -959,11 +969,11 @@ namespace VSWebUI.Dashboard
 
         private void SetGraphForTop5MostActiveCommunities()
         {
+            Top5CommunitiesChart.Series.Clear();
             DataTable dt = new DataTable();
-            dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetTop5MostActiveCommunities();
+            dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetTop5MostActiveCommunities(selectedServer);
             if (dt.Rows.Count > 0)
             {
-                Top5CommunitiesChart.Series.Clear();
                 Series series = null;
                 string seriesname = "";
                 string seriesarg = "";
@@ -994,6 +1004,44 @@ namespace VSWebUI.Dashboard
                 UI uiobj = new UI();
                 uiobj.RecalibrateChartAxes(Top5CommunitiesChart.Diagram, "Y", "int", "int");
             }
+        }
+        private void FillLibrariesGrid()
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetLibraries("%LIBRARIES%",selectedServer);
+                if (dt.Rows.Count > 0)
+                {
+                    LibrariesGrid.DataSource = dt;
+                    LibrariesGrid.Columns.Clear();
+                    LibrariesGrid.AutoGenerateColumns = true;
+
+                    LibrariesGrid.DataBind();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Entry.Ins.WriteHistoryEntry(DateTime.Now.ToString() + " Exception - " + ex);
+                throw ex;
+            }
+            finally { }
+        }
+
+        public DataTable SetGraphForLibraries()
+        {
+            LibrariesChartControl.Series.Clear();
+            DataTable dt = VSWebBL.DashboardBL.ConnectionsBL.Ins.GetUserStatsForLibraries("LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY", "LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY", selectedServer);
+            if (dt.Rows.Count > 0)
+            {
+                LibrariesChartControl.SeriesDataMember = "StatName";
+                LibrariesChartControl.SeriesTemplate.ArgumentDataMember = "Date";
+                LibrariesChartControl.SeriesTemplate.ValueDataMembers.AddRange(new string[] { "StatValue" });
+                ((LineSeriesView)LibrariesChartControl.SeriesTemplate.View).LineMarkerOptions.Size = 7;
+                LibrariesChartControl.DataSource = dt;
+                LibrariesChartControl.DataBind();
+            }
+            return dt;
         }
     }
 }

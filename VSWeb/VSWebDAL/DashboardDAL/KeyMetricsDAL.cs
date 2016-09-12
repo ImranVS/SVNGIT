@@ -641,7 +641,7 @@ namespace VSWebDAL.DashboardDAL
             string sqlquery = "";
             try
             {
-                sqlquery = "select  Ds.ServerName,Case when StatName='Server.Users' then 'User Count' else  StatName end as StatName,round(StatValue,0) as StatValue,Date,ISNULL(sr.MonthlyOperatingCost,0) as MonthlyOperatingCost,ISNULL((MonthlyOperatingCost*12)/365,0) as costperday,ISNULL(((MonthlyOperatingCost*12)/(365*StatValue)),0) as CostPerUser  from [VSS_Statistics].dbo.DominoSummaryStats Ds inner join  [vitalsigns].dbo.servers sr on Ds.ServerName=sr.ServerName" +
+                sqlquery = "select  Ds.ServerName,Case when StatName='Server.Users' then 'User Count' else  StatName end as StatName,round(StatValue,0) as StatValue,Date,ISNULL(sr.MonthlyOperatingCost,0) as MonthlyOperatingCost,ISNULL((MonthlyOperatingCost*12)/365,0) as costperday,ISNULL(((MonthlyOperatingCost*12)/(365*round(StatValue,0))),0) as CostPerUser  from [VSS_Statistics].dbo.DominoSummaryStats Ds inner join  [vitalsigns].dbo.servers sr on Ds.ServerName=sr.ServerName" +
                 " where statname ='Server.Users' and date BETWEEN '" + FromDate + "' AND '" + ToDate + "'  order by ServerName";
                 dt = objAdaptor.FetchData(sqlquery);
             }

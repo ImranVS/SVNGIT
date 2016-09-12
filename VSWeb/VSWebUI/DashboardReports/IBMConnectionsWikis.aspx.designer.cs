@@ -58,13 +58,13 @@ namespace VSWebUI.DashboardReports {
         protected global::System.Web.UI.UpdatePanel UpdatePanel2;
         
         /// <summary>
-        /// ServerListFilterListBox control.
+        /// ServerComboBox control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::DevExpress.Web.ASPxListBox ServerListFilterListBox;
+        protected global::DevExpress.Web.ASPxComboBox ServerComboBox;
         
         /// <summary>
         /// ASPxLabel2 control.
@@ -83,6 +83,15 @@ namespace VSWebUI.DashboardReports {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::VSWebUI.Controls.DateRange dtPick;
+        
+        /// <summary>
+        /// ASPxLabel3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxLabel ASPxLabel3;
         
         /// <summary>
         /// WikiTypeCombobox control.

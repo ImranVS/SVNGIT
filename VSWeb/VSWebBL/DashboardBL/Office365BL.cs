@@ -439,5 +439,32 @@ namespace VSWebBL.DashboardBL
         {
             return VSWebDAL.DashboardDAL.Office365DAL.Ins.GetInactiveUsersCount(ServerName);
         }
+        public DataTable GetO365Users()
+        {
+            try
+            {
+                return VSWebDAL.DashboardDAL.Office365DAL.Ins.GetO365Users();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+       
+        public DataTable GetUserCommonGroups(string UserName1, string UserName2)
+        {
+            try
+            {
+                return VSWebDAL.DashboardDAL.Office365DAL.Ins.GetUserCommonGroups(UserName1, UserName2);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
 	}
 }

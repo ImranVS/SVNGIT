@@ -580,15 +580,6 @@ namespace VSWebUI.Configurator {
         protected global::DevExpress.Web.ASPxCheckBox chbxinbox;
         
         /// <summary>
-        /// chbxtask control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxCheckBox chbxtask;
-        
-        /// <summary>
         /// chbximap control.
         /// </summary>
         /// <remarks>
@@ -596,6 +587,15 @@ namespace VSWebUI.Configurator {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxCheckBox chbximap;
+        
+        /// <summary>
+        /// chbxtask control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxCheckBox chbxtask;
         
         /// <summary>
         /// ASPxRoundPanel3 control.
@@ -760,13 +760,13 @@ namespace VSWebUI.Configurator {
         protected global::DevExpress.Web.ASPxCheckBox chbxonedrivedownload;
         
         /// <summary>
-        /// ASPxRoundPanel5 control.
+        /// DirectorySyncronizationTestsPanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::DevExpress.Web.ASPxRoundPanel ASPxRoundPanel5;
+        protected global::DevExpress.Web.ASPxRoundPanel DirectorySyncronizationTestsPanel;
         
         /// <summary>
         /// PanelContent4 control.

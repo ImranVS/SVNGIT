@@ -2010,9 +2010,9 @@ namespace VSWebUI.Security
 					//DataServersTree = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetSpecificServersFromProcedure(Page, Control);
                     //14-04-2016 Durga Modified for VSPLUS-2841
                     DataTable tblFiltered = (DataTable)Session["IntialAllservers"];
-
+                    //22/7/2016 Durga Modified for VSPLUS-3125
                     DataServersTree = tblFiltered.AsEnumerable()
-                             .Where(r => r.Field<string>("ServerType") != "URL")
+                             .Where(r => r.Field<string>("ServerType") != "URL" && r.Field<string>("ServerType") != "Office365")
                              .CopyToDataTable();
                     
 					if (DataServersTree.Rows.Count > 0)
@@ -2926,8 +2926,8 @@ namespace VSWebUI.Security
 				Session["ServerCredentials"] = null;
 				if (Session["ServerCredentials"] == null)
 				{
-					DataTable DataServersTree = new DataTable();
-
+                    DataTable tblFiltered = new DataTable();
+                    DataTable DataServersTree = new DataTable();
 					//string st = CredentialType.Text.ToString();
 
 					//if (st == "Exchange Active Sync Credentials")
@@ -2936,8 +2936,13 @@ namespace VSWebUI.Security
 					//    st = "";
 
 					//DataServersTree = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetServersCredentialsFromProcedure(ServerTypeFilter);
-					DataServersTree = (DataTable)Session["IntialAllservers"];
-					DataServersTree = filterTable(DataServersTree);
+                    tblFiltered = (DataTable)Session["IntialAllservers"];
+                    tblFiltered = filterTable(tblFiltered);
+                   
+                    DataServersTree = tblFiltered.AsEnumerable()
+                             .Where(r => r.Field<string>("ServerType") != "WebSphere")
+                               .Where(r => r.Field<string>("ServerType") != "Sametime")
+                             .CopyToDataTable();
 					Session["ServerCredentials"] = DataServersTree;
 				}
 				ServerCredentialsTreeList.DataSource = (DataTable)Session["ServerCredentials"];
@@ -2978,17 +2983,17 @@ namespace VSWebUI.Security
 		}
 
 		private void FillServerCredentials()
-		{
-			DataTable CredentialsDataTable = VSWebBL.ConfiguratorBL.ServicesBL.Ins.GetCredentials();
-			ServerCredentials.DataSource = CredentialsDataTable;
+        {
+            DataTable FilterdCredsdt = new DataTable();
+            // 8/7/2016 Durga Addded for VSPLUS-2877
+            DataTable CredentialsDataTable = VSWebBL.ConfiguratorBL.ServicesBL.Ins.GetCredentialsForSSE();
+
+            ServerCredentials.DataSource = CredentialsDataTable;
 			ServerCredentials.TextField = "AliasName";
 			ServerCredentials.ValueField = "ID";
 			ServerCredentials.DataBind();
 
 
-			//CredentialType.DataSource = new List<String>() { "General Credentials", "Exchange Active Sync Credentials"};
-			//CredentialType.DataBind();
-			//CredentialType.SelectedIndex = 0;
 		}
 
 		private DataTable filterTable(DataTable DataServersTree)

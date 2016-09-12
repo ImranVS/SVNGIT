@@ -158,8 +158,8 @@ namespace VSWebUI.Dashboard
 		{
 			DataTable AlertHistorytab = new DataTable();
 			try
-			{
-				AlertHistorytab = VSWebBL.DashboardBL.ExchangeServerDetailsBL.Ins.GetAlertHistry(Request.QueryString["Name"].ToString());
+            {//22/7/2016 Durga Modified for VSPLUS-3125
+                AlertHistorytab = VSWebBL.DashboardBL.ExchangeServerDetailsBL.Ins.GetAlertHistry(selectedAccName);
 				Session["AlertHistorytab"] = AlertHistorytab;
 				AlertGridView.DataSource = AlertHistorytab;
 				AlertGridView.DataBind();
@@ -1411,17 +1411,18 @@ namespace VSWebUI.Dashboard
 
         public void FillLicensesInfo()
         {
+            // 7/12/2016 Sowjanya modified for VSPLUS-3016
             DataTable dt = new DataTable();
             dt = VSWebBL.DashboardBL.Office365BL.Ins.GetLicensesInfo(selectedAccName);
             if (dt.Rows.Count > 0)
             {
                 TotalLicenseslb.Text = "Total Licenses:" + " " + dt.Rows[0]["ActiveUnits"].ToString();
 
-                MonthlyLicenseCostlb.Text = "Monthly License Cost:" + " " + (Convert.ToInt32(dt.Rows[0]["ActiveUnits"]?? "0") * Convert.ToInt32(dt.Rows[0]["Costperuser"] ?? "0"));
-                UnassignedLicenseslb.Text = "Unassigned Licenses:" + " " + (Convert.ToInt32(dt.Rows[0]["ActiveUnits"] ?? "0") - Convert.ToInt32(dt.Rows[0]["ConsumedUnits"] ?? "0"));
+                MonthlyLicenseCostlb.Text = "Monthly License Cost:" + " " + (Convert.ToDouble(dt.Rows[0]["ActiveUnits"]?? "0") *Convert.ToDouble(dt.Rows[0]["Costperuser"] ?? "0"));
+                UnassignedLicenseslb.Text = "Unassigned Licenses:" + " " + (Convert.ToDouble(dt.Rows[0]["ActiveUnits"] ?? "0") - Convert.ToDouble(dt.Rows[0]["ConsumedUnits"] ?? "0"));
 
-                int costofUnassignedlicenses = (Convert.ToInt32(dt.Rows[0]["ActiveUnits"] ?? "0") - Convert.ToInt32(dt.Rows[0]["ConsumedUnits"]?? "0")) * (Convert.ToInt32(dt.Rows[0]["Costperuser"] ?? "0"));
-                costofUnassignedlicenseslb.Text = "Monthly cost of Unassigned licenses:" + " " + costofUnassignedlicenses.ToString();
+                double costofUnassignedlicenses = (Convert.ToDouble(dt.Rows[0]["ActiveUnits"] ?? "0") - Convert.ToDouble(dt.Rows[0]["ConsumedUnits"]?? "0")) * (Convert.ToDouble(dt.Rows[0]["Costperuser"] ?? "0"));
+                costofUnassignedlicenseslb.Text = "Monthly Cost of Unassigned Licenses:" + " " + costofUnassignedlicenses.ToString();
             }
             DataTable Inactiveusersdt = new DataTable();
             Inactiveusersdt = VSWebBL.DashboardBL.Office365BL.Ins.GetInactiveUsersCount(selectedAccName);
@@ -1430,9 +1431,10 @@ namespace VSWebUI.Dashboard
                 InactiveUserslb.Text = "Inactive Users:" + " " + Inactiveusersdt.Rows[0]["count"].ToString();
                 if (dt.Rows.Count > 0)
                 {
-                    costofinactiveuserslb.Text = "Monthly cost of inactive users:" + " " + Convert.ToInt32(Inactiveusersdt.Rows[0]["count"] ?? "0") * Convert.ToInt32(dt.Rows[0]["Costperuser"] ?? "0");
+                    costofinactiveuserslb.Text = "Monthly Cost of Inactive Users:" + " " + Convert.ToDouble(Inactiveusersdt.Rows[0]["count"] ?? "0") * Convert.ToDouble(dt.Rows[0]["Costperuser"] ?? "0");
                 }
                  }
         }
 	}
 }
+

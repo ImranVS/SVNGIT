@@ -260,6 +260,69 @@ namespace VSWebDAL
 			return false;
 		}
 
+        public DataTable GetSharePointSiteCollectionSettings(int id)
+        {
+            DataTable ServersDataTable = new DataTable();
+            try
+            {
+
+                string SqlQuery = "SELECT * FROM SharePointServerSettings WHERE ServerID = @ID";
+
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(SqlQuery);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                ServersDataTable = objAdaptor.FetchDatafromcommand(cmd);
+
+            }
+            catch
+            {
+            }
+            finally
+            {
+
+            }
+            return ServersDataTable;
+        }
+
+        public bool UpdateSharePointServerSettings(SharePointSettings sps)
+		{
+
+			SharePointSettings ReturnStObject = new SharePointSettings();
+			try
+			{
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand();
+                cmd.CommandText = "IF EXISTS ( SELECT 1 FROM SharePointServerSettings WHERE ServerID = @ID ) BEGIN " +
+                    " UPDATE SharePointServerSettings SET ConflictingContentType = @ConflictingContentType, CustomizedFiles = @CustomizedFiles, MissingGalleries = @MissingGalleries, MissingParentContentTypes = @MissingParentContentTypes, " +
+                    " MissingSiteTemplates = @MissingSiteTemplates, UnsupportedLanguagePack = @UnsupportedLanguagePack, UnsupportedMUI = @UnsupportedMUI WHERE ServerID = @ID " +
+                    " END ELSE BEGIN " +
+                    " INSERT INTO SharePointServerSettings (ServerID, ConflictingContentType, CustomizedFiles, MissingGalleries, MissingParentContentTypes, MissingSiteTemplates, UnsupportedLanguagePack, UnsupportedMUI) " +
+                    " VALUES (@ID, @ConflictingContentType, @CustomizedFiles, @MissingGalleries, @MissingParentContentTypes, @MissingSiteTemplates, @UnsupportedLanguagePack, @UnsupportedMUI) END";
+
+                cmd.Parameters.AddWithValue("@ID", sps.ServerId);
+                cmd.Parameters.AddWithValue("@ConflictingContentType", sps.ConflictingContentTypes);
+                cmd.Parameters.AddWithValue("@CustomizedFiles", sps.CustomizedFiles);
+                cmd.Parameters.AddWithValue("@MissingGalleries", sps.MissingGalleries);
+                cmd.Parameters.AddWithValue("@MissingParentContentTypes", sps.MissingParentContentTypes);
+                cmd.Parameters.AddWithValue("@MissingSiteTemplates", sps.MissingSiteTemplates);
+                cmd.Parameters.AddWithValue("@UnsupportedLanguagePack", sps.UnsupportedLanguagePackReferences);
+                cmd.Parameters.AddWithValue("@UnsupportedMUI", sps.UnsupportedMUIReferences);
+
+                return objAdaptor.ExecuteNonQuerywithcmd(cmd);
+
+
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+			finally
+			{
+			}
+			return false;
+		}
+
+        
+
 
     }
 }

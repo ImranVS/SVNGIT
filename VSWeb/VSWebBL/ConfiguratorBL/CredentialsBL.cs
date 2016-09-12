@@ -160,6 +160,19 @@ namespace VSWebBL.ConfiguratorBL
 			}
 			
 		}
+        public DataTable GetDataForCredentialsByname(Credentials LocObject)
+        {
+            try
+            {
+                return VSWebDAL.ConfiguratorDAL.CredentialsDAL.Ins.GetDataForCredentialsByname(LocObject);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
 
     }
 }

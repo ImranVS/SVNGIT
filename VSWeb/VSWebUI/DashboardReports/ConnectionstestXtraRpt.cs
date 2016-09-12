@@ -24,7 +24,7 @@ namespace VSWebUI.DashboardReports
         {
 
             DataTable dt = new DataTable();
-            dt = VSWebBL.ReportsBL.XsdBL.Ins.ConnectionTags(this.Name.Value.ToString());
+            dt = VSWebBL.ReportsBL.XsdBL.Ins.ConnectionTags(this.Name.Value.ToString(), this.ServerName.Value.ToString());
             if (dt.Rows.Count > 0)
             {
                 this.DataSource = dt;
@@ -37,7 +37,7 @@ namespace VSWebUI.DashboardReports
             
           
             DataTable t1 = new DataTable();
-            dt = VSWebBL.ReportsBL.XsdBL.Ins.GetTagsCount(this.Name.Value.ToString());
+            dt = VSWebBL.ReportsBL.XsdBL.Ins.GetTagsCount(this.Name.Value.ToString(),this.ServerName.Value.ToString());
             if (dt.Rows.Count > 0)
             {
             

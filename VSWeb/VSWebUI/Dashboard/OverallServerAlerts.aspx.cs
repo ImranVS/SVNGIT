@@ -87,7 +87,7 @@ namespace VSWebUI.Dashboard
             if (AlertDefComboBox.SelectedIndex != -1)
             {
                 // 3/14/2016 Durga Addded for VSPLUS-2704
-                if (AlertDefComboBox.SelectedIndex == 1)
+				if (AlertDefComboBox.Text == "All Open Alerts")
                 {
 
                     dt = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetAllOpenAlers(dtval.Month.ToString(), dtval.Year.ToString());
@@ -229,16 +229,30 @@ namespace VSWebUI.Dashboard
             DataTable dt = new DataTable();
             DataRow dr, dr1;
             dt = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetAlertNames();
-      
-                dr = dt.NewRow();
-                dr["AlertKey"] = 0;
-                dr["AlertName"] = "All Alerts";
-                dt.Rows.InsertAt(dr, 0);
-                // 3/14/2016 Durga Addded for VSPLUS-2704
-                dr1 = dt.NewRow();
+            dr = dt.NewRow();
+            dr["AlertKey"] = 0;
+            dr["AlertName"] = "All Alerts";
+            dt.Rows.InsertAt(dr, 0);
+            dr1 = dt.NewRow();
+           
+            // 27/7/2016 Durga Modified  for VSPLUS-3125
+            if (dt.Rows.Count > 0)
+            {
+                var maxValue = dt.AsEnumerable()
+             .Select(x => Convert.ToInt32(x.Field<int>("AlertKey")))
+             .DefaultIfEmpty(0)
+             .Max(x => x);
+
+                dr1["AlertKey"] = maxValue + 1;
+             
+            }
+            else
+            {
                 dr1["AlertKey"] = 1;
+               
+            }
                 dr1["AlertName"] = "All Open Alerts";
-                dt.Rows.InsertAt(dr1, 1);
+                 dt.Rows.InsertAt(dr1, 1);
                 AlertDefComboBox.DataSource = dt;
                 AlertDefComboBox.TextField = "AlertName";
                 AlertDefComboBox.ValueField = "AlertKey";
@@ -252,7 +266,7 @@ namespace VSWebUI.Dashboard
             DataTable dt = new DataTable();
             if (AlertDefComboBox.SelectedIndex != -1)
             {// 3/14/2016 Durga Addded for VSPLUS-2704
-                if (AlertDefComboBox.SelectedIndex == 1)
+                if (AlertDefComboBox.Text == "All Open Alerts")
                 {
                     dt = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetAllOpenAlers(dtval.Month.ToString(), dtval.Year.ToString());
                     AlertsHistory.DataSource = dt;

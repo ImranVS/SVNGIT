@@ -100,10 +100,24 @@ namespace VSWebBL.ConfiguratorBL
 			{
 				
 				throw ex;
-			}
-			
+			}		
 
 		}
+        // 8/7/2016 Durga Addded for VSPLUS-2877
+        public DataTable GetCredentialsForSSE()
+        {
+            try
+            {
+                return VSWebDAL.ConfiguratorDAL.ServicesDAL.Ins.GetCredentialsForSSE();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+        }
 		public DataTable GetSametimeCredentials()
 		{
 			try
@@ -325,5 +339,19 @@ namespace VSWebBL.ConfiguratorBL
 			}
 			
 		}
+
+        //14/07/2016 sowmya added for VSPLUS-3097
+        public DataTable GetTestNames()
+        {
+            try
+            {
+                return VSWebDAL.ConfiguratorDAL.ServicesDAL.Ins.GetTestNames();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
     }
 }

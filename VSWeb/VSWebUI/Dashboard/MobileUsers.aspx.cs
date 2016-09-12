@@ -1309,9 +1309,17 @@ namespace VSWebUI.Dashboard
 			Label lbl = (Label)Container.FindControl("lblIcon");
 			string lblOS = lbl.Text;
 			CultureInfo culture = new CultureInfo("");
+
+            //6/21/16 WS modified for VSPLUS-2716
+            if (culture.CompareInfo.IndexOf(lblOS, "Outlook", CompareOptions.IgnoreCase) >= 0)
+            {
+                img.ImageUrl = "~/images/icons/winphone.png";
+                imgset = true;
+            }
+
 			//8/16/2013 NS modified
 			//if (lblOS.Contains("Android") == true)
-			if (culture.CompareInfo.IndexOf(lblOS, "Android", CompareOptions.IgnoreCase) >= 0)
+			if (culture.CompareInfo.IndexOf(lblOS, "Android", CompareOptions.IgnoreCase) >= 0 && !imgset)
 			{
 				img.ImageUrl = "~/images/icons/android-icon.png";
 				imgset = true;
@@ -1320,10 +1328,10 @@ namespace VSWebUI.Dashboard
 			//if (lblOS.Contains("Apple") == true)
 			//5/6/2014 NS modified for VSPLUS-588
             //10/9/2015 NS modified for VSPLUS-2242
-			if (culture.CompareInfo.IndexOf(lblOS, "Apple", CompareOptions.IgnoreCase) >= 0 ||
+			if ((culture.CompareInfo.IndexOf(lblOS, "Apple", CompareOptions.IgnoreCase) >= 0 ||
 				culture.CompareInfo.IndexOf(lblOS, "iOS", CompareOptions.IgnoreCase) >= 0 ||
                 culture.CompareInfo.IndexOf(lblOS, "iPad", CompareOptions.IgnoreCase) >= 0 ||
-                culture.CompareInfo.IndexOf(lblOS, "iPhone", CompareOptions.IgnoreCase) >= 0)
+                culture.CompareInfo.IndexOf(lblOS, "iPhone", CompareOptions.IgnoreCase) >= 0) && !imgset)
 			{
 				img.ImageUrl = "~/images/icons/os_icon_mac.png";
 				imgset = true;
@@ -1331,13 +1339,13 @@ namespace VSWebUI.Dashboard
 
 			//8/15/2013 NS added
 			//if (lblOS.Contains("RIM") == true)
-			if (culture.CompareInfo.IndexOf(lblOS, "RIM", CompareOptions.IgnoreCase) >= 0)
+            if (culture.CompareInfo.IndexOf(lblOS, "RIM", CompareOptions.IgnoreCase) >= 0 && !imgset)
 			{
 				img.ImageUrl = "~/images/icons/rim.png";
 				imgset = true;
 			}
 			//if (lblOS.Contains("Win") == true)
-			if (culture.CompareInfo.IndexOf(lblOS, "Win", CompareOptions.IgnoreCase) >= 0)
+            if (culture.CompareInfo.IndexOf(lblOS, "Win", CompareOptions.IgnoreCase) >= 0 && !imgset)
 			{
 				img.ImageUrl = "~/images/icons/winphone.png";
 				imgset = true;

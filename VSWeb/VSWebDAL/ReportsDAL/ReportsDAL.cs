@@ -1937,27 +1937,36 @@ namespace VSWebDAL.ReportsDAL
         }
 
         //1/06/2016 sowmya added for VSPLUS-2934
-        public DataTable GetCommList(string param)
+        public DataTable GetCommList(string param,string ServerName)
         {
             DataTable dt = new DataTable();
             string query = string.Empty;
             try
             {
+                //6/30/2016 NS modified for VSPLUS-2934
                 if (param != "")
                 {
-                    query = "Select C.Name,  U.DisplayName as Users, CASE WHEN U.ID = C.OwnerId THEN 'Owner' ELSE '' END AS Owners " +
+                    query = "Select C.Name + ' (' + CC.CommunityType + ')' Name,  U.DisplayName + CASE WHEN U.ID = C.OwnerId THEN ' (owner)' ELSE '' END Users " +
                     "from dbo.IbmConnectionsObjects C Inner Join Servers S on S.Id=C.ServerId " +
-                    "Inner Join ServerTypes ST on ST.Id=S.ServerTypeId AND ST.ServerType='IBM Connections' " +
-                    "Inner Join IbmConnectionsObjectUsers CU on C.ID=CU.ObjectId " +
-                    "Inner Join IbmConnectionsUsers U on CU.UserId=U.ID where C.Name = '" + param + "' Group By C.Name,C.OwnerId,U.DisplayName,U.ID order by Name,Owners DESC,DisplayName ";
+                    "Inner Join ServerTypes ST on ST.Id=S.ServerTypeId AND ST.ServerType='IBM Connections'  " +
+                    "Inner Join IbmConnectionsObjectUsers CU on C.ID=CU.ObjectId  " +
+                    "Inner Join IbmConnectionsUsers U on CU.UserId=U.ID   " +
+                    "inner join IbmConnectionsCommunity CC on CC.ObjectId=c.Id " +
+                    "Where C.Name='" + param + "' AND S.ServerName = '" + ServerName + "' " +
+                    "Group By C.Name + ' (' + CC.CommunityType + ')',C.OwnerId,U.DisplayName,U.ID  " +
+                    "order by Name,DisplayName ";
                 }
                 else
                 {
-                    query = "Select  C.Name, U.DisplayName as Users, CASE WHEN U.ID = C.OwnerId THEN 'Owner' ELSE '' END AS Owners " +
-                          "from dbo.IbmConnectionsObjects C Inner Join Servers S on S.Id=C.ServerId " +
-                              " Inner Join ServerTypes ST on ST.Id=S.ServerTypeId AND ST.ServerType='IBM Connections' " +
-                                "Inner Join IbmConnectionsObjectUsers CU on C.ID=CU.ObjectId " +
-                                 "Inner Join IbmConnectionsUsers U on CU.UserId=U.ID Group By C.Name,C.OwnerId,U.DisplayName,U.ID order by Name,Owners DESC,DisplayName ";
+                    query = "Select C.Name + ' (' + CC.CommunityType + ')' Name,  U.DisplayName + CASE WHEN U.ID = C.OwnerId THEN ' (owner)' ELSE '' END Users " +
+                    "from dbo.IbmConnectionsObjects C Inner Join Servers S on S.Id=C.ServerId " +
+                    "Inner Join ServerTypes ST on ST.Id=S.ServerTypeId AND ST.ServerType='IBM Connections'  " +
+                    "Inner Join IbmConnectionsObjectUsers CU on C.ID=CU.ObjectId  " +
+                    "Inner Join IbmConnectionsUsers U on CU.UserId=U.ID   " +
+                    "inner join IbmConnectionsCommunity CC on CC.ObjectId=c.Id " +
+                    "Where S.ServerName = '" + ServerName + "' " +
+                    "Group By C.Name + ' (' + CC.CommunityType + ')',C.OwnerId,U.DisplayName,U.ID  " +
+                    "order by Name,DisplayName ";
 
                 }
                 dt = objAdaptor.FetchData(query);
@@ -3318,7 +3327,12 @@ namespace VSWebDAL.ReportsDAL
             DataTable dt = new DataTable();
             try
             {
-                string query = "SELECT DISTINCT ServerName FROM [IbmConnectionsSummaryStats] WHERE StatName='" + statname1 + "'";
+                //7/5/2016 NS modified for VSPLUS-3100
+                string query = "SELECT DISTINCT ServerName FROM [IbmConnectionsSummaryStats] ";
+                if (statname1 != "")
+                {
+                    query += "WHERE StatName='" + statname1 + "' ";
+                }
                 dt = objAdaptor1.FetchData(query);
             }
             catch (Exception e)
@@ -3376,7 +3390,7 @@ namespace VSWebDAL.ReportsDAL
                         "AND Date BETWEEN DATEADD(DAY, DATEDIFF(DAY, 0, '" + datefrom + "'), 0) AND DATEADD(DAY, DATEDIFF(DAY, 0, '" + dateto + "'), 1) ";
                     if (servername != "")
                     {
-                        query += "AND ServerName IN(" + servername + ") ";
+                        query += "AND ServerName = '" + servername + "' ";
                     }
                   
               
@@ -3441,13 +3455,14 @@ namespace VSWebDAL.ReportsDAL
         }
 
         //6/3/2016 Sowjanya modified for VSPLUS-2895
-        public DataTable CommunityNames()
+        public DataTable CommunityNames(int Id)
         {
             DataTable dt = new DataTable();
             try
             {
-                //8/5/2014 NS modified - added Exchange servers to the selection
-                string str = "SELECT DISTINCT [Name]  FROM IbmConnectionsObjects order by Name ";
+                //6/30/2016 NS modified for VSPLUS-2934
+                string str = "SELECT DISTINCT [Name]  FROM IbmConnectionsObjects where ServerID = '" + Id + "' " +
+                    "AND Type='Community' order by Name ";
                   
                 dt = objAdaptor.FetchData(str);
             }
@@ -3489,6 +3504,38 @@ namespace VSWebDAL.ReportsDAL
             catch (Exception ex)
             {
                 throw ex;
+            }
+            return dt;
+        }
+        //6/16/2016 Sowjanya modified for VSPLUS-3059
+        public DataTable GetIBMConnectionsServers()
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                string query = "SELECT DISTINCT ServerName FROM [IbmConnectionsSummaryStats] ";
+                dt = objAdaptor1.FetchData(query);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            return dt;
+        }
+        //6/16/2016 Sowjanya modified for VSPLUS-3059
+        public DataTable GetID(string ServerName)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+
+                string str = "select ID  from servers where ServerName='"+ ServerName +"' ";
+
+                dt = objAdaptor.FetchData(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
             return dt;
         }

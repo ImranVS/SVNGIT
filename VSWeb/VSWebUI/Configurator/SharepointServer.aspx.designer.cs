@@ -751,6 +751,96 @@ namespace VSWebUI.Configurator {
         protected global::System.Web.UI.WebControls.Label Label6;
         
         /// <summary>
+        /// ASPxRoundPanel10 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxRoundPanel ASPxRoundPanel10;
+        
+        /// <summary>
+        /// PanelContent3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.PanelContent PanelContent3;
+        
+        /// <summary>
+        /// Label8 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label8;
+        
+        /// <summary>
+        /// CheckBoxConflictingContentTypes control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxCheckBox CheckBoxConflictingContentTypes;
+        
+        /// <summary>
+        /// ComboBoxCustomizedFiles control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxCheckBox ComboBoxCustomizedFiles;
+        
+        /// <summary>
+        /// ComboBoxMissingGalleries control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxCheckBox ComboBoxMissingGalleries;
+        
+        /// <summary>
+        /// ComboBoxMissingParentContentTypes control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxCheckBox ComboBoxMissingParentContentTypes;
+        
+        /// <summary>
+        /// ComboBoxMissingSiteTemplates control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxCheckBox ComboBoxMissingSiteTemplates;
+        
+        /// <summary>
+        /// ComboBoxUnsupportedMUIReferences control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxCheckBox ComboBoxUnsupportedMUIReferences;
+        
+        /// <summary>
+        /// ComboBoxUnsupportedLanguagePackReferences control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxCheckBox ComboBoxUnsupportedLanguagePackReferences;
+        
+        /// <summary>
         /// ContentControl7 control.
         /// </summary>
         /// <remarks>

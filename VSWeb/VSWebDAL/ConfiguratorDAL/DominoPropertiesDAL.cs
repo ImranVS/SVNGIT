@@ -490,7 +490,7 @@ namespace VSWebDAL.ConfiguratorDAL
 				   "Enabled, RequireSSL,EnableTravelerBackend, CheckMailThreshold,ExternalAlias, FailureThreshold, MailDirectory, OffHoursScanInterval, PendingThreshold, " +
                    "ResponseThreshold, RetryInterval, [Scan Interval], SearchString, AdvancedMailScan, DeadMailDeleteThreshold, " +
                    "HeldThreshold, ScanDBHealth, NotificationGroup, Memory_Threshold, CPU_Threshold, Cluster_Rep_Delays_Threshold, Load_Cluster_Rep_Delays_Threshold, " +
-                   "EXJStartTime,EXJDuration,EXJLookBackDuration,EXJEnable,AvailabilityIndexThreshold) " +
+                   "EXJStartTime,EXJDuration,EXJLookBackDuration,EXJEnabled,AvailabilityIndexThreshold) " +
                  " VALUES (" + DSObject.Key + "," + DSObject.DiskSpaceThreshold + ", '" + DSObject.BES_Server +
                  "', " + DSObject.BES_Threshold + ", '" + DSObject.Category +
                  "', " + DSObject.DeadThreshold +

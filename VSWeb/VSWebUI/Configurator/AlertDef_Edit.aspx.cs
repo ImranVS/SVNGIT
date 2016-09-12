@@ -586,7 +586,8 @@ namespace VSWebUI.Configurator
 								{
 									if (node.GetValue("LocId") != null)
 									{
-										if ((Convert.ToInt32(dtSel.Rows[i]["LocationID"]) == Convert.ToInt32(node.GetValue("LocId"))))
+                                        //22/7/2016 Durga Modified for VSPLUS-3125
+                                        if ((Convert.ToInt32(dtSel.Rows[i]["LocationID"]) == Convert.ToInt32(node.GetValue("LocId"))) && (Convert.ToInt32(dtSel.Rows[i]["ServerTypeID"]) == Convert.ToInt32(node.GetValue("srvtypeid"))))
 										{
 											node.Selected = true;
 										}

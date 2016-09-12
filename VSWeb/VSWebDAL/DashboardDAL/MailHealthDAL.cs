@@ -261,11 +261,12 @@ namespace VSWebDAL.DashboardDAL
                     }
                 }
                 //6/1/2015 NS modified - added DeviceType='Domino' to the HourlyDownTimeMinutes query
+                //8/1/2016 NS modified for VSPLUS-3170
                 sqlQuery = "SELECT ServerName, [Mail.Delivered] MailDeliv, [Mail.AverageDeliverTime] MailAvgDeliv, " +
                         "[Server.AvailabilityIndex] SrvAvailInd, [HourlyDownTimeMinutes] DownTime, [Mem.PercentAvailable] MemAvgAvail, " +
                         "[Domino.Command.OpenDocument] WebOpenDoc, [Domino.Command.CreateDocument] WebCreateDoc, " +
                         "[Domino.Command.OpenDatabase] WebOpenDb, [Domino.Command.OpenView] WebOpenView, " +
-                        "[Domino.Command.Total] WebComTotal " +
+                        "[Domino.Command.Total] WebComTotal, [HTTP sessions] HttpSessions " +
                         "FROM " +
                         " (SELECT ServerName,StatName,ROUND(SUM(StatValue),0) StatValue FROM dbo.DominoSummaryStats " +
                         "  WHERE StatName='Mail.Delivered' AND MonthNumber=" + month.ToString() + " AND YearNumber=" + year.ToString() +
@@ -316,13 +317,19 @@ namespace VSWebDAL.DashboardDAL
                         "  WHERE StatName='Domino.Command.Total' AND MonthNumber=" + month.ToString() + " AND YearNumber=" + year.ToString() +
                         ANDservername +
                         "  GROUP BY ServerName,StatName " +
+                        "  UNION " +
+                        "  SELECT ServerName,StatName,ROUND(SUM(StatValue),0) StatValue FROM dbo.DominoSummaryStats " +
+                        "  WHERE StatName='HTTP sessions' AND MonthNumber=" + month.ToString() + " AND YearNumber=" + year.ToString() +
+                        ANDservername +
+                        "  GROUP BY ServerName,StatName " +
                         " ) AS SourceTable " +
                         "PIVOT " +
                         "( " +
                         "SUM(StatValue) " +
                         "FOR StatName IN ([Mail.Delivered], [Mail.AverageDeliverTime], [Server.AvailabilityIndex], " +
                         "[HourlyDownTimeMinutes],[Mem.PercentAvailable],[Domino.Command.OpenDocument], " +
-                        "[Domino.Command.CreateDocument],[Domino.Command.OpenDatabase],[Domino.Command.OpenView],[Domino.Command.Total]) " +
+                        "[Domino.Command.CreateDocument],[Domino.Command.OpenDatabase],[Domino.Command.OpenView], " +
+                        "[Domino.Command.Total],[HTTP sessions]) " +
                         ") AS PivotTable ";
                 dt = objAdaptor1.FetchData(sqlQuery);
             }

@@ -10,6 +10,7 @@ namespace VSWebUI.DashboardReports
 {
     public partial class IBMConnectionBookmarksRpt : System.Web.UI.Page
     {
+        //6/16/2016 Sowjanya modified for VSPLUS-3059
         protected void Page_Load(object sender, EventArgs e)
         {
             Report();
@@ -26,10 +27,10 @@ namespace VSWebUI.DashboardReports
            string BType = "";
                BType = "NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY";
                dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetIBMConnectionsServerlist(BType);
-               ServerListFilterListBox.DataSource = dt;
-               ServerListFilterListBox.TextField = "ServerName";
-               ServerListFilterListBox.ValueField = "ServerName";
-               ServerListFilterListBox.DataBind();
+               ServerComboBox.DataSource = dt;
+               ServerComboBox.TextField = "ServerName";
+               ServerComboBox.ValueField = "ServerName";
+               ServerComboBox.DataBind();
             }
 
        
@@ -58,24 +59,12 @@ namespace VSWebUI.DashboardReports
         public void Report()
         {
             string selectedServer = "";
-          
-           
-            if (this.ServerListFilterListBox.SelectedItems.Count > 0)
+
+
+            if (this.ServerComboBox.SelectedIndex >= 0)
             {
-                selectedServer = "";
-                for (int i = 0; i < this.ServerListFilterListBox.SelectedItems.Count; i++)
-                {
-                    selectedServer += "'" + this.ServerListFilterListBox.SelectedItems[i].Text + "'" + ",";
-                }
-                try
-                {
-                    selectedServer = selectedServer.Substring(0, selectedServer.Length - 1);
-                }
-                catch
-                {
-                    selectedServer = "";     // throw ex; 
-                }
-                finally { }
+                selectedServer = this.ServerComboBox.SelectedItem.Value.ToString();
+
             }
             string strfrom = "";
             string strto = "";

@@ -30,6 +30,17 @@ namespace VSWebUI.DashboardReports
         protected void Page_Load(object sender, EventArgs e)
         {
             SetUserActivityGrid();
+            if (Session["UserPreferences"] != null)
+            {
+                DataTable UserPreferences = (DataTable)Session["UserPreferences"];
+                foreach (DataRow dr in UserPreferences.Rows)
+                {
+                    if (dr[1].ToString() == "UserActivity|UserActivityPivotGrid")
+                    {
+                        UserActivityPivotGrid.OptionsPager.RowsPerPage = Convert.ToInt32(dr[2]);
+                    }
+                }
+            }
         }
 
         private void SetUserActivityGrid()
@@ -106,6 +117,12 @@ namespace VSWebUI.DashboardReports
                     e.Result = -1;
 
             e.Handled = true;
+        }
+
+        protected void UserActivityPivotGrid_Unload(object sender, EventArgs e)
+        {
+            VSWebBL.ConfiguratorBL.UserPreferencesBL.Ins.UpdateUserPreferences("UserActivity|UserActivityPivotGrid", UserActivityPivotGrid.OptionsPager.RowsPerPage.ToString(), Convert.ToInt32(Session["UserID"]));
+            Session["UserPreferences"] = VSWebBL.ConfiguratorBL.UserPreferencesBL.Ins.GetUserRowPrefrenceDetails(Convert.ToInt32(Session["UserID"]));
         }
     }
 }

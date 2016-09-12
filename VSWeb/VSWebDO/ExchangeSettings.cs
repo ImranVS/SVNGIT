@@ -239,5 +239,47 @@ namespace VSWebDO
 			this._ACCredentialsId = ACCredentialsId;
 
         }
+
+        //14/07/2016 sowmya added for VSPLUS-3097
+        public int id
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
+        private int _id;
+
+        public int ServerId
+        {
+            get { return _ServerId; }
+            set { _ServerId = value; }
+        }
+        private int _ServerId;
+
+        public int TestId
+        {
+            get { return _TestId; }
+            set { _TestId = value; }
+        }
+        private int _TestId;
+
+        public string URLs
+        {
+            get { return _URLs; }
+            set { _URLs = value; }
+        }
+        private string _URLs;
+
+        public int CredentialsId
+        {
+            get { return _CredentialsId; }
+            set { _CredentialsId = value; }
+        }
+        private int _CredentialsId;
+        public string TestName
+        {
+            get { return _TestName; }
+            set { _TestName = value; }
+        }
+        private string _TestName; 
     }
 }

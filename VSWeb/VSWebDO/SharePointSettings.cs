@@ -38,4 +38,61 @@ public class SharePointSettings
 		this._Sname = Sname;
 		this._Svalue = Svalue;
 	}
+
+
+    
+
+
+
+
+
+
+    public bool ConflictingContentTypes
+    {
+        get { return _ConflictingContentTypes; }
+        set { _ConflictingContentTypes = value; }
+    }
+    private bool _ConflictingContentTypes;
+
+    public bool CustomizedFiles
+    {
+        get { return _CustomizedFiles; }
+        set { _CustomizedFiles = value; }
+    }
+    private bool _CustomizedFiles;
+
+    public bool MissingGalleries
+    {
+        get { return _MissingGalleries; }
+        set { _MissingGalleries = value; }
+    }
+    private bool _MissingGalleries;
+
+    public bool MissingParentContentTypes
+    {
+        get { return _MissingParentContentTypes; }
+        set { _MissingParentContentTypes = value; }
+    }
+    private bool _MissingParentContentTypes;
+
+    public bool MissingSiteTemplates
+    {
+        get { return _MissingSiteTemplates; }
+        set { _MissingSiteTemplates = value; }
+    }
+    private bool _MissingSiteTemplates;
+
+    public bool UnsupportedLanguagePackReferences
+    {
+        get { return _UnsupportedLanguagePackReferences; }
+        set { _UnsupportedLanguagePackReferences = value; }
+    }
+    private bool _UnsupportedLanguagePackReferences;
+
+    public bool UnsupportedMUIReferences 
+    {
+        get { return _UnsupportedMUIReferences; }
+        set { _UnsupportedMUIReferences = value; }
+    }
+    private bool _UnsupportedMUIReferences;
 }

@@ -18,13 +18,12 @@ namespace VSWebUI.DashboardReports
         private void IBMConnCommunityXtraRpt_BeforePrint(object sender, System.Drawing.Printing.PrintEventArgs e)
         {
             DataTable dt = new DataTable();
-            dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetCommList(this.Name.Value.ToString());
+            dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetCommList(this.Name.Value.ToString(),this.ServerName.Value.ToString());
             if (dt.Rows.Count > 0)
             {
                 this.DataSource = dt;
                 xrLabel2.DataBindings.Add("Text", dt, "Name");
                 ctusers.DataBindings.Add("Text", dt, "Users");
-                ctowner.DataBindings.Add("Text", dt, "Owners");
             }
         }
     }

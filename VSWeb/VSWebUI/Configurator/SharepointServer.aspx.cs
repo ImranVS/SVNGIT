@@ -45,6 +45,7 @@ namespace VSWebUI.Configurator
                 }
                 FillDiskGridView();
 				FillWindowsServicesGrid();
+                FillSiteCollectionsTestOptions();
                 //5/2/2016 Sowjanya modified for VSPLUS-2914
                 if (Session["UserPreferences"] != null)
                 {
@@ -272,6 +273,8 @@ namespace VSWebUI.Configurator
                     Response.Redirect("~/Configurator/SharePointGrid.aspx", false);//Mukund, 05Aug14, VSPLUS-844:Page redirect on callback
                     Context.ApplicationInstance.CompleteRequest();
                 }
+
+                result = VSWebBL.SharePointSettingsBL.Ins.UpdateSharePointServerSettings(GetSiteCollectionsTestOptions());
 
             }
             catch (Exception ex)
@@ -1408,6 +1411,51 @@ namespace VSWebUI.Configurator
         {
             
             CopyProfilePopupControl.ShowOnPageLoad = false;
+        }
+
+        protected SharePointSettings GetSiteCollectionsTestOptions()
+        {
+            SharePointSettings sps = new SharePointSettings()
+            {
+                ConflictingContentTypes = CheckBoxConflictingContentTypes.Checked,
+                CustomizedFiles = ComboBoxCustomizedFiles.Checked,
+                MissingGalleries = ComboBoxMissingGalleries.Checked,
+                MissingParentContentTypes = ComboBoxMissingParentContentTypes.Checked,
+                MissingSiteTemplates = ComboBoxMissingSiteTemplates.Checked,
+                UnsupportedLanguagePackReferences = ComboBoxUnsupportedLanguagePackReferences.Checked,
+                UnsupportedMUIReferences = ComboBoxUnsupportedMUIReferences.Checked,
+                ServerId = Convert.ToInt32(lblServerId.Text)
+            };
+
+            return sps;
+        }
+
+        protected void FillSiteCollectionsTestOptions()
+        {
+            DataTable dt = VSWebBL.SharePointSettingsBL.Ins.GetSharePointSiteCollectionSettings(Convert.ToInt32(lblServerId.Text));
+
+            if (dt.Rows.Count > 0)
+            {
+                CheckBoxConflictingContentTypes.Checked = Convert.ToBoolean(dt.Rows[0]["ConflictingContentType"]);
+                ComboBoxCustomizedFiles.Checked = Convert.ToBoolean(dt.Rows[0]["CustomizedFiles"]);
+                ComboBoxMissingGalleries.Checked = Convert.ToBoolean(dt.Rows[0]["MissingGalleries"]);
+                ComboBoxMissingParentContentTypes.Checked = Convert.ToBoolean(dt.Rows[0]["MissingParentContentTypes"]);
+                ComboBoxMissingSiteTemplates.Checked = Convert.ToBoolean(dt.Rows[0]["MissingSiteTemplates"]);
+                ComboBoxUnsupportedLanguagePackReferences.Checked = Convert.ToBoolean(dt.Rows[0]["UnsupportedLanguagePack"]);
+                ComboBoxUnsupportedMUIReferences.Checked = Convert.ToBoolean(dt.Rows[0]["UnsupportedMUI"]);
+            }
+            else
+            {
+                CheckBoxConflictingContentTypes.Checked = true;
+                ComboBoxCustomizedFiles.Checked = true;
+                ComboBoxMissingGalleries.Checked = true;
+                ComboBoxMissingParentContentTypes.Checked = true;
+                ComboBoxMissingSiteTemplates.Checked = true;
+                ComboBoxUnsupportedLanguagePackReferences.Checked = true;
+                ComboBoxUnsupportedMUIReferences.Checked = true;
+
+            }
+
         }
 
     }

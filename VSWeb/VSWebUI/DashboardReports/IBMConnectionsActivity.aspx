@@ -52,9 +52,15 @@
                             <td>
                                 <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional">
                                     <ContentTemplate>
-                                        <dx:ASPxListBox ID="ServerListFilterListBox" runat="server" SelectionMode="CheckColumn" 
+                                       <%-- <dx:ASPxListBox ID="ServerListFilterListBox" runat="server" SelectionMode="CheckColumn" 
                                     ValueType="System.String">
-                                </dx:ASPxListBox>
+                                </dx:ASPxListBox>--%>
+                                 <dx:ASPxComboBox ID="ServerComboBox" runat="server"  
+                                     EnableTheming="True" 
+                                    
+                                     Theme="Default" 
+                                    AutoPostBack="True">
+                                   </dx:ASPxComboBox>
                                     </ContentTemplate>
                                     <Triggers>
                                         <asp:AsyncPostBackTrigger ControlID="ResetButton" />

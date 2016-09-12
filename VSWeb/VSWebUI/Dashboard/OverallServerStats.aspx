@@ -230,6 +230,13 @@
                 <CellStyle CssClass="GridCss2">
                 </CellStyle>
             </dx:GridViewDataTextColumn>
+            <dx:GridViewDataTextColumn Caption="HTTP Sessions" FieldName="HttpSessions" 
+                VisibleIndex="11">
+                <Settings AllowAutoFilter="False" />
+                <HeaderStyle CssClass="GridCssHeader2" />
+                <CellStyle CssClass="GridCss2">
+                </CellStyle>
+            </dx:GridViewDataTextColumn>
         </Columns>
                     <SettingsBehavior ColumnResizeMode="NextColumn" />
         <SettingsPager AlwaysShowPager="True" PageSize="20">

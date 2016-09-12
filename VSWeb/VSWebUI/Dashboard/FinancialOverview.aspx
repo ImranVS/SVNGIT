@@ -60,7 +60,7 @@
                                           
                                             <td valign="top">
                                                  <dxchartsui:WebChartControl ID="MonthlyExpenditurebyTypeChart" runat="server" 
-                                                    CrosshairEnabled="True"  PaletteName="Module" Height="200px" Width="400px" >
+                                                    CrosshairEnabled="True"  PaletteName="Module" Height="250px" Width="400px" >
                                                     <diagramserializable>
                                                         <cc1:XYDiagram Rotated="True">
                                                         <axisx visibleinpanesserializable="-1" reverse="True" title-text="" 
@@ -86,7 +86,7 @@
                                             <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                                  <td valign="top">
                                                  <dxchartsui:WebChartControl ID="MonthlyExpenditurebyLocationChart" runat="server" 
-                                                    CrosshairEnabled="True"  PaletteName="Module" Height="200px" Width="400px" >
+                                                    CrosshairEnabled="True"  PaletteName="Module" Height="250px" Width="400px" >
                                                     <diagramserializable>
                                                         <cc1:XYDiagram Rotated="True">
                                                    <axisx visibleinpanesserializable="-1" reverse="True">
@@ -111,7 +111,7 @@
                                              <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                                  <td valign="top">
                                                  <dxchartsui:WebChartControl ID="MonthlyExpenditurebyCategoryChart" runat="server" 
-                                                    CrosshairEnabled="True"  PaletteName="Module" Height="200px" Width="400px" >
+                                                    CrosshairEnabled="True"  PaletteName="Module" Height="250px" Width="400px" >
                                                     <diagramserializable>
                                                     <cc1:XYDiagram Rotated="True">
                                                         <axisx visibleinpanesserializable="-1" reverse="True">
@@ -140,7 +140,7 @@
                                           
                                             <td valign="top">
                                                  <dxchartsui:WebChartControl ID="MostUtilizedServersChart" runat="server" 
-                                                    CrosshairEnabled="True"   PaletteName="Module" Height="200px" Width="400px" >
+                                                    CrosshairEnabled="True"   PaletteName="Module" Height="250px" Width="400px" >
                                                       <diagramserializable>
                                                         <cc1:XYDiagram Rotated="True" >
                                                         
@@ -169,7 +169,7 @@
                                               <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                                  <td valign="top">
                                                  <dxchartsui:WebChartControl ID="LeastUtilizedServersChart" runat="server" 
-                                                    CrosshairEnabled="True"  PaletteName="Module" Height="200px" Width="400px" >
+                                                    CrosshairEnabled="True"  PaletteName="Module" Height="250px" Width="400px" >
                                                     <diagramserializable>
                                                         <cc1:XYDiagram Rotated="True">
                                                    <axisx visibleinpanesserializable="-1" reverse="True" title-text="" 
@@ -196,7 +196,7 @@
                                               <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                                  <td valign="top">
                                                  <dxchartsui:WebChartControl ID="CostPerUserServedChart" runat="server" 
-                                                    CrosshairEnabled="True"  PaletteName="Module" Height="200px" Width="400px" >
+                                                    CrosshairEnabled="True"  PaletteName="Module" Height="250px" Width="400px" >
                                                     <diagramserializable>
                                                     <cc1:XYDiagram Rotated="True">
                                                         <axisx visibleinpanesserializable="-1" reverse="True">

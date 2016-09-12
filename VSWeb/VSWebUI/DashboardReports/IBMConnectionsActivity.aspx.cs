@@ -32,10 +32,10 @@ namespace VSWebUI.DashboardReports
             {
                 Activity = ActivityTypeCombobox.SelectedItem.Value.ToString();
                 dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetIBMConnectionsServerlist(Activity);
-                ServerListFilterListBox.DataSource = dt;
-                ServerListFilterListBox.TextField = "ServerName";
-                ServerListFilterListBox.ValueField = "ServerName";
-                ServerListFilterListBox.DataBind();
+                ServerComboBox.DataSource = dt;
+                ServerComboBox.TextField = "ServerName";
+                ServerComboBox.ValueField = "ServerName";
+                ServerComboBox.DataBind();
             }
         }
 
@@ -62,29 +62,17 @@ namespace VSWebUI.DashboardReports
         public void FillReport()
         {
             string selectedServer = "";
-            if (this.ServerListFilterListBox.SelectedItems.Count > 0)
-            {
-                selectedServer = "";
-                for (int i = 0; i < this.ServerListFilterListBox.SelectedItems.Count; i++)
-                {
-                    selectedServer += "'" + this.ServerListFilterListBox.SelectedItems[i].Text + "'" + ",";
-                }
-                try
-                {
-                    selectedServer = selectedServer.Substring(0, selectedServer.Length - 1);
-                }
-                catch
-                {
-                    selectedServer = "";     // throw ex; 
-                }
-                finally { }
-            }
+           
             string strfrom = "";
             string strto = "";
             string selectedActivityType = "";
             if (ActivityTypeCombobox.SelectedIndex != -1)
             {
                 selectedActivityType = ActivityTypeCombobox.SelectedItem.Value.ToString();
+            }
+            if (ServerComboBox.SelectedIndex != -1)
+            {
+                selectedServer = ServerComboBox.SelectedItem.Value.ToString();
             }
             strfrom = dtPick.FromDate;
             strto = dtPick.ToDate;

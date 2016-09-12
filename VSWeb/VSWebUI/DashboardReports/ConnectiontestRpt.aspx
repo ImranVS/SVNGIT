@@ -25,6 +25,10 @@
                 <td class="tdpadded" valign="top">
                     <table>
                         <tr>
+                         <td>
+                                <dx:ASPxButton ID="SubmitButton" runat="server" Text="Submit" CssClass="sysButton"  onclick="SubmitButton_Click">
+                                </dx:ASPxButton>
+                            </td>
                             <td>
                     <dx:ASPxButton ID="ServerListResetButton" runat="server" CssClass="sysButton" 
                         onclick="ServerListResetButton_Click" Text="Reset">
@@ -36,6 +40,35 @@
             onclick="ReptBtn_Click" Theme="Office2010Blue" Visible="False">
         </dx:ASPxButton>
                     <table>
+
+                      <tr>
+                            <td>
+                                <dx:ASPxLabel ID="ASPxLabel2" runat="server" Text="Servers:" CssClass="lblsmallFont">
+                                </dx:ASPxLabel>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <%--<asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional">
+                                    <ContentTemplate>--%>
+                                      <%--  <dx:ASPxListBox ID="ServerListFilterListBox" runat="server"   SelectionMode="CheckColumn"  
+                                    ValueType="System.String" ondatabound="Servers_DataBoundEvent">
+                                    /dx:ASPxListBox> --%>
+                                    <dx:ASPxComboBox ID="ServerComboBox" runat="server"  OnSelectedIndexChanged = "ServerComboBox_SelectedIndexChanged"
+                                     EnableTheming="True" 
+                                    
+                                     Theme="Default" 
+                                    AutoPostBack="True">
+                                   </dx:ASPxComboBox>
+                                     
+                                   <%-- </ContentTemplate>--%>
+                                   <%-- <Triggers>
+                                        <asp:AsyncPostBackTrigger ControlID="ResetButton" />
+                                    </Triggers>
+                                </asp:UpdatePanel>--%>
+                            </td>       
+                        </tr>
+                       
                         <tr>
                             <td>
                     <dx:ASPxLabel ID="ASPxLabel1" runat="server" 
@@ -47,9 +80,9 @@
                             <td>
         <dx:ASPxComboBox ID="ServerListFilterComboBox" runat="server" 
              EnableTheming="True" 
-            onselectedindexchanged="ServerListFilterComboBox_SelectedIndexChanged" 
+            
             Theme="Default" 
-            AutoPostBack="True">
+           >
         </dx:ASPxComboBox>
                             </td>
                         </tr>

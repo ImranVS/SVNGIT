@@ -13,6 +13,15 @@ namespace VSWebUI.DashboardReports {
     public partial class ConnectiontestRpt {
         
         /// <summary>
+        /// SubmitButton control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxButton SubmitButton;
+        
+        /// <summary>
         /// ServerListResetButton control.
         /// </summary>
         /// <remarks>
@@ -29,6 +38,24 @@ namespace VSWebUI.DashboardReports {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::DevExpress.Web.ASPxButton ReptBtn;
+        
+        /// <summary>
+        /// ASPxLabel2 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxLabel ASPxLabel2;
+        
+        /// <summary>
+        /// ServerComboBox control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxComboBox ServerComboBox;
         
         /// <summary>
         /// ASPxLabel1 control.

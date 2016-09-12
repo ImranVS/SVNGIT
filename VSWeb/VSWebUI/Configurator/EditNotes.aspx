@@ -26,6 +26,12 @@
     </tr>
     <tr>
         <td>
+            <div ID="errorDivMain" runat="server" class="alert alert-danger" style="display: none">Error:
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
             <table>
                     <tr>
                         <td width="30%" align="left" valign="top">

@@ -20,6 +20,11 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>4.0</OldToolsVersion>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -362,12 +367,10 @@
     <Content Include="Creditspage.aspx" />
     <Content Include="css\intlTelInput.css" />
     <Content Include="css\vital_signs_styles.css" />
-
+    <Content Include="DashboardReports\IBMConnectionsUserAdoptionOverallRpt.aspx" />
     <Content Include="DashboardReports\O365Mailboxstoragegrowth.aspx" />
     <Content Include="DashboardReports\ExchangeMailboxstoragegrowth.aspx" />
-
     <Content Include="DashboardReports\ConnectiontestRpt.aspx" />
-
     <Content Include="DashboardReports\EXJournalDocumentTotals.aspx" />
     <Content Include="DashboardReports\IBMConnCommunityRpt.aspx" />
     <Content Include="DashboardReports\IBMConnectionBookmarksRpt.aspx" />
@@ -1901,7 +1904,19 @@
     <Compile Include="Creditspage.aspx.designer.cs">
       <DependentUpon>Creditspage.aspx</DependentUpon>
     </Compile>
-
+    <Compile Include="DashboardReports\IBMConnectionsUserAdoptionOverallRpt.aspx.cs">
+      <DependentUpon>IBMConnectionsUserAdoptionOverallRpt.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DashboardReports\IBMConnectionsUserAdoptionOverallRpt.aspx.designer.cs">
+      <DependentUpon>IBMConnectionsUserAdoptionOverallRpt.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DashboardReports\IBMConnectionsUserAdoptionOverallXtraRpt.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DashboardReports\IBMConnectionsUserAdoptionOverallXtraRpt.Designer.cs">
+      <DependentUpon>IBMConnectionsUserAdoptionOverallXtraRpt.cs</DependentUpon>
+    </Compile>
     <Compile Include="DashboardReports\O365MailboxstoragegrowthRpt.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1928,7 +1943,6 @@
     <Compile Include="DashboardReports\ExchangeMailboxstoragegrowth.aspx.designer.cs">
       <DependentUpon>ExchangeMailboxstoragegrowth.aspx</DependentUpon>
     </Compile>
-
     <Compile Include="DashboardReports\ConnectiontestRpt.aspx.cs">
       <DependentUpon>ConnectiontestRpt.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1942,7 +1956,6 @@
     <Compile Include="DashboardReports\ConnectionstestXtraRpt.Designer.cs">
       <DependentUpon>ConnectionstestXtraRpt.cs</DependentUpon>
     </Compile>
-
     <Compile Include="DashboardReports\EXJournalDocumentTotalsRpt.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -4250,18 +4263,18 @@
     <EmbeddedResource Include="DashboardReports\ConsoleCommandsXtraRpt.resx">
       <DependentUpon>ConsoleCommandsXtraRpt.cs</DependentUpon>
     </EmbeddedResource>
-
+    <EmbeddedResource Include="DashboardReports\IBMConnectionsUserAdoptionOverallXtraRpt.resx">
+      <DependentUpon>IBMConnectionsUserAdoptionOverallXtraRpt.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DashboardReports\O365MailboxstoragegrowthRpt.resx">
       <DependentUpon>O365MailboxstoragegrowthRpt.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DashboardReports\ExchangeMailboxstoragegrowthRpt.resx">
       <DependentUpon>ExchangeMailboxstoragegrowthRpt.cs</DependentUpon>
     </EmbeddedResource>
-
     <EmbeddedResource Include="DashboardReports\ConnectionstestXtraRpt.resx">
       <DependentUpon>ConnectionstestXtraRpt.cs</DependentUpon>
     </EmbeddedResource>
-
     <EmbeddedResource Include="DashboardReports\EXJournalDocumentTotalsRpt.resx">
       <DependentUpon>EXJournalDocumentTotalsRpt.cs</DependentUpon>
     </EmbeddedResource>

@@ -58,13 +58,22 @@ namespace VSWebUI.DashboardReports {
         protected global::DevExpress.Web.ASPxPivotGrid.PivotGridField fieldTotal;
         
         /// <summary>
-        /// fieldDisplayName control.
+        /// PivotGridField1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::DevExpress.Web.ASPxPivotGrid.PivotGridField fieldDisplayName;
+        protected global::DevExpress.Web.ASPxPivotGrid.PivotGridField PivotGridField1;
+        
+        /// <summary>
+        /// fieldServerName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxPivotGrid.PivotGridField fieldServerName;
         
         /// <summary>
         /// fieldType control.

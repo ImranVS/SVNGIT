@@ -909,7 +909,7 @@ namespace VSWebUI
 			Label NameLabel = (Label)Container.FindControl("NameLabel");
 			Label stype = (Label)Container.FindControl("LabelType");
 			Label lblResponseTime = (Label)Container.FindControl("lblResponseTime");
-			lblResponseTime.Text = "New Response Time: " + lblResponseTime.Text + "<br>";
+			lblResponseTime.Text = "Response Time: " + lblResponseTime.Text + "<br>";
 			Label lblUserCount = (Label)Container.FindControl("lblUserCount");
 			lblUserCount.Text = "Users: " + lblUserCount.Text + "<br><br>";
 			Label lblDownMinutes = (Label)Container.FindControl("lblDownMinutes");
@@ -925,13 +925,14 @@ namespace VSWebUI
             Label lblHeldPercent = (Label)Container.FindControl("lblHeldPercent");
             Label lblHeldMailThreshold = (Label)Container.FindControl("lblHeldMailThreshold");
             //2/5/2016 Sowjanya modified forVSPLUS-2906
-            if (stype.Text == "Domino" || stype.Text == "Office365")
+            //6/28/2016 NS modified for VSPLUS-3086
+            if (stype.Text == "Domino")
             {
                 lblPendingMail.Text = "Pending Mail: " + lblPendingMail.Text + " = " + lblPendingPercent.Text + "% of Threshold " + lblPendingThreshold.Text + "<br>";
                 lblDeadMail.Text = "Dead Mail: " + lblDeadMail.Text + " = " + lblDeadPercent.Text + "% of Threshold " + lblDeadThreshold.Text + "<br>";
                 lblHeldMail.Text = "Held Mail: " + lblHeldMail.Text + " = " + lblHeldPercent.Text + "% of Threshold " + lblHeldMailThreshold.Text + "<br><br>";
             }
-            else
+            else if (stype.Text == "Exchange")
             {
 
                 lblPendingMail.Text = "Submission Queues: " + "<br>" + lblPendingMail.Text + " = " + lblPendingPercent.Text + "% of Threshold " + lblPendingThreshold.Text + "<br>";
@@ -975,6 +976,11 @@ namespace VSWebUI
                 lblMonitoredURL.Visible = true;
               
 			}
+            //7/1/2016 NS modified for VSPLUS-3086
+            if (stype.Text == "Office365")
+            {
+                lblUserCount.Visible = false;
+            }
 			return "";
 		}
 		protected void DeviceGridView_SelectionChanged(object sender, EventArgs e)

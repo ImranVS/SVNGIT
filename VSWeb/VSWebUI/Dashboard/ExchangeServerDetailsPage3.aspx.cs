@@ -1155,12 +1155,12 @@ namespace VSWebUI.Configurator
 					seriesXY.AxisY.Title.Visible = true;
 					seriesXY.AxisX.Title.Text = "Date/Time";
 					seriesXY.AxisX.Title.Visible = true;
-					CASUsersChart.Legend.Visible = false;
+					CASUsersChart.Legend.Visible = true;
 
 					// ((SplineSeriesView)series.View).LineTensionPercent = 100;
 					((LineSeriesView)series.View).LineMarkerOptions.Size = 4;
 					((LineSeriesView)series.View).LineMarkerOptions.Color = Color.White;
-
+                    series.CrosshairLabelPattern = "{S}: {V:n0}";
 					AxisBase axis = ((XYDiagram)CASUsersChart.Diagram).AxisX;
 					//4/18/2014 NS commented out for VSPLUS-312
 					//axis.DateTimeGridAlignment = DateTimeMeasurementUnit.Hour;
@@ -1171,7 +1171,7 @@ namespace VSWebUI.Configurator
 					axis.GridLines.Visible = false;
 					//axis.DateTimeOptions.Format = DateTimeFormat.Custom;
 					//axis.DateTimeOptions.FormatString = "dd/MM HH:mm";
-					((LineSeriesView)series.View).Color = Color.Blue;
+					//((LineSeriesView)series.View).Color = Color.Blue;
 
 					AxisBase axisy = ((XYDiagram)CASUsersChart.Diagram).AxisY;
 					axisy.Range.AlwaysShowZeroLevel = true;
@@ -1311,7 +1311,8 @@ namespace VSWebUI.Configurator
 				   AxisBase axis = ((XYDiagram)Chart1.Diagram).AxisX;
 				   //4/18/2014 NS commented out for VSPLUS-312
 				   //axis.DateTimeGridAlignment = DateTimeMeasurementUnit.Hour;
-				   axis.GridSpacing = 1;
+                   axis.GridSpacingAuto = false;
+				   //axis.GridSpacing = 1;
 				   axis.Range.SideMarginsEnabled = false;
 
 				   AxisBase axisy = ((XYDiagram)Chart1.Diagram).AxisY;

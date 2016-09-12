@@ -289,7 +289,7 @@
 															<asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
 																<ContentTemplate>
 																	<dxchartsui:WebChartControl ID="MailRoutedWebChartControl" ClientInstanceName="cMailRoutedWebChartControl"
-																		runat="server" Height="300px" Width="500px" CrosshairEnabled="True" OnCustomCallback="MailRoutedWebChartControl_CustomCallback">
+																		runat="server" Height="300px" Width="500px" CrosshairEnabled="True" EnableClientSideAPI = "false" OnCustomCallback="MailRoutedWebChartControl_CustomCallback">
 																		<diagramserializable>
                                                                                             <cc1:XYDiagram>
                                                                                                 <axisx datetimegridalignment="Hour" datetimemeasureunit="Hour" 
@@ -416,7 +416,7 @@
 															<asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional">
 																<ContentTemplate>
 																	<dxchartsui:WebChartControl ID="MailDeliveredWebChartControl" ClientInstanceName="cMailDeliveredWebChartControl"
-																		runat="server" Height="300px" Width="500px" CrosshairEnabled="True" OnCustomCallback="MailDeliveredWebChartControl_CustomCallback">
+																		runat="server" Height="300px" Width="500px" CrosshairEnabled="True" EnableClientSideAPI = "false" OnCustomCallback="MailDeliveredWebChartControl_CustomCallback">
 																		<diagramserializable>
                                                             <cc1:XYDiagram>
                                                                 <AxisX VisibleInPanesSerializable="-1" DateTimeMeasureUnit="Hour" 
@@ -480,7 +480,7 @@
 															<asp:UpdatePanel ID="UpdatePanel3" runat="server" UpdateMode="Conditional">
 																<ContentTemplate>
 																	<dxchartsui:WebChartControl ID="MailTranfferedWebChartControl" ClientInstanceName="cMailTranfferedWebChartControl"
-																		runat="server" Height="300px" Width="500px" CrosshairEnabled="True" OnCustomCallback="MailTranfferedWebChartControl_CustomCallback">
+																		runat="server" Height="300px" Width="500px" CrosshairEnabled="True" EnableClientSideAPI = "false" OnCustomCallback="MailTranfferedWebChartControl_CustomCallback">
 																		<diagramserializable>
                                                                                             <cc1:XYDiagram>
                                                                                                 <axisx datetimegridalignment="Hour" datetimemeasureunit="Hour" 
@@ -607,7 +607,7 @@
 															<asp:UpdatePanel ID="UpdatePanel4" runat="server" UpdateMode="Conditional">
 																<ContentTemplate>
 																	<dxchartsui:WebChartControl ID="MailTraficWebChartControl" ClientInstanceName="cMailTraficWebChartControl"
-																		runat="server" Height="300px" Width="500px" CrosshairEnabled="True" OnCustomCallback="MailTraficWebChartControl_CustomCallback">
+																		runat="server" Height="300px" Width="500px" CrosshairEnabled="True" EnableClientSideAPI = "false" OnCustomCallback="MailTraficWebChartControl_CustomCallback">
 																		<diagramserializable>
                                                                                             <cc1:XYDiagram>
                                                                                                 <axisx visibleinpanesserializable="-1"  title-text="Mail Status" title-visible="True"><range sidemarginsenabled="True" /><range sidemarginsenabled="True" /><tickmarks minorvisible="False" /><range sidemarginsenabled="True" />
@@ -696,7 +696,7 @@
 												<asp:UpdatePanel ID="UpdatePanel5" runat="server" UpdateMode="Conditional">
 													<ContentTemplate>
 														<dxchartsui:WebChartControl ID="QueueWebChart" runat="server" ClientInstanceName="cQueueWebChart"
-															CrosshairEnabled="True" Height="300px" Width="500px" OnCustomCallback="QueueWebChart_CustomCallback">
+															CrosshairEnabled="True" Height="300px" Width="500px" EnableClientSideAPI = "false" OnCustomCallback="QueueWebChart_CustomCallback">
 															<diagramserializable>
                                                     <cc1:XYDiagram>
                                                         <axisx visibleinpanesserializable="-1" title-text="Time" title-visible="True">
@@ -753,7 +753,7 @@
 												<asp:UpdatePanel ID="UpdatePanel6" runat="server" UpdateMode="Conditional">
 													<ContentTemplate>
 														<dxchartsui:WebChartControl ID="DeliveryRateWebChart" runat="server" ClientInstanceName="cDeliveryRateWebChart"
-															CrosshairEnabled="True" Height="300px" Width="500px" OnCustomCallback="DeliveryRateWebChart_CustomCallback">
+															CrosshairEnabled="True" Height="300px" Width="500px" EnableClientSideAPI = "false" OnCustomCallback="DeliveryRateWebChart_CustomCallback">
 															<diagramserializable>
                                                     <cc1:XYDiagram>
                                                         <axisx visibleinpanesserializable="-1" title-text="Time" title-visible="True" >
@@ -808,7 +808,7 @@
 												<asp:UpdatePanel ID="UpdatePanel7" runat="server" UpdateMode="Conditional">
 													<ContentTemplate>
 														<dxchartsui:WebChartControl ID="MailSizeWebChart" runat="server" ClientInstanceName="cMailSizeWebChart"
-															CrosshairEnabled="True" Height="300px" Width="500px" OnCustomCallback="MailSizeWebChart_CustomCallback">
+															CrosshairEnabled="True" Height="300px" Width="500px" EnableClientSideAPI = "false" OnCustomCallback="MailSizeWebChart_CustomCallback">
 															<diagramserializable>
                                                     <cc1:XYDiagram>
                                                         <axisx visibleinpanesserializable="-1" title-text="Time" title-visible="True">
@@ -868,7 +868,7 @@
 												<asp:UpdatePanel ID="UpdatePanel8" runat="server" UpdateMode="Conditional">
 													<ContentTemplate>
 														<dxchartsui:WebChartControl ID="MailCountWebChart" runat="server" ClientInstanceName="cMailCountWebChart"
-															CrosshairEnabled="True" Height="300px" Width="500px" OnCustomCallback="MailCountWebChart_CustomCallback">
+															CrosshairEnabled="True" Height="300px" Width="500px" EnableClientSideAPI = "false" OnCustomCallback="MailCountWebChart_CustomCallback">
 															<diagramserializable>
                                                     <cc1:XYDiagram>
                                                         <axisx visibleinpanesserializable="-1" title-text="Time" title-visible="True">

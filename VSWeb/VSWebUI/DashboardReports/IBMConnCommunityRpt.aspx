@@ -21,16 +21,38 @@
             <td class="tdpadded" valign="top">
                 <table>
                     <tr>
+                    <td>
+                                <dx:ASPxButton ID="SubmitButton" runat="server" Text="Submit" CssClass="sysButton"  onclick="SubmitButton_Click">
+                                </dx:ASPxButton>
+                            </td>
                         <td>
                             <dx:ASPxButton ID="UserResetButton" runat="server" CssClass="sysButton"
                       style="margin-left: 0px" Text="Reset" onclick="UserResetButton_Click" >
                     </dx:ASPxButton>
-                                <dx:ASPxButton ID="ReptBtn" runat="server" Text="Reports" 
-           Theme="Office2010Blue" Visible="False" onclick="ReptBtn_Click">
-        </dx:ASPxButton>
-        <div class="input-prepend">&nbsp;</div>
+                              
                         </td>
                     </tr>
+                    </table>
+                    <table>
+                     <tr>
+                            <td>
+                                <dx:ASPxLabel ID="ASPxLabel2" runat="server" Text="Servers:" CssClass="lblsmallFont">
+                                </dx:ASPxLabel>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                              
+                                    <dx:ASPxComboBox ID="ServerComboBox" runat="server"  OnSelectedIndexChanged = "ServerComboBox_SelectedIndexChanged"
+                                     EnableTheming="True" 
+                                    
+                                     Theme="Default" 
+                                    AutoPostBack="True">
+                                   </dx:ASPxComboBox>
+                                     
+                                   
+                            </td>       
+                        </tr>
                     <tr>
                         <td>
                             <dx:ASPxLabel ID="ASPxLabel1" runat="server" 
@@ -41,8 +63,8 @@
                     <tr>
                         <td>
                             <dx:ASPxComboBox ID="UserFilterComboBox" runat="server" 
-            AutoPostBack="True"  DropDownStyle="DropDown" 
-             Theme="Default" onselectedindexchanged="UserFilterComboBox_SelectedIndexChanged">
+            DropDownStyle="DropDown" 
+             Theme="Default" >
         </dx:ASPxComboBox>
                         </td>
                     </tr>

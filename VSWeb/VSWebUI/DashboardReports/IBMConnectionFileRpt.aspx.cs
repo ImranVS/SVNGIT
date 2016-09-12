@@ -10,7 +10,7 @@ namespace VSWebUI.DashboardReports
 {
     public partial class IBMConnectionFileRpt : System.Web.UI.Page
     {
-       
+        //6/16/2016 Sowjanya modified for VSPLUS-3059
         protected void Page_Load(object sender, EventArgs e)
         {
             Report();
@@ -32,10 +32,10 @@ namespace VSWebUI.DashboardReports
                 DataTable dt = new DataTable();
                 FType = FileTypeComboBox.SelectedItem.Value.ToString();
                 dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetIBMConnectionsServerlist(FType);
-                ServerListFilterListBox.DataSource = dt;
-                ServerListFilterListBox.TextField = "ServerName";
-                ServerListFilterListBox.ValueField = "ServerName";
-                ServerListFilterListBox.DataBind();
+                ServerComboBox.DataSource = dt;
+                ServerComboBox.TextField = "ServerName";
+                ServerComboBox.ValueField = "ServerName";
+                ServerComboBox.DataBind();
             }
         }
         
@@ -68,22 +68,9 @@ namespace VSWebUI.DashboardReports
             {
                 selectedFileType = FileTypeComboBox.SelectedItem.Value.ToString();
             }
-            if (this.ServerListFilterListBox.SelectedItems.Count > 0)
+            if (ServerComboBox.SelectedIndex != -1)
             {
-                selectedServer = "";
-                for (int i = 0; i < this.ServerListFilterListBox.SelectedItems.Count; i++)
-                {
-                    selectedServer += "'" + this.ServerListFilterListBox.SelectedItems[i].Text + "'" + ",";
-                }
-                try
-                {
-                    selectedServer = selectedServer.Substring(0, selectedServer.Length - 1);
-                }
-                catch
-                {
-                    selectedServer = ""; 
-                }
-                finally { }
+                selectedServer = ServerComboBox.SelectedItem.Value.ToString();
             }
             string strfrom = "";
             string strto = "";         

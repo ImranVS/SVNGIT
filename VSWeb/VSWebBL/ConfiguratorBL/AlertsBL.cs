@@ -875,5 +875,20 @@ namespace VSWebBL.ConfiguratorBL
             }
 
         }
+
+
+        public bool UpdateEventsMasterforUncheckedCondition(string ids)
+        {
+            try
+            {
+                return VSWebDAL.ConfiguratorDAL.AlertsDAL.Ins.UpdateEventsMasterforUncheckedCondition(ids);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
     }
 }

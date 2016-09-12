@@ -15,7 +15,7 @@
 </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-<script type="text/javascript">
+    <script type="text/javascript">
     function OnItemClick(s, e) {
         if (e.item.parent == s.GetRootItem())
             e.processOnServer = false;
@@ -62,15 +62,18 @@
                         <dx:ASPxPivotGrid ID="CommunityActivityPivotGrid" runat="server" 
                             ClientIDMode="AutoID" EnableTheming="True" 
                             oncustomfieldsort="CommunityActivityPivotGrid_CustomFieldSort" 
-                            Theme="Office2003Blue">
+                            Theme="Office2003Blue" onunload="CommunityActivityPivotGrid_Unload">
                             <Fields>
                                 <dx:PivotGridField ID="fieldTotal" Area="DataArea" AreaIndex="0" 
                                     Caption="Total" FieldName="Total">
                                 </dx:PivotGridField>
-                                <dx:PivotGridField ID="fieldName" Area="RowArea" AreaIndex="0" Caption="Name" 
+                                 <dx:PivotGridField ID="fieldServerName" Area="RowArea" AreaIndex="0" Caption="Server Name" 
+                                    FieldName="ServerName">
+                                </dx:PivotGridField>
+                                <dx:PivotGridField ID="fieldName" Area="RowArea" AreaIndex="1" Caption="Name" 
                                     FieldName="Name">
                                 </dx:PivotGridField>
-                                <dx:PivotGridField ID="fieldType" Area="RowArea" AreaIndex="1" Caption="Object" 
+                                <dx:PivotGridField ID="fieldType" Area="RowArea" AreaIndex="2" Caption="Object" 
                                     FieldName="Type">
                                 </dx:PivotGridField>
                                 <dx:PivotGridField ID="fieldLastDate" Area="ColumnArea" AreaIndex="0" 
@@ -80,6 +83,10 @@
                             <OptionsView ShowColumnGrandTotalHeader="False" ShowColumnGrandTotals="False" 
                                 ShowDataHeaders="False" ShowRowGrandTotalHeader="False" 
                                 ShowRowGrandTotals="False" />
+                            <OptionsPager AlwaysShowPager="True">
+                                <PageSizeItemSettings Visible="True">
+                                </PageSizeItemSettings>
+                            </OptionsPager>
                         </dx:ASPxPivotGrid>
                         <dx:ASPxPivotGridExporter ID="ServerGridViewExporter" runat="server" 
                             ASPxPivotGridID="CommunityActivityPivotGrid">

@@ -1835,5 +1835,28 @@ namespace VSWebDAL.ConfiguratorDAL
             return AlertTable;
         }
 
+        public bool UpdateEventsMasterforUncheckedCondition(string ids)
+        {
+            bool UpdateRet1 = false;
+           
+            int mode = 0;
+            string SqlQuery = "";
+            try
+            {
+                SqlQuery = "UPDATE EventsMaster SET [AlertOnRepeat]=0 WHERE ID IN(" + ids + ")";
+                mode = objAdaptor.ExecuteNonQueryRetRows(SqlQuery);
+                if (mode >= 1)
+                {
+                    UpdateRet1 = true;
+                }
+              
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return UpdateRet1 ;
+        }
+
     }    
 }

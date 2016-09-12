@@ -20,14 +20,19 @@ namespace VSWebUI
 {
     public partial class ExchangeServer : System.Web.UI.Page
     {
+        DataTable TestDataTable = null;
         bool isValid = true;
 		bool isValidDB = true;
         protected int ServerID;
         protected int ServerTypeID;
         protected DataTable ExchangeDataTable = null;
         VSFramework.TripleDES encryptkey = new VSFramework.TripleDES();
+        DataTable CASTestsdt = new DataTable();
+        DataTable CredentialsDataTable = new DataTable();
+        
         protected void Page_Load(object sender, EventArgs e)
         {
+            
             ServerTypeID = 5;
             lblServerId.Text = Request.QueryString["ID"];
             if (!IsPostBack)
@@ -49,6 +54,7 @@ namespace VSWebUI
                 FillDiskGridView();
 				FillWindowsServicesGrid();
 				FillDatabaseGridView();
+                FillCASGridView();
 				//1/29/2016 Durga Modified for VSPLUS 2525
 				if (Session["UserPreferences"] != null)
 				{
@@ -62,11 +68,24 @@ namespace VSWebUI
 						
 					 }
 				}
+                //14/07/2016 sowmya added for VSPLUS-3097
+                if (Session["UserPreferences"] != null)
+                {
+                    DataTable UserPreferences = (DataTable)Session["UserPreferences"];
+                    foreach (DataRow dr in UserPreferences.Rows)
+                    {
+                        if (dr[1].ToString() == "ExchangeServer|CASGridView")
+                        {
+                            CASGridView.SettingsPager.PageSize = Convert.ToInt32(dr[2]);
+                        }
+                    }
+                }
             }
             else
             {
                 //Commented by Mukund 30Mar14
                // FillExchangeServerServicesGridfromSession();
+                FillCASGridViewfromSession();
                 FillDiskGridfromSession();
 				FillWindowsServicesGridFromSession();
 				FillDatabaseGridfromSession();
@@ -77,6 +96,135 @@ namespace VSWebUI
             }
           // ((GridViewDataColumn)ExchangeServicesGridView.Columns["Role"]).GroupBy();
         }
+
+        //14/07/2016 sowmya added for VSPLUS-3097
+        private void FillCASGridView()
+        {
+            try
+            {
+                TestDataTable = new DataTable();
+                DataSet ExchangeCASDataSet = new DataSet();
+                TestDataTable = VSWebBL.ExchangeBAL.Ins.GetCASData(Convert.ToInt32(lblServerId.Text??"0"));
+                DataTable dtcopy = TestDataTable.Copy();
+                dtcopy.PrimaryKey = new DataColumn[] { dtcopy.Columns["id"] };
+                Session["CASTests"] = dtcopy;
+                CASGridView.DataSource = TestDataTable;
+                CASGridView.DataBind();              
+            }
+            catch (Exception ex)
+            {                
+                Log.Entry.Ins.WriteHistoryEntry(DateTime.Now.ToString() + " Exception - " + ex);
+                throw ex;
+            }
+            finally { }
+        }
+        protected DataRow GetRow(DataTable LocObject, IDictionaryEnumerator enumerator, int Keys)
+        {
+            DataTable dataTable = LocObject;
+            DataRow DRRow = null;
+
+
+            if (Keys == -1)
+                DRRow = dataTable.NewRow();
+            else
+                DRRow = dataTable.Rows.Find(Keys);
+
+            enumerator.Reset();
+            while (enumerator.MoveNext())
+                DRRow[enumerator.Key.ToString()] = (enumerator.Value == null ? "Null value" : enumerator.Value);
+            return DRRow;
+        }
+        protected void CASGridView_RowInserting(object sender, DevExpress.Web.Data.ASPxDataInsertingEventArgs e)
+        {
+
+            DataTable CASDataTable = (DataTable)Session["CASTests"];
+            ASPxGridView gridView = (ASPxGridView)sender;
+            DataRow newrow = GetRow(CASDataTable, e.NewValues.GetEnumerator(), -1);
+            DataRow[] matchrow = CASDataTable.Select("TestId = '" + newrow.ItemArray[3] + "' ");
+            if (matchrow.Length > 0)
+            {
+                throw new ArgumentException("This test is a duplicate. Try adding a different one.");
+            }
+
+            UpdateCASGridData("Insert", GetRow(CASDataTable, e.NewValues.GetEnumerator(), -1));           
+            gridView.CancelEdit();
+            e.Cancel = true;
+            FillCASGridView();
+        }
+        private void UpdateCASGridData(string Mode, DataRow CredentialsRow)
+        {
+            string credid = "";
+            string url = "";
+            if (CredentialsRow["URLs"].ToString() == "Null value")
+            {
+                if (Session["IPAddress"] != "" && Session["IPAddress"] != null)
+                    url = Session["IPAddress"].ToString();
+            }
+            else
+            {
+                url = CredentialsRow["URLs"].ToString();
+            }
+            if (CredentialsRow["AliasName"].ToString() == "Null value")
+            {
+                if (CredentialsComboBox.SelectedIndex != -1)
+                {
+                    credid = CredentialsComboBox.SelectedItem.Value.ToString();
+                }
+            }
+            else
+            {
+                credid = CredentialsRow["AliasName"].ToString();
+            }
+            if (Mode == "Insert")
+            {
+                //Object ReturnValue = VSWebBL.ExchangeBAL.Ins.InsertData(CollectDataForCredentials(Mode, CredentialsRow));
+                Object ReturnValue = VSWebBL.ExchangeBAL.Ins.InsertCASData(CredentialsRow["TestName"].ToString(), Request.QueryString["ID"], url, credid);
+            }
+
+        }
+
+      
+        private ExchangeSettings CollectDataForCredentials(string Mode, DataRow CredentialsRow)
+        {
+            VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
+            try
+            {
+                ExchangeSettings CredentialsObject = new ExchangeSettings();
+                CredentialsObject.ServerId = Convert.ToInt32(lblServerId.Text); 
+                CredentialsObject.URLs = CredentialsRow["URLs"].ToString();
+               CredentialsObject.TestId  = Convert.ToInt32(CredentialsRow["TestName"].ToString());
+               CredentialsObject.CredentialsId = Convert.ToInt32(CredentialsRow["AliasName"].ToString());
+
+                return CredentialsObject;
+            }
+            catch (Exception ex)
+            {
+                Log.Entry.Ins.WriteHistoryEntry(DateTime.Now.ToString() + " Exception - " + ex);
+                throw ex;
+            }
+            finally { }
+        }
+        private void FillCASGridViewfromSession()
+        {
+            try
+            {
+                DataTable CASDataTable = new DataTable();
+                if (Session["CASTests"] != "" && Session["CASTests"] != null)
+                    CASDataTable = (DataTable)Session["CASTests"];
+                if (CASDataTable.Rows.Count > 0)
+                {
+                    CASGridView.DataSource = CASDataTable;
+                    CASGridView.DataBind();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Entry.Ins.WriteHistoryEntry(DateTime.Now.ToString() + " Exception - " + ex);
+                throw ex;
+            }
+            finally { }
+        }
+
          public void Filldata()
          {
              DataTable dt = new DataTable();
@@ -94,6 +242,7 @@ namespace VSWebUI
                      //lblServer.Text = ": " + dt.Rows[0]["ServerName"].ToString();
                      //10/13/2014 NS modified for VSPLUS-934
                      //lblServer.Text += " - " + dt.Rows[0]["ServerName"].ToString();
+                     Session["IPAddress"] = dt.Rows[0]["ipaddress"].ToString();
                      lblServer.InnerHtml += " - " + dt.Rows[0]["ServerName"].ToString();
                      DescTextBox.Text = dt.Rows[0]["Description"].ToString();
                       
@@ -127,10 +276,7 @@ namespace VSWebUI
 							 if (CredentialsComboBox.Items[i].Value.ToString() == credentialsId.ToString())
 								 CredentialsComboBox.Items[i].Selected = true;
 						 }
-					 }
-
-                     
-
+					 }                     
                  }
              }
              catch (Exception ex)
@@ -141,7 +287,6 @@ namespace VSWebUI
              }
 
          }
-
 
          public void FillSettingsdata()
          {
@@ -1135,7 +1280,7 @@ namespace VSWebUI
 
 		 private void FillCredentialsComboBox()
 		 {
-			 DataTable CredentialsDataTable = VSWebBL.ConfiguratorBL.ServicesBL.Ins.GetCredentials();
+             CredentialsDataTable = VSWebBL.ConfiguratorBL.ServicesBL.Ins.GetCredentials();
 			 CredentialsComboBox.DataSource = CredentialsDataTable;
 			 CredentialsComboBox.TextField = "AliasName";
 			 CredentialsComboBox.ValueField = "ID";
@@ -1652,15 +1797,11 @@ namespace VSWebUI
 					 Context.ApplicationInstance.CompleteRequest();
 				 }
 			 }
-
-
 		 }
 		 //1/29/2016 Durga Modified for VSPLUS 2525
 		 protected void ServicesGrid_PageSizeChanged(object sender, EventArgs e)
 
-		 {
-
-		  
+		 {		  
 		   VSWebBL.ConfiguratorBL.UserPreferencesBL.Ins.UpdateUserPreferences("ExchangeServer|ServicesGrid", ServicesGrid.SettingsPager.PageSize.ToString(), Convert.ToInt32(Session["UserID"]));
 		   Session["UserPreferences"] = VSWebBL.ConfiguratorBL.UserPreferencesBL.Ins.GetUserRowPrefrenceDetails(Convert.ToInt32(Session["UserID"]));
 		 }
@@ -1672,8 +1813,6 @@ namespace VSWebUI
              OKCopy.Visible = true;
              Cancel.Visible = true;
              Password.Visible = true;
-
-
          }
          protected void OKCopy_Click(object sender, EventArgs e)
          {
@@ -1704,12 +1843,163 @@ namespace VSWebUI
                  FillCredentialsComboBox();
               
              }
-
          }
          protected void Cancel_Click(object sender, EventArgs e)
          {
              // Response.Redirect("~/Configurator/DominoProperties.aspx?key=" + Session["Key"]);
              CopyProfilePopupControl.ShowOnPageLoad = false;
          }
+         //14/07/2016 sowmya added for VSPLUS-3097
+         private void FillTestNameComboBox(ASPxComboBox TestNameComboBox)
+         {
+             DataTable ExchangeTestDataTable = VSWebBL.ConfiguratorBL.ServicesBL.Ins.GetTestNames();
+             TestNameComboBox.DataSource = ExchangeTestDataTable;
+             TestNameComboBox.TextField = "TestName";
+             TestNameComboBox.ValueField = "TestId";
+             TestNameComboBox.DataBind();
+         }
+         private void FillCredentialsCombox(ASPxComboBox CredentialsCombox)
+         {
+             DataTable CredentialsDatatable = VSWebBL.ConfiguratorBL.ServicesBL.Ins.GetCredentials();
+             CredentialsCombox.DataSource = CredentialsDatatable;
+             CredentialsCombox.TextField = "AliasName";
+             CredentialsCombox.ValueField = "ID";
+             CredentialsCombox.DataBind();
+         }
+         protected void CASGridView_AutoFilterCellEditorInitialize(object sender, ASPxGridViewEditorEventArgs e)
+         {
+             if (e.Column.FieldName == "TestName")
+             {
+                 ASPxComboBox TestNameComboBox = e.Editor as ASPxComboBox;
+                 FillTestNameComboBox(TestNameComboBox);
+                 TestNameComboBox.Callback += new CallbackEventHandlerBase(TestNameComboBox_OnCallback);
+             }
+             if (e.Column.FieldName == "AliasName")
+             {
+                 ASPxComboBox CredentialsCombox = e.Editor as ASPxComboBox;
+                 FillCredentialsCombox(CredentialsCombox);
+                 CredentialsCombox.Callback += new CallbackEventHandlerBase(CredentialsCombox_OnCallback);
+             }
+         }
+
+         protected void CASGridView_CellEditorInitialize(object sender, ASPxGridViewEditorEventArgs e)
+         {
+             if (e.Column.FieldName == "TestName")
+             {
+                 ASPxComboBox TestNameComboBox = e.Editor as ASPxComboBox;
+                 if (!CASGridView.IsNewRowEditing)
+                 {
+                     e.Editor.Enabled = false;
+                 }
+                 else
+                 {
+                     FillTestNameComboBox(TestNameComboBox);
+                 }
+                 TestNameComboBox.Callback += new CallbackEventHandlerBase(TestNameComboBox_OnCallback);
+             }
+             if (e.Column.FieldName == "AliasName")
+             {
+                 ASPxComboBox CredentialsCombox = e.Editor as ASPxComboBox;
+                 FillCredentialsCombox(CredentialsCombox);
+                 CredentialsCombox.Callback += new CallbackEventHandlerBase(CredentialsCombox_OnCallback);
+             }
+         }
+
+         private void TestNameComboBox_OnCallback(object source, CallbackEventArgsBase e)
+         {
+             FillTestNameComboBox(source as ASPxComboBox);
+         }
+
+         private void CredentialsCombox_OnCallback(object source, CallbackEventArgsBase e)
+         {
+             FillCredentialsCombox(source as ASPxComboBox);
+         }
+
+         protected void CASGridView_PageSizeChanged(object sender, EventArgs e)
+         {
+             VSWebBL.ConfiguratorBL.UserPreferencesBL.Ins.UpdateUserPreferences("ExchangeServer|CASGridView", CASGridView.SettingsPager.PageSize.ToString(), Convert.ToInt32(Session["UserID"]));
+            Session["UserPreferences"] = VSWebBL.ConfiguratorBL.UserPreferencesBL.Ins.GetUserRowPrefrenceDetails(Convert.ToInt32(Session["UserID"]));
+        
+         }
+         protected void CASGridView_CustomErrorText(object sender, ASPxGridViewCustomErrorTextEventArgs e)
+         {
+             Exception ex = e.Exception;
+             if (ex != null)
+             {
+
+                 if (ex.Message.IndexOf("ErrCode!-1") != -1)
+                 {
+                     e.ErrorText = ex.Message;
+                 }
+                 else if (ex.Message.IndexOf("ErrCode=-1") > 0)
+                 {
+                     e.ErrorText = "some error";
+                 }
+                 else
+                 {
+                     e.ErrorText = ex.Message;
+                 }
+             }
+         }
+
+         protected void CASGridView_RowDeleting(object sender, DevExpress.Web.Data.ASPxDataDeletingEventArgs e)
+         {
+             Object ReturnValue = VSWebBL.ExchangeBAL.Ins.DeleteCASData(e.Values["TestId"].ToString(),e.Values["ServerId"].ToString());
+             ASPxGridView gridView = (ASPxGridView)sender;
+             gridView.CancelEdit();
+             e.Cancel = true;
+             FillCASGridView();
+         }
+
+         protected void CASGridView_RowUpdating(object sender, DevExpress.Web.Data.ASPxDataUpdatingEventArgs e)
+         {
+             CASTestsdt = (DataTable)Session["CASTests"];
+             ASPxGridView gridView = (ASPxGridView)sender;
+             
+             UpdateCASTestData("Update", GetRow(CASTestsdt, e.NewValues.GetEnumerator(), Convert.ToInt32(e.Keys[0])));
+             gridView.CancelEdit();
+             e.Cancel = true;
+             FillCASGridView();
+         }
+
+         private void UpdateCASTestData(string Mode, DataRow GridRow)
+         {
+             string credid = "";
+             string url = "";
+             if (GridRow["URLs"].ToString() == "Null value")
+             {
+                 if (Session["IPAddress"] != "" && Session["IPAddress"] != null)
+                     url = Session["IPAddress"].ToString();
+             }
+             else
+             {
+                 url = GridRow["URLs"].ToString();
+             }
+             if (GridRow["AliasName"].ToString() == "Null value")
+             {
+                 if (CredentialsComboBox.SelectedIndex != -1)
+                 {
+                     credid = CredentialsComboBox.SelectedItem.Value.ToString();
+                 }
+             }
+             else
+             {
+                 for (int i = 0; i < CredentialsComboBox.Items.Count; i++)
+                 {
+                     if (CredentialsComboBox.Items[i].Value.ToString() == GridRow["AliasName"].ToString() || CredentialsComboBox.Items[i].Text.ToString() == GridRow["AliasName"].ToString())
+                     {
+                         credid = CredentialsComboBox.Items[i].Value.ToString();
+                     }
+                 }
+             }
+             if (Mode == "Insert")
+             {
+                 Object ReturnValue = VSWebBL.ExchangeBAL.Ins.InsertCASData(GridRow["TestId"].ToString(), Request.QueryString["ID"], url, credid);
+             }
+             if (Mode == "Update")
+             {
+                 Object ReturnValue = VSWebBL.ExchangeBAL.Ins.UpdateCASTestData(GridRow["TestId"].ToString(), Request.QueryString["ID"], url, credid);
+             }
+         }               
     }
 }

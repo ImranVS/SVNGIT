@@ -32,7 +32,6 @@
             this.xrTable2 = new DevExpress.XtraReports.UI.XRTable();
             this.xrTableRow2 = new DevExpress.XtraReports.UI.XRTableRow();
             this.ctusers = new DevExpress.XtraReports.UI.XRTableCell();
-            this.ctowner = new DevExpress.XtraReports.UI.XRTableCell();
             this.TopMargin = new DevExpress.XtraReports.UI.TopMarginBand();
             this.BottomMargin = new DevExpress.XtraReports.UI.BottomMarginBand();
             this.xrPageInfo1 = new DevExpress.XtraReports.UI.XRPageInfo();
@@ -40,7 +39,6 @@
             this.xrTable1 = new DevExpress.XtraReports.UI.XRTable();
             this.xrTableRow1 = new DevExpress.XtraReports.UI.XRTableRow();
             this.xrTableCell1 = new DevExpress.XtraReports.UI.XRTableCell();
-            this.xrTableCell2 = new DevExpress.XtraReports.UI.XRTableCell();
             this.GroupHeader2 = new DevExpress.XtraReports.UI.GroupHeaderBand();
             this.xrTable3 = new DevExpress.XtraReports.UI.XRTable();
             this.xrTableRow3 = new DevExpress.XtraReports.UI.XRTableRow();
@@ -53,6 +51,7 @@
             this.HeaderStyle = new DevExpress.XtraReports.UI.XRControlStyle();
             this.PageFooter = new DevExpress.XtraReports.UI.PageFooterBand();
             this.Name = new DevExpress.XtraReports.Parameters.Parameter();
+            this.ServerName = new DevExpress.XtraReports.Parameters.Parameter();
             this.xrSubreport1 = new DevExpress.XtraReports.UI.XRSubreport();
             this.copyrightXtraRpt1 = new VSWebUI.DashboardReports.CopyrightXtraRpt();
             ((System.ComponentModel.ISupportInitialize)(this.xrTable2)).BeginInit();
@@ -84,8 +83,7 @@
             // xrTableRow2
             // 
             this.xrTableRow2.Cells.AddRange(new DevExpress.XtraReports.UI.XRTableCell[] {
-            this.ctusers,
-            this.ctowner});
+            this.ctusers});
             this.xrTableRow2.EvenStyleName = "EvenStyle";
             this.xrTableRow2.Name = "xrTableRow2";
             this.xrTableRow2.OddStyleName = "OddStyle";
@@ -100,16 +98,6 @@
             this.ctusers.StylePriority.UseBorders = false;
             this.ctusers.StylePriority.UsePadding = false;
             this.ctusers.Weight = 1.1301365456687651D;
-            // 
-            // ctowner
-            // 
-            this.ctowner.Borders = ((DevExpress.XtraPrinting.BorderSide)(((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Right) 
-            | DevExpress.XtraPrinting.BorderSide.Bottom)));
-            this.ctowner.Name = "ctowner";
-            this.ctowner.Padding = new DevExpress.XtraPrinting.PaddingInfo(7, 5, 3, 3, 100F);
-            this.ctowner.StylePriority.UseBorders = false;
-            this.ctowner.StylePriority.UsePadding = false;
-            this.ctowner.Weight = 1.2608014652869781D;
             // 
             // TopMargin
             // 
@@ -159,7 +147,7 @@
             this.xrTable1.Name = "xrTable1";
             this.xrTable1.Rows.AddRange(new DevExpress.XtraReports.UI.XRTableRow[] {
             this.xrTableRow1});
-            this.xrTable1.SizeF = new System.Drawing.SizeF(610.4166F, 33F);
+            this.xrTable1.SizeF = new System.Drawing.SizeF(610.4166F, 32.99999F);
             this.xrTable1.StylePriority.UseBackColor = false;
             this.xrTable1.StylePriority.UseBorderColor = false;
             this.xrTable1.StylePriority.UseBorders = false;
@@ -168,8 +156,7 @@
             // xrTableRow1
             // 
             this.xrTableRow1.Cells.AddRange(new DevExpress.XtraReports.UI.XRTableCell[] {
-            this.xrTableCell1,
-            this.xrTableCell2});
+            this.xrTableCell1});
             this.xrTableRow1.Name = "xrTableRow1";
             this.xrTableRow1.Weight = 1D;
             // 
@@ -191,25 +178,6 @@
             this.xrTableCell1.Text = "Users";
             this.xrTableCell1.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleLeft;
             this.xrTableCell1.Weight = 1.7480465865841668D;
-            // 
-            // xrTableCell2
-            // 
-            this.xrTableCell2.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.xrTableCell2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(196)))), ((int)(((byte)(207)))), ((int)(((byte)(189)))));
-            this.xrTableCell2.Borders = ((DevExpress.XtraPrinting.BorderSide)(((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Right) 
-            | DevExpress.XtraPrinting.BorderSide.Bottom)));
-            this.xrTableCell2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.xrTableCell2.Name = "xrTableCell2";
-            this.xrTableCell2.Padding = new DevExpress.XtraPrinting.PaddingInfo(7, 0, 0, 0, 100F);
-            this.xrTableCell2.StylePriority.UseBackColor = false;
-            this.xrTableCell2.StylePriority.UseBorderColor = false;
-            this.xrTableCell2.StylePriority.UseBorders = false;
-            this.xrTableCell2.StylePriority.UseFont = false;
-            this.xrTableCell2.StylePriority.UsePadding = false;
-            this.xrTableCell2.StylePriority.UseTextAlignment = false;
-            this.xrTableCell2.Text = "Owners";
-            this.xrTableCell2.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleLeft;
-            this.xrTableCell2.Weight = 1.9501533548735897D;
             // 
             // GroupHeader2
             // 
@@ -272,7 +240,6 @@
             this.xrLabel2.StylePriority.UseBorders = false;
             this.xrLabel2.StylePriority.UseFont = false;
             this.xrLabel2.StylePriority.UseForeColor = false;
-            this.xrLabel2.Text = "xrLabel2";
             // 
             // GroupHeader1
             // 
@@ -293,9 +260,9 @@
             this.xrLabel1.LocationFloat = new DevExpress.Utils.PointFloat(0F, 0F);
             this.xrLabel1.Name = "xrLabel1";
             this.xrLabel1.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel1.SizeF = new System.Drawing.SizeF(266.6667F, 32.99999F);
+            this.xrLabel1.SizeF = new System.Drawing.SizeF(357.2917F, 32.99999F);
             this.xrLabel1.StylePriority.UseFont = false;
-            this.xrLabel1.Text = "Communities";
+            this.xrLabel1.Text = "Communities and Members";
             // 
             // EvenStyle
             // 
@@ -340,6 +307,11 @@
             this.Name.Description = "Parameter1";
             this.Name.Name = "Name";
             // 
+            // ServerName
+            // 
+            this.ServerName.Description = "ServerName";
+            this.ServerName.Name = "ServerName";
+            // 
             // xrSubreport1
             // 
             this.xrSubreport1.LocationFloat = new DevExpress.Utils.PointFloat(0F, 0F);
@@ -367,7 +339,8 @@
             this.PageFooter});
             this.Margins = new System.Drawing.Printing.Margins(120, 80, 100, 100);
             this.Parameters.AddRange(new DevExpress.XtraReports.Parameters.Parameter[] {
-            this.Name});
+            this.Name,
+            this.ServerName});
             this.StyleSheet.AddRange(new DevExpress.XtraReports.UI.XRControlStyle[] {
             this.EvenStyle,
             this.OddStyle,
@@ -391,11 +364,9 @@
         private DevExpress.XtraReports.UI.XRTable xrTable1;
         private DevExpress.XtraReports.UI.XRTableRow xrTableRow1;
         private DevExpress.XtraReports.UI.XRTableCell xrTableCell1;
-        private DevExpress.XtraReports.UI.XRTableCell xrTableCell2;
         private DevExpress.XtraReports.UI.XRTable xrTable2;
         private DevExpress.XtraReports.UI.XRTableRow xrTableRow2;
         private DevExpress.XtraReports.UI.XRTableCell ctusers;
-        private DevExpress.XtraReports.UI.XRTableCell ctowner;
         private DevExpress.XtraReports.UI.XRLine xrLine1;
         private DevExpress.XtraReports.UI.GroupHeaderBand GroupHeader2;
         private DevExpress.XtraReports.UI.XRLabel xrLabel2;
@@ -411,5 +382,6 @@
         private DashboardReports.CopyrightXtraRpt copyrightXtraRpt1;
         private DevExpress.XtraReports.UI.XRLabel xrLabel1;
         private DevExpress.XtraReports.Parameters.Parameter Name;
+        private DevExpress.XtraReports.Parameters.Parameter ServerName;
     }
 }

@@ -1891,29 +1891,32 @@ namespace VSWebDAL.ReportsDAL
 
 
         //6/3/2016 Sowjanya modified for VSPLUS-2895
-        public DataTable ConnectionTags(string ServerName)
+        public DataTable ConnectionTags(string Name, string ServerName )
         {
+            //6/16/2016 Sowjanya modified for VSPLUS-3059
             string str = string.Empty;
             DataTable dt = new DataTable();
             try
             {
-                if (ServerName == "")
+                if (Name == "")
                 {
 
                     str = "select top (50)  IT.Tag, IO.Name, count(IT.Tag) as Count from dbo.IbmConnectionsTags IT inner join dbo.IbmConnectionsObjectTags IOT on IOT.tagid = IT.id " +
-                           "inner join IbmConnectionsObjects IO on IO.ID = IOT.ObjectID where IT.Tag != '' " +
+                           "inner join IbmConnectionsObjects IO on IO.ID = IOT.ObjectID " +
+                           " inner join   servers s on IO.ServerID = s.ID  where IT.Tag != '' and s.ServerName = '" + ServerName + "' " +
                            "group by  IT.Tag, IO.Name  ";
-   
+
                 }
                 else
                 {
-                   
+
                     str = "select top (50) IT.Tag,IO.Name,count(*) as Count from dbo.IbmConnectionsTags IT inner join dbo.IbmConnectionsObjectTags IOT on IOT.tagid = IT.id " +
-                          "inner join IbmConnectionsObjects IO on IO.ID = IOT.ObjectID  where Name = '" + ServerName + "' and IT.Tag != '' " +
+                          "inner join IbmConnectionsObjects IO on IO.ID = IOT.ObjectID " +
+                          " inner join   servers s on IO.ServerID = s.ID  where Name = '" + Name + "' and IT.Tag != ''  and s.ServerName = '" + ServerName + "' " +
                           "group by IT.Tag,IO.Name order by Count desc ";
-                       
+
                 }
-              
+ 
                 dt = objAdaptor.FetchData(str);
 
             }
@@ -1926,24 +1929,35 @@ namespace VSWebDAL.ReportsDAL
         }
 
         //6/3/2016 Sowjanya modified for VSPLUS-2895
-        public DataTable GetTagsCount(string ServerName)
+        public DataTable GetTagsCount(string Name, string ServerName)
         {
+            //6/16/2016 Sowjanya modified for VSPLUS-3059
             string query = string.Empty;
             DataTable dt = new DataTable();
             try
             {
 
-                if (ServerName == "")
+                if (Name == "")
                 {
-                    query = "select top (50) tag,count(tagid) as tagcount from dbo.IbmConnectionsTags inner join dbo.IbmConnectionsObjectTags " +
-                            " on tagid=id where Tag != ''  group by tag order by tagcount desc";
+                    query = "select top (50) tag,count(tagid) as tagcount from dbo.IbmConnectionsTags IT inner join dbo.IbmConnectionsObjectTags  IOT on IOT.tagid= IT.id" +
+                            " inner join IbmConnectionsObjects IO on IO.ID = IOT.ObjectID inner join   servers s on IO.ServerID = s.ID " + 
+                            "  where Tag != '' and  s.ServerName = '" + ServerName + "' group by tag order by tagcount desc";
                 }
                 else
                 {
+                    //    query = "select  top (50) tag,count(*) as tagcount from dbo.IbmConnectionsTags IT inner join dbo.IbmConnectionsObjectTags IOT on IOT.TagId=IT.ID  " +
+                    //             " inner join IbmConnectionsObjects IO on IO.ID = IOT.ObjectID    where IO.Name='" + ServerName + "'  and  IT.Tag != '' " + 
+                    //            " group by tag order by tagcount desc ";
+
+
+
                     query = "select  top (50) tag,count(*) as tagcount from dbo.IbmConnectionsTags IT inner join dbo.IbmConnectionsObjectTags IOT on IOT.TagId=IT.ID  " +
-                             " inner join IbmConnectionsObjects IO on IO.ID = IOT.ObjectID    where IO.Name='" + ServerName + "'  and  IT.Tag != '' " + 
-                            " group by tag order by tagcount desc ";
-                            
+                                 " inner join IbmConnectionsObjects IO on IO.ID = IOT.ObjectID " +
+                                 " inner join   servers s on IO.ServerID = s.ID where IO.Name='" + Name + "'  and  IT.Tag != '' and s.ServerName = '" + ServerName + "' " +
+                                " group by tag order by tagcount desc ";
+
+
+                   
                 }
 
                 dt = objAdaptor.FetchData(query);

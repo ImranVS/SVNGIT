@@ -724,11 +724,11 @@ namespace VSWebBL.ReportsBL
            
         }
         //1/06/2016 sowmya added for VSPLUS-2934
-        public DataTable GetCommList(string param)
+        public DataTable GetCommList(string param, string ServerName)
         {
             try
             {
-                return VSWebDAL.ReportsDAL.ReportsDAL.Ins.GetCommList(param);
+                return VSWebDAL.ReportsDAL.ReportsDAL.Ins.GetCommList(param, ServerName);
             }
             catch(Exception ex)
             {
@@ -1215,11 +1215,11 @@ namespace VSWebBL.ReportsBL
         }
         //6/3/2016 Sowjanya modified for VSPLUS-2895
 
-        public DataTable CommunityNames()
+        public DataTable CommunityNames (int Id)
         {
             try
             {
-                return VSWebDAL.ReportsDAL.ReportsDAL.Ins.CommunityNames();
+                return VSWebDAL.ReportsDAL.ReportsDAL.Ins.CommunityNames(Id);
             }
             catch (Exception ex)
             {
@@ -1234,6 +1234,25 @@ namespace VSWebBL.ReportsBL
             try
             {
                 return VSWebDAL.ReportsDAL.ReportsDAL.Ins.SetGraphForTags(serverName);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public DataTable GetIBMConnectionsServers()
+        {
+            return VSWebDAL.ReportsDAL.ReportsDAL.Ins.GetIBMConnectionsServers();
+        }
+
+        public DataTable GetID(string ServerName)
+        {
+            try
+            {
+                return VSWebDAL.ReportsDAL.ReportsDAL.Ins.GetID(ServerName);
             }
             catch (Exception ex)
             {

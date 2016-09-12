@@ -137,67 +137,141 @@ namespace VSWebDAL.ConfiguratorDAL
 		//    }
 		//    return LocationsDataTable;
 		//}
-		public bool InsertData(LogFile LOgbject)
-		{
-
-			bool Insert = false;
-			try
-			{
-				string SqlQuery = "INSERT INTO [LogFile] (Keyword,RepeatOnce,Log,AgentLog,NotRequiredKeyword,DominoEventLogId) VALUES('" + LOgbject.Keyword + "','" + LOgbject.RepeatOnce + "','" + LOgbject.Log + "','" + LOgbject.AgentLog + "','" + LOgbject.NotRequiredKeyword + "'," + LOgbject.DominoEventLogId + ")";
-				Insert = objAdaptor.ExecuteNonQuery(SqlQuery);
-			}
-			catch
-			{
-				Insert = false;
-			}
-			finally
-			{
-			}
-			return Insert;
-		}
-		//public DataTable GetDataForELSByname(LogFile LOCbject)
+		//public bool InsertData(LogFile LOgbject)
 		//{
-		//    DataTable LocationsDataTable = new DataTable();
-		//    try
-		//    {
-		//        string SqlQuery = "Select * from LogFile where AliasName='" + LOCbject.AliasName + "'";
-		//        LocationsDataTable = objAdaptor.FetchData(SqlQuery);
-		//        //populate & return data object
-		//    }
-		//    catch (Exception ex)
-		//    {
-		//        throw ex;
-		//    }
-		//    finally
-		//    {
-		//    }
-		//    return LocationsDataTable;
+
+		//	bool Insert = false;
+		//	try
+		//	{
+		//		string SqlQuery = "INSERT INTO [LogFile] (Keyword,RepeatOnce,Log,AgentLog,NotRequiredKeyword,DominoEventLogId) VALUES('" + LOgbject.Keyword + "','" + LOgbject.RepeatOnce + "','" + LOgbject.Log + "','" + LOgbject.AgentLog + "','" + LOgbject.NotRequiredKeyword + "'," + LOgbject.DominoEventLogId + ")";
+		//		Insert = objAdaptor.ExecuteNonQuery(SqlQuery);
+		//	}
+		//	catch
+		//	{
+		//		Insert = false;
+		//	}
+		//	finally
+		//	{
+		//	}
+		//	return Insert;
 		//}
-		public bool UpdateData(LogFile LOCbject)
-		{
-			string SqlQuery = "";
-			bool Update;
 
-			try
-			{
-				//7/10/2015 NS modified for VSPLUS-1985
-				//if (LOCbject.Password == "      ")
 
-				SqlQuery = "UPDATE LogFile SET Keyword='" + LOCbject.Keyword + "',NotRequiredKeyword='" + LOCbject.NotRequiredKeyword + "',RepeatOnce='" + LOCbject.RepeatOnce + "',Log='" + LOCbject.Log + "',AgentLog='" + LOCbject.AgentLog + "' WHERE ID = " + LOCbject.ID + "";
-				Update = objAdaptor.ExecuteNonQuery(SqlQuery);
+        public bool InsertData(LogFile LOgbject)
+        {
+            //7/22/2016 Sowjanya modified for VSPLUS-3128
+            bool Insert = false;
 
-			}
-			catch
-			{
-				Update = false;
-			}
-			finally
-			{
-			}
-			return Update;
-		}
+            int paramnum = 0;
+            string[] paramnames = new string[6];
+            string[] paramvalues = new string[6];
+            try
+            {
+                paramnum = 6;
+                paramnames[0] = "@Keyword";
+                paramnames[1] = "@RepeatOnce";
+                paramnames[2] = "@Log";
+                paramnames[3] = "@AgentLog";
+                paramnames[4] = "@NotRequiredKeyword";
+                paramnames[5] = "@DominoEventLogId";
 
-		public string EventnamebyKey(int id)
+
+                paramvalues[0] = LOgbject.Keyword;
+                paramvalues[1] = Convert.ToString(LOgbject.RepeatOnce);
+                paramvalues[2] = Convert.ToString(LOgbject.Log);
+                paramvalues[3] = Convert.ToString(LOgbject.AgentLog);
+                paramvalues[4] = LOgbject.NotRequiredKeyword;
+                paramvalues[5] = Convert.ToString(LOgbject.DominoEventLogId);
+
+                string SqlQuery = "INSERT INTO LogFile (Keyword,RepeatOnce,Log,AgentLog,NotRequiredKeyword,DominoEventLogId)" +
+
+                    "VALUES(" + paramnames[0] + "," + paramnames[1] + "," + paramnames[2] + "," + paramnames[3] + "," + paramnames[4] + "," + paramnames[5] + ")";
+
+
+
+                Insert = objAdaptor.ExecuteQueryWithParams(SqlQuery, paramnum, paramnames, paramvalues);
+            }
+            catch
+            {
+                Insert = false;
+            }
+            finally
+            {
+            }
+            return Insert;
+        }
+
+
+
+      
+  //      public bool UpdateData(LogFile LOCbject)
+		//{
+		//	string SqlQuery = "";
+		//	bool Update;
+
+		//	try
+		//	{
+		//		//7/10/2015 NS modified for VSPLUS-1985
+		//		//if (LOCbject.Password == "      ")
+
+		//		SqlQuery = "UPDATE LogFile SET Keyword='" + LOCbject.Keyword + "',NotRequiredKeyword='" + LOCbject.NotRequiredKeyword + "',RepeatOnce='" + LOCbject.RepeatOnce + "',Log='" + LOCbject.Log + "',AgentLog='" + LOCbject.AgentLog + "' WHERE ID = " + LOCbject.ID + "";
+		//		Update = objAdaptor.ExecuteNonQuery(SqlQuery);
+
+		//	}
+		//	catch
+		//	{
+		//		Update = false;
+		//	}
+		//	finally
+		//	{
+		//	}
+		//	return Update;
+		//}
+
+
+        public bool UpdateData(LogFile LOCbject)
+        {
+            //7/22/2016 Sowjanya modified for VSPLUS-3128
+            bool Update;
+
+            int paramnum = 0;
+            string[] paramnames = new string[6];
+            string[] paramvalues = new string[6];
+            try
+            {
+                paramnum = 6;
+                paramnames[0] = "@Keyword";
+                paramnames[1] = "@NotRequiredKeyword";
+                paramnames[2] = "@RepeatOnce";
+                paramnames[3] = "@Log";
+                paramnames[4] = "@AgentLog";
+                paramnames[5] = "@ID";
+
+                paramvalues[0] = LOCbject.Keyword;
+                paramvalues[1] = LOCbject.NotRequiredKeyword;
+                paramvalues[2] = Convert.ToString(LOCbject.RepeatOnce);
+                paramvalues[3] = Convert.ToString(LOCbject.Log);
+                paramvalues[4] = Convert.ToString(LOCbject.AgentLog);
+                paramnames[5] = Convert.ToString(LOCbject.ID);
+
+
+                string SqlQuery = "UPDATE LogFile SET Keyword=" + paramnames[0] + ",NotRequiredKeyword=" + paramnames[1] +
+                  ",RepeatOnce=" + paramnames[2] + ",Log=" + paramnames[3] + ",AgentLog=" + paramnames[4] + " WHERE ID = " + paramnames[5];
+
+                Update = objAdaptor.ExecuteQueryWithParams(SqlQuery, paramnum, paramnames, paramvalues);
+
+            }
+            catch
+            {
+                Update = false;
+            }
+            finally
+            {
+            }
+            return Update;
+        }
+
+        public string EventnamebyKey(int id)
 		{
 			string eventName = "";
 			DataTable Alerttab = new DataTable();

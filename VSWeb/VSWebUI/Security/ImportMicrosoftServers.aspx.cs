@@ -575,7 +575,7 @@ namespace VSWebUI.Security
 			command.AddParameter("ConfigurationName", "Microsoft.Exchange");
 			command.AddParameter("ConnectionUri", uri);
 			command.AddParameter("Credential", creds);
-			command.AddParameter("Authentication", "Default");
+            command.AddParameter("Authentication", AuthenticationTypeComboBox.Text.ToString());
 			System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 
 			PSSessionOption sessionOption = new PSSessionOption();

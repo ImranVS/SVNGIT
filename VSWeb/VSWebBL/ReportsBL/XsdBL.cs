@@ -748,11 +748,11 @@ namespace VSWebBL.ReportsBL
 
 
         //6/3/2016 Sowjanya modified for VSPLUS-2895
-        public DataTable ConnectionTags(string Servername)
+        public DataTable ConnectionTags(string Name, string ServerName)
         {
             try
             {
-                return VSWebDAL.ReportsDAL.AvgCpuUtilDAL.Ins.ConnectionTags(Servername);
+                return VSWebDAL.ReportsDAL.AvgCpuUtilDAL.Ins.ConnectionTags(Name, ServerName);
             }
             catch (Exception ex)
             {
@@ -763,11 +763,11 @@ namespace VSWebBL.ReportsBL
         }
 
         //6/3/2016 Sowjanya modified for VSPLUS-2895
-        public DataTable GetTagsCount(string Servername)
+        public DataTable GetTagsCount(string Name,string ServerName)
         {
             try
             {
-                return VSWebDAL.ReportsDAL.AvgCpuUtilDAL.Ins.GetTagsCount(Servername);
+                return VSWebDAL.ReportsDAL.AvgCpuUtilDAL.Ins.GetTagsCount(Name,ServerName);
             }
             catch (Exception ex)
             {

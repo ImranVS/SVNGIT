@@ -236,19 +236,17 @@
 
                                                                             <tr>
                                                                              <td>
-																					<dx1:ASPxLabel ID="CostperuserLabel" runat="server" CssClass="lblsmallFont" Text="Cost per user :"
+																					<dx1:ASPxLabel ID="CostperuserLabel" runat="server" CssClass="lblsmallFont" Text="Monthly Cost per User :"
 																						Visible="True">
 																					</dx1:ASPxLabel>
 																				</td>
 																				<td>
 																					<dx1:ASPxTextBox ID="CostperuserTextBox" runat="server" Visible="True" Width="170px">
-																						<%--<ClientSideEvents Validation="OnNameValidation" />
-																						<ClientSideEvents Validation="OnNameValidation"></ClientSideEvents>
-																						<ValidationSettings ErrorDisplayMode="ImageWithTooltip" ErrorText="Category may not be empty."
+														                                  <ValidationSettings ErrorDisplayMode="ImageWithTooltip" ErrorText="Allows numerics&decimals only."
 																							SetFocusOnError="True">
-																							<RequiredField ErrorText="" IsRequired="True" />
-																							<RequiredField IsRequired="True" ErrorText=""></RequiredField>
-																						</ValidationSettings>--%>
+                                                                                            <RegularExpression ValidationExpression="^[1-9]\d*(\.\d+)?$"   />
+                        								                                    <RequiredField IsRequired="True" ErrorText= "" />
+												                                       </ValidationSettings>
 																					</dx1:ASPxTextBox>
 																				</td>
                                                                             </tr>
@@ -592,7 +590,7 @@
 								</dx:ContentControl>
 							</ContentCollection>
 						</dx:TabPage>
-						<dx:TabPage Text="Tests/Options">
+						<dx:TabPage Text="Tests/Options"  >
 							<TabImage Url="~/images/application_view_tile.png" />
 							<TabImage Url="~/images/application_view_tile.png">
 							</TabImage>
@@ -630,7 +628,7 @@
 																				</dx:ASPxCheckBox>
 																			</td>
 																			<td>
-																				<dx:ASPxCheckBox ID="chbxpop" runat="server" CheckState="Unchecked" Text="POP">
+																				<dx:ASPxCheckBox ID="chbxpop" runat="server" CheckState="Unchecked" Text="POP3">
 																				</dx:ASPxCheckBox>
 																			</td>
 																			<td>
@@ -660,12 +658,13 @@
 																			</td>
 																		</tr>
 																		<tr>
+																			
 																			<td>
-																				<dx:ASPxCheckBox ID="chbxtask" runat="server" CheckState="Unchecked" Text="Create Task">
+																				<dx:ASPxCheckBox ID="chbximap" runat="server" CheckState="Unchecked" Text="IMAP">
 																				</dx:ASPxCheckBox>
 																			</td>
 																			<td>
-																				<dx:ASPxCheckBox ID="chbximap" runat="server" CheckState="Unchecked" Text="IMAP">
+																				<dx:ASPxCheckBox ID="chbxtask" runat="server" CheckState="Unchecked" Text="Create Task" Visible ="false" >
 																				</dx:ASPxCheckBox>
 																			</td>
 																		</tr>
@@ -839,9 +838,9 @@
 													</tr>
 													<tr>
 														<td>
-															<dx:ASPxRoundPanel ID="ASPxRoundPanel5" runat="server" CssFilePath="~/App_Themes/Glass/{0}/styles.css"
+															<dx:ASPxRoundPanel ID="DirectorySyncronizationTestsPanel" runat="server" CssFilePath="~/App_Themes/Glass/{0}/styles.css"
 															CssPostfix="Glass" GroupBoxCaptionOffsetY="-24px" HeaderText="Directory Syncronization Tests"
-															Height="50px" SpriteCssFilePath="~/App_Themes/Glass/{0}/sprite.css" Width="800px">
+															Height="50px" SpriteCssFilePath="~/App_Themes/Glass/{0}/sprite.css" Width="800px" Visible="false">
 															<ContentPaddings Padding="2px" PaddingBottom="10px" PaddingLeft="4px" PaddingTop="10px" />
 															<ContentPaddings Padding="2px" PaddingLeft="4px" PaddingTop="10px" PaddingBottom="10px">
 															</ContentPaddings>

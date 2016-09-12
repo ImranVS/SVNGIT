@@ -913,6 +913,33 @@ namespace VSWebUI {
         protected global::System.Web.UI.WebControls.Label Label8;
         
         /// <summary>
+        /// NewButton control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxButton NewButton;
+        
+        /// <summary>
+        /// CASGridView control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxGridView CASGridView;
+        
+        /// <summary>
+        /// deleteButton control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.GridViewCommandColumnCustomButton deleteButton;
+        
+        /// <summary>
         /// CASSmtp control.
         /// </summary>
         /// <remarks>

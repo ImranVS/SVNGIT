@@ -255,7 +255,7 @@
 				<dx:ASPxPageControl ID="ASPxPageControl1" runat="server" ActiveTabIndex="0" Theme="Glass"
 					Width="100%" EnableHierarchyRecreation="False">
 					<TabPages>
-						<dx:TabPage Text="OverAll">
+						<dx:TabPage Text="Overall">
 							<ContentCollection>
 								<dx:ContentControl runat="server">
 									<asp:UpdatePanel ID="UpdatePanel2" runat="server" width="100%" UpdateMode="Conditional">
@@ -479,7 +479,7 @@
 
                                                     </td>
                                                      <td>
-                                                    <dx:ASPxLabel ID="costofUnassignedlicenseslb" runat="server" CssClass="lblsmallFont" Text="Monthly cost of Unassigned licenses:">
+                                                    <dx:ASPxLabel ID="costofUnassignedlicenseslb" runat="server" CssClass="lblsmallFont" Text="Monthly Cost of Unassigned Licenses:">
 																					</dx:ASPxLabel>
 
                                                     </td>
@@ -491,7 +491,7 @@
 
                                                     </td>
                                                      <td>
-                                                    <dx:ASPxLabel ID="costofinactiveuserslb" runat="server" CssClass="lblsmallFont" Text="Monthly cost of inactive users:">
+                                                    <dx:ASPxLabel ID="costofinactiveuserslb" runat="server" CssClass="lblsmallFont" Text="Monthly Cost of Inactive Users:">
 																					</dx:ASPxLabel>
 
                                                     </td>

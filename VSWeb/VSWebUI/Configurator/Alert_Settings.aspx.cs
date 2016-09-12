@@ -36,6 +36,7 @@ namespace VSWebUI
         ASPxCheckBox chkbox;
         //6/5/2015 NS added for VSPLUS-1838
         public string SMSFromNumber = "12055555555";
+        string ids;
         //11/10/2015 NS modified for VSPLUS-2335
         DataTable Emergencydt = new DataTable();
         protected void Page_Load(object sender, EventArgs e)
@@ -958,9 +959,11 @@ namespace VSWebUI
             try
             {
                 //11/21/2014 NS added for VSPLUS-1178
+                // sowjanya modified for VSPLUS-3165
+                string ids = GetSelectedEventIDs();
                 if (RepeatOccurCheckBox.Checked)
                 {
-                    string ids = GetSelectedEventIDs();
+
                     if (ids != "")
                     {
                         returnvalue = VSWebBL.ConfiguratorBL.AlertsBL.Ins.UpdateEventsMaster(ids);
@@ -977,16 +980,34 @@ namespace VSWebUI
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                //6/27/2014 NS added for VSPLUS-634
-                Log.Entry.Ins.WriteHistoryEntry(DateTime.Now.ToString() + " Exception - " + ex);
-                throw;
-            }
+
+
+                if (!RepeatOccurCheckBox.Checked)
+                {
+                   // ids = GetSelectedEventIDs();
+
+                    if (ids != "")
+                    {
+                        //Session["AlertDataEvents"] = null;
+                        returnvalue = VSWebBL.ConfiguratorBL.AlertsBL.Ins.UpdateEventsMasterforUncheckedCondition(ids);
+                        DataTable Events = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetAllEvents("");
+                        Session["AlertDataEvents"] = Events;
+
+                    }
+
+
+                }
+
+
+
+
+          
             try
             {
-                returnvalue = VSWebBL.SettingBL.SettingsBL.Ins.UpdateSvalue("AlertsRepeatOn", RepeatOccurCheckBox.Checked.ToString(), VSWeb.Constants.Constants.SysString);
+                if (ids != "")
+                {
+                    returnvalue = VSWebBL.SettingBL.SettingsBL.Ins.UpdateSvalue("AlertsRepeatOn", RepeatOccurCheckBox.Checked.ToString(), VSWeb.Constants.Constants.SysString);
+                }
                 if (returnvalue == false)
                 {
                     if (Notupdate == "")
@@ -999,6 +1020,14 @@ namespace VSWebUI
                     }
                 }
             }
+                catch (Exception ex)
+                {
+                    //6/27/2014 NS added for VSPLUS-634
+                    Log.Entry.Ins.WriteHistoryEntry(DateTime.Now.ToString() + " Exception - " + ex);
+                    throw;
+                }
+            }
+           
             catch (Exception ex)
             {
                 //6/27/2014 NS added for VSPLUS-634
@@ -1707,41 +1736,73 @@ namespace VSWebUI
 
         protected void EventsGridView_CustomCallback(object sender, ASPxGridViewCustomCallbackEventArgs e)
         {
+            // sowjanya modified for VSPLUS-3165
             string[] parts = e.Parameters.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+             //DataTable Events = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetAllEvents("");
+             // Session["AlertDataEvents"] = Events;
             DataTable DataEvents = (DataTable)Session["AlertDataEvents"];
+          
             DataEvents.PrimaryKey = new DataColumn[] { DataEvents.Columns["ID"] };
             DataRow row = DataEvents.Rows.Find(Convert.ToInt32(parts[1]));
             row[parts[0]] = Convert.ToBoolean(parts[2]);
-            Session["AlertDataEvents"] = DataEvents;
+            Session["AlertDataEvents1"] = DataEvents;
             EventsGridView.DataSource = DataEvents;
             EventsGridView.DataBind();
         }
 
         protected void RepeatOccurCheckBox_CheckedChanged(object sender, EventArgs e)
         {
+            // sowjanya modified for VSPLUS-3165
+
             successDiv.Style.Value = "display:none";
+            errorDiv.Style.Value = "display: none";
             if (RepeatOccurCheckBox.Checked)
             {
                 RepeatOccurLabel.ClientVisible = true;
                 RepeatOccurTextBox.ClientVisible = true;
+                DataTable DataEvents = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetAllEvents("");
+                EventsGridView.DataSource = DataEvents;
+                EventsGridView.DataBind();
                 EventsGridView.ClientVisible = true;
             }
             else
             {
                 RepeatOccurLabel.ClientVisible = false;
                 RepeatOccurTextBox.ClientVisible = false;
+
                 EventsGridView.ClientVisible = false;
-                DataTable dt = Session["AlertDataEvents"] as DataTable;
-                for (int i = 0; i < dt.Rows.Count; i++)
+                if (Session["AlertDataEvents1"] != null)
                 {
-                    if (Convert.ToBoolean(dt.Rows[i]["ConsecutiveFailures"]) == true)
+                    DataTable dt = Session["AlertDataEvents1"] as DataTable;
+                    for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        dt.Rows[i]["ConsecutiveFailures"] = false;
+                        if (Convert.ToBoolean(dt.Rows[i]["ConsecutiveFailures"]) == true)
+                        {
+                            dt.Rows[i]["ConsecutiveFailures"] = false;
+                        }
                     }
+
+                    DataTable DataEvents = VSWebBL.ConfiguratorBL.AlertsBL.Ins.GetAllEvents("");
+                    //DataTable dt1 = Session["AlertDataEvents"] as DataTable;
+                    for (int i = 0; i < DataEvents.Rows.Count; i++)
+                    {
+                        if (Convert.ToBoolean(DataEvents.Rows[i]["ConsecutiveFailures"]) == true)
+                        {
+                            dt.Rows[i]["ConsecutiveFailures"] = true;
+                        }
+                    }
+                    Session["AlertDataEvents"] = dt;
+                    EventsGridView.DataSource = dt;
+                    EventsGridView.DataBind();
                 }
-                Session["AlertDataEvents"] = dt;
-                EventsGridView.DataSource = dt;
-                EventsGridView.DataBind();
+
+                else
+                {
+                    //Session["AlertDataEvents"] = dt;
+                    //EventsGridView.DataSource = dt;
+                    EventsGridView.DataSource = Session["AlertDataEvents"];
+                    EventsGridView.DataBind();
+                }
             }
         }
 

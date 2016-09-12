@@ -236,6 +236,7 @@ namespace VSWebUI.Configurator
 				{
 					SortRadioButtonList1.SelectedIndex = 0;
 					DirSyncPanel.Visible = false;
+					DirectorySyncronizationTestsPanel.Visible = false;
 					//lblservername.Visible = false;
 					//txtservername.Visible = false;
 					//lblcrecombo.Visible = false;
@@ -247,6 +248,7 @@ namespace VSWebUI.Configurator
 				{
 					SortRadioButtonList1.SelectedIndex = 1;
 					DirSyncPanel.Visible = false;
+					DirectorySyncronizationTestsPanel.Visible = false;
 					//lblservername.Visible = false;
 					//txtservername.Visible = false;
 					//lblcrecombo.Visible = false;
@@ -258,6 +260,7 @@ namespace VSWebUI.Configurator
 				{
 					SortRadioButtonList1.SelectedIndex = 2;
 					DirSyncPanel.Visible = true;
+					DirectorySyncronizationTestsPanel.Visible = true;
 					//lblservername.Visible = true;
 					//txtservername.Visible = true;
 					//lblcrecombo.Visible = true;
@@ -342,7 +345,7 @@ namespace VSWebUI.Configurator
 					{
 						chbxsmtp.Checked = Convert.ToBoolean(testsdt.Rows[i]["EnableSimulationTests"]);
 					}
-					if (testsdt.Rows[i]["Tests"].ToString() == "POP")
+					if (testsdt.Rows[i]["Tests"].ToString() == "POP3")
 					{
 						chbxpop.Checked = Convert.ToBoolean(testsdt.Rows[i]["EnableSimulationTests"]); ;
 					}
@@ -1334,6 +1337,7 @@ namespace VSWebUI.Configurator
 			if (dir == 3)
 			{
 				DirSyncPanel.Visible = true;
+				DirectorySyncronizationTestsPanel.Visible = true;
 				//lblservername.Visible = true;
 				//txtservername.Visible = true;
 				//lblcrecombo.Visible = true;
@@ -2120,10 +2124,16 @@ namespace VSWebUI.Configurator
 			if (ASPxPageControl1.ActiveTabIndex == 1)
 			{
 				Resetoffice365Button.Visible = true;
+				if (SortRadioButtonList1.SelectedItem.Value == "3")
+				  DirectorySyncronizationTestsPanel.Visible = true;
+				else
+					DirectorySyncronizationTestsPanel.Visible = false;
+					
 			}
 			else
 			{
 				Resetoffice365Button.Visible = false;
+			
 			}
 		}
 		protected void TestsGridView_OnPageSizeChanged(object sender, EventArgs e)

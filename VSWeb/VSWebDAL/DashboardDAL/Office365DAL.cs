@@ -362,8 +362,12 @@ SqlQuery  +=" from Traveler_Devices";
 		public DataTable SetGraphForMailFiles( string ServerName)
 		{
 			DataTable dt = new DataTable();
-			string StrQuery = "select distinct top(5) DisplayName  Title, TotalItemSizeInMB,ROUND((TotalItemSizeInMB/1000),4) as TotalItemSizeInGB from [VSS_Statistics].[dbo].[ExchangeMailfiles] Where Server='" + ServerName + "' order by TotalItemSizeInMB desc";
-			dt = objAdaptor.FetchData(StrQuery);
+            ////7/15/2015 Sowjanya modified  for VSPLUS-3109
+            //string StrQuery = "select distinct top(5) DisplayName  Title, TotalItemSizeInMB,ROUND((TotalItemSizeInMB/1000),4) as TotalItemSizeInGB from [VSS_Statistics].[dbo].[ExchangeMailfiles] Where Server='" + ServerName + "' order by TotalItemSizeInMB desc";
+            string StrQuery = "select distinct top(5) EM.DisplayName  Title, EM.TotalItemSizeInMB,ROUND((TotalItemSizeInMB/1000),4) as TotalItemSizeInGB " +
+                              "from[VSS_Statistics].[dbo].[ExchangeMailfiles] EM inner join[VSS_Statistics].[dbo].O365AdditionalMailDetails OM on EM.Server = OM.Server " +
+                              "Where EM.Server = '" + ServerName + "' and OM.MailBoxType not in ('DiscoveryMailbox ') order by TotalItemSizeInMB desc ";
+                                 dt = objAdaptor.FetchData(StrQuery);
 			
 			return dt;
 		}
@@ -483,11 +487,11 @@ SqlQuery  +=" from Traveler_Devices";
             {
 				if (servername != "All")
 				{
-					 SqlQuery = "select * FROM [vitalsigns].[dbo].StatusDetail where TypeAndName= '" + TypeAndName + "'";
+					SqlQuery = "select * FROM [vitalsigns].[dbo].StatusDetail where TypeAndName= '" + TypeAndName + "' order by TestName";
 				}
 				else
 				{
-					 SqlQuery = "select * FROM [vitalsigns].[dbo].StatusDetail";
+					SqlQuery = "select * FROM [vitalsigns].[dbo].StatusDetail order by TestName";
 				}
                 HAStatus = objAdaptor.FetchData(SqlQuery);
             }
@@ -1000,6 +1004,79 @@ SqlQuery  +=" from Traveler_Devices";
             }
             catch
             {
+            }
+            return dt;
+        }
+        // 6/6/2016 Durga Addded for VSPLUS-3013
+        public DataTable GetO365Users()
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                string SqlQuery = "SELECT DISTINCT MU.DisplayName FROM O365Groups G INNER JOIN O365UserGroups UG ON G.GroupId=UG.GroupId " +
+                                  "INNER JOIN O365MSOLUsers MU ON UG.UserPrincipalName=MU.UserPrincipalName " +
+                                  " INNER JOIN O365Server o365 ON o365.ID=MU.ServerId";
+
+                dt = adaptor.FetchData(SqlQuery);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+
+
+
+    
+
+        public DataTable GetUserCommonGroups(string UserName1, string UserName2)
+        {
+            DataTable dt = new DataTable();
+            string SqlQuery;
+
+            try
+            {
+                SqlQuery = "(SELECT 'Groups in Common' Category,1 ParentID, G.GroupType,G.GroupName " +
+                       " from O365Groups G INNER JOIN O365UserGroups UG on G.GroupId=UG.GroupId " +
+                       "INNER JOIN O365MSOLUsers MU on UG.UserPrincipalName=MU.UserPrincipalName INNER JOIN O365Server o365 on o365.ID=MU.ServerId " +
+                       "WHERE DisplayName='" + UserName1 + "' " +
+                       "INTERSECT " +
+                       " SELECT 'Groups in Common' Category,  1 ParentID,  G.GroupType,G.GroupName " +
+                       " from O365Groups G INNER JOIN O365UserGroups UG on G.GroupId=UG.GroupId" +
+                       " INNER JOIN O365MSOLUsers MU on UG.UserPrincipalName=MU.UserPrincipalName  INNER JOIN O365Server o365 on o365.ID=MU.ServerId " +
+                       "WHERE DisplayName='" + UserName2 + "' " +
+                       ") " +
+                       "UNION " +
+                       "( " +
+                       "SELECT 'Groups only " + UserName1 + " is a member of' Category, 2 ParentID, G.GroupType,G.GroupName " +
+                       "from O365Groups G INNER JOIN O365UserGroups UG on G.GroupId=UG.GroupId" +
+                       " INNER JOIN O365MSOLUsers MU on UG.UserPrincipalName=MU.UserPrincipalName INNER JOIN O365Server o365 on o365.ID=MU.ServerId " +
+                       "WHERE DisplayName='" + UserName1 + "' OR DisplayName='" + UserName2 + "' " +
+                       "EXCEPT " +
+                       "SELECT 'Groups only " + UserName1 + " is a member of' Category, 2 ParentID, G.GroupType,G.GroupName" +
+                       " from O365Groups G INNER JOIN O365UserGroups UG on G.GroupId=UG.GroupId " +
+                       "  INNER JOIN O365MSOLUsers MU on UG.UserPrincipalName=MU.UserPrincipalName  INNER JOIN O365Server o365 on o365.ID=MU.ServerId " +
+                       "WHERE DisplayName='" + UserName2 + "' " +
+                       ") " +
+                       "UNION " +
+                       "( " +
+                       "SELECT 'Groups only " + UserName2 + " is a member of' Category, 3 ParentID, G.GroupType,G.GroupName " +
+                       "from O365Groups G INNER JOIN O365UserGroups UG on G.GroupId=UG.GroupId  " +
+                       "INNER JOIN O365MSOLUsers MU on UG.UserPrincipalName=MU.UserPrincipalName    INNER JOIN O365Server o365 on o365.ID=MU.ServerId " +
+                       "WHERE DisplayName='" + UserName1 + "' OR DisplayName='" + UserName2 + "' " +
+                       "EXCEPT " +
+                       "SELECT 'Groups only " + UserName2 + " is a member of' Category, 3 ParentID, G.GroupType,G.GroupName " +
+                       " from O365Groups G INNER JOIN O365UserGroups UG on G.GroupId=UG.GroupId  " +
+                       "  INNER JOIN O365MSOLUsers MU on UG.UserPrincipalName=MU.UserPrincipalName INNER JOIN O365Server o365 on o365.ID=MU.ServerId " +
+                       "WHERE DisplayName='" + UserName1 + "' " +
+                       ")";
+                dt = adaptor.FetchData(SqlQuery);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
             }
             return dt;
         }

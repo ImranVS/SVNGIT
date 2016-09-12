@@ -219,6 +219,15 @@
                         <dx:ListEditItem Text="Disk.F.Free" Value="Disk.F.Free" />
                         <dx:ListEditItem Text="Disk.G.Free" Value="Disk.G.Free" />
                         <dx:ListEditItem Text="Disk.I.Free" Value="Disk.I.Free" />
+                        <dx1:ListEditItem Text="Http.Accept.ServerBusy" 
+                            Value="Http.Accept.ServerBusy" />
+                        <dx1:ListEditItem Text="Http.CurrentConnections" 
+                            Value="Http.CurrentConnections" />
+                        <dx1:ListEditItem Text="Http.JavaCache.Size.Current" 
+                            Value="Http.JavaCache.Size.Current" />
+                        <dx1:ListEditItem Text="Http.MaxConnections" Value="Http.MaxConnections" />
+                        <dx1:ListEditItem Text="Http.PeakConnections" Value="Http.PeakConnections" />
+                        <dx1:ListEditItem Text="Http.Workers" Value="Http.Workers" />
                         <dx:ListEditItem Text="IMAP.Sessions.Inbound.Accept.Queue" 
                             Value="IMAP.Sessions.Inbound.Accept.Queue" />
                         <dx:ListEditItem Text="IMAP.Sessions.Inbound.Active" 

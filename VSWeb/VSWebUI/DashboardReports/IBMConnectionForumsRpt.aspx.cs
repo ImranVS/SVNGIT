@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 using System.Data;
 
 namespace VSWebUI.DashboardReports
-{
+{ //6/16/2016 Sowjanya modified for VSPLUS-3059
     public partial class IBMConnectionForumsRpt : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
@@ -31,10 +31,10 @@ namespace VSWebUI.DashboardReports
            {
                FType = ForumsTypeComboBox.SelectedItem.Value.ToString();
                dt = VSWebBL.ReportsBL.ReportsBL.Ins.GetIBMConnectionsServerlist(FType);
-               ServerListFilterListBox.DataSource = dt;
-               ServerListFilterListBox.TextField = "ServerName";
-               ServerListFilterListBox.ValueField = "ServerName";
-               ServerListFilterListBox.DataBind();
+               ServerComboBox.DataSource = dt;
+               ServerComboBox.TextField = "ServerName";
+               ServerComboBox.ValueField = "ServerName";
+               ServerComboBox.DataBind();
            }
 
 
@@ -84,22 +84,10 @@ namespace VSWebUI.DashboardReports
             {
                 selectedForumType = ForumsTypeComboBox.SelectedItem.Value.ToString();
             }
-            if (this.ServerListFilterListBox.SelectedItems.Count > 0)
+
+            if (ServerComboBox.SelectedIndex != -1)
             {
-                selectedServer = "";
-                for (int i = 0; i < this.ServerListFilterListBox.SelectedItems.Count; i++)
-                {
-                    selectedServer += "'" + this.ServerListFilterListBox.SelectedItems[i].Text + "'" + ",";
-                }
-                try
-                {
-                    selectedServer = selectedServer.Substring(0, selectedServer.Length - 1);
-                }
-                catch
-                {
-                    selectedServer = "";     // throw ex; 
-                }
-                finally { }
+                selectedServer = ServerComboBox.SelectedItem.Value.ToString();
             }
             string strfrom = "";
             string strto = "";

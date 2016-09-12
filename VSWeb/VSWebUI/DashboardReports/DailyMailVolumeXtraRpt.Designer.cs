@@ -92,7 +92,7 @@
             this.xrPivotGridField1.Name = "xrPivotGridField1";
             this.xrPivotGridField1.Options.ShowGrandTotal = false;
             this.xrPivotGridField1.Options.ShowTotals = false;
-            this.xrPivotGridField1.Width = 160;
+            this.xrPivotGridField1.Width = 180;
             // 
             // xrPivotGridField2
             // 
@@ -154,9 +154,9 @@
             // xrControlStyle1
             // 
             this.xrControlStyle1.BorderColor = System.Drawing.Color.LightGray;
-            this.xrControlStyle1.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
-            | DevExpress.XtraPrinting.BorderSide.Right) 
-            | DevExpress.XtraPrinting.BorderSide.Bottom)));
+            this.xrControlStyle1.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top)
+                        | DevExpress.XtraPrinting.BorderSide.Right)
+                        | DevExpress.XtraPrinting.BorderSide.Bottom)));
             this.xrControlStyle1.BorderWidth = 0F;
             this.xrControlStyle1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.xrControlStyle1.Name = "xrControlStyle1";

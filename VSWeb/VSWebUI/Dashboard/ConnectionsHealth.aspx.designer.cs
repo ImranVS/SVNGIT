@@ -445,6 +445,33 @@ namespace VSWebUI.Dashboard {
         protected global::DevExpress.Web.ASPxGridView WikisGridView;
         
         /// <summary>
+        /// ContentControl1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ContentControl ContentControl1;
+        
+        /// <summary>
+        /// LibrariesChartControl control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.XtraCharts.Web.WebChartControl LibrariesChartControl;
+        
+        /// <summary>
+        /// LibrariesGrid control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxGridView LibrariesGrid;
+        
+        /// <summary>
         /// Master property.
         /// </summary>
         /// <remarks>

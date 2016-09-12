@@ -817,9 +817,64 @@
 											</td>
 										</tr>
 										
+                                        <tr>
+										    <td colspan="2">
+											    <dx:ASPxRoundPanel ID="ASPxRoundPanel10" runat="server" CssFilePath="~/App_Themes/Glass/{0}/styles.css"
+												    CssPostfix="Glass" GroupBoxCaptionOffsetY="-24px" HeaderText="Site Collection Health Check"
+												    Height="50px" SpriteCssFilePath="~/App_Themes/Glass/{0}/sprite.css" Width="800px">
+												    <ContentPaddings Padding="2px" PaddingBottom="10px" PaddingLeft="4px" PaddingTop="10px" />
+												    <ContentPaddings Padding="2px" PaddingLeft="4px" PaddingTop="10px" PaddingBottom="10px">
+												    </ContentPaddings>
+												    <HeaderStyle Height="23px">
+												    </HeaderStyle>
+												    <PanelCollection>
+													    <dx:PanelContent ID="PanelContent3" runat="server" SupportsDisabledAttribute="True">
+														    <asp:Label ID="Label8" runat="server" Style="color: #0033CC" Text="Check any items you would like to be tested upon scanning this server."></asp:Label>
+														    <table>
+
+															    <tr>
+																    <td>
+																	    <dx:ASPxCheckBox ID="CheckBoxConflictingContentTypes" runat="server" CheckState="Checked" Text="Conflicting Content Types">
+																	    </dx:ASPxCheckBox>
+																    </td>
+																    <td>
+																	    <dx:ASPxCheckBox ID="ComboBoxCustomizedFiles" runat="server" CheckState="Checked" Text="Customized Files">
+																	    </dx:ASPxCheckBox>
+																    </td>
+																    <td>
+																	    <dx:ASPxCheckBox ID="ComboBoxMissingGalleries" runat="server" CheckState="Checked" Text="Missing Galleries">
+																	    </dx:ASPxCheckBox>
+																    </td>
+															    </tr>
+															    <tr>
+																    <td>
+																	    <dx:ASPxCheckBox ID="ComboBoxMissingParentContentTypes" runat="server" CheckState="Checked" Text="Missing Parent Content Types">
+																	    </dx:ASPxCheckBox>
+																    </td>
+																    <td>
+																	    <dx:ASPxCheckBox ID="ComboBoxMissingSiteTemplates" runat="server" CheckState="Checked" Text="Missing Site Templates">
+																	    </dx:ASPxCheckBox>
+																    </td>
+																    <td>
+																	    <dx:ASPxCheckBox ID="ComboBoxUnsupportedMUIReferences" runat="server" CheckState="Checked" Text="Unsupported MUI References">
+																	    </dx:ASPxCheckBox>
+																    </td>
+															    </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        <dx:ASPxCheckBox ID="ComboBoxUnsupportedLanguagePackReferences" runat="server" CheckState="Checked" Text="Unsupported Language Pack References" >
+                                                                        </dx:ASPxCheckBox>
+                                                                    </td>
+                                                                </tr>
+														    </table>
+													    </dx:PanelContent>
+												    </PanelCollection>
+											    </dx:ASPxRoundPanel>
+										    </td>
+									    </tr>
                                             
                                               
-                                            </table>
+                                    </table>
 														
 											
 								</dx:ContentControl>

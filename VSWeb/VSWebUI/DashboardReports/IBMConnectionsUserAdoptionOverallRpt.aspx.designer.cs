@@ -10,43 +10,7 @@
 namespace VSWebUI.DashboardReports {
     
     
-    public partial class IBMConnCommunityRpt {
-        
-        /// <summary>
-        /// SubmitButton control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxButton SubmitButton;
-        
-        /// <summary>
-        /// UserResetButton control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxButton UserResetButton;
-        
-        /// <summary>
-        /// ASPxLabel2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxLabel ASPxLabel2;
-        
-        /// <summary>
-        /// ServerComboBox control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::DevExpress.Web.ASPxComboBox ServerComboBox;
+    public partial class IBMConnectionsUserAdoptionOverallRpt {
         
         /// <summary>
         /// ASPxLabel1 control.
@@ -58,13 +22,13 @@ namespace VSWebUI.DashboardReports {
         protected global::DevExpress.Web.ASPxLabel ASPxLabel1;
         
         /// <summary>
-        /// UserFilterComboBox control.
+        /// ServerComboBox control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::DevExpress.Web.ASPxComboBox UserFilterComboBox;
+        protected global::DevExpress.Web.ASPxComboBox ServerComboBox;
         
         /// <summary>
         /// UpdatePanel1 control.

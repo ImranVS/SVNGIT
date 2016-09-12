@@ -70,11 +70,7 @@ namespace VSWebUI.Dashboard
                         d.AxisX.Reverse = true;
                         if (Session["CurrencySymbol"] != null && Session["CurrencySymbol"] != "")
                         {
-                            d.AxisY.Title.Text = "Currency Symbol" + " " + Session["CurrencySymbol"].ToString();
-                        }
-                        else
-                        {
-                            d.AxisY.Title.Text = "Currency Symbol";
+                            d.AxisY.Title.Text = Session["CurrencySymbol"].ToString();
                         }
                         ((BarSeriesView)MonthlyExpenditurebyTypeChart.SeriesTemplate.View).BarWidth = 1;
                         MonthlyExpenditurebyTypeChart.DataSource = dt;
@@ -107,11 +103,7 @@ namespace VSWebUI.Dashboard
                 //6/3/2016 Sowjanya modified for VSPLUS-2999
                 if (Session["CurrencySymbol"] != null && Session["CurrencySymbol"] != "")
                 {
-                    d.AxisY.Title.Text = "Currency Symbol" + " " + Session["CurrencySymbol"].ToString();
-                }
-                else
-                {
-                    d.AxisY.Title.Text = "Currency Symbol";
+                    d.AxisY.Title.Text = Session["CurrencySymbol"].ToString();
                 }
                 ((BarSeriesView)MonthlyExpenditurebyLocationChart.SeriesTemplate.View).BarWidth = 1;
                 MonthlyExpenditurebyLocationChart.DataSource = dt;
@@ -143,11 +135,7 @@ namespace VSWebUI.Dashboard
                 //6/3/2016 Sowjanya modified for VSPLUS-2999
                 if (Session["CurrencySymbol"] != null && Session["CurrencySymbol"] != "")
                 {
-                    d.AxisY.Title.Text = "Currency Symbol" + " " + Session["CurrencySymbol"].ToString();
-                }
-                else
-                {
-                    d.AxisY.Title.Text = "Currency Symbol";
+                    d.AxisY.Title.Text = Session["CurrencySymbol"].ToString();
                 }
                 ((BarSeriesView)MonthlyExpenditurebyCategoryChart.SeriesTemplate.View).BarWidth = 1;
                 MonthlyExpenditurebyCategoryChart.DataSource = dt;
@@ -295,11 +283,7 @@ namespace VSWebUI.Dashboard
                         //6/3/2016 Sowjanya modified for VSPLUS-2999
                         if (Session["CurrencySymbol"] != null && Session["CurrencySymbol"] != "")
                         {
-                            d.AxisY.Title.Text = "Currency Symbol" + " " + Session["CurrencySymbol"].ToString();
-                        }
-                        else
-                        {
-                            d.AxisY.Title.Text = "Currency Symbol";
+                            d.AxisY.Title.Text = Session["CurrencySymbol"].ToString();
                         }
                         ((BarSeriesView)CostPerUserServedChart.SeriesTemplate.View).BarWidth = 1;
                         CostPerUserServedChart.DataSource = Top5records;

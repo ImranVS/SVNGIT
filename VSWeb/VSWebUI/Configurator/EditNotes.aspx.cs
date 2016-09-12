@@ -915,56 +915,60 @@ namespace VSWebUI.Configurator
 
         private void SelectDB()
         {
-			if (SelectNDGridView.Selection.Count > 0)
-			{
-				System.Collections.Generic.List<object> RepIDL = SelectNDGridView.GetSelectedFieldValues("ReplicaID");
-				if (RepIDL.Count > 0)
-				{
-					string ID = RepIDL[0].ToString();
-				}
-				System.Collections.Generic.List<object> DBFileL = SelectNDGridView.GetSelectedFieldValues("DBFile");
-				if (DBFileL.Count > 0)
-				{
-					DBFile = DBFileL[0].ToString();
-				}
-				System.Collections.Generic.List<object> DBTitleL = SelectNDGridView.GetSelectedFieldValues("DBTitle");
-				if (DBTitleL.Count > 0)
-				{
-					DBTitle = DBTitleL[0].ToString();
-				}
-				//}
-				DominoServerComboBox.Text = NDNameComboBox.Text;
-				NameTextBox.Text = DBTitle;
-				DBFileNameTextBox.Text = DBFile;
-				try
-				{
-					Domino.NotesDatabase db;
-					NotesSessionObject.Initialize("");
-					db = NotesSessionObject.GetDatabase(NDNameComboBox.Text, DBFile);
-					if (db.IsOpen)
-					{
-						long myMB, myGB;
-						myMB = long.Parse((Math.Round(db.Size / 1024 / 1024, 0)).ToString());
-						myGB = myMB / 1024 / 1024;
-						string mydbInfo;
-						mydbInfo = db.AllDocuments.Count + " documents / ";
-						mydbInfo += (long.Parse((db.Size).ToString()) / 1024 / 1024).ToString("###,##0") + " MB ";
-						if (myGB > 1)
-						{
-							mydbInfo += (long.Parse((db.Size).ToString()) / 1024 / 1024).ToString("###,##0") + " GB ";
-						}
-						NDsizeLabel.Text = mydbInfo;
-					}
-
-					db = null;
-				}
-				catch (Exception ex)
-				{
-					//6/27/2014 NS added for VSPLUS-634
-					Log.Entry.Ins.WriteHistoryEntry(DateTime.Now.ToString() + " Exception - " + ex);
-					throw ex;
-				}
-			}
+            if (SelectNDGridView.Selection.Count > 0)
+            {
+                System.Collections.Generic.List<object> RepIDL = SelectNDGridView.GetSelectedFieldValues("ReplicaID");
+                if (RepIDL.Count > 0)
+                {
+                    string ID = RepIDL[0].ToString();
+                }
+                System.Collections.Generic.List<object> DBFileL = SelectNDGridView.GetSelectedFieldValues("DBFile");
+                if (DBFileL.Count > 0)
+                {
+                    DBFile = DBFileL[0].ToString();
+                }
+                System.Collections.Generic.List<object> DBTitleL = SelectNDGridView.GetSelectedFieldValues("DBTitle");
+                if (DBTitleL.Count > 0)
+                {
+                    DBTitle = DBTitleL[0].ToString();
+                }
+                //}
+                DominoServerComboBox.Text = NDNameComboBox.Text;
+                NameTextBox.Text = DBTitle;
+                DBFileNameTextBox.Text = DBFile;
+                try
+                {
+                    Domino.NotesDatabase db;
+                    NotesSessionObject.Initialize("");
+                    db = NotesSessionObject.GetDatabase(NDNameComboBox.Text, DBFile);
+                    if (db.IsOpen)
+                    {
+                        long myMB, myGB;
+                        myMB = long.Parse((Math.Round(db.Size / 1024 / 1024, 0)).ToString());
+                        myGB = myMB / 1024 / 1024;
+                        string mydbInfo;
+                        mydbInfo = db.AllDocuments.Count + " documents / ";
+                        mydbInfo += (long.Parse((db.Size).ToString()) / 1024 / 1024).ToString("###,##0") + " MB ";
+                        if (myGB > 1)
+                        {
+                            mydbInfo += (long.Parse((db.Size).ToString()) / 1024 / 1024).ToString("###,##0") + " GB ";
+                        }
+                        NDsizeLabel.Text = mydbInfo;
+                    }
+                    db = null;
+                }
+                catch (Exception ex)
+                {
+                    //6/27/2014 NS added for VSPLUS-634
+                    Log.Entry.Ins.WriteHistoryEntry(DateTime.Now.ToString() + " Exception - " + ex);
+                    //6/14/2016 NS added for VSPLUS-3072
+                    errorDivMain.Style.Value = "display: block";
+                    errorDivMain.InnerHtml = "The following error has occurred: " + ex.Message + ". <br />" +
+                        "Note: while you are going to be able to save the current record, the Domino service will be unable to access the database in question until you add the ID to the database's ACL." +
+                        "<button type=\"button\" class=\"close\" data-dismiss=\"alert\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>";
+                    //throw ex;
+                }
+            }
             System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSessionObject);
         }
 

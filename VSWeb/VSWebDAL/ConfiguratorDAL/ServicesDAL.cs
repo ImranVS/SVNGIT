@@ -189,6 +189,25 @@ namespace VSWebDAL.ConfiguratorDAL
 			}
 			return CredentialsDataTable;
 		}
+        // 8/7/2016 Durga Addded for VSPLUS-2877
+        public DataTable GetCredentialsForSSE()
+        {
+            DataTable CredentialsDataTable = new DataTable();
+
+            try
+            {
+                string SqlQuery = "SELECT * from Credentials where servertypeid is not null and servertypeid not in(3,22) ";
+                CredentialsDataTable = objAdaptor.FetchData(SqlQuery);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+            return CredentialsDataTable;
+        }
 		public DataTable GetSametimeCredentials()
 		{
 			DataTable CredentialsDataTable = new DataTable();
@@ -516,5 +535,25 @@ namespace VSWebDAL.ConfiguratorDAL
 			}
 			return Update;
 		}
+
+        //14/07/2016 sowmya added for VSPLUS-3097
+        public DataTable GetTestNames()
+        {
+            DataTable ExchangeTestDataTable = new DataTable();
+
+            try
+            {
+                string SqlQuery = "select TestId,TestName from ExchangeTestNames order by TestName ";
+                ExchangeTestDataTable = objAdaptor.FetchData(SqlQuery);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+            return ExchangeTestDataTable;
+        }
     }
 }

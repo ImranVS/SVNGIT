@@ -826,8 +826,10 @@
 													<dx:ASPxTextBox ID="LogFileTextBox" runat="server" Width="350px" ValidationSettings-ValidationGroup="<%# Container.ValidationGroup %>"
 													 Value='<%#Eval("Keyword")%>'>
 													 <ValidationSettings ErrorText="Enter Keywords">
-																				<RequiredField IsRequired="true" ErrorText="Please Enter Keywords" />
-																				</ValidationSettings>
+                                                     <RegularExpression ValidationExpression="^.{1,255}$"  ErrorText="Allows upto 255 characters only"  />
+
+													<RequiredField IsRequired="true" ErrorText="Please Enter Keywords" />
+													</ValidationSettings>
 													</dx:ASPxTextBox>
 												</td>
 											</tr>

@@ -519,8 +519,167 @@ namespace VSWebDAL.ConfiguratorDAL
 			}
 			return 0;
 		}
+        //14/07/2016 sowmya added for VSPLUS-3097
+        public bool InsertData(ExchangeSettings LOCbject)
+        {
+
+            bool Insert = false;
+            try
+            {
+                string SqlQuery = "INSERT INTO CASServerTests (ServerId,TestId,URLs,CredentialsId) VALUES(@ServerId,@TestId,@URLs,@CredentialsId)";
+                SqlCommand cmd = new SqlCommand(SqlQuery);
+                cmd.Parameters.AddWithValue("@ServerId", (object)LOCbject.ServerId ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@TestId", (object)LOCbject.TestId ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@URLs", (object)LOCbject.URLs ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@CredentialsId", (object)LOCbject.CredentialsId ?? DBNull.Value);
+                Insert = objAdaptor.ExecuteNonQuerywithcmd(cmd);
+            }
+            catch
+            {
+                Insert = false;
+            }
+            finally
+            {
+            }
+            return Insert;
+        }
+
+         public ExchangeSettings GetDataForServerType(ExchangeSettings STypebject)
+        {
+            DataTable ServerTypesDataTable = new DataTable();
+            ExchangeSettings ReturnSTypeobject = new ExchangeSettings();
+            try
+            {
+                string SqlQuery = "Select TestId from ExchangeTestNames where TestName='" + STypebject.TestName + "'";
+                ServerTypesDataTable = objAdaptor.FetchData(SqlQuery);
+                //populate & return data object
+                if (ServerTypesDataTable.Rows.Count > 0)
+                {
+                    if (ServerTypesDataTable.Rows[0]["TestId"].ToString() != "")
+                        ReturnSTypeobject.id = int.Parse(ServerTypesDataTable.Rows[0]["TestId"].ToString());
+                }
+                else
+                {
+                    ReturnSTypeobject.TestId = 0;
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+            }
+            return ReturnSTypeobject;
+        }
+
+        public bool UpdateData(ExchangeSettings LOCbject)
+        {
+            string SqlQuery = "";
+            bool Update;
+
+            try
+            {
+                //7/10/2015 NS modified for VSPLUS-1985
+                //if (LOCbject.Password == "      ")
 
 
+                SqlQuery = "UPDATE CASServerTests SET ServerId= @ServerId,TestId= @TestId, URLs= @URLs, CredentialsId= @CredentialsId WHERE id = @id";
+                    SqlCommand cmd = new SqlCommand(SqlQuery);
+                    cmd.Parameters.AddWithValue("@ServerId", (object)LOCbject.ServerId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@TestId", (object)LOCbject.TestId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@URLs", (object)LOCbject.URLs ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CredentialsId", (object)LOCbject.CredentialsId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@id", (object)LOCbject.id ?? DBNull.Value);
+                    Update = objAdaptor.ExecuteNonQuerywithcmd(cmd);
+               
+                //Update = objAdaptor.ExecuteNonQuery(SqlQuery);
+
+            }
+            catch
+            {
+                Update = false;
+            }
+            finally
+            {
+            }
+            return Update;
+        }
+
+        public DataTable GetDataForCredentialsById(ExchangeSettings LOCbject)
+        {
+            DataTable LocationsDataTable = new DataTable();
+            try
+            {
+                string SqlQuery = "Select * from CASServerTests where id= @id";
+                SqlCommand cmd = new SqlCommand(SqlQuery);
+                cmd.Parameters.AddWithValue("@id", (object)LOCbject.id ?? DBNull.Value);
+                LocationsDataTable = objAdaptor.FetchDatafromcommand(cmd);
+               
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+            return LocationsDataTable;
+        }
+
+
+        public DataTable GetDataForCredentialsByname(ExchangeSettings LOCbject)
+        {
+            DataTable LocationsDataTable = new DataTable();
+            try
+            {
+                string SqlQuery = "Select * from CASServerTests where ServerId = @ServerId";
+
+                SqlCommand cmd = new SqlCommand(SqlQuery);
+                cmd.Parameters.AddWithValue("@ServerId", (object)LOCbject.ServerId ?? DBNull.Value);
+                LocationsDataTable = objAdaptor.FetchDatafromcommand(cmd);
+                //populate & return data object
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+            return LocationsDataTable;
+        }
+
+        public Credentials getdataforcred(Credentials LOCbject)
+        {
+            DataTable LocationsDataTable = new DataTable();
+            Credentials ReturnSTypeobject = new Credentials();
+            try
+            {
+                string SqlQuery = "Select * from Credentials where AliasName = @AliasName";
+
+                SqlCommand cmd = new SqlCommand(SqlQuery);
+                cmd.Parameters.AddWithValue("@AliasName", (object)LOCbject.AliasName ?? DBNull.Value);
+                LocationsDataTable = objAdaptor.FetchDatafromcommand(cmd);
+                if (LocationsDataTable.Rows.Count > 0)
+                {
+                    if (LocationsDataTable.Rows[0]["ID"].ToString() != "")
+                        ReturnSTypeobject.ID = int.Parse(LocationsDataTable.Rows[0]["ID"].ToString());
+                }
+                else
+                {
+                    ReturnSTypeobject.ID = 0;
+                }
+                //populate & return data object
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+            return ReturnSTypeobject;
+        }
 		//public DataTable GetAllData1()
 		//{
 		//    DataTable MSServersDataTable = new DataTable();
@@ -599,6 +758,88 @@ namespace VSWebDAL.ConfiguratorDAL
 
 		}
 
+        //14/07/2016 sowmya added for VSPLUS-3097
+        public DataTable GetCASData(int ServerId)
+        {
+            DataTable MSServersDataTable = new DataTable();
 
+            try
+            {
+                string SqlQuery = "select ns.id,ns.ServerId,ns.TestId ,et.[TestName] ,URLs,cd.AliasName  " + 
+                    "from CASServerTests ns left outer join [ExchangeTestNames] et on ns.testid = et.testid left outer join Credentials cd on  cd.ID=ns.CredentialsId where ServerId="+ServerId;
+  
+  
+
+                MSServersDataTable = objAdaptor.FetchData(SqlQuery);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+            return MSServersDataTable;
+        }
+
+        //7/19/2016 NS added for VSPLUS-3097
+        public Object DeleteCASData(string id, string serverid)
+        {
+            Object Update;
+            try
+            {
+                string SqlQuery = "DELETE FROM [CASServerTests] WHERE [TestId]=" + id + " AND [ServerId]=" + serverid + " ";
+                Update = objAdaptor.ExecuteNonQuery(SqlQuery);
+            }
+            catch
+            {
+                Update = false;
+            }
+            return Update;
+        }
+
+        public object UpdateCASTestData(string id, string serverid, string url, string credid)
+        {
+            try
+            {
+                return VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.UpdateCASData(id, serverid, url, credid);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool UpdateCASData(string id, string serverid, string url, string credid)
+        {
+            bool Insert = false;
+            try
+            {
+                string SqlQuery = "UPDATE [CASServerTests] SET URLs='" + url + "', CredentialsId=" + credid + " " +
+                    "WHERE TestId=" + id + " AND ServerId=" + serverid;
+                Insert = objAdaptor.ExecuteNonQuery(SqlQuery);
+            }
+            catch
+            {
+                Insert = false;
+            }
+            return Insert;
+        }
+
+        public bool InsertCASData(string id, string serverid, string url, string credid)
+        {
+            bool Insert = false;
+            try
+            {
+                string SqlQuery = "INSERT INTO [CASServerTests] VALUES(" + serverid + "," + id + ",'" + url + "'," + credid + ")";
+                Insert = objAdaptor.ExecuteNonQuery(SqlQuery);
+            }
+            catch
+            {
+                Insert = false;
+            }
+            return Insert;
+        }
     }
 }

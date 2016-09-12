@@ -249,5 +249,126 @@ namespace VSWebBL
 		   }
 		  
 	   }
+
+       //14/07/2016 sowmya added for VSPLUS-3097
+       public DataTable GetCASData(int ServerId)
+       {
+           try
+           {
+               return VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.GetCASData(ServerId);
+           }
+           catch (Exception ex)
+           {
+
+               throw ex;
+           }
+
+       }
+
+       //7/19/2016 NS added for VSPLUS-3097
+       public Object DeleteCASData(string id, string serverid)
+       {
+           return VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.DeleteCASData(id, serverid);
+       }
+
+       public Object ValidateUpdate(ExchangeSettings LocObject)
+       {
+           Object ReturnValue = "";
+           try
+           {
+               if (LocObject.URLs == null || LocObject.URLs == "")
+               {
+                   return "ER#Please enter the Alias name";
+               }
+
+           }
+           catch (Exception ex)
+           { throw ex; }
+           finally
+           { }
+           return "";
+       }
+
+       public object InsertCASData(string id, string serverid, string url, string credid)
+       {
+           return VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.InsertCASData(id, serverid, url, credid);
+       }
+
+       public object UpdateCASTestData(string id, string serverid, string url, string credid)
+       {
+           return VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.UpdateCASTestData(id, serverid,url,credid);
+       }
+
+       public bool UpdateData(ExchangeSettings LocObject)
+       {
+           bool update = false;
+           try
+           {
+
+               Object ReturnValue = ValidateUpdate(LocObject);
+               DataTable value = VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.GetDataForCredentialsById(LocObject);
+               if (value.Rows.Count > 0)
+               {
+                   if (ReturnValue.ToString() == "")
+                   {
+                       update = VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.UpdateData(LocObject);
+
+                   }
+                   else
+                       return update;
+               }
+               else return update;
+           }
+           catch (Exception ex)
+           {
+
+               throw ex;
+           }
+           return update;
+       }
+       public ExchangeSettings GetDataForServerType(ExchangeSettings STypeObject)
+       {
+           try
+           {
+               return VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.GetDataForServerType(STypeObject);
+           }
+           catch (Exception ex)
+           {
+
+               throw ex;
+           }
+
+       }
+       public Credentials getdataforcred(Credentials STypeObject)
+       {
+           try
+           {
+               return VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.getdataforcred(STypeObject);
+           }
+           catch (Exception ex)
+           {
+
+               throw ex;
+           }
+
+       }
+       //14/07/2016 sowmya added for VSPLUS-3097
+       public object InsertData(ExchangeSettings LocObject)
+       {
+           try
+           {
+               Object ReturnValue = ValidateUpdate(LocObject);
+                   if (ReturnValue.ToString() == "")
+                   {
+                       return VSWebDAL.ConfiguratorDAL.ExchangeDAL.Ins.InsertData(LocObject);
+                   }
+                   else return ReturnValue;
+           }
+           catch (Exception ex)
+           {
+
+               throw ex;
+           }
+       }
     }
 }

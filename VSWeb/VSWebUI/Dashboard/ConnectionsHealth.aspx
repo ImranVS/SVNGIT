@@ -115,7 +115,8 @@
                                                     </label>
                                                 </axisx>
                                                 <axisy title-text="Number" visibleinpanesserializable="-1">
-                                                    <label textpattern="{V}">
+                                                    <tickmarks minorvisible="False" />
+                                                    <label textpattern="{V:#,#}">
                                                         <resolveoverlappingoptions allowrotate="False" />
 <ResolveOverlappingOptions AllowRotate="False"></ResolveOverlappingOptions>
                                                     </label>
@@ -242,9 +243,16 @@
                                                     <diagramserializable>
                                                         <cc1:XYDiagram Rotated="True">
                                                             <axisx reverse="True" visibleinpanesserializable="-1">
-                                                            <tickmarks minorvisible="False" /></axisx>
+                                                            <tickmarks minorvisible="False" />
+<Tickmarks MinorVisible="False"></Tickmarks>
+                                                            </axisx>
                                                             <axisy visibleinpanesserializable="-1">
-                                                            <tickmarks minorvisible="False" /></axisy>
+                                                            <tickmarks minorvisible="False" />
+<Tickmarks MinorVisible="False"></Tickmarks>
+                                                                <label textpattern="{V:#,#}">
+                                                                    <resolveoverlappingoptions allowrotate="False" />
+                                                                </label>
+                                                            </axisy>
                                                         </cc1:XYDiagram>
                                                     </diagramserializable>
                                                     <seriesserializable>
@@ -1108,6 +1116,67 @@
                                             <td valign="top">
                                                 <dx:ASPxGridView ID="WikisGridView" runat="server" 
                                                     OnDataBound="WikisGridView_DataBound" Theme="Office2003Blue">
+                                                    <Styles>
+                                                        <Header CssClass="GridCssHeader">
+                                                        </Header>
+                                                        <AlternatingRow CssClass="GridAltRow">
+                                                        </AlternatingRow>
+                                                        <Cell CssClass="GridCss">
+                                                        </Cell>
+                                                    </Styles>
+                                                </dx:ASPxGridView>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    
+                                </dx:ContentControl>
+                            </ContentCollection>
+                        </dx:TabPage>
+                                <dx:TabPage Text="Libraries">
+                            <ContentCollection>
+                                <dx:ContentControl ID="ContentControl1" runat="server">
+                                    <table>
+                                        <tr>
+                                            <td valign="top">
+                                                <dxchartsui:WebChartControl ID="LibrariesChartControl" runat="server" 
+                                        CrosshairEnabled="True" Height="200px" PaletteName="Module" Width="400px">
+                                        <diagramserializable>
+                                            <cc1:XYDiagram>
+                                                <axisx visibleinpanesserializable="-1">
+                                                </axisx>
+                                                <axisy visibleinpanesserializable="-1">
+                                                </axisy>
+                                            </cc1:XYDiagram>
+                                        </diagramserializable>
+                                        <legend alignmenthorizontal="Center" alignmentvertical="BottomOutside" 
+                                            markersize="13, 16" maxverticalpercentage="30" visibility="True"></legend>
+                                        <seriesserializable>
+                                            <cc1:Series ArgumentScaleType="DateTime" Name="Series 1">
+                                                <viewserializable>
+                                                    <cc1:LineSeriesView MarkerVisibility="True">
+                                                        <linemarkeroptions size="7">
+                                                        </linemarkeroptions>
+                                                    </cc1:LineSeriesView>
+                                                </viewserializable>
+                                            </cc1:Series>
+                                        </seriesserializable>
+                                        <seriestemplate argumentscaletype="DateTime">
+                                            <viewserializable>
+                                                <cc1:LineSeriesView>
+                                                </cc1:LineSeriesView>
+                                            </viewserializable>
+                                        </seriestemplate>
+                                        <titles>
+                                            <cc1:ChartTitle Font="Tahoma, 12pt" Text="Libraries" />
+                                        </titles>
+                                    </dxchartsui:WebChartControl>
+                                            </td>
+                                            <td>
+                                                &nbsp;
+                                            </td>
+                                            <td valign="top">
+                                                <dx:ASPxGridView ID="LibrariesGrid" runat="server" 
+                                                    OnDataBound="ForumsGridView_DataBound" Theme="Office2003Blue">
                                                     <Styles>
                                                         <Header CssClass="GridCssHeader">
                                                         </Header>
