@@ -1,5 +1,4 @@
 
-$DagName = 'JNITTECHDAG1'
 $now = [DateTime]::Now
 
 $mb = get-MailboxDatabase -Status | Where {$_.MasterType -eq 'DatabaseAvailabilityGroup' -and $_.MasterServerOrAvailabilityGroup -eq $DagName} | Select-Object Name,StorageGroup,

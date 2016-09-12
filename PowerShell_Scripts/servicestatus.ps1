@@ -1,5 +1,4 @@
-﻿$uname= $args[0];
-$pwd= $args[1];
+﻿Clear-Variable 'results' -ErrorAction SilentlyContinue
 $secpasswd = ConvertTo-SecureString $Pwd -AsPlainText –Force;
 $cred=New-object -typename System.Management.Automation.PSCredential -argumentlist $uname,$secpasswd;
 Find-Module O365ServiceCommunications | Install-Module
@@ -27,3 +26,4 @@ foreach($obj in $results)
 {
     $obj
 }
+Clear-Variable 'results' -ErrorAction SilentlyContinue

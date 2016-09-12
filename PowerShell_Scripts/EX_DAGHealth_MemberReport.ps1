@@ -1,6 +1,4 @@
-﻿$dagname = "ex13dag"
-
-$memberReport = @()		#DAG member server health report
+﻿$memberReport = @()		#DAG member server health report
 
 $dags = @(Get-DatabaseAvailabilityGroup $dagname -Status)
 

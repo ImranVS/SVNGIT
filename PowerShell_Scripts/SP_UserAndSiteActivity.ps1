@@ -1,14 +1,14 @@
 #Invoke-Command -Session $s -ScriptBlock {
 
     Import-Module WebAdministration
-
-    Get-WebConfigurationProperty "/system.applicationHost/sites/siteDefaults" -name logfile.directory | ForEach-Object {
+    
+    Get-WebConfigurationProperty "/system.applicationHost/sites/siteDefaults" -name logfile.directory| ForEach-Object {
     
             $firstTime = $true
     
             $date = Get-Date
             $endDate = [DateTime]$(($date.Ticks) - $($date.Ticks % $(New-TimeSpan -Hours 1).ticks))
-            $startDate = [DateTime]$($endDate.Ticks - $(New-TimeSpan -Hours 1).Ticks) 
+            $startDate = [DateTime]$($endDate.Ticks - $(New-TimeSpan -days 70).Ticks) 
     
             Get-ChildItem $([System.Environment]::ExpandEnvironmentVariables($_.Value)) -Recurse |  ? {$_.Directory -ne $null -and $_.LastWriteTime -gt $startDate} | ForEach-Object {
     
@@ -17,7 +17,7 @@
     
     
                 # Get-Content gets the file, pipe to Where-Object and skip the first 3 lines.
-                $Log = Get-Content $File | where {$_ -notLike "#[D,S-V]*" -and $_.ToString().Trim() -ne ''}
+                $Log = Get-Content $File | where {$_ -notLike "#[D,S-V]*" -and $_.ToString().Trim() -ne ''} 
     
     
                 if($firstTime)
@@ -29,8 +29,7 @@
     
                     # Create an instance of a System.Data.DataTable
                     $IISLog = New-Object System.Data.DataTable "IISLog"
-    
-    
+
                     # Loop through each Column, create a new column through Data.DataColumn and add it to the DataTable
                     foreach ($Column in $Columns) {
                        $NewColumn = New-Object System.Data.DataColumn $Column, ([string])
@@ -99,16 +98,23 @@
                 
             #}
             
-            $obj.path = $IISLog | ? {$_.csuristem -notmatch $a_regex -and [datetime]($_.date + ' ' + $_.time) -gt $startDate -and [datetime]($_.date + ' ' + $_.time) -lt $endDate} | select csuristem |  Group-Object -Property csuristem | select Name,Count
-            $obj.users = $IISLog | ? {$_.csuristem -notmatch $a_regex -and [datetime]($_.date + ' ' + $_.time) -gt $startDate -and [datetime]($_.date + ' ' + $_.time) -lt $endDate} | Group-Object -Property csusername | select Name, Count
+            if($IISLog)
+            {
+                $obj.path = $IISLog | ? {$_.csuristem -notmatch $a_regex -and [datetime]($_.date + ' ' + $_.time) -gt $startDate -and [datetime]($_.date + ' ' + $_.time) -lt $endDate} | select csuristem |  Group-Object -Property csuristem | select Name,Count
+                $obj.users = $IISLog | ? {$_.csuristem -notmatch $a_regex -and [datetime]($_.date + ' ' + $_.time) -gt $startDate -and [datetime]($_.date + ' ' + $_.time) -lt $endDate} | Group-Object -Property csusername | select Name, Count 
     
-            #$obj.path = $IISLog | select csuristem |  Group-Object -Property csuristem | select Name,Count
+                #$obj.path = $IISLog | select csuristem |  Group-Object -Property csuristem | select Name,Count
     
     
-            #$obj.users = $IISLog | Group-Object -Property csusername | select Name, Count
+                #$obj.users = $IISLog | Group-Object -Property csusername | select Name, Count
     
-            #$obj.path
-            #$obj.users
-            $obj
+                #$obj.path
+                #$obj.users
+                $obj.path| select Name,count
+                $obj.users| select @{Name="DisplaName";expression={$_.Name}}, @{Name="Displacount";expression={$_.Count}}| ft
+               
+            }
+            
     }
 #} #| Select Name, Count | ft -AutoSize
+,$theArray | foreach{Write-Host $_}

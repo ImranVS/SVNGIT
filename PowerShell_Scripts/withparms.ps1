@@ -1,4 +1,4 @@
-﻿
+﻿Clear-Variable 'results' -ErrorAction SilentlyContinue
  
 #Write-Host "Collecting Recipients..." 
  
@@ -107,3 +107,4 @@ foreach($obj in $results)
 {
     $obj
 }
+Clear-Variable 'results' -ErrorAction SilentlyContinue

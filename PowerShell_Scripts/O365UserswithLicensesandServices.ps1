@@ -1,12 +1,4 @@
-﻿$uname= $args[0];
-$pwd= $args[1];
-$secpasswd = ConvertTo-SecureString $Pwd -AsPlainText –Force;
-$cred=New-object -typename System.Management.Automation.PSCredential -argumentlist $uname,$secpasswd;
-
-Import-Module MSOnline
-Connect-MsolService -Credential $cred
-$MySession = New-SCSession -Credential $cred
-
+﻿Clear-Variable 'results' -ErrorAction SilentlyContinue
 $Servicedata= Get-MsolUser -All |Where {$_.IsLicensed -eq $true }| Select-Object  @{Name="MDM";Expression={$_.Licenses[0].ServiceStatus[0].ProvisioningStatus}}, @{Name="Yammer";Expression={$_.Licenses[0].ServiceStatus[1].ProvisioningStatus}}, @{Name="AD RMS";Expression={$_.Licenses[0].ServiceStatus[2].ProvisioningStatus}}, @{Name="OfficePro";Expression={$_.Licenses[0].ServiceStatus[3].ProvisioningStatus}}, @{Name="Skype";Expression={$_.Licenses[0].ServiceStatus[4].ProvisioningStatus}}, @{Name="OfficeWeb";Expression={$_.Licenses[0].ServiceStatus[5].ProvisioningStatus}}, @{Name="SharePoint";Expression={$_.Licenses[0].ServiceStatus[6].ProvisioningStatus}}, @{Name="Exchange";Expression={$_.Licenses[0].ServiceStatus[7].ProvisioningStatus}},DisplayName, Licenses
 		
 
@@ -32,3 +24,5 @@ foreach($obj in $results)
 {
     $obj
 }
+
+Clear-Variable 'results' -ErrorAction SilentlyContinue
