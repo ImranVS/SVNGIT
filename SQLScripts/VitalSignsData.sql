@@ -16,7 +16,7 @@ INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryC
 INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (15, N'BlackBerry Enterprise Server 4.x', N'DBES Mail Agent', 2, 1, 45, N'Idle', N'LO DBES')
 INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (16, N'Statistics', N'stats', 2, 0, 30, N'Idle', N'lo stats')
 INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (17, N'Scheduler', N'Schedule Manager', 2, 0, 30, N'Idle', N'lo sched')
-INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (18, N'Update', N'Update', 2, 0, 30, N'Idle', N'lo update')
+INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (18, N'Update', N'Indexer', 2, 0, 30, N'Idle', N'lo update')
 INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (19, N'Admin Process', N'Admin Process', 2, 0, 30, N'Idle', N'lo Adminp')
 INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (20, N'Event Manager', N'Event Monitor', 2, 0, 30, N'Idle', N'lo event')
 INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (21, N'Billing', N'Billing', 2, 1, 30, N'Idle', N'LO BILLING')
@@ -356,8 +356,10 @@ INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], 
 /* 6/3/2016 NS added for VSPLUS-3025 */
 INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (78, N'Community Activity', N'Connections', N'Community Activity', N'../DashboardReports/IBMConnectionsCommunityActivityRpt.aspx', NULL, 0, N'True', NULL)
 /* 6/6/2016 Durga added for VSPLUS-2993 */
-INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (79, N'Exchange Mailbox storage growth', N'Exchange', N'Exchange Mailbox storage growth', N'../DashboardReports/ExchangeMailboxstoragegrowth.aspx', NULL, 0, N'True', NULL)
-INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (80, N'Office 365 Mailbox storage growth', N'Office 365', N'Office 365 Mailbox storage growth', N'../DashboardReports/O365Mailboxstoragegrowth.aspx', NULL, 0, N'True', NULL)
+INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (79, N'Mailbox Storage Growth', N'Exchange', N'Exchange Mailbox storage growth', N'../DashboardReports/ExchangeMailboxstoragegrowth.aspx', NULL, 0, N'True', NULL)
+INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (80, N'Office 365 Mailbox Storage Growth', N'Office 365', N'Office 365 Mailbox storage growth', N'../DashboardReports/O365Mailboxstoragegrowth.aspx', NULL, 0, N'True', NULL)
+/* 6/9/2015 NS added for VSPLUS-3020 */
+INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (81, N'User Adoption Metrics', N'Connections', N'User Adoption Metrics', N'../DashboardReports/IBMConnectionsUserAdoptionOverallRpt.aspx', NULL, 0, N'True', NULL)
 
 SET IDENTITY_INSERT [dbo].[ReportItems] OFF
 
@@ -545,7 +547,7 @@ INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (144, N'A
 INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (145, N'IMAP', 21)
 INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (146, N'SMTP', 21)
 INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (147, N'POP3', 21)
-INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (148, N'RPC', 21)
+INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (148, N'MAPI Connectivity', 21)
 INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (149, N'Create Calendar Entry', 21)
 INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (150, N'Delete Calendar Entry', 21)
 INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (151, N'OWA', 21)
@@ -590,6 +592,13 @@ INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (180, N'M
 INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (181, N'Not Responding', 19)
 /* 4/21 WS Added for VSPLUS-1327 */
 INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (182, N'Database Corruption', 5)
+/* 14/06/2016 Swathi Added for VSPLUS-1250 */
+INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (183, N'Search Crawl',  4 )
+
+INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (186, N'Create Mail Folder',  21 )
+INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (187, N'URL',  21 )
+INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (188, N'DirSync Import',  21 )
+INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (189, N'DirSync Export',  21 )
 SET IDENTITY_INSERT [dbo].[EventsMaster] OFF
 
 
@@ -3251,10 +3260,26 @@ INSERT [dbo].[FeatureReports] ([FeatureID], [ReportID]) VALUES (20, 78)
 /* 6/6/2016 Durga added for VSPLUS-2993 */
 INSERT [dbo].[FeatureReports] ([FeatureID], [ReportID]) VALUES (2, 79)
 INSERT [dbo].[FeatureReports] ([FeatureID], [ReportID]) VALUES (19, 80)
+/* 6/9/2016 NS added for VSPLUS-3020 */
+INSERT [dbo].[FeatureReports] ([FeatureID], [ReportID]) VALUES (20, 81)
 GO
 
 GO
 
+USE [vitalsigns]
+GO
+--14/07/2016 sowmya added for VSPLUS-3097
+/****** Object:  Table [dbo].[ExchangeTestNames]    Script Date: 07/15/2016 12:39:59 ******/
+SET IDENTITY_INSERT [dbo].[ExchangeTestNames] ON
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (1, N'SMTP')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (2, N'POP3')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (3, N'IMAP')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (4, N'Outlook Anywhere')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (5, N'Auto Discovery')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (6, N'Active Sync')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (7, N'OWA (Outlook Web App)')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (8, N'Outlook Native RPC')
+SET IDENTITY_INSERT [dbo].[ExchangeTestNames] OFF
 
 
 --VSPLUS 1811 Sowjanya

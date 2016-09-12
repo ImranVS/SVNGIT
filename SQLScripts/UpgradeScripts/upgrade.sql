@@ -4,6 +4,22 @@ PRINT N' Executing V1.1 upgrade scripts ......... ';
 
 USE [vitalsigns]
 GO
+EXEC sp_configure 'default language', 0 
+GO
+RECONFIGURE 
+GO
+
+USE [VSS_Statistics]
+GO
+EXEC sp_configure 'default language', 0 
+RECONFIGURE 
+GO
+
+ALTER LOGIN VS WITH DEFAULT_LANGUAGE = English
+GO
+
+USE [vitalsigns]
+GO
 
 IF EXISTS(SELECT * FROM dbo.sysobjects WHERE id = object_id(N'dbo.fn_GetVSVersion') AND xtype IN (N'FN', N'IF', N'TF'))
 	DROP FUNCTION dbo.fn_GetVSVersion
@@ -1126,6 +1142,17 @@ ELSE
 		DELETE from [dbo].Settings where sname = 'AlertsOn'
 		INSERT [dbo].[Settings] ([sname], [svalue], [stype]) VALUES (N'AlertsOn', N'True', N'System.String')
 	END
+GO
+
+
+/* 6/17/2016 AF added for VSPLUS-3073 */
+IF EXISTS( select * from syscolumns where id=object_id('dbo.EventsMaster'))
+BEGIN
+	SET IDENTITY_INSERT [dbo].[EventsMaster] ON
+	DELETE from [dbo].[EventsMaster] where EventName = 'Mailbox'
+	INSERT INTO [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (185, N'Mailbox', 1)
+	SET IDENTITY_INSERT [dbo].[EventsMaster] OFF
+END
 GO
 
 
@@ -4734,8 +4761,10 @@ INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], 
 INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (77, N'Communities', N'Connections', N'Communities', N'../DashboardReports/IBMConnCommunityRpt.aspx', NULL, 0, N'True', NULL)
 /* 6/3/2016 NS added for VSPLUS-3025 */
 INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (78, N'Community Activity', N'Connections', N'Community Activity', N'../DashboardReports/IBMConnectionsCommunityActivityRpt.aspx', NULL, 0, N'True', NULL)
-INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (79, N'Exchange Mailbox storage growth', N'Exchange', N'Exchange Mailbox storage growth', N'../DashboardReports/ExchangeMailboxstoragegrowth.aspx', NULL, 0, N'True', NULL)
-INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (80, N'Office 365 Mailbox storage growth', N'Office 365', N'Office 365 Mailbox storage growth', N'../DashboardReports/O365Mailboxstoragegrowth.aspx', NULL, 0, N'True', NULL)
+INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (79, N'Mailbox Storage Growth', N'Exchange', N'Exchange Mailbox storage growth', N'../DashboardReports/ExchangeMailboxstoragegrowth.aspx', NULL, 0, N'True', NULL)
+INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (80, N'Office 365 Mailbox Storage Growth', N'Office 365', N'Office 365 Mailbox storage growth', N'../DashboardReports/O365Mailboxstoragegrowth.aspx', NULL, 0, N'True', NULL)
+/* 6/9/2015 NS added for VSPLUS-3020 */
+INSERT [dbo].[ReportItems] ([ID], [Name], [Category], [Description], [PageURL], [ImageURL], [ConfiguratorOnly], [isworking], [MaySchedule]) VALUES (81, N'User Adoption Metrics', N'Connections', N'User Adoption Metrics', N'../DashboardReports/IBMConnectionsUserAdoptionOverallRpt.aspx', NULL, 0, N'True', NULL)
 
 SET IDENTITY_INSERT [dbo].[ReportItems] OFF
 
@@ -8943,7 +8972,7 @@ BEGIN
 	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (145, N'IMAP', 21)
 	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (146, N'SMTP', 21)
 	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (147, N'POP3', 21)
-	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (148, N'RPC', 21)
+	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (148, N'MAPI Connectivity', 21)
 	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (149, N'Create Calendar Entry', 21)
 	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (150, N'Delete Calendar Entry', 21)
 	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (151, N'OWA', 21)
@@ -10174,6 +10203,13 @@ IF NOT EXISTS (select * from dbo.DominoServerTasks where TaskID = 39)
 BEGIN 
 	INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (39, N'Traveler 9.0.1.3+', N'Traveler', 2, 0, 30, N'Running', N'lo traveler')
 END
+
+IF EXISTS (select * from dbo.DominoServerTasks where TaskID = 18)
+BEGIN 
+	delete from dbo.DominoServerTasks where TaskID = 18
+	INSERT [dbo].[DominoServerTasks] ([TaskID], [TaskName], [ConsoleString], [RetryCount], [FreezeDetect], [MaxBusyTime], [IdleString], [LoadString]) VALUES (18, N'Update', N'Indexer', 2, 0, 30, N'Idle', N'lo update')
+END
+
 SET IDENTITY_INSERT [dbo].[DominoServerTasks] OFF
 
 GO
@@ -10777,6 +10813,8 @@ INSERT [dbo].[FeatureReports] ([FeatureID], [ReportID]) VALUES (20, 78)
 /* 6/2/2016 NS added for VSPLUS-3025 */
 INSERT [dbo].[FeatureReports] ([FeatureID], [ReportID]) VALUES (2, 79)
 INSERT [dbo].[FeatureReports] ([FeatureID], [ReportID]) VALUES (19, 80)
+/* 6/9/2016 NS added for VSPLUS-3020 */
+INSERT [dbo].[FeatureReports] ([FeatureID], [ReportID]) VALUES (20, 81)
 GO
 
 GO
@@ -13042,6 +13080,198 @@ BEGIN
  ALTER TABLE dbo.IbmConnectionsObjects ADD GUID varchar(255)  null
 END
 GO
+/* 14/06/2016 Swathi Added for VSPLUS-1250 */
+IF NOT EXISTS(SELECT * from EventsMaster WHERE EventName = N'Search Crawl' AND ServerTypeID = 4)
+BEGIN	
+	SET IDENTITY_INSERT [dbo].[EventsMaster] ON
+	INSERT [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (183, N'Search Crawl',  4 )
+	SET IDENTITY_INSERT [dbo].[EventsMaster] OFF
+END
+
+GO
+
+--6/20/16 WS Added for VSPLUS-3008
+IF NOT EXISTS (select * from syscolumns where name= 'IsActive' and id = object_id('dbo.IbmConnectionsUsers'))
+BEGIN 
+	ALTER TABLE dbo.IbmConnectionsUsers ADD IsActive BIT null
+END
+GO
+
+
+IF NOT EXISTS (select * from syscolumns where name= 'IsInternal' and id = object_id('dbo.IbmConnectionsUsers'))
+BEGIN 
+	ALTER TABLE dbo.IbmConnectionsUsers ADD IsInternal BIT null
+END
+GO
+
+--6/21/16 WS Added for VSPLUS-3035
+USE [vitalsigns]
+GO
+
+IF EXISTS(SELECT * FROM sys.triggers WHERE name = 'tr_UpdateDeviceInventoryIbmConnectionsServers')
+DROP TRIGGER [dbo].[tr_UpdateDeviceInventoryIbmConnectionsServers]
+GO
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TRIGGER [dbo].[tr_UpdateDeviceInventoryIbmConnectionsServers]
+   ON  [dbo].[IbmConnectionsServers]
+   AFTER UPDATE
+AS 
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+	IF UPDATE([Enabled])
+	BEGIN
+		IF (SELECT [Enabled] FROM Deleted) = 0 AND (SELECT [Enabled] FROM Inserted) = 1
+		BEGIN
+			INSERT INTO DeviceInventory
+			(Name, DeviceID, DeviceTypeID, LocationID)
+			SELECT
+				s.ServerName, ServerID, 27, s.LocationID
+				FROM inserted i INNER JOIN Servers s ON i.ServerID=s.ID
+				WHERE i.[Enabled] = 1
+		END
+		ELSE
+		 IF (SELECT [Enabled] FROM Inserted) = 0 AND (SELECT [Enabled] FROM Deleted) = 1
+		 BEGIN
+			DELETE d FROM DeviceInventory AS d INNER JOIN Inserted AS i ON d.DeviceID = i.ServerID
+			AND  d.DeviceTypeID=27 AND i.[Enabled] = 0
+		 END
+	END
+END
+
+GO
+
+
+-- WS Added for 3098 --
+USE [vitalsigns]
+GO
+
+IF NOT EXISTS (select * from syscolumns where id = object_id('dbo.[SharePointServerSettings]'))
+BEGIN
+
+	CREATE TABLE [dbo].[SharePointServerSettings](
+		[ServerID] [int] NOT NULL,
+		[ConflictingContentType] [bit] NULL,
+		[CustomizedFiles] [bit] NULL,
+		[MissingGalleries] [bit] NULL,
+		[MissingParentContentTypes] [bit] NULL,
+		[MissingSiteTemplates] [bit] NULL,
+		[UnsupportedLanguagePack] [bit] NULL,
+		[UnsupportedMUI] [bit] NULL
+	) ON [PRIMARY]
+
+END
+	
+GO
+--Sowjanya VSPLUS -3106
+USE [vitalsigns]
+GO
+IF EXISTS (select * from syscolumns where name= 'Costperuser' and id = object_id('dbo.O365Server'))
+BEGIN
+	ALTER TABLE O365Server 
+ALTER COLUMN Costperuser float  null
+END
+GO
+
+USE [vitalsigns]
+GO
+
+IF NOT EXISTS (select * from syscolumns where id = object_id('dbo.CASServerTests'))
+BEGIN	
+	CREATE TABLE [dbo].[CASServerTests](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[ServerId] [int] NULL,
+	[TestId] [int] NULL,
+	[URLs] [nvarchar](max) NULL,
+	[CredentialsId] [int] NULL
+) 
+END
+GO
+USE [vitalsigns]
+GO
+
+IF NOT EXISTS (select * from syscolumns where id = object_id('dbo.ExchangeTestNames'))
+BEGIN	
+	CREATE TABLE [dbo].[ExchangeTestNames](
+	[TestId] [int] IDENTITY(1,1) NOT NULL,
+	[TestName] [nvarchar](50) NULL
+) 
+
+END
+GO
+USE [vitalsigns]
+GO
+DELETE FROM [ExchangeTestNames]
+--14/07/2016 sowmya added for VSPLUS-3097
+/****** Object:  Table [dbo].[ExchangeTestNames]    Script Date: 07/15/2016 12:39:59 ******/
+SET IDENTITY_INSERT [dbo].[ExchangeTestNames] ON
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (1, N'SMTP')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (2, N'POP3')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (3, N'IMAP')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (4, N'Outlook Anywhere')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (5, N'Auto Discovery')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (6, N'Active Sync')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (7, N'OWA (Outlook Web App)')
+INSERT [dbo].[ExchangeTestNames] ([TestId], [TestName]) VALUES (8, N'Outlook Native RPC')
+SET IDENTITY_INSERT [dbo].[ExchangeTestNames] OFF
+
+IF EXISTS( select * from syscolumns where id=object_id('dbo.EventsMaster'))
+BEGIN
+	SET IDENTITY_INSERT [dbo].[EventsMaster] ON
+	DELETE from [dbo].[EventsMaster] where EventName = 'Create Mail Folder'
+	INSERT INTO [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (186, N'Create Mail Folder', 21)
+	SET IDENTITY_INSERT [dbo].[EventsMaster] OFF
+END
+GO
+
+
+IF EXISTS( select * from syscolumns where id=object_id('dbo.EventsMaster'))
+BEGIN
+	SET IDENTITY_INSERT [dbo].[EventsMaster] ON
+	DELETE from [dbo].[EventsMaster] where EventName = 'URL'
+	INSERT INTO [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (187, N'URL', 21)
+	SET IDENTITY_INSERT [dbo].[EventsMaster] OFF
+END
+GO
+
+IF EXISTS( select * from syscolumns where id=object_id('dbo.EventsMaster'))
+BEGIN
+	SET IDENTITY_INSERT [dbo].[EventsMaster] ON
+	DELETE from [dbo].[EventsMaster] where EventName = 'DirSync Import'
+	INSERT INTO [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (188, N'DirSync Import', 21)
+	SET IDENTITY_INSERT [dbo].[EventsMaster] OFF
+END
+GO
+
+
+IF EXISTS( select * from syscolumns where id=object_id('dbo.EventsMaster'))
+BEGIN
+	SET IDENTITY_INSERT [dbo].[EventsMaster] ON
+	DELETE from [dbo].[EventsMaster] where EventName = 'DirSync Export'
+	INSERT INTO [dbo].[EventsMaster] ([ID], [EventName], [ServerTypeID]) VALUES (189, N'DirSync Export', 21)
+	SET IDENTITY_INSERT [dbo].[EventsMaster] OFF
+END
+GO
+
+/* 9/2/2016 NS modified for VSPLUS-3192 */
+USE [vitalsigns]
+GO
+IF EXISTS( SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_NAME = 'AlertHistory' 
+           AND  COLUMN_NAME = 'DeviceName')
+BEGIN
+	ALTER TABLE AlertHistory
+	ALTER COLUMN [DeviceName] [varchar](150) NULL
+END
+
 
 -- +++++++++++ NO CHANGES BELOW THIS POINT +++++++++++
 USE [vitalsigns]

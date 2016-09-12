@@ -93,6 +93,15 @@ go
 
 USE [VSS_Statistics]
 GO
+EXEC sp_configure 'default language', 0 
+RECONFIGURE 
+GO
+
+ALTER LOGIN VS WITH DEFAULT_LANGUAGE = English
+GO
+
+USE [VSS_Statistics]
+GO
 
 CREATE TABLE [dbo].[ExchangeMailFiles](
 	[ID] [int] IDENTITY(1,1) NOT NULL,

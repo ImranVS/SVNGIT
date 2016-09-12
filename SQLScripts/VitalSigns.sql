@@ -96,6 +96,16 @@ GO
 EXEC sp_addrolemember N'db_owner', N'vs'
 go
 
+USE [vitalsigns]
+GO
+EXEC sp_configure 'default language', 0 
+GO
+RECONFIGURE 
+GO
+
+ALTER LOGIN VS WITH DEFAULT_LANGUAGE = English
+GO
+
 /****** Object:  UserDefinedFunction [dbo].[VSDayOfWeek]    Script Date: 09/23/2013 16:59:31 ******/
 SET ANSI_NULLS ON
 GO
@@ -1221,9 +1231,10 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/* 9/2/2016 NS modified for VSPLUS-3192 */
 CREATE TABLE [dbo].[AlertHistory](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
-	[DeviceName] [nvarchar](50) NULL,
+	[DeviceName] [varchar](150) NULL,
 	[DeviceType] [nvarchar](50) NULL,
 	[AlertType] [nvarchar](255) NULL,
 	[DateTimeOfAlert] [datetime] NULL,
@@ -2806,6 +2817,7 @@ GO
 */
 
 /******Mukund:VSPlus-984: Object:  StoredProcedure [dbo].[ServerLocations]    Script Date: 10/11/2014 14:55:39 ******/
+--22/7/2016 Durga Modified for VSPLUS-3125
 CREATE procedure [dbo].[ServerLocations] as
 Begin
 declare @SrvLocations Table
@@ -2828,6 +2840,11 @@ Declare @description varchar(100)
 DECLARE db_cursor CURSOR FOR  
 select sr.ID,sr.ServerName,sr.LocationID,sr.ServerTypeId,srt.ServerType,sr.description from Servers sr,
 ServerTypes srt,SelectedFeatures ft  where sr.ServerTypeId=srt.id and ft.FeatureId=srt.FeatureId
+union
+select sr.ID,sr.name as ServerName ,ln.ID as LocationID,ST.ID as ServerTypeId,ST.ServerType,sr.Category as description
+FROM   [vitalsigns].[dbo].Status s,[vitalsigns].[dbo].Nodes n,[vitalsigns].[dbo].O365Nodes o365,
+[vitalsigns].[dbo].Locations ln,[vitalsigns].[dbo].O365Server sr, ServerTypes ST where s.Name=sr.Name and
+ sr.ID=o365.O365ServerID and o365.NodeID=n.ID and n.LocationID=ln.ID and s.Location=ln.Location and sr.ServerTypeid = st.ID
 union
 select sr.ID,sr.Name as ServerName,sr.LocationID,sr.ServerTypeId,srt.ServerType, sr.TheURL
 from URLs sr,ServerTypes srt,SelectedFeatures ft   where sr.ServerTypeId=srt.id  and ft.FeatureId=srt.FeatureId
@@ -5964,7 +5981,8 @@ CREATE TABLE [dbo].[O365Server](
 	[Mode] [nvarchar](50) NULL,
     [ServerName] [nvarchar](100) NULL,
     [CredentialsId] [int] NULL,
-    [Costperuser] [int] NULL,
+    --Sowjanya VSPLUS -3106
+    [Costperuser] [float] NULL,
  CONSTRAINT [PK_O365Master] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
@@ -11470,6 +11488,8 @@ CREATE TABLE [dbo].[IbmConnectionsUsers](
 	[DisplayName] [varchar](255) NOT NULL,
 	[GUID] [varchar](255) NOT NULL,
 	[ServerID] [int] NOT NULL,
+	[IsInternal] BIT NULL,
+	[IsActive] BIT NULL,
  CONSTRAINT [PK_IbmConnectionsUsers] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
@@ -11577,9 +11597,101 @@ GO
 ALTER TABLE [dbo].[IbmConnectionsCommunity] CHECK CONSTRAINT [IbmConnectionsCommunity_ObjectID_IbmConnectionsObjects_ID]
 GO
 
+--6/21/16 WS Added for VSPLUS-3035
 
+USE [vitalsigns]
+GO
 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TRIGGER [dbo].[tr_UpdateDeviceInventoryIbmConnectionsServers]
+   ON  [dbo].[IbmConnectionsServers]
+   AFTER UPDATE
+AS 
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+	IF UPDATE([Enabled])
+	BEGIN
+		IF (SELECT [Enabled] FROM Deleted) = 0 AND (SELECT [Enabled] FROM Inserted) = 1
+		BEGIN
+			INSERT INTO DeviceInventory
+			(Name, DeviceID, DeviceTypeID, LocationID)
+			SELECT
+				s.ServerName, ServerID, 27, s.LocationID
+				FROM inserted i INNER JOIN Servers s ON i.ServerID=s.ID
+				WHERE i.[Enabled] = 1
+		END
+		ELSE
+		 IF (SELECT [Enabled] FROM Inserted) = 0 AND (SELECT [Enabled] FROM Deleted) = 1
+		 BEGIN
+			DELETE d FROM DeviceInventory AS d INNER JOIN Inserted AS i ON d.DeviceID = i.ServerID
+			AND  d.DeviceTypeID=27 AND i.[Enabled] = 0
+		 END
+	END
+END
 
+GO
+
+-- WS Added for 3098 --
+
+USE [vitalsigns]
+GO
+
+/****** Object:  Table [dbo].[SharePointServerSettings]    Script Date: 7/5/2016 6:21:05 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[SharePointServerSettings](
+	[ServerID] [int] NOT NULL,
+	[ConflictingContentType] [bit] NULL,
+	[CustomizedFiles] [bit] NULL,
+	[MissingGalleries] [bit] NULL,
+	[MissingParentContentTypes] [bit] NULL,
+	[MissingSiteTemplates] [bit] NULL,
+	[UnsupportedLanguagePack] [bit] NULL,
+	[UnsupportedMUI] [bit] NULL
+) ON [PRIMARY]
+
+GO
+
+/****** Object:  Table [dbo].[ExchangeTestNames]    Script Date: 07/14/2016 18:23:00 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[ExchangeTestNames](
+	[TestId] [int] IDENTITY(1,1) NOT NULL,
+	[TestName] [nvarchar](50) NULL
+) ON [PRIMARY]
+
+GO
+
+/****** Object:  Table [dbo].[CASServerTests]    Script Date: 07/14/2016 18:24:59 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CASServerTests](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[ServerId] [int] NULL,
+	[TestId] [int] NULL,
+	[URLs] [nvarchar](max) NULL,
+	[CredentialsId] [int] NULL
+) ON [PRIMARY]
+
+GO
 
 -- +++++++++++ NO CHANGES BELOW THIS POINT +++++++++++
 USE [vitalsigns]

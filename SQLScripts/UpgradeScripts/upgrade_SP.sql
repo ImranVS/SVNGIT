@@ -1069,7 +1069,7 @@ END
 
 
 GO
-
+--22/7/2016 Durga Modified for VSPLUS-3125
 
 USE [vitalsigns]
 GO
@@ -1100,6 +1100,11 @@ Declare @description varchar(100)
 DECLARE db_cursor CURSOR FOR  
 select sr.ID,sr.ServerName,sr.LocationID,sr.ServerTypeId,srt.ServerType,sr.description from Servers sr,
 ServerTypes srt,SelectedFeatures ft  where sr.ServerTypeId=srt.id and ft.FeatureId=srt.FeatureId
+union
+select sr.ID,sr.name as ServerName ,ln.ID as LocationID,ST.ID as ServerTypeId,ST.ServerType,sr.Category as description
+FROM   [vitalsigns].[dbo].Status s,[vitalsigns].[dbo].Nodes n,[vitalsigns].[dbo].O365Nodes o365,
+[vitalsigns].[dbo].Locations ln,[vitalsigns].[dbo].O365Server sr, ServerTypes ST where s.Name=sr.Name and
+ sr.ID=o365.O365ServerID and o365.NodeID=n.ID and n.LocationID=ln.ID and s.Location=ln.Location and sr.ServerTypeid = st.ID
 union
 select sr.ID,sr.Name as ServerName,sr.LocationID,sr.ServerTypeId,srt.ServerType, sr.TheURL
 from URLs sr,ServerTypes srt,SelectedFeatures ft   where sr.ServerTypeId=srt.id  and ft.FeatureId=srt.FeatureId
@@ -5327,9 +5332,9 @@ BEGIN
 				SET @count=0
 				BEGIN TRANSACTION DELETEDOMINODAILYSTATS
 				SET @sql_string = N' ;with CTE as 
-				 (SELECT top(50000)* FROM '+@SourceTableName+' WHERE date<= (GETDATE()-30))
+				 (SELECT top(50000)* FROM '+@SourceTableName+' WHERE date<= (GETDATE()-2))
 				 DELETE from CTE; 	
-				 SELECT @pCount=count(*) from '+@SourceTableName+' WHERE date<= (GETDATE()-30);'
+				 SELECT @pCount=count(*) from '+@SourceTableName+' WHERE date<= (GETDATE()-2);'
 				EXECUTE sp_executesql @sql_string,	N'@pCount int output',@pCount = @count output 				
 				COMMIT TRANSACTION DELETEDOMINODAILYSTATS
 			 END
@@ -5732,6 +5737,18 @@ GO
 USE [vitalsigns]
 GO
 
+
+IF  EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'[dbo].[tr_DeleteDeviceInventoryO365Server]'))
+DROP TRIGGER [dbo].[tr_DeleteDeviceInventoryO365Server]
+GO
+CREATE TRIGGER [dbo].[tr_DeleteDeviceInventoryO365Server]
+ON [dbo].[O365Server]
+FOR DELETE AS
+
+BEGIN
+delete from dbo.DeviceInventory where DeviceTypeID =21  AND DeviceID=(SELECT ID  FROM DELETED) 
+END
+GO
 
 -- +++++++++++ NO CHANGES BELOW THIS POINT +++++++++++
 USE [vitalsigns]

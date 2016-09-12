@@ -9,6 +9,14 @@ CREATE TABLE [dbo].[ValidLocations](
 	[State] [varchar](250) NULL
 ) ON [PRIMARY]
 
+END
+
+GO
+
+IF EXISTS (select * from syscolumns where id = object_id('dbo.ValidLocations'))
+BEGIN
+
+DELETE FROM [vitalsigns].[dbo].[ValidLocations]
 
 INSERT INTO [VitalSigns].[dbo].[ValidLocations] ([Country], [State]) VALUES  ('Afghanistan', 'Daykundi') 
 
