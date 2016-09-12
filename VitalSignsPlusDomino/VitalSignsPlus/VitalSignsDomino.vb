@@ -2,7 +2,7 @@
 'Also use IP*Works components, see http://www.ipworks.com
 ' .NET Reactor  www.ezriz.com
 
-'Written by Alan Forbes and made awesome by Joe Thumma
+'Written by Alan Forbes and made awesome by Joe Thumma and Natallya Scharayeva
 
 
 'Copyright 2014, All Rights Reserved JNIT Inc. and Plum Island Publishing, LLC
@@ -86,6 +86,10 @@ Public Class VitalSignsPlusDomino
 	Dim NotesSession As New Domino.NotesSession
     '1/4/2016 NS added for VSPLUS-2434
     Dim MailStatsDict As New Dictionary(Of String, Integer)
+    '6/28/2016 NS added for VSPLUS-3079
+    Dim ConsecutiveTelnetDict As New Dictionary(Of String, Integer)
+    '8/30/2016 NS added for VSPLUS-3176
+    Dim ConsecutiveCustomStatsDict As New Dictionary(Of String, Integer)
 	'Private Shared URLSelector_Mutex As New Mutex()
 
 
@@ -408,8 +412,10 @@ Public Class VitalSignsPlusDomino
 	Protected Overrides Sub OnStop()
         ' Add code here to perform any tear-down necessary to stop your service.
         '1/4/2016 NS added for VSPLUS-2434
-        UpdateMailStats()
-		boolTimeToStop = True
+        '6/28/2016 NS modified for VSPLUS-3079
+        UpdateSettings()
+
+        boolTimeToStop = True
 		Thread.Sleep(1000)
 		Try
 			WriteAuditEntry(Now.ToString + " The service is stopping.")
@@ -457,10 +463,18 @@ Public Class VitalSignsPlusDomino
 
         '1/4/2016 NS added for VSPLUS-2434
         WriteAuditEntry(Now.ToString & " Attempting to start Mail stats SQL update ... ")
-        Dim threadUpdateMailStats As New Thread(AddressOf UpdateMailStats)
+        Dim threadUpdateMailStats As New Thread(AddressOf UpdateSettings)
         threadUpdateMailStats.CurrentCulture = New CultureInfo(sCultureString)
         threadUpdateMailStats.Start()
 
+        '6/28/2016 NS added for VSPLUS-3079
+        'The code below is commented out because the consecutive values are read from SQL if the corresponding dictionary is empty
+        'The read happens in the call above, the line that starts Dim threadUpdateMailStats As New Thread(AddressOf UpdateSettings)
+
+        'WriteAuditEntry(Now.ToString & " Attempting to start Consecutive Telnet READ count SQL update ... ")
+        'Dim threadUpdateConsecutiveTelnet1 As New Thread(AddressOf GetConsecutiveTelnetCount)
+        'threadUpdateConsecutiveTelnet1.CurrentCulture = New CultureInfo(sCultureString)
+        'threadUpdateConsecutiveTelnet1.Start()
 
 		WriteAuditEntry(Now.ToString & " Attempting to start NotesMail monitoring... ")
 		Dim threadMonitorNotesMail As New Thread(AddressOf NotesMailLoop)
@@ -1621,7 +1635,7 @@ Public Class VitalSignsPlusDomino
         Try
             Dim myAdapter As New VSFramework.XMLOperation
             MyPass = myAdapter.ReadSettingsSQL("Password")
-            WriteAuditEntry(Now.ToString & " Password type is " & MyPass.GetType.ToString)
+            WriteAuditEntry(Now.ToString & " Password type is " & MyPass.GetType.ToString, LogLevel.Verbose)
             'WriteAuditEntry(Now.ToString & " Raw password is " & MyPass.ToString)
         Catch ex As Exception
             MyPass = Nothing

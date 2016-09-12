@@ -417,11 +417,9 @@ Partial Public Class VitalSignsPlusDomino
 	End Sub
 
     '1/4/2016 NS added for VSPLUS-2434
-    Protected Sub UpdateMailStats()
+    Protected Sub UpdateSettings()
 		Do While boolTimeToStop <> True
 			Try
-
-			
 			WriteAuditEntry(Now.ToString & " Will now attempt to update the Settings table in SQL.")
 			If MailStatsDict.Count > 0 Then
 				WriteAuditEntry(Now.ToString & " Found statistics, trying to update SQL.")
@@ -429,16 +427,64 @@ Partial Public Class VitalSignsPlusDomino
 				For i As Integer = 0 To key.Count - 1
 					WriteAuditEntry(Now.ToString & " Updating the SQL Settings table with " & key(i).ToString() & "   " & MailStatsDict.Item(key(i)).ToString())
 					WriteSettingsValue(key(i), MailStatsDict.Item(key(i)))
+                    Next
+                Else
+                    WriteAuditEntry(Now.ToString & " No statistics found.")
+                End If
 
+                If ConsecutiveTelnetDict.Count > 0 Then
+                    WriteAuditEntry(Now.ToString & " Found consecutive telnet values, trying to update SQL.")
+                    Dim key As Dictionary(Of String, Integer).KeyCollection = ConsecutiveTelnetDict.Keys
+                    For i As Integer = 0 To key.Count - 1
+                        WriteAuditEntry(Now.ToString & " Updating the SQL Settings table with " & key(i).ToString() & "   " & ConsecutiveTelnetDict.Item(key(i)).ToString())
+                        WriteSettingsValue(key(i), ConsecutiveTelnetDict.Item(key(i)))
 				Next
+                Else
+                    WriteAuditEntry(Now.ToString & " No consecutive telnet values found. Will now try to get the previous values from SQL.")
+                    Dim strSQL As String = "SELECT sname,svalue FROM Settings WHERE sname LIKE '%-ConsecutiveTelnet' "
+                    WriteAuditEntry(Now.ToString & " Get Consecutive Telnet SQL= " & strSQL)
+                    Dim dbAdapter As New VSAdaptor
+                    Dim dsTelnet As New DataSet
+                    Dim dt As New DataTable
+                    dsTelnet.Tables.Add("Telnet")
+                    dbAdapter.FillDatasetAny("VitalSigns", "vs", strSQL, dsTelnet, "Telnet")
+                    dt = dsTelnet.Tables(0)
+                    For Each row As DataRow In dt.Rows
+                        If ConsecutiveTelnetDict.ContainsKey(row.Item(0).ToString()) Then
+                            ConsecutiveTelnetDict(row.Item(0).ToString()) = row.Item(1)
+                        Else
+                            ConsecutiveTelnetDict.Add(row.Item(0).ToString(), row.Item(1))
+                        End If
+                    Next
+                End If
 
-				'For Each key As String In MailStatsDict.Keys
-				'	WriteAuditEntry(Now.ToString & " Updating the SQL Settings table with " & key & "   " & MailStatsDict(key))
-				'	WriteSettingsValue(key, MailStatsDict(key))
-				'Next
+                '8/30/2016 NS added for VSPLUS-3176
+                If ConsecutiveCustomStatsDict.Count > 0 Then
+                    WriteAuditEntry(Now.ToString & " Found consecutive custom stat values, trying to update SQL.")
+                    Dim key As Dictionary(Of String, Integer).KeyCollection = ConsecutiveCustomStatsDict.Keys
+                    For i As Integer = 0 To key.Count - 1
+                        WriteAuditEntry(Now.ToString & " Updating the SQL Settings table with " & key(i).ToString() & "   " & ConsecutiveCustomStatsDict.Item(key(i)).ToString())
+                        WriteSettingsValue(key(i), ConsecutiveCustomStatsDict.Item(key(i)))
+                    Next
 			Else
-				WriteAuditEntry(Now.ToString & " No statistics found.")
+                    WriteAuditEntry(Now.ToString & " No consecutive custom stat values found. Will now try to get the previous values from SQL.")
+                    Dim strSQL As String = "SELECT sname,svalue FROM Settings WHERE sname LIKE '%-CustomStats-%' "
+                    WriteAuditEntry(Now.ToString & " Get Custom Stats SQL= " & strSQL)
+                    Dim dbAdapter As New VSAdaptor
+                    Dim dsTelnet As New DataSet
+                    Dim dt As New DataTable
+                    dsTelnet.Tables.Add("CustomStats")
+                    dbAdapter.FillDatasetAny("VitalSigns", "vs", strSQL, dsTelnet, "CustomStats")
+                    dt = dsTelnet.Tables(0)
+                    For Each row As DataRow In dt.Rows
+                        If ConsecutiveCustomStatsDict.ContainsKey(row.Item(0).ToString()) Then
+                            ConsecutiveCustomStatsDict(row.Item(0).ToString()) = row.Item(1)
+                        Else
+                            ConsecutiveCustomStatsDict.Add(row.Item(0).ToString(), row.Item(1))
 			End If
+                        WriteAuditEntry(Now.ToString & " ConsecutiveCustomStatsDict: " & row.Item(0).ToString() & ", " & row.Item(1))
+                    Next
+                End If
 				Thread.Sleep(300000) '5 minutes
 			Catch ex As Exception
 				WriteAuditEntry(Now.ToString & " Error Updating the SQL Settings table with. Exception " + ex.Message.ToString())
@@ -475,190 +521,179 @@ Partial Public Class VitalSignsPlusDomino
 				Return Me.List(iIndex)
 			End Get
 		End Property
+        '8/11/2016 NS added for VSPLUS-3167
+        Public Function Find(ByVal sName As String) As Integer
+            Dim iIndex As Integer
+            Dim keyword As LogFileKeyword
+            For iIndex = 0 To Me.List.Count - 1
+                keyword = Me.List(iIndex)
+                If keyword.ServerName = sName Then
+                    Return iIndex
+                    Exit Function
+                End If
+            Next
+            Return -1
+        End Function
 	End Class
     Public Function convertQuotes(ByVal str As String) As String
         convertQuotes = str.Replace("'", "''")
     End Function
 
 	Private Sub CheckDominoLogFile(ByRef DominoServer As MonitoredItems.DominoServer)
-		'Dim servername As New Data.DataSet
-		'passind server id get servername
+        '8/16/2016 NS modified for VSPLUS-3167
+        Dim db As Domino.NotesDatabase
+        Dim coll As Domino.NotesDocumentCollection
+        Dim doc As Domino.NotesDocument
+        Dim field As Domino.NotesItem
+        Dim dt As Domino.NotesDateTime
+        Dim objArr() As Object
+        Dim startInd As Integer = 0
+        Dim endInd As Integer = 0
+        Dim keyInd As Integer = -1
+        Dim searchStr As String
+        Dim lastProcessedDate As DateTime = DateTime.Now.Date
+        Dim lastProcessedDocId As String = ""
+        Dim lastLineProcessed As Integer = 0
+        Dim start, done As Long
+        Dim elapsed As TimeSpan
+        Dim span As System.TimeSpan
+        start = Now.Ticks
 
-		WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Inside CheckDominoLogFile")
-
-		'If DominoServer.ScanLog = False Then
-		'	WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " DominoServer.ScanLog false")
-
-		'	Exit Sub
-		'End If
+        WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Started Domino Log processing (CheckDominoLogFile)")
 		If myKeywords.Count = 0 Then
-			WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Not scanning the log file because no keywords are defined.")
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Not scanning the log file because no keywords are defined.")
+            DominoServer.IsLogFileBeingScanned = False
 			Exit Sub
 		Else
-			WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Scanning the log file for keywords.")
+            'Iterate through the list of keywords to figure out whether the current server has any associated keywords
+            keyInd = myKeywords.Find(DominoServer.Name)
+            If keyInd = -1 Then
+                WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Not scanning the log file because no keywords are defined for this server.")
+                DominoServer.IsLogFileBeingScanned = False
+                Exit Sub
+            Else
+                WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Scanning the log file for keywords.")
 		End If
-		' WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  ")
-		' WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " ---------------  Begin Recent Log Events  -------------------")
+        End If
 
-		Dim db As Domino.NotesDatabase
-		Dim view As Domino.NotesView
-		Dim doc As Domino.NotesDocument
-		Dim field As Domino.NotesItem
-		WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Scanning the log file before database.")
+        WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Scanning the log file - before getting a handle on the log database.")
 		Try
 			db = NotesSession.GetDatabase(DominoServer.Name, "log.nsf", False)
+            lastProcessedDate = DominoServer.LastDocCreatedDate
+            If DominoServer.LastDocCreatedDate = DateTime.MinValue Then
+                lastProcessedDate = New DateTime(Now.Year, Now.Month, Now.Day, 0, 0, 0)
+                lastProcessedDate = lastProcessedDate.AddMinutes(1)
+                WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " The last processed date/time is: " & lastProcessedDate)
+            End If
 		Catch ex As Exception
-			WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error getting log.nsf -> " & ex.ToString)
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Error getting log.nsf -> " & ex.ToString)
 			GoTo Cleanup
 		End Try
 
+        WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Scanning the log file - before getting a document collection.")
 		Try
-			WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Scanning the log file before MiscEvents.")
-			view = db.GetView("MiscEvents")
+            searchStr = "Form=""Events"" & ("
+            For i = 0 To myKeywords.Count - 1
+                If myKeywords.Item(i).ServerName = DominoServer.Name Then
+                    searchStr += "@Contains(@LowerCase(EventList);@LowerCase(""" & myKeywords.Item(i).Keyword & """)) | "
+                End If
+            Next
+            searchStr = searchStr.Substring(0, searchStr.Length - 2) + ") "
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " The search string is: " & searchStr)
+            dt = NotesSession.CreateDateTime(lastProcessedDate)
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " The last processed date is: " & dt.LSLocalTime)
+            coll = db.Search(searchStr, dt, 0)
 		Catch ex As Exception
-			WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error getting log.nsf views -> " & ex.ToString)
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Error performing a db search -> " & ex.ToString)
 			GoTo Cleanup
 		End Try
 
-		Try
-
-			If Not (view Is Nothing) Then
-
-				If DominoServer.LastLogDocScanned = "" Then
-					doc = view.GetLastDocument
-					DominoServer.LastLogDocScanned = doc.UniversalID
-					WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Scanning the log file  LastLogDocScanned is empty")
+        If coll.Count = 0 Then
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " The search returned NO matching documents. Exiting log file scanning...")
+            GoTo Cleanup
 				Else
-					'4/6/2015 NS modified
-					'db.GetDocumentByUNID(DominoServer.LastLogDocScanned)
-					'7/8/2015 NS modified for VSPLUS-1761
-					'doc = db.GetDocumentByUNID(DominoServer.LastLogDocScanned)
-					'doc = view.GetNextDocument(doc)
-					WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Scanning the log file  LastLogDocScanned is not empty")
-					doc = view.GetLastDocument
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " The search returned " & coll.Count.ToString() & " documents.")
+        End If
 
+        Try
+            doc = coll.GetFirstDocument
+            lastProcessedDocId = DominoServer.LastLogDocScanned
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " The first search doc " & lastProcessedDate & ", " & lastProcessedDocId, LogLevel.Verbose)
 					While Not doc Is Nothing
-						WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " After last count is nothing")
 						If doc.UniversalID = DominoServer.LastLogDocScanned Then
-							WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Prev doc " & doc.UniversalID, LogUtilities.LogUtils.LogLevel.Verbose)
-							doc = view.GetNextDocument(doc)
-							If Not doc Is Nothing Then
-								WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Next doc " & doc.UniversalID, LogUtilities.LogUtils.LogLevel.Verbose)
-							Else
-								WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Next doc is nothing ", LogUtilities.LogUtils.LogLevel.Verbose)
+                    field = doc.GetFirstItem("EventList")
+                    objArr = field.Values
+                    Dim eventlistArr(objArr.Length) As String
+                    Array.Copy(objArr, eventlistArr, objArr.Length)
+                    WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " eventlistArr.Length - " & eventlistArr.Length.ToString() & "; LogLineCounter - " & DominoServer.LogLineCounter.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+                    If DominoServer.LogLineCounter <> eventlistArr.Length Then
+                        'Document has not been processed completely, process remaining lines
+                        WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Current doc " & doc.UniversalID & " has some new lines to process", LogUtilities.LogUtils.LogLevel.Verbose)
+                        startInd = DominoServer.LogLineCounter
+                        endInd = eventlistArr.Length - 1
+                        ProcessDominoLogFileDoc(DominoServer, doc, startInd, endInd)
 							End If
-							Exit While
 						Else
-							doc = view.GetPrevDocument(doc)
+                    If Convert.ToDateTime(doc.Created) >= DominoServer.LastDocCreatedDate Then
+                        field = doc.GetFirstItem("EventList")
+                        objArr = field.Values
+                        Dim eventlistArr(objArr.Length) As String
+                        Array.Copy(objArr, eventlistArr, objArr.Length)
+                        startInd = 0
+                        endInd = eventlistArr.Length - 1
+                        ProcessDominoLogFileDoc(DominoServer, doc, startInd, endInd)
 						End If
-					End While
 				End If
-
+                If Convert.ToDateTime(doc.Created) >= lastProcessedDate Then
+                    lastProcessedDate = Convert.ToDateTime(doc.Created)
+                    lastProcessedDocId = doc.UniversalID
+                    lastLineProcessed = DominoServer.LogLineCounter
 			End If
+                doc = coll.GetNextDocument(doc)
+            End While
+            DominoServer.LastLogDocScanned = lastProcessedDocId
+            DominoServer.LastDocCreatedDate = lastProcessedDate
+            DominoServer.LogLineCounter = lastLineProcessed
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " lastProcessedDocId: " & lastProcessedDocId & ", lastProcessedDate: " & lastProcessedDate & ", lastLineProcessed: " & lastLineProcessed, LogLevel.Verbose)
 		Catch ex As Exception
-			WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error getting log.nsf document-> " & ex.ToString)
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Error processing collection documents -> " & ex.ToString)
 			GoTo Cleanup
 		End Try
 
-
-		Try
-			Dim i As Integer = 0
-			For i = 0 To myKeywords.Count - 1
-				WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Searching log file for " & myKeywords.Item(i).Keyword)
-			Next
-		Catch ex As Exception
-
-		End Try
-
-		While Not doc Is Nothing
-
-			Try
-				If Not (doc Is Nothing) Then
-					field = doc.GetFirstItem("EventList")
-					WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Searching log file for EventList")
-				End If
-				Dim i As Integer = 0
-                Dim item As String
-                '4/26/2016 NS added for VSPLUS-2844
-                Dim excludeArr() As String
-                Dim n As Integer = 0
-                Dim proceed As Boolean = True
-
-				WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Searching log file for before field values")
-				For Each item In field.Values
-					'  WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Event: " & item.ToString)
-					For i = 0 To myKeywords.Count - 1
-						Try
-							WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Searching log file for mykeywordscount-1")
-							WriteDeviceHistoryEntry("Domino", DominoServer.Name, UCase(myKeywords.Item(i).ServerName) & "-" & UCase(DominoServer.Name) & "-- Condition Status --" & (UCase(myKeywords.Item(i).ServerName) = UCase(DominoServer.Name)))
-
-							WriteDeviceHistoryEntry("Domino", DominoServer.Name, UCase(item.ToString) & "-" & UCase(myKeywords.Item(i).Keyword) & "-- Condition Status --" & (InStr(UCase(item.ToString), UCase(myKeywords.Item(i).Keyword)) > 0))
-							WriteDeviceHistoryEntry("Domino", DominoServer.Name, "-- Condition Status Scn log --" & (myKeywords.Item(i).ScanLog))
-
-							'4/7/2015 NS modified for VSPLUS-1630
-							'modified for VSPLUS-2300
-							If myKeywords.Item(i).ScanLog = True And InStr(UCase(item.ToString), UCase(myKeywords.Item(i).Keyword)) > 0 And UCase(myKeywords.Item(i).ServerName) = UCase(DominoServer.Name) Then
-                                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " all keywords searching")
-                                '4/26/2016 NS modified for VSPLUS-2844
-                                If InStr(myKeywords.Item(i).NotRequiredKeyword, ",") > 0 Then
-                                    excludeArr = myKeywords.Item(i).NotRequiredKeyword.Split(",")
-                                    For n = 0 To excludeArr.Length - 1
-                                        If InStr(UCase(item.ToString), UCase(excludeArr(n))) > 0 Then
-                                            proceed = False
-                                            Exit For
-                                        End If
-                                    Next
-                                Else
-                                    If InStr(UCase(item.ToString), UCase(myKeywords.Item(i).NotRequiredKeyword)) > 0 And myKeywords.Item(i).NotRequiredKeyword <> "" Then
-                                        proceed = False
-                                    End If
-                                End If
-                                'If InStr(UCase(item.ToString), UCase(myKeywords.Item(i).NotRequiredKeyword)) = 0 Or myKeywords.Item(i).NotRequiredKeyword = "" Then
-                                If proceed Then
-                                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  ")
-                                    If myKeywords.Item(i).RepeatOnce = True Then
-                                        '10/3/2014 NS modified for VSPLUS-981
-                                        '4/6/2015 NS reverted the code back to the original line below in order to keep track of multiple keywords per server
-                                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Log File - " & myKeywords.Item(i).Keyword, "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
-                                        '12/18/2014 NS modified
-                                        'myAlert.QueueAlert("Domino", DominoServer.Name, "Log File", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & convertQuotes(item), DominoServer.Location)
-                                    Else
-                                        '10/3/2014 NS modified for VSPLUS-981
-                                        '4/6/2015 NS reverted the code back to the original line below in order to keep track of multiple keywords per server
-                                        '5/14/2015 NS modified for VSPLUS-1761 - added ticks in parenthesis to distinguish between entries when a lot of records are found
-                                        myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Log File - " & myKeywords.Item(i).Keyword & " at " & Now.ToString & " (" & Now.Ticks.ToString() & ")", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & item, DominoServer.Location)
-                                        '12/18/2014 NS modified
-                                        'myAlert.QueueAlert("Domino", DominoServer.Name, "Log File", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & convertQuotes(item), DominoServer.Location)
-                                    End If
-                                End If
-                            End If
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error in inner try block for log scanning.  Error: " & ex.Message)
-                        End Try
-
-					Next
-
-				Next
-
-			Catch ex As Exception
-				WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error in outer try block for log scanning.  Error: " & ex.Message)
-			End Try
-
-			'  WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " ---------------  Advancing to next Log document  -------------------")
-			DominoServer.LastLogDocScanned = doc.UniversalID
-			doc = view.GetNextDocument(doc)
-
-
-		End While
-
-		'     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " ---------------  End Recent Log Events  -------------------")
 Cleanup:
 		Try
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(doc)
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(field)
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(view)
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Completed Domino Log processing (CheckDominoLogFile)")
+            'Record the most current processed log document and line number in SQL
+            WriteSettingsValue(DominoServer.Name + "-LastLogDocScanned", DominoServer.LastLogDocScanned)
+            WriteSettingsValue(DominoServer.Name + "-LogLineCounter", DominoServer.LogLineCounter)
+            WriteSettingsValue(DominoServer.Name + "-LastDocCreatedDate", DominoServer.LastDocCreatedDate)
+            DominoServer.IsLogFileBeingScanned = False
 		Catch ex As Exception
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Exception In Cleanup: " & ex.Message)
+        Finally
+            DominoServer.IsLogFileBeingScanned = False
+		End Try
+			Try
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(dt)
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " released dt", LogLevel.Verbose)
+            If Not field Is Nothing Then
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(field)
+                WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " released field", LogLevel.Verbose)
+				End If
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(coll)
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " released coll", LogLevel.Verbose)
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " released db", LogLevel.Verbose)
+                        Catch ex As Exception
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Exception releasing COM objects: " & ex.Message)
+                        End Try
+        Try
+            done = Now.Ticks
+            elapsed = New TimeSpan(done - start)
+
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString + ": Time to scan log = " & elapsed.TotalMilliseconds & " ms")
+            WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString + ": Time to scan log = " & elapsed.TotalSeconds & " seconds")
+			Catch ex As Exception
 
 		End Try
 	End Sub
@@ -824,7 +859,66 @@ Cleanup:
         End Try
     End Sub
 
+    Private Sub ProcessDominoLogFileDoc(ByRef DominoServer As MonitoredItems.DominoServer, ByRef doc As Domino.NotesDocument, ByVal startInd As Integer, ByVal endInd As Integer)
+        Dim i As Integer = 0
+        Dim excludeArr() As String
+        Dim field As Domino.NotesItem
+        Dim objArr() As Object
+        Dim n As Integer = 0
+        Dim proceed As Boolean = True
 
+        If Not doc Is Nothing Then
+            Try
+                field = doc.GetFirstItem("EventList")
+                objArr = field.Values
+                Dim eventlistArr(objArr.Length) As String
+                Array.Copy(objArr, eventlistArr, objArr.Length)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " startInd - " & startInd.ToString() & "; endInd - " & endInd.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " First line to be processed - " & eventlistArr(startInd), LogUtilities.LogUtils.LogLevel.Verbose)
+                For x = startInd To endInd
+                    For i = 0 To myKeywords.Count - 1
+                        Try
+                            WriteDeviceHistoryEntry("Domino", DominoServer.Name, UCase(myKeywords.Item(i).ServerName) & "-" & UCase(DominoServer.Name) & "-- Condition Status --" & (UCase(myKeywords.Item(i).ServerName) = UCase(DominoServer.Name)), LogUtilities.LogUtils.LogLevel.Verbose)
+                            WriteDeviceHistoryEntry("Domino", DominoServer.Name, UCase(eventlistArr(x)) & "-" & UCase(myKeywords.Item(i).Keyword) & "-- Condition Status --" & (InStr(UCase(eventlistArr(x)), UCase(myKeywords.Item(i).Keyword)) > 0), LogUtilities.LogUtils.LogLevel.Verbose)
+                            '4/7/2015 NS modified for VSPLUS-1630
+                            'modified for VSPLUS-2300
+                            If myKeywords.Item(i).ScanLog = True And InStr(UCase(eventlistArr(x)), UCase(myKeywords.Item(i).Keyword)) > 0 And UCase(myKeywords.Item(i).ServerName) = UCase(DominoServer.Name) Then
+                                '4/26/2016 NS modified for VSPLUS-2844
+                                If InStr(myKeywords.Item(i).NotRequiredKeyword, ",") > 0 Then
+                                    excludeArr = myKeywords.Item(i).NotRequiredKeyword.Split(",")
+                                    For n = 0 To excludeArr.Length - 1
+                                        If InStr(UCase(eventlistArr(x)), UCase(excludeArr(n))) > 0 Then
+                                            proceed = False
+                                            Exit For
+                                        End If
+                                    Next
+                                Else
+                                    If InStr(UCase(eventlistArr(x)), UCase(myKeywords.Item(i).NotRequiredKeyword)) > 0 And myKeywords.Item(i).NotRequiredKeyword <> "" Then
+                                        proceed = False
+                                    End If
+                                End If
+                                If proceed Then
+                                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  ", LogLevel.Verbose)
+                                    If myKeywords.Item(i).RepeatOnce = True Then
+                                        myAlert.QueueAlert("Domino", DominoServer.Name, "Log File - " & myKeywords.Item(i).Keyword, "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & eventlistArr(x), DominoServer.Location)
+                                    Else
+                                        myAlert.QueueAlert("Domino", DominoServer.Name, "Log File - " & myKeywords.Item(i).Keyword & " at " & Now.ToString & " (" & Now.Ticks.ToString() & ")", "The keyword or phrase -- " & myKeywords.Item(i).Keyword & " -- was found in the log file.  " & vbCrLf & vbCrLf & "The entry was " & eventlistArr(x), DominoServer.Location)
+                                    End If
+                                End If
+                            End If
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error in inner try block for log scanning.  Error: " & ex.Message)
+                        End Try
+                    Next
+                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Processed log document line # " & (x + 1).ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+                    DominoServer.LogLineCounter = x + 1
+                Next
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " LastLogDocScanned - " & DominoServer.LastLogDocScanned & "; LogLineCounter - " & DominoServer.LogLineCounter.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error in outer try block for log scanning.  Error: " & ex.Message)
+            End Try
+        End If
+    End Sub
 #End Region
 
 
@@ -846,6 +940,22 @@ Cleanup:
                 If Not (myServer Is Nothing) Then
                     myServer.IsBeingScanned = True
                     myServer.LastScan = Now
+                    '7/20/2016 NS modified for VSPLUS-3120
+                    'Get the values for LastLogDocument and LogCounter from Settings
+                    Dim obj As Object
+                    obj = ReadSettingValue(myServer.Name + "-LastLogDocScanned")
+                    myServer.LastLogDocScanned = Convert.ToString(obj)
+                    obj = ReadSettingValue(myServer.Name + "-LogLineCounter")
+                    If Convert.ToString(obj) <> "" Then
+                        myServer.LogLineCounter = Convert.ToInt32(obj)
+                    Else
+                        myServer.LogLineCounter = 0
+                    End If
+                    '8/12/2016 NS added
+                    obj = ReadSettingValue(myServer.Name + "-LastDocCreatedDate")
+                    If Convert.ToString(obj) <> "" Then
+                        myServer.LastDocCreatedDate = Convert.ToDateTime(obj)
+                    End If
                     'myServer.LastPing = Now
                 End If
             Catch ex As Exception
@@ -1463,9 +1573,11 @@ WaitHere:
 
 
         Try
-            If ResponseTime > 0 Then
+            '6/29/2016 NS modified for VSPLUS-3079
+            If ResponseTime > 0 And ConsecutiveTelnetDict(MyDominoServer.Name & "-ConsecutiveTelnet") > 0 Then
                 MyDominoServer.ConsecutiveTelnetCount = 0
-                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Telnet", MyDominoServer.Location, "The server is responding to Notes client requests")
+                ConsecutiveTelnetDict(MyDominoServer.Name & "-ConsecutiveTelnet") = 0
+                myAlert.ResetAlert("Domino", MyDominoServer.Name, "Telnet", MyDominoServer.Location, "The server is responding to Notes client requests")
             End If
 
         Catch ex As Exception
@@ -1496,7 +1608,14 @@ WaitHere:
                     MyDominoServer.LastScan = Now
                     MyDominoServer.IncrementUpCount()  '2
                     MyDominoServer.ConsecutiveTelnetCount += 1
-                    If MyDominoServer.ConsecutiveTelnetCount > GetConsecutiveTelnetValue() Then
+                    '6/28/2016 NS modified for VSPLUS-3079 
+                    If ConsecutiveTelnetDict.ContainsKey(MyDominoServer.Name & "-ConsecutiveTelnet") Then
+                        ConsecutiveTelnetDict(MyDominoServer.Name & "-ConsecutiveTelnet") += 1
+                    Else
+                        ConsecutiveTelnetDict.Add(MyDominoServer.Name & "-ConsecutiveTelnet", 1)
+                    End If
+                    If ConsecutiveTelnetDict(MyDominoServer.Name & "-ConsecutiveTelnet") > GetConsecutiveTelnetValue() Then
+                        'If MyDominoServer.ConsecutiveTelnetCount > GetConsecutiveTelnetValue() Then
                         MyDominoServer.Status = "Telnet"
                         MyDominoServer.ResponseDetails = "The server is answering, but only to telnet on port 1352"
                         myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Telnet", "The server is answering, but only to telnet on port 1352.  This could indicate a problem.", MyDominoServer.Location)
@@ -1616,24 +1735,6 @@ WaitHere:
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception in QueryDominoServer thread at #8: " & ex.ToString)
             End Try
 
-
-            Try
-                ServerElapsedTime(MyDominoServer)
-            Catch ex As Exception
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Unhandled exception in ServerElapsedTime function: " & ex.ToString)
-            End Try
-
-            Try
-                If MyDominoServer.Statistics_Memory <> "" Then
-                    ' If MyDominoServer.UpCount > 1 Then
-                    CheckDominoMemory(MyDominoServer)
-                End If
-                dtDominoLastUpdate = Now
-            Catch ex As Exception
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error checking memory:  " & ex.Message)
-            End Try
-
-
             'Users
             Try
                 If MyDominoServer.Statistics_Server <> "" Then
@@ -1675,6 +1776,21 @@ WaitHere:
                 '  WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Server Stats: " & vbCrLf & MyDominoServer.Statistics_Server)
             End Try
 
+            Try
+                ServerElapsedTime(MyDominoServer)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Unhandled exception in ServerElapsedTime function: " & ex.ToString)
+            End Try
+
+            Try
+                If MyDominoServer.Statistics_Memory <> "" Then
+                    ' If MyDominoServer.UpCount > 1 Then
+                    CheckDominoMemory(MyDominoServer)
+                End If
+                dtDominoLastUpdate = Now
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error checking memory:  " & ex.Message)
+            End Try
 
             Try
 
@@ -1916,17 +2032,27 @@ WaitHere:
         End If
 
         If ResponseTime <> 0 Then
-            'log file
-
+            'Log File Scanning
+            '8/17/2016 NS modified for VSPLUS-3167
+            Dim t As Thread
+            Dim myServer As MonitoredItems.DominoServer
             Try
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & "CheckDominoLogFile  ")
-                CheckDominoLogFile(MyDominoServer)
+                myServer = MyDominoServer
+                WriteDeviceHistoryEntry("Domino_Log", myServer.Name, Now.ToString & " Calling CheckDominoLogFile,  IsLogFileBeingScanned: " & myServer.IsLogFileBeingScanned.ToString())
+                If myServer.IsLogFileBeingScanned = False Then
+                    myServer.IsLogFileBeingScanned = True
+                    t = New Thread(Sub() Me.CheckDominoLogFile(myServer))
+                    t.CurrentCulture = Thread.CurrentThread.CurrentCulture
+                    t.Start()
+                Else
+                    WriteDeviceHistoryEntry("Domino_Log", MyDominoServer.Name, Now.ToString & " Skipping log file scanning   ")
+                End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error checking log file:  " & ex.Message)
             End Try
 
             Try
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & "CheckDominoAgentLogFile  ")
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Calling CheckDominoAgentLogFile  ")
                 CheckDominoAgentLogFile(MyDominoServer)
             Catch ex As Exception
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error checking agent log file:  " & ex.Message)
@@ -2296,9 +2422,12 @@ WaitHere:
 
         Try
             ' Added the check to reset and reset the alert only if the prior Telnet value was > 0 to avoid un-necessary call to do a reset alert. 
-            If ResponseTime > 0 And MyDominoServer.ConsecutiveTelnetCount > 0 Then
+            '6/28/2016 NS modified for VSPLUS-3079
+            If ResponseTime > 0 And ConsecutiveTelnetDict(MyDominoServer.Name & "-ConsecutiveTelnet") > 0 Then
+                'If ResponseTime > 0 And MyDominoServer.ConsecutiveTelnetCount > 0 Then
                 MyDominoServer.ConsecutiveTelnetCount = 0
-                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Telnet", MyDominoServer.Location)
+                ConsecutiveTelnetDict(MyDominoServer.Name & "-ConsecutiveTelnet") = 0
+                myAlert.ResetAlert("Domino", MyDominoServer.Name, "Telnet", MyDominoServer.Location)
             End If
 
         Catch ex As Exception
@@ -2327,7 +2456,14 @@ WaitHere:
                     ' MyDominoServer.LastScan = Now
                     MyDominoServer.IncrementUpCount()
                     MyDominoServer.ConsecutiveTelnetCount += 1
-                    If MyDominoServer.ConsecutiveTelnetCount > GetConsecutiveTelnetValue() Then
+                    '6/28/2016 NS modified for VSPLUS-3079
+                    If ConsecutiveTelnetDict.ContainsKey(MyDominoServer.Name & "-ConsecutiveTelnet") Then
+                        ConsecutiveTelnetDict(MyDominoServer.Name & "-ConsecutiveTelnet") += 1
+                    Else
+                        ConsecutiveTelnetDict.Add(MyDominoServer.Name & "-ConsecutiveTelnet", 1)
+                    End If
+                    If ConsecutiveTelnetDict(MyDominoServer.Name & "-ConsecutiveTelnet") > GetConsecutiveTelnetValue() Then
+                        'If MyDominoServer.ConsecutiveTelnetCount > GetConsecutiveTelnetValue() Then
                         MyDominoServer.Status = "Telnet"
                         MyDominoServer.ResponseDetails = "The server is answering, but only to telnet on port 1352"
                         myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Telnet", "The server is answering, but only to telnet on port 1352.  This could indicate a problem.", MyDominoServer.Location)
@@ -3214,7 +3350,7 @@ WaitHere:
                 Try
                     '2/24/2016 NS modified for VSPLUS-2380
                     If InStr(ConfiguredTask.ConsoleString.ToLower, "traveler") > 0 Then
-                        SearchTask = DominoServer.ServerTasks.Search("Traveler")
+                        SearchTask = DominoServer.ServerTasks.Search("Traveler", False)
                     Else
                         SearchTask = DominoServer.ServerTasks.Search(ConfiguredTask.ConsoleString)
                     End If
@@ -4048,6 +4184,7 @@ SkipTask:
             myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Availability Index", MyDominoServer.Location, "Server reports availability index at " & MyDominoServer.AvailabilityIndex & "%.")
         End If
     End Sub
+
 #Region "Disk Space Related"
 
     Private Sub CheckDominoDiskSpace(ByRef MyDominoServer As MonitoredItems.DominoServer)
@@ -4990,6 +5127,8 @@ skipdrive2:
                     Try
                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Now examining the messages.... ")
 
+                        myAlert.ResetAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, MyDominoServer.Location)
+
                         docMail = NotesView.GetFirstDocument
                         While Not (docMail Is Nothing)
                             'Thread.Sleep(25)
@@ -5023,10 +5162,11 @@ skipdrive2:
                                     'if the error is that we cannot get from one document to another because the router is deleting them 
                                     'so quickly, it is safe to assume that the router is OK, and no need to queue an alert
                                     ' VSPLUS-3145
-                                    myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
+                                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
                                     MyDominoServer.Description = "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble."
                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception processing " & MailboxName & ":  " & ex.ToString)
                                 End If
+
                End Try
 
                         End While
@@ -5138,8 +5278,13 @@ skipdrive2:
         End Try
 
         Try
+
             If MyDominoServer.DeleteDeadThreshold > 0 And MyDominoServer.DeadMail > 0 Then
                 'only delete dead mail if set to a number greater than zero
+
+                'remember how many dead messages there are before you deleted them 
+                Dim myDeadMailBefore As Integer = MyDominoServer.DeadMail
+
                 If MyDominoServer.DeadMail >= MyDominoServer.DeleteDeadThreshold Then
                     dtDominoLastUpdate = Now
                     Dim intMessagesDeleted As Integer = 0
@@ -5223,7 +5368,7 @@ skipdrive2:
 
     Private Function DeleteDeadMail(ByRef server As MonitoredItems.DominoServer) As Integer
         Dim DeadCount As Integer = 0
-        Dim PendingCount As Integer = 0
+        ' Dim PendingCount As Integer = 0
 
         Dim db As Domino.NotesDatabase
         Dim docMail As Domino.NotesDocument
@@ -5321,8 +5466,7 @@ skipdrive2:
                         MailboxName = "mail" & Counter.ToString & ".box"
                         WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Attempting to clean dead messages in " & MailboxName & "  on " & server.Name)
                         db = NotesSession.GetDatabase(server.Name, MailboxName, False)
-                        'Reset counters for each mailbox
-                        DeadCount = 0
+                       
                         Try
                             If db.IsOpen Then
 
@@ -7196,6 +7340,13 @@ skipdrive2:
         For Each Stat As MonitoredItems.DominoCustomStatistic In DominoServer.CustomStatisticsSettings
             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Searching statistics collection for the value of " & Stat.Statistic & ". ")
             Try
+                '8/30/2016 NS added for VSPLUS-3176
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " ConsecutiveCustomStatsDict key: " & DominoServer.Name & "-CustomStats-" & Stat.Statistic)
+                If ConsecutiveCustomStatsDict.ContainsKey(DominoServer.Name & "-CustomStats-" & Stat.Statistic) Then
+                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " ConsecutiveCustomStatsDict key was found.")
+                    Stat.ConsecutiveRepeat = ConsecutiveCustomStatsDict(DominoServer.Name & "-CustomStats-" & Stat.Statistic)
+                End If
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Current value of Stat.ConsecutiveRepeat is " & Stat.ConsecutiveRepeat)
                 Try
                     Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_All)
                 Catch ex As Exception
@@ -7232,6 +7383,24 @@ skipdrive2:
                             Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Replica)
                         End If
                     End If
+                    If InStr(Stat.Statistic.ToUpper, "Platform.".ToUpper) Then
+                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Platform)
+                    End If
+                    If InStr(Stat.Statistic.ToUpper, "Domino.".ToUpper) Then
+                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Domino)
+                    End If
+                    If InStr(Stat.Statistic.ToUpper, "Traveler.".ToUpper) Then
+                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Traveler)
+                    End If
+                    If InStr(Stat.Statistic.ToUpper, "Replica.".ToUpper) Then
+                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Replica)
+                    End If
+                    If InStr(Stat.Statistic.ToUpper, "Database.".ToUpper) Then
+                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Database)
+                    End If
+                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Parsed out the custom stat to " & Stat.Value)
+
+
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " #3 Error checking Domino Custom Statistics for " & DominoServer.Name & ":  " & ex.Message)
                     Stat.Value = -999
@@ -7239,6 +7408,8 @@ skipdrive2:
 
                 Try
                     If Stat.Value = -999 Then
+                        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " I think the stat is -999")
+
                         Dim Facility As String
                         Dim StatName As String
 
@@ -7256,9 +7427,12 @@ skipdrive2:
                     Stat.Value = -999
                 End Try
 
-                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & " " & Stat.Statistic & " " & Stat.ComparisonOperator & " " & Stat.ThresholdValue & ".  Current Value is " & Stat.Value & ".")
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & " " & Stat.Statistic & " " & Stat.ComparisonOperator & " " & Stat.ThresholdValue & ".  Current Value is " & Stat.Value & ".  It has repeated " & Stat.ConsecutiveRepeat & " threshold of " & Stat.mRepeat)
 
                 If Not Stat.Value = -999 Then
+                    '8/30/2016 NS added for VSPLUS-3176
+                    ConsecutiveCustomStatsDict(DominoServer.Name & "-CustomStats-" & Stat.Statistic) = Stat.ConsecutiveRepeat
+                    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Consecutive repeat value for " & Stat.Statistic & " is " & Stat.ConsecutiveRepeat)
                     If Stat.AlertCondition = True Then
                         WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & " " & Stat.Statistic & " is in an Alert condition.")
                         DominoServer.AlertCondition = True

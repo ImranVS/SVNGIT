@@ -554,7 +554,7 @@ Partial Public Class VitalSignsPlusDomino
             intResult = Convert.ToDouble(repository.Find(filterDef)(0).Value.ToString())
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & "  Exception getting Consecutive Telnet Value ")
-            intResult = 8
+            intResult = 2
         End Try
 
         Return intResult
