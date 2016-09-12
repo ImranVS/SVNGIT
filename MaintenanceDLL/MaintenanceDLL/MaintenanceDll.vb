@@ -85,18 +85,17 @@ Public Class MaintenanceDll
 
         Dim b2 As New DateTimeExtensions
         Dim daynum As Integer
-        daynum = Weekday(Now, FirstDayOfWeek.Monday) 'CType(DayofWeek, Integer) CHECK THIS -1
         Dim MaintType As String
         Dim MaintDayList As String
-        Dim StartDate, StartTime As DateTime
+        Dim StartDate, StartTime, EndDate As DateTime
         Dim MyStartTime, MyEndTime As DateTime
+        Dim MinTime, MaxTime As TimeSpan
         Dim TimeNow As DateTime = Now
         Dim Wknum, Duration, StartWknum, TodayWknum As Integer
-        Wknum = b2.GetWeekOfMonth(Convert.ToDateTime(Now)) 'Format(Now.Date, "w")
-
+        
         Try
             Dim dr As DataRow
-            'WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " has " & dsMaintWindows.Tables("MaintWindows").Rows.Count & " maintenance windows.")
+            WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " has " & dsMaintWindows.Tables("MaintWindows").Rows.Count & " maintenance windows.")
 
 
             For Each dr In dsMaintWindows.Tables("MaintWindows").Rows
@@ -109,14 +108,15 @@ Public Class MaintenanceDll
 
                     StartDate = CType(dr.Item("StartDate"), DateTime)
                     StartTime = CType(dr.Item("StartTime"), DateTime)
+                    MinTime = StartTime.TimeOfDay
                     Duration = CType(dr.Item("Duration"), Integer)
-
+                    EndDate = CType(dr.Item("EndDate"), DateTime)
                     'for case 3,to get the week nos from the start date
                     StartWknum = DatePart(DateInterval.WeekOfYear, StartDate)
-                    TodayWknum = DatePart(DateInterval.WeekOfYear, Now)
-
+                    
                     Select Case MaintType
                         Case "1"
+                            'One time
                             MyStartTime = StartDate + StartTime.TimeOfDay
                             MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
                             If Now >= MyStartTime And Now < MyEndTime Then
@@ -124,89 +124,153 @@ Public Class MaintenanceDll
                                 Exit For
                             End If
                         Case "2"
-                            'Dim MType As Array = MaintDayList.Split(",")
-                            'For Each i In MType
-                            'If daynum = i Then 'MType(i) 
-                            MyStartTime = Now.Date + StartTime.TimeOfDay
-                            MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
-                            If Now >= MyStartTime And Now < MyEndTime Then
-                                InMaintenanceWindow = True
-                                Exit For
-                            End If
-                            'End If
-                            'Next
-
-
-                        Case "3"
-                            Dim wkType As Array = MaintDayList.Split(",")
-                            For Each i In wkType
-                                Dim WKday As Array = i.Split(":")
-                                If (TodayWknum - StartWknum) Mod WKday(1) = 0 Then
-                                    'If Wknum = WKday(1) Then
-                                    If daynum = WKday(0) Then
-                                        MyStartTime = Now.Date + StartTime.TimeOfDay
-                                        MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
-                                        If Now >= MyStartTime And Now < MyEndTime Then
-                                            InMaintenanceWindow = True
-                                            Exit For
-                                        End If
-                                    End If
+                            '7/30/2016 NS modified for VSPLUS-3127
+                            'Daily
+                            'First, check whether today falls within the date interval
+                            If Today >= StartDate And Today <= EndDate Then
+                                MyStartTime = Now.Date + StartTime.TimeOfDay
+                                MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+                                MaxTime = MyEndTime.TimeOfDay
+                                'If the time interval spans midnight (end time is less than the start time),
+                                'subtract a day from MyStartTime
+                                'Example 1: MyStartTime = 7/30/2016 4:00 PM, MyEndTime = 7/31/2016 2:00 AM, 
+                                'MinTime = 4:00 PM, MaxTime = 2:00 AM, Now = 7/30/2016 3:00 PM
+                                'Example 2: MyStartTime = 7/30/2016 4:00 PM, MyEndTime = 7/31/2016 2:00 AM, 
+                                'MinTime = 4:00 PM, MaxTime = 2:00 AM, Now = 7/30/2016 6:00 PM
+                                If MaxTime < MinTime And Now < MyStartTime Then
+                                    MyStartTime = MyStartTime.AddDays(-1)
                                 End If
-                            Next
-
-                        Case "4"
-                            Dim x, y As Integer
-                            x = MaintDayList.IndexOf(",")
-                            y = MaintDayList.IndexOf(":")
-                            If x < 0 And y < 0 Then
-                                If MaintDayList = Format(TimeNow, "dd") Then
+                                'Example 1: MyStartTime = 7/29/2016 4:00 PM
+                                'Example 2: MyStartTime = 7/30/2016 4:00 PM
+                                'Re-calculate end date/time based on duration
+                                MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+                                'Example 1: MyEndTime = 7/30/2016 2:00 AM
+                                'Example 2: MyEndTime = 7/31/2016 2:00 AM
+                                WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & ";  MyStartTime - " & MyStartTime.ToString() & "; MyEndTime - " & MyEndTime.ToString() & "; Now - " & Now.ToString())
+                                'Example 1: Is 7/30/2016 3:00 PM within interval 7/29/2016 4:00 PM and 7/30/2016 2:00 AM - server is NOT in maintenance
+                                'Example 2: Is 7/30/2016 6:00 PM within interval 7/30/2016 4:00 PM and 7/31/2016 2:00 AM - server is in maintenance
+                                If Now >= MyStartTime And Now < MyEndTime Then
+                                    WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is in maintenance.")
                                     InMaintenanceWindow = True
                                     Exit For
+                                Else
+                                    WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is NOT in maintenance.")
                                 End If
-                            Else
-                                Dim MonthType As Array = MaintDayList.Split(",")
-                                For Each i In MonthType
-                                    Dim mnday As Array = i.Split(":")
-                                    If daynum = mnday(0) Then
-                                        ' ****************** 
-                                        Dim wkname As String = ""
-                                        Select Case Wknum
-                                            Case "1"
-                                                wkname = "First"
-                                            Case "2"
-                                                wkname = "Second"
-                                            Case "3"
-                                                wkname = "Third"
-                                            Case Else
-                                                wkname = "Last"
-                                        End Select
-
-                                        If wkname = mnday(1) Then
-                                            MyStartTime = Now.Date + StartTime.TimeOfDay
-                                            MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+                            End If
+                        Case "3"
+                            'Weekly
+                            Dim wkType As Array = MaintDayList.Split(",")
+                            '8/2/2016 NS modified for VSPLUS-3144
+                            'First, check whether today falls within the date interval
+                            If Today >= StartDate And Today <= EndDate Then
+                                MyStartTime = Now.Date + StartTime.TimeOfDay
+                                MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+                                MaxTime = MyEndTime.TimeOfDay
+                                If MaxTime < MinTime And Now < MyStartTime Then
+                                    MyStartTime = MyStartTime.AddDays(-1)
+                                End If
+                                MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+                                TodayWknum = DatePart(DateInterval.WeekOfYear, MyStartTime)
+                                For Each i In wkType
+                                    Dim WKday As Array = i.Split(":")
+                                    If (TodayWknum - StartWknum) Mod WKday(1) = 0 Then
+                                        'If Wknum = WKday(1) Then
+                                        WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName &
+                                                                "; MyStartTime - " & MyStartTime.ToString() &
+                                                                "; MyEndTime - " & MyEndTime.ToString() &
+                                                                "; Now - " & Now.ToString() &
+                                                                "; StartWkNum - " & StartWknum.ToString() &
+                                                                "; TodayWknum - " & TodayWknum.ToString() &
+                                                                "; WKday(1) - " & WKday(1).ToString() &
+                                                                "; WKday(0) - " & WKday(0).ToString() &
+                                                                "; MyStartTime.DayOfWeek - " & MyStartTime.DayOfWeek)
+                                        If MyStartTime.DayOfWeek = WKday(0) Then
                                             If Now >= MyStartTime And Now < MyEndTime Then
+                                                WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is in maintenance.")
                                                 InMaintenanceWindow = True
                                                 Exit For
+                                            Else
+                                                WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is NOT in maintenance.")
                                             End If
+                                        Else
+                                            WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is NOT in maintenance.")
                                         End If
                                     End If
-
                                 Next
-
                             End If
-
-
+                        Case "4"
+                            'Monthly
+                            Dim x, y As Integer
+                            'First, check whether today falls within the date interval
+                            If Today >= StartDate And Today <= EndDate Then
+                                x = MaintDayList.IndexOf(",")
+                                y = MaintDayList.IndexOf(":")
+                                MyStartTime = Now.Date + StartTime.TimeOfDay
+                                MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+                                MaxTime = MyEndTime.TimeOfDay
+                                If MaxTime < MinTime And Now < MyStartTime Then
+                                    MyStartTime = MyStartTime.AddDays(-1)
+                                End If
+                                MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+                                'Maintenance window is set for a specific day of the month, 1-31
+                                If x < 0 And y < 0 Then
+                                    If MaintDayList = Format(MyStartTime, "dd") And Now >= MyStartTime And Now < MyEndTime Then
+                                        WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is in maintenance.")
+                                        InMaintenanceWindow = True
+                                        Exit For
+                                    Else
+                                        WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is NOT in maintenance.")
+                                    End If
+                                    'Maintenance window is set for a specific week of the month, First, Second, Third, Last
+                                Else
+                                    daynum = Weekday(MyStartTime, FirstDayOfWeek.Monday) 'CType(DayofWeek, Integer) CHECK THIS -1
+                                    Wknum = b2.GetWeekOfMonth(Convert.ToDateTime(MyStartTime)) 'Format(Now.Date, "w")
+                                    Dim MonthType As Array = MaintDayList.Split(",")
+                                    For Each i In MonthType
+                                        Dim mnday As Array = i.Split(":")
+                                        WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName &
+                                                                "; daynum - " & daynum.ToString() &
+                                                                "; mnday(0) - " & mnday(0).ToString())
+                                        If daynum = mnday(0) Then
+                                            ' ****************** 
+                                            Dim wkname As String = ""
+                                            Select Case Wknum
+                                                Case "1"
+                                                    wkname = "First"
+                                                Case "2"
+                                                    wkname = "Second"
+                                                Case "3"
+                                                    wkname = "Third"
+                                                Case Else
+                                                    wkname = "Last"
+                                            End Select
+                                            WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName &
+                                                                "; wkname - " & wkname.ToString() &
+                                                                "; mnday(1) - " & mnday(1).ToString())
+                                            If wkname = mnday(1) Then
+                                                WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName &
+                                                                "; MyStartTime - " & MyStartTime.ToString() &
+                                                                "; MyEndTime - " & MyEndTime.ToString() &
+                                                                "; Now - " & Now.ToString())
+                                                If Now >= MyStartTime And Now < MyEndTime Then
+                                                    WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is in maintenance.")
+                                                    InMaintenanceWindow = True
+                                                    Exit For
+                                                Else
+                                                    WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is NOT in maintenance.")
+                                                End If
+                                            End If
+                                        End If
+                                    Next
+                                End If
+                            End If
                     End Select
-
-
-
                 Catch ex As Exception
                     'WriteDeviceHistoryEntry("Domino", DeviceName, " Error calculating maintenance window start and end times. Error: " & ex.Message)
                     WriteHistoryEntry(Now.ToString & " Server " & DeviceName & " Error calculating maintenance window start and end times. Error: " & ex.Message)
                     'WriteAuditEntry(" Error calculating maintenance window start and end times. Error: " & ex.Message)
                 End Try
             Next
-
             dr = Nothing
         Catch ex As Exception
             'WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Error in maint window module: " & ex.Message)
