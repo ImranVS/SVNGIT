@@ -4828,7 +4828,7 @@ skipdrive2:
             Dim objVSAdaptor As New VSAdaptor
             Try
                 If myDiskDrive.DiskSize <> 0 And myDiskDrive.DiskName.Trim <> "" Then
-                    listOfDisks.Add(New VSNext.Mongo.Entities.Disk With {
+                    listOfDisks.Add(New VSNext.Mongo.Entities.Disk() With {
                                     .DiskFree = myDiskDrive.DiskFree,
                                     .DiskName = myDiskDrive.DiskName,
                                     .DiskSize = myDiskDrive.DiskSize,
@@ -4839,7 +4839,7 @@ skipdrive2:
 
                 Else
 
-                    listOfDisks.Add(New VSNext.Mongo.Entities.Disk With {
+                    listOfDisks.Add(New VSNext.Mongo.Entities.Disk() With {
                                     .DiskName = myDiskDrive.DiskName,
                                     .PercentFree = myDiskDrive.PercentFree,
                                     .AverageQueueLength = myDiskDrive.DiskAverageQueueLength
@@ -4853,13 +4853,13 @@ skipdrive2:
         Next
 
         Try
-            Dim MyDominoServer2 As MonitoredItems.DominoServer = MyDominoServer2
+            Dim MyDominoServer2 As MonitoredItems.DominoServer = MyDominoServer
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = MyDominoServer2.Name & "-" & MyDominoServer2.ServerType)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Type, MyDominoServer2.ServerType) And repository.Filter.Eq(Function(x) x.Name, MyDominoServer2.Name)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.Disks, listOfDisks)
             repository.Update(filterDef, updateDef)
         Catch ex As Exception
-
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error in Domino disk space inserting disk info into status document. Error : " & ex.Message, LogLevel.Normal)
         End Try
 
         If MyLogLevel = LogLevel.Verbose Then
