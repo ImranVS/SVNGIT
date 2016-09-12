@@ -82,6 +82,16 @@ namespace VSNext.Mongo.Entities
         public string NotificationSentTo { get; set; }
 
         [DataMember]
+        [BsonElement("notification_ccd_to")]
+        [BsonIgnoreIfNullAttribute]
+        public string NotificationCcdTo { get; set; }
+
+        [DataMember]
+        [BsonElement("notification_bccd_to")]
+        [BsonIgnoreIfNullAttribute]
+        public string NotificationBccdTo { get; set; }
+
+        [DataMember]
         [BsonElement("escalation_id")]
         [BsonIgnoreIfNullAttribute]
         [BsonRepresentation(BsonType.ObjectId)]

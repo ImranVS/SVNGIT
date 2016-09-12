@@ -12,6 +12,11 @@ namespace VSNext.Mongo.Entities
     public class Outages : Entity 
     {
         [DataMember]
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
+        [DataMember]
         [BsonElement("device_name")]
         public string DeviceName { get; set; }
         [DataMember]
