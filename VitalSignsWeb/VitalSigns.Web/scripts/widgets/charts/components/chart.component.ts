@@ -23,12 +23,12 @@ export class ChartComponent implements WidgetComponent, OnInit {
 
     constructor(private service: RESTService, private widgetService: WidgetService) { }
 
-    refresh() {
+    refresh(serviceUrl?: string) {
 
-        this.loadData();
+        this.loadData(serviceUrl);
 
     }
-
+    
     ngOnInit() {
 
         this.loadData();
@@ -45,6 +45,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
                     this.chart.destroy();
                 }
 
+                // TODO: think about this one!
                 let chart = <Chart>data.data;
                 let first = true;
                 
