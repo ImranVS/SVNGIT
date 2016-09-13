@@ -26,9 +26,9 @@ namespace VSNext.Mongo.Entities
 
 
         [DataMember]
-        [BsonElement("type")]
+        [BsonElement("device_type")]
         [BsonIgnoreIfNullAttribute]
-        public string Type { get; set; }
+        public string DeviceType { get; set; }
 
         [DataMember]
         [BsonElement("secondary_role")]
@@ -36,9 +36,9 @@ namespace VSNext.Mongo.Entities
         public string SecondaryRole { get; set; }
 
         [DataMember]
-        [BsonElement("name")]
+        [BsonElement("device_name")]
         [BsonIgnoreIfNullAttribute]
-        public string Name { get; set; }
+        public string DeviceName { get; set; }
 
         [DataMember]
         [BsonElement("device_id")]

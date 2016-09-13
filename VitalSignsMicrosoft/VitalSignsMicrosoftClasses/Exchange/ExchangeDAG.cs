@@ -782,7 +782,7 @@ namespace VitalSignsMicrosoftClasses
                        AllTestsList.MongoEntity.Add(mongoUpdate);                       
 
                        mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                       mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.Name, myServer.Name) 
+                       mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.DeviceName, myServer.Name) 
                            & mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == strDatabase);
                        mongoUpdate.updateDef = mongoUpdate.repo.Updater
                            .Set(i => i.DagDatabases[-1].StorageGroup, strStorageGroup)

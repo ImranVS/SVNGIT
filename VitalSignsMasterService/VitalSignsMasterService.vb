@@ -859,13 +859,13 @@ Public Class VSMaster
 
                     Try
                         Dim statusRepository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                        Dim statusFilterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = statusRepository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                        Dim statusFilterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = statusRepository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
                         Dim statusProjection As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = statusRepository.Project _
                                                                                                         .Include(Function(x) x.CurrentStatus) _
                                                                                                         .Include(Function(x) x.LastUpdated) _
                                                                                                         .Include(Function(x) x.NextScan) _
                                                                                                         .Include(Function(x) x.LastUpdated) _
-                                                                                                        .Include(Function(x) x.Type) _
+                                                                                                        .Include(Function(x) x.DeviceType) _
                                                                                                         .Include(Function(x) x.Description)
 
                         listOfStatus = statusRepository.Find(statusFilterDef, statusProjection).ToList()
@@ -880,7 +880,7 @@ Public Class VSMaster
                     Try
                         intResult = listOfStatus _
                             .Where(Function(x) Not {"Scanning", "Not Scanned", "Disabled", "Insufficient Licenses"}.Contains(x.CurrentStatus)) _
-                            .Where(Function(x) x.Type.Equals(VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())) _
+                            .Where(Function(x) x.DeviceType.Equals(VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())) _
                             .Select(Function(x) x.CurrentStatus) _
                             .Distinct().Count()
 
@@ -924,7 +924,7 @@ Public Class VSMaster
                     Try
                         Dim tempList As List(Of VSNext.Mongo.Entities.Status) = listOfStatus _
                                                                                 .Where(Function(x) New TimeSpan((Now - x.LastUpdated.Value).Ticks).TotalMinutes > 45) _
-                                                                                .Where(Function(x) x.Type.Equals(VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())) _
+                                                                                .Where(Function(x) x.DeviceType.Equals(VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())) _
                                                                                 .Where(Function(x) Not {"Scanning", "Not Scanned", "Disabled", "Insufficient Licenses"}.Contains(x.CurrentStatus)) _
                                                                                 .ToList()
                         intResult = tempList.Count
@@ -953,7 +953,7 @@ Public Class VSMaster
 
                             Dim tempList As List(Of VSNext.Mongo.Entities.Status) = listOfStatus _
                                                                                 .Where(Function(x) New TimeSpan((Now - x.NextScan.Value).Ticks).TotalMinutes > MonitoringDelay) _
-                                                                                .Where(Function(x) x.Type.Equals(VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())) _
+                                                                                .Where(Function(x) x.DeviceType.Equals(VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())) _
                                                                                 .Where(Function(x) Not {"Not Scanned", "Insufficient Licenses"}.Contains(x.CurrentStatus)) _
                                                                                 .ToList()
 
@@ -963,15 +963,15 @@ Public Class VSMaster
                                         Dim delayedBy As Int32 = New TimeSpan((Now - entity.NextScan.Value).Ticks).TotalMinutes
                                         'Dim SummaryData As New Data.DataTable
                                         If delayedBy >= MonitoringDelay Then
-                                            myAlert.QueueAlert(entity.Type, entity.Name, "Monitoring Delay", entity.Name & " did not scan after next scan time of " & entity.NextScan & "", "Location")
+                                            myAlert.QueueAlert(entity.DeviceType, entity.DeviceName, "Monitoring Delay", entity.DeviceName & " did not scan after next scan time of " & entity.NextScan & "", "Location")
                                         Else
-                                            myAlert.ResetAlert(entity.Type, entity.Name, "Monitoring Delay", "Location")
+                                            myAlert.ResetAlert(entity.DeviceType, entity.DeviceName, "Monitoring Delay", "Location")
                                         End If
 
                                     Catch ex As Exception
                                         WriteAuditEntry(Now.ToString & " Exception during finding the delay for each server. Exception : " & ex.Message)
                                     End Try
-                                    WriteAuditEntry(Now.ToString & " Servers which are not scanned after Next Scan time and the Server(s) is/are " & entity.Name & "")
+                                    WriteAuditEntry(Now.ToString & " Servers which are not scanned after Next Scan time and the Server(s) is/are " & entity.DeviceName & "")
                                 Next
 
                             Catch ex As Exception
@@ -1046,7 +1046,7 @@ Public Class VSMaster
                                         Dim maint As New MaintenanceDLL.MaintenanceDll()
 
 
-                                        serverEntity = listOfServers.Where(Function(x) x.DeviceName.Equals(statusEntity.Name) And x.DeviceType.Equals(statusEntity.Type)).ToList()(0)
+                                        serverEntity = listOfServers.Where(Function(x) x.DeviceName.Equals(statusEntity.DeviceName) And x.DeviceType.Equals(statusEntity.DeviceType)).ToList()(0)
                                         If maint.OffHours(serverEntity.DeviceName) Then
                                             scanInterval = serverEntity.OffHoursScanInterval
                                         Else
@@ -1062,7 +1062,7 @@ Public Class VSMaster
                                             dominoKilled = DateTime.Now
                                             '#2
                                             'WriteAuditEntry(Now.ToString & " VitalSignsPlusDomino Monitoring Service was last updated " & intResult & " minutes ago, and this is more than twice the Max Scan Interval of " & maxScanInterval & " so I am attempting to restart it. ")
-                                            WriteAuditEntry(Now.ToString & " VitalSignsPlusDomino Monitoring Serviceis being restarted since the server " & statusEntity.Name & " has not been scanned in 2x its interval.")
+                                            WriteAuditEntry(Now.ToString & " VitalSignsPlusDomino Monitoring Serviceis being restarted since the server " & statusEntity.DeviceName & " has not been scanned in 2x its interval.")
                                             Thread.Sleep(5000)
                                             StopService(VitalSignsPlusDomino)
                                             Thread.Sleep(5000)
@@ -1097,12 +1097,12 @@ Public Class VSMaster
                     Try
                         ' Remove this after testing. 
 
-                        intResult = listOfStatus.Where(Function(x) x.Type = VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()).Count()
+                        intResult = listOfStatus.Where(Function(x) x.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()).Count()
                         'WriteAuditEntry(Now.ToString & " There are  " & intResult & " Total Domino Servers in Monitoring")
 
 
                         intResultTotalTelnet = listOfStatus _
-                            .Where(Function(x) x.Type = VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()) _
+                            .Where(Function(x) x.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()) _
                             .Where(Function(x) x.Description.Contains("via telnet")) _
                             .Count()
                         'WriteAuditEntry(Now.ToString & " There are  " & intResultTotalTelnet & " Total Telnet Domino Servers Status")
@@ -2547,7 +2547,7 @@ Public Class VSMaster
                 Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
                 Dim statusList As List(Of Status) = repo.All()
                 For Each s As Status In statusList
-                    Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.Name.Equals(s.Name))
+                    Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.DeviceName.Equals(s.DeviceName))
                     repo.Delete(filterdef)
                 Next
                 

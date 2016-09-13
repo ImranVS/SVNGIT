@@ -176,11 +176,11 @@ Partial Public Class VitalSignsPlusDomino
                                                                                      .Set(Function(x) x.Description, .Description) _
                                                                                      .Set(Function(x) x.DownCount, .DownCount) _
                                                                                      .Set(Function(x) x.Location, .Location) _
-                                                                                     .Set(Function(x) x.Name, .Name) _
+                                                                                     .Set(Function(x) x.DeviceName, .Name) _
                                                                                      .Set(Function(x) x.MailDetails, "") _
                                                                                      .Set(Function(x) x.PendingMail, .PendingMail) _
                                                                                      .Set(Function(x) x.CurrentStatus, .Status) _
-                                                                                     .Set(Function(x) x.Type, .ServerType) _
+                                                                                     .Set(Function(x) x.DeviceType, .ServerType) _
                                                                                      .Set(Function(x) x.UpCount, .UpCount) _
                                                                                      .Set(Function(x) x.UpPercent, .UpPercentCount) _
                                                                                      .Set(Function(x) x.ResponseTime, Convert.ToInt32(.ResponseTime)) _
@@ -270,8 +270,8 @@ Partial Public Class VitalSignsPlusDomino
 
             WriteAuditEntry(Now.ToString & " Deleting Domino Clusters that are not in " & String.Join(",", (From x In myDominoClusters Select (x.Name.ToString())).ToList()), LogLevel.Verbose)
 
-            filterDef = repository.Filter.Nin(Function(x) x.Name, (From x In myDominoClusters Select (x.Name.ToString())).ToList()) And _
-                repository.Filter.Eq(Function(x) x.Type, "Domino Cluster database")
+            filterDef = repository.Filter.Nin(Function(x) x.DeviceName, (From x In myDominoClusters Select (x.Name.ToString())).ToList()) And _
+                repository.Filter.Eq(Function(x) x.DeviceType, "Domino Cluster database")
             repository.Delete(filterDef)
 
         Catch ex As Exception
@@ -292,9 +292,9 @@ Partial Public Class VitalSignsPlusDomino
 
                     filterDef = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-" + .ServerType)
                     updateDef = repository.Updater _
-                        .Set(Function(x) x.Name, .Name) _
+                        .Set(Function(x) x.DeviceName, .Name) _
                         .Set(Function(x) x.CurrentStatus, .Status) _
-                        .Set(Function(x) x.Type, .ServerType) _
+                        .Set(Function(x) x.DeviceType, .ServerType) _
                         .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                         .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan)) _
                         .Set(Function(x) x.Details, .ResponseDetails) _
@@ -365,9 +365,9 @@ Partial Public Class VitalSignsPlusDomino
 
                 filterDef = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-" + .ServerType)
                 updateDef = repository.Updater _
-                    .Set(Function(x) x.Name, .Name) _
+                    .Set(Function(x) x.DeviceName, .Name) _
                     .Set(Function(x) x.CurrentStatus, .Status) _
-                    .Set(Function(x) x.Type, .ServerType) _
+                    .Set(Function(x) x.DeviceType, .ServerType) _
                     .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                     .Set(Function(x) x.Details, .ResponseDetails) _
                     .Set(Function(x) x.Category, .Category) _
@@ -427,9 +427,9 @@ Partial Public Class VitalSignsPlusDomino
 
                 filterDef = repository.Filter.Eq(Function(x) x.TypeAndName, .Name.ToString() & "-" + .ServerType)
                 updateDef = repository.Updater _
-                    .Set(Function(x) x.Name, .Name) _
+                    .Set(Function(x) x.DeviceName, .Name) _
                     .Set(Function(x) x.CurrentStatus, .Status) _
-                    .Set(Function(x) x.Type, .ServerType) _
+                    .Set(Function(x) x.DeviceType, .ServerType) _
                     .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                     .Set(Function(x) x.Details, .ResponseDetails) _
                     .Set(Function(x) x.Category, .Category) _

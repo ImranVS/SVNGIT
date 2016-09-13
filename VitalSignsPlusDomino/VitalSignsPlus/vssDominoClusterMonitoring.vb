@@ -1508,9 +1508,9 @@ ReleaseCOMObjects:
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
                 Dim filterDef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-" & .ServerType)
                 Dim updateDef As MongoDB.Driver.UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
-                                                                                                    .Set(Function(x) x.Name, .Name) _
+                                                                                                    .Set(Function(x) x.DeviceName, .Name) _
                                                                                                     .Set(Function(x) x.CurrentStatus, .Status) _
-                                                                                                    .Set(Function(x) x.Type, .ServerType) _
+                                                                                                    .Set(Function(x) x.DeviceType, .ServerType) _
                                                                                                     .Set(Function(x) x.LastUpdated, GetFixedDateTime(Now)) _
                                                                                                     .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan)) _
                                                                                                     .Set(Function(x) x.Details, .ResponseDetails) _

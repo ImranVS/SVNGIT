@@ -507,7 +507,7 @@ namespace VitalSignsMicrosoftClasses
                 }
 
                 MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.Name == myServer.Name);
+                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.DeviceName == myServer.Name);
                 mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.Disks, listOfDisks);
 
 

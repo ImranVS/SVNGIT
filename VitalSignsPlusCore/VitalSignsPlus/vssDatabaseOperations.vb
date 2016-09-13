@@ -197,7 +197,7 @@ Partial Public Class VitalSignsPlusCore
                 "', NextScan='" & BES_Server.NextScan & "' WHERE TypeANDName='" & BES_Server.Name & "-BlackBerry Server'"
             End With
             updatedef = repo.Updater _
-                        .Set(Function(i) i.Name, BES_Server.Name) _
+                        .Set(Function(i) i.DeviceName, BES_Server.Name) _
                         .[Set](Function(i) i.CurrentStatus, BES_Server.Status) _
                         .[Set](Function(i) i.StatusCode, BES_Server.Status) _
                         .[Set](Function(i) i.LastUpdated, DateTime.Now) _
@@ -234,7 +234,7 @@ Partial Public Class VitalSignsPlusCore
 
                 '  "', ResponseTime='" & myResponseTime & _
                 updatedef = repo.Updater _
-                            .Set(Function(i) i.Name, BES_Server.Name) _
+                            .Set(Function(i) i.DeviceName, BES_Server.Name) _
                             .[Set](Function(i) i.CurrentStatus, BES_Server.Status) _
                             .[Set](Function(i) i.StatusCode, BES_Server.Status) _
                             .[Set](Function(i) i.LastUpdated, DateTime.Now) _
@@ -617,13 +617,13 @@ Partial Public Class VitalSignsPlusCore
                 filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
 
                 updatedef = repo.Updater _
-                         .Set(Function(i) i.Name, .Name) _
+                         .Set(Function(i) i.DeviceName, .Name) _
                           .[Set](Function(i) i.CurrentStatus, .StatusCode) _
                           .[Set](Function(i) i.StatusCode, .StatusCode) _
                           .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                           .[Set](Function(i) i.TypeAndName, TypeAndName) _
                           .[Set](Function(i) i.Description, .Description) _
-                          .[Set](Function(i) i.Type, "BES") _
+                          .[Set](Function(i) i.DeviceType, "BES") _
                           .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                           .[Set](Function(i) i.Location, .Location) _
                           .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
@@ -837,13 +837,13 @@ Partial Public Class VitalSignsPlusCore
                 'strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-Sametime'"
                 Try
                     updatedef = repo.Updater _
-                           .Set(Function(i) i.Name, .Name) _
+                           .Set(Function(i) i.DeviceName, .Name) _
                            .[Set](Function(i) i.CurrentStatus, .Status) _
                            .[Set](Function(i) i.StatusCode, myStatusCode) _
                            .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                            .[Set](Function(i) i.TypeAndName, TypeAndName) _
                            .[Set](Function(i) i.Description, .Description) _
-                           .[Set](Function(i) i.Type, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) _
+                           .[Set](Function(i) i.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) _
                            .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                            .[Set](Function(i) i.Location, .Location) _
                            .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
@@ -897,13 +897,13 @@ Partial Public Class VitalSignsPlusCore
                      "END"
 
                     updatedef = repo.Updater _
-                          .Set(Function(i) i.Name, .Name) _
+                          .Set(Function(i) i.DeviceName, .Name) _
                           .[Set](Function(i) i.CurrentStatus, .StatusCode) _
                           .[Set](Function(i) i.StatusCode, .StatusCode) _
                           .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                           .[Set](Function(i) i.TypeAndName, TypeAndName) _
                           .[Set](Function(i) i.Description, .Description) _
-                          .[Set](Function(i) i.Type, "Mail") _
+                          .[Set](Function(i) i.DeviceType, "Mail") _
                           .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                           .[Set](Function(i) i.Location, .Location) _
                           .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
@@ -1349,13 +1349,13 @@ Partial Public Class VitalSignsPlusCore
 
                 strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-" & .ServerType & "'"
                 updatedef = repo.Updater _
-                         .Set(Function(i) i.Name, .Name) _
+                         .Set(Function(i) i.DeviceName, .Name) _
                          .[Set](Function(i) i.CurrentStatus, .StatusCode) _
                          .[Set](Function(i) i.StatusCode, .StatusCode) _
                          .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                          .[Set](Function(i) i.TypeAndName, TypeAndName) _
                          .[Set](Function(i) i.Description, .Description) _
-                         .[Set](Function(i) i.Type, "WebSphere") _
+                         .[Set](Function(i) i.DeviceType, "WebSphere") _
                          .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                          .[Set](Function(i) i.Location, .Location) _
                          .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
@@ -1400,13 +1400,13 @@ Partial Public Class VitalSignsPlusCore
 
                 strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-" & .ServerType & "'"
                 updatedef = repo.Updater _
-                        .Set(Function(i) i.Name, .Name) _
+                        .Set(Function(i) i.DeviceName, .Name) _
                         .[Set](Function(i) i.CurrentStatus, .StatusCode) _
                         .[Set](Function(i) i.StatusCode, .StatusCode) _
                         .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                         .[Set](Function(i) i.TypeAndName, TypeAndName) _
                         .[Set](Function(i) i.Description, .Description) _
-                        .[Set](Function(i) i.Type, .ServerType) _
+                        .[Set](Function(i) i.DeviceType, .ServerType) _
                         .[Set](Function(i) i.Location, .Location) _
                         .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
                         .[Set](Function(i) i.Category, .Category) _
@@ -2083,10 +2083,10 @@ Partial Public Class VitalSignsPlusCore
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
           
             With MySametimeServer
-                
+
 
                 updatedef = repo.Updater _
-                                    .Set(Function(i) i.Name, .Name) _
+                                    .Set(Function(i) i.DeviceName, .Name) _
                                     .[Set](Function(i) i.CurrentStatus, .Status) _
                                     .[Set](Function(i) i.StatusCode, .Status) _
                                     .[Set](Function(i) i.LastUpdated, DateTime.Now) _
@@ -2094,7 +2094,7 @@ Partial Public Class VitalSignsPlusCore
                                     .[Set](Function(i) i.Description, .Description) _
                                     .[Set](Function(i) i.Details, StatusDetails) _
                                     .[Set](Function(i) i.Category, .Category) _
-                                    .[Set](Function(i) i.Type, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) _
+                                    .[Set](Function(i) i.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) _
                                     .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                                     .[Set](Function(i) i.Location, .Location) _
                                     .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
@@ -2106,8 +2106,9 @@ Partial Public Class VitalSignsPlusCore
                                     .[Set](Function(i) i.UpMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
                                     .[Set](Function(i) i.DownMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
                                     .[Set](Function(i) i.DominoVersion, "Current Chats: " & .Chat_Sessions) _
-                .[Set](Function(i) i.OperatingSystem, "IBM Sametime server") _
-                .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
+                                    .[Set](Function(i) i.OperatingSystem, "IBM Sametime server") _
+                                    .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
+                                    .[Set](Function(i) i.DeviceId, .ServerObjectID)
             End With
 
             strSQL = strSQL.Replace("NaN", "0")
@@ -2558,14 +2559,14 @@ Partial Public Class VitalSignsPlusCore
                     Dim TypeAndName As String = MyURL.Name & "-" & MyURL.ServerType
                     filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                     updatedef = repo.Updater _
-                                              .Set(Function(i) i.Name, .Name) _
+                                              .Set(Function(i) i.DeviceName, .Name) _
                                               .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
                                               .[Set](Function(i) i.StatusCode, "Not Scanned") _
                                               .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                                               .[Set](Function(i) i.Category, .Category) _
                                               .[Set](Function(i) i.TypeAndName, TypeAndName) _
                                               .[Set](Function(i) i.Description, "Not Scanned") _
-                                              .[Set](Function(i) i.Type, "URL") _
+                                              .[Set](Function(i) i.DeviceType, "URL") _
                                               .[Set](Function(i) i.Location, .Location) _
                                               .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
                                               .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
@@ -2679,7 +2680,7 @@ Partial Public Class VitalSignsPlusCore
 
                 filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 updatedef = repo.Updater _
-                                  .Set(Function(i) i.Name, .Name) _
+                                  .Set(Function(i) i.DeviceName, .Name) _
                                   .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
                                   .[Set](Function(i) i.StatusCode, "Not Scanned") _
                                   .[Set](Function(i) i.LastUpdated, DateTime.Now) _
@@ -2687,7 +2688,7 @@ Partial Public Class VitalSignsPlusCore
                                   .[Set](Function(i) i.Category, .Category) _
                                   .[Set](Function(i) i.TypeAndName, TypeAndName) _
                                   .[Set](Function(i) i.Description, .CloudURL) _
-                                  .[Set](Function(i) i.Type, "Cloud") _
+                                  .[Set](Function(i) i.DeviceType, "Cloud") _
                                   .[Set](Function(i) i.Location, "Cloud") _
                                   .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
                                   .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
@@ -2812,7 +2813,7 @@ Partial Public Class VitalSignsPlusCore
 
                 filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 updatedef = repo.Updater _
-                                  .Set(Function(i) i.Name, .Name) _
+                                  .Set(Function(i) i.DeviceName, .Name) _
                                   .[Set](Function(i) i.CurrentStatus, .Status) _
                                   .[Set](Function(i) i.StatusCode, .Status) _
                                   .[Set](Function(i) i.LastUpdated, DateTime.Now) _
@@ -2820,11 +2821,12 @@ Partial Public Class VitalSignsPlusCore
                                   .[Set](Function(i) i.Category, .Category) _
                                   .[Set](Function(i) i.TypeAndName, TypeAndName) _
                                   .[Set](Function(i) i.Description, .Description) _
-                                  .[Set](Function(i) i.Type, .ServerType) _
+                                  .[Set](Function(i) i.DeviceType, .ServerType) _
                                   .[Set](Function(i) i.LastUpdated, Now) _
                                   .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
                                   .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
-                                  .[Set](Function(i) i.NextScan, .NextScan)
+                                  .[Set](Function(i) i.NextScan, .NextScan) _
+                                  .[Set](Function(i) i.DeviceId, .ServerObjectID)
 
             End With
             repo.Upsert(filterdef, updatedef)
@@ -2894,8 +2896,8 @@ Partial Public Class VitalSignsPlusCore
 
             'Gets a list of all the status entitys of the servers in the node
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.In(Function(x) x.Name, listOfServers.Select(Function(x) x.DeviceName).ToList()) _
-                                                                                 And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.In(Function(x) x.DeviceName, listOfServers.Select(Function(x) x.DeviceName).ToList()) _
+                                                                                 And repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
 
             Dim listOfStatus As List(Of VSNext.Mongo.Entities.Status) = repository.Find(filterDef).ToList()
 
@@ -2920,8 +2922,8 @@ Partial Public Class VitalSignsPlusCore
                                                                                  .Set(Function(x) x.JvmCount, listOfServers.Count) _
                                                                                  .Set(Function(x) x.JvmMonitoredCount, listOfServers.Where(Function(x) x.IsEnabled).Count)
 
-            filterDef = repository.Filter.Eq(Function(x) x.Name, MyWebSphereServer.NodeName) _
-                And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceName, MyWebSphereServer.NodeName) _
+                And repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
 
             repository.Upsert(filterDef, updateDef)
 
@@ -2983,8 +2985,8 @@ Partial Public Class VitalSignsPlusCore
 
             'Gets a list of all the status docuemnts of the nodes in the cell
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.In(Function(x) x.Name, listOfServers.Select(Function(x) x.DeviceName).ToList()) _
-                                                                                 And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.In(Function(x) x.DeviceName, listOfServers.Select(Function(x) x.DeviceName).ToList()) _
+                                                                                 And repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
 
             Dim listOfStatus As List(Of VSNext.Mongo.Entities.Status) = repository.Find(filterDef).ToList()
 
@@ -3009,8 +3011,8 @@ Partial Public Class VitalSignsPlusCore
                                                                                  .Set(Function(x) x.JvmCount, listOfStatus.Sum(Function(x) x.JvmCount)) _
                                                                                  .Set(Function(x) x.JvmMonitoredCount, listOfStatus.Sum(Function(x) x.JvmMonitoredCount))
 
-            filterDef = repository.Filter.Eq(Function(x) x.Name, MyWebSphereServer.NodeName) _
-                And repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription())
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceName, MyWebSphereServer.NodeName) _
+                And repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription())
 
             repository.Upsert(filterDef, updateDef)
 
@@ -3282,7 +3284,7 @@ Partial Public Class VitalSignsPlusCore
 
                 filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 updatedef = repo.Updater _
-                                  .Set(Function(i) i.Name, .Name) _
+                                  .Set(Function(i) i.DeviceName, .Name) _
                                   .[Set](Function(i) i.CurrentStatus, .Status) _
                                   .[Set](Function(i) i.StatusCode, .Status) _
                                   .[Set](Function(i) i.LastUpdated, DateTime.Now) _
@@ -3290,12 +3292,13 @@ Partial Public Class VitalSignsPlusCore
                                   .[Set](Function(i) i.Category, .Category) _
                                   .[Set](Function(i) i.TypeAndName, TypeAndName) _
                                   .[Set](Function(i) i.Description, .Description) _
-                                  .[Set](Function(i) i.Type, .ServerType) _
+                                  .[Set](Function(i) i.DeviceType, .ServerType) _
                                   .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
                                   .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
                                   .[Set](Function(i) i.CPU, Integer.Parse(.CPU_Utilization)) _
                                   .[Set](Function(i) i.Memory, Integer.Parse(.Memory_Utilization)) _
-                                  .[Set](Function(i) i.NextScan, .NextScan)
+                                  .[Set](Function(i) i.NextScan, .NextScan) _
+                                  .[Set](Function(i) i.DeviceId, .ServerObjectID)
             End With
             repo.Upsert(filterdef, updatedef)
             'strSQL = strSQL.Replace("NaN", "0")

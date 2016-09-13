@@ -490,8 +490,8 @@ Update:
 
                         Try
                             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
-                                                                                                 And repository.Filter.Eq(Function(x) x.Name, .Name)
+                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
+                                                                                                 And repository.Filter.Eq(Function(x) x.DeviceName, .Name)
                             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                                  .Set(Function(x) x.Exjournal, Convert.ToInt32(.EXJournal_DocCount)) _
                                                                                                  .Set(Function(x) x.Exjournal1, Convert.ToInt32(.EXJournal1_DocCount)) _
@@ -578,8 +578,8 @@ Update:
                     myAlert.QueueAlert("Domino", MyDominoServer.Name, "EXJournal", strBody, MyDominoServer.Location)
                     Try
                         Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
-                                                                                             And repository.Filter.Eq(Function(x) x.Name, MyDominoServer.Name)
+                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
+                                                                                             And repository.Filter.Eq(Function(x) x.DeviceName, MyDominoServer.Name)
                         Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                              .Set(Function(x) x.Description, MyDominoServer.Description)
 
@@ -594,8 +594,8 @@ Update:
 
                         Try
                             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
-                                                                                                 And repository.Filter.Eq(Function(x) x.Name, MyDominoServer.Name)
+                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
+                                                                                                 And repository.Filter.Eq(Function(x) x.DeviceName, MyDominoServer.Name)
                             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                                  .Set(Function(x) x.Description, "EXJournal databases are below threshold.")
 

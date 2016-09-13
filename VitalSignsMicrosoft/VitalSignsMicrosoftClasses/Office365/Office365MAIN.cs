@@ -560,7 +560,7 @@ string TypeAndName = myServer.Name + "-" + ServerType;
 FilterDefinition<VSNext.Mongo.Entities.Status> filterdef = repo.Filter.Where(i => i.TypeAndName == TypeAndName);
 UpdateDefinition<VSNext.Mongo.Entities.Status> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Status>);
 updatedef = repo.Updater
-    .Set(i => i.Name, myServer.Name)
+    .Set(i => i.DeviceName, myServer.Name)
      .Set(i => i.CurrentStatus, "Maintenance")
      .Set(i => i.StatusCode, "Maintenance")
      .Set(i => i.LastUpdated, DateTime.Now)
@@ -568,7 +568,7 @@ updatedef = repo.Updater
     .Set(i => i.TypeAndName, TypeAndName)
     .Set(i => i.Description, "Microsoft " + ServerType + " Server.")
     .Set(i => i.Details, "This server is in a scheduled maintenance period.  Monitoring is temporarily disabled.")
-    .Set(i => i.Type, ServerType)
+    .Set(i => i.DeviceType, ServerType)
     .Set(i => i.UserCount, 0)
     .Set(i => i.Location, myServer.Location)
     .Set(i => i.LastUpdated, DateTime.Now)
@@ -812,7 +812,7 @@ repo.Upsert(filterdef, updatedef);
                          FilterDefinition<VSNext.Mongo.Entities.Status> filterdef = repo.Filter.Where(i => i.TypeAndName == TypeAndName);
                          UpdateDefinition<VSNext.Mongo.Entities.Status> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Status>);
                          updatedef = repo.Updater
-                             .Set(i => i.Name, server.Name)
+                             .Set(i => i.DeviceName, server.Name)
                               .Set(i => i.CurrentStatus, server.Status)
                               .Set(i => i.StatusCode, server.StatusCode)
                               .Set(i => i.LastUpdated, DateTime.Now)
@@ -820,7 +820,7 @@ repo.Upsert(filterdef, updatedef);
                              .Set(i => i.TypeAndName, TypeAndName)
                              .Set(i => i.Description, "Microsoft " + type + " Server.")
                              .Set(i => i.Details, "This server has not yet been scanned.")
-                             .Set(i => i.Type, type)
+                             .Set(i => i.DeviceType, type)
                              .Set(i => i.UserCount, 0)
                              .Set(i => i.Location, server.Location)
                              .Set(i => i.LastUpdated, DateTime.Now)

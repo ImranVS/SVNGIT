@@ -935,7 +935,7 @@ Partial Public Class VitalSignsPlusDomino
                                                                                  .Set(Function(x) x.ResponseThreshold, Convert.ToInt32(.ResponseThreshold)) _
                                                                                  .Set(Function(x) x.Description, .Description) _
                                                                                  .Set(Function(x) x.MyPercent, Percent) _
-                                                                                 .Set(Function(x) x.Name, .Name) _
+                                                                                 .Set(Function(x) x.DeviceName, .Name) _
                                                                                  .Set(Function(x) x.Location, .Location)
 
             repository.Update(filterDef, updateDef)

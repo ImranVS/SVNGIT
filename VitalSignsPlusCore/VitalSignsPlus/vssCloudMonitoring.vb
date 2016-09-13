@@ -519,7 +519,7 @@ Update:
                 Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
                 Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
                 updatedef = repo.Updater _
-                                          .Set(Function(i) i.Name, .Name.ToString()) _
+                                          .Set(Function(i) i.DeviceName, .Name.ToString()) _
                                           .[Set](Function(i) i.CurrentStatus, .Status) _
                                           .[Set](Function(i) i.StatusCode, .Status) _
                                           .[Set](Function(i) i.LastUpdated, DateTime.Now) _
@@ -527,7 +527,7 @@ Update:
                                           .[Set](Function(i) i.Category, .Category) _
                                           .[Set](Function(i) i.TypeAndName, TypeAndName) _
                                           .[Set](Function(i) i.Description, .Description) _
-                                          .[Set](Function(i) i.Type, "Cloud") _
+                                          .[Set](Function(i) i.DeviceType, "Cloud") _
                                           .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                                           .[Set](Function(i) i.Location, "Cloud") _
                                           .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _

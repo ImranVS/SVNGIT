@@ -1940,59 +1940,46 @@ Public Class VitalSignsPlusCore
 
         Try
             With myMailService
-                '5/5/2016 NS modified - inserting a Mail into StatusDetails fails because of a TypeANDName mismatch
-                'Changed TypeANDName -MS to -Mail
-                strSQL = "Update Status SET DownCount= " & .DownCount & _
-                ", Status='" & .Status & "', Upcount=" & .UpCount & _
-                ", UpPercent= " & .UpPercentCount & _
-                ", Details='" & .ResponseDetails & _
-                "', LastUpdate='" & Now & _
-                "', ResponseTime='" & Str(.ResponseTime) & _
-                "', NextScan='" & .NextScan & _
-                "', PercentageChange='" & Str(PercentageChange) & _
-                "', Location='" & "Mail Service" & _
-                "', StatusCode='" & .StatusCode & _
-                "', Description='" & .Description & _
-                "', ResponseThreshold='" & .ResponseThreshold & _
-                "', MyPercent='" & (Percent * 100) & _
-                "', Name='" & .Name & "' " & _
-                ", OperatingSystem='" & .ServerName & "' " & _
-                ", UpPercentMinutes=" & .UpPercentMinutes & _
-                ", UpMinutes=" & Str(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1")) & _
-                ", DownMinutes=" & Str(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1")) & _
-                "  WHERE TypeANDName='" & .Name & "-Mail' "
-                'TypeANDName is the key
+                Try
+                    Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceType, .ServerType) And
+                        repository.Filter.Eq(Function(x) x.DeviceName, .Name)
+                    Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                        .Set(Function(x) x.DownCount, .DownCount) _
+                        .Set(Function(x) x.CurrentStatus, .Status) _
+                        .Set(Function(x) x.UpCount, .UpCount) _
+                        .Set(Function(x) x.UpPercent, .UpPercentCount) _
+                        .Set(Function(x) x.Details, .ResponseDetails) _
+                        .Set(Function(x) x.LastUpdated, Now) _
+                        .Set(Function(x) x.ResponseTime, Convert.ToInt32(.ResponseTime)) _
+                        .Set(Function(x) x.NextScan, .NextScan) _
+                        .Set(Function(x) x.PercentageChange, PercentageChange) _
+                        .Set(Function(x) x.Location, "Mail Service") _
+                        .Set(Function(x) x.StatusCode, .StatusCode) _
+                        .Set(Function(x) x.Description, .Description) _
+                        .Set(Function(x) x.ResponseThreshold, Convert.ToInt32(.ResponseThreshold)) _
+                        .Set(Function(x) x.MyPercent, Percent) _
+                        .Set(Function(x) x.DeviceName, .Name) _
+                        .Set(Function(x) x.OperatingSystem, .ServerName) _
+                        .Set(Function(x) x.UpPercentMinutes, .UpPercentMinutes) _
+                        .Set(Function(x) x.UpMinutes, .UpMinutes) _
+                        .Set(Function(x) x.DownMinutes, .DownMinutes) _
+                        .Set(Function(x) x.DeviceId, .ServerObjectID) _
+                        .Set(Function(x) x.TypeAndName, .Name & "-" & .ServerType)
+
+                    repository.Upsert(filterDef, updateDef)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Mail_Service", myMailService.Name, Now.ToString & " Mail Service Monitor Error while creating Mongo statement: " & ex.Message, LogLevel.Normal)
+                End Try
+
 
             End With
-            If MyLogLevel = LogLevel.Verbose Then
-                WriteDeviceHistoryEntry("Mail_Service", myMailService.Name, Now.ToString & " Mail Service SQL statement: " & vbCrLf & strSQL)
-            End If
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Mail_Service", myMailService.Name, Now.ToString & " Mail Service Monitor Error while creating SQL statement: " & ex.Message & vbCrLf & strSQL, LogLevel.Normal)
-            Try
-                With myMailService
-                    '5/5/2016 NS modified - inserting a Mail into StatusDetails fails because of a TypeANDName mismatch
-                    'Changed TypeANDName -MS to -Mail
-                    strSQL = "Update Status SET DownCount= " & .DownCount & _
-                       ", Status='" & .Status & "', Upcount=" & .UpCount & _
-                       ", Details='" & .ResponseDetails & _
-                       "', Description='" & .Description & _
-                       "', LastUpdate='" & Now & _
-                       "', ResponseTime='" & Str(.ResponseTime) & _
-                       "', NextScan='" & .NextScan & _
-                       "', ResponseThreshold='" & .ResponseThreshold & _
-                       "', MyPercent='" & (Percent * 100) & _
-                       "', Name='" & .Name & "' " & _
-                       "  WHERE TypeANDName='" & .Name & "-Mail' "
-                End With
-            Catch ex3 As Exception
-                WriteDeviceHistoryEntry("Mail_Service", myMailService.Name, Now.ToString & " Mail Service Monitor Error while creating SQL statement, so shorter statement was used: " & vbCrLf & strSQL)
 
-            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Mail_Service", myMailService.Name, Now.ToString & " Mail Service Monitor Error while creating Mongo statement: " & ex.Message, LogLevel.Normal)
 
         End Try
 
-        UpdateStatusTable(strSQL)
 
 
         ''**
@@ -2743,14 +2730,6 @@ Public Class VitalSignsPlusCore
 
 
     End Sub
-
-
-#End Region
-
-
-#Region "Network Devices"
-
-
 
 
 #End Region
@@ -6154,7 +6133,7 @@ CleanUp:
         Catch ex As Exception
 
         End Try
-        
+
     End Sub
     Public Sub GetCommunityStats(ByRef myServer As MonitoredItems.IBMConnect)
 

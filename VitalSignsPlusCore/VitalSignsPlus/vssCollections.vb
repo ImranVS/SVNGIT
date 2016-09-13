@@ -647,13 +647,13 @@ Partial Public Class VitalSignsPlusCore
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Mail.ToDescription())
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Mail.ToDescription())
             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
                 .Include(Function(x) x.StatusCode) _
                 .Include(Function(x) x.CurrentStatus) _
                 .Include(Function(x) x.LastUpdated) _
-                .Include(Function(x) x.Type) _
-                .Include(Function(x) x.Name)
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
@@ -846,7 +846,7 @@ Partial Public Class VitalSignsPlusCore
                 Try
                     Dim entityStatus As VSNext.Mongo.Entities.Status
                     Try
-                        entityStatus = listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName)).ToList()(0)
+                        entityStatus = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName)).ToList()(0)
                     Catch ex As Exception
                     End Try
 
@@ -949,13 +949,13 @@ Partial Public Class VitalSignsPlusCore
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription())
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription())
             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
                 .Include(Function(x) x.StatusCode) _
                 .Include(Function(x) x.CurrentStatus) _
                 .Include(Function(x) x.LastUpdated) _
-                .Include(Function(x) x.Type) _
-                .Include(Function(x) x.Name)
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
@@ -1475,7 +1475,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
                         Dim entityStatus As VSNext.Mongo.Entities.Status
                         Try
-                            entityStatus = listOfStatus.Where(Function(x) x.Type.Equals(entity.DeviceType) And x.Name.Equals(entity.DeviceName)).ToList()(0)
+                            entityStatus = listOfStatus.Where(Function(x) x.DeviceType.Equals(entity.DeviceType) And x.DeviceName.Equals(entity.DeviceName)).ToList()(0)
                         Catch ex As Exception
                         End Try
 
@@ -1787,20 +1787,20 @@ Partial Public Class VitalSignsPlusCore
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription())
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription())
             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
                 .Include(Function(x) x.StatusCode) _
                 .Include(Function(x) x.CurrentStatus) _
                 .Include(Function(x) x.LastUpdated) _
-                .Include(Function(x) x.Type) _
-                .Include(Function(x) x.Name)
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
         Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Failed to create dataset in URL processing code. Exception: " & ex.Message)
-			'  Exit Sub
-		End Try
+            WriteAuditEntry(Now.ToString & " Failed to create dataset in URL processing code. Exception: " & ex.Message)
+            '  Exit Sub
+        End Try
 
         '***
 
@@ -2007,7 +2007,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
                         Dim entityStatus As VSNext.Mongo.Entities.Status
                         Try
-                            entityStatus = listOfStatus.Where(Function(x) x.Type.Equals(entity.DeviceType) And x.Name.Equals(entity.DeviceName)).ToList()(0)
+                            entityStatus = listOfStatus.Where(Function(x) x.DeviceType.Equals(entity.DeviceType) And x.DeviceName.Equals(entity.DeviceName)).ToList()(0)
                         Catch ex As Exception
                         End Try
 
@@ -2086,7 +2086,7 @@ Partial Public Class VitalSignsPlusCore
             WriteAuditEntry(Now.ToString & " Random Exception creating URL collection:  " & ex.Message)
         End Try
 
-		InsufficentLicensesTest(MyURLs)
+        InsufficentLicensesTest(MyURLs)
 
         'Free the memory
 
@@ -2122,13 +2122,13 @@ Partial Public Class VitalSignsPlusCore
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.Cloud.ToDescription())
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Cloud.ToDescription())
             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
                 .Include(Function(x) x.StatusCode) _
                 .Include(Function(x) x.CurrentStatus) _
                 .Include(Function(x) x.LastUpdated) _
-                .Include(Function(x) x.Type) _
-                .Include(Function(x) x.Name)
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
@@ -2335,9 +2335,9 @@ Partial Public Class VitalSignsPlusCore
                         .Password = ""
                     End Try
 
-                    If listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName) And x.Type.Equals(entity.DeviceType)).ToList().Count() > 0 Then
+                    If listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList().Count() > 0 Then
 
-                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName) And x.Type.Equals(entity.DeviceType)).ToList()(0)
+                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList()(0)
 
 
                         Try
@@ -2396,10 +2396,10 @@ Partial Public Class VitalSignsPlusCore
     End Sub
 
     Private Sub CreateWebSphereCollection()
-		'start with fresh data
-		'Connect to the data source
-		Dim dsWebSphere As New Data.DataSet
-		Dim mySecrets As New VSFramework.TripleDES
+        'start with fresh data
+        'Connect to the data source
+        Dim dsWebSphere As New Data.DataSet
+        Dim mySecrets As New VSFramework.TripleDES
         Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
         Dim listOfNodes As New List(Of VSNext.Mongo.Entities.Server)
         Dim listOfCells As New List(Of VSNext.Mongo.Entities.Server)
@@ -2453,13 +2453,13 @@ Partial Public Class VitalSignsPlusCore
             listOfCells = repository.Find(filterDef, projectionDef).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
                 .Include(Function(x) x.StatusCode) _
                 .Include(Function(x) x.CurrentStatus) _
                 .Include(Function(x) x.LastUpdated) _
-                .Include(Function(x) x.Type) _
-                .Include(Function(x) x.Name)
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
@@ -2467,67 +2467,67 @@ Partial Public Class VitalSignsPlusCore
             'WSN: DeviceName
 
         Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateWebSphereCollection processing code. Exception: " & ex.Message)
-			Exit Sub
-		End Try
+            WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateWebSphereCollection processing code. Exception: " & ex.Message)
+            Exit Sub
+        End Try
 
 
 
-		'***
-		'but first delete any that are in the collection but not in the database anymore
-		'Delete propogation
-		Dim myDataRow As System.Data.DataRow
-		Dim MyServerNames As String = ""
+        '***
+        'but first delete any that are in the collection but not in the database anymore
+        'Delete propogation
+        Dim myDataRow As System.Data.DataRow
+        Dim MyServerNames As String = ""
 
-		If MyWebSphereServers.Count > 0 Then
-			WriteAuditEntry(Now.ToString & " Checking to see if any WebSphere Servers should be deleted. ")
-			'Get all the names of all the servers in the data table
-			For Each myDataRow In dsWebSphere.Tables("WebSphere").Rows()
-				MyServerNames += myDataRow.Item("ServerName") & "  "
-			Next
-		End If
+        If MyWebSphereServers.Count > 0 Then
+            WriteAuditEntry(Now.ToString & " Checking to see if any WebSphere Servers should be deleted. ")
+            'Get all the names of all the servers in the data table
+            For Each myDataRow In dsWebSphere.Tables("WebSphere").Rows()
+                MyServerNames += myDataRow.Item("ServerName") & "  "
+            Next
+        End If
 
-		Dim server As MonitoredItems.WebSphere
-		Dim myIndex As Integer
+        Dim server As MonitoredItems.WebSphere
+        Dim myIndex As Integer
 
-		If MyWebSphereServers.Count > 0 Then
-			For myIndex = MyWebSphereServers.Count - 1 To 0 Step -1
-				server = MyWebSphereServers.Item(myIndex)
-				Try
-					WriteAuditEntry(Now.ToString & " Checking to see if WebSphere Server " & server.Name & " should be deleted...")
-					If InStr(MyServerNames, server.Name) > 0 Then
-						'the server has not been deleted
-						WriteAuditEntry(Now.ToString & " " & server.Name & " is not marked for deletion. ")
-					Else
-						'the server has been deleted, so delete from the collection
-						Try
-							MyWebSphereServers.Delete(server.Name)
-							WriteAuditEntry(Now.ToString & " " & server.Name & " has been deleted by the service.")
-						Catch ex As Exception
-							WriteAuditEntry(Now.ToString & " " & server.Name & " was not deleted by the service because " & ex.Message)
-						End Try
-					End If
-				Catch ex As Exception
-					WriteAuditEntry(Now.ToString & " Exception WebSphere servers Deletion Loop on " & server.Name & ".  The error was " & ex.Message)
-				End Try
-			Next
-		End If
+        If MyWebSphereServers.Count > 0 Then
+            For myIndex = MyWebSphereServers.Count - 1 To 0 Step -1
+                server = MyWebSphereServers.Item(myIndex)
+                Try
+                    WriteAuditEntry(Now.ToString & " Checking to see if WebSphere Server " & server.Name & " should be deleted...")
+                    If InStr(MyServerNames, server.Name) > 0 Then
+                        'the server has not been deleted
+                        WriteAuditEntry(Now.ToString & " " & server.Name & " is not marked for deletion. ")
+                    Else
+                        'the server has been deleted, so delete from the collection
+                        Try
+                            MyWebSphereServers.Delete(server.Name)
+                            WriteAuditEntry(Now.ToString & " " & server.Name & " has been deleted by the service.")
+                        Catch ex As Exception
+                            WriteAuditEntry(Now.ToString & " " & server.Name & " was not deleted by the service because " & ex.Message)
+                        End Try
+                    End If
+                Catch ex As Exception
+                    WriteAuditEntry(Now.ToString & " Exception WebSphere servers Deletion Loop on " & server.Name & ".  The error was " & ex.Message)
+                End Try
+            Next
+        End If
 
-		MyServerNames = Nothing
-		server = Nothing
-		myIndex = Nothing
+        MyServerNames = Nothing
+        server = Nothing
+        myIndex = Nothing
 
-		'*** End delete propogation
+        '*** End delete propogation
 
-		Dim i As Integer = 0
-		'Add the Sametime servers to the collection
-		Try
-			If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & "  Reading configuration settings for " & dsWebSphere.Tables("WebSphere").Rows.Count & " WebSphere Servers.")
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Error with WebSphere table " & ex.Message, LogLevel.Normal)
-		End Try
-		Try
-			Dim myString As String = ""
+        Dim i As Integer = 0
+        'Add the Sametime servers to the collection
+        Try
+            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & "  Reading configuration settings for " & dsWebSphere.Tables("WebSphere").Rows.Count & " WebSphere Servers.")
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error with WebSphere table " & ex.Message, LogLevel.Normal)
+        End Try
+        Try
+            Dim myString As String = ""
             For Each entity As VSNext.Mongo.Entities.Server In listOfServers
                 i += 1
                 Dim MyName As String
@@ -2692,9 +2692,9 @@ Partial Public Class VitalSignsPlusCore
                         .RetryInterval = 2
                     End Try
 
-                    If listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName) And x.Type.Equals(entity.DeviceType)).ToList().Count() > 0 Then
+                    If listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList().Count() > 0 Then
 
-                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName) And x.Type.Equals(entity.DeviceType)).ToList()(0)
+                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList()(0)
 
 
                         Try
@@ -2957,16 +2957,16 @@ Partial Public Class VitalSignsPlusCore
             Next
 
         Catch exception As DataException
-			WriteAuditEntry(Now.ToString & " WebSphere Servers data exception " & exception.Message)
+            WriteAuditEntry(Now.ToString & " WebSphere Servers data exception " & exception.Message)
 
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " WebSphere Servers general exception " & ex.ToString)
-		End Try
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " WebSphere Servers general exception " & ex.ToString)
+        End Try
 
-		InsufficentLicensesTest(MyWebSphereServers)
+        InsufficentLicensesTest(MyWebSphereServers)
 
-		dsWebSphere.Dispose()
-	End Sub
+        dsWebSphere.Dispose()
+    End Sub
 
     Private Sub CreateIBMConnectCollection()
         'start with fresh data
@@ -3003,13 +3003,13 @@ Partial Public Class VitalSignsPlusCore
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.IBMConnections.ToDescription())
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.IBMConnections.ToDescription())
             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
                 .Include(Function(x) x.StatusCode) _
                 .Include(Function(x) x.CurrentStatus) _
                 .Include(Function(x) x.LastUpdated) _
-                .Include(Function(x) x.Type) _
-                .Include(Function(x) x.Name)
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
@@ -3222,9 +3222,9 @@ Partial Public Class VitalSignsPlusCore
                         .RetryInterval = 2
                     End Try
 
-                    If listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName) And x.Type.Equals(entity.DeviceType)).ToList().Count() > 0 Then
+                    If listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList().Count() > 0 Then
 
-                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.Name.Equals(entity.DeviceName) And x.Type.Equals(entity.DeviceType)).ToList()(0)
+                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList()(0)
 
 
                         Try

@@ -754,8 +754,8 @@ namespace VitalSignsMicrosoftClasses
                                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoUpsertStatus = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
                                 mongoUpsertStatus.filterDef = mongoUpsertStatus.repo.Filter.Where(i => i.TypeAndName == Farm + "-" + SharePointFarmServerType);
                                 mongoUpsertStatus.updateDef = mongoUpsertStatus.repo.Updater
-                                    .Set(i => i.Type, SharePointFarmServerType)
-                                    .Set(i => i.Name, Farm);
+                                    .Set(i => i.DeviceType, SharePointFarmServerType)
+                                    .Set(i => i.DeviceName, Farm);
                                 AllTestsList.MongoEntity.Add(mongoUpsertStatus);
 
 							}

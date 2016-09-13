@@ -1974,7 +1974,7 @@ namespace VitalSignsMicrosoftClasses
 				 if (type != "")
 				 {
                      VSNext.Mongo.Repository.Repository<Status> repo = new VSNext.Mongo.Repository.Repository<Status>(db.GetMongoConnectionString());
-                     List<Status> list = repo.Find(i => i.Type == type).ToList();
+                     List<Status> list = repo.Find(i => i.DeviceType == type).ToList();
 
                      MongoStatementsInsert<Status> insertStatement = new MongoStatementsInsert<Status>();
 
@@ -1988,14 +1988,14 @@ namespace VitalSignsMicrosoftClasses
 
 						 db.Execute(sql);
 
-                         if(list.Where(i => i.Name == server.Name).Count() == 0)
+                         if(list.Where(i => i.DeviceName == server.Name).Count() == 0)
                          {
                              insertStatement.listOfEntities.Add(new Status()
                              {
-                                 Type = type,
+                                 DeviceType = type,
                                  Location = server.Location,
                                  Category = server.Category,
-                                 Name = server.Name,
+                                 DeviceName = server.Name,
                                  CurrentStatus = server.Status,
                                  Details = "This server has not yet been scanned.",
                                  TypeAndName = server.TypeANDName,
@@ -2165,12 +2165,12 @@ namespace VitalSignsMicrosoftClasses
              MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
              mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
              mongoStatement.updateDef = mongoStatement.repo.Updater
-                 .Set(i => i.Name, myServer.Name)
+                 .Set(i => i.DeviceName, myServer.Name)
                  .Set(i => i.CurrentStatus, "Maintenance")
                  .Set(i => i.StatusCode, "Maintenance")
                  .Set(i => i.LastUpdated, DateTime.Now)
                  .Set(i => i.NextScan, myServer.NextScan)
-                 .Set(i => i.Type, myServer.ServerType)
+                 .Set(i => i.DeviceType, myServer.ServerType)
                  .Set(i => i.Location, myServer.Location)
                  .Set(i => i.Category, myServer.Category)
                  .Set(i => i.TypeAndName, myServer.TypeANDName)

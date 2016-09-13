@@ -420,12 +420,12 @@ namespace VitalSignsMicrosoftClasses
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
                 mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
                 mongoStatement.updateDef = mongoStatement.repo.Updater
-                    .Set(i => i.Name, Server.Name)
+                    .Set(i => i.DeviceName, Server.Name)
                     .Set(i => i.CurrentStatus, Server.Status)
                     .Set(i => i.StatusCode, Server.StatusCode)
                     .Set(i => i.LastUpdated, DateTime.Now)
                     .Set(i => i.NextScan, Server.NextScan)
-                    .Set(i => i.Type, Server.ServerType)
+                    .Set(i => i.DeviceType, Server.ServerType)
                     .Set(i => i.Location, Server.Location)
                     .Set(i => i.Category, Server.Category)
                     .Set(i => i.TypeAndName, Server.TypeANDName)
@@ -732,12 +732,12 @@ namespace VitalSignsMicrosoftClasses
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
                 mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
                 mongoStatement.updateDef = mongoStatement.repo.Updater
-                    .Set(i => i.Name, Server.Name)
+                    .Set(i => i.DeviceName, Server.Name)
                     .Set(i => i.CurrentStatus, NotResponding)
                     .Set(i => i.StatusCode, NotResponding)
                     .Set(i => i.LastUpdated, DateTime.Now)
                     .Set(i => i.NextScan, Server.NextScan)
-                    .Set(i => i.Type, Server.ServerType)
+                    .Set(i => i.DeviceType, Server.ServerType)
                     .Set(i => i.Location, Server.Location)
                     .Set(i => i.Category, Server.Category)
                     .Set(i => i.TypeAndName, Server.TypeANDName)

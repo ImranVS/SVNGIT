@@ -333,14 +333,14 @@ Update:
                 Dim TypeAndName As String = .Name & "-" & .ServerType
                 filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 updatedef = repo.Updater _
-                .Set(Function(i) i.Name, .Name) _
+                .Set(Function(i) i.DeviceName, .Name) _
                 .[Set](Function(i) i.CurrentStatus, .Status) _
                 .[Set](Function(i) i.StatusCode, .StatusCode) _
                 .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                 .[Set](Function(i) i.Category, .Category) _
                 .[Set](Function(i) i.TypeAndName, TypeAndName) _
                 .[Set](Function(i) i.Description, .Description) _
-                .[Set](Function(i) i.Type, .ServerType) _
+                .[Set](Function(i) i.DeviceType, .ServerType) _
                 .[Set](Function(i) i.Location, .Location) _
                 .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
                 .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
