@@ -16,15 +16,18 @@ namespace VSNext.Mongo.Entities
         [BsonElement("device_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string DeviceId { get; set; }
+
         [DataMember]
         [BsonElement("stat_name")]
         public string StatName { get; set; }
+
         [DataMember]
         [BsonElement("stat_value")]
         public double StatValue { get; set; }
+
         [DataMember]
         [BsonElement("device_name")]
-        public int DeviceName { get; set; }
+        public string DeviceName { get; set; }
 
     }
 }

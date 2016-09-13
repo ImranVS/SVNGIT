@@ -226,8 +226,6 @@ Public Class VitalSignsPlusCore
     Dim CurrentCloud As String 'Contains the name of the Cloud URL currently being queried
     Dim CloudStringFound As Boolean
 
-    Private Shared SametimeEUTest_Mutex As New Mutex()
-
     'Determines the verbosity of the log file
     Enum LogLevel
         Verbose = LogUtilities.LogUtils.LogLevel.Verbose
@@ -1486,28 +1484,28 @@ Public Class VitalSignsPlusCore
                             threadMonitorSametime = Nothing
                             Exit Do
                         End If
-                        'done = Now.Ticks
-                        'elapsed = New TimeSpan(done - start)
+                        done = Now.Ticks
+                        elapsed = New TimeSpan(done - start)
 
-                        'If elapsed.TotalMinutes > 5 Then
-                        '    start = Now.Ticks
-                        '    WriteAuditEntry(Now.ToString & " Refreshing configuration of Sametime servers to check for changes.")
-                        '    Try
+                        If elapsed.TotalMinutes > 5 Then
+                            start = Now.Ticks
+                            WriteAuditEntry(Now.ToString & " Refreshing configuration of Sametime servers to check for changes.")
+                            Try
 
-                        '        CreateSametimeServersCollection()
-                        '        UpdateStatusTableWithSametime()
-                        '        'myRegistry.WriteToRegistry("Sametime Server Update", False)
-                        '    Catch ex As Exception
+                                CreateSametimeServersCollection()
+                                UpdateStatusTableWithSametime()
+                                'myRegistry.WriteToRegistry("Sametime Server Update", False)
+                            Catch ex As Exception
 
-                        '    End Try
+                            End Try
 
-                        '    Try
+                            Try
 
-                        '    Catch ex As Exception
+                            Catch ex As Exception
 
-                        '    End Try
+                            End Try
 
-                        'End If
+                        End If
 
 
                     Catch ex As ThreadAbortException
@@ -1519,7 +1517,7 @@ Public Class VitalSignsPlusCore
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Sametime Thread #1 error: " & ex.Message)
                     End Try
-                    Thread.Sleep(60000) 'a min between threads
+                    Thread.Sleep(2900)
                     '  Thread.Sleep(29000)
                 Loop
             Catch ex As Exception
@@ -3778,7 +3776,7 @@ CleanUp:
 
             Dim Name As String = "VitalSigns Test Blog"
             URL = URL + "/blogs/homepage/api/blogs"
-            Dim Body As String = "<?xml version=""1.0"" encoding=""UTF-8""?><entry xmlns:snx=""http://www.ibm.com/xmlns/prod/sn"" xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">" & Name & "</title><category term=""vitalsigns""/><snx:handle>vitalsigns</snx:handle></entry>"""
+            Dim Body As String = "<?xml version=""1.0"" encoding=""UTF-8""?><entry xmlns:snx=""http://www.ibm.com/xmlns/prod/sn"" xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">" & Name & "</title><category term=""watchit""/><snx:handle>watchit</snx:handle></entry>"""
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Blog", LogUtilities.LogUtils.LogLevel.Normal)
             CleanAllVitalSignBlogs(myServer)
@@ -3904,7 +3902,7 @@ CleanUp:
                         End If
 
                         If TestThreshold < createTime Then
-                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
 
                             If myServer.StatusCode = "OK" Then
                                 myServer.StatusCode = "Issue"
@@ -3913,7 +3911,7 @@ CleanUp:
                             End If
 
                         Else
-                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The blog was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
                         End If
 
                     End Try
@@ -4056,7 +4054,7 @@ CleanUp:
                         End If
 
                         If TestThreshold < createTime Then
-                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
 
                             If myServer.StatusCode = "OK" Then
                                 myServer.StatusCode = "Issue"
@@ -4065,7 +4063,7 @@ CleanUp:
                             End If
 
                         Else
-                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The bookmark was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
                         End If
 
                     End Try
@@ -4214,7 +4212,7 @@ CleanUp:
                         End If
 
                         If TestThreshold < createTime Then
-                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
 
                             If myServer.StatusCode = "OK" Then
                                 myServer.StatusCode = "Issue"
@@ -4223,7 +4221,7 @@ CleanUp:
                             End If
 
                         Else
-                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
                         End If
 
                     End Try
@@ -4384,7 +4382,7 @@ CleanUp:
                         End If
 
                         If TestThreshold < createTime Then
-                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
 
                             If myServer.StatusCode = "OK" Then
                                 myServer.StatusCode = "Issue"
@@ -4393,7 +4391,7 @@ CleanUp:
                             End If
 
                         Else
-                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The file was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
                         End If
 
                     End Try
@@ -4541,7 +4539,7 @@ CleanUp:
 
                             If (webResponse2.StatusCode = HttpStatusCode.OK) Then
                                 'It deleted...do nothing
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted community.", LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted comunity.", LogUtilities.LogUtils.LogLevel.Normal)
 
                                 'If TestThreshold > createTime Then
                                 '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
@@ -4550,7 +4548,7 @@ CleanUp:
                                 'End If
                             Else
                                 'It failed to delete...send alert
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete community.", LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete comunity.", LogUtilities.LogUtils.LogLevel.Normal)
                                 'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The forum was successfully created in " & createTime & " ms but failed to delete the comunity.")
 
                                 If myServer.StatusCode = "OK" Then
@@ -4560,7 +4558,7 @@ CleanUp:
                             End If
 
                         Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete comunity due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                             'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The forum was successfully created in " & createTime & " ms but failed to delete the comunity.")
 
                             If myServer.StatusCode = "OK" Then
@@ -4602,7 +4600,7 @@ CleanUp:
                     End Try
                 End If
             Catch ex As Exception
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community for forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create comunity for forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                 myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
 
                 If myServer.StatusCode = "OK" Then
@@ -4995,12 +4993,9 @@ CleanUp:
 
 
             Dim BlogName As String = "VitalSigns Test Blog"
-            Dim BlogURL As String = URL + "/blogs/homepage/feed/blogs/atom?ps=100&lang=en_us"
+            Dim BlogURL As String = URL + "/blogs/homepage/feed/blogs/atom?search=" & BlogName.Replace(" ", "%20") & "&ps=100&lang=en_us"
 
-            Dim deleteThisLoop As Boolean = False
 
-            While BlogURL <> ""
-                deleteThisLoop = False
             Dim httpWR As HttpWebRequest = WebRequest.Create(BlogURL)
             httpWR.Timeout = 60000
             httpWR.Method = "GET"
@@ -5010,8 +5005,6 @@ CleanUp:
             httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
             Dim cookieContainer As New CookieContainer()
             httpWR.CookieContainer = cookieContainer
-
-                BlogURL = ""
 
             Dim webResponse As HttpWebResponse
 
@@ -5031,13 +5024,10 @@ CleanUp:
                     xmlDoc.LoadXml(resposne)
 
 
-
                     Dim ID As String = ""
                     For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
 
                         If xmlEntry.GetElementsByTagName("title")(0).InnerText.ToString() = BlogName Then
-
-
                             ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
                             ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
 
@@ -5058,8 +5048,6 @@ CleanUp:
                                     webResponse2 = httpWR2.GetResponse()
                                     If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
                                         'Not deleted
-                                        Else
-                                            deleteThisLoop = True
                                     End If
 
                                 Catch ex As Exception
@@ -5079,18 +5067,7 @@ CleanUp:
 
                     Next
 
-                        If deleteThisLoop = True Then
-                            BlogURL = httpWR.RequestUri().AbsoluteUri()
-                        Else
-                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
-                                If xmlLink.GetAttribute("rel") = "next" Then
-                                    BlogURL = xmlLink.GetAttribute("href").Replace("amp;", "")
-                                    Exit For
                 End If
-                            Next
-                        End If
-
-                    End If
 
             Catch ex As Exception
 
@@ -5099,8 +5076,6 @@ CleanUp:
                     webResponse.Close()
                 End If
             End Try
-
-            End While
 
         Catch ex As Exception
 
@@ -5119,20 +5094,17 @@ CleanUp:
             Dim Password As String = myServer.Password
 
             Dim Name As String = "http://www.DummyURLForVitalSigns.com"
-            Dim fullURL = URL + "/dogear/api/app?url=" & Name.ToLower()
+            URL = URL + "/dogear/api/app"
 
-            Dim deletedEntry As Boolean = False
+            Dim deleteString As String = URL & "?url=" & Name
 
-            Do
-                deletedEntry = False
-
-                Dim httpWR As HttpWebRequest = WebRequest.Create(fullURL)
+            Dim httpWR As HttpWebRequest = WebRequest.Create(deleteString)
             httpWR.Timeout = 6000000
             httpWR.Method = "DELETE"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
             httpWR.Accept = "*/*"
-                httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+            httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
             Dim cookieContainer As New CookieContainer()
             httpWR.CookieContainer = cookieContainer
             Dim httpWP As HttpWebResponse
@@ -5140,10 +5112,10 @@ CleanUp:
             Try
                 httpWP = httpWR.GetResponse()
 
-                    If httpWP.StatusCode <> HttpStatusCode.NoContent Then
-                        'Not deleted
+                If (httpWP.StatusCode = HttpStatusCode.NoContent) Then
+                    'It deleted...do things
                 Else
-                        deletedEntry = True
+                    'It failed to delete...do things
                 End If
 
             Catch ex As Exception
@@ -5152,19 +5124,15 @@ CleanUp:
                 If httpWP IsNot Nothing Then
                     httpWP.Close()
                 End If
-
             End Try
-
-
-
-            Loop While deletedEntry = True
-
 
 
 
         Catch ex As Exception
 
         End Try
+
+
     End Sub
 
     Public Sub CleanAllVitalSignCommunities(ByRef myServer As MonitoredItems.IBMConnect)
@@ -5176,12 +5144,8 @@ CleanUp:
 
 
             Dim Name As String = "VitalSigns Test Community"
-            Dim CommunityURL As String = URL + "/communities/service/atom/communities/all?ps=100&lang=en_us"
+            Dim CommunityURL As String = URL + "/communities/service/atom/communities/all?search=" & Name.Replace(" ", "%20") & "&ps=100&lang=en_us"
 
-            Dim deleteThisLoop As Boolean = False
-
-            While CommunityURL <> ""
-                deleteThisLoop = False
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(CommunityURL)
             httpWR.Timeout = 60000
@@ -5192,8 +5156,6 @@ CleanUp:
             httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
             Dim cookieContainer As New CookieContainer()
             httpWR.CookieContainer = cookieContainer
-
-                CommunityURL = ""
 
             Dim webResponse As HttpWebResponse
 
@@ -5237,9 +5199,7 @@ CleanUp:
                                             Try
                                                 webResponse2 = httpWR2.GetResponse()
                                                 If webResponse2.StatusCode <> HttpStatusCode.OK Then
-                                                        'not deleted
-                                                    Else
-                                                        deleteThisLoop = True
+                                                    'deleted
                                                 End If
 
                                             Catch ex As Exception
@@ -5265,19 +5225,7 @@ CleanUp:
 
                     Next
 
-                        If deleteThisLoop = True Then
-                            CommunityURL = httpWR.RequestUri().AbsoluteUri()
-                        Else
-                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
-                                If xmlLink.GetAttribute("rel") = "next" Then
-                                    CommunityURL = xmlLink.GetAttribute("href").Replace("amp;", "")
-                                    Exit For
                 End If
-                            Next
-                        End If
-
-                    End If
-
 
             Catch ex As Exception
 
@@ -5286,10 +5234,6 @@ CleanUp:
                     webResponse.Close()
                 End If
             End Try
-
-
-            End While
-
 
         Catch ex As Exception
 
@@ -5306,14 +5250,10 @@ CleanUp:
             Dim Password As String = myServer.Password
 
             Dim Name As String = "VitalSignsTestFiles.txt"
-            URL = URL + "/files/basic/api/myuserlibrary/feed?ps=100"
+            URL = URL + "/files/basic/api/myuserlibrary/feed?search=" & Name & "&ps=100"
 
             '  https://connections-as.jnittech.com:9444/communities/service/atom/community/instance?communityUuid=ae774096-1d25-4840-8cd4-855807dc5f69
 
-            Dim deleteThisLoop As Boolean = False
-
-            While URL <> ""
-                deleteThisLoop = False
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
             httpWR.Timeout = 60000
             httpWR.Method = "GET"
@@ -5323,8 +5263,6 @@ CleanUp:
             httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
             Dim cookieContainer As New CookieContainer()
             httpWR.CookieContainer = cookieContainer
-
-                URL = ""
 
             Dim webResponse As HttpWebResponse
 
@@ -5368,9 +5306,7 @@ CleanUp:
                                             Try
                                                 webResponse2 = httpWR2.GetResponse()
                                                 If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
-                                                        'not deleted
-                                                    Else
-                                                        deleteThisLoop = True
+                                                    'deleted
                                                 End If
 
                                             Catch ex As Exception
@@ -5403,18 +5339,7 @@ CleanUp:
 
                     Next
 
-                        If deleteThisLoop = True Then
-                            URL = httpWR.RequestUri().AbsoluteUri()
-                        Else
-                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
-                                If xmlLink.GetAttribute("rel") = "next" Then
-                                    URL = xmlLink.GetAttribute("href").Replace("amp;", "")
-                                    Exit For
                 End If
-                            Next
-                        End If
-
-                    End If
 
             Catch ex As Exception
 
@@ -5423,7 +5348,6 @@ CleanUp:
                     webResponse.Close()
                 End If
             End Try
-            End While
 
         Catch ex As Exception
 
@@ -5443,9 +5367,7 @@ CleanUp:
             URL = URL + "/wikis/basic/api/wikis/feed?ps=500"
 
             '  https://connections-as.jnittech.com:9444/communities/service/atom/community/instance?communityUuid=ae774096-1d25-4840-8cd4-855807dc5f69
-            Dim deleteThisLoop As Boolean = False
 
-            While URL <> ""
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
             httpWR.Timeout = 60000
             httpWR.Method = "GET"
@@ -5455,8 +5377,6 @@ CleanUp:
             httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
             Dim cookieContainer As New CookieContainer()
             httpWR.CookieContainer = cookieContainer
-
-                URL = ""
 
             Dim webResponse As HttpWebResponse
 
@@ -5479,7 +5399,7 @@ CleanUp:
                     Dim ID As String = ""
                     For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
 
-                            If xmlEntry.GetElementsByTagName("td:label")(0).InnerText.ToString().StartsWith(Name) Then
+                        If xmlEntry.GetElementsByTagName("td:label")(0).InnerText.ToString() = Name Then
 
                             For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
                                 If xmlLink.Name = "link" Then
@@ -5501,8 +5421,6 @@ CleanUp:
                                                 webResponse2 = httpWR2.GetResponse()
                                                 If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
                                                     'deleted
-                                                    Else
-                                                        deleteThisLoop = True
                                                 End If
 
                                             Catch ex As Exception
@@ -5535,18 +5453,7 @@ CleanUp:
 
                     Next
 
-                        If deleteThisLoop = True Then
-                            URL = httpWR.RequestUri().AbsoluteUri()
-                        Else
-                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
-                                If xmlLink.GetAttribute("rel") = "next" Then
-                                    URL = xmlLink.GetAttribute("href").Replace("amp;", "")
-                                    Exit For
                 End If
-                            Next
-                        End If
-
-                    End If
 
             Catch ex As Exception
 
@@ -5555,7 +5462,6 @@ CleanUp:
                     webResponse.Close()
                 End If
             End Try
-            End While
 
         Catch ex As Exception
 
@@ -5716,7 +5622,6 @@ CleanUp:
             GetFileStats(myServer)
             GetWikiStats(myServer)
             GetForumStats(myServer)
-            GetLibraryStats(myServer)
 
 
             'This should be last
@@ -5828,12 +5733,7 @@ CleanUp:
                 Next
 
                 Dim adapter As New VSAdaptor()
-                Try
-                    adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Activity Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
-
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
@@ -5864,11 +5764,7 @@ CleanUp:
                         cmd.Parameters.AddWithValue("@GUID", row("EXID").ToString())
                         cmd.Parameters.AddWithValue("@ActGUID", row("ACTIVITYUUID").ToString())
 
-                        Try
                         cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Activity Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
 
                         For Each tagRow As DataRow In ds.Tables(7).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
 
@@ -5879,11 +5775,7 @@ CleanUp:
                             cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
                             cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
 
-                            Try
                             cmd.ExecuteNonQuery()
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Activity Tag Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
 
                             cmd = New SqlClient.SqlCommand()
                             cmd.Connection = sqlConn
@@ -5893,11 +5785,7 @@ CleanUp:
                             cmd.Parameters.AddWithValue("@GUID", row("ACTIVITYUUID").ToString())
                             cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
 
-                            Try
                             cmd.ExecuteNonQuery()
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Activity Tag link. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
                         Next
 
 
@@ -5911,11 +5799,7 @@ CleanUp:
                             cmd.Parameters.AddWithValue("@GUID", userRow("EXID").ToString())
                             cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
 
-                            Try
                             cmd.ExecuteNonQuery()
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Activity Users. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
                         Next
 
                     Next
@@ -6118,11 +6002,8 @@ CleanUp:
 
                 Next
 
-                Try
+
                 'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Blog Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
 
 
 
@@ -6134,7 +6015,7 @@ CleanUp:
                 'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
                 Dim serverId As String = myServer.ID
                 Dim serverName As String = myServer.Name
-                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                'Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                 Dim repoObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                 Dim filterdefObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.DeviceId.Equals(serverId) And i.Type.Equals("Activity"))
                 repoObjects.Delete(filterdefObjects)
@@ -6147,12 +6028,12 @@ CleanUp:
                 For Each row As DataRow In ds.Tables(18).Rows()
 
                     ' first get the 
-                    Dim filterdefIbmConnectionsUsers As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.ServerName.Equals(serverName) And i.GUID.Equals(row("EXTID").ToString()))
+                    Dim filterdefIbmConnectionsUsers As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.DeviceName.Equals(serverName) And i.GUID.Equals(row("EXTID").ToString()))
                     Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
                     'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).ToList()
-                    Dim s As VSNext.Mongo.Entities.IbmConnectionsUsers = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).Take(1)
+                    Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsUsers = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).Take(1)
                     'For Each s As VSNext.Mongo.Entities.IbmConnectionsUsers In serverList
-                    connectionsUserId = s.Id
+                    connectionsUserId = IbmConnectionsUsers.Id
                     'Next
                     Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
                     IbmConnectionsObjects2.DeviceName = row("NAME").ToString()
@@ -6289,7 +6170,7 @@ CleanUp:
 
 
 
-
+        Dim myServerName As String = myServer.Name
         Dim Category As String = "Community"
 
         Try
@@ -6319,7 +6200,7 @@ CleanUp:
 
             End Try
 
-            sql = "INSERT INTO TABLENAME (ServerId, StatName, StatValue, Category, DateTime) VALUES "
+            'sql = "INSERT INTO TABLENAME (ServerId, StatName, StatValue, Category, DateTime) VALUES "
 
             Dim dict As New Dictionary(Of String, String)
             Try
@@ -6346,12 +6227,26 @@ CleanUp:
 
                 counter = 0
                 If (ds.Tables(4).Rows.Count > 0) Then
-                    sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfCommunityTagUses';INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
+                    'sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfCommunityTagUses';INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
+                    Dim IbmConnectionsTopStats As New VSNext.Mongo.Entities.IbmConnectionsTopStats
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsTopStats)(connectionString)
+                    Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsTopStats) = repo.Filter.Where(Function(i) i.Type.Equals("NumOfCommunityTagUses"))
+                    repo.Delete(filterdef)
+                    'sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfEntryTagUses'; INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
                     For Each row As DataRow In ds.Tables(4).Rows
-                        sql += "('" & myServer.ID & "', '" & myServer.Name & "', '" & counter & "', '" & row("Name").ToString() & "', '" & row("TOP_TAG_COUNT").ToString() & "', 'NumOfCommunityTagUses', GetDate()),"
+                        'sql += "('" & myServer.ID & "', '" & myServer.Name & "', '" & counter & "', '" & row("Name").ToString() & "', '" & row("TOP_TAG_COUNT").ToString() & "', 'NumOfCommunityTagUses', GetDate()),"
+
+                        IbmConnectionsTopStats.DeviceId = myServer.ServerObjectID
+                        IbmConnectionsTopStats.DeviceName = myServer.Name
+                        IbmConnectionsTopStats.Ranking = counter
+                        IbmConnectionsTopStats.Name = row("Name").ToString()
+                        IbmConnectionsTopStats.UsageCount = row("TOP_TAG_COUNT").ToString()
+                        IbmConnectionsTopStats.Type = "NumOfCommunityTagUses"
+                        repo.Insert(IbmConnectionsTopStats)
                         counter += 1
+
                     Next
-                    adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                    'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
                 End If
 
                 dict.Add("NUM_OF_COMMUNITIES_COMMUNITIES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_COMMUNITIES_CREATED_YESTERDAY"))
@@ -6375,147 +6270,197 @@ CleanUp:
                     addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
-                Try
-                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Community Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
 
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
                 'Handling for other tables
                 Dim dt As DataTable = ds.Tables(6)
 
+                Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsUsers)(connectionString)
 
-                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+                Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                Dim repoIbmConnectionsCommunity As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsCommunity)(connectionString)
+                ' Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
 
-                    Dim cmd As New SqlClient.SqlCommand()
-                    cmd.Connection = sqlConn
-                    cmd.CommandText = "DELETE FROM IbmConnectionsObjects WHERE ServerID = @ServerId AND Type = 'Community'"
-                    cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                'Dim cmd As New SqlClient.SqlCommand()
+                'cmd.Connection = sqlConn
+                'cmd.CommandText = "DELETE FROM IbmConnectionsObjects WHERE ServerID = @ServerId AND Type = 'Community'"
+                'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
 
+                'cmd.ExecuteNonQuery()
+
+                Dim filterdefIbmConnectionsObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(myServerName))
+                repoIbmConnectionsObjects.Delete(filterdefIbmConnectionsObjects)
+                'sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfEntryTagUses'; INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
+                For Each row As DataRow In dt.Rows()
+                    Dim tags As List(Of String)
+                    For Each tag As String In row("TAGS_LIST").ToString().Split(",")
+
+                        tags.Add(tag)
+                        'cmd = New SqlClient.SqlCommand()
+                        'cmd.Connection = sqlConn
+                        'cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
+                        'cmd.Parameters.AddWithValue("@TagName", tag)
+
+                        'cmd.ExecuteNonQuery()
+
+                        'cmd = New SqlClient.SqlCommand()
+                        'cmd.Connection = sqlConn
+                        'cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @CommGUID AND" & _
+                        '" Type = 'Community' AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
+                        'cmd.Parameters.AddWithValue("@TagName", tag)
+                        'cmd.Parameters.AddWithValue("@CommGUID", row("COMMUNITY_UUID").ToString())
+                        'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+
+                        'cmd.ExecuteNonQuery()
+                    Next
+
+                    Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
+                    Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                    'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                    Dim sxs As VSNext.Mongo.Entities.IbmConnectionsUsers = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).Take(1)
+                    Dim userId As String = sxs.Id
+
+                    Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
+                    IbmConnectionsObjects.DeviceName = myServer.Name
+                    IbmConnectionsObjects.Type = "Community"
+                    IbmConnectionsObjects.OwnerId = userId
+                    IbmConnectionsObjects.GUID = row("COMMUNITY_UUID").ToString()
+                    IbmConnectionsObjects.tags = tags
+                    repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
+
+                    'cmd = New SqlClient.SqlCommand()
+                    'cmd.Connection = sqlConn
+                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
+                    '    "(@Name, 'Community', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @ObjGUID)"
+                    'cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
+                    'cmd.Parameters.AddWithValue("@Created", row("CREATED").ToString())
+                    'cmd.Parameters.AddWithValue("@Modified", row("LASTMOD").ToString())
+                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_UUID").ToString())
+                    'cmd.Parameters.AddWithValue("@ObjGUID", row("COMMUNITY_UUID").ToString())
+                    'cmd.ExecuteNonQuery()
+                    Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(row("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
+                    Dim projectDefIbmConnectionsObjects2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
+                    'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                    Dim sxs2 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).Take(1)
+                    Dim id2 As String = sxs2.Id
+
+                    Dim IbmConnectionsCommunity As New VSNext.Mongo.Entities.IbmConnectionsCommunity
+                    IbmConnectionsCommunity.id = id2
+                    IbmConnectionsCommunity.CommunityName = row("COMMUNITY_TYPE").ToString()
+                    repoIbmConnectionsCommunity.Insert(IbmConnectionsCommunity)
+
+
+                    'cmd = New SqlClient.SqlCommand()
+                    'cmd.Connection = sqlConn
+                    'cmd.CommandText = "INSERT INTO IbmConnectionsCommunity (ObjectID, CommunityType) VALUES " & _
+                    '    "((SELECT ID FROM IbmConnectionsObjects WHERE GUID = @ObjGUID AND ServerID = @ServerId), @CommunityType)"
+                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'cmd.Parameters.AddWithValue("@ObjGUID", row("COMMUNITY_UUID").ToString())
+                    'cmd.Parameters.AddWithValue("@CommunityType", row("COMMUNITY_TYPE").ToString())
                     'cmd.ExecuteNonQuery()
 
-                    For Each row As DataRow In dt.Rows()
 
 
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
-                            "(@Name, 'Community', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @ObjGUID)"
-                        cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("CREATED").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("LASTMOD").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_UUID").ToString())
-                        cmd.Parameters.AddWithValue("@ObjGUID", row("COMMUNITY_UUID").ToString())
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Community Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
+                    For Each bookmarkRow As DataRow In ds.Tables(8).Select("COMMUNITY_UUID = '" & row("COMMUNITY_UUID").ToString() & "'")
+                        Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
+                        Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                        'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                        Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsUsers = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).Take(1)
+                        Dim userId2 As String = sxs3.Id
 
 
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsCommunity (ObjectID, CommunityType) VALUES " & _
-                            "((SELECT ID FROM IbmConnectionsObjects WHERE GUID = @ObjGUID AND ServerID = @ServerId), @CommunityType)"
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@ObjGUID", row("COMMUNITY_UUID").ToString())
-                        cmd.Parameters.AddWithValue("@CommunityType", row("COMMUNITY_TYPE").ToString())
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Community Object Types. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
+                        Dim filterdefIbmConnectionsObjects3 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
+                        Dim projectDefIbmConnectionsObjects3 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
+                        'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                        Dim sxs4 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).Take(1)
+                        Dim id3 As String = sxs4.Id
 
+                        Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                        IbmConnectionsObjects2.DeviceId = myServer.ServerObjectID
+                        IbmConnectionsObjects2.DeviceName = bookmarkRow("NAME").ToString()
+                        IbmConnectionsObjects2.Type = "Bookmark"
+                        IbmConnectionsObjects2.ParentGUID = id3
+                        IbmConnectionsObjects2.OwnerId = userId2
+                        IbmConnectionsObjects2.GUID = bookmarkRow("REF_UUID").ToString()
+                        repoIbmConnectionsObjects.Insert(IbmConnectionsObjects2)
 
-                        For Each tag As String In row("TAGS_LIST").ToString().Split(",")
+                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Doing bookmarks for " & row("COMMUNITY_UUID").ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        'cmd = New SqlClient.SqlCommand()
+                        'cmd.Connection = sqlConn
+                        'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, ParentObjectID,GUID) VALUES " & _
+                        '    "(@Name, 'Bookmark', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE " & _
+                        '    "GUID = @CommGUID AND ServerID = @ServerId ORDER BY ID DESC), @BookmarkGUID)"
+                        'cmd.Parameters.AddWithValue("@Name", bookmarkRow("NAME").ToString())
+                        'cmd.Parameters.AddWithValue("@Created", bookmarkRow("CREATED").ToString())
+                        'cmd.Parameters.AddWithValue("@Modified", bookmarkRow("LASTMOD").ToString())
+                        'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                        'cmd.Parameters.AddWithValue("@GUID", bookmarkRow("DIRECTORY_UUID").ToString())
+                        'cmd.Parameters.AddWithValue("@CommGUID", row("COMMUNITY_UUID").ToString())
+                        'cmd.Parameters.AddWithValue("@BookmarkGUID", bookmarkRow("REF_UUID").ToString())
 
-                            cmd = New SqlClient.SqlCommand()
-                            cmd.Connection = sqlConn
-                            cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                            cmd.Parameters.AddWithValue("@TagName", tag)
+                        'Dim s As String = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, ParentObjectID,GUID) VALUES " & _
+                        '    "(@Name, 'Bookmark', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE " & _
+                        '    "GUID = @CommGUID AND ServerID = @ServerId ORDER BY ID DESC), @BookmarkGUID)".Replace("@Name", bookmarkRow("NAME").ToString()).Replace("@Created", bookmarkRow("CREATED").ToString()).Replace("@Modified", bookmarkRow("LASTMOD").ToString()).Replace("@ServerId", myServer.ID).Replace("@GUID", bookmarkRow("DIRECTORY_UUID").ToString()).Replace("@CommGUID", row("COMMUNITY_UUID").ToString()).Replace("@BookmarkGUID", bookmarkRow("REF_UUID").ToString())
 
-                            Try
-                            cmd.ExecuteNonQuery()
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Community Tags. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
+                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Doing bookmarks for " & row("COMMUNITY_UUID").ToString() & ". sql = " & s, LogUtilities.LogUtils.LogLevel.Normal)
 
-                            cmd = New SqlClient.SqlCommand()
-                            cmd.Connection = sqlConn
-                            cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @CommGUID AND" & _
-                            " Type = 'Community' AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
-                            cmd.Parameters.AddWithValue("@TagName", tag)
-                            cmd.Parameters.AddWithValue("@CommGUID", row("COMMUNITY_UUID").ToString())
-                            cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-
-                            Try
-                            cmd.ExecuteNonQuery()
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Community Tags Link. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
-                        Next
-
-                        For Each bookmarkRow As DataRow In ds.Tables(8).Select("COMMUNITY_UUID = '" & row("COMMUNITY_UUID").ToString() & "'")
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Doing bookmarks for " & row("COMMUNITY_UUID").ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                            cmd = New SqlClient.SqlCommand()
-                            cmd.Connection = sqlConn
-                            cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, ParentObjectID,GUID) VALUES " & _
-                                "(@Name, 'Bookmark', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE " & _
-                                "GUID = @CommGUID AND ServerID = @ServerId ORDER BY ID DESC), @BookmarkGUID)"
-                            cmd.Parameters.AddWithValue("@Name", bookmarkRow("NAME").ToString())
-                            cmd.Parameters.AddWithValue("@Created", bookmarkRow("CREATED").ToString())
-                            cmd.Parameters.AddWithValue("@Modified", bookmarkRow("LASTMOD").ToString())
-                            cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                            cmd.Parameters.AddWithValue("@GUID", bookmarkRow("DIRECTORY_UUID").ToString())
-                            cmd.Parameters.AddWithValue("@CommGUID", row("COMMUNITY_UUID").ToString())
-                            cmd.Parameters.AddWithValue("@BookmarkGUID", bookmarkRow("REF_UUID").ToString())
-
-                            Dim s As String = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, ParentObjectID,GUID) VALUES " & _
-                                "(@Name, 'Bookmark', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE " & _
-                                "GUID = @CommGUID AND ServerID = @ServerId ORDER BY ID DESC), @BookmarkGUID)".Replace("@Name", bookmarkRow("NAME").ToString()).Replace("@Created", bookmarkRow("CREATED").ToString()).Replace("@Modified", bookmarkRow("LASTMOD").ToString()).Replace("@ServerId", myServer.ID).Replace("@GUID", bookmarkRow("DIRECTORY_UUID").ToString()).Replace("@CommGUID", row("COMMUNITY_UUID").ToString()).Replace("@BookmarkGUID", bookmarkRow("REF_UUID").ToString())
-
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Doing bookmarks for " & row("COMMUNITY_UUID").ToString() & ". sql = " & s, LogUtilities.LogUtils.LogLevel.Normal)
-
-                            Try
-                            cmd.ExecuteNonQuery()
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Community Bookamrk Object. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
-
-                        Next
-
-
+                        'cmd.ExecuteNonQuery()
 
                     Next
-                End Using
+
+
+
+                Next
+                'End Using
 
 
                 dt = ds.Tables(7)
 
 
-                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+                'Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+                For Each row As DataRow In dt.Rows()
+                    Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(myServerName))
+                    Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.users)
+                    Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
+                    Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                    'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                    Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsUsers = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).Take(1)
+                    Dim userId As String = objIbmConnectionsUsers.Id
 
-                    For Each row As DataRow In dt.Rows()
-                        Dim cmd As New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjectUsers (ObjectId, UserId) VALUES((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE Name = @CommName AND " & _
-                            "Type = 'Community' AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId));"
-                        cmd.Parameters.AddWithValue("@CommName", row("NAME").ToString())
-                        cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_UUID").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    Dim commUsers As List(Of String) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).Take(1)
+                    commUsers.Add(userId)
+                    Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+                    updatedef = repoIbmConnectionsObjects.Updater _
+                        .Set(Function(i) i.users, commUsers)
 
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Community Users. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-                    Next
+                    repoIbmConnectionsObjects.Update(filterdefIbmConnectionsObjects2, updatedef)
+                    'Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    'IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
+                    'IbmConnectionsObjects.DeviceName = myServer.Name
+                    'IbmConnectionsObjects.Type = "Community"
+                    'IbmConnectionsObjects.OwnerId = userId
+                    'IbmConnectionsObjects.GUID = row("COMMUNITY_UUID").ToString()
+                    'IbmConnectionsObjects.tags = tags
+                    'repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
 
-                End Using
+
+                    'Dim cmd As New SqlClient.SqlCommand()
+                    'cmd.Connection = sqlConn
+                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjectUsers (ObjectId, UserId) VALUES((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE Name = @CommName AND " & _
+                    '    "Type = 'Community' AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId));"
+                    'cmd.Parameters.AddWithValue("@CommName", row("NAME").ToString())
+                    'cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_UUID").ToString())
+                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+
+                    'cmd.ExecuteNonQuery()
+                Next
+
+                'End Using
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Community Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -6654,12 +6599,8 @@ CleanUp:
                     addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
-                Try
-                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting File Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
 
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
 
 
@@ -6723,7 +6664,7 @@ CleanUp:
 
                 dict.Add("NUM_OF_DISTINCT_BOOKMARK_URLS", ds.Tables(2).Rows(0)("NUM_OF_DISTINCT_BOOKMARK_URLS"))
 
-                sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
+                'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
@@ -6737,72 +6678,68 @@ CleanUp:
                         End If
                     End If
 
-                    sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
+                Next
+
+
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+
+
+                'Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+
+                'Dim cmd As New SqlClient.SqlCommand()
+
+                For Each row As DataRow In ds.Tables(3).Rows()
+
+
+                    'cmd = New SqlClient.SqlCommand()
+                    'cmd.Connection = sqlConn
+                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
+                    '    "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @BookmarkGUID)"
+                    'cmd.Parameters.AddWithValue("@Name", row("TITLE").ToString())
+                    'cmd.Parameters.AddWithValue("@Created", row("DATE").ToString())
+                    'cmd.Parameters.AddWithValue("@Modified", row("MODIFIED").ToString())
+                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'cmd.Parameters.AddWithValue("@GUID", row("MEMBER_ID").ToString())
+                    'cmd.Parameters.AddWithValue("@BookmarkGUID", row("LINK_ID").ToString())
+                    'cmd.Parameters.AddWithValue("@Type", "Bookmark")
+                    'cmd.ExecuteNonQuery()
+
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    IbmConnectionsObjects.Name = row("TITLE").ToString()
+                    IbmConnectionsObjects.DeviceName = myServer.Name
+                    IbmConnectionsObjects.Type = "Bookmark"
+                    IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("MEMBER_ID").ToString())
+                    IbmConnectionsObjects.GUID = row("LINK_ID").ToString()
+                    Dim user As New List(Of String)
+                    For Each tagRow As DataRow In ds.Tables(4).Rows()
+
+                        'cmd = New SqlClient.SqlCommand()
+                        'cmd.Connection = sqlConn
+                        'cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
+                        'cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
+                        'cmd.ExecuteNonQuery()
+
+                        'cmd = New SqlClient.SqlCommand()
+                        'cmd.Connection = sqlConn
+                        'cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@GUID AND" & _
+                        '" Type = 'Bookmark' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
+                        'cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
+                        'cmd.Parameters.AddWithValue("@GUID", tagRow("LINK_ID").ToString())
+                        'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                        'cmd.ExecuteNonQuery()
+                        user.Add(tagRow("TAG").ToString())
+                    Next
+                    IbmConnectionsObjects.users = user
+                    repo.Insert(IbmConnectionsObjects)
 
                 Next
 
-                Try
-                adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Bookmark Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
 
 
-
-                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
-
-                    Dim cmd As New SqlClient.SqlCommand()
-
-                    For Each row As DataRow In ds.Tables(3).Rows()
-
-
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
-                            "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @BookmarkGUID)"
-                        cmd.Parameters.AddWithValue("@Name", row("TITLE").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("DATE").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("MODIFIED").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@GUID", row("MEMBER_ID").ToString())
-                        cmd.Parameters.AddWithValue("@BookmarkGUID", row("LINK_ID").ToString())
-                        cmd.Parameters.AddWithValue("@Type", "Bookmark")
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Bookmark Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-
-                    Next
-
-                    For Each tagRow As DataRow In ds.Tables(4).Rows()
-
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                        cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Bookmark Tag Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@GUID AND" & _
-                        " Type = 'Bookmark' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
-                        cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
-                        cmd.Parameters.AddWithValue("@GUID", tagRow("LINK_ID").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Bookmark Tag Links. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-
-                    Next
-
-                End Using
+                'End Using
 
 
             Catch ex As Exception
@@ -6818,13 +6755,6 @@ CleanUp:
     End Sub
 
     Public Sub GetForumStats(ByRef myServer As MonitoredItems.IBMConnect)
-        Dim sqlDs As New DataSet()
-        Try
-            Dim objVSAdaptor As New VSFramework.VSAdaptor()
-            objVSAdaptor.FillDatasetAny("VitalSigns", "table", "SELECT GUID FROM IbmConnectionsObjects WHERE Type = 'Community' AND ServerId = " & myServer.ID, sqlDs, "table")
-        Catch ex As Exception
-
-        End Try
 
         Dim sql As String = "SELECT COUNT(*) NUM_OF_FORUMS_FORUMS FROM FORUM.DF_NODE WHERE NODETYPE = 'application/forum' AND NODEALIAS <> 'community' AND STATE = 0;" & _
             "SELECT COUNT(*) NUM_OF_FORUMS_TOPICS FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/topic' AND NODEALIAS <> 'community' AND STATE = 0;" & _
@@ -6833,21 +6763,8 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/topic' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" & _
             "SELECT COUNT(*) NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/reply' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;"
 
-        Try
 
 
-            Dim linq = From row In sqlDs.Tables("table").Rows.Cast(Of DataRow)()
-                           Select row.Field(Of String)("GUID")
-
-            'sql += "SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE com.COMMUNITYUUID IN ('" & String.Join("','", linq) & "') AND node.STATE = 0 AND NODEALIAS = 'community';"
-            sql += " SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE com.COMMUNITYUUID IN ('" & String.Join("','", linq) & "') AND node.STATE = 0 AND NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
-
-        Catch ex As Exception
-
-        End Try
-
-        sql += "SELECT node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODE node INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE node.FORUMUUID IN (Select FORUMUUID FROM FORUM.DF_NODE WHERE NODEALIAS != 'community' AND NODETYPE = 'application/forum' AND STATE = 0 AND DELSTATE = 0) AND node.NODEALIAS != 'community' AND node.STATE = 0 AND node.DELSTATE = 0 AND node.NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
-        sql += "SELECT NAME, NODEUUID FROM FORUM.DF_TAG;"
 
         Dim Category As String = "File"
 
@@ -6916,144 +6833,8 @@ CleanUp:
                     addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
-                Try
+
                 'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Forum Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
-
-
-
-
-                    'Handling for other tables
-
-                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
-
-                    Dim cmd As New SqlClient.SqlCommand()
-
-                    For Each row As DataRow In ds.Tables(6).Rows()
-
-                        Dim type As String = ""
-                        Dim parent As String = ""
-                        Dim parentType As String = ""
-
-                        If (row("NODETYPE").ToString() = "application/forum") Then
-                            type = "Forum"
-                            parent = row("COMMUNITYUUID").ToString()
-                            parentType = "Community"
-                        ElseIf (row("NODETYPE").ToString() = "forum/reply") Then
-                            type = "Forum Reply"
-                            parent = row("PARENTUUID").ToString()
-                            parentType = "Forum Topic"
-                        ElseIf (row("NODETYPE").ToString() = "forum/topic") Then
-                            type = "Forum Topic"
-                            parent = row("PARENTUUID").ToString()
-                            parentType = "Forum"
-                        End If
-
-                            'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID, ParentObjectID) VALUES " & _
-                            "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @ItemGUID, (SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @ParentGUID AND ServerID = @ServerId AND Type = @ParentType))"
-                        cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("CREATED").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("LASTMOD").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@GUID", row("EXID").ToString())
-                        cmd.Parameters.AddWithValue("@ItemGUID", row("NODEUUID").ToString())
-                        cmd.Parameters.AddWithValue("@Type", type)
-                        cmd.Parameters.AddWithValue("@ParentType", parentType)
-                        cmd.Parameters.AddWithValue("@ParentGUID", parent)
-
-                        Try
-                            cmd.ExecuteNonQuery()
-            Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Forum Objects 1. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-                    Next
-
-
-                        'node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED
-
-                    For Each row As DataRow In ds.Tables(7).Rows()
-
-                        Dim type As String = ""
-                        Dim parent As String = ""
-                        Dim parentType As String = ""
-
-                        If (row("NODETYPE").ToString() = "application/forum") Then
-                            type = "Forum"
-                            parent = ""
-                            parentType = ""
-                        ElseIf (row("NODETYPE").ToString() = "forum/reply") Then
-                            type = "Forum Reply"
-                            parent = row("PARENTUUID").ToString()
-                            parentType = "Forum Topic"
-                        ElseIf (row("NODETYPE").ToString() = "forum/topic") Then
-                            type = "Forum Topic"
-                            parent = row("PARENTUUID").ToString()
-                            parentType = "Forum"
-                        End If
-
-
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID, ParentObjectID) VALUES " & _
-                            "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @ItemGUID, (SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @ParentGUID AND ServerID = @ServerId AND Type = @ParentType))"
-                        cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("CREATED").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("LASTMOD").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@GUID", row("EXID").ToString())
-                        cmd.Parameters.AddWithValue("@ItemGUID", row("NODEUUID").ToString())
-                        cmd.Parameters.AddWithValue("@Type", type)
-                        cmd.Parameters.AddWithValue("@ParentType", parentType)
-                        cmd.Parameters.AddWithValue("@ParentGUID", parent)
-
-
-                        Try
-                            cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Forum Objects 2. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-
-                    Next
-
-
-
-                    For Each row As DataRow In ds.Tables(8).Rows()
-
-
-
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                        cmd.Parameters.AddWithValue("@TagName", row("NAME").ToString())
-
-                        Try
-                            cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Forum Tag Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "IF EXISTS ( SELECT 1 FROM IbmConnectionsObjects WHERE GUID=@GUID AND Type like '%Forum%' AND ServerID = @ServerId ) BEGIN " & _
-                            "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@GUID AND" & _
-                            " Type like '%Forum%' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName)) END"
-                        cmd.Parameters.AddWithValue("@TagName", row("NAME").ToString())
-                        cmd.Parameters.AddWithValue("@GUID", row("NODEUUID").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-
-                        Try
-                            cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Forum Tag Links. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-                    Next
-
-                    End Using
 
 
 
@@ -7147,90 +6928,91 @@ CleanUp:
                     addSummaryStats(myServer.Name, Name.ToUpper(), Val)
                 Next
 
-                Try
+
                 'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Wiki Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
 
 
+                'Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
 
-                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+                'Dim cmd As New SqlClient.SqlCommand()
 
-                    Dim cmd As New SqlClient.SqlCommand()
+                For Each row As DataRow In ds.Tables(6).Rows()
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    IbmConnectionsObjects.Name = row("LABEL").ToString()
+                    IbmConnectionsObjects.DeviceName = myServer.Name
+                    IbmConnectionsObjects.Type = "Wiki"
+                    IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("DIRECTORY_ID").ToString())
+                    IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
 
-                    For Each row As DataRow In ds.Tables(6).Rows()
+                    repo.Insert(IbmConnectionsObjects)
+                    'Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
 
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
-                            "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @UserGUID AND ServerID = @ServerId), @ObjectGUID)"
-                        cmd.Parameters.AddWithValue("@Name", row("LABEL").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("CREATE_DATE").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("LAST_UPDATE").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@UserGUID", row("DIRECTORY_ID").ToString())
-                        cmd.Parameters.AddWithValue("@ObjectGUID", HexToGUID(row("ID").ToString()))
-                        cmd.Parameters.AddWithValue("@Type", "Wiki")
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Wiki Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
+                    'cmd = New SqlClient.SqlCommand()
+                    'cmd.Connection = sqlConn
+                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
+                    '    "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @UserGUID AND ServerID = @ServerId), @ObjectGUID)"
+                    'cmd.Parameters.AddWithValue("@Name", row("LABEL").ToString())
+                    'cmd.Parameters.AddWithValue("@Created", row("CREATE_DATE").ToString())
+                    'cmd.Parameters.AddWithValue("@Modified", row("LAST_UPDATE").ToString())
+                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'cmd.Parameters.AddWithValue("@UserGUID", row("DIRECTORY_ID").ToString())
+                    'cmd.Parameters.AddWithValue("@ObjectGUID", HexToGUID(row("ID").ToString()))
+                    'cmd.Parameters.AddWithValue("@Type", "Wiki")
+                    'cmd.ExecuteNonQuery()
 
-                    Next
+                Next
 
-                    For Each tagRow As DataRow In ds.Tables(7).Rows()
+                'For Each tagRow As DataRow In ds.Tables(7).Rows()
 
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                        cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Wiki Tag Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
+                '    cmd = New SqlClient.SqlCommand()
+                '    cmd.Connection = sqlConn
+                '    cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
+                '    cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
+                '    cmd.ExecuteNonQuery()
 
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@ObjectGUID AND" & _
-                        " Type = @Type AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
-                        cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
-                        cmd.Parameters.AddWithValue("@ObjectGUID", HexToGUID(tagRow("LIBRARY_ID").ToString()))
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@Type", "Wiki")
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Wiki Tag Links. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
+                '    cmd = New SqlClient.SqlCommand()
+                '    cmd.Connection = sqlConn
+                '    cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@ObjectGUID AND" & _
+                '    " Type = @Type AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
+                '    cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
+                '    cmd.Parameters.AddWithValue("@ObjectGUID", HexToGUID(tagRow("LIBRARY_ID").ToString()))
+                '    cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                '    cmd.Parameters.AddWithValue("@Type", "Wiki")
+                '    cmd.ExecuteNonQuery()
 
-                    Next
+                'Next
 
-                    For Each row As DataRow In ds.Tables(8).Rows()
+                For Each row As DataRow In ds.Tables(8).Rows()
 
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID, ParentObjectID) VALUES " & _
-                            "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @EntryGUID, (SELECT ID FROM IbmConnectionsObjects WHERE GUID = @WikiGUID AND ServerID = @ServerId))"
-                        cmd.Parameters.AddWithValue("@Name", row("LABEL").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("CREATE_DATE").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("LAST_UPDATE").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_ID").ToString())
-                        cmd.Parameters.AddWithValue("@EntryGUID", HexToGUID(row("ID").ToString()))
-                        cmd.Parameters.AddWithValue("@WikiGUID", HexToGUID(row("LIBRARY_ID").ToString()))
-                        cmd.Parameters.AddWithValue("@Type", "Wiki Entry")
-                        Try
-                        cmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Wiki Entry Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    IbmConnectionsObjects.Name = row("LABEL").ToString()
+                    IbmConnectionsObjects.DeviceName = myServer.Name
+                    IbmConnectionsObjects.Type = "Wiki"
+                    IbmConnectionsObjects.ParentGUID = getObjectOwner(myServer.Name, HexToGUID(row("LIBRARY_ID").ToString()))
+                    IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("DIRECTORY_ID").ToString())
+                    IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
 
-                    Next
+                    repo.Insert(IbmConnectionsObjects)
 
-                End Using
+                    'cmd = New SqlClient.SqlCommand()
+                    'cmd.Connection = sqlConn
+                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID, ParentObjectID) VALUES " & _
+                    '    "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @EntryGUID, (SELECT ID FROM IbmConnectionsObjects WHERE GUID = @WikiGUID AND ServerID = @ServerId))"
+                    'cmd.Parameters.AddWithValue("@Name", row("LABEL").ToString())
+                    'cmd.Parameters.AddWithValue("@Created", row("CREATE_DATE").ToString())
+                    'cmd.Parameters.AddWithValue("@Modified", row("LAST_UPDATE").ToString())
+                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_ID").ToString())
+                    'cmd.Parameters.AddWithValue("@EntryGUID", HexToGUID(row("ID").ToString()))
+                    'cmd.Parameters.AddWithValue("@WikiGUID", HexToGUID(row("LIBRARY_ID").ToString()))
+                    'cmd.Parameters.AddWithValue("@Type", "Wiki Entry")
+                    'cmd.ExecuteNonQuery()
+
+                Next
+
+                'End Using
 
 
 
@@ -7260,7 +7042,7 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_PROFILES_EDITED_YESTERDAY FROM EMPINST.EMPLOYEE WHERE DATE(PROF_LAST_UPDATE) = CURRENT_DATE - 1 DAY;" & _
             "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" & _
             "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE FROM EMPINST.EMPLOYEE;"
+            "SELECT PROF_GUID, PROF_DISPLAY_NAME FROM EMPINST.EMPLOYEE;"
 
 
 
@@ -7341,43 +7123,44 @@ CleanUp:
                 Next
 
 
+                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
-                Try
-                    adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Profile Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
 
 
 
                 'Other Tables
                 'PROF_UID, PROF_DISPLAY_NAME
-                sql = ""
+                ' sql = ""
 
-                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
-                    For Each row As DataRow In ds.Tables(12).Rows()
-                        sql += "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsUsers WHERE GUID = @ProfGuid AND ServerId = @ServerId) BEGIN " & _
-                            "INSERT IbmConnectionsUsers (GUID, DisplayName, ServerID, IsActive, IsInternal) VALUES (@ProfGuid, @ProfDisplayName, @ServerId, @IsActive, @IsInternal) END ELSE BEGIN " & _
-                            "UPDATE IbmConnectionsUsers SET DisplayName = @ProfDisplayName, IsActive = @IsActive, IsInternal = @IsInternal WHERE ServerId = @ServerId AND GUID = @ProfGUID END;"
+                ' Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+                For Each row As DataRow In ds.Tables(12).Rows()
+                    'sql += "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsUsers WHERE GUID = @ProfGuid AND ServerId = @ServerId) BEGIN " & _
+                    '    "INSERT IbmConnectionsUsers (GUID, DisplayName, ServerID) VALUES (@ProfGuid, @ProfDisplayName, @ServerId) END;"
 
-                        Dim sqlCmd As New SqlClient.SqlCommand()
-                        sqlCmd.Connection = sqlConn
-                        sqlCmd.CommandText = sql
-                        sqlCmd.Parameters.AddWithValue("@ProfDisplayName", row("PROF_DISPLAY_NAME").ToString())
-                        sqlCmd.Parameters.AddWithValue("@ProfGuid", row("PROF_GUID").ToString())
-                        sqlCmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        sqlCmd.Parameters.AddWithValue("@IsInternal", IIf(row("PROF_MODE").ToString() = "0", "1", "0"))
-                        sqlCmd.Parameters.AddWithValue("@IsActive", IIf(row("PROF_STATE").ToString() = "0", "1", "0"))
+                    'Dim sqlCmd As New SqlClient.SqlCommand()
+                    'sqlCmd.Connection = sqlConn
+                    'sqlCmd.CommandText = sql
+                    'sqlCmd.Parameters.AddWithValue("@ProfDisplayName", row("PROF_DISPLAY_NAME").ToString())
+                    'sqlCmd.Parameters.AddWithValue("@ProfGuid", row("PROF_GUID").ToString())
+                    'sqlCmd.Parameters.AddWithValue("@ServerId", myServer.ID)
 
-                        Try
-                        sqlCmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Profile Details. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
+                    'sqlCmd.ExecuteNonQuery()
+                    Dim myServerName As String = myServer.Name
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsUsers)(connectionString)
+                    Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repo.Filter.Where(Function(i) i.GUID.Equals(row("PROF_DISPLAY_NAME").ToString()) And i.DeviceName.Equals(myServerName))
+                    Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers)
+                    Try
 
+                        updatedef = repo.Updater _
+                                    .Set(Function(i) i.DisplayName, row("PROF_DISPLAY_NAME").ToString())
+                        repo.Upsert(filterdef, updatedef)
 
-                    Next
-                End Using
+                        '  WriteDeviceHistoryEntry("BES_Server", myDevice.Name, Now.ToString & " Short SQL statement: " & strSQL)
+                        ' UpdateStatusTable(strSQL)
+                    Catch ex As Exception
+                    End Try
+                Next
+                'End Using
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Profile Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -7390,11 +7173,91 @@ CleanUp:
         End Try
 
     End Sub
+    Private Function getObjectId(serverName As String) As String
+        Dim id As String = ""
+        Try
+            Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
+            Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(serverName))
+            Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
+
+            Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).Take(1)
+            id = sxs.Id
+        Catch ex As Exception
+
+        End Try
+
+
+        Return id
+
+        'SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @ParentGUID AND ServerID = @ServerId AND Type = 'Community'
+    End Function
+    Private Function getObjectOwner(serverName As String) As String
+        Dim id As String = ""
+        Try
+            Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
+            Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(serverName))
+            Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.OwnerId)
+
+            Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).Take(1)
+            id = sxs.OwnerId
+        Catch ex As Exception
+
+        End Try
+
+
+        Return id
+
+        'SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @ParentGUID AND ServerID = @ServerId AND Type = 'Community'
+    End Function
+
+    Private Function getObjectUser(serverName As String, GUID As String) As String
+        Dim id As String = ""
+        Try
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsUsers)(connectionString)
+
+            Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repo.Filter.Where(Function(i) i.GUID.Equals(GUID) And i.DeviceName.Equals(serverName))
+            Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repo.Project.Include(Function(i) i.Id)
+
+            Dim sxs As VSNext.Mongo.Entities.IbmConnectionsUsers = repo.Find(filterdef, projectDef).Take(1)
+            id = sxs.Id
+        Catch ex As Exception
+
+        End Try
+
+
+        Return id
+        'SELECT ID FROM IbmConnectionsUsers WHERE GUID = @UserGUID AND ServerID = @ServerId
+    End Function
+    Private Function getObjectOwner(serverName As String, GUID As String) As String
+        Dim id As String = ""
+        Try
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
+            Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(GUID) And i.DeviceName.Equals(serverName))
+            Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.Id)
+
+            Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repo.Find(filterdef, projectDef).Take(1)
+            id = sxs.Id
+        Catch ex As Exception
+
+        End Try
+
+        Return id
+        'SELECT ID FROM IbmConnectionsObjects WHERE GUID = @WikiGUID AND ServerID = @ServerId
+
+    End Function
+
 
     Public Sub GetHomepageStats(ByRef myServer As MonitoredItems.IBMConnect)
 
         Dim sqlDs As New DataSet()
         Dim sql As String = ""
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+        Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.Type.Equals("Community"))
+        Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.GUID)
+        Dim IbmConnectionsObjectsList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.All.ToList()
 
         Try
             Dim objVSAdaptor As New VSFramework.VSAdaptor()
@@ -7404,11 +7267,15 @@ CleanUp:
         End Try
 
         Try
-            Dim linq = From row In sqlDs.Tables("table").Rows.Cast(Of DataRow)()
-                       Where row.Field(Of String)("Type") = "Community"
-                       Select row.Field(Of String)("GUID")
+            'Dim linq = From row In sqlDs.Tables("table").Rows.Cast(Of DataRow)()
+            '           Where row.Field(Of String)("Type") = "Community"
+            '           Select row.Field(Of String)("GUID")
 
-            sql += "SELECT READER_ID, SOURCE, CONTAINER_ID, ITEM_ID FROM HOMEPAGE.NR_COMMUNITIES_VIEW WHERE READER_ID IN ( '" & String.Join("','", linq) & "') AND READER_ID != CONTAINER_ID;"
+            'Dim linq = From row In IbmConnectionsObjectsList.Cast(Of DataRow)()
+            '           Where row.Field(Of String)("Type") = "Community"
+            '           Select row.Field(Of String)("GUID")
+
+            sql += "SELECT READER_ID, SOURCE, CONTAINER_ID, ITEM_ID FROM HOMEPAGE.NR_COMMUNITIES_VIEW WHERE READER_ID IN ( '" & String.Join("','", IbmConnectionsObjectsList) & "') AND READER_ID != CONTAINER_ID;"
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Homepage Stats DB@ sql : " & sql, LogUtilities.LogUtils.LogLevel.Normal)
 
@@ -7453,57 +7320,67 @@ CleanUp:
 
             Dim dict As New Dictionary(Of String, String)
             Try
-                Dim adapter As New VSAdaptor()
+                'Dim adapter As New VSAdaptor()
 
-                sql = ""
+                'sql = ""
 
-                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
-                    For Each row As DataRow In ds.Tables(0).Rows()
-                        Dim type As String = ""
-                        If row("SOURCE").ToString() = "dogear" Then
+                ' Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+                For Each row As DataRow In ds.Tables(0).Rows()
+                    Dim type As String = ""
+                    If row("SOURCE").ToString() = "dogear" Then
+                        Continue For
+                    ElseIf row("SOURCE").ToString() = "forums" Then
+                        type = "Forum"
+                    ElseIf row("SOURCE").ToString() = "activities" Then
+                        type = "Activity"
+                    ElseIf row("SOURCE").ToString() = "communities" Then
+                        type = "Community"
+                    ElseIf row("SOURCE").ToString() = "blogs" Then
+                        'This ensure you get the blog and not a blog post. Blogs and Blog Posts will be connected under blogs function
+                        If row("CONTAINER_ID").ToString() <> row("ITEM_ID").ToString() Then
                             Continue For
-                        ElseIf row("SOURCE").ToString() = "forums" Then
-                            type = "Forum"
-                        ElseIf row("SOURCE").ToString() = "activities" Then
-                            type = "Activity"
-                        ElseIf row("SOURCE").ToString() = "communities" Then
-                            type = "Community"
-                        ElseIf row("SOURCE").ToString() = "blogs" Then
-                            'This ensure you get the blog and not a blog post. Blogs and Blog Posts will be connected under blogs function
-                            If row("CONTAINER_ID").ToString() <> row("ITEM_ID").ToString() Then
-                                Continue For
-                            End If
-
-                            type = "Blog"
-
-                        ElseIf row("SOURCE").ToString() = "wikis" Then
-                            'This ensure you get the blog and not a blog post. Blogs and Blog Posts will be connected under blogs function
-                            If row("CONTAINER_ID").ToString() <> row("ITEM_ID").ToString() Then
-                                Continue For
-                            End If
-
-                            type = "Wiki"
                         End If
 
+                        type = "Blog"
 
-                        sql += "UPDATE IbmConnectionsObjects SET ParentObjectID = ( SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @ParentGUID AND ServerID = @ServerId AND Type = 'Community') WHERE GUID = @ChildGuid AND ServerID = @ServerId AND Type = @Type;"
-                        sql += "UPDATE IbmConnectionsObjects SET OwnerID = (SELECT OwnerID FROM IbmConnectionsObjects WHERE GUID = @ParentGUID AND ServerID = @ServerId AND Type = 'Community') WHERE GUID = @ChildGuid AND ServerID = @ServerID AND Type = @Type AND OwnerID IS NULL;"
-                        Dim sqlCmd As New SqlClient.SqlCommand()
-                        sqlCmd.Connection = sqlConn
-                        sqlCmd.CommandText = sql
-                        sqlCmd.Parameters.AddWithValue("@ParentGUID", row("READER_ID").ToString())
-                        sqlCmd.Parameters.AddWithValue("@ChildGuid", row("CONTAINER_ID").ToString())
-                        sqlCmd.Parameters.AddWithValue("@Type", type)
-                        sqlCmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        Try
-                        sqlCmd.ExecuteNonQuery()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error linking homepage and objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
+                    ElseIf row("SOURCE").ToString() = "wikis" Then
+                        'This ensure you get the blog and not a blog post. Blogs and Blog Posts will be connected under blogs function
+                        If row("CONTAINER_ID").ToString() <> row("ITEM_ID").ToString() Then
+                            Continue For
+                        End If
+
+                        type = "Wiki"
+                    End If
+                    Dim myServerName As String = myServer.Name
+                    Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(row("CONTAINER_ID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals(type))
+
+                    Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+                    updatedef = repoIbmConnectionsObjects.Updater _
+                        .Set(Function(i) i.ParentGUID, getObjectId(myServer.Name))
+                    repoIbmConnectionsObjects.Update(filterdefIbmConnectionsObjects2, updatedef)
+
+                    Dim filterdefIbmConnectionsObjects3 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(row("CONTAINER_ID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals(type) And i.OwnerId.Equals(""))
+                    Dim updatedef2 As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+                    updatedef2 = repoIbmConnectionsObjects.Updater _
+                        .Set(Function(i) i.OwnerId, getObjectOwner(myServer.Name))
+                    repoIbmConnectionsObjects.Update(filterdefIbmConnectionsObjects3, updatedef2)
 
 
-                    Next
-                End Using
+                    'sql += "UPDATE IbmConnectionsObjects SET ParentObjectID = ( SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @ParentGUID AND ServerID = @ServerId AND Type = 'Community') WHERE GUID = @ChildGuid AND ServerID = @ServerId AND Type = @Type;"
+                    'sql += "UPDATE IbmConnectionsObjects SET OwnerID = (SELECT OwnerID FROM IbmConnectionsObjects WHERE GUID = @ParentGUID AND ServerID = @ServerId AND Type = 'Community') WHERE GUID = @ChildGuid AND ServerID = @ServerID AND Type = @Type AND OwnerID IS NULL;"
+                    'Dim sqlCmd As New SqlClient.SqlCommand()
+                    'sqlCmd.Connection = sqlConn
+                    'sqlCmd.CommandText = sql
+                    'sqlCmd.Parameters.AddWithValue("@ParentGUID", row("READER_ID").ToString())
+                    'sqlCmd.Parameters.AddWithValue("@ChildGuid", row("CONTAINER_ID").ToString())
+                    'sqlCmd.Parameters.AddWithValue("@Type", type)
+                    'sqlCmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'sqlCmd.ExecuteNonQuery()
+
+
+                Next
+                'End Using
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Homepage Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -7516,125 +7393,6 @@ CleanUp:
         End Try
 
     End Sub
-
-    Public Sub GetLibraryStats(ByRef myServer As MonitoredItems.IBMConnect)
-
-        Dim sql As String = "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_FILES, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024 AND CONTENT_SIZE < 1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_KB, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024*1024 AND CONTENT_SIZE < 1024*1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_MB, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024*1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_GB FROM DOCVERSION WHERE RECOVERY_ITEM_ID IS NULL AND IS_CURRENT = 1;" & _
-            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_IN_TRASH FROM RECOVERYITEM;" & _
-            "SELECT COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH, COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK, COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY FROM DOCVERSION WHERE MODIFY_DATE > CURRENT_TIMESTAMP - 1 MONTH AND RECOVERY_ITEM_ID IS NULL AND IS_CURRENT = 1;" & _
-            "SELECT COUNT(DISTINCT VERSION_SERIES_ID) LIBRARIES_NUM_OF_FILES_WITH_A_REVISION FROM DOCVERSION WHERE RECOVERY_ITEM_ID IS NULL GROUP BY VERSION_SERIES_ID HAVING COUNT(VERSION_SERIES_ID) > 1;" & _
-            "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_TAGS FROM UT_CLBTAG;" & _
-            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY FROM DOCVERSION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY AND MAJOR_VERSION_NUMBER = 1;" & _
-            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY FROM DOCVERSION a INNER JOIN (SELECT VERSION_SERIES_ID, MAX(MAJOR_VERSION_NUMBER) MAJOR_NUMBER FROM DOCVERSION GROUP BY VERSION_SERIES_ID) AS b ON a.VERSION_SERIES_ID = b.VERSION_SERIES_ID AND b.MAJOR_NUMBER = a.MAJOR_VERSION_NUMBER WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY FROM UT_CLBDOWNLOADRECORD WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY FROM DOCVERSION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY AND MAJOR_VERSION_NUMBER != 1;" & _
-            "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_LIBRARIES FROM CONTAINER;" & _
-            "SELECT COUNT(*) LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY FROM CONTAINER WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(*) LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY FROM CONTAINER WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;"
-
-
-        Dim Category As String = "Library"
-
-        Try
-            Dim con As IBM.Data.DB2.DB2Connection
-            Dim ds As New DataSet
-            Try
-
-                con = New IBM.Data.DB2.DB2Connection("Database=FNOS;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & "")
-                con.Open()
-
-                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
-                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
-                adapter.Fill(ds)
-
-
-
-            Catch ex As Exception
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Library Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-            Finally
-                Try
-                    If con.IsOpen Then
-                        con.Close()
-                    End If
-                Catch ex As Exception
-
-                End Try
-
-            End Try
-
-
-            Dim dict As New Dictionary(Of String, String)
-            Try
-                Dim adapter As New VSAdaptor()
-
-                dict.Add("LIBRARIES_TOTAL_NUM_OF_FILES", ds.Tables(0).Rows(0)("LIBRARIES_TOTAL_NUM_OF_FILES"))
-                dict.Add("LIBRARIES_FILES_OVER_KB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_KB"))
-                dict.Add("LIBRARIES_FILES_OVER_MB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_MB"))
-                dict.Add("LIBRARIES_FILES_OVER_GB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_GB"))
-
-                dict.Add("LIBRARIES_NUM_OF_FILES_IN_TRASH", ds.Tables(1).Rows(0)("LIBRARIES_NUM_OF_FILES_IN_TRASH"))
-
-                dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH"))
-                dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK"))
-                dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY"))
-
-                dict.Add("LIBRARIES_NUM_OF_FILES_WITH_A_REVISION", ds.Tables(3).Rows(0)("LIBRARIES_NUM_OF_FILES_WITH_A_REVISION"))
-
-                dict.Add("LIBRARIES_TOTAL_NUM_OF_TAGS", ds.Tables(4).Rows(0)("LIBRARIES_TOTAL_NUM_OF_TAGS"))
-
-                dict.Add("LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY"))
-
-                dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY", ds.Tables(6).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY"))
-
-                dict.Add("LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY", ds.Tables(7).Rows(0)("LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY"))
-
-                dict.Add("LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY", ds.Tables(8).Rows(0)("LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY"))
-
-                dict.Add("LIBRARIES_TOTAL_NUM_OF_LIBRARIES", ds.Tables(9).Rows(0)("LIBRARIES_TOTAL_NUM_OF_LIBRARIES"))
-
-                dict.Add("LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY", ds.Tables(10).Rows(0)("LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY"))
-
-                dict.Add("LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY", ds.Tables(11).Rows(0)("LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY"))
-
-                sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
-
-                Dim sqlCols As String = ""
-                Dim sqlVals As String = ""
-                For Each key In dict.Keys
-                    Dim Name As String = key
-                    Dim Val As String = dict(key)
-
-                    If String.Equals(myServer.IPAddress, "https://connections-as.jnittech.com:9444", StringComparison.CurrentCultureIgnoreCase) Then
-                        If key = "LIBRARIES_NUM_OF_FILES_FILES_CREATED_YESTERDAY" Or key = "LIBRARIES_NUM_OF_FILES_FILES_UPDATED_YESTERDAY" Or key = "LIBRARIES_NUM_OF_FILES_FILES_DOWNLOADED_YESTERDAY" Or key = "LIBRARIES_NUM_OF_FILES_FILES_REVISIONED_YESTERDAY" Then
-                            Val = Int(20 * Rnd()) + 1
-                        End If
-                    End If
-
-                    sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-
-                Next
-
-
-
-                Try
-                    adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Library Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
-
-
-            Catch ex As Exception
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Library Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-            End Try
-
-
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetLibraryStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-        End Try
-
-    End Sub
-
 
     Public Function HexToGUID(ByRef hex As String) As String
         Return hex.Insert(20, "-").Insert(16, "-").Insert(12, "-").Insert(8, "-")
@@ -7706,15 +7464,8 @@ CleanUp:
 
                         Try
                             WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Querying the server as an end user...")
-                            Try
-                                SametimeEUTest_Mutex.WaitOne()
                             TestSametimeServerAsUser(myServer)
                             WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " after Querying the server as an end user...")
-                        Catch ex As Exception
-                                WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Exception querying the server as an end user: " & ex.Message)
-                            Finally
-                                SametimeEUTest_Mutex.ReleaseMutex()
-                            End Try
                         Catch ex As Exception
                             WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Exception querying as end user: " & ex.ToString)
                         End Try

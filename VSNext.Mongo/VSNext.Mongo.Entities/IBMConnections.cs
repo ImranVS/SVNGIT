@@ -12,7 +12,7 @@ namespace VSNext.Mongo.Entities
     public class IbmConnectionsTopStats : Entity
     {
         [DataMember]
-        [BsonElement("sdevice_name")]
+        [BsonElement("device_name")]
         public string DeviceName { get; set; }
 
 
@@ -38,12 +38,30 @@ namespace VSNext.Mongo.Entities
         public string Type { get; set; }
 
     }
+    [DataContract]
+    [Serializable]
+    [CollectionName("ibm_connections_community")]
+    public class IbmConnectionsCommunity : Entity
+    {
+        [DataMember]
+        [BsonElement("id")]
+        public int id { get; set; }
+
+        [DataMember]
+        [BsonElement("community_name")]
+        public string CommunityName { get; set; }
+
+    }
 
     [DataContract]
     [Serializable]
     [CollectionName("ibm_connections_objects")]
     public class IbmConnectionsObjects : Entity
     {
+        [DataMember]
+        [BsonElement("name")]
+        public string Name { get; set; }
+
         [DataMember]
         [BsonElement("device_name")]
         public string DeviceName { get; set; }
@@ -119,8 +137,8 @@ namespace VSNext.Mongo.Entities
         public string DisplayName { get; set; }
 
         [DataMember]
-        [BsonElement("server_name")]
-        public string ServerName { get; set; }
+        [BsonElement("device_name")]
+        public string DeviceName { get; set; }
 
         [DataMember]
         [BsonElement("guid")]
