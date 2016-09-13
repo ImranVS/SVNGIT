@@ -30,6 +30,8 @@ namespace VitalSignsDailyStats
         IRepository<DailyStatistics> dailyStatasticsRepository;// = _unitOfWork.Repository<DailyStatistics>();
         IRepository<SummaryStatistics> summaryStatasticsRepository;// =_unitOfWork.Repository<SummaryStatistics>();
         IRepository<DailyTasks> dailyTasksRepository;
+        IRepository<Nodes> nodesRepository;
+
         VSAdaptor objVsAdaptor = new VSAdaptor();
         string culture = "en-US";
         string cultureName = "CultureString";
@@ -82,13 +84,14 @@ namespace VitalSignsDailyStats
                dailyStatasticsRepository = _unitOfWork.Repository<DailyStatistics>();
               summaryStatasticsRepository = _unitOfWork.Repository<SummaryStatistics>();
                 dailyTasksRepository = _unitOfWork.Repository<DailyTasks>();
+                nodesRepository = _unitOfWork.Repository<Nodes>();
                 if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
                     culture = ConfigurationManager.AppSettings[cultureName];
 
                 RegistryHandler myRegistry = new RegistryHandler();
              
-               // logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
-                logLevel = LogUtils.LogLevel.Verbose;
+                logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
+              //  logLevel = LogUtils.LogLevel.Verbose;
 
                 appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                 appPath = string.IsNullOrEmpty(appPath) ? @"c:\" : appPath;
@@ -108,7 +111,7 @@ namespace VitalSignsDailyStats
                 }
                 myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
                 myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
-               // productName = Convert.ToString(myRegistry.ReadFromRegistry("ProductName"));
+               productName = Convert.ToString(myRegistry.ReadFromRegistry("ProductName"));
                 if (string.IsNullOrEmpty(productName))
                     productName = "VitalSigns";
 
@@ -126,12 +129,14 @@ namespace VitalSignsDailyStats
                         VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
 
                         string nodeName = System.Configuration.ConfigurationManager.AppSettings["VSNodeName"].ToString();
-                        sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" + nodeName + "'";
+                        Expression<Func<Nodes, bool>> expression = (p => p.Name == nodeName);
+                        var result = nodesRepository.Find(expression).FirstOrDefault();
+                      //  sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" + nodeName + "'";
 
-                        DataTable dt = objVsAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"),sql);
-                        if ((dt.Rows.Count > 0))
+                       // DataTable dt = objVsAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"),sql);
+                        if (result!=null)
                         {
-                            isPrimaryNode = Convert.ToBoolean(dt.Rows[0][0].ToString());
+                            isPrimaryNode = result.IsPrimary;
                         }
 
                     }
@@ -152,7 +157,7 @@ namespace VitalSignsDailyStats
                 try
                 {
                     WriteAuditEntry("Building a list of all unique Domino disk drives, if any. ");
-                   // BuildDominoDriveList();
+                   BuildDominoDriveList();
                 }
                 catch (Exception ex)
                 {
@@ -162,7 +167,7 @@ namespace VitalSignsDailyStats
                 try
                 {
                     WriteAuditEntry("Building a list of all unique Microsoft server disk drives, if any. ");
-                   // BuildMicrosoftDriveList();
+                    BuildMicrosoftDriveList();
                 }
                 catch (Exception ex)
                 {
@@ -230,7 +235,7 @@ namespace VitalSignsDailyStats
                     try
                     {
                         WriteAuditEntry("Starting update of local tables");
-                      //  UpdateLocalTables();
+                        //UpdateLocalTables();
                     }
                     catch (Exception ex)
                     {
@@ -621,7 +626,7 @@ namespace VitalSignsDailyStats
             try
             {
                 
-               // CleanUpTravelerSummaryData();
+               CleanUpTravelerSummaryData();
 
             }
             catch (Exception ex)
@@ -711,7 +716,9 @@ namespace VitalSignsDailyStats
             catch (Exception ex)
             {
             }
-            List<DailyTasks> dailyTasks = dailyTasksRepository.All().ToList();
+            try
+            {
+                List<DailyTasks> dailyTasks = dailyTasksRepository.All().ToList();
 
             List<SummaryStatistics> summaryStatistics = new List<SummaryStatistics>();
             foreach(DailyTasks dailyTask in dailyTasks)
@@ -721,7 +728,7 @@ namespace VitalSignsDailyStats
                 {
                     case "AVG":
                         var avgResult= dailyStatasticsRepository.Collection.Aggregate()
-                       .Match(x => x.StatName==dailyTask.StatName)// && (x.CreatedOn >= SearchDate && x.CreatedOn< SearchDate.AddDays(1) ))
+                       .Match(x => x.StatName==dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn< SearchDate.AddDays(1) )
                            .Group(g => g.DeviceId,  g => new { key = g.Key, value = g.Average(s=>s.StatValue) })
                            .Project(x => new SummaryStatistics
                            {
@@ -729,12 +736,13 @@ namespace VitalSignsDailyStats
                               // StatName = dailyTask.StatName,
                                StatValue=x.value
                            }).ToList();
+                        if(avgResult.Count>0)
                         summaryStatasticsRepository.Insert(avgResult);
 
                         break;
                     case "SUM":
                         var sumResult = dailyStatasticsRepository.Collection.Aggregate()
-                          //  .Match(x => x.StatName == dailyTask.StatName)// && (x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1)))
+                          .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
                            .Group(g => g.DeviceId, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
                            .Project(x => new SummaryStatistics
                            {
@@ -742,12 +750,13 @@ namespace VitalSignsDailyStats
                                StatName = dailyTask.StatName,
                                StatValue = x.value
                            }).ToList();
-                       summaryStatasticsRepository.Insert(sumResult);
+                            if (sumResult.Count > 0)
+                                summaryStatasticsRepository.Insert(sumResult);
 
                         break;
                     case "MAX":
                         var maxResult = dailyStatasticsRepository.Collection.Aggregate()
-                         //   .Match(x => x.StatName == dailyTask.StatName)// && (x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1)))
+                            .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
                            .Group(g => g.DeviceId, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
                            .Project(x => new SummaryStatistics
                            {
@@ -755,15 +764,19 @@ namespace VitalSignsDailyStats
                                StatName = dailyTask.StatName,
                                StatValue = x.value
                            }).ToList();
-                        summaryStatasticsRepository.Insert(maxResult);
+                            if (maxResult.Count > 0)
+                                summaryStatasticsRepository.Insert(maxResult);
 
                         break;
                 }
 
                 
             }
-            
-            //strSQL = "SELECT SourceTableName, SourceAggregation, SourceStatName, DestinationTableName, DestinationStatName, QueryType FROM DailyTasks";
+
+            }
+            catch (Exception ex)
+            {
+            }            //strSQL = "SELECT SourceTableName, SourceAggregation, SourceStatName, DestinationTableName, DestinationStatName, QueryType FROM DailyTasks";
             //strSQL = strSQL + " Order By SourceStatName  DESC";
 
             //WriteAuditEntry("\r\n" + strSQL + "\r\n", LogLevel.Verbose);

@@ -59,9 +59,6 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
-    <Reference Include="VSFramework">
-      <HintPath>C:\Builds\Services\VSFramework.dll</HintPath>
-    </Reference>
     <Reference Include="VSNext.Mongo.Entities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Builds\Services\VSNext.Mongo.Entities.dll</HintPath>
@@ -83,13 +80,22 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VSFramework\VSFramework\VSFramework.vbproj">
+      <Project>{6c0ffc43-9f5b-4832-820b-d274d0fbac09}</Project>
+      <Name>VSFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VSServices\RPRWyatt.VitalSigns.Services.csproj">
       <Project>{b88fa958-5e33-42f8-92ed-0b8f5521433c}</Project>
       <Name>RPRWyatt.VitalSigns.Services</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TripleDES and Registry.vb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
