@@ -352,30 +352,35 @@ namespace VitalSigns.API.Controllers
             return serverDiskStatus;
         }
 
-        [HttpGet("{id}/health-assessment")]
-
-        public IEnumerable<HealthAssessment> GetHealthAssessment(string id)
+        [HttpGet("{device_id}/health-assessment")]
+        public APIResponse GetHealthAssessment(string device_id)
         {
             statusdetailsRepository = new Repository<StatusDetails>(ConnectionString);
-
-            Expression<Func<StatusDetails, bool>> expression = (p => p.DeviceId == id);
-            var result = statusdetailsRepository.Find(expression).Select(x => new HealthAssessment
+            try
             {
-                DeviceId = x.DeviceId,
-                Type = x.Type,
-                Category = x.category,
-                LastScan = x.LastUpdate,
-                TestName = x.TestName,
-                Result = x.Result,
-                Details = x.Details
 
-            });
-            return result.ToList();
+                Expression<Func<StatusDetails, bool>> expression = (p => p.DeviceId == device_id);
+                var result = statusdetailsRepository.Find(expression).Select(x => new HealthAssessment
+                {
+                    DeviceId = x.DeviceId,
+                    Type = x.Type,
+                    Category = x.category,
+                    LastScan = x.LastUpdate,
+                    TestName = x.TestName,
+                    Result = x.Result,
+                    Details = x.Details
+                });
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
         }
 
-
-        [HttpGet("{id}/traveler-health")]
-
+        [HttpGet("{deviceid}/traveler-health")]
         public APIResponse GetTravelerHealth(string deviceid)
         {
             try
@@ -385,7 +390,7 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
                 var result = statusRepository.Find(expression).Select(x => new TravelerHealth
                 {
-                    // ID = x.ID,
+                    DeviceId= x.DeviceId,
                     ResourceConstraint = x.ResourceConstraint,
                     TravelerDetails = x.TravelerDetails,
                     TravelerHeartBeat = x.TravelerHeartBeat,
@@ -439,11 +444,9 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceId = x.DeviceId,
                     Title = x.Title,
-                    ServerName =x.DeviceName,
+                    DeviceName = x.DeviceName,
                     Status = x.Status,
-                    //ServerName = x.ServerName,
-                    Folder = x.Folder,
-                 
+                    Folder = x.Folder,                
                     FolderCount = x.FolderCount,
                     Details = x.Details,
                     FileName = x.FileName,
@@ -455,7 +458,7 @@ namespace VitalSigns.API.Controllers
                     ReplicaId = x.ReplicaId,
                     DocumentCount = x.DocumentCount,
                     Categories = x.Categories
-                });
+                }).ToList();
                 Response = Common.CreateResponse(result);
             }
             catch (Exception exception)
@@ -466,18 +469,27 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpGet("{id}/outages")]
-        public IEnumerable<Outage> GetOutages(string id)
+        [HttpGet("{device_id}/outages")]
+        public APIResponse GetOutages(string device_id)
         {
             outagesRepository = new Repository<Outages>(ConnectionString);
-            Expression<Func<Outages, bool>> expression = (p => p.Id == id);
-            var result = outagesRepository.Find(expression).Select(x => new Outage
+            try
             {
-                DeviceName = x.DeviceName,
-                DateTimeDown = x.DateTimeDown,
-                DateTimeUp = x.DateTimeUp,
-            });
-            return result.ToList();
+                Expression<Func<Outages, bool>> expression = (p => p.DeviceId == device_id);
+                var result = outagesRepository.Find(expression).Select(x => new Outage
+                {
+                    DeviceId = x.DeviceId,
+                    DeviceName = x.DeviceName,
+                    DateTimeDown = x.DateTimeDown,
+                    DateTimeUp = x.DateTimeUp,
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
         }
 
         //[HttpGet("{id}/monitoredtasks")]

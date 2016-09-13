@@ -9,8 +9,8 @@ namespace VitalSigns.API.Models
     public class TravelerHealth
     {
 
-        [JsonProperty("_id")]
-        public int? ID { get; set; }
+        [JsonProperty("device_id")]
+        public string DeviceId { get; set; }
 
         [JsonProperty("resource_constraint")]
         public string ResourceConstraint { get; set; }

@@ -361,7 +361,7 @@ namespace VitalSigns.API.Controllers
                 else if (!string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
 
-                    Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatName == statName && p.DeviceId == ObjectId.Parse(deviceId));
+                    Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatName == statName && p.DeviceId == deviceId);
                     var statsHourly = summaryRepository.Find(expression);
                     var result = statsHourly
                                 .GroupBy(row => row.CreatedOn.Date)

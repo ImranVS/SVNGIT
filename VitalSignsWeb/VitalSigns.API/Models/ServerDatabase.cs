@@ -17,8 +17,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("status")]
         public string Status { get; set; }
 
-        [JsonProperty("server_name")]
-        public string ServerName { get; set; }
+        [JsonProperty("device_name")]
+        public string DeviceName { get; set; }
 
         [JsonProperty("folder")]
         public string Folder { get; set; }

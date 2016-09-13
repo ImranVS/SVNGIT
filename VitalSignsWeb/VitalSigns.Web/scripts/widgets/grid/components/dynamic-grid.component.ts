@@ -26,7 +26,7 @@ export class DynamicGrid implements WidgetComponent, OnInit {
         
         this.service.get(this.settings.url)
             .subscribe(
-            data => this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data)),
+            response => this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data)),
             error => this.errorMessage = <any>error
             );
 

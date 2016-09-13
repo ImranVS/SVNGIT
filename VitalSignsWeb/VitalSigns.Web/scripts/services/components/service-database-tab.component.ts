@@ -24,6 +24,7 @@ export class ServiceDatabaseTab extends WidgetController implements OnInit {
     }
 
     ngOnInit() {
+      
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
 
@@ -41,7 +42,7 @@ export class ServiceDatabaseTab extends WidgetController implements OnInit {
                     columns: [
                         { header: "Title", binding: "title", name: "title", width: "*" },
                         { header: "Status", binding: "status", name: "status", width: "*" },
-                        { header: "ServerName", binding: "server_name", name: "server_name", width: "*" },
+                        { header: "DeviceName", binding: "device_name", name: "device_name", width: "*" },
                         { header: "Folder", binding: "folder", name: "folder", width: "*" },
                         { header: "FolderCount", binding: "folder_count", name: "folder_count", width: "*" },
                         { header: "Details", binding: "details", name: "details", width: "*" },
@@ -55,10 +56,8 @@ export class ServiceDatabaseTab extends WidgetController implements OnInit {
                         { header: "DocumentCount", binding: "document_count", name: "document_count", width: "*" },
                         { header: "Categories", binding: "categories", name: "categories", width: "*" }
                     ]
-
                 }
             }
-
         ]
         injectSVG();
         bootstrapNavigator();

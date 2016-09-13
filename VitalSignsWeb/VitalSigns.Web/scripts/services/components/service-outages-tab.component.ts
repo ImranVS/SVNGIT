@@ -28,6 +28,7 @@ export class ServiceOutagesTab extends WidgetController implements OnInit {
             this.deviceId = params['service'];
 
         });
+
         this.widgets = [
             {
                 id: 'dynamicGrid',
@@ -36,8 +37,8 @@ export class ServiceOutagesTab extends WidgetController implements OnInit {
                 name: 'DynamicGrid',
                 css: 'col-xs-12',
                 settings: {
-                    //url: '/DashBoard/' + this.deviceId + '/outages',
-                    url: '/DashBoard/57a3caeb5c6c6c28b8eed352/outages',
+                    url: '/DashBoard/' + this.deviceId + '/outages',
+                    //url: '/DashBoard/57a3caeb5c6c6c28b8eed352/outages',
                     columns: [
                         { header: "DeviceName", binding: "device_name", name: "device_name", width: "*" },
                         { header: "DateTimeDown", binding: "date_time_down", name: "date_time_down", width: "*" },
