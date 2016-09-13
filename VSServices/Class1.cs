@@ -189,7 +189,7 @@ namespace RPRWyatt.VitalSigns.Services
                         {
 
                             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>();
-                            FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.Type.Equals(server.ServerType) && p.Name.Equals(server.Name));
+                            FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.DeviceType.Equals(server.ServerType) && p.DeviceName.Equals(server.Name));
                             UpdateDefinition<VSNext.Mongo.Entities.Status> updateDef = repository.Updater
                                 .Set(p => p.CurrentStatus, "Insufficient Licenses")
                                 .Set(p => p.Details, "There are not enough licenses to scan this server.")
@@ -205,7 +205,7 @@ namespace RPRWyatt.VitalSigns.Services
                         if (!server.isMasterRunning)
                         {
                             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>();
-                            FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.Type.Equals(server.ServerType) && p.Name.Equals(server.Name));
+                            FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.DeviceType.Equals(server.ServerType) && p.DeviceName.Equals(server.Name));
                             UpdateDefinition<VSNext.Mongo.Entities.Status> updateDef = repository.Updater
                                 .Set(p => p.CurrentStatus, "Insufficient Licenses")
                                 .Set(p => p.Details, "Master Service stopped running. Could not assign the server to a Node.")
