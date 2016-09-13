@@ -162,14 +162,16 @@ namespace VitalSigns.API.Controllers
 
                     if (string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
                     {
+                       
+                         
+                       var result = dailyRepository.Find(expression).Select(x => new StatsData
+                            {
+                                DeviceId = x.DeviceId,
+                                StatName = x.StatName,
+                                StatValue = x.StatValue
 
-                        var result = dailyRepository.Find(expression).Select(x => new StatsData
-                        {
-                            DeviceId = x.DeviceId,
-                            StatName = x.StatName,
-                            StatValue = x.StatValue
-
-                        }).OrderBy(x => x.StatName).ToList();
+                            }).OrderBy(x => x.StatName).ToList();
+                        
                         Response = Common.CreateResponse(result);
                     }
                     else if (!string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
@@ -239,11 +241,15 @@ namespace VitalSigns.API.Controllers
                                            .Select(row => new
                                            {
                                                Hour = row.Key.Hour,
-                                               Value = row.Average(x => x.StatValue),
+                                               Value = Math.Round(row.Average(x => x.StatValue), 2),
                                                StatName = row.Key.StatName
 
                                            }).ToList();
+                                
+                               
 
+                                
+                                
                                 DateTime time = new DateTime();
                                 string displayTime = "";
                                // List<string> lstinternalcounter = result.Select(c => c.()).ToList();
@@ -251,18 +257,19 @@ namespace VitalSigns.API.Controllers
                                 // int onhour = moment.Hour;
                                 foreach (string name in statNames)
                                 {
-                                    for (int hour = 1; hour <= 24; hour++)
+                                    for (int hour = 0; hour <= 23; hour++)
                                     {
                                         var item = result.Where(x => x.Hour == hour && x.StatName==name).ToList();
                                         var statdata = result.Where(x => x.Hour == hour).FirstOrDefault();
-                                        var output = result.Where(x=>x.StatName==name).Select(x => x.Value).ToList();
+                                        var output =result.Where(x=>x.StatName==name).Select(x => x.Value).ToList();
 
                                        
                                             if (statdata != null && statNames.Length==1)
                                             {
-
-                                                time = DateTime.Today.AddDays(-1).AddHours(hour);
-                                                displayTime = time.ToString("hh:mm tt");
+                                            
+                                            time = DateTime.Now.AddHours(-hour);
+                                          time = time.AddMinutes(-1 * time.Minute);
+                                            displayTime = time.ToString("hh:mm tt");
                                                 segments.Add(new Segment { Label = displayTime.ToString(), Value = statdata.Value, StatName = statdata.StatName });
 
 
@@ -271,15 +278,17 @@ namespace VitalSigns.API.Controllers
                                         
                                         else if (item != null && statNames.Length>1)
                                             {
-                                                time = DateTime.Today.AddDays(-1).AddHours(hour);
-                                                displayTime += time.ToString("hh:mm tt")+",";
-                                                values = output.ToList();
+                                            time = DateTime.Now.AddHours(-hour);
+                                            time = time.AddMinutes(-1 * time.Minute);
+                                            displayTime += time.ToString("hh:mm tt")+",";
+                                                 values = output.ToList();
                                             }
                                         
 
                                         else
                                         {
-                                            time = DateTime.Today.AddHours(hour);
+                                            time = DateTime.Now.AddHours(-hour);
+                                            time = time.AddMinutes(-1 * time.Minute);
                                             displayTime = time.ToString("hh:mm tt");
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
 
@@ -299,17 +308,18 @@ namespace VitalSigns.API.Controllers
                                     Serie serie = new Serie();
                                     serie.Title = statName;
                                     serie.Segments = segments;
-
+                                serie.Category = statNames.ToList<string>();
                                     List<Serie> series = new List<Serie>();
                                     series.Add(serie);
 
                                     Chart chart = new Chart();
                                     chart.Title = statName;
                                     chart.Series = series;
+                               
 
 
 
-                                    Response = Common.CreateResponse(chart);
+                                Response = Common.CreateResponse(chart);
                                     break;
                                 
                         }
@@ -422,6 +432,8 @@ namespace VitalSigns.API.Controllers
         }
 
 
+
+       
 
         [HttpGet("status_list")]
         public APIResponse GetStatusList(string type)
