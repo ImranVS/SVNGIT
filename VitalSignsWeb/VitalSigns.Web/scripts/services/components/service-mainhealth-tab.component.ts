@@ -32,26 +32,13 @@ export class ServiceMainHealthTab extends WidgetController implements OnInit {
         });
         this.widgets = [
             {
-                id: 'dynamicGrid',
+                id: 'ServiceMainHealthGrid',
                 title: 'Health Assessment',
-                path: '/app/widgets/grid/components/dynamic-grid.component',
-                name: 'DynamicGrid',
+                path: '/app/services/components/service-mainhealth-grid.component',
+                name: 'ServiceMainHealthGrid',
                 css: 'col-xs-12',
-                settings: {
-                     url: '/DashBoard/'+this.deviceId+'/health-assessment',
-                    //url: '/DashBoard/5786a3ddb4ec91be7589c822/health-assessment',
-                    columns: [{ header: "Category", binding: "category", name: "category", width: "*" },
-                        { header: "Test Name", binding: "test_name", name: "test_name", width: "*" },
-                        { header: "Result", binding: "result", name: "result", width: "*" },
-                        { header: "Details", binding: "details", name: "details", width: "*" },
-                        { header: "Last Scan", binding: "last_scan", name: "last_scan", width: "*" }
-                    ]
-
-                }
             }
-
         ]
-        //alert(this.serviceId);
         injectSVG();
         bootstrapNavigator();
     }
