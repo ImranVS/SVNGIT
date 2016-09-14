@@ -39,10 +39,12 @@ namespace VitalSigns.API.Models
         [JsonProperty("last_updated")]
         public string LastUpdated { get; set; }
 
-       
-        
+      
+       [JsonProperty("status_summary")]
+        public string StatusSummary { get; set; }
 
-     
+
+
     }
 }
 
