@@ -5728,59 +5728,87 @@ CleanUp:
                     cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
 
                     'cmd.ExecuteNonQuery()
-
+                    Dim myServerName As String = myServer.Name
+                    Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(j) j.Type.Equals("Activity") And j.DeviceName.Equals(myServerName))
+                    ' repo.Delete(filterdef)
+                    Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsUsers)(connectionString)
                     For Each row As DataRow In dt.Rows()
 
+                        Dim filterdefIbmConnectionsUsers As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.DeviceName.Equals(myServerName) And j.GUID.Equals(row("EXID").ToString()))
+                        Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
+                        'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).ToList()
+                        Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsUsers = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).Take(1)
+                        'For Each s As VSNext.Mongo.Entities.IbmConnectionsUsers In serverList
+                        Dim connectionsUserId As String = IbmConnectionsUsers.Id
+                        'Next
+                        Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                        IbmConnectionsObjects2.DeviceName = row("NAME").ToString()
+                        IbmConnectionsObjects2.Type = "Activity"
+                        IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
+                        IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
+                        IbmConnectionsObjects2.OwnerId = connectionsUserId
+                        IbmConnectionsObjects2.GUID = row("ACTIVITYUUID").ToString()
 
-                        cmd = New SqlClient.SqlCommand()
-                        cmd.Connection = sqlConn
-                        cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
-                            "(@Name, 'Activity', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @ActGUID)"
-                        cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
-                        cmd.Parameters.AddWithValue("@Created", row("CREATED").ToString())
-                        cmd.Parameters.AddWithValue("@Modified", row("LASTMOD").ToString())
-                        cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        cmd.Parameters.AddWithValue("@GUID", row("EXID").ToString())
-                        cmd.Parameters.AddWithValue("@ActGUID", row("ACTIVITYUUID").ToString())
+                        'cmd = New SqlClient.SqlCommand()
+                        'cmd.Connection = sqlConn
+                        'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
+                        '    "(@Name, 'Activity', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @ActGUID)"
+                        'cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
+                        'cmd.Parameters.AddWithValue("@Created", row("CREATED").ToString())
+                        'cmd.Parameters.AddWithValue("@Modified", row("LASTMOD").ToString())
+                        'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                        'cmd.Parameters.AddWithValue("@GUID", row("EXID").ToString())
+                        'cmd.Parameters.AddWithValue("@ActGUID", row("ACTIVITYUUID").ToString())
 
-                        cmd.ExecuteNonQuery()
-
+                        'cmd.ExecuteNonQuery()
+                        Dim tags As New List(Of String)
                         For Each tagRow As DataRow In ds.Tables(7).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
 
+                            tags.Add(tagRow("NAME").ToString())
 
+                            'cmd = New SqlClient.SqlCommand()
+                            'cmd.Connection = sqlConn
+                            'cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
+                            'cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
 
-                            cmd = New SqlClient.SqlCommand()
-                            cmd.Connection = sqlConn
-                            cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                            cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
+                            'cmd.ExecuteNonQuery()
 
-                            cmd.ExecuteNonQuery()
+                            'cmd = New SqlClient.SqlCommand()
+                            'cmd.Connection = sqlConn
+                            'cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@GUID AND" & _
+                            '" Type = 'Activity' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
+                            'cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
+                            'cmd.Parameters.AddWithValue("@GUID", row("ACTIVITYUUID").ToString())
+                            'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
 
-                            cmd = New SqlClient.SqlCommand()
-                            cmd.Connection = sqlConn
-                            cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@GUID AND" & _
-                            " Type = 'Activity' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
-                            cmd.Parameters.AddWithValue("@TagName", tagRow("NAME").ToString())
-                            cmd.Parameters.AddWithValue("@GUID", row("ACTIVITYUUID").ToString())
-                            cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-
-                            cmd.ExecuteNonQuery()
+                            'cmd.ExecuteNonQuery()
                         Next
+                        IbmConnectionsObjects2.tags = tags
 
 
-
+                        Dim users As New List(Of String)
                         For Each userRow As DataRow In ds.Tables(8).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
-                            cmd = New SqlClient.SqlCommand()
-                            cmd.Connection = sqlConn
-                            cmd.CommandText = "INSERT INTO IbmConnectionsObjectUsers (ObjectId, UserId) VALUES((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @NodeGUID AND " & _
-                                "Type = 'Activity' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId));"
-                            cmd.Parameters.AddWithValue("@NodeGUID", row("ACTIVITYUUID").ToString())
-                            cmd.Parameters.AddWithValue("@GUID", userRow("EXID").ToString())
-                            cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                            Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.GUID.Equals(userRow("EXID").ToString()) And j.DeviceName.Equals(myServerName))
+                            Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
+                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                            Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsUsers = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).Take(1)
 
-                            cmd.ExecuteNonQuery()
+                            users.Add(objIbmConnectionsUsers.DisplayName)
+
+                            'cmd = New SqlClient.SqlCommand()
+                            'cmd.Connection = sqlConn
+                            'cmd.CommandText = "INSERT INTO IbmConnectionsObjectUsers (ObjectId, UserId) VALUES((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @NodeGUID AND " & _
+                            '    "Type = 'Activity' AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId));"
+                            'cmd.Parameters.AddWithValue("@NodeGUID", row("ACTIVITYUUID").ToString())
+                            'cmd.Parameters.AddWithValue("@GUID", userRow("EXID").ToString())
+                            'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+
+                            'cmd.ExecuteNonQuery()
                         Next
-
+                        IbmConnectionsObjects2.users = users
+                        repo.Insert(IbmConnectionsObjects2)
                     Next
 
 
@@ -6017,6 +6045,8 @@ CleanUp:
                     Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
                     IbmConnectionsObjects2.DeviceName = row("NAME").ToString()
                     IbmConnectionsObjects2.Type = "Blog"
+                    IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(row("DATECREATED").ToString())
+                    IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMODIFIED").ToString())
                     IbmConnectionsObjects2.OwnerId = connectionsUserId
                     IbmConnectionsObjects2.GUID = row("ID").ToString()
 
@@ -6031,7 +6061,7 @@ CleanUp:
                     'cmd.Parameters.AddWithValue("@GUID", row("EXTID").ToString())
                     'cmd.Parameters.AddWithValue("@BlogGUID", row("ID").ToString())
                     'cmd.ExecuteNonQuery()
-                    Dim tags As List(Of String)
+                    Dim tags As New List(Of String)
 
                     For Each tagRow As DataRow In ds.Tables(19).Select("WEBSITEID = '" & row("ID").ToString() & "'")
                         tags.Add(tagRow("NAME").ToString())
@@ -6061,7 +6091,7 @@ CleanUp:
 
                     Next
                     IbmConnectionsObjects2.tags = tags
-                    repoIbmConnectionsUsers.Insert(IbmConnectionsObjects2)
+                    repoObjects.Insert(IbmConnectionsObjects2)
 
                 Next
 
@@ -6088,6 +6118,8 @@ CleanUp:
                     'IbmConnectionsObjects4.owner = row("EXTID").ToString()
                     IbmConnectionsObjects4.ParentGUID = ParentObjectID
                     IbmConnectionsObjects4.Type = "Blog Entry"
+                    IbmConnectionsObjects4.ObjectCreatedDate = Convert.ToDateTime(row("PUBTIME").ToString())
+                    IbmConnectionsObjects4.ObjectModifiedDate = Convert.ToDateTime(row("UPDATETIME").ToString())
                     repoObjects.Insert(IbmConnectionsObjects4)
 
                     'cmd = New SqlClient.SqlCommand()
@@ -6260,7 +6292,7 @@ CleanUp:
                 Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsUsers)(connectionString)
 
                 Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                Dim repoIbmConnectionsCommunity As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsCommunity)(connectionString)
+                'Dim repoIbmConnectionsCommunity As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsCommunity)(connectionString)
                 ' Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
 
                 'Dim cmd As New SqlClient.SqlCommand()
@@ -6309,6 +6341,10 @@ CleanUp:
                     IbmConnectionsObjects.OwnerId = userId
                     IbmConnectionsObjects.GUID = row("COMMUNITY_UUID").ToString()
                     IbmConnectionsObjects.tags = tags
+                    IbmConnectionsObjects.Community = row("COMMUNITY_TYPE").ToString()
+                    IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
+                    IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
+
                     repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
 
                     'cmd = New SqlClient.SqlCommand()
@@ -6325,13 +6361,13 @@ CleanUp:
                     Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(row("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
                     Dim projectDefIbmConnectionsObjects2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
                     'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                    Dim sxs2 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).Take(1)
-                    Dim id2 As String = sxs2.Id
+                    'Dim sxs2 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).Take(1)
+                    'Dim id2 As String = sxs2.Id
 
-                    Dim IbmConnectionsCommunity As New VSNext.Mongo.Entities.IbmConnectionsCommunity
-                    IbmConnectionsCommunity.id = id2
-                    IbmConnectionsCommunity.CommunityName = row("COMMUNITY_TYPE").ToString()
-                    repoIbmConnectionsCommunity.Insert(IbmConnectionsCommunity)
+                    'Dim IbmConnectionsCommunity As New VSNext.Mongo.Entities.IbmConnectionsCommunity
+                    'IbmConnectionsCommunity.id = id2
+                    'IbmConnectionsCommunity.CommunityName = row("COMMUNITY_TYPE").ToString()
+                    'repoIbmConnectionsCommunity.Insert(IbmConnectionsCommunity)
 
 
                     'cmd = New SqlClient.SqlCommand()
@@ -6366,6 +6402,8 @@ CleanUp:
                         IbmConnectionsObjects2.ParentGUID = id3
                         IbmConnectionsObjects2.OwnerId = userId2
                         IbmConnectionsObjects2.GUID = bookmarkRow("REF_UUID").ToString()
+                        IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
+                        IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
                         repoIbmConnectionsObjects.Insert(IbmConnectionsObjects2)
 
                         'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Doing bookmarks for " & row("COMMUNITY_UUID").ToString(), LogUtilities.LogUtils.LogLevel.Normal)
@@ -6691,8 +6729,10 @@ CleanUp:
                     IbmConnectionsObjects.DeviceName = myServer.Name
                     IbmConnectionsObjects.Type = "Bookmark"
                     IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("MEMBER_ID").ToString())
+                    IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("DATE").ToString())
+                    IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("MODIFIED").ToString())
                     IbmConnectionsObjects.GUID = row("LINK_ID").ToString()
-                    Dim user As New List(Of String)
+                    Dim tags As New List(Of String)
                     For Each tagRow As DataRow In ds.Tables(4).Rows()
 
                         'cmd = New SqlClient.SqlCommand()
@@ -6709,9 +6749,9 @@ CleanUp:
                         'cmd.Parameters.AddWithValue("@GUID", tagRow("LINK_ID").ToString())
                         'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
                         'cmd.ExecuteNonQuery()
-                        user.Add(tagRow("TAG").ToString())
+                        tags.Add(tagRow("TAG").ToString())
                     Next
-                    IbmConnectionsObjects.users = user
+                    IbmConnectionsObjects.tags = tags
                     repo.Insert(IbmConnectionsObjects)
 
                 Next
@@ -6914,14 +6954,16 @@ CleanUp:
                 'Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
 
                 'Dim cmd As New SqlClient.SqlCommand()
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
 
                 For Each row As DataRow In ds.Tables(6).Rows()
-                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                     Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                     IbmConnectionsObjects.Name = row("LABEL").ToString()
                     IbmConnectionsObjects.DeviceName = myServer.Name
                     IbmConnectionsObjects.Type = "Wiki"
                     IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("DIRECTORY_ID").ToString())
+                    IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
+                    IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
                     IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
 
                     repo.Insert(IbmConnectionsObjects)
@@ -6941,36 +6983,47 @@ CleanUp:
                     'cmd.ExecuteNonQuery()
 
                 Next
+                Dim myServerName As String = myServer.Name
+                For Each tagRow As DataRow In ds.Tables(7).Rows()
+                    Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(HexToGUID(tagRow("LIBRARY_ID").ToString())) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Wiki"))
+                    Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+                    Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.tags)
+                    Dim IbmConnectionsObjects As VSNext.Mongo.Entities.IbmConnectionsObjects = repo.Find(filterdef, projectDef).Take(1)
+                    Dim tags As New List(Of String)
+                    tags = IbmConnectionsObjects.tags
+                    tags.Add(tagRow("TAG").ToString())
+                    updatedef = repo.Updater _
+                                .Set(Function(i) i.tags, tags)
+                    repo.Update(filterdef, updatedef)
+                    '    cmd = New SqlClient.SqlCommand()
+                    '    cmd.Connection = sqlConn
+                    '    cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
+                    '    cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
+                    '    cmd.ExecuteNonQuery()
 
-                'For Each tagRow As DataRow In ds.Tables(7).Rows()
+                    '    cmd = New SqlClient.SqlCommand()
+                    '    cmd.Connection = sqlConn
+                    '    cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@ObjectGUID AND" & _
+                    '    " Type = @Type AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
+                    '    cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
+                    '    cmd.Parameters.AddWithValue("@ObjectGUID", HexToGUID(tagRow("LIBRARY_ID").ToString()))
+                    '    cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    '    cmd.Parameters.AddWithValue("@Type", "Wiki")
+                    '    cmd.ExecuteNonQuery()
 
-                '    cmd = New SqlClient.SqlCommand()
-                '    cmd.Connection = sqlConn
-                '    cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                '    cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
-                '    cmd.ExecuteNonQuery()
-
-                '    cmd = New SqlClient.SqlCommand()
-                '    cmd.Connection = sqlConn
-                '    cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@ObjectGUID AND" & _
-                '    " Type = @Type AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
-                '    cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
-                '    cmd.Parameters.AddWithValue("@ObjectGUID", HexToGUID(tagRow("LIBRARY_ID").ToString()))
-                '    cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                '    cmd.Parameters.AddWithValue("@Type", "Wiki")
-                '    cmd.ExecuteNonQuery()
-
-                'Next
+                Next
 
                 For Each row As DataRow In ds.Tables(8).Rows()
 
-                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    'Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                     Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                     IbmConnectionsObjects.Name = row("LABEL").ToString()
                     IbmConnectionsObjects.DeviceName = myServer.Name
                     IbmConnectionsObjects.Type = "Wiki"
                     IbmConnectionsObjects.ParentGUID = getObjectOwner(myServer.Name, HexToGUID(row("LIBRARY_ID").ToString()))
                     IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("DIRECTORY_ID").ToString())
+                    IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
+                    IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
                     IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
 
                     repo.Insert(IbmConnectionsObjects)

@@ -38,20 +38,20 @@ namespace VSNext.Mongo.Entities
         public string Type { get; set; }
 
     }
-    [DataContract]
-    [Serializable]
-    [CollectionName("ibm_connections_community")]
-    public class IbmConnectionsCommunity : Entity
-    {
-        [DataMember]
-        [BsonElement("id")]
-        public int id { get; set; }
+    //[DataContract]
+    //[Serializable]
+    //[CollectionName("ibm_connections_community")]
+    //public class IbmConnectionsCommunity : Entity
+    //{
+    //    [DataMember]
+    //    [BsonElement("id")]
+    //    public int id { get; set; }
 
-        [DataMember]
-        [BsonElement("community_name")]
-        public string CommunityName { get; set; }
+    //    [DataMember]
+    //    [BsonElement("community_name")]
+    //    public string CommunityName { get; set; }
 
-    }
+    //}
 
     [DataContract]
     [Serializable]
@@ -97,6 +97,18 @@ namespace VSNext.Mongo.Entities
         [BsonElement("users")]
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> users { get; set; }
+
+        [DataMember]
+        [BsonElement("community")]
+        public string Community { get; set; }
+
+        [DataMember]
+        [BsonElement("object_created_date")]
+        public DateTime ObjectCreatedDate { get; set; }
+
+        [DataMember]
+        [BsonElement("object_modified_date")]
+        public DateTime ObjectModifiedDate { get; set; }
     }
 
     //[DataContract]
