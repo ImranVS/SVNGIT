@@ -56,10 +56,10 @@ data.pageIndex + 1 | number
     </div>
 </div>
 
-<div class="row">
-   <h1 title="Non Monitored Tasks"></h1>
-        
-  
+<div class="row">        
+    <div class="widgetTitle">
+        Non Monitored Tasks
+    </div>
     <wj-group-panel [grid]="flex"  [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
     <wj-flex-grid [itemsSource]="nonMonitoredData" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
         <wj-flex-grid-filter></wj-flex-grid-filter>

@@ -4,7 +4,7 @@
 
     <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="300"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Test Name'" [binding]="'test_name'" [width]="250"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Result'" [binding]="'result'" [width]="250">
+    <wj-flex-grid-column [header]="'Result'" [binding]="'result'" [width]="100">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div [ngSwitch]="cell.item.result">
                 <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.result}}</span>

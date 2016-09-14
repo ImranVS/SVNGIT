@@ -5,11 +5,10 @@ import {Observable}     from 'rxjs/Observable';
 @Injectable()
 export class RESTService {
 
-   //serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
-    //serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
-    //serverUrl  ='http://localhost:1234';
-    serverUrl = 'http://dev2.vsplus.jnitinc.com:5000';
-
+  // serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
+   // serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
+    serverUrl ='http://dev2.vsplus.jnitinc.com:5000';
+   // serverUrl = 'http://localhost:1234';
     constructor(protected http: Http) { }
 
     get(path: string) {
