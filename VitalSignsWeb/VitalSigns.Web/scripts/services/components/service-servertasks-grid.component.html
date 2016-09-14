@@ -1,0 +1,118 @@
+﻿
+<div class="row">
+    <wj-group-panel [grid]="flex1" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid [itemsSource]="monitoredData" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex1>
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="300"></wj-flex-grid-column>
+
+        <wj-flex-grid-column [header]="'StatusSummary'" [binding]="'status_summary'" [width]="80" align="center">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.status">
+                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.status}}</span>
+                    <span *ngSwitchCase="'Exception'" class="label label-pill label-info">{{cell.item.status}}</span>
+                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.status}}</span>
+                </div>
+            </template>
+
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Primary Status'" [binding]="'primary_status'" [width]="80"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Secondary Status'" [binding]="'secondary_status'" [width]="80"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Date'" [binding]="'last_updated'" [width]="80"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="monitoredData.moveToFirstPage()"
+                [disabled]="monitoredData.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="monitoredData.moveToPreviousPage()"
+                [disabled]="monitoredData.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="monitoredData.moveToNextPage()"
+                [disabled]="monitoredData.pageIndex >= monitoredData.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="monitoredData.moveToLastPage()"
+                [disabled]="monitoredData.pageIndex >= monitoredData.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="monitoredData != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+</div>
+
+<div class="row">
+   <h1 title="Non Monitored Tasks"></h1>
+        
+  
+    <wj-group-panel [grid]="flex"  [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid [itemsSource]="nonMonitoredData" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="300"></wj-flex-grid-column>
+        <!--<wj-flex-grid-column [header]="'Monitored'" [binding]="'monitored'" [width]="'*'"></wj-flex-grid-column>-->
+
+        <wj-flex-grid-column [header]="'StatusSummary'" [binding]="'status_summary'" [width]="80" align="center">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.status">
+                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.status}}</span>
+                    <span *ngSwitchCase="'Exception'" class="label label-pill label-info">{{cell.item.status}}</span>
+                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.status}}</span>
+                </div>
+            </template>
+
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Primary Status'" [binding]="'primary_status'" [width]="80"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Secondary Status'" [binding]="'secondary_status'" [width]="80"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Date'" [binding]="'last_updated'" [width]="80"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="nonMonitoredData.moveToFirstPage()"
+                [disabled]="nonMonitoredData.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="nonMonitoredData.moveToPreviousPage()"
+                [disabled]="nonMonitoredData.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="nonMonitoredData.moveToNextPage()"
+                [disabled]="nonMonitoredData.pageIndex >= nonMonitoredData.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="nonMonitoredData.moveToLastPage()"
+                [disabled]="nonMonitoredData.pageIndex >= nonMonitoredData.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="nonMonitoredData != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+</div>

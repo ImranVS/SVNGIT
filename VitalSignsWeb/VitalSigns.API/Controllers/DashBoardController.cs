@@ -505,29 +505,34 @@ namespace VitalSigns.API.Controllers
             statusRepository = new Repository<Status>(ConnectionString);
             try
             {
-
-
-
+                                        
                 Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
                 var result = statusRepository.Find(expression).FirstOrDefault();
-
 
                List< MonitoredTasks> monitoredTasks = new List<MonitoredTasks>();
                // dominoservertaskStatus.Id = result.DeviceId;
                 foreach (DominoServerTask monitored in result.DominoServerTasks)
                 {
+                    
                     monitoredTasks.Add(new MonitoredTasks
                     {
                         // DeviceId = monitored.
                         TaskName = monitored.TaskName,
                         Monitored = monitored.Monitored,
                         PrimaryStatus = monitored.PrimaryStatus,
-                        SecondaryStatus = monitored.SecondaryStatus
+                        SecondaryStatus = monitored.SecondaryStatus,
+                        StatusSummary = monitored.StatusSummary,
+                        LastUpdated = monitored.LastUpdated
 
                     });
                     
                 }
-                Response = Common.CreateResponse(monitoredTasks);
+
+                var monitoredData = monitoredTasks.Where(x => x.Monitored == true);
+                var nonMonitoredData = monitoredTasks.Where(x => x.Monitored!= true);
+
+
+                Response = Common.CreateResponse(new { monitoredData = monitoredData, nonMonitoredData= nonMonitoredData });
             }
             catch (Exception exception)
             {

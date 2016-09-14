@@ -29,52 +29,21 @@ export class ServiceTasksTab extends WidgetController implements OnInit {
             this.deviceId = params['service'];
             
         });
-      
+       
+       
+
         this.widgets = [
             {
-                id: 'dynamicGrid',
+                id: 'ServiceServerTasksGrid',
                 title: 'Monitored Tasks',
-                path: '/app/widgets/grid/components/dynamic-grid.component',
-                name: 'DynamicGrid',
-                css: 'col-xs-12',
-                settings: {
-                    url: '/DashBoard/' + this.deviceId +'/monitoredtasks',
-                   // url: '/DashBoard/57ace45abf46711cd4681e24/monitoredtasks',
-                    columns: [
-                        { header: "TaskName", binding: "task_name", name: "task_name", width: "*" },
-                        { header: "Monitored", binding: "monitored", name: "monitored", width: "*" },
-                        { header: "PrimaryStatus", binding: "primary_status", name: "primary_status", width: "*" },
-                        { header: "SecondaryStatus", binding: "secondary_status", name: "secondary_status", width: "*" }
-                        //{ header: "LastUpdated", binding: "last_updated", name: "last_updated", width: "*" }
-                        
-                    ]
-
-                }
+                path: '/app/services/components/service-servertasks-grid.component',
+                name: 'ServiceServerTasksGrid',
+                css: 'col-xs-12'
             }
-
-            //{
-            //    id: 'dynamicGrid',
-            //    title: 'Non Monitored Tasks',
-            //    path: '/app/widgets/grid/components/dynamic-grid.component',
-            //    name: 'DynamicGrid',
-            //    css: 'col-xs-12',
-            //    settings: {
-            //        //url: '/DashBoard/' + this.deviceId + '/database',
-            //        url: '/DashBoard/57ace45abf46711cd4681e24/monitoredtasks',
-            //        columns: [
-            //            { header: "TaskName", binding: "task_name", name: "task_name", width: "*" },
-            //            { header: "PrimaryStatus", binding: "primary_status", name: "primary_status", width: "*" },
-            //            { header: "SecondaryStatus", binding: "secondary_status", name: "secondary_status", width: "*" },
-            //            { header: "LastUpdated", binding: "last_updated", name: "last_updated", width: "*" },
-            //            { header: "Monitored", binding: "monitored", name: "monitored", width: "*" }
-
-            //        ]
-
-            //    }
-            //}
-
-
+           
         ]
+
+           
         injectSVG();
         bootstrapNavigator();
 
