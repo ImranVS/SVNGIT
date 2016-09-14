@@ -29,6 +29,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Database> databaseRepository;
         private IRepository<Outages> outagesRepository;
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -404,8 +405,8 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(result);
                 return Response;
             }
-            
-             catch (Exception exception)
+
+            catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", exception.Message);
 
@@ -422,7 +423,7 @@ namespace VitalSigns.API.Controllers
             var result = travelerRepository.Find(expression).Select(x => new TravelerHealth
             {
                 // ID = x.ID,
-               MailServerName = x.MailServerName,
+                MailServerName = x.MailServerName,
                 DateUpdated = x.DateUpdated
 
 
@@ -444,9 +445,13 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceId = x.DeviceId,
                     Title = x.Title,
+                    
                     DeviceName = x.DeviceName,
+
                     Status = x.Status,
+                    
                     Folder = x.Folder,                
+
                     FolderCount = x.FolderCount,
                     Details = x.Details,
                     FileName = x.FileName,
@@ -492,34 +497,46 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        //[HttpGet("{id}/monitoredtasks")]
+        [HttpGet("{deviceid}/monitoredtasks")]
 
-        //public APIResponse GetMonitoredTasks(string deviceid)
-        //{
-        //    try
-        //    {
-        //        statusRepository = new Repository<Status>(ConnectionString);
+        public APIResponse GetMonitoredTasks(string deviceid)
+        {
 
-        //        Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
-        //        var result = statusRepository.Find(expression).Select(x => new MonitoredTasks
-        //        {
-        //            // ID = x.ID,
-        //            //TaskName = x.TaskName,
-        //            //Monitored = x.Monitored,
-        //            //PrimaryStatus = x.PrimaryStatus,
-        //            //SecondaryStatus = x.SecondaryStatus,
-                  
-        //        });
-        //        Response = Common.CreateResponse(result);
-        //        return Response;
-        //    }
+            statusRepository = new Repository<Status>(ConnectionString);
+            try
+            {
 
-        //    catch (Exception exception)
-        //    {
-        //        Response = Common.CreateResponse(null, "Error", exception.Message);
 
-        //        return Response;
-        //    }
-        //}
+
+                Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
+                var result = statusRepository.Find(expression).FirstOrDefault();
+
+
+               List< MonitoredTasks> monitoredTasks = new List<MonitoredTasks>();
+               // dominoservertaskStatus.Id = result.DeviceId;
+                foreach (DominoServerTask monitored in result.DominoServerTasks)
+                {
+                    monitoredTasks.Add(new MonitoredTasks
+                    {
+                        // DeviceId = monitored.
+                        TaskName = monitored.TaskName,
+                        Monitored = monitored.Monitored,
+                        PrimaryStatus = monitored.PrimaryStatus,
+                        SecondaryStatus = monitored.SecondaryStatus
+
+                    });
+                    
+                }
+                Response = Common.CreateResponse(monitoredTasks);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
     }
 }
+
+        

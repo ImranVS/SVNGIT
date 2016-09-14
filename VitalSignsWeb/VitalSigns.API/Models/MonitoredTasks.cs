@@ -6,11 +6,22 @@ using Newtonsoft.Json;
 
 namespace VitalSigns.API.Models
 {
+
+    public class status
+    {
+        public status()
+        {
+            DominoServerTask = new List<MonitoredTasks>();
+        }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public List<MonitoredTasks> DominoServerTask { get; set; }
+    }
     public class MonitoredTasks
     {
 
-        //[JsonProperty("_id")]
-        //public int? ID { get; set; }
+        [JsonProperty("device_id")]
+        public string DeviceId { get; set; }
 
         [JsonProperty("task_name")]
         public string TaskName { get; set; }

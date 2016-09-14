@@ -35,7 +35,7 @@
             "tab_id": 5,
             "title": "Tasks",
             "type": "Dashboard",
-            "component": "ServerTasks",
+            "component": "ServiceTasksTab",
             "path": "/app/services/components/service-servertasks-tab.component"
           },
           {
@@ -101,13 +101,13 @@
             "component": "ServiceDatabaseTab",
             "path": "/app/services/components/service-database-tab.component"
           },
-          {
-            "tab_id": 5,
-            "title": "Tasks",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
+        {
+          "tab_id": 5,
+          "title": "Tasks",
+          "type": "Dashboard",
+          "component": "ServiceTasksTab",
+          "path": "/app/services/components/service-servertasks-tab.component"
+        },
           {
             "tab_id": 6,
             "title": "Maintenance",

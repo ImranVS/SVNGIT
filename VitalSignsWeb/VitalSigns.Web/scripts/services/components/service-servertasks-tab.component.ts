@@ -24,51 +24,54 @@ export class ServiceTasksTab extends WidgetController implements OnInit {
     }
 
     ngOnInit() {
+        alert("Hiiiiiiiiiiiiiiii");
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
-
+            
         });
+        alert(this.deviceId);
         this.widgets = [
             {
                 id: 'dynamicGrid',
-                title: 'Monitered Tasks',
+                title: 'Monitored Tasks',
                 path: '/app/widgets/grid/components/dynamic-grid.component',
                 name: 'DynamicGrid',
                 css: 'col-xs-12',
                 settings: {
-                    //url: '/DashBoard/' + this.deviceId +'/monitored_tasks',
-                    url: '/DashBoard/57af28415c6c6c02d4fce747/monitored_tasks',
+                    url: '/DashBoard/' + this.deviceId +'/monitoredtasks',
+                   // url: '/DashBoard/57ace45abf46711cd4681e24/monitoredtasks',
                     columns: [
                         { header: "TaskName", binding: "task_name", name: "task_name", width: "*" },
+                        { header: "Monitored", binding: "monitored", name: "monitored", width: "*" },
                         { header: "PrimaryStatus", binding: "primary_status", name: "primary_status", width: "*" },
-                        { header: "SecondaryStatus", binding: "secondary_status", name: "secondary_status", width: "*" },
-                        { header: "LastUpdated", binding: "last_updated", name: "last_updated", width: "*" }
+                        { header: "SecondaryStatus", binding: "secondary_status", name: "secondary_status", width: "*" }
+                        //{ header: "LastUpdated", binding: "last_updated", name: "last_updated", width: "*" }
                         
                     ]
 
                 }
-            },
-
-            {
-                id: 'dynamicGrid',
-                title: 'All Databases',
-                path: '/app/widgets/grid/components/dynamic-grid.component',
-                name: 'DynamicGrid',
-                css: 'col-xs-12',
-                settings: {
-                    url: '/DashBoard/' + this.deviceId + '/database',
-                    //url: '/DashBoard/57af28415c6c6c02d4fce747/database',
-                    columns: [
-                        { header: "TaskName", binding: "task_name", name: "task_name", width: "*" },
-                        { header: "PrimaryStatus", binding: "primary_status", name: "primary_status", width: "*" },
-                        { header: "SecondaryStatus", binding: "secondary_status", name: "secondary_status", width: "*" },
-                        { header: "LastUpdated", binding: "last_updated", name: "last_updated", width: "*" },
-                        { header: "Monitored", binding: "monitored", name: "monitored", width: "*" }
-
-                    ]
-
-                }
             }
+
+            //{
+            //    id: 'dynamicGrid',
+            //    title: 'Non Monitored Tasks',
+            //    path: '/app/widgets/grid/components/dynamic-grid.component',
+            //    name: 'DynamicGrid',
+            //    css: 'col-xs-12',
+            //    settings: {
+            //        //url: '/DashBoard/' + this.deviceId + '/database',
+            //        url: '/DashBoard/57ace45abf46711cd4681e24/monitoredtasks',
+            //        columns: [
+            //            { header: "TaskName", binding: "task_name", name: "task_name", width: "*" },
+            //            { header: "PrimaryStatus", binding: "primary_status", name: "primary_status", width: "*" },
+            //            { header: "SecondaryStatus", binding: "secondary_status", name: "secondary_status", width: "*" },
+            //            { header: "LastUpdated", binding: "last_updated", name: "last_updated", width: "*" },
+            //            { header: "Monitored", binding: "monitored", name: "monitored", width: "*" }
+
+            //        ]
+
+            //    }
+            //}
 
 
         ]
