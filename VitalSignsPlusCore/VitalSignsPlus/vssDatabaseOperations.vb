@@ -850,8 +850,9 @@ Partial Public Class VitalSignsPlusCore
                            .[Set](Function(i) i.UpPercent, Double.Parse(.UpPercentCount)) _
                            .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
                            .[Set](Function(i) i.NextScan, .NextScan) _
-                           .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
-                           .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1")))
+                           .[Set](Function(i) i.UpMinutes, Integer.Parse(.UpMinutes)) _
+                           .[Set](Function(i) i.DownMinutes, Integer.Parse(.DownMinutes)) _
+                           .[Set](Function(i) i.DeviceId, .ServerObjectID)
                     If MySametimeServer.Enabled = True Then
                         'UpdateStatusTable(strSqlUpdate, strSQL, MySametimeServer.Name)
                         repo.Upsert(filterdef, updatedef)
@@ -861,7 +862,7 @@ Partial Public Class VitalSignsPlusCore
                 End Try
 
             End With
-                  
+
                 
                 
 
@@ -882,10 +883,11 @@ Partial Public Class VitalSignsPlusCore
         Try
             Dim n As Integer
             Dim MyMailService As MonitoredItems.MailService
-            Dim TypeAndName As String = MyMailService.Name & "-Mail"
+
             For n = 0 To MyMailServices.Count - 1
                 MyMailService = MyMailServices.Item(n)
                 WriteAuditEntry(Now.ToString & " Adding Mail Service " & MyMailService.Name & " to status table.")
+                Dim TypeAndName As String = MyMailService.Name & "-Mail"
                 Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
                 With MyMailService

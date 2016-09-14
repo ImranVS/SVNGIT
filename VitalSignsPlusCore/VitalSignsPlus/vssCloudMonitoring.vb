@@ -516,8 +516,9 @@ Update:
 
                 Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
                 Dim TypeAndName As String = myCloud.Name & "-Cloud"
-                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName = TypeAndName)
+                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Eq(Function(i) i.TypeAndName, TypeAndName)
                 Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
+
                 updatedef = repo.Updater _
                                           .Set(Function(i) i.DeviceName, .Name.ToString()) _
                                           .[Set](Function(i) i.CurrentStatus, .Status) _
@@ -531,12 +532,12 @@ Update:
                                           .[Set](Function(i) i.DownCount, Integer.Parse(.DownCount)) _
                                           .[Set](Function(i) i.Location, "Cloud") _
                                           .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
-                                          .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
+                                          .[Set](Function(i) i.UpPercent, Double.Parse(.UpPercentCount)) _
                                           .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
                                           .[Set](Function(i) i.MyPercent, Double.Parse(strPercent)) _
                                           .[Set](Function(i) i.NextScan, .NextScan) _
-                                          .[Set](Function(i) i.UpMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
-                                          .[Set](Function(i) i.DownMinutes, Integer.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
+                                          .[Set](Function(i) i.UpMinutes, Double.Parse(.UpMinutes)) _
+                                          .[Set](Function(i) i.DownMinutes, Double.Parse(.DownMinutes)) _
                                           .[Set](Function(i) i.MailDetails, TypeAndName) _
                                           .[Set](Function(i) i.PercentageChange, PercentageChange) _
                                          .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
@@ -544,7 +545,6 @@ Update:
 
 			End With
 
-            WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " " & strSQL)
             'UpdateStatusTable(strSQL, SQLInsertStatement:=strSQLInsert)
         Catch ex As Exception
             WriteDeviceHistoryEntry("Cloud", myCloud.Name, Now.ToString & " Cloud URL Monitor Error while creating Cloud URL SQL statement: " & ex.Message & vbCrLf & strSQL)
