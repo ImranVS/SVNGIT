@@ -42,9 +42,9 @@ namespace VitalSigns.API.Controllers
                                      .Select(x => new ServerStatus
                                      {
                                          Id = x.Id,
-                                         Type = x.Type,
+                                         Type = x.DeviceType,
                                          Country = x.Location,
-                                         Name = x.Name,
+                                         Name = x.DeviceName,
                                          Version = x.SoftwareVersion,
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
@@ -96,15 +96,14 @@ namespace VitalSigns.API.Controllers
                                      .Select(x => new ServerStatus
                                      {
                                          Id = x.Id,
-                                         Type = x.Type,
+                                         Type = x.DeviceType,
                                          Country = x.Location,
-                                         Name = x.Name,
+                                         Name = x.DeviceName,
                                          Version = x.SoftwareVersion,
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
                                          Status = x.StatusCode,
                                          DeviceId = x.DeviceId
-
 
                                      })).FirstOrDefault();
                 var serviceIcons = Common.GetServerTypeIcons();
@@ -134,6 +133,7 @@ namespace VitalSigns.API.Controllers
         [HttpGet("statistics")]
         public APIResponse GetDailyStat(string deviceId, string statName, string operation)
         {
+         
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
 
             try
@@ -449,13 +449,13 @@ namespace VitalSigns.API.Controllers
                                      {
 
                                          DeviceId = x.DeviceId,
-                                         Name = x.Name,
+                                         Name = x.DeviceName,
                                          Status = x.StatusCode,
                                          Country = x.Location,
                                          Details = x.Details,
                                          UserCount = x.UserCount,
                                          CPU = x.CPU,
-                                         Type = x.Type
+                                         Type = x.DeviceType
                                          // LastUpdated = x.LastUpdated,
                                          // Description = x.Description,
 
@@ -467,20 +467,20 @@ namespace VitalSigns.API.Controllers
                 else if (!string.IsNullOrEmpty(type))
                 {
 
-                    Expression<Func<Status, bool>> expression = (p => p.Type == type);
+                    Expression<Func<Status, bool>> expression = (p => p.DeviceType == type);
                     var result = statusRepository.Find(expression).AsQueryable()
                                                                     .Select(x => new ServerStatus
                                                                     {
 
                                                                         // Id = x.Id,
                                                                         DeviceId = x.DeviceId,
-                                                                        Name = x.Name,
+                                                                        Name = x.DeviceName,
                                                                         Status = x.StatusCode,
                                                                         Country = x.Location,
                                                                         Details = x.Details,
                                                                         UserCount = x.UserCount,
                                                                         CPU = x.CPU,
-                                                                        Type = x.Type
+                                                                        Type = x.DeviceType
                                                                         // LastUpdated = x.LastUpdated,
                                                                         // Description = x.Description,
 
