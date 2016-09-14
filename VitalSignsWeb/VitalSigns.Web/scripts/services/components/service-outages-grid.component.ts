@@ -14,7 +14,7 @@ declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 @Component({
-    templateUrl: '/app/services/components/service-database-grid.component.html',
+    templateUrl: '/app/services/components/service-outages-grid.component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
@@ -30,7 +30,7 @@ declare var bootstrapNavigator: any;
         RESTService
     ]
 })
-export class ServiceDatabaseGrid implements OnInit {
+export class ServiceOutagesGrid implements OnInit {
     @Input() settings: any;
     deviceId: any;
     data: wijmo.collections.CollectionView;
@@ -54,7 +54,7 @@ export class ServiceDatabaseGrid implements OnInit {
             this.deviceId = params['service'];
 
         });
-        this.service.get('/DashBoard/' + this.deviceId + '/database')
+        this.service.get('/DashBoard/' + this.deviceId + '/outages')
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
