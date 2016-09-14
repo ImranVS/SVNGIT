@@ -1374,31 +1374,31 @@ Partial Public Class VitalSignsPlusCore
         n = Nothing
     End Sub
 
-	Private Sub UpdateStatusTableWithIbmConnections()
-		'Delete from the status table any servers that have been deleted from the collection
+    Private Sub UpdateStatusTableWithIbmConnections()
+        'Delete from the status table any servers that have been deleted from the collection
 
-		Dim strSQL As String
-		Dim objVSAdaptor As New VSAdaptor
+        Dim strSQL As String
+        Dim objVSAdaptor As New VSAdaptor
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-		'Insert any WebSphere servers that are not in the status table
-		If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " About to insert " & MyIBMConnectServers.Count & " Ibm Connection servers into the Status table.")
+        'Insert any WebSphere servers that are not in the status table
+        If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " About to insert " & MyIBMConnectServers.Count & " Ibm Connection servers into the Status table.")
 
-		Dim n As Integer
-		Dim strSqlUpdate As String
+        Dim n As Integer
+        Dim strSqlUpdate As String
 
-		For n = 0 To MyIBMConnectServers.Count - 1
-			MyIBMConnectServer = MyIBMConnectServers.Item(n)
+        For n = 0 To MyIBMConnectServers.Count - 1
+            MyIBMConnectServer = MyIBMConnectServers.Item(n)
             Dim myStatusCode As String = ServerStatusCode(MyIBMConnectServer.Status)
             Dim TypeAndName As String = MyIBMConnectServer.Name & MyIBMConnectServer.ServerType
             Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
-			With MyIBMConnectServer
+            With MyIBMConnectServer
 
-				strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-WebSphere') BEGIN " & _
-				  "INSERT INTO Status (StatusCode, Category,  Description, Location, Name,  Status, Type, LastUpdate, ResponseTime, TypeANDName, NextScan) " & _
-				  " VALUES ('" & myStatusCode & "', '" & .Category & "', '" & .Description & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
-				  "'" & .DeviceType & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-" & .ServerType & "', '" & .NextScan & "' )" & _
-				  "END"
+                strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-WebSphere') BEGIN " & _
+                  "INSERT INTO Status (StatusCode, Category,  Description, Location, Name,  Status, Type, LastUpdate, ResponseTime, TypeANDName, NextScan) " & _
+                  " VALUES ('" & myStatusCode & "', '" & .Category & "', '" & .Description & "', '" & .Location & "', '" & .Name & "', '" & .Status & "',  " & _
+                  "'" & .DeviceType & "', '" & Now & "', '" & .ResponseTime & "' , '" & .Name & "-" & .ServerType & "', '" & .NextScan & "' )" & _
+                  "END"
 
                 strSqlUpdate = "UPDATE Status SET NextScan = '" & .NextScan & "' WHERE TypeANDName = '" & .Name & "-" & .ServerType & "'"
                 updatedef = repo.Updater _
@@ -1413,16 +1413,16 @@ Partial Public Class VitalSignsPlusCore
                         .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
                         .[Set](Function(i) i.Category, .Category) _
                         .[Set](Function(i) i.NextScan, .NextScan)
-			End With
-			If MyIBMConnectServer.Enabled = True Then
+            End With
+            If MyIBMConnectServer.Enabled = True Then
                 'UpdateStatusTable(strSqlUpdate, strSQL, MyIBMConnectServer.Name)
                 repo.Upsert(filterdef, updatedef)
-			End If
+            End If
 
-		Next n
+        Next n
 
-		n = Nothing
-	End Sub
+        n = Nothing
+    End Sub
 
 
     'Private Sub ClearExistingNotesMailProbeHistory()
@@ -1985,10 +1985,11 @@ Partial Public Class VitalSignsPlusCore
 
             Dim DailyStats As New DailyStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
-            DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.BES.ToDescription()
+            DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()
             DailyStats.DeviceName = ServerName
             DailyStats.StatName = "ResponseTime"
             DailyStats.StatValue = ResponseTime
+            DailyStats.DeviceId = DeviceId
             repo.Insert(DailyStats)
 
             WriteDeviceHistoryEntry("Sametime", ServerName, Now.ToString & "  " & strSQL)
@@ -2083,7 +2084,7 @@ Partial Public Class VitalSignsPlusCore
             Dim TypeAndName As String = MySametimeServer.Name & "-Sametime"
             Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
-          
+
             With MySametimeServer
 
 
@@ -2115,7 +2116,7 @@ Partial Public Class VitalSignsPlusCore
 
             strSQL = strSQL.Replace("NaN", "0")
             strSQL = strSQL.Replace("' ", "'")
-           
+
             repo.Upsert(filterdef, updatedef)
 
             WriteDeviceHistoryEntry("Sametime", MySametimeServer.Name, Now.ToString & " Sametime module  SQL statement: " & strSQL)
@@ -2158,11 +2159,11 @@ Partial Public Class VitalSignsPlusCore
 
         WriteDeviceHistoryEntry("Sametime", ServerName, Now.ToString & " Updating Sametime Statistics table")
 
-        Dim strSQL As String
-        Dim MyWeekNumber As Integer
-        MyWeekNumber = GetWeekNumber(Date.Today)
-        strSQL = "INSERT INTO SametimeDailyStats (ServerName, [Date], StatName, StatValue,  WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" &
-            " VALUES ('" & ServerName & "', '" & Now.ToString & "', '" & StatName & "', '" & StatValue & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "', '" & Now.Hour & "')"
+        'Dim strSQL As String
+        'Dim MyWeekNumber As Integer
+        'MyWeekNumber = GetWeekNumber(Date.Today)
+        'strSQL = "INSERT INTO SametimeDailyStats (ServerName, [Date], StatName, StatValue,  WeekNumber, MonthNumber, YearNumber, DayNumber, HourNumber)" &
+        '    " VALUES ('" & ServerName & "', '" & Now.ToString & "', '" & StatName & "', '" & StatValue & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "', '" & Now.Hour & "')"
 
         Dim DailyStats As New DailyStatistics
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
@@ -2170,13 +2171,14 @@ Partial Public Class VitalSignsPlusCore
         DailyStats.DeviceName = ServerName
         DailyStats.StatName = StatName
         DailyStats.StatValue = StatValue
+        DailyStats.DeviceId = DeviceId
         repo.Insert(DailyStats)
         Dim objVSAdaptor As New VSAdaptor
         'objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "SametimeStats", strSQL)
 
 
-        strSQL = Nothing
-        MyWeekNumber = Nothing
+        'strSQL = Nothing
+        'MyWeekNumber = Nothing
     End Sub
 
     Private Sub UpdateAdvancedSametimeStatTable(ByRef Server As MonitoredItems.SametimeServer)
@@ -2256,6 +2258,7 @@ Partial Public Class VitalSignsPlusCore
                     Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
                     DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()
                     DailyStats.DeviceName = Server.Name
+                    DailyStats.DeviceId = Server.ServerObjectID
                     DailyStats.StatName = translatedStatName
                     DailyStats.StatValue = Double.Parse(Stat.Value)
                     repo.Insert(DailyStats)
@@ -2372,10 +2375,11 @@ Partial Public Class VitalSignsPlusCore
                             Dim repo1 As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
                             Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.SummaryStatistics)
                             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.SummaryStatistics)
-                            
+
                             filterdef = repo1.Filter.Where(Function(i) i.CreatedOn.ToShortDateString.Equals(DateTime.UtcNow.ToShortDateString))
                             updatedef = repo1.Updater _
-                            .Set(Function(i) i.Id, Server.ServerObjectID) _
+                            .Set(Function(i) i.DeviceId, Server.ServerObjectID) _
+                            .Set(Function(i) i.DeviceName, Server.Name) _
                             .[Set](Function(i) i.StatName, Stat.Name) _
                             .[Set](Function(i) i.StatValue, Double.Parse(Stat.Value))
 
@@ -2384,7 +2388,7 @@ Partial Public Class VitalSignsPlusCore
                             WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Error inserting " & Stat.Name & " into the SametimeSummaryStats table:  " & ex.ToString)
                         End Try
                     Case Else
-                                'do nothing
+                        'do nothing
                 End Select
             Next
             'End If
@@ -2667,7 +2671,7 @@ Partial Public Class VitalSignsPlusCore
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
         Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
         Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
-        
+
 
         For n = 0 To MyClouds.Count - 1
             strSQL = ""
@@ -2835,7 +2839,7 @@ Partial Public Class VitalSignsPlusCore
             'strSQL = strSQL.Replace("NaN", "0")
             'strSQL = strSQL.Replace("' ", "'")
 
-           
+
 
             WriteDeviceHistoryEntry("WebSphere", MyWebSphereServer.Name, Now.ToString & " WebSphere module  SQL statement: " & strSQL)
 
@@ -3077,7 +3081,7 @@ Partial Public Class VitalSignsPlusCore
 
     End Sub
 
-    Public Sub InsertIntoWebSphereDailyStats(ByVal ServerName As String, ByVal StatName As String, ByVal StatValue As String, ByVal Details As String)
+    Public Sub InsertIntoWebSphereDailyStats(ByVal ServerName As String, ByVal StatName As String, ByVal StatValue As String, ByVal Details As String, DeviceId As String)
         'Dim dtNow As DateTime = Now
 
         'If StatValue IsNot Nothing Then
@@ -3099,7 +3103,7 @@ Partial Public Class VitalSignsPlusCore
         'End If
 
 
-       
+
         Try
             'strSQL = "INSERT INTO DeviceDailyStats (DeviceType, ServerName, [Date], StatName, StatValue , WeekNumber, MonthNumber, YearNumber, DayNumber)" & _
             '   " VALUES ('Network Device', '" & DeviceName & "', '" & Now.ToString & "', '" & "ResponseTime" & "', '" & ResponseTime & "', '" & MyWeekNumber & "', '" & Now.Month & "', '" & Now.Year & "', '" & Now.Day & "')"
@@ -3115,6 +3119,7 @@ Partial Public Class VitalSignsPlusCore
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
             DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription()
             DailyStats.DeviceName = ServerName
+            DailyStats.DeviceId = DeviceId
             DailyStats.StatName = StatName
             DailyStats.StatValue = StatValue
 
@@ -3346,9 +3351,9 @@ Partial Public Class VitalSignsPlusCore
     End Sub
 
     Public Sub InsertIntoIBMConnectionsDailyStats(ByVal ServerName As String, ByVal StatName As String, ByVal StatValue As String, ByVal DeviceId As String)
-		Dim dtNow As DateTime = Now
+        Dim dtNow As DateTime = Now
 
-		If StatValue IsNot Nothing Then
+        If StatValue IsNot Nothing Then
 
             '         Dim strSql As String = "Insert into VSS_Statistics.dbo.IBMConnectionsDailyStats(ServerName,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber) " & _
             '          " values('" & ServerName & "','" & dtNow & "','" & StatName & "','" & StatValue & "'," & GetWeekNumber(dtNow) & ", " & dtNow.Month.ToString() & _
@@ -3371,11 +3376,11 @@ Partial Public Class VitalSignsPlusCore
 
             End Try
 
-		Else
-			WriteDeviceHistoryEntry("WebSphere", StatName, Now.ToString & " the following stat is empty: " & StatName)
-		End If
+        Else
+            WriteDeviceHistoryEntry("WebSphere", StatName, Now.ToString & " the following stat is empty: " & StatName)
+        End If
 
-	End Sub
+    End Sub
 
 
 #End Region

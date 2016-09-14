@@ -2942,55 +2942,55 @@ CleanUp:
             thresholdVal = .ActiveThreadCountThreshold
             statName = "Active Thread Count"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .ClearedThreadHangCount
             thresholdVal = .ClearedThreadHangCountThreshold
             statName = "Cleared Hung Thread Count"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .ConcurrentHungThreadCount
             thresholdVal = 1
             statName = "Current Hung Thread Count"
             SendWebSphereAlert(server, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .DeclaredThreadHungCount
             thresholdVal = .DeclaredThreadHungCountThreshold
             statName = "Declared Hung Thread Count"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = Math.Round((.Memory_Used / (.Memory_Free + .Memory_Used)) * 100, 0)
             thresholdVal = .Memory_Threshold
             statName = "Memory"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .Memory_Used
             statName = "Memory Used"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .Memory_Free
             thresholdVal = .Memory_Threshold
             statName = "Memory Free"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .CurrentHeap
             thresholdVal = .CurrentHeapThreshold
             statName = "Current Heap Size"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
 
             actualVal = .HeapSizeinitial
             thresholdVal = .HeapSizeinitial
             statName = "Initial Heap"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
             WriteAuditEntryWebSphere(Now.ToString & " InitialHeap " & actualVal)
 
 
@@ -2998,7 +2998,7 @@ CleanUp:
             thresholdVal = .HeapSizemaximum
             statName = "Maximum Heap"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
             WriteAuditEntryWebSphere(Now.ToString & " MaximumHeap " & actualVal)
 
 
@@ -3007,25 +3007,25 @@ CleanUp:
             thresholdVal = .AverageThreadPoolThreshold
             statName = "Average Pool Size"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .UpTime
             thresholdVal = .UpTimeThreshold
             statName = "Up Time"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .CPU_Utilization
             thresholdVal = .CPU_Threshold
             statName = "Process CPU Usage"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .ResponseTime
             thresholdVal = .ResponseThreshold
             statName = "ResponseTime"
             'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
-            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "")
+            InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
         End With
 
     End Sub
