@@ -5708,7 +5708,7 @@ CleanUp:
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
 
-                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
                 Next
 
                 Dim adapter As New VSAdaptor()
@@ -6154,13 +6154,14 @@ CleanUp:
         End Try
 
     End Sub
-    Public Sub addSummaryStats(serverName As String, statName As String, statVal As String)
+    Public Sub addSummaryStats(id As String, serverName As String, statName As String, statVal As String)
         Try
             Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
             SummaryStats.DeviceName = serverName
             SummaryStats.StatName = statName
             SummaryStats.StatValue = Double.Parse(statVal)
+            SummaryStats.DeviceId = id
             repo.Insert(SummaryStats)
         Catch ex As Exception
 
@@ -6278,7 +6279,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
@@ -6613,7 +6614,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
@@ -6696,7 +6697,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
@@ -6849,7 +6850,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
@@ -6944,7 +6945,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
@@ -7151,7 +7152,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
                 Next
 
 
