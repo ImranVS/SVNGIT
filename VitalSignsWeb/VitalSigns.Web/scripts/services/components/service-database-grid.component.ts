@@ -50,6 +50,7 @@ export class ServiceDatabaseGrid implements OnInit {
     }
 
     ngOnInit() {
+   
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
 
