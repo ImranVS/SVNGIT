@@ -24,12 +24,12 @@ export class ServiceTasksTab extends WidgetController implements OnInit {
     }
 
     ngOnInit() {
-        alert("Hiiiiiiiiiiiiiiii");
+        
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
             
         });
-        alert(this.deviceId);
+      
         this.widgets = [
             {
                 id: 'dynamicGrid',
