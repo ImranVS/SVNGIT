@@ -21,7 +21,7 @@ export class OnPremisesApps implements WidgetComponent, OnInit {
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/status_summary_by_type')
+        this.service.get('/services/status_summary_by_type')
             .subscribe(
             data => this.onPremApps = data,
             error => this.errorMessage = <any>error

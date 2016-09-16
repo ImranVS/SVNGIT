@@ -15,17 +15,16 @@ export class StatusSummary implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     errorMessage: string;
-
     statusSummary: any;
 
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/status_summary')
+        this.service.get('/services/dashboard_summary')
             .subscribe(
-            data => this.statusSummary = data,
+            response => this.statusSummary = response.data,
             error => this.errorMessage = <any>error
-            );
+        );
     }
 
     ngOnInit() {
