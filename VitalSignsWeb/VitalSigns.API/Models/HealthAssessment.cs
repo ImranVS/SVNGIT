@@ -18,7 +18,7 @@ namespace VitalSigns.API.Models
         public string Category { get; set; }
 
         [JsonProperty("last_scan")]
-        public DateTime? LastScan { get; set; }
+        public string LastScan { get; set; }
 
 
         [JsonProperty("test_name")]

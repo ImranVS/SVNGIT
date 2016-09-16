@@ -610,21 +610,7 @@ namespace VitalSigns.API.Controllers
             }
         }
 
-        [HttpGet("status_summary")]
-        public APIResponse ServersStatusSummary()
-        {
-            statusRepository = new Repository<Status>(ConnectionString);
-            var result = statusRepository.Collection.Aggregate()
-                                               .Group(x => x.StatusCode, g => new { label = g.Key, value = g.Count() })
-                                               .Project(x => new Segment
-                                               {
-                                                   Label = x.label,
-                                                   Value = x.value
-                                               }).ToList();
-            Response = Common.CreateResponse(result);
-            return Response;
-        }
-
+        
 
 
     }

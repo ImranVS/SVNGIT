@@ -45,7 +45,7 @@ namespace VitalSigns.API.Models
         public int? InboxDocCount { get; set; }
 
         [JsonProperty("scan_date")]
-        public DateTime? ScanDateTime { get; set; }
+        public string ScanDateTime { get; set; }
 
         [JsonProperty("replica_idss")]
         public string ReplicaId { get; set; }
