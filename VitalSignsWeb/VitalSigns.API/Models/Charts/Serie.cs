@@ -13,6 +13,8 @@ namespace VitalSigns.API.Models.Charts
 
         [JsonProperty("segments")]
         public ICollection<Segment> Segments { get; set; }
+        [JsonProperty("disksegments")]
+        public ICollection<DiskChart> DiskSegments { get; set; }
 
         [JsonProperty("category")]
         public List<string> Category { get; set; }
