@@ -193,7 +193,7 @@ namespace VitalSigns.API.Controllers
         [HttpGet("statistics")]
         public APIResponse GetDailyStat(string deviceId, string statName, string operation)
         {
-         
+
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
 
             try
@@ -230,6 +230,9 @@ namespace VitalSigns.API.Controllers
                             var result = statusRepository.Find(diskexpression).FirstOrDefault();
 
                             List<DiskChart> disksegments = new List<DiskChart>();
+                            List<string> name = new List<string>();
+                            List<double> diskfree = new List<double>();
+                            List<double> disksize = new List<double>();
                             ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
                             serverDiskStatus.Id = result.Id;
                             foreach (Disk drive in result.Disks)
@@ -246,12 +249,26 @@ namespace VitalSigns.API.Controllers
 
                                 });
 
-                                disksegments.Add(new DiskChart { DiskFree = drive.DiskFree.HasValue ? (double)drive.DiskFree : 0, DiskSize = drive.DiskSize.HasValue ? (double)drive.DiskSize : 0, DiskName = drive.DiskName });
+                                name.Add(drive.DiskName);                            
+                                diskfree.Add(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0); 
+                                disksize.Add(drive.DiskSize.HasValue ? (double)drive.DiskSize : 0);
+                                //List<string> name = new List<string>();
+                                //name = drive.DiskName;
+                                
+
+
+
+
                             }
+                            disksegments.Add(new DiskChart {DiskSize = disksize, DiskFree = diskfree });
+
+
 
                             Serie serie = new Serie();
                             serie.Title = "Disk Space";
                             serie.DiskSegments = disksegments;
+                            serie.Category = name.ToList();
+                          
 
                             List<Serie> series = new List<Serie>();
                             series.Add(serie);
@@ -444,7 +461,7 @@ namespace VitalSigns.API.Controllers
 
                 return Response;
             }
-        }    
+        }
 
         /// <summary>
         /// Returns summary stats data by deviceid
@@ -610,8 +627,8 @@ namespace VitalSigns.API.Controllers
             }
         }
 
-        
 
-
+       
     }
 }
+
