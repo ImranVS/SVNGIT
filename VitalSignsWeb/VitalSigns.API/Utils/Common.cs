@@ -23,7 +23,7 @@ namespace VitalSigns.API
         public static ServerType GetServerTypeTabs(string serverTypeName )
         {   
             List<ServerType> serverTypeList = (List<ServerType>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerType>));
-            var serverType = serverTypeList.Where(x => x.ServerTypeName == serverTypeName).FirstOrDefault();
+            var serverType = serverTypeList.Where(x => x.ServerTypeName.ToUpper() == serverTypeName.ToUpper()).FirstOrDefault();
             return serverType;
         }
         public static APIResponse CreateResponse(object data,string status="OK",string message = "Success")

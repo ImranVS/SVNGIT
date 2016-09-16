@@ -23,9 +23,69 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
 
+        [HttpGet("dashboard_summary")]
+        public APIResponse ServersStatusSummary()
+        {
+            statusRepository = new Repository<Status>(ConnectionString);
+            var result = statusRepository.Collection.Aggregate()
+                                               .Group(x => x.StatusCode, g => new { label = g.Key, value = g.Count() })
+                                               .Project(x => new
+                                               {
+                                                   Label = x.label,
+                                                   Value = x.value
+                                               }).ToList();
+            var issue = result.Where(item => item.Label =="Issue").FirstOrDefault().Value;
+         var ok = result.Where(item => item.Label == "OK").FirstOrDefault().Value; ;
+            var notResponding = result.Where(item => item.Label == "Not Responding").FirstOrDefault().Value;
+            var maintenance = result.Where(item => item.Label == "Maintenance").FirstOrDefault().Value;
+            return Common.CreateResponse(new { issue=issue, ok= ok, notResponding= notResponding, maintenance= maintenance });
+        }
+
+        [HttpGet("status_summary_by_type")]
+        public IEnumerable<StatusSummary> GetStatusSummaryByType()
+        {
+            statusRepository = new Repository<Status>(ConnectionString);
+            var result = statusRepository.All()
+                                        .Select(x => new
+                                        {
+                                            DeviceType = x.DeviceType,
+                                            StatusCode = x.StatusCode
+                                        }).ToList();
+            List<string> typeList = result.Select(x => x.DeviceType).Distinct().ToList();
+            List<StatusSummary> summaryList = new List<StatusSummary>();
+            foreach (string type in typeList)
+            {
+                summaryList.Add(new StatusSummary
+                {
+                    Type = type,
+                    Ok = result.Where(x => x.DeviceType == type && x.StatusCode == "OK").Count(),
+                    NotResponding = result.Where(x => x.DeviceType == type && x.StatusCode == "Not Responding").Count(),
+                    Issue = result.Where(x => x.DeviceType == type && x.StatusCode == "Issue").Count(),
+                    Maintenance = result.Where(x => x.DeviceType == type && x.StatusCode == "Maintenance").Count()
+                });
+            }
+            return summaryList.Where(x=>x.Type!=null && x.Type!="Domino Cluster").ToList();
+        }
+        [HttpGet("dashboard_stats")]
+        public APIResponse GetDashboardStas()
+        {
+            statusRepository = new Repository<Status>(ConnectionString);
+            var result = statusRepository.All()
+                                        .Select(x => new
+                                        {
+                                            UserCount = x.UserCount,
+                                            ResponseTime = x.ResponseTime,
+                                            DownMinutes = x.DownMinutes
+                                        }).ToList();
+            int? userCount = result.Sum(x => x.UserCount);
+            double? responseTime = result.Average(x => x.ResponseTime);
+            double? downMinutes = result.Sum(x => x.DownMinutes);
 
 
 
+
+            return Common.CreateResponse(new { user_count = userCount, response_time = responseTime, doenMinutes = downMinutes });
+        }
         /// <summary>
         /// Returns all servers details
         /// </summary>
@@ -67,7 +127,7 @@ namespace VitalSigns.API.Controllers
                     if (!string.IsNullOrEmpty(item.Status))
                         item.Status = item.Status.ToLower().Replace(" ", "");
                 }
-                Response = Common.CreateResponse(result);
+                Response = Common.CreateResponse(result.OrderBy(x => x.Name));
             }
             catch (Exception exception)
             {
