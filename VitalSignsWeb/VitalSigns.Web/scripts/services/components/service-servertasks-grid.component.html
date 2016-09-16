@@ -5,7 +5,7 @@
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="300"></wj-flex-grid-column>
 
-        <wj-flex-grid-column [header]="'StatusSummary'" [binding]="'status_summary'" [width]="80" align="center">
+        <wj-flex-grid-column [header]="'Status Summary'" [binding]="'status_summary'" [width]="140" align="center">
             <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                 <div [ngSwitch]="cell.item.status">
                     <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.status}}</span>
@@ -15,9 +15,9 @@
             </template>
 
         </wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Primary Status'" [binding]="'primary_status'" [width]="80"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Secondary Status'" [binding]="'secondary_status'" [width]="80"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Date'" [binding]="'last_updated'" [width]="80"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Primary Status'" [binding]="'primary_status'" [width]="140"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Secondary Status'" [binding]="'secondary_status'" [width]="140"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Date'" [binding]="'last_updated'" [width]="140"></wj-flex-grid-column>
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"
@@ -66,7 +66,7 @@ data.pageIndex + 1 | number
         <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="300"></wj-flex-grid-column>
         <!--<wj-flex-grid-column [header]="'Monitored'" [binding]="'monitored'" [width]="'*'"></wj-flex-grid-column>-->
 
-        <wj-flex-grid-column [header]="'StatusSummary'" [binding]="'status_summary'" [width]="80" align="center">
+        <wj-flex-grid-column [header]="'Status Summary'" [binding]="'status_summary'" [width]="140" align="center">
             <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                 <div [ngSwitch]="cell.item.status">
                     <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.status}}</span>
@@ -76,9 +76,9 @@ data.pageIndex + 1 | number
             </template>
 
         </wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Primary Status'" [binding]="'primary_status'" [width]="80"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Secondary Status'" [binding]="'secondary_status'" [width]="80"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Date'" [binding]="'last_updated'" [width]="80"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Primary Status'" [binding]="'primary_status'" [width]="140"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Secondary Status'" [binding]="'secondary_status'" [width]="140"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Date'" [binding]="'last_updated'" [width]="140"></wj-flex-grid-column>
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"
