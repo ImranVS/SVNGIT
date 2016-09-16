@@ -36,7 +36,8 @@ export class ChartComponent implements WidgetComponent, OnInit {
     }
 
     private loadData(serviceUrl? : string) {
-
+        //console.log('chart1 ' + (serviceUrl || this.settings.url));
+        //console.log('chart2 ' + serviceUrl);
         this.service.get(serviceUrl || this.settings.url)
             .subscribe(data => {
 

@@ -12,7 +12,7 @@
           },
           {
             "tab_id": 2,
-            "title": "Main Health",
+            "title": "Health Assessment",
             "type": "Dashboard",
             "component": "ServiceMainHealthTab",
             "path": "/app/services/components/service-mainhealth-tab.component"
@@ -82,7 +82,7 @@
           },
         {
           "tab_id": 2,
-          "title": "Main Health",
+          "title": "Health Assessment",
           "type": "Dashboard",
           "component": "ServiceMainHealthTab",
           "path": "/app/services/components/service-mainhealth-tab.component"

@@ -1,7 +1,7 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
 import {HTTP_PROVIDERS}    from '@angular/http';
 
-import {WidgetComponent} from '../../../core/widgets';
+import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -31,7 +31,7 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     
-    constructor(private service: RESTService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -68,5 +68,12 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
                 return '';
         }
 
+    }
+
+    refreshChart(event: wijmo.grid.CellRangeEventArgs) {
+
+        console.log(`services/summarystats?statName=[BLOGS_CREATED_LAST_DAY,COMMENT_CREATED_LAST_DAY,ENTRY_CREATED_LAST_DAY]&deviceid=${event.panel.grid.selectedItems[0].device_id}`);
+        this.widgetService.refreshWidget('dailyActivities', `services/summarystats?statName=[BLOGS_CREATED_LAST_DAY,COMMENT_CREATED_LAST_DAY,ENTRY_CREATED_LAST_DAY]&deviceid=${event.panel.grid.selectedItems[0].device_id}`)
+            .catch(error => console.log(error));
     }
 }

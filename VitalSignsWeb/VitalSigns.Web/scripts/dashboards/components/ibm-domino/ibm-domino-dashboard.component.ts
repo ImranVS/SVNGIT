@@ -34,7 +34,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/domino/server_roles',
+                url: 'http://private-ad10c-ibm.apiary-mock.com/domino/server_roles',
                 chart: {
                     chart: {
                         renderTo: 'serverRoles',
@@ -86,7 +86,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/domino/status',
+                url: 'http://private-ad10c-ibm.apiary-mock.com/domino/status',
                 chart: {
                     chart: {
                         renderTo: 'serverStatus',
@@ -138,7 +138,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/domino/os',
+                url: 'http://private-ad10c-ibm.apiary-mock.com/domino/os',
                 chart: {
                     chart: {
                         renderTo: 'serverOs',

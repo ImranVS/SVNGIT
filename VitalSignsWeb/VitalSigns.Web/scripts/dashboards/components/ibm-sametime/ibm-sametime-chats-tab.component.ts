@@ -9,8 +9,7 @@ declare var injectSVG: any;
 @Component({
     selector: 'tab-chats',
     templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component.html',
-    directives: [WidgetContainer],
-    providers: [WidgetService]
+    directives: [WidgetContainer]
 })
 export class IBMSametimeChatsTab extends WidgetController implements OnInit, ServiceTab {
 
@@ -22,7 +21,6 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
     }
     
     ngOnInit() {
-        this.serviceId = '57ace45abf46711cd4681e4c';
         this.widgets = [
             {
                 id: 'nWayChats',

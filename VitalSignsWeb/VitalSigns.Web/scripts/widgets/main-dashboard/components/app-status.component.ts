@@ -23,7 +23,7 @@ export class AppStatus implements WidgetComponent, OnInit, AfterViewChecked {
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/status_widget/' + this.settings.serviceId)
+        this.service.get('http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/status_widget/' + this.settings.serviceId)
             .subscribe(
             data => this.appStatus = data,
             error => this.errorMessage = <any>error

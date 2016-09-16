@@ -31,7 +31,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/connections/daily_activities',
+                    url: '/services/summarystats?statName=[BLOGS_CREATED_LAST_DAY,COMMENT_CREATED_LAST_DAY,ENTRY_CREATED_LAST_DAY]&deviceid=57ace43fbf46711cd4681dcf',
                     chart: {
                         chart: {
                             renderTo: 'dailyActivities',

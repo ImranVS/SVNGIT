@@ -7,7 +7,7 @@ import {ServiceTab} from '../../../services/models/service-tab.interface';
 declare var injectSVG: any;
 
 @Component({
-    selector: 'tab-chats',
+    selector: 'tab-meetings',
     templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component.html',
     directives: [WidgetContainer],
     providers: [WidgetService]
@@ -22,7 +22,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
     }
     
     ngOnInit() {
-    
+        this.serviceId = '57ace45abf46711cd4681e4c';
         this.widgets = [
             {
                 id: 'activeMeetingsUsers',
@@ -31,7 +31,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/active_meetings_users',
+                    url: '/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'activeMeetingsUsers',

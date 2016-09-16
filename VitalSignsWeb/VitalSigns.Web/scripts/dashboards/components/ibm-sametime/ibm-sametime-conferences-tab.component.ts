@@ -7,7 +7,7 @@ import {ServiceTab} from '../../../services/models/service-tab.interface';
 declare var injectSVG: any;
 
 @Component({
-    selector: 'tab-chats',
+    selector: 'tab-conferences',
     templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component.html',
     directives: [WidgetContainer],
     providers: [WidgetService]
@@ -139,7 +139,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/all_calls_all_users',
+                    url: '/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'allCallsAllUsers',
@@ -175,7 +175,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/all_one_on_one_calls_users',
+                    url: '/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'allOneOnOneCallsUsers',
@@ -211,7 +211,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/sametime/all_multi_user_calls_users',
+                    url: '/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=' + this.serviceId + '&operation=hourly',
                     chart: {
                         chart: {
                             renderTo: 'allMultiUserCallsUsers',

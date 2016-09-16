@@ -84,5 +84,4 @@ export class IBMSametimeDetails implements OnInit {
         }
 
     }
-    
 }

@@ -50,7 +50,7 @@ export class IBMDominoGrid implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                this.data.pageSize = 10;
+                this.data.pageSize = 20;
             },
             (error) => this.errorMessage = <any>error
             );

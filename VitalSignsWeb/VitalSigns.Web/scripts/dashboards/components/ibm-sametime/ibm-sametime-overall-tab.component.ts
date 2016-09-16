@@ -21,7 +21,6 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
     }
     
     ngOnInit() {
-        this.serviceId = '57ace45abf46711cd4681e4c';
         this.widgets = [
             {
                 id: 'responseTimes',
@@ -96,7 +95,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 }
             }
         ];
-    
+
         injectSVG();
     }
 
