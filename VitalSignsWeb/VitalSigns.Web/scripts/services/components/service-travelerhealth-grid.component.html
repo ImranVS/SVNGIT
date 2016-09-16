@@ -1,0 +1,49 @@
+﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Resource Constraint'" [binding]="'resource_constraint'" [width]="300"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Traveler Details'" [binding]="'traveler_details'" [width]="80"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Traveler HeartBeat'" [binding]="'traveler_heartbeat'" [width]="80" align="center">
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Traveler Servlet'" [binding]="'traveler_servlet'" [width]="'*'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Traveler Users'" [binding]="'traveler_users'" [width]="'*'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Traveler HA'" [binding]="'traveler_ha'" [width]="'*'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Traveler IncrementalSyncs'" [binding]="'traveler_incremental_syncs'" [width]="'*'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Http Status'" [binding]="'http_status'" [width]="'*'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Traveler DevicesAPIStatus'" [binding]="'traveler_devices_api_status'" [width]="'*'"></wj-flex-grid-column>
+</wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{
+data.pageIndex + 1 | number
+        }} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>

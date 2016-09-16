@@ -25,34 +25,21 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
     }
 
     ngOnInit() {
+       
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
 
         });
+
         this.widgets = [
             {
-                id: 'dynamicGrid',
+                id: 'ServiceTravelerHealthGrid',
                 title: 'Traveler Health',
-                path: '/app/widgets/grid/components/dynamic-grid.component',
-                name: 'DynamicGrid',
-                css: 'col-xs-12',
-                settings: {
-                    
-                    url: '/DashBoard/' + this.deviceId +'/traveler-health',
-                    columns: [{ header: "Resource Constraint", binding: "resource_constraint", name: "resource_constraint", width: "*" },
-                        { header: "Traveler Details", binding: "traveler_details", name: "traveler_details", width: "*" },
-                        { header: "Traveler HeartBeat", binding: "traveler_heartbeat", name: "traveler_heartbeat", width: "*" },
-                        { header: "Traveler Servlet", binding: "traveler_servlet", name: "traveler_servlet", width: "*" },
-                        { header: "Traveler Users", binding: "traveler_users", name: "traveler_users", width: "*" },
-                        { header: "Traveler HA", binding: "traveler_ha", name: "traveler_ha", width: "*" },
-                        { header: "Traveler IncrementalSyncs", binding: "traveler_incremental_syncs", name: "traveler_incremental_syncs", width: "*" },
-                        { header: "Http Status", binding: "http_status", name: "http_status", width: "*" },
-                        { header: "Traveler DevicesAPIStatus", binding: "traveler_devices_api_status", name: "traveler_devices_api_status", width: "*" }
-
-                    ]
-
-                }
+                path: '/app/services/components/service-travelerhealth-grid.component',
+                name: 'ServiceTravelerHealthGrid',
+                css: 'col-xs-12'
             },
+
             {
                 id: 'successfuldevicesyncs',
                 title: 'Successful Device Syncs',
@@ -201,18 +188,27 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
             },
 
             {
-                id: 'sampleGrid',
+
+                id: 'dynamicGrid',
                 title: 'Traveler Health Mail Servers',
-                path: '/app/widgets/grid/components/sample-grid.component',
-                name: 'SampleGrid',
+                path: '/app/widgets/grid/components/dynamic-grid.component',
+                name: 'DynamicGrid',
                 css: 'col-xs-12',
                 settings: {
-                    url: '/DashBoard/' + this.deviceId +'/traveler-mailservers'
+
+
+
+                          url: '/DashBoard/' + this.deviceId + '/traveler-mailservers',
+                          columns: [{ header: "Mail ServerName", binding: "mail_servername", name: "mail_servername", width: "*" },
+                              { header: "Date Updated", binding: "date_updated", name: "date_updated", width: "*" },
+
+                        ]
+
+
                 }
             }
-
         ]
-
+       
         
 
         injectSVG();
