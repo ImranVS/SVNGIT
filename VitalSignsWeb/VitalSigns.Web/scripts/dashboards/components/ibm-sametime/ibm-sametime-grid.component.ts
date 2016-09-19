@@ -52,9 +52,19 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = 10;
+                this.data.moveCurrentToPosition(0);
+                this.serviceId = this.data.currentItem.device_id;
             },
             (error) => this.errorMessage = <any>error
-            );
+        );
+        
+    }
+
+    ngAfterViewInit() {
+        //console.log('after init) device id is: ' + this.serviceId);
+        //this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`)
+        //    .catch(error => console.log(error));
+        console.log('after view init: ' + this.widgetService.exists('responseTimes'));
     }
 
     getAccessColor(access: string) {
@@ -77,14 +87,5 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
             .catch(error => console.log(error));
         this.widgetService.refreshWidget('dailyUserLogins', `/services/statistics?statName=Users&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
             .catch(error => console.log(error));
-        this.widgetService.refreshWidget('nWayChats', `/services/statistics?statName=Numberofnwaychats&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
-            .catch(error => console.log(error));
-        this.widgetService.refreshWidget('activeNWayChats', `/services/statistics?statName=Numberofactivenwaychats&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
-            .catch(error => console.log(error));
-        this.widgetService.refreshWidget('openChatSessions', `/services/statistics?statName=Numberofopenchatsessions&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
-            .catch(error => console.log(error));
-        this.widgetService.refreshWidget('chatMessages', `/services/statistics?statName=Numberofchatmessages&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
-            .catch(error => console.log(error));
-
     }
 }
