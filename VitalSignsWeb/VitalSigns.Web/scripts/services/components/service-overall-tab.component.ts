@@ -32,7 +32,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statname=Server.Users&deviceId=57ace45abf46711cd4681e01&operation=hourly',
+                    url: `/services/statistics?statname=Server.Users&deviceId=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'usersConnectionsDuringTheDay',
