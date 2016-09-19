@@ -300,7 +300,26 @@
         "server_type": "Sametime",
         "icon": "/img/servers/Paintbrush.svg",
         "tabs": [
-
+          {
+            "title": "Overall",
+            "component": "IBMSametimeOverallTab",
+            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component"
+          },
+          {
+            "title": "Chats",
+            "component": "IBMSametimeChatsTab",
+            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component"
+          },
+          {
+            "title": "Conferences",
+            "component": "IBMSametimeConferencesTab",
+            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component"
+          },
+          {
+            "title": "Meetings",
+            "component": "IBMSametimeMeetingsTab",
+            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component"
+          }
         ]
 
       },
