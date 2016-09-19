@@ -23,6 +23,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
 
+
         [HttpGet("dashboard_summary")]
         public APIResponse ServersStatusSummary()
         {
@@ -34,11 +35,11 @@ namespace VitalSigns.API.Controllers
                                                    Label = x.label,
                                                    Value = x.value
                                                }).ToList();
-            var issue = result.Where(item => item.Label =="Issue").FirstOrDefault().Value;
-         var ok = result.Where(item => item.Label == "OK").FirstOrDefault().Value; ;
+            var issue = result.Where(item => item.Label == "Issue").FirstOrDefault().Value;
+            var ok = result.Where(item => item.Label == "OK").FirstOrDefault().Value; ;
             var notResponding = result.Where(item => item.Label == "Not Responding").FirstOrDefault().Value;
             var maintenance = result.Where(item => item.Label == "Maintenance").FirstOrDefault().Value;
-            return Common.CreateResponse(new { issue=issue, ok= ok, notResponding= notResponding, maintenance= maintenance });
+            return Common.CreateResponse(new { issue = issue, ok = ok, notResponding = notResponding, maintenance = maintenance });
         }
 
         [HttpGet("status_summary_by_type")]
@@ -64,7 +65,7 @@ namespace VitalSigns.API.Controllers
                     Maintenance = result.Where(x => x.DeviceType == type && x.StatusCode == "Maintenance").Count()
                 });
             }
-            return summaryList.Where(x=>x.Type!=null && x.Type!="Domino Cluster").ToList();
+            return summaryList.Where(x => x.Type != null && x.Type != "Domino Cluster").ToList();
         }
         [HttpGet("dashboard_stats")]
         public APIResponse GetDashboardStas()
@@ -234,7 +235,7 @@ namespace VitalSigns.API.Controllers
                             List<double> diskfree = new List<double>();
                             List<double> disksize = new List<double>();
                             ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
-                            serverDiskStatus.Id = result.Id;
+                            serverDiskStatus.Id = result.DeviceId;
                             foreach (Disk drive in result.Disks)
                             {
                                 serverDiskStatus.Drives.Add(new DiskDriveStatus
@@ -249,18 +250,18 @@ namespace VitalSigns.API.Controllers
 
                                 });
 
-                                name.Add(drive.DiskName);                            
-                                diskfree.Add(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0); 
+                                name.Add(drive.DiskName);
+                                diskfree.Add(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0);
                                 disksize.Add(drive.DiskSize.HasValue ? (double)drive.DiskSize : 0);
                                 //List<string> name = new List<string>();
                                 //name = drive.DiskName;
-                                
+
 
 
 
 
                             }
-                            disksegments.Add(new DiskChart {DiskSize = disksize, DiskFree = diskfree });
+                            disksegments.Add(new DiskChart { DiskSize = disksize, DiskFree = diskfree });
 
 
 
@@ -268,7 +269,7 @@ namespace VitalSigns.API.Controllers
                             serie.Title = "Disk Space";
                             serie.DiskSegments = disksegments;
                             serie.Category = name.ToList();
-                          
+
 
                             List<Serie> series = new List<Serie>();
                             series.Add(serie);
@@ -627,8 +628,105 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("status_count")]
+        public APIResponse GetStatusCount(string type, string docfield)
+        {
 
-       
+            statusRepository = new Repository<Status>(ConnectionString);
+
+            try
+            {
+
+                Expression<Func<Status, bool>> expression = (p => p.DeviceType == type);
+                // var output = statusRepository.All().Where(x => x.DeviceType == type);
+                if (type == "Domino")
+                {
+                    var result = statusRepository.Collection.Aggregate()
+                                                       .Group(x => docfield, g => new { label = g.Key, value = g.Count() })
+                                                       .Project(x => new Segment
+                                                       {
+                                                           Label = x.label,
+                                                           Value = x.value
+                                                       }).ToList();
+
+                    // List<Status> result = List<Status>();
+
+                    if (docfield == "operating_system")
+                    {
+                        result = statusRepository.Collection.Aggregate()
+                                                       .Group(x => x.OperatingSystem, g => new { label = g.Key, value = g.Count() })
+                                                       .Project(x => new Segment
+                                                       {
+                                                           Label = x.label,
+                                                           Value = x.value
+                                                       }).ToList();
+
+                    }
+
+
+                    else if (docfield == "software_version")
+                    {
+                        result = statusRepository.Collection.Aggregate()
+                                                       .Group(x => x.SoftwareVersion, g => new { label = g.Key, value = g.Count() })
+                                                       .Project(x => new Segment
+                                                       {
+                                                           Label = x.label,
+                                                           Value = x.value
+                                                       }).ToList();
+                    }
+
+
+                    else if (docfield == "status_code")
+                    {
+                        result = statusRepository.Collection.Aggregate()
+                                                      .Group(x => x.StatusCode, g => new { label = g.Key, value = g.Count() })
+                                                      .Project(x => new Segment
+                                                      {
+                                                          Label = x.label,
+                                                          Value = x.value
+                                                      }).ToList();
+                    }
+                    else if (docfield == "secondary_role")
+                    {
+                        result = statusRepository.Collection.Aggregate()
+                                                      .Group(x => x.SecondaryRole, g => new { label = g.Key, value = g.Count() })
+                                                      .Project(x => new Segment
+                                                      {
+                                                          Label = x.label,
+                                                          Value = x.value
+                                                      }).ToList();
+                    }
+
+
+                    Serie serie = new Serie();
+                    serie.Title = docfield;
+                    serie.Segments = result;
+
+                    List<Serie> series = new List<Serie>();
+                    series.Add(serie);
+
+                    Chart chart = new Chart();
+                    chart.Title = docfield;
+                    chart.Series = series;
+
+                    Response = Common.CreateResponse(chart);
+
+
+                }
+                
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+        }
+
+
     }
 }
 
