@@ -31,7 +31,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=Totalcountofall1x1calls&deviceid=' + this.serviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=Totalcountofall1x1calls&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'oneOnOneCalls',
@@ -67,7 +67,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=' + this.serviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'multiUserCalls',
@@ -103,7 +103,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=Totalcountofallcalls&deviceid=' + this.serviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=Totalcountofallcalls&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allCalls',
@@ -139,7 +139,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=' + this.serviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allCallsAllUsers',
@@ -175,7 +175,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=' + this.serviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allOneOnOneCallsUsers',
@@ -211,7 +211,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=' + this.serviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allMultiUserCallsUsers',

@@ -29,7 +29,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=ResponseTime&deviceid=' + this.serviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'responseTimes',
@@ -65,7 +65,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=Users&deviceid=' + this.serviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=Users&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'dailyUserLogins',
