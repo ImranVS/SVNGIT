@@ -28,6 +28,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Database> databaseRepository;
         private IRepository<Outages> outagesRepository;
+        private IRepository<TravelerStatusSummary> travelerStatsRepository;
 
 
         /// <summary>
@@ -424,7 +425,7 @@ namespace VitalSigns.API.Controllers
             {
                 // ID = x.ID,
                 MailServerName = x.MailServerName,
-                DateUpdated = x.DateUpdated
+                DateUpdated = Convert.ToString(x.DateUpdated)
 
 
             });
@@ -540,6 +541,48 @@ namespace VitalSigns.API.Controllers
 
             }
             return Response;
+        }
+
+      
+        [HttpGet("{deviceid}/traveler_mailstats")]
+
+        public APIResponse Travelerstats(string deviceid)
+        {
+            travelerStatsRepository = new Repository<TravelerStatusSummary>(ConnectionString);
+            try
+            {
+
+            
+            Expression<Func<TravelerStatusSummary, bool>> expression = (p => p.DeviceId == deviceid);
+            var result = travelerStatsRepository.Find(expression).Select(x => new TravelerHealth
+            {
+                DeviceId = x.DeviceId,
+                MailServerName = x.MailServerName,
+                c_000_001 = x.c_000_001,
+                c_001_002 = x.c_001_002,
+                c_002_005 = x.c_002_005,
+                c_005_010 = x.c_005_010,
+                c_010_030 = x.c_010_030,
+                c_030_060 = x.c_030_060,
+                c_060_120 = x.c_060_120,
+                c_120_INF = x.c_120_INF,
+                DateUpdated = Convert.ToString( x.DateUpdated)
+               
+
+            }).ToList();
+
+            Response = Common.CreateResponse(result);
+
+           }
+            
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+
+            return Response;
+
+         
         }
     }
 }
