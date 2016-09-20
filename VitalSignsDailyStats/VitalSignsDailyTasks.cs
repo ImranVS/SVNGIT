@@ -30,8 +30,13 @@ namespace VitalSignsDailyStats
         IRepository<DailyStatistics> dailyStatasticsRepository;// = _unitOfWork.Repository<DailyStatistics>();
         IRepository<SummaryStatistics> summaryStatasticsRepository;// =_unitOfWork.Repository<SummaryStatistics>();
         IRepository<DailyTasks> dailyTasksRepository;
+        IRepository<TravelerStats> travelerStatusSummaryRepository;
+        IRepository<Status> statusRepository;
         IRepository<Nodes> nodesRepository;
-
+        IRepository<TravelerStats> travelerStatsRepository;
+        IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
+        IRepository<StatusDetails> statusDeatilsRepository;
+        List<string> diskNames = new List<string>();
         VSAdaptor objVsAdaptor = new VSAdaptor();
         string culture = "en-US";
         string cultureName = "CultureString";
@@ -84,7 +89,13 @@ namespace VitalSignsDailyStats
                dailyStatasticsRepository = _unitOfWork.Repository<DailyStatistics>();
               summaryStatasticsRepository = _unitOfWork.Repository<SummaryStatistics>();
                 dailyTasksRepository = _unitOfWork.Repository<DailyTasks>();
+                statusRepository = _unitOfWork.Repository<Status>();
                 nodesRepository = _unitOfWork.Repository<Nodes>();
+                travelerStatsRepository = _unitOfWork.Repository<TravelerStats>();
+                travelerSummaryStatsRepository = _unitOfWork.Repository<TravelerStatusSummary>();
+                statusDeatilsRepository = _unitOfWork.Repository<StatusDetails>();
+
+
                 if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
                     culture = ConfigurationManager.AppSettings[cultureName];
 
@@ -167,7 +178,7 @@ namespace VitalSignsDailyStats
                 try
                 {
                     WriteAuditEntry("Building a list of all unique Microsoft server disk drives, if any. ");
-                    BuildMicrosoftDriveList();
+                    //BuildMicrosoftDriveList();
                 }
                 catch (Exception ex)
                 {
@@ -236,6 +247,9 @@ namespace VitalSignsDailyStats
                     {
                         WriteAuditEntry("Starting update of local tables");
                         //UpdateLocalTables();
+                        ProcessTravelerstats("OpenTimesDelta");
+                        ProcessTravelerstats("CumulativeTimesMin");
+                        ProcessTravelerstats("CumulativeTimesMax");
                     }
                     catch (Exception ex)
                     {
@@ -517,98 +531,113 @@ namespace VitalSignsDailyStats
         }
         public void BuildDominoDriveList()
         {
-            WriteAuditEntry(DateTime.Now.ToString() + " Calculating all the unique drive names. ");
-            string sql = "SELECT DISTINCT DiskName FROM DominoDiskSpace";
-            System.Data.DataSet myDataSet = new System.Data.DataSet();
-            System.Data.DataTable myTable = new System.Data.DataTable();
-            myDataSet.Tables.Add(myTable);
-
-            int myDriveCount = 0;
-
-            try
-            {
-              
-                objVsAdaptor.FillDatasetAny("VitalSigns", "statistics", sql, ref myDataSet, "MyTable");
-                WriteAuditEntry(DateTime.Now.ToString() + " Filled the dataset ");
-                myDriveCount = myDataSet.Tables["MyTable"].Rows.Count;
-                WriteAuditEntry(DateTime.Now.ToString() + " The dataset has " + myDriveCount + " unique drive names.");
-                // ERROR: Not supported in C#: ReDimStatement
-
-            }
-            catch (Exception ex)
-            {
-                WriteAuditEntry(DateTime.Now.ToString() + " Error creating Daily Summary " + ex.Message + "-- The failed Average command was " + sql);
-            }
-
-            int n = 0;
-            System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
-            DataRowView drv = null;
-
-            foreach (DataRowView drv_loopVariable in myView)
-            {
-                drv = drv_loopVariable;
-                try
+            var disks = statusRepository.All().Select(x => x.Disks).ToList();
+            foreach (List<Disk> item in disks)
+            {  if(item!=null)
+                { 
+                var diskNamesList = item.Select(x => x.DiskName).ToList();
+                foreach (string diskName in diskNamesList)
                 {
-                    WriteAuditEntry(DateTime.Now.ToString() + " Found drive " + drv["DiskName"]);
-                    dominoDiskNames[n] =Convert.ToString(drv["DiskName"]);
-                    n += 1;
-
+                    if (!diskNames.Contains(diskName))
+                      diskNames.Add(diskName);
+                   
                 }
-                catch (Exception ex)
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " Exception creating SQL: " + ex.ToString());
+
                 }
 
             }
+            //WriteAuditEntry(DateTime.Now.ToString() + " Calculating all the unique drive names. ");
+            //string sql = "SELECT DISTINCT DiskName FROM DominoDiskSpace";
+            //System.Data.DataSet myDataSet = new System.Data.DataSet();
+            //System.Data.DataTable myTable = new System.Data.DataTable();
+            //myDataSet.Tables.Add(myTable);
+
+            //int myDriveCount = 0;
+
+            //try
+            //{
+
+            //    objVsAdaptor.FillDatasetAny("VitalSigns", "statistics", sql, ref myDataSet, "MyTable");
+            //    WriteAuditEntry(DateTime.Now.ToString() + " Filled the dataset ");
+            //    myDriveCount = myDataSet.Tables["MyTable"].Rows.Count;
+            //    WriteAuditEntry(DateTime.Now.ToString() + " The dataset has " + myDriveCount + " unique drive names.");
+            //    // ERROR: Not supported in C#: ReDimStatement
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    WriteAuditEntry(DateTime.Now.ToString() + " Error creating Daily Summary " + ex.Message + "-- The failed Average command was " + sql);
+            //}
+
+            //int n = 0;
+            //System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
+            //DataRowView drv = null;
+
+            //foreach (DataRowView drv_loopVariable in myView)
+            //{
+            //    drv = drv_loopVariable;
+            //    try
+            //    {
+            //        WriteAuditEntry(DateTime.Now.ToString() + " Found drive " + drv["DiskName"]);
+            //        dominoDiskNames[n] =Convert.ToString(drv["DiskName"]);
+            //        n += 1;
+
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        WriteAuditEntry(DateTime.Now.ToString() + " Exception creating SQL: " + ex.ToString());
+            //    }
+
+            //}
 
         }
-        public void BuildMicrosoftDriveList()
-        {
-            WriteAuditEntry(DateTime.Now.ToString() + " Calculating all the unique drive names. ");
-            string strSQL = "SELECT DISTINCT DiskName FROM DiskSpace";
-            System.Data.DataSet myDataSet = new System.Data.DataSet();
-            System.Data.DataTable myTable = new System.Data.DataTable();
-            myDataSet.Tables.Add(myTable);
+        //public void BuildMicrosoftDriveList()
+        //{
+        //    WriteAuditEntry(DateTime.Now.ToString() + " Calculating all the unique drive names. ");
+        //    string strSQL = "SELECT DISTINCT DiskName FROM DiskSpace";
+        //    System.Data.DataSet myDataSet = new System.Data.DataSet();
+        //    System.Data.DataTable myTable = new System.Data.DataTable();
+        //    myDataSet.Tables.Add(myTable);
 
-            int myDriveCount = 0;
+        //    int myDriveCount = 0;
 
-            try
-            {
+        //    try
+        //    {
                 
-                objVsAdaptor.FillDatasetAny("VitalSigns", "statistics", strSQL,ref myDataSet, "MyTable");
-                WriteAuditEntry(DateTime.Now.ToString() + " Filled the dataset ");
-                myDriveCount = myDataSet.Tables["MyTable"].Rows.Count;
-                WriteAuditEntry(DateTime.Now.ToString() + " The dataset has " + myDriveCount + " unique drive names.");
+        //        objVsAdaptor.FillDatasetAny("VitalSigns", "statistics", strSQL,ref myDataSet, "MyTable");
+        //        WriteAuditEntry(DateTime.Now.ToString() + " Filled the dataset ");
+        //        myDriveCount = myDataSet.Tables["MyTable"].Rows.Count;
+        //        WriteAuditEntry(DateTime.Now.ToString() + " The dataset has " + myDriveCount + " unique drive names.");
               
 
-            }
-            catch (Exception ex)
-            {
-                WriteAuditEntry(DateTime.Now.ToString() + " Error creating Daily Summary " + ex.Message + "-- The failed Average command was " + strSQL);
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        WriteAuditEntry(DateTime.Now.ToString() + " Error creating Daily Summary " + ex.Message + "-- The failed Average command was " + strSQL);
+        //    }
 
-            int n = 0;
-            System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
-            DataRowView drv = null;
+        //    int n = 0;
+        //    System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
+        //    DataRowView drv = null;
 
-            foreach (DataRowView drv_loopVariable in myView)
-            {
-                drv = drv_loopVariable;
-                try
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " Found drive " + drv["DiskName"]);
-                    MicrosoftDiskNames[n] = Convert.ToString(drv["DiskName"]);
-                    n += 1;
+        //    foreach (DataRowView drv_loopVariable in myView)
+        //    {
+        //        drv = drv_loopVariable;
+        //        try
+        //        {
+        //            WriteAuditEntry(DateTime.Now.ToString() + " Found drive " + drv["DiskName"]);
+        //            MicrosoftDiskNames[n] = Convert.ToString(drv["DiskName"]);
+        //            n += 1;
 
-                }
-                catch (Exception ex)
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " Exception creating SQL: " + ex.ToString());
-                }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            WriteAuditEntry(DateTime.Now.ToString() + " Exception creating SQL: " + ex.ToString());
+        //        }
 
-            }
+        //    }
 
-        }
+        //}
 
         public void ConsolidateStatistics()
         {
@@ -653,7 +682,115 @@ namespace VitalSignsDailyStats
 
         }
 
+        public void ProcessTravelerstats(string statName)
+        {
 
+            try
+            {
+                List<TravelerStatusSummary> summaryList = new List<TravelerStatusSummary>();
+
+                var result = travelerStatsRepository.All().ToList();
+
+                if (statName == "OpenTimesDelta")
+                {
+
+                    foreach (var item in result)
+                    {
+
+                        summaryList.Add(new TravelerStatusSummary
+                        {
+                            StatName = statName,
+
+                            //  c_000_001 = type,
+                            TravelerServerName = item.TravelerServerName,
+                            MailServerName = item.TravelerServerName,
+                            OpenTimes = item.OpenTimes,
+                            Delta = item.Delta,
+                            DateUpdated = Convert.ToDateTime(result.Select(x => x.OpenTimes)),
+                            c_000_001 =Convert.ToInt32(result.Where(x => (x.Interval == "000-001") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+                            c_001_002 = Convert.ToInt32(result.Where(x => (x.Interval == "001-002") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+                            c_002_005 = Convert.ToInt32(result.Where(x => (x.Interval == "002-005") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+                            c_005_010 = Convert.ToInt32(result.Where(x => (x.Interval == "005-010") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+                            c_010_030 = Convert.ToInt32(result.Where(x => (x.Interval == "010-030") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+                            c_030_060 = Convert.ToInt32(result.Where(x => (x.Interval == "030-060") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+                            c_060_120 = Convert.ToInt32(result.Where(x => (x.Interval == "060-120") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+                            c_120_INF = Convert.ToInt32(result.Where(x => (x.Interval == "120-INF") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+
+                        });
+
+                    }
+                }
+                else if (statName == "CumulativeTimesMin")
+                {
+                    foreach (var item in result)
+                    {
+
+                        summaryList.Add(new TravelerStatusSummary
+                        {
+                            StatName = statName,
+
+                            //  c_000_001 = type,
+                            TravelerServerName = item.TravelerServerName,
+                            MailServerName = item.TravelerServerName,
+                            OpenTimes = item.OpenTimes,
+                            Delta = item.Delta,
+                            DateUpdated = Convert.ToDateTime(result.Select(x => x.OpenTimes)),
+                            c_000_001 = result.Where(x => (x.Interval == "000-001") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_001_002 = result.Where(x => (x.Interval == "001-002") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_002_005 = result.Where(x => (x.Interval == "002-005") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_005_010 = result.Where(x => (x.Interval == "005-010") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_010_030 = result.Where(x => (x.Interval == "010-030") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_030_060 = result.Where(x => (x.Interval == "030-060") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_060_120 = result.Where(x => (x.Interval == "060-120") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_120_INF = result.Where(x => (x.Interval == "120-INF") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
+
+                        });
+
+                    }
+                }
+                else
+                {
+                    foreach (var item in result)
+                    {
+
+                        summaryList.Add(new TravelerStatusSummary
+                        {
+                            StatName = statName,
+
+                            //  c_000_001 = type,
+                            TravelerServerName = item.TravelerServerName,
+                            MailServerName = item.TravelerServerName,
+                            OpenTimes = item.OpenTimes,
+                            Delta = item.Delta,
+                            DateUpdated = Convert.ToDateTime(result.Select(x => x.OpenTimes)),
+                            c_000_001 = result.Where(x => (x.Interval == "000-001") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_001_002 = result.Where(x => (x.Interval == "001-002") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_002_005 = result.Where(x => (x.Interval == "002-005") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_005_010 = result.Where(x => (x.Interval == "005-010") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_010_030 = result.Where(x => (x.Interval == "010-030") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_030_060 = result.Where(x => (x.Interval == "030-060") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_060_120 = result.Where(x => (x.Interval == "060-120") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
+                            c_120_INF = result.Where(x => (x.Interval == "120-INF") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
+
+                        });
+
+                    }
+                }
+                var travelersummary = summaryList.ToList();
+                travelerSummaryStatsRepository.Insert(travelersummary);
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+
+
+
+        }
         public void ProcessSpecificDate(System.DateTime SearchDate, string SearchDateSQL = "")
         {
             WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks service is consolidating statistics for " + SearchDate, LogUtilities.LogUtils.LogLevel.Normal);
@@ -710,7 +847,7 @@ namespace VitalSignsDailyStats
 
             try
             {
-                ConsolidateServerDiskStats(SearchDate);
+                //ConsolidateServerDiskStats(SearchDate);
 
             }
             catch (Exception ex)
@@ -733,8 +870,10 @@ namespace VitalSignsDailyStats
                            .Project(x => new SummaryStatistics
                            {
                                DeviceId = x.key,
-                              // StatName = dailyTask.StatName,
-                               StatValue=x.value
+                               StatName = dailyTask.StatName,
+                               StatValue=x.value,
+                              
+                               
                            }).ToList();
                         if(avgResult.Count>0)
                         summaryStatasticsRepository.Insert(avgResult);
@@ -1337,130 +1476,207 @@ namespace VitalSignsDailyStats
 
         private void ConsolidateExchangeMailboxData(DateTime curDate , String searchDateStr = "")
         {
-            SqlCommand sqlcmd = new SqlCommand();
-            DataSet myDataSet = new DataSet();
-            string sql;
+
+            Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("Mailbox."));
+            var dailyStsts = dailyStatasticsRepository.Find(expression);
+
+            var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId })
+
+                         .Select(x => new DailyStatistics
+                         {
+                                //DeviceName=g.value
+                                //StatName=x.StatName,
+                                StatValue = x.Sum(s => s.StatValue),
+                             DeviceName = x.Key.DeviceName,
+                             StatName = x.Key.StatName,
+                             DeviceId = x.Key.DeviceId
+
+
+                         }).ToList();
+
+
+
             List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
-          
-            sql = "SELECT ServerName, StatName, SUM(StatValue) StatValue FROM MicrosoftDailyStats where StatName like 'Mailbox.%.%.%' " +
-        "and DateAdd(day, DateDiff(day, 0, Date),0) = DateAdd(day, DateDiff(day, 0, " + searchDateStr + "),0) " +
-        "GROUP BY StatName, ServerName";
-            WriteAuditEntry("\r\n" + sql + "\r\n");
-
-            try
+            foreach (DailyStatistics dailyStat in result)
             {
+                SummaryStatistics summaryStats = new SummaryStatistics();
+                summaryStats.StatName = dailyStat.StatName;
+                summaryStats.StatValue = dailyStat.StatValue;
+                summaryStats.DeviceName = dailyStat.DeviceName;
+                summaryStats.DeviceId = dailyStat.DeviceId;
 
-                objVsAdaptor.FillDatasetAny("VSS_Statistics", "vitalsigns", sql, ref myDataSet, "MyTable");
-                
-            }
-            catch (Exception ex)
-            {
+                summaryStataStics.Add(summaryStats);
 
-                WriteAuditEntry(DateTime.Now.ToString() + " Error creating Exchange Mail Files collection " + ex.Message + "-- The failed command was " + sql);
             }
 
-            System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
-            DataRowView drv = null;
-
-            string sqlInsert = "";
-            string serverName = null;
-            string statName = null;
-            string statValue = null;
-            int myWeekNumber = 0;
-            string queryToLog = string.Empty;
-            foreach (DataRowView drv_loopVariable in myView)
-            {
-                drv = drv_loopVariable;
-                try
-                {
-                    SummaryStatistics summaryStats = new SummaryStatistics();
-                   
-                  // summaryStats.DeviceId = Convert.ToString(drv["ServerName"]);
-                    summaryStats.StatName = Convert.ToString(drv["StatName"]);
-                    summaryStats.StatValue = Convert.ToDouble(drv["StatValue"]);
-
-                   summaryStataStics .Add(summaryStats);
-
-                  
-
-                }
-                catch (Exception ex)
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
-                }
-
-               
-            }
             if (summaryStataStics.Count > 0)
                 summaryStatasticsRepository.Insert(summaryStataStics);
+            summaryStatasticsRepository.Insert(summaryStataStics);
+
+            //    SqlCommand sqlcmd = new SqlCommand();
+            //    DataSet myDataSet = new DataSet();
+            //    string sql;
+            //    List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
+
+            //    sql = "SELECT ServerName, StatName, SUM(StatValue) StatValue FROM MicrosoftDailyStats where StatName like 'Mailbox.%.%.%' " +
+            //"and DateAdd(day, DateDiff(day, 0, Date),0) = DateAdd(day, DateDiff(day, 0, " + searchDateStr + "),0) " +
+            //"GROUP BY StatName, ServerName";
+            //    WriteAuditEntry("\r\n" + sql + "\r\n");
+
+            //    try
+            //    {
+
+            //        objVsAdaptor.FillDatasetAny("VSS_Statistics", "vitalsigns", sql, ref myDataSet, "MyTable");
+
+            //    }
+            //    catch (Exception ex)
+            //    {
+
+            //        WriteAuditEntry(DateTime.Now.ToString() + " Error creating Exchange Mail Files collection " + ex.Message + "-- The failed command was " + sql);
+            //    }
+
+            //    System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
+            //    DataRowView drv = null;
+
+            //    string sqlInsert = "";
+            //    string serverName = null;
+            //    string statName = null;
+            //    string statValue = null;
+            //    int myWeekNumber = 0;
+            //    string queryToLog = string.Empty;
+            //    foreach (DataRowView drv_loopVariable in myView)
+            //    {
+            //        drv = drv_loopVariable;
+            //        try
+            //        {
+            //            SummaryStatistics summaryStats = new SummaryStatistics();
+
+            //          // summaryStats.DeviceId = Convert.ToString(drv["ServerName"]);
+            //            summaryStats.StatName = Convert.ToString(drv["StatName"]);
+            //            summaryStats.StatValue = Convert.ToDouble(drv["StatValue"]);
+
+            //           summaryStataStics .Add(summaryStats);
+
+
+
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
+            //        }
+
+
+            //    }
+            //    if (summaryStataStics.Count > 0)
+            //        summaryStatasticsRepository.Insert(summaryStataStics);
 
 
         }
 
         private void ConsolidateExchangeDatabases(DateTime curDate, String searchDateStr )
         {
-            //11/20/2015 NS added for VSPLUS-2383
-            SqlCommand sqlcmd = new SqlCommand();
-            DataSet myDataSet = new DataSet();
-            string sql;
+
+            Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("ExDatabaseSizeMb"));
+            var dailyStsts = dailyStatasticsRepository.Find(expression);
+
+            var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId })
+
+                         .Select(x => new DailyStatistics
+                         {
+                                //DeviceName=g.value
+                                //StatName=x.StatName,
+                                StatValue = x.Average(s => s.StatValue),
+                             DeviceName = x.Key.DeviceName,
+                             StatName = x.Key.StatName,
+                             DeviceId = x.Key.DeviceId
+
+
+                         }).ToList();
+
+
+
             List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
-            sql = "SELECT ServerName, StatName, AVG(StatValue) StatValue FROM MicrosoftDailyStats where StatName like 'ExDatabaseSizeMb.%' " +
-       "and DateAdd(day, DateDiff(day, 0, Date),0) = DateAdd(day, DateDiff(day, 0, " + searchDateStr + "),0) " +
-       "GROUP BY StatName, ServerName";
-            WriteAuditEntry("\r\n" + sql + "\r\n");
-            try
+            foreach (DailyStatistics dailyStat in result)
             {
-                
-                objVsAdaptor.FillDatasetAny("VSS_Statistics", "vitalsigns", sql, ref myDataSet, "MyTable");
-             
-            }
-            catch (Exception ex)
-            {
-                WriteAuditEntry(DateTime.Now.ToString() + " Error creating Exchange DB collection " + ex.Message + "-- The failed command was " + sql);
-            }
-            System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
-            
+                SummaryStatistics summaryStats = new SummaryStatistics();
+                summaryStats.StatName = dailyStat.StatName;
+                summaryStats.StatValue = dailyStat.StatValue;
+                summaryStats.DeviceName = dailyStat.DeviceName;
+                summaryStats.DeviceId = dailyStat.DeviceId;
 
-            string sqlInsert = "";
-            string serverName=string.Empty;
-            string statName;
-            string statValue;
-            int myWeekNumber = 0;
-            string queryToLog = string.Empty;
-          //  DataRowView drv;
-            foreach (DataRowView drv in myView)
-            {
-              
-                try
-                {
-                    SummaryStatistics summaryStats = new SummaryStatistics();
-                    summaryStats.StatName  =drv["StatName"].ToString();
-                    summaryStats.StatValue  =Convert.ToDouble(drv["StatValue"].ToString());
-                    //summaryStats.DeviceId=
+                summaryStataStics.Add(summaryStats);
 
-
-                    summaryStataStics.Add(summaryStats);
-
-
-                   
-
-                }
-                catch (Exception ex)
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
-                }
-
-               
             }
 
             if (summaryStataStics.Count > 0)
                 summaryStatasticsRepository.Insert(summaryStataStics);
+            
+
+
+
+
+            //11/20/2015 NS added for VSPLUS-2383
+       //     SqlCommand sqlcmd = new SqlCommand();
+       //     DataSet myDataSet = new DataSet();
+       //     string sql;
+       //     List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
+       //     sql = "SELECT ServerName, StatName, AVG(StatValue) StatValue FROM MicrosoftDailyStats where StatName like 'ExDatabaseSizeMb.%' " +
+       //"and DateAdd(day, DateDiff(day, 0, Date),0) = DateAdd(day, DateDiff(day, 0, " + searchDateStr + "),0) " +
+       //"GROUP BY StatName, ServerName";
+       //     WriteAuditEntry("\r\n" + sql + "\r\n");
+       //     try
+       //     {
+                
+       //         objVsAdaptor.FillDatasetAny("VSS_Statistics", "vitalsigns", sql, ref myDataSet, "MyTable");
+             
+       //     }
+       //     catch (Exception ex)
+       //     {
+       //         WriteAuditEntry(DateTime.Now.ToString() + " Error creating Exchange DB collection " + ex.Message + "-- The failed command was " + sql);
+       //     }
+       //     System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
+            
+
+       //     string sqlInsert = "";
+       //     string serverName=string.Empty;
+       //     string statName;
+       //     string statValue;
+       //     int myWeekNumber = 0;
+       //     string queryToLog = string.Empty;
+       //   //  DataRowView drv;
+       //     foreach (DataRowView drv in myView)
+       //     {
+              
+       //         try
+       //         {
+       //             SummaryStatistics summaryStats = new SummaryStatistics();
+       //             summaryStats.StatName  =drv["StatName"].ToString();
+       //             summaryStats.StatValue  =Convert.ToDouble(drv["StatValue"].ToString());
+       //             //summaryStats.DeviceId=
+
+
+       //             summaryStataStics.Add(summaryStats);
+
+
+                   
+
+       //         }
+       //         catch (Exception ex)
+       //         {
+       //             WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
+       //         }
+
+               
+       //     }
+
+       //     if (summaryStataStics.Count > 0)
+       //         summaryStatasticsRepository.Insert(summaryStataStics);
 
 
         }
         public void UpdateLocalTables()
         {
-           
+           //TO DO
             string timeToUpdate = "true1";
             string sql = "select case when DATEADD(day,7,convert(datetime, Svalue, 120)) < getdate() then 'true' else 'false' end as UpdateTables from Settings where Sname = 'LastTableUpdate'";
 
@@ -1669,77 +1885,80 @@ namespace VitalSignsDailyStats
 
         }
 
-        public void ConsolidateServerDiskStats(System.DateTime SearchDate)
-        {
-            //11/20/2015 NS added for VSPLUS-2383
-            SqlCommand sqlcmd = new SqlCommand();
-            string sql = "";
+        //public void ConsolidateServerDiskStats(System.DateTime SearchDate)
+        //{
+        //    //11/20/2015 NS added for VSPLUS-2383
+        //    SqlCommand sqlcmd = new SqlCommand();
+        //    string sql = "";
 
-            System.Data.DataSet myDataSet = new System.Data.DataSet();
-            System.Data.DataTable myTable = new System.Data.DataTable();
-            myDataSet.Tables.Add(myTable);
-            List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
-            sql = "Select ServerName, DiskName, DiskFree, ServerTypes.ID FROM [vitalsigns].[dbo].[DiskSpace] inner join [vitalsigns].[dbo].[ServerTypes] on ServerTypes.ServerType=DiskSpace.ServerType";
+        //    System.Data.DataSet myDataSet = new System.Data.DataSet();
+        //    System.Data.DataTable myTable = new System.Data.DataTable();
+        //    myDataSet.Tables.Add(myTable);
+        //    List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
+        //    sql = "Select ServerName, DiskName, DiskFree, ServerTypes.ID FROM [vitalsigns].[dbo].[DiskSpace] inner join [vitalsigns].[dbo].[ServerTypes] on ServerTypes.ServerType=DiskSpace.ServerType";
 
-            WriteAuditEntry("\r\n" + sql + "\r\n");
+        //    WriteAuditEntry("\r\n" + sql + "\r\n");
 
-            try
-            {
-              
-                objVsAdaptor.FillDatasetAny("VSS_Statistics", "vitalsigns", sql, ref myDataSet, "MyTable");
-                
-            }
-            catch (Exception ex)
-            {
-                WriteAuditEntry(DateTime.Now.ToString() + " Error creating Daily Disk Space Summary " + ex.Message + "-- The failed command was " + sql);
-            }
+        //    try
+        //    {
 
-            System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
-            DataRowView drv = null;
+        //        objVsAdaptor.FillDatasetAny("VSS_Statistics", "vitalsigns", sql, ref myDataSet, "MyTable");
 
-            string strSQLInsert = "";
-            string serverName = null;
-            string myNumberString = null;
-            string driveName = null;
-            int myWeekNumber = 0;
-            double myNumber = 0;
-            string queryToLog = string.Empty;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        WriteAuditEntry(DateTime.Now.ToString() + " Error creating Daily Disk Space Summary " + ex.Message + "-- The failed command was " + sql);
+        //    }
 
-            foreach (DataRowView drv_loopVariable in myView)
-            {
-                drv = drv_loopVariable;
+        //    System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
+        //    DataRowView drv = null;
 
-                try
-                {
-                    SummaryStatistics summaryStats = new SummaryStatistics();
-                    summaryStats.StatName = drv["DiskName"].ToString();
-                    summaryStats.StatValue =Convert.ToDouble(myNumberString);
-                    //summaryStats.DeviceId=
+        //    string strSQLInsert = "";
+        //    string serverName = null;
+        //    string myNumberString = null;
+        //    string driveName = null;
+        //    int myWeekNumber = 0;
+        //    double myNumber = 0;
+        //    string queryToLog = string.Empty;
 
-                    summaryStataStics.Add(summaryStats);
+        //    foreach (DataRowView drv_loopVariable in myView)
+        //    {
+        //        drv = drv_loopVariable;
+
+        //        try
+        //        {
+        //            SummaryStatistics summaryStats = new SummaryStatistics();
+        //            summaryStats.StatName = drv["DiskName"].ToString();
+        //            summaryStats.StatValue =Convert.ToDouble(myNumberString);
+        //            //summaryStats.DeviceId=
+
+        //            summaryStataStics.Add(summaryStats);
 
 
-                
 
-                }
-                catch (Exception ex)
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
-                }
 
-               
-            }
-            if (summaryStataStics.Count > 0)
-                summaryStatasticsRepository.Insert(summaryStataStics);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
+        //        }
 
-            WriteAuditEntry(DateTime.Now.ToString() + " Finished processing drives for all Microsoft servers.");
-            Thread.Sleep(250);
-        }
+
+        //    }
+        //    if (summaryStataStics.Count > 0)
+        //        summaryStatasticsRepository.Insert(summaryStataStics);
+
+        //    WriteAuditEntry(DateTime.Now.ToString() + " Finished processing drives for all Microsoft servers.");
+        //    Thread.Sleep(250);
+        //}
+
+
+        
 
         public void DeleteDominoDailyStats()
         {
             //Durga  VSPLUS 2281
-
+            //To Do
             string sql = null;
             DataTable dt = new DataTable();
             DataSet ds = new DataSet();
@@ -1795,87 +2014,131 @@ namespace VitalSignsDailyStats
 
         }
 
-        public void GenerateSummaryforAllDomino(DateTime StatDate, string SrcStatName, string operation)
+        public void GenerateSummaryforAllDomino(DateTime StatDate, string statName, string operation)
         {
-           
-            //11/20/2015 NS added for VSPLUS-2383
-            SqlCommand sqlcmd = new SqlCommand();
-            string sql = "";
-
-            DateTime EndDate = StatDate.AddDays(1);
-            System.Data.DataSet myDataSet = new System.Data.DataSet();
-            System.Data.DataTable myTable = new System.Data.DataTable();
-            myDataSet.Tables.Add(myTable);
-
-            List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
-
-            sql = "SELECT ServerName ,StatName,  JustDate , " + operation + "(StatValue)  AS Average " + "\r\n";
-            sql += "FROM (SELECT ServerName,  CONVERT(DATE, [Date]) AS JustDate , StatValue, StatName " + "\r\n";
-            sql += "FROM DominoDailyStats WHERE StatName = '" + SrcStatName + "' " +"\r\n";
-            sql += " AND Date > " + objVsAdaptor.DateFormat(FixDate(StatDate)) + " AND Date < " + objVsAdaptor.DateFormat(FixDate(EndDate));
-
-            sql += ") as t1  " + "\r\n";
-            sql += "GROUP BY ServerName , JustDate,StatName" + "\r\n";
-            sql += " ORDER BY  ServerName, JustDate,StatName DESC" + "\r\n";
-
-            WriteAuditEntry("\r\n" + sql + "\r\n");
-
             try
             {
-                
-                objVsAdaptor.FillDatasetAny("VSS_Statistics", "statistics", sql, ref myDataSet, "MyTable");
-              
+
+
+                Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName);
+                var dailyStsts= dailyStatasticsRepository.Find(expression);
+
+                var result = dailyStsts.GroupBy(g=>new {g.DeviceName,g.StatName,g.DeviceId })
+                            
+                             .Select(x => new DailyStatistics 
+                             {
+                                 //DeviceName=g.value
+                                 //StatName=x.StatName,
+                                 StatValue=x.Average(s=>s.StatValue),
+                                 DeviceName=x.Key.DeviceName,
+                                 StatName=x.Key.StatName,
+                                 DeviceId=x.Key.DeviceId
+                              
+
+                             }).ToList();
+
+                     
+
+                List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
+                foreach (DailyStatistics dailyStat in result)
+                {
+                    SummaryStatistics summaryStats = new SummaryStatistics();
+                    summaryStats.StatName = dailyStat.StatName;
+                    summaryStats.StatValue = dailyStat.StatValue;
+                    summaryStats.DeviceName = dailyStat.DeviceName;
+                    summaryStats.DeviceId = dailyStat.DeviceId;
+
+                    summaryStataStics.Add(summaryStats);
+
+                }
+
+                if (summaryStataStics.Count > 0)
+                    summaryStatasticsRepository.Insert(summaryStataStics);
             }
             catch (Exception ex)
             {
-                WriteAuditEntry(DateTime.Now.ToString() + " Error creating Daily Summary " + ex.Message + "-- The failed Average command was " + sql);
+
+                throw ex;
             }
+          
 
-            System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
-            DataRowView drv = null;
 
-            string sqlInsert = "";
-            string ServerName = null;
-            string myNumberString = null;
-            int MyWeekNumber = 0;
-            double myNumber = 0;
-            string QueryToLog = null;
-            foreach (DataRowView drv_loopVariable in myView)
-            {
-                drv = drv_loopVariable;
 
-                try
-                {
-                    ServerName =Convert.ToString(drv["ServerName"]);
+            ////11/20/2015 NS added for VSPLUS-2383
+            //SqlCommand sqlcmd = new SqlCommand();
+            //string sql = "";
+
+            //DateTime EndDate = StatDate.AddDays(1);
+            //System.Data.DataSet myDataSet = new System.Data.DataSet();
+            //System.Data.DataTable myTable = new System.Data.DataTable();
+            //myDataSet.Tables.Add(myTable);
+
+          
+            //sql = "SELECT ServerName ,StatName,  JustDate , " + operation + "(StatValue)  AS Average " + "\r\n";
+            //sql += "FROM (SELECT ServerName,  CONVERT(DATE, [Date]) AS JustDate , StatValue, StatName " + "\r\n";
+            //sql += "FROM DominoDailyStats WHERE StatName = '" + SrcStatName + "' " +"\r\n";
+            //sql += " AND Date > " + objVsAdaptor.DateFormat(FixDate(StatDate)) + " AND Date < " + objVsAdaptor.DateFormat(FixDate(EndDate));
+
+            //sql += ") as t1  " + "\r\n";
+            //sql += "GROUP BY ServerName , JustDate,StatName" + "\r\n";
+            //sql += " ORDER BY  ServerName, JustDate,StatName DESC" + "\r\n";
+
+            //WriteAuditEntry("\r\n" + sql + "\r\n");
+
+            //try
+            //{
+                
+            //    objVsAdaptor.FillDatasetAny("VSS_Statistics", "statistics", sql, ref myDataSet, "MyTable");
+              
+            //}
+            //catch (Exception ex)
+            //{
+            //    WriteAuditEntry(DateTime.Now.ToString() + " Error creating Daily Summary " + ex.Message + "-- The failed Average command was " + sql);
+            //}
+
+            //System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
+            //DataRowView drv = null;
+
+            //string sqlInsert = "";
+            //string ServerName = null;
+            //string myNumberString = null;
+            //int MyWeekNumber = 0;
+            //double myNumber = 0;
+            //string QueryToLog = null;
+            //foreach (DataRowView drv_loopVariable in myView)
+            //{
+            //    drv = drv_loopVariable;
+
+            //    try
+            //    {
+            //        ServerName =Convert.ToString(drv["ServerName"]);
                
-                    myNumber =Convert.ToDouble(drv["Average"]);
-                    myNumberString = myNumber.ToString("F2");
+            //        myNumber =Convert.ToDouble(drv["Average"]);
+            //        myNumberString = myNumber.ToString("F2");
                  
-                    MyWeekNumber = GetWeekNumber(StatDate);
+            //        MyWeekNumber = GetWeekNumber(StatDate);
 
-                    SummaryStatistics summaryStats = new SummaryStatistics();
-                    summaryStats.StatName = drv["StatName"].ToString();
-                    summaryStats.StatValue = Convert.ToDouble(myNumberString);
-                    //summaryStats.DeviceId=
+            //        SummaryStatistics summaryStats = new SummaryStatistics();
+            //        summaryStats.StatName = drv["StatName"].ToString();
+            //        summaryStats.StatValue = Convert.ToDouble(myNumberString);
+            //        //summaryStats.DeviceId=
 
-                    summaryStataStics.Add(summaryStats);
+            //        summaryStataStics.Add(summaryStats);
 
 
                   
 
-                }
-                catch (Exception ex)
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
-                }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
+            //    }
 
                 
-            }
+            //}
 
-            if (summaryStataStics.Count > 0)
-                summaryStatasticsRepository.Insert(summaryStataStics);
-
-            sql = "DELETE FROM DominoDailyStats WHERE  Date<" + objVsAdaptor.DateFormat(FixDate(StatDate.AddDays(-2))) + " AND StatName='" + SrcStatName + "'";
+         
+          //  sql = "DELETE FROM DominoDailyStats WHERE  Date<" + objVsAdaptor.DateFormat(FixDate(StatDate.AddDays(-2))) + " AND StatName='" + SrcStatName + "'";
 
             try
             {
@@ -1886,18 +2149,24 @@ namespace VitalSignsDailyStats
                 WriteAuditEntry(DateTime.Now.ToString() + " Error Deleting Obsolete Daily Statistics Records " + ex.Message);
             }
 
-            WriteAuditEntry(DateTime.Now.ToString() + " Finished processing SummaryforAllDomino for Stat" + SrcStatName + " Date = " + StatDate);
+            WriteAuditEntry(DateTime.Now.ToString() + " Finished processing SummaryforAllDomino for Stat" + statName + " Date = " + StatDate);
             Thread.Sleep(250);
         }
         public void ConsolidateDominoDiskStats(System.DateTime SearchDate)
         {
+            
             string myDiskFree = "";
-            for (int n = 0; n <= dominoDiskNames.GetUpperBound(0); n++)
+            //for (int n = 0; n <= dominoDiskNames.GetUpperBound(0); n++)
+            //{
+            //    myDiskFree = dominoDiskNames[n] + ".Free";
+            //    GenerateSummaryforAllDomino(SearchDate, myDiskFree, "AVG");
+            //}
+
+            foreach (string diskname in diskNames)
             {
-                myDiskFree = dominoDiskNames[n] + ".Free";
+                myDiskFree=diskname + ".Free";
                 GenerateSummaryforAllDomino(SearchDate, myDiskFree, "AVG");
             }
-
         }
 
         private string FixDate(DateTime dt)
@@ -2013,33 +2282,46 @@ namespace VitalSignsDailyStats
             DateTime SearchDate = default(DateTime);
             SearchDate =Convert.ToDateTime(FixDate(DateTime.Today.AddDays(-30)));
             string sql = "";
-            try
-            {
-                sql = "delete FROM [vitalsigns].[dbo].[TravelerStats] WHERE [DateUpdated] <= CAST(GETDATE() AS DATE)";
 
-            }
-            catch (Exception ex)
-            {
-            }
+
 
             try
             {
-              //  objVsAdaptor.ExecuteNonQueryAny("vitalsigns", "servers", sql);
-
+                Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated<=DateTime.Now);
+            travelerStatsRepository.Delete(expression);
             }
             catch (Exception ex)
             {
-                WriteAuditEntry(DateTime.Now.ToString() + " Error executing SQL command " + ex.ToString());
+                WriteAuditEntry(DateTime.Now.ToString() + " Error in cleaning up TravelerStats " + ex.ToString());
             }
+            //try
+            //{
+            //    sql = "delete FROM [vitalsigns].[dbo].[TravelerStats] WHERE [DateUpdated] <= CAST(GETDATE() AS DATE)";
 
-            try
-            {
-                GC.Collect();
-            }
-            catch (Exception ex)
-            {
-                //  Thread.Sleep(500)
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    WriteAuditEntry(DateTime.Now.ToString() + " Error in cleaning up TravelerStats " + ex.ToString());
+            //}
+
+            //try
+            //{
+            //  //  objVsAdaptor.ExecuteNonQueryAny("vitalsigns", "servers", sql);
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    WriteAuditEntry(DateTime.Now.ToString() + " Error executing SQL command " + ex.ToString());
+            //}
+
+            //try
+            //{
+            //    GC.Collect();
+            //}
+            //catch (Exception ex)
+            //{
+            //    //  Thread.Sleep(500)
+            //}
 
             WriteAuditEntry(DateTime.Now.ToString() + " Finished cleaning up TravelerStats ");
 
@@ -2098,31 +2380,52 @@ namespace VitalSignsDailyStats
         //TO Do delete
         private void CleanUpVSTables()
         {
-            
-            VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
-            string connectionString = myConnectionString.GetDBConnectionString("VitalSigns");
-            using (System.Data.SqlClient.SqlConnection connection = new System.Data.SqlClient.SqlConnection(connectionString))
+
+            try
             {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand("CleanUpData", connection);
-                    command.CommandTimeout = 2000;
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    WriteAuditEntry("\r\n" +  "\r\n" + "Error while executing the CleanUpData stored Procedure--" + ex.Message + "\r\n");
-                }
-                finally
-                {
-                    if (connection.State == ConnectionState.Open)
-                    {
-                        connection.Close();
-                    }
-                }
+              //Cleaning Up Status Details
+                statusDeatilsRepository.Delete();
+                //Cleaning Up Status Table
+                statusRepository.Delete();
+                //Cleaning Up TravelerStats Table
+
+                Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated <DateTime.Now);
+                travelerStatsRepository.Delete(expression);
+
+                //To Do pending for Clean up Alert History
+
             }
+            catch (Exception ex)
+            {
+                WriteAuditEntry("Error in Clean up VS Tables" + ex.ToString());
+              
+            }
+
+
+            //VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
+            //string connectionString = myConnectionString.GetDBConnectionString("VitalSigns");
+            //using (System.Data.SqlClient.SqlConnection connection = new System.Data.SqlClient.SqlConnection(connectionString))
+            //{
+            //    try
+            //    {
+            //        connection.Open();
+            //        SqlCommand command = new SqlCommand("CleanUpData", connection);
+            //        command.CommandTimeout = 2000;
+            //        command.CommandType = CommandType.StoredProcedure;
+            //        command.ExecuteNonQuery();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        WriteAuditEntry("\r\n" +  "\r\n" + "Error while executing the CleanUpData stored Procedure--" + ex.Message + "\r\n");
+            //    }
+            //    finally
+            //    {
+            //        if (connection.State == ConnectionState.Open)
+            //        {
+            //            connection.Close();
+            //        }
+            //    }
+            //}
         }
        
         public void CleanUpObsoleteData()
