@@ -232,13 +232,13 @@
         "tabs": [
           {
             "title": "Overview",
-            "component": "DominoHealthTab",
-            "path": "/app/services/components/domino-health-tab.component"
+            "component": "IBMConnectionsOverviewTab",
+            "path": "/app/dashboards/components/ibm-connections/ibm-connections-overview-tab.component"
           },
           {
             "title": "Communities",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "IBMConnectionsCommunitiesTab",
+            "path": "/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component"
           },
           {
             "title": "Profiles",
