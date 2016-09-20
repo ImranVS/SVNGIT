@@ -226,5 +226,10 @@ namespace VSNext.Mongo.Entities
         [BsonElement("date_updated")]
         [BsonIgnoreIfNullAttribute]
         public DateTime? DateUpdated { get; set; }
+
+        [DataMember]
+        [BsonElement("stat_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string StatName { get; set; }
     }
 }
