@@ -22,7 +22,10 @@ namespace VitalSigns.API.Controllers
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
+        private IRepository<Drive> diskRepository;
+
         private IRepository<IbmConnectionsTopStats> ibmRepository;
+
 
 
         [HttpGet("dashboard_summary")]
@@ -240,8 +243,8 @@ namespace VitalSigns.API.Controllers
                             Expression<Func<Status, bool>> diskexpression = (p => p.DeviceId == deviceId);
                             var result = statusRepository.Find(diskexpression).FirstOrDefault();
 
-                            List<DiskChart> disksegments = new List<DiskChart>();
-                            List<string> name = new List<string>();
+                            List<Segment> disksegments = new List<Segment>();
+                            List<string> diskname = new List<string>();
                             List<double> diskfree = new List<double>();
                             List<double> disksize = new List<double>();
                             ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
@@ -260,7 +263,7 @@ namespace VitalSigns.API.Controllers
 
                                 });
 
-                                name.Add(drive.DiskName);
+                                diskname.Add(drive.DiskName);
                                 diskfree.Add(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0);
                                 disksize.Add(drive.DiskSize.HasValue ? (double)drive.DiskSize : 0);
                                 //List<string> name = new List<string>();
@@ -271,14 +274,14 @@ namespace VitalSigns.API.Controllers
 
 
                             }
-                            disksegments.Add(new DiskChart { DiskSize = disksize, DiskFree = diskfree });
+                            disksegments.Add(new Segment { DiskName=diskname ,DiskSize = disksize, DiskFree = diskfree });
 
 
 
                             Serie serie = new Serie();
                             serie.Title = "Disk Space";
-                            serie.DiskSegments = disksegments;
-                            serie.Category = name.ToList();
+                            serie.Segments = disksegments;
+                          //  serie.Category = name.ToList();
 
 
                             List<Serie> series = new List<Serie>();
@@ -439,7 +442,7 @@ namespace VitalSigns.API.Controllers
                                 Serie serie = new Serie();
                                 serie.Title = statName;
                                 serie.Segments = segments;
-                                serie.Category = statNames.ToList<string>();
+                              //  serie.Category = statNames.ToList<string>();
                                 List<Serie> series = new List<Serie>();
                                 series.Add(serie);
 
@@ -688,6 +691,7 @@ namespace VitalSigns.API.Controllers
             {
 
                 Expression<Func<Status, bool>> expression = (p => p.DeviceType == type);
+                
                 // var output = statusRepository.All().Where(x => x.DeviceType == type);
                 if (type == "Domino")
                 {
@@ -745,12 +749,16 @@ namespace VitalSigns.API.Controllers
                                                           Label = x.label,
                                                           Value = x.value
                                                       }).ToList();
+
+                       
                     }
 
-
+                    result.RemoveAll(item => item.Label == null);
+                    result.RemoveAll(item => item.Label == "");
                     Serie serie = new Serie();
                     serie.Title = docfield;
                     serie.Segments = result;
+                   
 
                     List<Serie> series = new List<Serie>();
                     series.Add(serie);

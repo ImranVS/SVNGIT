@@ -36,6 +36,18 @@ namespace VitalSigns.API.Models.Charts
         [BsonElement("statvalues")]
         public List<double> Statvalues { get; set; }
 
+        [JsonProperty("disk_name")]
+        [BsonElement("disk_name")]
+        public List<string> DiskName { get; set; }
+
+        [JsonProperty("disk_free")]
+        [BsonElement("disk_free")]
+        public List<double> DiskFree { get; set; }
+
+        [JsonProperty("disk_size")]
+        [BsonElement("disk_size")]
+        public List<double> DiskSize { get; set; }
+
 
     }
 }
