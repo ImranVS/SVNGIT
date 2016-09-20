@@ -162,39 +162,39 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("[000-001]")]
         [BsonIgnoreIfNull]
-        public string c_000_001 { get; set; }
+        public int? c_000_001 { get; set; }
 
         [DataMember]
         [BsonElement("[001-002]")]
         [BsonIgnoreIfNull]
-        public string c_001_002 { get; set; }
+        public int? c_001_002 { get; set; }
 
         [DataMember]
         [BsonElement("[002-005]")]
         [BsonIgnoreIfNull]
-        public string c_002_005 { get; set; }
+        public int? c_002_005 { get; set; }
 
         [DataMember]
         [BsonElement("[005-010]")]
         [BsonIgnoreIfNull]
-        public string c_005_010 { get; set; }
+        public int? c_005_010 { get; set; }
 
         [DataMember]
         [BsonElement("[010-030]")]
         [BsonIgnoreIfNull]
-        public string c_010_030 { get; set; }
+        public int? c_010_030 { get; set; }
         [DataMember]
         [BsonElement("[030-060]")]
         [BsonIgnoreIfNull]
-        public string c_030_060 { get; set; }
+        public int? c_030_060 { get; set; }
         [DataMember]
        [BsonElement("[060-120]")]
         [BsonIgnoreIfNull]
-        public string c_060_120 { get; set; }
+        public int? c_060_120 { get; set; }
         [DataMember]
         [BsonElement("[120-INF]")]
         [BsonIgnoreIfNull]
-        public string c_120_INF { get; set; }
+        public int? c_120_INF { get; set; }
 
 
         [DataMember]
@@ -227,9 +227,18 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public DateTime? DateUpdated { get; set; }
 
+
+        [DataMember]
+        [BsonElement("device_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        [BsonIgnoreIfNullAttribute]
+        public string DeviceId { get; set; }
+
+
         [DataMember]
         [BsonElement("stat_name")]
         [BsonIgnoreIfNullAttribute]
         public string StatName { get; set; }
+
     }
 }
