@@ -83,7 +83,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: '/connections/top_5_tags',
+                    url: '/Services/top_tags?deviceId=57ace43fbf46711cd4681dcf',
                     chart: {
                         chart: {
                             renderTo: 'top5Tags',

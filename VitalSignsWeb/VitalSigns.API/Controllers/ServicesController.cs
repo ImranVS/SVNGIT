@@ -22,6 +22,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
+        private IRepository<IbmConnectionsTopStats> ibmRepository;
 
 
         [HttpGet("dashboard_summary")]
@@ -283,7 +284,6 @@ namespace VitalSigns.API.Controllers
                         }
                         else
                         {
-
                             var result = dailyRepository.Find(expression).Select(x => new StatsData
                             {
                                 DeviceId = x.DeviceId,
@@ -552,6 +552,47 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+        [HttpGet("top_tags")]
+        public APIResponse GetIbmConnection(string deviceId)
+        {
+            ibmRepository = new Repository<IbmConnectionsTopStats>(ConnectionString);
+            try
+            {
+                if(!string.IsNullOrEmpty(deviceId))
+                {
+
+                    Expression<Func<IbmConnectionsTopStats, bool>> expression = (p=>p.DeviceId == deviceId);
+                    var topTags = ibmRepository.Find(expression);
+                    var result = topTags
+                                      .GroupBy(row => row.Name)
+                                      .Select(grp => new Segment
+                                      {
+                                          Label = grp.Key,
+                                          Value = grp.Count(),
+                                          
+                                      }).ToList();
+                    List<Segment> segments = new List<Segment>();
+                    Serie serie = new Serie();
+                    //serie.Title = name;
+                    serie.Segments = result.OrderBy(x => x.Value).Take(5).ToList();
+
+                    List<Serie> series = new List<Serie>();
+                    series.Add(serie);
+                    Chart chart = new Chart();
+                   // chart.Title = name;
+                    chart.Series = series;
+                    Response = Common.CreateResponse(chart);
+                }
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }     
 
         [HttpGet("status_list")]
         public APIResponse GetStatusList(string type)
