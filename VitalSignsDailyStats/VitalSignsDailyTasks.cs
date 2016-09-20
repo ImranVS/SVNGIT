@@ -870,7 +870,7 @@ namespace VitalSignsDailyStats
                            .Project(x => new SummaryStatistics
                            {
                                DeviceId = x.key,
-                               StatName = dailyTask.StatName,
+                               //StatName = dailyTask.StatName,
                                StatValue=x.value,
                               
                                
