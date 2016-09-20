@@ -29,6 +29,7 @@ namespace VSNext.Mongo.Repository
         bool Update<TField>(FilterDefinition<T> filter, Expression<Func<T, TField>> field, TField value);
         void Delete(string id);
         void Delete(T entity);
+        void Delete();
         void Delete(Expression<Func<T, bool>> filter);
         #endregion CRUD 
 

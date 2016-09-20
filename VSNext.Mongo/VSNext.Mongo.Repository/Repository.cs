@@ -118,6 +118,8 @@ namespace VSNext.Mongo.Repository
 
         public virtual void Insert(IEnumerable<T> entities)
         {
+            foreach (var entity in entities)
+                entity.TenantId = TenantId;
             Collection.InsertMany(entities);
         }
 
@@ -181,7 +183,10 @@ namespace VSNext.Mongo.Repository
         {
             Delete(entity.Id);
         }
-
+        public void Delete()
+        {
+            Delete();
+        }
         public virtual void Delete(string id)
         {
             Collection.DeleteOne(i => i.Id == id);
