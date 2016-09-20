@@ -49,7 +49,13 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("last_updated")]
         public DateTime? LastUpdated { get; set; }
+
+        [JsonProperty("secondary_role")]
+        public string SecondaryRole { get; set; }
+
+
         [JsonProperty("tabs")]
         public List<Tab> Tabs { get; set; }
+
     }
 }

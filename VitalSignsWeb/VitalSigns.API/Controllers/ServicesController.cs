@@ -165,12 +165,21 @@ namespace VitalSigns.API.Controllers
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
                                          Status = x.StatusCode,
-                                         DeviceId = x.DeviceId
+                                         DeviceId = x.DeviceId,
+                                         SecondaryRole=x.SecondaryRole
+                                         
 
                                      })).FirstOrDefault();
                 var serviceIcons = Common.GetServerTypeIcons();
                 Models.ServerType serverType = Common.GetServerTypeTabs(result.Type);
-                result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper()).ToList();
+                if (string.IsNullOrEmpty(result.SecondaryRole))
+                    result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
+                else
+                {
+                    var secondaryRoles = result.SecondaryRole.Split(';');
+                    result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null ||secondaryRoles.Contains( x.SecondaryRole))).ToList();
+                }
+
                 result.Description = "Last Updated: " + result.LastUpdated.Value.ToShortDateString();
                 result.Icon = serverType.Icon;
                 if (!string.IsNullOrEmpty(result.Status))

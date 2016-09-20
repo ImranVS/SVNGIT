@@ -29,5 +29,8 @@ namespace VitalSigns.API.Models
        
         [JsonProperty("path")]
         public string Path { get; set; }
+
+        [JsonProperty("secondary_role")]
+        public string SecondaryRole { get; set; }
     }
 }
