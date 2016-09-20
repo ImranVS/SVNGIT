@@ -44,32 +44,35 @@ namespace VitalSigns.API.Models
         [JsonProperty("mail_server_name")]
         public string MailServerName { get; set; }
 
+        [JsonProperty("traveler_server_name")]
+        public string traveler_server_name { get; set; }
+
         [JsonProperty("date_updated")]
-        public DateTime? DateUpdated { get; set; }
+        public string DateUpdated { get; set; }
 
-        [JsonProperty("000-001")]
-        public int? Intervel1 { get; set; }
+        [JsonProperty("[000-001]")]
+        public int? c_000_001 { get; set; }
 
-        [JsonProperty("001-002")]
-        public int? Intervel2 { get; set; }
+        [JsonProperty("[001-002]")]
+        public int? c_001_002 { get; set; }
 
-        [JsonProperty("002-005")]
-        public int? Intervel3 { get; set; }
+        [JsonProperty("[002-005]")]
+        public int? c_002_005 { get; set; }
 
-        [JsonProperty("005-010")]
-        public int? Intervel4 { get; set; }
+        [JsonProperty("[005-010]")]
+        public int? c_005_010 { get; set; }
 
-        [JsonProperty("010-030")]
-        public int? Intervel5 { get; set; }
+        [JsonProperty("[010-030]")]
+        public int? c_010_030 { get; set; }
 
-        [JsonProperty("030-060")]
-        public int? Intervel6 { get; set; }
+        [JsonProperty("[030-060]")]
+        public int? c_030_060 { get; set; }
 
-        [JsonProperty("060-120")]
-        public int? Intervel7 { get; set; }
+        [JsonProperty("[060-120]")]
+        public int? c_060_120 { get; set; }
 
-        [JsonProperty("120-INF")]
-        public int? Intervel8 { get; set; }
+        [JsonProperty("[120-INF]")]
+        public int? c_120_INF { get; set; }
 
      
     }
