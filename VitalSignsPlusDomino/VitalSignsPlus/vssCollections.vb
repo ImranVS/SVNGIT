@@ -637,7 +637,7 @@ Partial Public Class VitalSignsPlusDomino
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
                 .Include(Function(x) x.StatusCode) _
                 .Include(Function(x) x.CurrentStatus) _
@@ -1003,7 +1003,7 @@ Partial Public Class VitalSignsPlusDomino
                             WriteAuditEntry(Now.ToString & " " & .Name & " I figure the host name is " & .IPAddress, LogLevel.Verbose)
                             If .IPAddress.Length > 4 Then
 
-                                Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)
+                                Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
                                 Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.ObjectId, entity.ObjectId)
                                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Updater.Set(Function(x) x.IPAddress, .IPAddress)
                                 repositoryServers.Update(filterDef, updateDef)
@@ -1349,7 +1349,7 @@ Partial Public Class VitalSignsPlusDomino
                     '****************************************************
 
                     Try
-                        If entity.DominoCustomStats Is Nothing Or entity.DominoCustomStats.Count = 0 Then
+                        If entity.DominoCustomStats Is Nothing OrElse entity.DominoCustomStats.Count = 0 Then
                             WriteAuditEntry(Now.ToString & " No custom stats defined for " & .Name, LogLevel.Verbose)
                             Exit Try
                         End If
@@ -1437,103 +1437,106 @@ Partial Public Class VitalSignsPlusDomino
                         End If
 
                         Try
-                            For Each Task As VSNext.Mongo.Entities.DominoServerTask In entity.ServerTasks
+                            If entity.ServerTasks IsNot Nothing Then
 
-                                Dim MyConfiguredDominoServerTaskSetting As MonitoredItems.ServerTaskSetting
-                                MyConfiguredDominoServerTaskSetting = Nothing
-                                'Check to see if this task is already configured
-                                ' WriteAuditEntry(Now.ToString & " Searching for Task: " & drTask.Item("TaskName"))
-                                WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings. Searching for Task: " & Task.TaskName, LogLevel.Verbose)
-                                Try
-                                    MyConfiguredDominoServerTaskSetting = MyDominoServer.ServerTaskSettings.Search(Task.TaskName)
-                                    'if not, add it to the server's collection
-                                    WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " >> Found " & MyConfiguredDominoServerTaskSetting.Name, LogLevel.Verbose)
+                                For Each Task As VSNext.Mongo.Entities.DominoServerTask In entity.ServerTasks
 
-                                Catch ex As Exception
-                                    'an exception will be thrown if there are no servertaskSettings to search
-                                    'so we need to create a new blank collection that we can add to
+                                    Dim MyConfiguredDominoServerTaskSetting As MonitoredItems.ServerTaskSetting
                                     MyConfiguredDominoServerTaskSetting = Nothing
+                                    'Check to see if this task is already configured
+                                    ' WriteAuditEntry(Now.ToString & " Searching for Task: " & drTask.Item("TaskName"))
+                                    WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings. Searching for Task: " & Task.TaskName, LogLevel.Verbose)
+                                    Try
+                                        MyConfiguredDominoServerTaskSetting = MyDominoServer.ServerTaskSettings.Search(Task.TaskName)
+                                        'if not, add it to the server's collection
+                                        WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " >> Found " & MyConfiguredDominoServerTaskSetting.Name, LogLevel.Verbose)
 
-                                End Try
+                                    Catch ex As Exception
+                                        'an exception will be thrown if there are no servertaskSettings to search
+                                        'so we need to create a new blank collection that we can add to
+                                        MyConfiguredDominoServerTaskSetting = Nothing
 
-                                Try
-                                    ' If Trim(MyConfiguredDominoServerTaskSetting.Name) <> "" Then
-                                    If Not (MyConfiguredDominoServerTaskSetting) Is Nothing Then
-                                        With MyConfiguredDominoServerTaskSetting
-                                            ' WriteAuditEntry(Now.ToString & " Checking settings for Task: " & MyConfiguredDominoServerTaskSetting.Name)
-                                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Updating server task settings...now updating existing task: " & .Name, LogLevel.Verbose)
-                                            Try
+                                    End Try
+
+                                    Try
+                                        ' If Trim(MyConfiguredDominoServerTaskSetting.Name) <> "" Then
+                                        If Not (MyConfiguredDominoServerTaskSetting) Is Nothing Then
+                                            With MyConfiguredDominoServerTaskSetting
+                                                ' WriteAuditEntry(Now.ToString & " Checking settings for Task: " & MyConfiguredDominoServerTaskSetting.Name)
+                                                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Updating server task settings...now updating existing task: " & .Name, LogLevel.Verbose)
+                                                Try
+                                                    .Enabled = Task.Enabled
+                                                Catch ex As Exception
+
+                                                End Try
+
+                                                Try
+                                                    .LoadIfMissing = Task.SendLoadCmd
+                                                    .ConsoleString = Task.ConsoleString
+                                                    .RestartServerIfMissingASAP = Task.SendRestartCmd
+                                                    .RestartServerIfMissingOFFHOURS = Task.SendRestartCmdOffhours
+                                                    .DisallowTask = Task.SendExitCmd
+                                                    .LoadCommand = Task.SendLoadCmd
+                                                    .FreezeDetection = Task.FreezeDetect
+                                                    .FailureThreshold = Task.RetryCount
+                                                Catch ex As Exception
+                                                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino server " & MyDominoServer.Name & " Error configuring existing task " & MyConfiguredDominoServerTaskSetting.Name & "  Error: " & ex.Message)
+                                                End Try
+
+                                            End With
+                                        End If
+                                    Catch ex As Exception
+                                        WriteAuditEntry(Now.ToString & " Domino server " & .Name & " error configuring existing tasks.  Error: " & ex.Message)
+                                    End Try
+
+                                    Try
+                                        If MyConfiguredDominoServerTaskSetting Is Nothing Then
+
+                                            Dim MyNewDominoServerTaskSetting As New MonitoredItems.ServerTaskSetting
+                                            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings.  Adding new task: " & Task.TaskName)
+
+                                            If InStr(Task.TaskName, "Traveler") Then
+                                                WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " This server is configured to monitor Traveler, so it MUST BE a Traveler server.")
+                                                .Traveler_Server = True
+                                                .SecondaryRole = "Traveler"
+                                            End If
+
+                                            'WriteAuditEntry(Now.ToString & " Adding Task: " & drTask.Item("TaskName"))
+                                            With MyNewDominoServerTaskSetting
                                                 .Enabled = Task.Enabled
-                                            Catch ex As Exception
-
-                                            End Try
-
-                                            Try
+                                                '    WriteAuditEntry(Now.ToString & " Enabled=" & .Enabled)
                                                 .LoadIfMissing = Task.SendLoadCmd
+                                                '   WriteAuditEntry(Now.ToString & " SendLoadCommand=" & .LoadIfMissing)
+                                                .Name = Task.TaskName
+                                                .FreezeDetection = Task.FreezeDetect
+                                                '  WriteAuditEntry(Now.ToString & " FreezeDetect=" & .FreezeDetection)
                                                 .ConsoleString = Task.ConsoleString
+                                                ' WriteAuditEntry(Now.ToString & " ConsoleString=" & .ConsoleString)
                                                 .RestartServerIfMissingASAP = Task.SendRestartCmd
                                                 .RestartServerIfMissingOFFHOURS = Task.SendRestartCmdOffhours
+                                                'WriteAuditEntry(Now.ToString & " SendRestartCommand=" & .RestartServerIfMissing)
                                                 .DisallowTask = Task.SendExitCmd
+                                                ' WriteAuditEntry(Now.ToString & " Disallow=" & .DisallowTask)
                                                 .LoadCommand = Task.SendLoadCmd
-                                                .FreezeDetection = Task.FreezeDetect
+                                                .MaxRunTime = Task.MaxBusyTime
+                                                .FailureCount = 0
                                                 .FailureThreshold = Task.RetryCount
-                                            Catch ex As Exception
-                                                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino server " & MyDominoServer.Name & " Error configuring existing task " & MyConfiguredDominoServerTaskSetting.Name & "  Error: " & ex.Message)
-                                            End Try
-
-                                        End With
-                                    End If
-                                Catch ex As Exception
-                                    WriteAuditEntry(Now.ToString & " Domino server " & .Name & " error configuring existing tasks.  Error: " & ex.Message)
-                                End Try
-
-                                Try
-                                    If MyConfiguredDominoServerTaskSetting Is Nothing Then
-
-                                        Dim MyNewDominoServerTaskSetting As New MonitoredItems.ServerTaskSetting
-                                        If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings.  Adding new task: " & Task.TaskName)
-
-                                        If InStr(Task.TaskName, "Traveler") Then
-                                            WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " This server is configured to monitor Traveler, so it MUST BE a Traveler server.")
-                                            .Traveler_Server = True
-                                            .SecondaryRole = "Traveler"
+                                            End With
+                                            MyDominoServer.ServerTaskSettings.Add(MyNewDominoServerTaskSetting)
+                                            '  WriteAuditEntry(Now.ToString & " Domino server " & .Name & " has " & MyDominoServer.ServerTaskSettings.Count & " tasks configured.")
                                         End If
-
-                                        'WriteAuditEntry(Now.ToString & " Adding Task: " & drTask.Item("TaskName"))
-                                        With MyNewDominoServerTaskSetting
-                                            .Enabled = Task.Enabled
-                                            '    WriteAuditEntry(Now.ToString & " Enabled=" & .Enabled)
-                                            .LoadIfMissing = Task.SendLoadCmd
-                                            '   WriteAuditEntry(Now.ToString & " SendLoadCommand=" & .LoadIfMissing)
-                                            .Name = Task.TaskName
-                                            .FreezeDetection = Task.FreezeDetect
-                                            '  WriteAuditEntry(Now.ToString & " FreezeDetect=" & .FreezeDetection)
-                                            .ConsoleString = Task.ConsoleString
-                                            ' WriteAuditEntry(Now.ToString & " ConsoleString=" & .ConsoleString)
-                                            .RestartServerIfMissingASAP = Task.SendRestartCmd
-                                            .RestartServerIfMissingOFFHOURS = Task.SendRestartCmdOffhours
-                                            'WriteAuditEntry(Now.ToString & " SendRestartCommand=" & .RestartServerIfMissing)
-                                            .DisallowTask = Task.SendExitCmd
-                                            ' WriteAuditEntry(Now.ToString & " Disallow=" & .DisallowTask)
-                                            .LoadCommand = Task.SendLoadCmd
-                                            .MaxRunTime = Task.MaxBusyTime
-                                            .FailureCount = 0
-                                            .FailureThreshold = Task.RetryCount
-                                        End With
-                                        MyDominoServer.ServerTaskSettings.Add(MyNewDominoServerTaskSetting)
-                                        '  WriteAuditEntry(Now.ToString & " Domino server " & .Name & " has " & MyDominoServer.ServerTaskSettings.Count & " tasks configured.")
-                                    End If
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " error configuring New tasks.  Error:  " & ex.Message)
-                                End Try
+                                    Catch ex As Exception
+                                        WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " error configuring New tasks.  Error:  " & ex.Message)
+                                    End Try
 
 
 
 
-                            Next
+                                Next
 
-                            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings-- end.")
+                                If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", .Name, Now.ToString & " Updating server task settings-- end.")
 
+                            End If
                         Catch ex As Exception
                             WriteAuditEntry(Now.ToString & " Error Configuring Server Tasks 1: " & ex.Message)
                         End Try

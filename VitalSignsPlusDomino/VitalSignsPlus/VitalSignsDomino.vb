@@ -68,135 +68,135 @@ Public Class VitalSignsPlusDomino
 
 
 
-	Dim BuildNumber As Integer = 2281
-	Dim ProductName As String 'value set in start up 
-	Dim CompanyName As String = "RPR Wyatt"
-	Dim ListOfDominoThreads As List(Of Threading.Thread) = New List(Of Threading.Thread)
-	'Dim ListOfURLThreads As List(Of Threading.Thread) = New List(Of Threading.Thread)
-	Dim ListOfTravelerUserThreads As List(Of Threading.Thread) = New List(Of Threading.Thread)
-	Dim sCultureString As String = "en-US"
-	Dim connectionStringName As String = "CultureString"
-	'Used by C API
-	Dim mNotesProgDir As String	' = "c:\program files\lotus\notes"
-	Dim mNotesINI As String	' = "=c:\program files\lotus\notes\notes.ini"
-	Dim mUserId As String '= "C:\Program Files\lotus\notes\data\aforbesMZL.id"
-	Private Shared DominoSelector_Mutex As New Mutex()
-	' Private Shared NotesAPI_Mutex As New Mutex()
-	' Dim Use_NotesAPI_Mutex As Boolean = False
-	Dim NotesSession As New Domino.NotesSession
+    Dim BuildNumber As Integer = 2281
+    Dim ProductName As String 'value set in start up 
+    Dim CompanyName As String = "RPR Wyatt"
+    Dim ListOfDominoThreads As List(Of Threading.Thread) = New List(Of Threading.Thread)
+    'Dim ListOfURLThreads As List(Of Threading.Thread) = New List(Of Threading.Thread)
+    Dim ListOfTravelerUserThreads As List(Of Threading.Thread) = New List(Of Threading.Thread)
+    Dim sCultureString As String = "en-US"
+    Dim connectionStringName As String = "CultureString"
+    'Used by C API
+    Dim mNotesProgDir As String ' = "c:\program files\lotus\notes"
+    Dim mNotesINI As String ' = "=c:\program files\lotus\notes\notes.ini"
+    Dim mUserId As String '= "C:\Program Files\lotus\notes\data\aforbesMZL.id"
+    Private Shared DominoSelector_Mutex As New Mutex()
+    ' Private Shared NotesAPI_Mutex As New Mutex()
+    ' Dim Use_NotesAPI_Mutex As Boolean = False
+    Dim NotesSession As New Domino.NotesSession
     '1/4/2016 NS added for VSPLUS-2434
     Dim MailStatsDict As New Dictionary(Of String, Integer)
     '6/28/2016 NS added for VSPLUS-3079
     Dim ConsecutiveTelnetDict As New Dictionary(Of String, Integer)
     '8/30/2016 NS added for VSPLUS-3176
     Dim ConsecutiveCustomStatsDict As New Dictionary(Of String, Integer)
-	'Private Shared URLSelector_Mutex As New Mutex()
+    'Private Shared URLSelector_Mutex As New Mutex()
 
 
-	Dim strDateFormat As String
-	Dim objDateUtils As New DateUtils.DateUtils
+    Dim strDateFormat As String
+    Dim objDateUtils As New DateUtils.DateUtils
 
-	'  Dim WithEvents PingControl As New nsoftware.IPWorks.Ping("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
-	Dim WithEvents HTTP As New nsoftware.IPWorks.Http("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
-	'  Dim IPPort As New nsoftware.IPWorks.Ipport("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
-
-
-	'Threads
-	' Dim MasterDominoThread As New Thread(AddressOf MonitorAllThingsDomino)
-	Dim CheckThreads As New Thread(AddressOf ThreadChecker)
-
-	'Dim ThreadPingCycle As New Thread(AddressOf PingCyle)
-	'Dim ThreadScanDominoCycle As New Thread(AddressOf DominoScanCycle)
-	Dim ThreadTravelerUsers As New Thread(AddressOf CycleTravelerUsers)
-	Dim ThreadTravelerUsersMoreDetails As New Thread(AddressOf getTravelerDeviceMoreDetailsWrapper)
-	Dim ThreadTrackKeyDevices As New Thread(AddressOf TrackKeyDevices)
-	Dim ThreadSetActiveDevicesLoop As New Thread(AddressOf SetActiveDevicesLoop)
-	' Dim ThreadVitalStatus As New Thread(AddressOf VitalStatus_Thread)
-
-	'  Dim WithEvents PingControl As New nsoftware.IPWorks.Ping("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
-	Dim myAlert As New AlertLibrary.Alertdll
-
-	Dim boolTimeToStop As Boolean = False
-
-	' Monitor log file & other paths
-	Private strLogDest As String
-	Private strConsoleCommandLogDest As String
-	Private strAppPath As String
-	Dim strAuditText As String
-	Dim strServersMDBPath As String
-	'Dim myStatusURL As String
-
-	'Store the passwords in these variables
-	Dim MyDominoPassword As String
-	Dim MySMTPPassword As String
-
-	Dim BannerText As String
-
-	'Collection of Domino servers to monitor
-	Dim MyDominoServers As New MonitoredItems.DominoCollection
-
-	Dim myKeywords As New KeywordsCollection
-	Dim myTravelerBackends As New MonitoredItems.Traveler_Backend_Collection
+    '  Dim WithEvents PingControl As New nsoftware.IPWorks.Ping("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
+    Dim WithEvents HTTP As New nsoftware.IPWorks.Http("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
+    '  Dim IPPort As New nsoftware.IPWorks.Ipport("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
 
 
-	'Collection of Domino Mail Clusters to monitor
-	Dim myDominoClusters As New MonitoredItems.DominoMailClusterCollection
-	Dim myDominoCluster As New MonitoredItems.DominoMailCluster
+    'Threads
+    ' Dim MasterDominoThread As New Thread(AddressOf MonitorAllThingsDomino)
+    Dim CheckThreads As New Thread(AddressOf ThreadChecker)
 
-	'Collection of Notes Databases
-	Dim MyNotesDatabase As MonitoredItems.NotesDatabase
-	Dim MyNotesDatabases As New MonitoredItems.NotesDatabaseCollection
+    'Dim ThreadPingCycle As New Thread(AddressOf PingCyle)
+    'Dim ThreadScanDominoCycle As New Thread(AddressOf DominoScanCycle)
+    Dim ThreadTravelerUsers As New Thread(AddressOf CycleTravelerUsers)
+    Dim ThreadTravelerUsersMoreDetails As New Thread(AddressOf getTravelerDeviceMoreDetailsWrapper)
+    Dim ThreadTrackKeyDevices As New Thread(AddressOf TrackKeyDevices)
+    Dim ThreadSetActiveDevicesLoop As New Thread(AddressOf SetActiveDevicesLoop)
+    ' Dim ThreadVitalStatus As New Thread(AddressOf VitalStatus_Thread)
+
+    '  Dim WithEvents PingControl As New nsoftware.IPWorks.Ping("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
+    Dim myAlert As New AlertLibrary.Alertdll
+
+    Dim boolTimeToStop As Boolean = False
+
+    ' Monitor log file & other paths
+    Private strLogDest As String
+    Private strConsoleCommandLogDest As String
+    Private strAppPath As String
+    Dim strAuditText As String
+    Dim strServersMDBPath As String
+    'Dim myStatusURL As String
+
+    'Store the passwords in these variables
+    Dim MyDominoPassword As String
+    Dim MySMTPPassword As String
+
+    Dim BannerText As String
+
+    'Collection of Domino servers to monitor
+    Dim MyDominoServers As New MonitoredItems.DominoCollection
+
+    Dim myKeywords As New KeywordsCollection
+    Dim myTravelerBackends As New MonitoredItems.Traveler_Backend_Collection
 
 
-	'Collection of NotesMailProbes
-	Dim MyNotesMailProbe As MonitoredItems.DominoMailProbe
-	Dim MyNotesMailProbes As New MonitoredItems.DominoMailProbeCollection
+    'Collection of Domino Mail Clusters to monitor
+    Dim myDominoClusters As New MonitoredItems.DominoMailClusterCollection
+    Dim myDominoCluster As New MonitoredItems.DominoMailCluster
 
-	'Disk space
-	Dim DiskName(70) As String
-
-
-	'Collection of URLs
-	'Dim MyURL As MonitoredItems.URL
-	'Dim MyURLs As New MonitoredItems.URLCollection
-	'Dim CurrentURL As String 'Contains the name of the URL currently being queried
-	'Dim URLStringFound As Boolean
-	'Dim dtURLsLastUpdate As DateTime = Now
-
-	'Thread Last Update Global Variables
-	Dim dtDominoLastUpdate As DateTime = Now
-
-	'Determines the verbosity of the log file
-	Enum LogLevel
-		Verbose = LogUtilities.LogUtils.LogLevel.Verbose
-		Debug = LogUtilities.LogUtils.LogLevel.Debug
-		Normal = LogUtilities.LogUtils.LogLevel.Normal
-	End Enum
-
-	'MyLogLevel is used throughout to control the volume of the log file output
-	Dim MyLogLevel As LogLevel
+    'Collection of Notes Databases
+    Dim MyNotesDatabase As MonitoredItems.NotesDatabase
+    Dim MyNotesDatabases As New MonitoredItems.NotesDatabaseCollection
 
 
-	'Used for displaying the correct icon in the status grid of the client app
-	Enum IconList
-		NoIcon = 0
-		DominoServer = 1
-		Network_Device = 2
-		URL = 3
-		NotesMail_Probe = 4
-		BlackBerry_Probe = 5
-		LDAP = 6
-		Mail_Service = 7
-		NotesDB = 8
-		BESQ = 9
-		Sametime = 10
-		Quickr = 11
-	End Enum
+    'Collection of NotesMailProbes
+    Dim MyNotesMailProbe As MonitoredItems.DominoMailProbe
+    Dim MyNotesMailProbes As New MonitoredItems.DominoMailProbeCollection
 
-	Dim ThreadHourlyDaily As New Thread(AddressOf PerformHourlyDailyTasks)
-	'  Dim ThreadURL As New Thread(AddressOf MonitorURLs)
+    'Disk space
+    Dim DiskName(70) As String
 
-	Dim HungThreadsKilled As Integer = 0
+
+    'Collection of URLs
+    'Dim MyURL As MonitoredItems.URL
+    'Dim MyURLs As New MonitoredItems.URLCollection
+    'Dim CurrentURL As String 'Contains the name of the URL currently being queried
+    'Dim URLStringFound As Boolean
+    'Dim dtURLsLastUpdate As DateTime = Now
+
+    'Thread Last Update Global Variables
+    Dim dtDominoLastUpdate As DateTime = Now
+
+    'Determines the verbosity of the log file
+    Enum LogLevel
+        Verbose = LogUtilities.LogUtils.LogLevel.Verbose
+        Debug = LogUtilities.LogUtils.LogLevel.Debug
+        Normal = LogUtilities.LogUtils.LogLevel.Normal
+    End Enum
+
+    'MyLogLevel is used throughout to control the volume of the log file output
+    Dim MyLogLevel As LogLevel
+
+
+    'Used for displaying the correct icon in the status grid of the client app
+    Enum IconList
+        NoIcon = 0
+        DominoServer = 1
+        Network_Device = 2
+        URL = 3
+        NotesMail_Probe = 4
+        BlackBerry_Probe = 5
+        LDAP = 6
+        Mail_Service = 7
+        NotesDB = 8
+        BESQ = 9
+        Sametime = 10
+        Quickr = 11
+    End Enum
+
+    Dim ThreadHourlyDaily As New Thread(AddressOf PerformHourlyDailyTasks)
+    '  Dim ThreadURL As New Thread(AddressOf MonitorURLs)
+
+    Dim HungThreadsKilled As Integer = 0
 
     Protected Overrides Sub ServiceOnStart(ByVal args() As String)
 
@@ -409,46 +409,46 @@ Public Class VitalSignsPlusDomino
 
     End Sub
 
-	Protected Overrides Sub OnStop()
+    Protected Overrides Sub OnStop()
         ' Add code here to perform any tear-down necessary to stop your service.
         '1/4/2016 NS added for VSPLUS-2434
         '6/28/2016 NS modified for VSPLUS-3079
         UpdateSettings()
 
         boolTimeToStop = True
-		Thread.Sleep(1000)
-		Try
-			WriteAuditEntry(Now.ToString + " The service is stopping.")
-			'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is not running.', Status='Not Scanned', StatusCode='Maintenance', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='Domino monitoring is not running.' WHERE Type ='Domino'")
-			'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is not running.', Status='Not Scanned', StatusCode='Maintenance', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='Domino monitoring is not running.' WHERE Type ='Notes Database'")
-			'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is not running.', Status='Not Scanned', StatusCode='Maintenance', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='Domino monitoring is not running.' WHERE Type ='NotesMail Probe'")
-			'UpdateStatusTable("Update Status SET  Details='The URL monitoring service is not running.', Status='Not Scanned', StatusCode='Maintenance', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='URL monitoring is not running.' WHERE Type ='URL'")
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
-		Catch ex As Exception
+        Thread.Sleep(1000)
+        Try
+            WriteAuditEntry(Now.ToString + " The service is stopping.")
+            'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is not running.', Status='Not Scanned', StatusCode='Maintenance', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='Domino monitoring is not running.' WHERE Type ='Domino'")
+            'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is not running.', Status='Not Scanned', StatusCode='Maintenance', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='Domino monitoring is not running.' WHERE Type ='Notes Database'")
+            'UpdateStatusTable("Update Status SET  Details='The Domino monitoring service is not running.', Status='Not Scanned', StatusCode='Maintenance', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='Domino monitoring is not running.' WHERE Type ='NotesMail Probe'")
+            'UpdateStatusTable("Update Status SET  Details='The URL monitoring service is not running.', Status='Not Scanned', StatusCode='Maintenance', PendingMail=0, DeadMail=0, HeldMail=0, UserCount=0, CPU=0, MyPercent=0, ResponseTime=0, Memory=0, Description='URL monitoring is not running.' WHERE Type ='URL'")
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-		'End
-		MyBase.OnStop()
-	End Sub
+        'End
+        MyBase.OnStop()
+    End Sub
 
     Dim dominoThreadCount As Integer = 0
     Dim initialDominoThreadCount As Integer = 0
     Dim AliveDominoMainThreads As System.Collections.ArrayList = New System.Collections.ArrayList()
 
-	Protected Sub StartThreads()
+    Protected Sub StartThreads()
 
 
-		'**** Start the selected monitoring threads
+        '**** Start the selected monitoring threads
 
-     
+
         '3/2/2016 NS commented out
         'ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf MonitorDominoCluster))
 
 
         WriteAuditEntry(Now.ToString & " Attempting to start Domino monitoring... ")
-		Dim threadMonitorDomino As New Thread(AddressOf MonitorDominoRelated)
-		threadMonitorDomino.CurrentCulture = New CultureInfo(sCultureString)
+        Dim threadMonitorDomino As New Thread(AddressOf MonitorDominoRelated)
+        threadMonitorDomino.CurrentCulture = New CultureInfo(sCultureString)
         threadMonitorDomino.Start()
 
         '2/4/2016 NS added for VSPLUS-2560
@@ -476,93 +476,93 @@ Public Class VitalSignsPlusDomino
         'threadUpdateConsecutiveTelnet1.CurrentCulture = New CultureInfo(sCultureString)
         'threadUpdateConsecutiveTelnet1.Start()
 
-		WriteAuditEntry(Now.ToString & " Attempting to start NotesMail monitoring... ")
-		Dim threadMonitorNotesMail As New Thread(AddressOf NotesMailLoop)
-		threadMonitorNotesMail.CurrentCulture = New CultureInfo(sCultureString)
-		threadMonitorNotesMail.Start()
+        WriteAuditEntry(Now.ToString & " Attempting to start NotesMail monitoring... ")
+        Dim threadMonitorNotesMail As New Thread(AddressOf NotesMailLoop)
+        threadMonitorNotesMail.CurrentCulture = New CultureInfo(sCultureString)
+        threadMonitorNotesMail.Start()
 
 
-		With ThreadTravelerUsers
-			.IsBackground = True
-			.Priority = ThreadPriority.Normal
-			.CurrentCulture = New CultureInfo(sCultureString)
-			WriteAuditEntry(Now.ToString & " Starting Traveler Users thread...")
-			.Start()
-		End With
+        With ThreadTravelerUsers
+            .IsBackground = True
+            .Priority = ThreadPriority.Normal
+            .CurrentCulture = New CultureInfo(sCultureString)
+            WriteAuditEntry(Now.ToString & " Starting Traveler Users thread...")
+            .Start()
+        End With
 
-		With ThreadTravelerUsersMoreDetails
-			.IsBackground = True
-			.Priority = ThreadPriority.Normal
-			.CurrentCulture = New CultureInfo(sCultureString)
-			WriteAuditEntry(Now.ToString & " Starting Traveler Users More Details thread...")
-			.Start()
-		End With
+        With ThreadTravelerUsersMoreDetails
+            .IsBackground = True
+            .Priority = ThreadPriority.Normal
+            .CurrentCulture = New CultureInfo(sCultureString)
+            WriteAuditEntry(Now.ToString & " Starting Traveler Users More Details thread...")
+            .Start()
+        End With
 
-		With ThreadTrackKeyDevices
-			.IsBackground = True
-			.Priority = ThreadPriority.Normal
-			.CurrentCulture = New CultureInfo(sCultureString)
-			WriteAuditEntry(Now.ToString & " Starting Traveler Users Monitored Devices thread...")
-			.Start()
-		End With
+        With ThreadTrackKeyDevices
+            .IsBackground = True
+            .Priority = ThreadPriority.Normal
+            .CurrentCulture = New CultureInfo(sCultureString)
+            WriteAuditEntry(Now.ToString & " Starting Traveler Users Monitored Devices thread...")
+            .Start()
+        End With
 
-		With ThreadSetActiveDevicesLoop
-			.IsBackground = True
-			.Priority = ThreadPriority.Normal
-			.CurrentCulture = New CultureInfo(sCultureString)
-			WriteAuditEntry(Now.ToString & " Starting Active Devices Loop Thread...")
-			.Start()
-		End With
+        With ThreadSetActiveDevicesLoop
+            .IsBackground = True
+            .Priority = ThreadPriority.Normal
+            .CurrentCulture = New CultureInfo(sCultureString)
+            WriteAuditEntry(Now.ToString & " Starting Active Devices Loop Thread...")
+            .Start()
+        End With
 
         Dim boolMulti As Boolean = True
-		Try
-			Dim myRegistry As New VSFramework.RegistryHandler()
-			If myRegistry.ReadFromRegistry("SuppressMultiThread") = True Then
-				boolMulti = False
-			End If
-		Catch ex As Exception
-			boolMulti = True
-		End Try
+        Try
+            Dim myRegistry As New VSFramework.RegistryHandler()
+            If myRegistry.ReadFromRegistry("SuppressMultiThread") = True Then
+                boolMulti = False
+            End If
+        Catch ex As Exception
+            boolMulti = True
+        End Try
         'ThreadPool.
 
-		If boolMulti = False Then
-			WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Suppressing multithreaded operation due to configuration setting.", LogLevel.Normal)
-			Dim threadScanDomino1 As New Thread(AddressOf MonitorDomino)
-			threadScanDomino1.CurrentCulture = New CultureInfo(sCultureString)
-			threadScanDomino1.Start()
-		Else
+        If boolMulti = False Then
+            WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Suppressing multithreaded operation due to configuration setting.", LogLevel.Normal)
+            Dim threadScanDomino1 As New Thread(AddressOf MonitorDomino)
+            threadScanDomino1.CurrentCulture = New CultureInfo(sCultureString)
+            threadScanDomino1.Start()
+        Else
             ''Scan the Domino servers, creating more threads if you have more servers            
             StartMonitoringThreads()
 
 
-			'Catch ex As Exception
+            'Catch ex As Exception
 
-			'End Try
+            'End Try
 
-		End If
-
-
-		'These Threads start no matter what
+        End If
 
 
-		Try
+        'These Threads start no matter what
 
-			WriteAuditEntry(Now.ToString & " Now starting the Hourly Task checker...")
-			ThreadHourlyDaily.IsBackground = True
-			ThreadHourlyDaily.Priority = ThreadPriority.Normal
-			ThreadHourlyDaily.Start()
-		Catch ex As Exception
 
-		End Try
+        Try
 
-		Try
-			WriteAuditEntry(Now.ToString & " Now starting the thread checker...")
-			CheckThreads.IsBackground = True
-			CheckThreads.Priority = ThreadPriority.Normal
-			CheckThreads.Start()
-		Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Now starting the Hourly Task checker...")
+            ThreadHourlyDaily.IsBackground = True
+            ThreadHourlyDaily.Priority = ThreadPriority.Normal
+            ThreadHourlyDaily.Start()
+        Catch ex As Exception
 
-		End Try
+        End Try
+
+        Try
+            WriteAuditEntry(Now.ToString & " Now starting the thread checker...")
+            CheckThreads.IsBackground = True
+            CheckThreads.Priority = ThreadPriority.Normal
+            CheckThreads.Start()
+        Catch ex As Exception
+
+        End Try
     End Sub
 
 
@@ -635,298 +635,298 @@ Public Class VitalSignsPlusDomino
 
 #Region "Maintenance Windows and Business Hours"
 
-	Public Function InMaintenance(ByVal DeviceType As String, ByVal DeviceName As String) As Boolean
+    Public Function InMaintenance(ByVal DeviceType As String, ByVal DeviceName As String) As Boolean
 
-		Dim MaintDLL As New MaintenanceDLL.MaintenanceDll
-		Try
-			If MaintDLL.InMaintenance(DeviceType, DeviceName) = True Then
-				Return True
-			Else
-				Return False
-			End If
-		Catch ex As Exception
-			Return False
-		End Try
-	End Function
+        Dim MaintDLL As New MaintenanceDLL.MaintenanceDll
+        Try
+            If MaintDLL.InMaintenance(DeviceType, DeviceName) = True Then
+                Return True
+            Else
+                Return False
+            End If
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
 
-	Public Function InMaintenanceOLD(ByVal DeviceType As String, ByVal DeviceName As String) As Boolean
-		Dim InMaintenanceWindow As Boolean = False
-		Dim dsMaintWindows As New Data.DataSet
-		Dim myPath As String
-		Dim myRegistry As New VSFramework.RegistryHandler
-		'Read the registry for the location of the Config Database
-		myPath = myRegistry.ReadFromRegistry("Data Path")
-		'Try
-		'    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Using Configuration database " & myPath)
-		'Catch ex As Exception
-		'    WriteAuditEntry(Now.ToString & " Failed to read registry in Maintenance window code. Exception: " & ex.Message)
-		'End Try
+    Public Function InMaintenanceOLD(ByVal DeviceType As String, ByVal DeviceName As String) As Boolean
+        Dim InMaintenanceWindow As Boolean = False
+        Dim dsMaintWindows As New Data.DataSet
+        Dim myPath As String
+        Dim myRegistry As New VSFramework.RegistryHandler
+        'Read the registry for the location of the Config Database
+        myPath = myRegistry.ReadFromRegistry("Data Path")
+        'Try
+        '    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Using Configuration database " & myPath)
+        'Catch ex As Exception
+        '    WriteAuditEntry(Now.ToString & " Failed to read registry in Maintenance window code. Exception: " & ex.Message)
+        'End Try
 
-		If myPath Is Nothing Then
-			WriteAuditEntry(Now.ToString & " Error: Failed to read registry in Maintenance window code.   Cannot locate Config Database 'servers.mdb'.  Configure by running" & ProductName & " client before starting the service.")
-			Return False
-			Exit Function
-		End If
-		myRegistry = Nothing
-		Dim strSQL As String
-		Try
-			'COMMENTED BY MUKUND 28Feb12
+        If myPath Is Nothing Then
+            WriteAuditEntry(Now.ToString & " Error: Failed to read registry in Maintenance window code.   Cannot locate Config Database 'servers.mdb'.  Configure by running" & ProductName & " client before starting the service.")
+            Return False
+            Exit Function
+        End If
+        myRegistry = Nothing
+        Dim strSQL As String
+        Try
+            'COMMENTED BY MUKUND 28Feb12
 
 
-			myPath = Nothing
+            myPath = Nothing
 
 
 			strSQL = " Select MaintenanceWindows.MaintWindow as Name, MaintenanceSettings.StartTime, MaintenanceSettings.EndTime, MaintenanceSettings.Monday, MaintenanceSettings.Tuesday, MaintenanceSettings.Wednesday, " & _
 						"MaintenanceSettings.Thursday, MaintenanceSettings.Friday, MaintenanceSettings.Saturday, MaintenanceSettings.Sunday " & _
 						"FROM " & _
 						"MaintenanceSettings INNER JOIN  MaintenanceWindows " & _
-						"ON MaintenanceSettings.Name=MaintenanceWindows.MaintWindow WHERE MaintenanceWindows.DeviceType='" & DeviceType & "' AND MaintenanceWindows.Name='" & DeviceName & "' "
-			dsMaintWindows.Clear()
-			'WRITTEN BY MUKUND 28Feb12
-			Dim objVSAdaptor As New VSFramework.VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsMaintWindows, "MaintWindows")
+                        "ON MaintenanceSettings.Name=MaintenanceWindows.MaintWindow WHERE MaintenanceWindows.DeviceType='" & DeviceType & "' AND MaintenanceWindows.Name='" & DeviceName & "' "
+            dsMaintWindows.Clear()
+            'WRITTEN BY MUKUND 28Feb12
+            Dim objVSAdaptor As New VSFramework.VSAdaptor
+            objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsMaintWindows, "MaintWindows")
 
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Error in maint window module dataset creation: " & ex.Message)
-			Return False
-			Exit Function
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error in maint window module dataset creation: " & ex.Message)
+            Return False
+            Exit Function
 
-		Finally
-			'myConnection.Close()
-			'myCommand.Dispose()
-			'myConnection.Dispose()
-			'myAdapter.Dispose()
+        Finally
+            'myConnection.Close()
+            'myCommand.Dispose()
+            'myConnection.Dispose()
+            'myAdapter.Dispose()
 
-		End Try
-
-
-
-		Dim DayofWeek As String
-		DayofWeek = Now.DayOfWeek.ToString
-
-		Dim MyStartTime, MyEndTime As DateTime
-		Dim TimeNow As DateTime = Now
-		Dim boolInWindow As Boolean
-
-		Try
-			Dim dr As DataRow
-			'    WriteAuditEntry(" Server " & DeviceName & " has " & dsMaintWindows.Tables("MaintWindows").Rows.Count & " maintenance windows.")
-			For Each dr In dsMaintWindows.Tables("MaintWindows").Rows
-				Try
-					MyStartTime = CType(dr.Item("StartTime"), DateTime)
-					MyEndTime = CType(dr.Item("EndTime"), DateTime)
-				Catch ex As Exception
-					WriteAuditEntry(" Error calculating maintenance window start and end times. Error: " & ex.Message)
-				End Try
+        End Try
 
 
-				Dim myStartResult, myEndResult As TimeSpan
-				'    WriteAuditEntry(" Maintenance Window Name is " & dr.Item("Name"))
-				'   WriteAuditEntry(" Maintenance window starts at " & MyStartTime.ToShortTimeString & ". It is now " & TimeNow.ToShortTimeString & ". I can send it from  " & MyStartTime.ToLongTimeString & " to " & MyEndTime.ToLongTimeString)
 
-				myStartResult = (MyStartTime.TimeOfDay.Subtract(TimeNow.TimeOfDay))
-				'  WriteAuditEntry(" My Starttime Result in minutes = " & myStartResult.TotalMinutes)
+        Dim DayofWeek As String
+        DayofWeek = Now.DayOfWeek.ToString
 
-				myEndResult = (MyEndTime.TimeOfDay.Subtract(TimeNow.TimeOfDay))
-				' WriteAuditEntry(" My Endtime Result in minutes = " & myEndResult.TotalMinutes)
+        Dim MyStartTime, MyEndTime As DateTime
+        Dim TimeNow As DateTime = Now
+        Dim boolInWindow As Boolean
 
-
-				If myStartResult.TotalMinutes < 0 And myEndResult.TotalMinutes >= 0 Then
-					boolInWindow = True
-					'     WriteAuditEntry(Now.ToString & " Currently within the maintenance window " & dr.Item("Name"))
-				Else
-					boolInWindow = False
-					'    WriteAuditEntry(Now.ToString & " Currently outside the maintenance window " & dr.Item("Name"))
-				End If
-
-				If boolInWindow = True Then
-					Select Case DayofWeek
-						Case "Sunday"
-							If dr.Item("Sunday") = True Then
-								InMaintenanceWindow = True
-								Exit For
-							End If
-						Case "Monday"
-							If dr.Item("Monday") = True Then
-								InMaintenanceWindow = True
-								Exit For
-							End If
-						Case "Tuesday"
-							If dr.Item("Tuesday") = True Then
-								InMaintenanceWindow = True
-								Exit For
-							End If
-						Case "Wednesday"
-							If dr.Item("Wednesday") = True Then
-								InMaintenanceWindow = True
-								Exit For
-							End If
-						Case "Thursday"
-							If dr.Item("Thursday") = True Then
-								InMaintenanceWindow = True
-								Exit For
-							End If
-						Case "Friday"
-							If dr.Item("Friday") = True Then
-								InMaintenanceWindow = True
-								Exit For
-							End If
-						Case "Saturday"
-							If dr.Item("Saturday") = True Then
-								InMaintenanceWindow = True
-								Exit For
-							End If
-						Case "Sunday"
-							If dr.Item("Sunday") = True Then
-								InMaintenanceWindow = True
-								Exit For
-							End If
-
-					End Select
-				End If
-			Next
-
-			dr = Nothing
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Error in maint window module: " & ex.Message)
-		End Try
-
-		Try
-			dsMaintWindows.Dispose()
-			myPath = Nothing
-			GC.Collect()
-		Catch ex As Exception
-
-		End Try
-
-		Return InMaintenanceWindow
-	End Function
-
-	Public Function OffHours(ByVal ServerName As String) As Boolean
-		'This function returns true if called during off hours, false if called during business hours
-		Dim MaintDLL As New MaintenanceDLL.MaintenanceDll
-		Try
-			If MaintDLL.OffHours(ServerName) = True Then
-				Return True
-			Else
-				Return False
-			End If
-		Catch ex As Exception
-			Return False
-		End Try
-	End Function
-
-	Public Function OLDOffHours() As Boolean
-		'This function returns true if called during off hours, false if called during business hours
-		Dim myRegistry As New VSFramework.RegistryHandler
-		Dim TwentyFourHours, InBusinessHours As Boolean
-		Try
-			TwentyFourHours = myRegistry.ReadFromRegistry("24 Hours")
-		Catch ex As Exception
-			TwentyFourHours = False
-		End Try
-
-		If TwentyFourHours = True Then
-			myRegistry = Nothing
-			Return False
-			Exit Function
-		End If
-
-		Dim DayofWeek As String
-		DayofWeek = Now.DayOfWeek.ToString
-
-		Dim MyStartTime, MyEndTime As DateTime
-		Dim TimeNow As DateTime = Now
-		Dim boolInWindow As Boolean
-
-		Try
-			MyStartTime = myRegistry.ReadFromRegistry("BusinessHoursStart")
-			MyEndTime = myRegistry.ReadFromRegistry("BusinessHoursEnd")
-		Catch ex As Exception
-			WriteAuditEntry(" Error calculating Business Hours window start and end times. Error: " & ex.Message)
-		End Try
+        Try
+            Dim dr As DataRow
+            '    WriteAuditEntry(" Server " & DeviceName & " has " & dsMaintWindows.Tables("MaintWindows").Rows.Count & " maintenance windows.")
+            For Each dr In dsMaintWindows.Tables("MaintWindows").Rows
+                Try
+                    MyStartTime = CType(dr.Item("StartTime"), DateTime)
+                    MyEndTime = CType(dr.Item("EndTime"), DateTime)
+                Catch ex As Exception
+                    WriteAuditEntry(" Error calculating maintenance window start and end times. Error: " & ex.Message)
+                End Try
 
 
-		Dim myStartResult, myEndResult As TimeSpan
-		myStartResult = (MyStartTime.TimeOfDay.Subtract(TimeNow.TimeOfDay))
-		myEndResult = (MyEndTime.TimeOfDay.Subtract(TimeNow.TimeOfDay))
+                Dim myStartResult, myEndResult As TimeSpan
+                '    WriteAuditEntry(" Maintenance Window Name is " & dr.Item("Name"))
+                '   WriteAuditEntry(" Maintenance window starts at " & MyStartTime.ToShortTimeString & ". It is now " & TimeNow.ToShortTimeString & ". I can send it from  " & MyStartTime.ToLongTimeString & " to " & MyEndTime.ToLongTimeString)
 
-		Try
-			If myStartResult.TotalMinutes < 0 And myEndResult.TotalMinutes >= 0 Then
-				InBusinessHours = True
-				'     WriteAuditEntry(Now.ToString & " Currently within the business hours")
-			Else
-				InBusinessHours = False
-				'    WriteAuditEntry(Now.ToString & " Currently outside the business hours")
-			End If
+                myStartResult = (MyStartTime.TimeOfDay.Subtract(TimeNow.TimeOfDay))
+                '  WriteAuditEntry(" My Starttime Result in minutes = " & myStartResult.TotalMinutes)
 
-			If InBusinessHours = True Then
-				Select Case DayofWeek
-					Case "Sunday"
-						If myRegistry.ReadFromRegistry("BusinessHoursSunday") = True Then
-							InBusinessHours = True
-							Exit Select
-						End If
-					Case "Monday"
-						If myRegistry.ReadFromRegistry("BusinessHoursMonday") = True Then
-							InBusinessHours = True
-							Exit Select
-						End If
-					Case "Tuesday"
-						If myRegistry.ReadFromRegistry("BusinessHoursTuesday") = True Then
-							InBusinessHours = True
-							Exit Select
-						End If
-					Case "Wednesday"
-						If myRegistry.ReadFromRegistry("BusinessHoursWednesday") = True Then
-							InBusinessHours = True
-							Exit Select
-						End If
-					Case "Thursday"
-						If myRegistry.ReadFromRegistry("BusinessHoursThursday") = True Then
-							InBusinessHours = True
-							Exit Select
-						End If
-					Case "Friday"
-						If myRegistry.ReadFromRegistry("BusinessHoursFriday") = True Then
-							InBusinessHours = True
-							Exit Select
-						End If
-					Case "Saturday"
-						If myRegistry.ReadFromRegistry("BusinessHoursSaturday") = True Then
-							InBusinessHours = True
-							Exit Select
-						End If
-					Case "Sunday"
-						If myRegistry.ReadFromRegistry("BusinessHoursSunday") = True Then
-							InBusinessHours = True
-							Exit Select
-						End If
-				End Select
-			End If
+                myEndResult = (MyEndTime.TimeOfDay.Subtract(TimeNow.TimeOfDay))
+                ' WriteAuditEntry(" My Endtime Result in minutes = " & myEndResult.TotalMinutes)
 
-			myRegistry = Nothing
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
-			myRegistry = Nothing
-		End Try
 
-		Return Not (InBusinessHours)
-	End Function
+                If myStartResult.TotalMinutes < 0 And myEndResult.TotalMinutes >= 0 Then
+                    boolInWindow = True
+                    '     WriteAuditEntry(Now.ToString & " Currently within the maintenance window " & dr.Item("Name"))
+                Else
+                    boolInWindow = False
+                    '    WriteAuditEntry(Now.ToString & " Currently outside the maintenance window " & dr.Item("Name"))
+                End If
+
+                If boolInWindow = True Then
+                    Select Case DayofWeek
+                        Case "Sunday"
+                            If dr.Item("Sunday") = True Then
+                                InMaintenanceWindow = True
+                                Exit For
+                            End If
+                        Case "Monday"
+                            If dr.Item("Monday") = True Then
+                                InMaintenanceWindow = True
+                                Exit For
+                            End If
+                        Case "Tuesday"
+                            If dr.Item("Tuesday") = True Then
+                                InMaintenanceWindow = True
+                                Exit For
+                            End If
+                        Case "Wednesday"
+                            If dr.Item("Wednesday") = True Then
+                                InMaintenanceWindow = True
+                                Exit For
+                            End If
+                        Case "Thursday"
+                            If dr.Item("Thursday") = True Then
+                                InMaintenanceWindow = True
+                                Exit For
+                            End If
+                        Case "Friday"
+                            If dr.Item("Friday") = True Then
+                                InMaintenanceWindow = True
+                                Exit For
+                            End If
+                        Case "Saturday"
+                            If dr.Item("Saturday") = True Then
+                                InMaintenanceWindow = True
+                                Exit For
+                            End If
+                        Case "Sunday"
+                            If dr.Item("Sunday") = True Then
+                                InMaintenanceWindow = True
+                                Exit For
+                            End If
+
+                    End Select
+                End If
+            Next
+
+            dr = Nothing
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error in maint window module: " & ex.Message)
+        End Try
+
+        Try
+            dsMaintWindows.Dispose()
+            myPath = Nothing
+            GC.Collect()
+        Catch ex As Exception
+
+        End Try
+
+        Return InMaintenanceWindow
+    End Function
+
+    Public Function OffHours(ByVal ServerName As String) As Boolean
+        'This function returns true if called during off hours, false if called during business hours
+        Dim MaintDLL As New MaintenanceDLL.MaintenanceDll
+        Try
+            If MaintDLL.OffHours(ServerName) = True Then
+                Return True
+            Else
+                Return False
+            End If
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
+
+    Public Function OLDOffHours() As Boolean
+        'This function returns true if called during off hours, false if called during business hours
+        Dim myRegistry As New VSFramework.RegistryHandler
+        Dim TwentyFourHours, InBusinessHours As Boolean
+        Try
+            TwentyFourHours = myRegistry.ReadFromRegistry("24 Hours")
+        Catch ex As Exception
+            TwentyFourHours = False
+        End Try
+
+        If TwentyFourHours = True Then
+            myRegistry = Nothing
+            Return False
+            Exit Function
+        End If
+
+        Dim DayofWeek As String
+        DayofWeek = Now.DayOfWeek.ToString
+
+        Dim MyStartTime, MyEndTime As DateTime
+        Dim TimeNow As DateTime = Now
+        Dim boolInWindow As Boolean
+
+        Try
+            MyStartTime = myRegistry.ReadFromRegistry("BusinessHoursStart")
+            MyEndTime = myRegistry.ReadFromRegistry("BusinessHoursEnd")
+        Catch ex As Exception
+            WriteAuditEntry(" Error calculating Business Hours window start and end times. Error: " & ex.Message)
+        End Try
+
+
+        Dim myStartResult, myEndResult As TimeSpan
+        myStartResult = (MyStartTime.TimeOfDay.Subtract(TimeNow.TimeOfDay))
+        myEndResult = (MyEndTime.TimeOfDay.Subtract(TimeNow.TimeOfDay))
+
+        Try
+            If myStartResult.TotalMinutes < 0 And myEndResult.TotalMinutes >= 0 Then
+                InBusinessHours = True
+                '     WriteAuditEntry(Now.ToString & " Currently within the business hours")
+            Else
+                InBusinessHours = False
+                '    WriteAuditEntry(Now.ToString & " Currently outside the business hours")
+            End If
+
+            If InBusinessHours = True Then
+                Select Case DayofWeek
+                    Case "Sunday"
+                        If myRegistry.ReadFromRegistry("BusinessHoursSunday") = True Then
+                            InBusinessHours = True
+                            Exit Select
+                        End If
+                    Case "Monday"
+                        If myRegistry.ReadFromRegistry("BusinessHoursMonday") = True Then
+                            InBusinessHours = True
+                            Exit Select
+                        End If
+                    Case "Tuesday"
+                        If myRegistry.ReadFromRegistry("BusinessHoursTuesday") = True Then
+                            InBusinessHours = True
+                            Exit Select
+                        End If
+                    Case "Wednesday"
+                        If myRegistry.ReadFromRegistry("BusinessHoursWednesday") = True Then
+                            InBusinessHours = True
+                            Exit Select
+                        End If
+                    Case "Thursday"
+                        If myRegistry.ReadFromRegistry("BusinessHoursThursday") = True Then
+                            InBusinessHours = True
+                            Exit Select
+                        End If
+                    Case "Friday"
+                        If myRegistry.ReadFromRegistry("BusinessHoursFriday") = True Then
+                            InBusinessHours = True
+                            Exit Select
+                        End If
+                    Case "Saturday"
+                        If myRegistry.ReadFromRegistry("BusinessHoursSaturday") = True Then
+                            InBusinessHours = True
+                            Exit Select
+                        End If
+                    Case "Sunday"
+                        If myRegistry.ReadFromRegistry("BusinessHoursSunday") = True Then
+                            InBusinessHours = True
+                            Exit Select
+                        End If
+                End Select
+            End If
+
+            myRegistry = Nothing
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
+            myRegistry = Nothing
+        End Try
+
+        Return Not (InBusinessHours)
+    End Function
 
 #End Region
 
-	Private Sub KillNotes()
+    Private Sub KillNotes()
 
-		Try
-			WriteAuditEntry(Now.ToString & " Killing all Notes processes.")
-			Dim myApp As String = strAppPath & "stopnotescl.exe /q"
-			Shell(myApp, AppWinStyle.Hide, False)
-		Catch ex As Exception
+        Try
+            WriteAuditEntry(Now.ToString & " Killing all Notes processes.")
+            Dim myApp As String = strAppPath & "stopnotescl.exe /q"
+            Shell(myApp, AppWinStyle.Hide, False)
+        Catch ex As Exception
 
-		End Try
+        End Try
 
-	End Sub
+    End Sub
 
 
 #Region "Week Number"
@@ -943,7 +943,7 @@ Public Class VitalSignsPlusDomino
 
     Private Function GetWeekNumber(ByVal dtNow As DateTime) As Integer
         Return CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday)
-        
+
         'Dim year As Integer = dt.Year
         'Dim Dec29 As New DateTime(year, 12, 29)
         'Dim week1 As New DateTime
@@ -1629,29 +1629,47 @@ Public Class VitalSignsPlusDomino
 
     Public Function GetNotesPassword() As String
         'Get the passwords from the settings table
-        Dim MyPass As Object
+        'Dim MyPass As Object
         Dim Password As String
+        Dim myPass As Byte()
+        Dim strEncryptedPassword As String
+        Dim myAdapter As New VSFramework.XMLOperation
 
         Try
-            Dim myAdapter As New VSFramework.XMLOperation
-            MyPass = myAdapter.ReadSettingsSQL("Password")
-            WriteAuditEntry(Now.ToString & " Password type is " & MyPass.GetType.ToString, LogLevel.Verbose)
-            'WriteAuditEntry(Now.ToString & " Raw password is " & MyPass.ToString)
-        Catch ex As Exception
-            MyPass = Nothing
-        End Try
 
-        Dim mySecrets As New VSFramework.TripleDES
-        Try
-            If Not MyPass Is Nothing Then
-                Password = mySecrets.Decrypt(MyPass) 'password in clear text, stored in memory now
-                ' If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Successfully decrypted the Notes password as " & MyDominoPassword)
-            Else
-                Password = Nothing
-            End If
+            strEncryptedPassword = myAdapter.ReadSettingsSQL("Password")
+
+            Try
+                Dim str1() As String
+                str1 = strEncryptedPassword.Split(",")
+                Dim bstr1(str1.Length - 1) As Byte
+                For j As Integer = 0 To str1.Length - 1
+                    bstr1(j) = str1(j).ToString()
+                Next
+                myPass = bstr1
+            Catch ex As Exception
+
+            End Try
+
+
+            Dim mySecrets As New VSFramework.TripleDES
+            Try
+                If Not strEncryptedPassword Is Nothing Then
+                    Password = mySecrets.Decrypt(myPass) 'password in clear text, stored in memory now
+                    ' If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Successfully decrypted the Notes password as " & MyDominoPassword)
+                    ' WriteAuditEntry(Now.ToString & " HTTP password is " & Password, LogLevel.Verbose)
+                Else
+                    Password = Nothing
+                End If
+            Catch ex As Exception
+                Password = ""
+                WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString)
+            End Try
+
+
+
         Catch ex As Exception
             Password = ""
-            WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString)
         End Try
 
         Return Password

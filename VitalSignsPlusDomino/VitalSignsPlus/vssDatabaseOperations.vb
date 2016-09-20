@@ -884,7 +884,9 @@ Partial Public Class VitalSignsPlusDomino
                                                                                      .Set(Function(x) x.PercentageChange, PercentageChange) _
                                                                                      .Set(Function(x) x.UpMinutes, .UpMinutes) _
                                                                                      .Set(Function(x) x.DownMinutes, .DownMinutes) _
-                                                                                     .Set(Function(x) x.DeviceId, .ServerObjectID)
+                                                                                     .Set(Function(x) x.DeviceId, .ServerObjectID) _
+                                                                                     .Set(Function(x) x.DeviceType, .ServerType) _
+                                                                                     .Set(Function(x) x.DeviceName, .Name)
 
 
                 repository.Upsert(filterDef, updateDef)

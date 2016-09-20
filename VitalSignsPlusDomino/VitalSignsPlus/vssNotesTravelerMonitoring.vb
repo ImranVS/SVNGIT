@@ -46,7 +46,8 @@ Partial Public Class VitalSignsPlusDomino
         Dim Details As String = "OK"
         Dim strSQL As String = ""
         Dim DominoServerName As String = myDominoServer.Name
-		If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Attempting to check Lotus Traveler health.")
+        Dim DominoDeviceType As String = myDominoServer.ServerType
+        If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Attempting to check Lotus Traveler health.")
 
 		Try
 			If myDominoServer.HierarchicalName = "" Then
@@ -105,7 +106,7 @@ Partial Public Class VitalSignsPlusDomino
 
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.TravelerVersion, myDominoServer.Traveler_Version)
                 repository.Update(filterDef, updateDef)
@@ -121,7 +122,7 @@ Partial Public Class VitalSignsPlusDomino
 
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.DeviceName, DominoServerName)
             repository.Update(filterDef, updateDef)
 
@@ -146,7 +147,7 @@ Partial Public Class VitalSignsPlusDomino
             WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Exception when checking for Constrained State: " & ex.Message)
             Try
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.ResourceConstraint, "Pass")
                 repository.Update(filterDef, updateDef)
             Catch ex2 As Exception
@@ -170,7 +171,7 @@ Partial Public Class VitalSignsPlusDomino
 			WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Traveler.Push.Devices.Total =" & myDominoServer.Traveler_DeviceCount)
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerDeviceCount, Convert.ToInt32(myDominoServer.Traveler_DeviceCount))
             repository.Update(filterDef, updateDef)
 
@@ -183,7 +184,7 @@ Partial Public Class VitalSignsPlusDomino
 
             If myDominoServer.Traveler_UserCount <> -1 Then
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerUsers, Convert.ToInt32(myDominoServer.Traveler_UserCount))
                 repository.Update(filterDef, updateDef)
             End If
@@ -195,7 +196,7 @@ Partial Public Class VitalSignsPlusDomino
 		Try
             If myDominoServer.Traveler_Status <> "" Then
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerStatus, myDominoServer.Traveler_Status)
                 repository.Update(filterDef, updateDef)
             End If
@@ -207,7 +208,7 @@ Partial Public Class VitalSignsPlusDomino
 		Try
             If myDominoServer.Traveler_Details <> "" Then
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerDetails, myDominoServer.Traveler_Details)
                 repository.Update(filterDef, updateDef)
             End If
@@ -232,7 +233,7 @@ Partial Public Class VitalSignsPlusDomino
 		Try
             If myDominoServer.HTTP_Configured_Max_Sessions <> 0 Then
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-Domino")
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.HttpMaxConfiguredConnections, myDominoServer.HTTP_Configured_Max_Sessions)
                 repository.Update(filterDef, updateDef)
                 If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " This server is configured to serve " & myDominoServer.HTTP_Configured_Max_Sessions & " simultaneous HTTP sessions.")
@@ -260,7 +261,7 @@ Partial Public Class VitalSignsPlusDomino
 		Try
             If myDominoServer.HTTP_Actual_Max_Sessions <> 0 Then
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.HttpPeakConnections, myDominoServer.HTTP_Actual_Max_Sessions)
                 repository.Update(filterDef, updateDef)
                 '  If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " This server is configured to serve " & myDominoServer.HTTP_Configured_Max_Sessions & " simultaneous HTTP sessions.")
@@ -323,7 +324,7 @@ Partial Public Class VitalSignsPlusDomino
             If myActiveUsers = 0 Then
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.TravelerDescription, "No Traveler Users are Active")
                 repository.Update(filterDef, updateDef)
             End If
@@ -348,7 +349,7 @@ Partial Public Class VitalSignsPlusDomino
 				myDominoServer.Description = "Traveler is disabled because HTTP is not running"
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.TravelerStatus, "Failure") _
                                                                                      .Set(Function(x) x.HttpStatus, Status) _
@@ -378,7 +379,7 @@ Partial Public Class VitalSignsPlusDomino
 				myDominoServer.Description = "Traveler is not running"
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.TravelerStatus, "Failure") _
                                                                                      .Set(Function(x) x.TravelerDetails, Details) _
@@ -458,7 +459,7 @@ Partial Public Class VitalSignsPlusDomino
 					WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Traveler.Availability.Index.Current:  " & myDominoServer.Traveler_Availability_Index)
 
                     Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName.Equals(DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()))
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                     Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                          .Set(Function(x) x.TravelerAvailabilityIndex, Convert.ToInt32(myDominoServer.Traveler_Availability_Index))
                     repository.Update(filterDef, updateDef)
@@ -513,8 +514,9 @@ Partial Public Class VitalSignsPlusDomino
 		Dim strSQL As String = ""
         Dim objVSAdaptor As New VSAdaptor
         Dim DominoServerName As String = myDominoServer.Name
+        Dim DominoDeviceType As String = myDominoServer.ServerType
 
-		Try
+        Try
 			myDominoServer.Traveler_Status_Prior = myDominoServer.Traveler_Status
 			myDominoServer.Traveler_Status = ""
 			If InStr(myDominoServer.Statistics_Traveler, "Traveler.Status.State") Then
@@ -548,7 +550,7 @@ Partial Public Class VitalSignsPlusDomino
 
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                  .Set(Function(x) x.TravelerStatus, myDominoServer.Traveler_Status)
             repository.Update(filterDef, updateDef)
@@ -566,7 +568,7 @@ Partial Public Class VitalSignsPlusDomino
                 myDominoServer.StatusCode = "Issue"
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.CurrentStatus, myDominoServer.Status) _
                                                                                      .Set(Function(x) x.StatusCode, myDominoServer.StatusCode) _
@@ -587,7 +589,7 @@ Partial Public Class VitalSignsPlusDomino
                 myDominoServer.StatusCode = "Issue"
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.DeviceName = DominoServerName And x.TypeAndName = DominoServerName & "-" & VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceName, DominoServerName) And repository.Filter.Eq(Function(x) x.DeviceType, DominoDeviceType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                      .Set(Function(x) x.CurrentStatus, myDominoServer.Status) _
                                                                                      .Set(Function(x) x.StatusCode, myDominoServer.StatusCode) _

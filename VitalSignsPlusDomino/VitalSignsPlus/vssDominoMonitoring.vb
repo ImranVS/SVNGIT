@@ -3836,7 +3836,7 @@ SkipTask:
                                     .Monitored = IIf(Boolean.TryParse(ServerTask.IsMonitored, New Boolean), Boolean.Parse(ServerTask.IsMonitored), False),
                                     .PrimaryStatus = ServerTask.Status,
                                     .StatusSummary = ServerTask.StatusSummary,
-                                    .TaskName = ServerTask.TaskName,
+                                    .TaskName = ServerTask.Name,
                                     .SecondaryStatus = ServerTask.SecondaryStatus
                                 })
 
