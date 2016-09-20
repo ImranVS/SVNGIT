@@ -153,6 +153,11 @@ namespace VSNext.Mongo.Entities
         public string DeviceName { get; set; }
 
         [DataMember]
+        [BsonElement("device_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
+
+        [DataMember]
         [BsonElement("guid")]
         public string GUID { get; set; }
 
