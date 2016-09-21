@@ -39,6 +39,7 @@
 
         <div class="col-lg-8">
 
+         
             <div class="row">
 
                 <my-widget [contract]="widgetStatusSummary">loading...</my-widget>
@@ -98,27 +99,13 @@
                 <div class="col-lg-3 col-md-12">
                     <div class="row">
 
-                        <!-- Users sessions -->
-                        <div class="col-lg-12 col-md-6 zeusColorReact-success">
-                            <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
-                                <img class="svgInject" src="img/dashboard/UsersSessions.svg" title="Users sessions" alt="Users sessions" style="width: 70px;" />
-                                <div>
-                                    <div class="widgetImageText-head">174</div>
-                                    <div class="widgetImageText-text">Users sessions</div>
-                                </div>
-                            </div>
-                        </div>
+                     <!--Usersessions, Downtimes, AverageResponse widget-->
 
+                        <div class="row">
 
-                        <!-- Down Time -->
-                        <div class="col-lg-12 col-md-6 zeusColorReact-danger">
-                            <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
-                                <img class="svgInject" src="img/dashboard/Chrono.svg" title="Down time" alt="Down time" />
-                                <div>
-                                    <div class="widgetImageText-head">18 mins</div>
-                                    <div class="widgetImageText-text">Down time this hour</div>
-                                </div>
-                            </div>
+                            <my-widget [contract]="widgetUsersSessions">loading...</my-widget>
+                           
+
                         </div>
 
                         <!-- Emails server -->
@@ -136,17 +123,6 @@
                                 <div style="padding: 0 5px;">
                                     <div class="widgetImageText-head zeusColorReactText">2</div>
                                     <div class="widgetImageText-text zeusColorReactText">Held mails</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Average Response time -->
-                        <div class="col-lg-12 col-md-6 zeusColorReact-warning">
-                            <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
-                                <img class="svgInject" src="img/dashboard/HourGlass.svg" title="Average Response time" alt="Average Response time" />
-                                <div>
-                                    <div class="widgetImageText-head">1028 ms.</div>
-                                    <div class="widgetImageText-text">Average response time</div>
                                 </div>
                             </div>
                         </div>

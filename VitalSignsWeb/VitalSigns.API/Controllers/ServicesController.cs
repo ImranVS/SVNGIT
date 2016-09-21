@@ -72,7 +72,7 @@ namespace VitalSigns.API.Controllers
             return summaryList.Where(x => x.Type != null && x.Type != "Domino Cluster").ToList();
         }
         [HttpGet("dashboard_stats")]
-        public APIResponse GetDashboardStas()
+        public APIResponse GetDashboardStats()
         {
             statusRepository = new Repository<Status>(ConnectionString);
             var result = statusRepository.All()
@@ -89,7 +89,7 @@ namespace VitalSigns.API.Controllers
 
 
 
-            return Common.CreateResponse(new { user_count = userCount, response_time = responseTime, doenMinutes = downMinutes });
+            return Common.CreateResponse(new { user_count = userCount, response_time = responseTime, downMinutes = downMinutes });
         }
         /// <summary>
         /// Returns all servers details

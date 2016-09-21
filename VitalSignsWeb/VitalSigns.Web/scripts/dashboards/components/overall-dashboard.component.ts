@@ -68,6 +68,15 @@ export class OverallDashboard extends WidgetController implements OnInit {
         settings: {}
     }
 
+    widgetUsersSessions: WidgetContract = 
+        {
+        id: 'widgetUserSessions',
+        path: '/app/widgets/main-dashboard/components/user-sessions.component',
+        name: 'UserSessions',
+        settings: {}
+        }
+       
+
     weeklyEvents: WidgetContract = {
         id: 'weeklyEventsRepartitionChartWrapper',
         title: 'Weekly events repartition',
