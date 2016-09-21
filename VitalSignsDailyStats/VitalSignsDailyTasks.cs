@@ -95,7 +95,7 @@ namespace VitalSignsDailyStats
                 travelerSummaryStatsRepository = _unitOfWork.Repository<TravelerStatusSummary>();
                 statusDeatilsRepository = _unitOfWork.Repository<StatusDetails>();
 
-                ProcessTravelerstats();
+              
                 if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
                     culture = ConfigurationManager.AppSettings[cultureName];
 
@@ -247,16 +247,29 @@ namespace VitalSignsDailyStats
                     {
                         WriteAuditEntry("Starting update of local tables");
                         //UpdateLocalTables();
-                        ProcessTravelerstats();
+                       
                       
                     }
                     catch (Exception ex)
                     {
                         WriteAuditEntry("OOPS, error updating local tables" + ex.ToString());
                     }
-                    WriteAuditEntry("Daily Task is finished....");
-                    this.Stop();
+                    try
+                    {
+                        ProcessTravelerstats();
 
+                    }
+                    catch (Exception ex)
+                    {
+
+                        WriteAuditEntry("OOPS, error in processing TravelerSummaryStats" + ex.ToString());
+                    }
+                    WriteAuditEntry("Daily Task is finished....");
+
+
+                  
+                    this.Stop();
+                   
                 }
 
             }
