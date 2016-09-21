@@ -858,34 +858,39 @@ namespace VitalSignsDailyStats
             List<SummaryStatistics> summaryStatistics = new List<SummaryStatistics>();
             foreach(DailyTasks dailyTask in dailyTasks)
             {
+                    string name = dailyTask.StatName;
                 SummaryStatistics summaryStatistic = new SummaryStatistics();
                 switch(dailyTask.AggregationType.ToUpper())
                 {
-                    case "AVG":
-                        var avgResult= dailyStatasticsRepository.Collection.Aggregate()
-                       .Match(x => x.StatName==dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn< SearchDate.AddDays(1) )
-                           .Group(g => g.DeviceId,  g => new { key = g.Key, value = g.Average(s=>s.StatValue) })
-                           .Project(x => new SummaryStatistics
-                           {
-                               DeviceId = x.key,
-                              // StatName = dailyTask.StatName,
-                               StatValue=x.value,
-                              
-                               
-                           }).ToList();
-                        if(avgResult.Count>0)
-                        summaryStatasticsRepository.Insert(avgResult);
+                        
+                        case "AVG":
+                            var avgResult = dailyStatasticsRepository.Collection.Aggregate()
+                           .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
+                               .Group(g =>new { g.DeviceId ,g.StatName,g.DeviceName}, g => new { key = g.Key, value = g.Average(s => s.StatValue) })
 
-                        break;
-                    case "SUM":
+                               .Project(x => new SummaryStatistics
+                               {
+                                   DeviceId = x.key.DeviceId,
+                                   StatName = x.key.StatName,
+                                   StatValue = x.value,
+                                   DeviceName=x.key.DeviceName
+
+
+                               }).ToList();
+                            if (avgResult.Count > 0)
+                                summaryStatasticsRepository.Insert(avgResult);
+
+                            break;
+                        case "SUM":
                         var sumResult = dailyStatasticsRepository.Collection.Aggregate()
                           .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
-                           .Group(g => g.DeviceId, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
+                           .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
                            .Project(x => new SummaryStatistics
                            {
-                               DeviceId = x.key,
-                               StatName = dailyTask.StatName,
-                               StatValue = x.value
+                               DeviceId = x.key.DeviceId,
+                               StatName = x.key.StatName,
+                               StatValue = x.value,
+                               DeviceName = x.key.DeviceName
                            }).ToList();
                             if (sumResult.Count > 0)
                                 summaryStatasticsRepository.Insert(sumResult);
@@ -894,12 +899,13 @@ namespace VitalSignsDailyStats
                     case "MAX":
                         var maxResult = dailyStatasticsRepository.Collection.Aggregate()
                             .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
-                           .Group(g => g.DeviceId, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
+                           .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
                            .Project(x => new SummaryStatistics
                            {
-                               DeviceId = x.key,
+                               DeviceId = x.key.DeviceId,
                                StatName = dailyTask.StatName,
-                               StatValue = x.value
+                               StatValue = x.value,
+                               DeviceName = x.key.DeviceName
                            }).ToList();
                             if (maxResult.Count > 0)
                                 summaryStatasticsRepository.Insert(maxResult);
