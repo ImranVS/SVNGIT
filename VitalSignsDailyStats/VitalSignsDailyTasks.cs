@@ -95,7 +95,7 @@ namespace VitalSignsDailyStats
                 travelerSummaryStatsRepository = _unitOfWork.Repository<TravelerStatusSummary>();
                 statusDeatilsRepository = _unitOfWork.Repository<StatusDetails>();
 
-
+                ProcessTravelerstats();
                 if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
                     culture = ConfigurationManager.AppSettings[cultureName];
 
@@ -247,9 +247,8 @@ namespace VitalSignsDailyStats
                     {
                         WriteAuditEntry("Starting update of local tables");
                         //UpdateLocalTables();
-                        ProcessTravelerstats("OpenTimesDelta");
-                        ProcessTravelerstats("CumulativeTimesMin");
-                        ProcessTravelerstats("CumulativeTimesMax");
+                        ProcessTravelerstats();
+                      
                     }
                     catch (Exception ex)
                     {
@@ -682,103 +681,89 @@ namespace VitalSignsDailyStats
 
         }
 
-        public void ProcessTravelerstats(string statName)
+        public void ProcessTravelerstats()
         {
 
             try
             {
                 List<TravelerStatusSummary> summaryList = new List<TravelerStatusSummary>();
 
-                var result = travelerStatsRepository.All().ToList();
-
-                if (statName == "OpenTimesDelta")
+                var result = travelerStatsRepository.Collection.Aggregate().Group(x => x.DeviceId, g => new { deviceId = g.Key }).ToList();
+               // var result = travelerStatsRepository.All().GroupBy(x=>new {x.DeviceId }).Select(x => new TravelerStats { DeviceId=x.Key.DeviceId}).ToList();
+                foreach (var item in result)
                 {
-
-                    foreach (var item in result)
+                    Expression<Func<TravelerStats, bool>> Expression = (p => p.MailServerName != "" && p.DateUpdated <DateTime.Now && p.DeviceId == item.deviceId);
+                    var travelerStatData = travelerStatsRepository.Find(Expression).ToList();
+                    summaryList.Add(new TravelerStatusSummary
                     {
+                        StatName = "OpenTimesDelta",
+                        MailServerName = travelerStatData.FirstOrDefault().MailServerName,
+                        DateUpdated=travelerStatData.FirstOrDefault().DateUpdated,
+                        DeviceId = item.deviceId,
+                        c_000_001 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "000-001")).Average(s => s.Delta)),
+                        c_001_002 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "001-002")).Average(s => s.Delta)),
+                        c_002_005 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "002-005")).Average(s => s.Delta)),
+                        c_005_010 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "005-010")).Average(s => s.Delta)),
+                        c_010_030 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "010-030")).Average(s => s.Delta)),
+                        c_030_060 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "030-060")).Average(s => s.Delta)),
+                        c_060_120 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "060-120")).Average(s => s.Delta)),
+                        c_120_INF = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "120-INF")).Average(s => s.Delta)),
 
-                        summaryList.Add(new TravelerStatusSummary
-                        {
-                            StatName = statName,
+                    });
+                    var min = travelerStatsRepository.All().Where(x => x.DateUpdated < DateTime.Now).Min(x => x.DateUpdated).ToString();
+                   
+                    Expression<Func<TravelerStats, bool>> minExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(min) && p.DeviceId==item.deviceId);
+                    var travelerStatDataforMin = travelerStatsRepository.Find(minExpression).ToList();
+                    if(travelerStatDataforMin.Count>0)
+                    { 
+                    summaryList.Add(new TravelerStatusSummary
+                    {
+                        StatName = "CumulativeTimesMin",
+                        DeviceId = item.deviceId,
+                        MailServerName = travelerStatDataforMin.FirstOrDefault().MailServerName,
+                        DateUpdated= travelerStatDataforMin.FirstOrDefault().DateUpdated,
+                        c_000_001 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "000-001")).Sum(s => s.OpenTimes)),
+                        c_001_002 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "001-002")).Sum(s => s.OpenTimes)),
+                        c_002_005 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "002-005")).Sum(s => s.OpenTimes)),
+                        c_005_010 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "005-010")).Sum(s => s.OpenTimes)),
+                        c_010_030 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "010-030")).Sum(s => s.OpenTimes)),
+                        c_030_060 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "030-060")).Sum(s => s.OpenTimes)),
+                        c_060_120 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "060-120")).Sum(s => s.OpenTimes)),
+                        c_120_INF = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "120-INF")).Sum(s => s.OpenTimes)),
 
-                            //  c_000_001 = type,
-                            TravelerServerName = item.TravelerServerName,
-                            MailServerName = item.TravelerServerName,
-                            OpenTimes = item.OpenTimes,
-                            Delta = item.Delta,
-                            DateUpdated = Convert.ToDateTime(result.Select(x => x.OpenTimes)),
-                            c_000_001 =Convert.ToInt32(result.Where(x => (x.Interval == "000-001") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
-                            c_001_002 = Convert.ToInt32(result.Where(x => (x.Interval == "001-002") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
-                            c_002_005 = Convert.ToInt32(result.Where(x => (x.Interval == "002-005") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
-                            c_005_010 = Convert.ToInt32(result.Where(x => (x.Interval == "005-010") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
-                            c_010_030 = Convert.ToInt32(result.Where(x => (x.Interval == "010-030") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
-                            c_030_060 = Convert.ToInt32(result.Where(x => (x.Interval == "030-060") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
-                            c_060_120 = Convert.ToInt32(result.Where(x => (x.Interval == "060-120") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
-                            c_120_INF = Convert.ToInt32(result.Where(x => (x.Interval == "120-INF") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Average(s => s.Delta)),
+                    });
+                    }
+                    var max = travelerStatsRepository.All().Where(x => x.DateUpdated < DateTime.Now).Max(x => x.DateUpdated).ToString();
 
-                        });
+                    Expression<Func<TravelerStats, bool>> maxExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(max) && p.DeviceId == item.deviceId);
+                    var travelerStatDataforMax = travelerStatsRepository.Find(maxExpression).ToList();
+                    if(travelerStatDataforMax.Count>0)
+                    {
+                    summaryList.Add(new TravelerStatusSummary
+                    {
+                        StatName = "CumulativeTimesMax",
+                        MailServerName = travelerStatDataforMax.FirstOrDefault().MailServerName,
+                        DateUpdated = travelerStatDataforMax.FirstOrDefault().DateUpdated,
+                        DeviceId=item.deviceId,
+                        c_000_001 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "000-001")).Sum(s => s.OpenTimes)),
+                        c_001_002 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "001-002")).Sum(s => s.OpenTimes)),
+                        c_002_005 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "002-005")).Sum(s => s.OpenTimes)),
+                        c_005_010 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "005-010")).Sum(s => s.OpenTimes)),
+                        c_010_030 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "010-030")).Sum(s => s.OpenTimes)),
+                        c_030_060 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "030-060")).Sum(s => s.OpenTimes)),
+                        c_060_120 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "060-120")).Sum(s => s.OpenTimes)),
+                        c_120_INF = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "120-INF")).Sum(s => s.OpenTimes)),
 
+                    });
                     }
                 }
-                else if (statName == "CumulativeTimesMin")
-                {
-                    foreach (var item in result)
-                    {
 
-                        summaryList.Add(new TravelerStatusSummary
-                        {
-                            StatName = statName,
-
-                            //  c_000_001 = type,
-                            TravelerServerName = item.TravelerServerName,
-                            MailServerName = item.TravelerServerName,
-                            OpenTimes = item.OpenTimes,
-                            Delta = item.Delta,
-                            DateUpdated = Convert.ToDateTime(result.Select(x => x.OpenTimes)),
-                            c_000_001 = result.Where(x => (x.Interval == "000-001") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_001_002 = result.Where(x => (x.Interval == "001-002") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_002_005 = result.Where(x => (x.Interval == "002-005") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_005_010 = result.Where(x => (x.Interval == "005-010") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_010_030 = result.Where(x => (x.Interval == "010-030") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_030_060 = result.Where(x => (x.Interval == "030-060") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_060_120 = result.Where(x => (x.Interval == "060-120") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_120_INF = result.Where(x => (x.Interval == "120-INF") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Min(s => s.DateUpdated)))).Sum(s => s.Delta),
-
-                        });
-
-                    }
-                }
-                else
-                {
-                    foreach (var item in result)
-                    {
-
-                        summaryList.Add(new TravelerStatusSummary
-                        {
-                            StatName = statName,
-
-                            //  c_000_001 = type,
-                            TravelerServerName = item.TravelerServerName,
-                            MailServerName = item.TravelerServerName,
-                            OpenTimes = item.OpenTimes,
-                            Delta = item.Delta,
-                            DateUpdated = Convert.ToDateTime(result.Select(x => x.OpenTimes)),
-                            c_000_001 = result.Where(x => (x.Interval == "000-001") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_001_002 = result.Where(x => (x.Interval == "001-002") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_002_005 = result.Where(x => (x.Interval == "002-005") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_005_010 = result.Where(x => (x.Interval == "005-010") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_010_030 = result.Where(x => (x.Interval == "010-030") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_030_060 = result.Where(x => (x.Interval == "030-060") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_060_120 = result.Where(x => (x.Interval == "060-120") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
-                            c_120_INF = result.Where(x => (x.Interval == "120-INF") && (x.DateUpdated == (result.Where(s => s.DateUpdated < DateTime.Now).Max(s => s.DateUpdated)))).Sum(s => s.Delta),
-
-                        });
-
-                    }
-                }
+              
                 var travelersummary = summaryList.ToList();
+                if(travelersummary.Count>0)
+                {
                 travelerSummaryStatsRepository.Insert(travelersummary);
-
+                }
 
             }
             catch (Exception ex)
@@ -870,7 +855,7 @@ namespace VitalSignsDailyStats
                            .Project(x => new SummaryStatistics
                            {
                                DeviceId = x.key,
-                               //StatName = dailyTask.StatName,
+                              // StatName = dailyTask.StatName,
                                StatValue=x.value,
                               
                                
@@ -1482,7 +1467,7 @@ namespace VitalSignsDailyStats
 
             var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId })
 
-                         .Select(x => new DailyStatistics
+                         .Select(x => new SummaryStatistics
                          {
                                 //DeviceName=g.value
                                 //StatName=x.StatName,
@@ -1496,22 +1481,9 @@ namespace VitalSignsDailyStats
 
 
 
-            List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
-            foreach (DailyStatistics dailyStat in result)
-            {
-                SummaryStatistics summaryStats = new SummaryStatistics();
-                summaryStats.StatName = dailyStat.StatName;
-                summaryStats.StatValue = dailyStat.StatValue;
-                summaryStats.DeviceName = dailyStat.DeviceName;
-                summaryStats.DeviceId = dailyStat.DeviceId;
-
-                summaryStataStics.Add(summaryStats);
-
-            }
-
-            if (summaryStataStics.Count > 0)
-                summaryStatasticsRepository.Insert(summaryStataStics);
-            summaryStatasticsRepository.Insert(summaryStataStics);
+            if (result.Count > 0)
+                summaryStatasticsRepository.Insert(result);
+           // summaryStatasticsRepository.Insert(summaryStataStics);
 
             //    SqlCommand sqlcmd = new SqlCommand();
             //    DataSet myDataSet = new DataSet();
@@ -1581,7 +1553,7 @@ namespace VitalSignsDailyStats
 
             var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId })
 
-                         .Select(x => new DailyStatistics
+                         .Select(x => new SummaryStatistics
                          {
                                 //DeviceName=g.value
                                 //StatName=x.StatName,
@@ -1595,21 +1567,9 @@ namespace VitalSignsDailyStats
 
 
 
-            List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
-            foreach (DailyStatistics dailyStat in result)
-            {
-                SummaryStatistics summaryStats = new SummaryStatistics();
-                summaryStats.StatName = dailyStat.StatName;
-                summaryStats.StatValue = dailyStat.StatValue;
-                summaryStats.DeviceName = dailyStat.DeviceName;
-                summaryStats.DeviceId = dailyStat.DeviceId;
-
-                summaryStataStics.Add(summaryStats);
-
-            }
-
-            if (summaryStataStics.Count > 0)
-                summaryStatasticsRepository.Insert(summaryStataStics);
+          
+            if (result.Count > 0)
+                summaryStatasticsRepository.Insert(result);
             
 
 
@@ -2025,7 +1985,7 @@ namespace VitalSignsDailyStats
 
                 var result = dailyStsts.GroupBy(g=>new {g.DeviceName,g.StatName,g.DeviceId })
                             
-                             .Select(x => new DailyStatistics 
+                             .Select(x => new SummaryStatistics 
                              {
                                  //DeviceName=g.value
                                  //StatName=x.StatName,
@@ -2039,21 +1999,9 @@ namespace VitalSignsDailyStats
 
                      
 
-                List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
-                foreach (DailyStatistics dailyStat in result)
-                {
-                    SummaryStatistics summaryStats = new SummaryStatistics();
-                    summaryStats.StatName = dailyStat.StatName;
-                    summaryStats.StatValue = dailyStat.StatValue;
-                    summaryStats.DeviceName = dailyStat.DeviceName;
-                    summaryStats.DeviceId = dailyStat.DeviceId;
 
-                    summaryStataStics.Add(summaryStats);
-
-                }
-
-                if (summaryStataStics.Count > 0)
-                    summaryStatasticsRepository.Insert(summaryStataStics);
+                if (result.Count > 0)
+                    summaryStatasticsRepository.Insert(result);
             }
             catch (Exception ex)
             {
@@ -2389,7 +2337,7 @@ namespace VitalSignsDailyStats
                 statusRepository.Delete();
                 //Cleaning Up TravelerStats Table
 
-                Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated <DateTime.Now);
+                Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated < DateTime.Now);
                 travelerStatsRepository.Delete(expression);
 
                 //To Do pending for Clean up Alert History
