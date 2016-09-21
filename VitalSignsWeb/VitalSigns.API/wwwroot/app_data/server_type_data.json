@@ -22,8 +22,8 @@
             "title": "Traveler Health",
             "type": "Dashboard",
             "component": "ServiceTravelerHealth",
-            "path": "/app/services/components/service-travelerhealth-tab.component",
-            
+            "path": "/app/services/components/service-travelerhealth-tab.component"
+
           },
           {
             "tab_id": 4,
@@ -41,104 +41,123 @@
           },
           {
             "tab_id": 6,
-            "title": "Maintenance",
+            "title": "Cluster Health",
             "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServiceClusterHealthTab",
+            "secondary_role": "Cluster",
+            "path": "/app/services/components/service-clusterhealth-tab.component"
           },
+
           {
             "tab_id": 7,
-            "title": "Alerts",
+            "title": "Maintenance",
             "type": "Dashboard",
             "component": "NotYetImplemented",
             "path": "/app/not-yet-implemented.component"
           },
           {
             "tab_id": 8,
+            "title": "Alerts",
+            "type": "Dashboard",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 9,
             "title": "Outages",
             "type": "Dashboard",
             "component": "ServiceOutagesTab",
             "path": "/app/services/components/service-outages-tab.component"
           },
           {
-            "tab_id": 9,
+            "tab_id": 10,
             "title": "Admin",
             "type": "Dashboard",
             "component": "NotYetImplemented",
             "path": "/app/not-yet-implemented.component"
           }
+
         ]
 
       },
   {
     "server_type": "Domino",
     "icon": "/img/servers/ServerDaysUp.svg",
-      "tabs": [
-          {
-            "tab_id": 1,
-            "title": "Overall",
-            "type": "Dashboard",
-            "component": "ServiceOverallTab",
-            "path": "/app/services/components/service-overall-tab.component"
-          },
-        {
-          "tab_id": 2,
-          "title": "Health Assessment",
-          "type": "Dashboard",
-          "component": "ServiceMainHealthTab",
-          "path": "/app/services/components/service-mainhealth-tab.component"
-        },
-        {
-          "tab_id": 3,
-          "title": "Traveler Health",
-          "type": "Dashboard",
-          "component": "ServiceTravelerHealth",
-          "path": "/app/services/components/service-travelerhealth-tab.component",
-          "secondary_role": "Traveler"
-        },
-          {
-            "tab_id": 4,
-            "title": "Database",
-            "type": "Dashboard",
-            "component": "ServiceDatabaseTab",
-            "path": "/app/services/components/service-database-tab.component"
-          },
-        {
-          "tab_id": 5,
-          "title": "Tasks",
-          "type": "Dashboard",
-          "component": "ServiceTasksTab",
-          "path": "/app/services/components/service-servertasks-tab.component"
-        },
-          {
-            "tab_id": 6,
-            "title": "Maintenance",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-          {
-            "tab_id": 7,
-            "title": "Alerts",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          },
-        {
-          "tab_id": 8,
-          "title": "Outages",
-          "type": "Dashboard",
-          "component": "ServiceOutagesTab",
-          "path": "/app/services/components/service-outages-tab.component"
-        },
-          {
-            "tab_id": 9,
-            "title": "Admin",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
-          }
-        ]
+    "tabs": [
+      {
+        "tab_id": 1,
+        "title": "Overall",
+        "type": "Dashboard",
+        "component": "ServiceOverallTab",
+        "path": "/app/services/components/service-overall-tab.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "Traveler Health",
+        "type": "Dashboard",
+        "component": "ServiceTravelerHealth",
+        "path": "/app/services/components/service-travelerhealth-tab.component",
+        "secondary_role": "Traveler"
+      },
+      {
+        "tab_id": 4,
+        "title": "Database",
+        "type": "Dashboard",
+        "component": "ServiceDatabaseTab",
+        "path": "/app/services/components/service-database-tab.component"
+      },
+      {
+        "tab_id": 5,
+        "title": "Tasks",
+        "type": "Dashboard",
+        "component": "ServiceTasksTab",
+        "path": "/app/services/components/service-servertasks-tab.component"
+      },
+      {
+        "tab_id": 6,
+        "title": "Cluster Health",
+        "type": "Dashboard",
+        "component": "ServiceClusterHealthTab",
+        "secondary_role": "Cluster",
+        "path": "/app/services/components/service-clusterhealth-tab.component"
+      },
+      {
+        "tab_id": 7,
+        "title": "Maintenance",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 8,
+        "title": "Alerts",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 9,
+        "title": "Outages",
+        "type": "Dashboard",
+        "component": "ServiceOutagesTab",
+        "path": "/app/services/components/service-outages-tab.component"
+      },
+      {
+        "tab_id": 10,
+        "title": "Admin",
+        "type": "Dashboard",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      }
+      
+    ]
 
   },
 

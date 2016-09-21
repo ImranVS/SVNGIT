@@ -29,6 +29,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Database> databaseRepository;
         private IRepository<Outages> outagesRepository;
        private IRepository<TravelerStatusSummary> travelerStatsRepository;
+ 
 
 
         /// <summary>
@@ -445,14 +446,10 @@ namespace VitalSigns.API.Controllers
                 var result = databaseRepository.Find(expression).Select(x => new ServerDatabase
                 {
                     DeviceId = x.DeviceId,
-                    Title = x.Title,
-                    
+                    Title = x.Title,           
                     DeviceName = x.DeviceName,
-
-                    Status = x.Status,
-                    
+                    Status = x.Status,                   
                     Folder = x.Folder,                
-
                     FolderCount = x.FolderCount,
                     Details = x.Details,
                     FileName = x.FileName,
@@ -583,6 +580,47 @@ namespace VitalSigns.API.Controllers
             return Response;
 
 
+        }
+
+        [HttpGet("{device_id}/clusterhealth")]
+        public APIResponse GetClusterHealth(string device_id)
+        {
+            statusRepository = new Repository<Status>(ConnectionString);
+            try
+            {
+                var clusterData = statusRepository.Find(x => x.DeviceId == device_id).FirstOrDefault();
+                if (clusterData != null)
+                {
+                    string clusterName = clusterData.ClusterName;
+                    Expression<Func<Status, bool>> expression = (p => p.ClusterName == clusterName);
+                    var result = statusRepository.Find(expression).Select(x => new StatusBox
+                    {
+                        DeviceId = x.DeviceId,
+                        DeviceName = x.DeviceName,
+                        ClusterName = x.ClusterName,
+                        ClusterSecondsOnQueue = x.ClusterSecondsOnQueue,
+                        ClusterSecondsOnQueueAverage = x.ClusterSecondsOnQueueAverage,
+                        ClusterWorkQueueDepth = x.ClusterWorkQueueDepth,
+                        ClusterWorkQueueDepthAverage = x.ClusterWorkQueueDepthAverage,
+                        ClusterAvailability = x.ClusterAvailability,
+                        ClusterAvailabilityThreshold = x.ClusterAvailabilityThreshold,
+                        LastUpdated = Convert.ToString(x.LastUpdated.Value),
+                        ClusterAnalysis = x.ClusterAnalysis
+
+                    }).ToList();
+                    Response = Common.CreateResponse(result);
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, "Data Error", "Cluster data not found");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
         }
     }
 }
