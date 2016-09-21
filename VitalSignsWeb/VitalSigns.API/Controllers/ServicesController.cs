@@ -186,7 +186,7 @@ namespace VitalSigns.API.Controllers
                     result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
                 else
                 {
-                    var secondaryRoles = result.SecondaryRole.Split(';');
+                    var secondaryRoles = result.SecondaryRole.Split(';').Select(x=>x.Trim());
                     result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
                 }
 
