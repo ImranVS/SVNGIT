@@ -24,30 +24,6 @@ namespace VitalSigns.API.Models.Charts
         [BsonElement("color")]
         public string Color { get; set; }
 
-        [JsonProperty("statname")]
-        [BsonElement("statname")]
-        public string StatName { get; set; }
-
-        [JsonProperty("time")]
-        [BsonElement("time")]
-        public List<string> Time { get; set; }
-
-        [JsonProperty("statvalues")]
-        [BsonElement("statvalues")]
-        public List<double> Statvalues { get; set; }
-
-        [JsonProperty("disk_name")]
-        [BsonElement("disk_name")]
-        public List<string> DiskName { get; set; }
-
-        [JsonProperty("disk_free")]
-        [BsonElement("disk_free")]
-        public List<double> DiskFree { get; set; }
-
-        [JsonProperty("disk_size")]
-        [BsonElement("disk_size")]
-        public List<double> DiskSize { get; set; }
-
 
     }
 }

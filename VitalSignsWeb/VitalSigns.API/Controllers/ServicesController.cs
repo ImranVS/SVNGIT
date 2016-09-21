@@ -24,7 +24,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<Drive> diskRepository;
 
-        private IRepository<IbmConnectionsTopStats> ibmRepository;
+         private IRepository<IbmConnectionsTopStats> ibmRepository;
 
 
 
@@ -176,8 +176,8 @@ namespace VitalSigns.API.Controllers
                                          Description = x.Description,
                                          Status = x.StatusCode,
                                          DeviceId = x.DeviceId,
-                                         SecondaryRole=x.SecondaryRole
-                                         
+                                         SecondaryRole = x.SecondaryRole
+
 
                                      })).FirstOrDefault();
                 var serviceIcons = Common.GetServerTypeIcons();
@@ -187,7 +187,7 @@ namespace VitalSigns.API.Controllers
                 else
                 {
                     var secondaryRoles = result.SecondaryRole.Split(';');
-                    result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null ||secondaryRoles.Contains( x.SecondaryRole))).ToList();
+                    result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
                 }
 
                 result.Description = "Last Updated: " + result.LastUpdated.Value.ToShortDateString();
@@ -243,76 +243,19 @@ namespace VitalSigns.API.Controllers
 
                     if (string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
                     {
-                        if (statName.Contains("disk"))
+
+
+
+                        var result = dailyRepository.Find(expression).Select(x => new StatsData
                         {
-                            statusRepository = new Repository<Status>(ConnectionString);
+                            DeviceId = x.DeviceId,
+                            StatName = x.StatName,
+                            StatValue = x.StatValue
 
-                            Expression<Func<Status, bool>> diskexpression = (p => p.DeviceId == deviceId);
-                            var result = statusRepository.Find(diskexpression).FirstOrDefault();
+                        }).OrderBy(x => x.StatName).ToList();
 
-                            List<Segment> disksegments = new List<Segment>();
-                            List<string> diskname = new List<string>();
-                            List<double> diskfree = new List<double>();
-                            List<double> disksize = new List<double>();
-                            ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
-                            serverDiskStatus.Id = result.DeviceId;
-                            foreach (Disk drive in result.Disks)
-                            {
-                                serverDiskStatus.Drives.Add(new DiskDriveStatus
-                                {
-                                    DiskFree = drive.DiskFree,
-                                    DiskSize = drive.DiskSize,
-                                    DiskName = drive.DiskName,
-                                    DiskUsed = drive.DiskSize - drive.DiskFree,
+                        Response = Common.CreateResponse(result);
 
-                                    PercentFree = drive.PercentFree,
-                                    Threshold = drive.Threshold,
-
-                                });
-
-                                diskname.Add(drive.DiskName);
-                                diskfree.Add(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0);
-                                disksize.Add(drive.DiskSize.HasValue ? (double)drive.DiskSize : 0);
-                                //List<string> name = new List<string>();
-                                //name = drive.DiskName;
-
-
-
-
-
-                            }
-                            disksegments.Add(new Segment { DiskName=diskname ,DiskSize = disksize, DiskFree = diskfree });
-
-
-
-                            Serie serie = new Serie();
-                            serie.Title = "Disk Space";
-                            serie.Segments = disksegments;
-                          //  serie.Category = name.ToList();
-
-
-                            List<Serie> series = new List<Serie>();
-                            series.Add(serie);
-
-                            Chart chart = new Chart();
-                            chart.Title = "Disk Space";
-                            chart.Series = series;
-
-
-                            Response = Common.CreateResponse(chart);
-                        }
-                        else
-                        {
-                            var result = dailyRepository.Find(expression).Select(x => new StatsData
-                            {
-                                DeviceId = x.DeviceId,
-                                StatName = x.StatName,
-                                StatValue = x.StatValue
-
-                            }).OrderBy(x => x.StatName).ToList();
-
-                            Response = Common.CreateResponse(result);
-                        }
                         return Response;
                     }
                     else if (!string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
@@ -370,7 +313,7 @@ namespace VitalSigns.API.Controllers
                                 break;
                             case "HOURLY":
                                 var statsHourly = dailyRepository.Find(expression);
-                                List<Segment> segments = new List<Segment>();
+
 
                                 var result = statsHourly
                                        .GroupBy(row => new
@@ -391,67 +334,65 @@ namespace VitalSigns.API.Controllers
 
 
 
-                                DateTime time = new DateTime();
-                                string displayTime = "";
-                                // List<string> lstinternalcounter = result.Select(c => c.()).ToList();
-                                List<double> values = new List<double>();
+
+                                // DateTime moment = DateTime.Now.Hour;
                                 // int onhour = moment.Hour;
-                                foreach (string name in statNames)
+                                List<Serie> series = new List<Serie>();
+
+                                foreach (var name in statNames)
                                 {
-                                    for (int hour = 0; hour <= 23; hour++)
+
+                                    List<Segment> segments = new List<Segment>();
+                                    Serie serie = new Serie();
+                                    for (int hour = 1; hour <= 24; hour++)
                                     {
-                                        var item = result.Where(x => x.Hour == hour && x.StatName == name).ToList();
-                                        var statdata = result.Where(x => x.Hour == hour).FirstOrDefault();
-                                        var output = result.Where(x => x.StatName == name).Select(x => x.Value).ToList();
+                                        // To do
+                                        // string hourString =hour<12?hour.ToString()+ " A.M " 
+
+                                        var item = result.Where(x => x.Hour == hour).FirstOrDefault();
+                                        var output = result.Where(x => x.Hour == hour && x.StatName == name).ToList();
+                                        DateTime time = new DateTime();
+                                        time = DateTime.Now.AddHours(-hour);
+                                        time = time.AddMinutes(-1 * time.Minute);
+                                        string displayTime = "";
+                                        displayTime = time.ToString("hh:mm tt");
 
 
-                                        if (statdata != null && statNames.Length == 1)
+                                        if (item != null && statNames.Length == 1)
                                         {
 
-                                            time = DateTime.Now.AddHours(-hour);
-                                            time = time.AddMinutes(-1 * time.Minute);
-                                            displayTime = time.ToString("hh:mm tt");
-                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = statdata.Value, StatName = statdata.StatName });
-
-
+                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = item.Value });
+                                            serie.Title = name;
+                                            serie.Segments = segments;
                                         }
-
-
-                                        else if (item != null && statNames.Length > 1)
+                                        else if (item != null && output != null && statNames.Length > 1)
                                         {
-                                            time = DateTime.Now.AddHours(-hour);
-                                            time = time.AddMinutes(-1 * time.Minute);
-                                            displayTime += time.ToString("hh:mm tt") + ",";
-                                            values = output.ToList();
+                                            foreach (var statvalue in output)
+                                            {
+                                                segments.Add(new Segment { Label = displayTime, Value = statvalue.Value });
+                                                serie.Title = name;
+                                                serie.Segments = segments;
+                                            }
+
                                         }
-
-
                                         else
                                         {
-                                            time = DateTime.Now.AddHours(-hour);
-                                            time = time.AddMinutes(-1 * time.Minute);
-                                            displayTime = time.ToString("hh:mm tt");
+
+                                            // TimeSpan timespan = new TimeSpan(hour);
+
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
+                                            serie.Title = name;
+                                            serie.Segments = segments;
 
                                         }
 
 
-                                    }
-                                    // displayTime = displayTime.ToList<string>();
-                                    List<string> timevalue = new List<string>();
-                                    timevalue.Add(displayTime);
-                                    if (statNames.Length > 1)
-                                    {
-                                        segments.Add(new Segment { Time = timevalue.ToList(), StatName = name, Statvalues = values.ToList() });
-                                    }
 
+
+
+                                    }
+                                    series.Add(serie);
                                 }
-                                Serie serie = new Serie();
-                                serie.Title = statName;
-                                serie.Segments = segments;
-                              //  serie.Category = statNames.ToList<string>();
-                                List<Serie> series = new List<Serie>();
-                                series.Add(serie);
 
                                 Chart chart = new Chart();
                                 chart.Title = statName;
@@ -459,13 +400,9 @@ namespace VitalSigns.API.Controllers
 
 
 
-
                                 Response = Common.CreateResponse(chart);
                                 break;
-
                         }
-
-
 
 
                     }
@@ -493,12 +430,12 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetSummaryStat(string deviceId, string statName)
         {
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
-
+            var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
             try
             {
                 if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
-                    Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatName == statName);
+                    Expression<Func<SummaryStatistics, bool>> expression = (p => statNames.Contains(p.StatName));
                     var result = summaryRepository.Find(expression).Select(x => new StatsData
                     {
                         //DeviceId = x.DeviceId,
@@ -512,53 +449,77 @@ namespace VitalSigns.API.Controllers
                 else if (!string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
 
-                    Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatName == statName && p.DeviceId == deviceId);
+                    Expression<Func<SummaryStatistics, bool>> expression = (p => statNames.Contains(p.StatName) && p.DeviceId == deviceId);
                     var statsHourly = summaryRepository.Find(expression);
                     var result = statsHourly
-                                .GroupBy(row => row.CreatedOn.Date)
-                                .Select(grp => new
-                                {
-                                    Date = grp.Key,
-                                    Value = grp.Average(x => x.StatValue)
-                                }).ToList();
-                    List<Segment> segments = new List<Segment>();
+                                       .GroupBy(row => new
+                                       {
+                                           row.CreatedOn.Date,
+                                           row.StatName
 
-                    DateTime now = DateTime.Now.AddDays(-28);
+                                       })
+                                       .Select(row => new
+                                       {
+                                           Date = row.Key.Date,
+                                           Value = Math.Round(row.Average(x => x.StatValue), 2),
+                                           StatName = row.Key.StatName
+
+                                       }).ToList();
+
+
+
+                    DateTime now = DateTime.Now;
                     var startDate = new DateTime(now.Year, now.Month, 1);
-                    var endDate = startDate.AddMonths(1).AddDays(-1);
-
-                    for (DateTime date = startDate.Date; date.Date <= endDate.Date; date = date.AddDays(1))
+                    var endDate = now;
+                    List<Serie> series = new List<Serie>();
+                    foreach (var name in statNames)
                     {
-                        var item = result.Where(x => x.Date == date).FirstOrDefault();
-                        if (item != null)
+
+                        List<Segment> segments = new List<Segment>();
+                        Serie serie = new Serie();
+
+
+
+                        for (DateTime date = startDate.Date; date.Date <= endDate.Date; date = date.AddDays(1))
                         {
-                            string y = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
-                            segments.Add(new Segment { Label = y.ToString(), Value = item.Value });
-                        }
-                        else
-                        {
-                            string y = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
-                            segments.Add(new Segment { Label = y.ToString(), Value = 0 });
+                            var item = result.Where(x => x.Date == date).FirstOrDefault();
+                            var output = result.Where(x => x.Date == date && x.StatName == name.ToString()).ToList();
+
+                            string statdate = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
+                            if (item != null && statNames.Length == 1)
+                            {
+                                segments.Add(new Segment { Label = statdate.ToString(), Value = item.Value });
+                                serie.Title = name.ToString();
+                                serie.Segments = segments;
+                            }
+                            else if (item != null && output != null && statNames.Length > 1)
+                            {
+                                foreach (var statvalue in output)
+                                {
+                                    segments.Add(new Segment { Label = statdate, Value = statvalue.Value });
+                                    serie.Title = name.ToString();
+                                    serie.Segments = segments;
+                                }
+                            }
+                            else
+                            {
+                                segments.Add(new Segment { Label = statdate.ToString(), Value = 0 });
+                                serie.Title = name.ToString();
+                                serie.Segments = segments;
+
+                            }
+
+
 
                         }
+                        series.Add(serie);
 
                     }
-
-                    Serie serie = new Serie();
-                    serie.Title = statName;
-                    serie.Segments = segments;
-
-                    List<Serie> series = new List<Serie>();
-                    series.Add(serie);
 
                     Chart chart = new Chart();
                     chart.Title = statName;
                     chart.Series = series;
-
-
-
                     Response = Common.CreateResponse(chart);
-                    //Response = Common.CreateResponse(result);
 
                 }
                 return Response;
@@ -578,10 +539,10 @@ namespace VitalSigns.API.Controllers
             ibmRepository = new Repository<IbmConnectionsTopStats>(ConnectionString);
             try
             {
-                if(!string.IsNullOrEmpty(deviceId))
+                if (!string.IsNullOrEmpty(deviceId))
                 {
 
-                    Expression<Func<IbmConnectionsTopStats, bool>> expression = (p=>p.DeviceId == deviceId);
+                    Expression<Func<IbmConnectionsTopStats, bool>> expression = (p => p.DeviceId == deviceId);
                     var topTags = ibmRepository.Find(expression);
                     var result = topTags
                                       .GroupBy(row => row.Name)
@@ -589,7 +550,7 @@ namespace VitalSigns.API.Controllers
                                       {
                                           Label = grp.Key,
                                           Value = grp.Count(),
-                                          
+
                                       }).ToList();
                     List<Segment> segments = new List<Segment>();
                     Serie serie = new Serie();
@@ -599,7 +560,7 @@ namespace VitalSigns.API.Controllers
                     List<Serie> series = new List<Serie>();
                     series.Add(serie);
                     Chart chart = new Chart();
-                   // chart.Title = name;
+                    // chart.Title = name;
                     chart.Series = series;
                     Response = Common.CreateResponse(chart);
                 }
@@ -611,7 +572,7 @@ namespace VitalSigns.API.Controllers
 
                 return Response;
             }
-        }     
+        }
 
         [HttpGet("status_list")]
         public APIResponse GetStatusList(string type)
@@ -698,7 +659,7 @@ namespace VitalSigns.API.Controllers
             {
 
                 Expression<Func<Status, bool>> expression = (p => p.DeviceType == type);
-                
+
                 // var output = statusRepository.All().Where(x => x.DeviceType == type);
                 if (type == "Domino")
                 {
@@ -757,7 +718,7 @@ namespace VitalSigns.API.Controllers
                                                           Value = x.value
                                                       }).ToList();
 
-                       
+
                     }
 
                     result.RemoveAll(item => item.Label == null);
@@ -765,7 +726,7 @@ namespace VitalSigns.API.Controllers
                     Serie serie = new Serie();
                     serie.Title = docfield;
                     serie.Segments = result;
-                   
+
 
                     List<Serie> series = new List<Serie>();
                     series.Add(serie);
@@ -778,7 +739,7 @@ namespace VitalSigns.API.Controllers
 
 
                 }
-                
+
                 return Response;
             }
 
@@ -790,8 +751,56 @@ namespace VitalSigns.API.Controllers
             }
 
         }
+        [HttpGet("disk_space")]
+        public APIResponse GetDiskSpace(string type, string deviceid)
+        {
+
+            statusRepository = new Repository<Status>(ConnectionString);
+            Expression<Func<Status, bool>> diskexpression = (p => p.DeviceId == deviceid);
+            var result = statusRepository.Find(diskexpression).FirstOrDefault();
+            Expression<Func<Status, bool>> typeexpression = (p => p.DeviceType == type);
+
+          //  var diskresult = statusRepository.Find(typeexpression);
+            try
+            {
+                if (!string.IsNullOrEmpty(deviceid))
+                {
+                    ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
+                    serverDiskStatus.Id = result.DeviceId;
+                    List<Serie> series = new List<Serie>();
+                    foreach (Disk drive in result.Disks)
+                    {
+                        List<Segment> segments = new List<Segment>();
+                        segments.Add(new Segment { Label = "disk_free", Value = Math.Round(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0, 2) });
+                        segments.Add(new Segment { Label = "disk_used", Value = Math.Round(drive.DiskSize.HasValue ? (double)drive.DiskSize : 0, 2) });
+
+                        Serie serie = new Serie();
+                        serie.Title = drive.DiskName;
+                        serie.Segments = segments;
+                        series.Add(serie);
+
+                    }
+
+                    Chart chart = new Chart();
+                    chart.Title = "Disk Space";
+                    chart.Series = series;
+                    Response = Common.CreateResponse(chart);
+                    
+                }
+
+            
+                return Response;
+            }
 
 
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+        }
     }
 }
 
