@@ -80,16 +80,23 @@ namespace VitalSigns.API.Controllers
                                         {
                                             UserCount = x.UserCount,
                                             ResponseTime = x.ResponseTime,
-                                            DownMinutes = x.DownMinutes
+                                            DownMinutes = x.DownMinutes,
+                                            PendingMail = x.PendingMail,
+                                            DeadMail = x.DeadMail,
+                                            HeldMail = x.HeldMail
+
                                         }).ToList();
             int? userCount = result.Sum(x => x.UserCount);
             double? responseTime = result.Average(x => x.ResponseTime);
             double? downMinutes = result.Sum(x => x.DownMinutes);
+            int? pendingMail = result.Sum(x => x.PendingMail);
+            int? deadMail = result.Sum(x => x.DeadMail);
+            int? heldMail = result.Sum(x => x.HeldMail);
 
 
 
 
-            return Common.CreateResponse(new { user_count = userCount, response_time = responseTime, downMinutes = downMinutes });
+            return Common.CreateResponse(new { user_count = userCount, response_time = responseTime, downMinutes = downMinutes, pendingMail = pendingMail, deadMail = deadMail, heldMail = heldMail });
         }
         /// <summary>
         /// Returns all servers details
