@@ -41,10 +41,10 @@ namespace VitalSigns.API.Controllers
                                                    Label = x.label,
                                                    Value = x.value
                                                }).ToList();
-            var issue = result.Where(item => item.Label == "Issue").FirstOrDefault().Value;
-            var ok = result.Where(item => item.Label == "OK").FirstOrDefault().Value; ;
-            var notResponding = result.Where(item => item.Label == "Not Responding").FirstOrDefault().Value;
-            var maintenance = result.Where(item => item.Label == "Maintenance").FirstOrDefault().Value;
+            var issue = result.Where(item => item.Label == "Issue").Select(x => x.Value);
+            var ok = result.Where(item => item.Label == "OK").Select(x => x.Value);
+            var notResponding = result.Where(item => item.Label == "Not Responding").Select(x => x.Value);
+            var maintenance = result.Where(item => item.Label == "Maintenance").Select(x => x.Value);
             return Common.CreateResponse(new { issue = issue, ok = ok, notResponding = notResponding, maintenance = maintenance });
         }
 
@@ -768,42 +768,29 @@ namespace VitalSigns.API.Controllers
                 statusRepository = new Repository<Status>(ConnectionString);
                 Expression<Func<Status, bool>> diskexpression = (p => p.DeviceId == deviceid);
                 var result = statusRepository.Find(diskexpression).FirstOrDefault();
-
-                List<DiskSerie> diskserie = new List<DiskSerie>();
-                List<string> name = new List<string>();
-                List<double> diskfree = new List<double>();
-                List<double> disksize = new List<double>();
-                ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
-                serverDiskStatus.Id = result.DeviceId;
-                foreach (Disk drive in result.Disks)
+                List<Serie> diskserie = new List<Serie>();
+                if (result != null)
                 {
-                    serverDiskStatus.Drives.Add(new DiskDriveStatus
-                    {
-                        DiskFree = drive.DiskFree,
-                        DiskSize = drive.DiskSize,
-                        DiskName = drive.DiskName,
-                        DiskUsed = drive.DiskSize - drive.DiskFree,
-
-                        PercentFree = drive.PercentFree,
-                        Threshold = drive.Threshold,
-
+                    var data = result.Disks.Select(x => new  {
+                       Name=x.DiskName,
+                       Free=x.DiskFree,
+                       Used= x.DiskSize - x.DiskFree
                     });
 
-                    name.Add(drive.DiskName);
-                    diskfree.Add(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0);
-                    disksize.Add(drive.DiskSize.HasValue ? (double)drive.DiskSize : 0);
- 
-                }
-                diskserie.Add(new DiskSerie { Label = "Available", Value = diskfree });
-                diskserie.Add(new DiskSerie { Label = "Used", Value = disksize });
-                DiskChart chart = new DiskChart();
+                    Serie diskFreeSerie = new Serie();
+                    diskFreeSerie.Title = "Available";
+                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value,Color= "rgba(95, 190, 127, 1)" }).ToList();
+                    diskserie.Add(diskFreeSerie);
+                    Serie diskUsedSerie = new Serie();
+                    diskUsedSerie.Title = "Used";
+                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value,Color= "rgba(239, 58, 36, 1)" }).ToList();
+                    diskserie.Add(diskUsedSerie);
+
+                }                
+                Chart chart = new Chart();
                 chart.Title = "Disk Space";
                 chart.Series = diskserie;
-                chart.Categories = name;
-
-
                 Response = Common.CreateResponse(chart);
-
                 return Response;
             }
 
