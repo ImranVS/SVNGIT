@@ -135,7 +135,7 @@ namespace VitalSignsDailyStats
                 try
                 {
 
-                    if ((System.Configuration.ConfigurationManager.AppSettings["VSNodeName"] != null))
+                    if ((ConfigurationManager.AppSettings["VSNodeName"] != null))
                     {
                         VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
 
@@ -196,7 +196,7 @@ namespace VitalSignsDailyStats
                
                try
                 {
-                 //  CleanUpObsoleteData();
+                   CleanUpObsoleteData();
                 }
                 catch (Exception ex)
                 {
