@@ -7119,7 +7119,7 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_PROFILES_EDITED_YESTERDAY FROM EMPINST.EMPLOYEE WHERE DATE(PROF_LAST_UPDATE) = CURRENT_DATE - 1 DAY;" & _
             "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" & _
             "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT PROF_GUID, PROF_DISPLAY_NAME FROM EMPINST.EMPLOYEE;"
+            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE FROM EMPINST.EMPLOYEE;"
 
 
 
@@ -7211,8 +7211,9 @@ CleanUp:
 
                 ' Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
                 For Each row As DataRow In ds.Tables(12).Rows()
-                    'sql += "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsUsers WHERE GUID = @ProfGuid AND ServerId = @ServerId) BEGIN " & _
-                    '    "INSERT IbmConnectionsUsers (GUID, DisplayName, ServerID) VALUES (@ProfGuid, @ProfDisplayName, @ServerId) END;"
+                    'sql += "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsUsers WHERE GUID = @ProfGuid AND ServerId = @ServerId) BEGIN " &
+                    '        "INSERT IbmConnectionsUsers (GUID, DisplayName, ServerID, IsActive, IsInternal) VALUES (@ProfGuid, @ProfDisplayName, @ServerId, @IsActive, @IsInternal) END ELSE BEGIN " &
+                    '        "UPDATE IbmConnectionsUsers SET DisplayName = @ProfDisplayName, IsActive = @IsActive, IsInternal = @IsInternal WHERE ServerId = @ServerId AND GUID = @ProfGUID END;"
 
                     'Dim sqlCmd As New SqlClient.SqlCommand()
                     'sqlCmd.Connection = sqlConn
@@ -7220,6 +7221,8 @@ CleanUp:
                     'sqlCmd.Parameters.AddWithValue("@ProfDisplayName", row("PROF_DISPLAY_NAME").ToString())
                     'sqlCmd.Parameters.AddWithValue("@ProfGuid", row("PROF_GUID").ToString())
                     'sqlCmd.Parameters.AddWithValue("@ServerId", myServer.ID)
+                    'sqlCmd.Parameters.AddWithValue("@IsInternal", IIf(row("PROF_MODE").ToString() = "0", "1", "0"))
+                    'sqlCmd.Parameters.AddWithValue("@IsActive", IIf(row("PROF_STATE").ToString() = "0", "1", "0"))
 
                     'sqlCmd.ExecuteNonQuery()
                     Dim myServerName As String = myServer.Name
