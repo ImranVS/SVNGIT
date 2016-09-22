@@ -10,14 +10,16 @@ namespace VitalSigns.API.Models.Charts
     [BsonIgnoreExtraElements]
     public class DiskChart
     {
-        
 
-        [JsonProperty("disk_free")]
-        [BsonElement("disk_free")]
-        public List<double> DiskFree { get; set; }
 
-        [JsonProperty("disk_size")]
-        [BsonElement("disk_size")]
-        public List<double> DiskSize { get; set; }
+        [JsonProperty("title")]
+        public string Title { get; set; }
+
+        [JsonProperty("categories")]
+        public List<string> Categories { get; set; }
+
+
+        [JsonProperty("series")]
+        public ICollection<DiskSerie> Series { get; set; }
     }
 }

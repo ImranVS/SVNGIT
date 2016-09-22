@@ -10,11 +10,11 @@ namespace VitalSigns.API.Models.Charts
     {
         [JsonProperty("title")]
         public string Title { get; set; }
-       
+
 
         [JsonProperty("segments")]
         public ICollection<Segment> Segments { get; set; }
-      
+
 
       
     }
