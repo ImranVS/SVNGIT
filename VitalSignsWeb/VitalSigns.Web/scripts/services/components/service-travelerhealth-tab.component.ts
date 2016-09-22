@@ -17,6 +17,7 @@ declare var bootstrapNavigator: any;
 export class ServiceTravelerHealth extends WidgetController implements OnInit {
     deviceId: any;
     widgets: WidgetContract[]; 
+    //widgetmail: WidgetContract;
        
        
     
@@ -187,28 +188,28 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 }
             },
 
-            {
-
-                id: 'dynamicGrid',
+          {
+              id: 'ServiceTravelerMailServersGrid',
                 title: 'Traveler Health Mail Servers',
-                path: '/app/widgets/grid/components/dynamic-grid.component',
-                name: 'DynamicGrid',
-                css: 'col-xs-12',
-                settings: {
-
-
-
-                          url: '/DashBoard/' + this.deviceId + '/traveler-mailservers',
-                          columns: [{ header: "Mail ServerName", binding: "mail_servername", name: "mail_servername", width: "*" },
-                              { header: "Date Updated", binding: "date_updated", name: "date_updated", width: "*" },
-
-                        ]
-
-
-                }
+                path: '/app/services/components/service-travelermailservers-grid.component',
+                name: 'ServiceTravelerMailServersGrid',
+                css: 'col-xs-12'
             }
         ]
-       
+
+        //this.widgetmail =
+            
+        //        {
+           
+        //        id: 'ServiceTravelerMailServersGrid',
+        //        title: 'Traveler Health Mail Servers',
+        //        path: '/app/services/components/service-travelerhealth-grid.component',
+        //        name: 'ServiceTravelerHealthGrid',
+        //        css: 'col-xs-12'
+         
+
+        //        }
+         
         
 
         injectSVG();

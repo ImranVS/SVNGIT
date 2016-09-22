@@ -14,7 +14,7 @@ declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 @Component({
-    templateUrl: '/app/services/components/service-travelerhealth-grid.component.html',
+    templateUrl: '/app/services/components/service-travelermailservers-grid.component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
@@ -30,12 +30,12 @@ declare var bootstrapNavigator: any;
         RESTService
     ]
 })
-export class ServiceTravelerHealthGrid implements OnInit {
+export class ServiceTravelerMailServersGrid implements OnInit {
     @Input() settings: any;
     deviceId: any;
     data: wijmo.collections.CollectionView;
     //data1: wijmo.collections.CollectionView;
-    maildata: wijmo.collections.CollectionView;
+    //maildata: wijmo.collections.CollectionView;
     errorMessage: string;
 
     constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute) { }
@@ -58,7 +58,7 @@ export class ServiceTravelerHealthGrid implements OnInit {
             this.deviceId = params['service'];
 
         });
-        this.service.get('/DashBoard/' + this.deviceId + '/traveler-health')
+        this.service.get('/DashBoard/' + this.deviceId + '/traveler_mailstats')
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
