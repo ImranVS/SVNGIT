@@ -68,11 +68,12 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/1/overall/disk-space',
+                    url: `/services/disk_space?deviceid=${this.serviceId}`,
+                   
                     chart: {
                         chart: {
                             renderTo: 'diskSpace',
-                            type: 'pie',
+                            type: 'bar',
                             height: 300
                         },
                         title: { text: '' },
@@ -84,7 +85,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                             enabled: false
                         },
                         plotOptions: {
-                            pie: {
+                            bar: {
                                 allowPointSelect: true,
                                 cursor: 'pointer',
                                 dataLabels: {
