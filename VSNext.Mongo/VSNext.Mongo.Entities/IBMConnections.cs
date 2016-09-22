@@ -109,6 +109,14 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("object_modified_date")]
         public DateTime ObjectModifiedDate { get; set; }
+
+        [DataMember]
+        [BsonElement("is_active")]
+        public bool IsActive { get; set; }
+
+        [DataMember]
+        [BsonElement("is_internal")]
+        public bool IsInternal { get; set; }
     }
 
     //[DataContract]
@@ -139,36 +147,36 @@ namespace VSNext.Mongo.Entities
 
     //}
 
-    [DataContract]
-    [Serializable]
-    [CollectionName("ibm_connections_users")]
-    public class IbmConnectionsUsers : Entity
-    {
-        [DataMember]
-        [BsonElement("display_name")]
-        public string DisplayName { get; set; }
+    //[DataContract]
+    //[Serializable]
+    //[CollectionName("ibm_connections_users")]
+    //public class IbmConnectionsUsers : Entity
+    //{
+    //    [DataMember]
+    //    [BsonElement("display_name")]
+    //    public string DisplayName { get; set; }
 
-        [DataMember]
-        [BsonElement("device_name")]
-        public string DeviceName { get; set; }
+    //    [DataMember]
+    //    [BsonElement("device_name")]
+    //    public string DeviceName { get; set; }
 
-        [DataMember]
-        [BsonElement("device_id")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string DeviceId { get; set; }
+    //    [DataMember]
+    //    [BsonElement("device_id")]
+    //    [BsonRepresentation(BsonType.ObjectId)]
+    //    public string DeviceId { get; set; }
 
-        [DataMember]
-        [BsonElement("guid")]
-        public string GUID { get; set; }
+    //    [DataMember]
+    //    [BsonElement("guid")]
+    //    public string GUID { get; set; }
 
-        [DataMember]
-        [BsonElement("is_active")]
-        public bool IsActive { get; set; }
+    //    [DataMember]
+    //    [BsonElement("is_active")]
+    //    public bool IsActive { get; set; }
 
-        [DataMember]
-        [BsonElement("is_internal")]
-        public bool IsInternal { get; set; }
+    //    [DataMember]
+    //    [BsonElement("is_internal")]
+    //    public bool IsInternal { get; set; }
 
-    }
+    //}
 
 }
