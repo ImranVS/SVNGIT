@@ -76,16 +76,11 @@ export class ServiceClusterHealthGrid implements OnInit {
             default:
                 return '';
         }
-
     }
-
     refreshChart(event: wijmo.grid.CellRangeEventArgs) {
-
-        console.log(event.panel.grid.selectedItems);
-
-        this.widgetService.refreshWidget('responseTimes')
+        console.log(`/services/statistics?statName = Replica.Cluster.SecondsOnQueue&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`);
+        this.widgetService.refreshWidget('domcluster', `/services/statistics?statName=Replica.Cluster.SecondsOnQueue&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
             .catch(error => console.log(error));
-
     }
 }
 
@@ -95,9 +90,4 @@ export class ServiceClusterHealthGrid implements OnInit {
 
 
 
-
-        //console.log(`/services/statistics?statName=ResponseTime&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`);
-        //this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
-        //    .catch(error => console.log(error));
-        //this.widgetService.refreshWidget('dailyUserLogins', `/services/statistics?statName=Users&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
-      
+       
