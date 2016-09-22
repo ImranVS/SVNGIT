@@ -81,22 +81,26 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                         credits: {
                             enabled: false
                         },
+                        xAxis: {
+                             categories: []
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Disk Space(GB)'
+                            }
+                        },
                         exporting: {
                             enabled: false
                         },
                         plotOptions: {
-                            bar: {
-                                allowPointSelect: true,
-                                cursor: 'pointer',
-                                dataLabels: {
-                                    enabled: false
-                                },
-                                showInLegend: true
+                            series: {
+                                stacking: 'normal'
                             }
                         },
                         tooltip: {
                             formatter: function () {
-                                return '<div style="font-size: 11px; font-weight: normal;">' + this.key + '<br /><strong>' + this.y + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
+                                return '<div style="font-size: 11px; font-weight: normal;">' + this.key + '<br /><strong>' + this.y.toFixed(2) + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
                             },
                             useHTML: true
                         },
@@ -105,13 +109,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                                 return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
                             }
                         },
-                        series: [
-                            {
-                                name: 'Go',
-                                data: [],
-                                innerSize: '70%'
-                            }
-                        ]
+                        series: []
                     }
                 }
             },
