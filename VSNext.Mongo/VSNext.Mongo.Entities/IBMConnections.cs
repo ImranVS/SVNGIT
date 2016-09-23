@@ -6,38 +6,38 @@ using MongoDB.Bson.Serialization.Attributes;
 using System.Collections.Generic;
 namespace VSNext.Mongo.Entities
 {
-    [DataContract]
-    [Serializable]
-    [CollectionName("ibm_connections_top_stats")]
-    public class IbmConnectionsTopStats : Entity
-    {
-        [DataMember]
-        [BsonElement("device_name")]
-        public string DeviceName { get; set; }
+    //[DataContract]
+    //[Serializable]
+    //[CollectionName("ibm_connections_top_stats")]
+    //public class IbmConnectionsTopStats : Entity
+    //{
+    //    [DataMember]
+    //    [BsonElement("device_name")]
+    //    public string DeviceName { get; set; }
 
 
-        [DataMember]
-        [BsonElement("device_id")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string DeviceId { get; set; }
+    //    [DataMember]
+    //    [BsonElement("device_id")]
+    //    [BsonRepresentation(BsonType.ObjectId)]
+    //    public string DeviceId { get; set; }
 
-        [DataMember]
-        [BsonElement("ranking")]
-        public string Ranking { get; set; }
+    //    [DataMember]
+    //    [BsonElement("ranking")]
+    //    public string Ranking { get; set; }
 
-        [DataMember]
-        [BsonElement("name")]
-        public string Name { get; set; }
+    //    [DataMember]
+    //    [BsonElement("name")]
+    //    public string Name { get; set; }
 
-        [DataMember]
-        [BsonElement("usage_count")]
-        public string UsageCount { get; set; }
+    //    [DataMember]
+    //    [BsonElement("usage_count")]
+    //    public string UsageCount { get; set; }
 
-        [DataMember]
-        [BsonElement("type")]
-        public string Type { get; set; }
+    //    [DataMember]
+    //    [BsonElement("type")]
+    //    public string Type { get; set; }
 
-    }
+    //}
     //[DataContract]
     //[Serializable]
     //[CollectionName("ibm_connections_community")]
@@ -149,7 +149,7 @@ namespace VSNext.Mongo.Entities
 
     //[DataContract]
     //[Serializable]
-    //[CollectionName("ibm_connections_users")]
+    //[CollectionName("ibm_connections_objects")]
     //public class IbmConnectionsUsers : Entity
     //{
     //    [DataMember]
