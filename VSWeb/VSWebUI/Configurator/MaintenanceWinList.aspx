@@ -175,7 +175,7 @@
                                     <PropertiesDateEdit DisplayFormatString="t">
                                     </PropertiesDateEdit>
                                 </dx:GridViewDataDateColumn>
-                                <dx:GridViewDataTextColumn FieldName="Duration" VisibleIndex="7">
+                                <dx:GridViewDataTextColumn FieldName="Duration" VisibleIndex="7" Caption="Duration (mins)">
 								<Settings AllowAutoFilter="False" />
                                     <EditCellStyle CssClass="GridCss">
                                     </EditCellStyle>

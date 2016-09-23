@@ -1889,11 +1889,16 @@ namespace VSWebUI.Configurator
                         FileName = myRow["Filename"].ToString();
                         string Options;
                         Options = popuptextBox.Text;
-                        Config = "lo compact " + Folder + FileName + "" + Options;
+                        Config = "lo compact " + Folder + FileName + " "  +" "+  Options;
+                        string NotesIDfile = VSWebBL.SettingBL.SettingsBL.Ins.Getvalue("Notes User ID");
+                        var pos = NotesIDfile.LastIndexOf('/');
+                       
+                        var value = NotesIDfile.Substring(0, pos);
+                        var activeid =  NotesIDfile.Substring(pos + 1);
                         bool returnval = VSWebBL.DashboardBL.LotusTravelerHealthBLL.Ins.SENDTravelerConsoleCommand(Server, Config, Session["UserFullName"].ToString());
                         if (returnval == true)
                         {
-                            Dominomsglbl.Text = "Sent the command " + Config + ". Note that this will only work if YOU have the appropriate remote console and admin rights.";
+                            Dominomsglbl.Text = "Sent the command " + Config + ". Note that this will only work if Notes ID  " + activeid + " have the appropriate remote console and admin rights.";
                             DominomsgPopupControl.ShowOnPageLoad = true;
                         }
 
@@ -1911,11 +1916,15 @@ namespace VSWebUI.Configurator
                         FileName = myRow["Filename"].ToString();
                         string Options;
                         Options = popuptextBox.Text;
-                        Config = "Load fixupdbpath options " + Folder + FileName + "" + Options;
+                        Config = "Load fixupdbpath options " + Folder + FileName + "" + "" + Options;
+                        string NotesIDfile = VSWebBL.SettingBL.SettingsBL.Ins.Getvalue("Notes User ID");
+                        var pos = NotesIDfile.LastIndexOf('/');
+                        var value = NotesIDfile.Substring(0, pos);
+                        var activeid = NotesIDfile.Substring(pos + 1);
                         bool returnval = VSWebBL.DashboardBL.LotusTravelerHealthBLL.Ins.SENDTravelerConsoleCommand(Server, Config, Session["UserFullName"].ToString());
                         if (returnval == true)
                         {
-                            Dominomsglbl.Text = "Sent the command " + Config + ". Note that this will only work if YOU have the appropriate remote console and admin rights.";
+                            Dominomsglbl.Text = "Sent the command " + Config + ". Note that this will only work if  Notes ID " + activeid + " have the appropriate remote console and admin rights.";
                             DominomsgPopupControl.ShowOnPageLoad = true;
                         }
                         // Config ="Load fixupdbpath options "+ dbPath + " " + Options;
@@ -1934,11 +1943,15 @@ namespace VSWebUI.Configurator
                         FileName = myRow["Filename"].ToString();
                         string Options;
                         Options = popuptextBox.Text;
-                        Config = "Load updalldbpath options " + Folder + FileName + "" + Options;
+                        Config = "Load updalldbpath options " + Folder + FileName + "" + "" + Options;
+                        string NotesIDfile = VSWebBL.SettingBL.SettingsBL.Ins.Getvalue("Notes User ID");
+                        var pos = NotesIDfile.LastIndexOf('/');
+                        var value = NotesIDfile.Substring(0, pos);
+                        var activeid = NotesIDfile.Substring(pos + 1);
                         bool returnval = VSWebBL.DashboardBL.LotusTravelerHealthBLL.Ins.SENDTravelerConsoleCommand(Server, Config, Session["UserFullName"].ToString());
                         if (returnval == true)
                         {
-                            Dominomsglbl.Text = "Sent the command " + Config + ". Note that this will only work if YOU have the appropriate remote console and admin rights.";
+                            Dominomsglbl.Text = "Sent the command " + Config + ". Note that this will only work if  Notes ID  " + activeid + " have the appropriate remote console and admin rights.";
                             DominomsgPopupControl.ShowOnPageLoad = true;
                         }
 

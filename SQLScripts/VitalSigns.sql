@@ -3435,7 +3435,7 @@ GO
 -- Description: 
 -- Added DateTimeOfAlert in order to keep track of the original time the alert was entered to stop 
 -- alerting if persistent alert duration is set to a number of hours.
--- Modified Date: 06/20/2014
+-- Modified Date: 06/20/2014; 9/14/2016 for VSPLUS-3192
 -- Description:
 -- controlling the number of records to be sent when the user has configured TotalMaximumAlertPerDay
 -- =============================================
@@ -3460,7 +3460,7 @@ declare
 	*/
 	CREATE TABLE #TempTable (
 	ID 		varchar(100),
-	DeviceName			nvarchar(100),
+	DeviceName			nvarchar(150),
 	DeviceType			nvarchar(100),
 	AlertType			nvarchar(510),
 	Location			nvarchar(500),

@@ -647,8 +647,8 @@ namespace VitalSignsMicrosoftClasses
 			long start;
 			TimeSpan elapsed = new TimeSpan(0);
 
-			bool mailSent = sendMessage(randomNo, myServer);
 			start = DateTime.Now.Ticks;
+			bool mailSent = sendMessage(randomNo, myServer);
 
 			System.Threading.Thread.Sleep(myServer.MailFlowThreshold);
 			string messageId = getMessages(randomNo, myServer);
@@ -684,17 +684,19 @@ namespace VitalSignsMicrosoftClasses
 				Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was not delivered in the specified threshold time plus additional 30 secs", "Performance");
 			else
 			{
-				if ((myServer.MailFlowThreshold!=0)&&(myServer.MailFlowThreshold>0)&&(myServer.MailFlowThreshold < elapsed.TotalMilliseconds))
+				double totalElapsedTime = (elapsed.TotalMilliseconds - myServer.MailFlowThreshold);
+
+				if ((myServer.MailFlowThreshold!=0)&&(myServer.MailFlowThreshold>0)&&(myServer.MailFlowThreshold < totalElapsedTime))
 				{
 					DateTime dtNow = DateTime.Now;
 					int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-							+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'MailLatency" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
+							+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'MailLatency" + "@" + nodeName + "'" + " ," + totalElapsedTime.ToString() +
 						   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
 					//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
                     AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "MailLatency" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 					//Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered, but it did not meet the threshold value of " + myServer.MailFlowThreshold+" ms", "Performance");
-					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail flow: The Mail was delivered in " + elapsed.TotalMilliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + myServer.MailFlowThreshold + " ms", "Performance");
+					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail flow: The Mail was delivered in " + totalElapsedTime + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + myServer.MailFlowThreshold + " ms", "Performance");
 				}
 				else
 				{

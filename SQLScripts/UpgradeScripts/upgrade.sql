@@ -2,25 +2,6 @@ USE [vitalsigns]
 GO
 PRINT N' Executing V1.1 upgrade scripts ......... ';
 
-USE [vitalsigns]
-GO
-EXEC sp_configure 'default language', 0 
-GO
-RECONFIGURE 
-GO
-
-USE [VSS_Statistics]
-GO
-EXEC sp_configure 'default language', 0 
-RECONFIGURE 
-GO
-
-ALTER LOGIN VS WITH DEFAULT_LANGUAGE = English
-GO
-
-USE [vitalsigns]
-GO
-
 IF EXISTS(SELECT * FROM dbo.sysobjects WHERE id = object_id(N'dbo.fn_GetVSVersion') AND xtype IN (N'FN', N'IF', N'TF'))
 	DROP FUNCTION dbo.fn_GetVSVersion
 go
