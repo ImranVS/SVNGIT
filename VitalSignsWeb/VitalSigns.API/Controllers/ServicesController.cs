@@ -666,87 +666,39 @@ namespace VitalSigns.API.Controllers
             try
             {
 
-                Expression<Func<Status, bool>> expression = (p => p.DeviceType == type);
-
-                // var output = statusRepository.All().Where(x => x.DeviceType == type);
-                if (type == "Domino")
+                var bsonDocs = statusRepository.Collection.Aggregate()
+                                    .Match(x => x.DeviceType == type)
+                                    .Group(new BsonDocument { { "_id", "$" + docfield }, { "count", new BsonDocument("$sum", 1) } }).ToList();
+                List<Segment> result = new List<Segment>();
+                foreach (BsonDocument doc in bsonDocs)
                 {
-                    var result = statusRepository.Collection.Aggregate()
-                                                       .Group(x => docfield, g => new { label = g.Key, value = g.Count() })
-                                                       .Project(x => new Segment
-                                                       {
-                                                           Label = x.label,
-                                                           Value = x.value
-                                                       }).ToList();
-
-                    // List<Status> result = List<Status>();
-
-                    if (docfield == "operating_system")
+                    Segment segment = new Segment()
                     {
-                        result = statusRepository.Collection.Aggregate()
-                                                       .Group(x => x.OperatingSystem, g => new { label = g.Key, value = g.Count() })
-                                                       .Project(x => new Segment
-                                                       {
-                                                           Label = x.label,
-                                                           Value = x.value
-                                                       }).ToList();
-
-                    }
-
-
-                    else if (docfield == "software_version")
-                    {
-                        result = statusRepository.Collection.Aggregate()
-                                                       .Group(x => x.SoftwareVersion, g => new { label = g.Key, value = g.Count() })
-                                                       .Project(x => new Segment
-                                                       {
-                                                           Label = x.label,
-                                                           Value = x.value
-                                                       }).ToList();
-                    }
-
-
-                    else if (docfield == "status_code")
-                    {
-                        result = statusRepository.Collection.Aggregate()
-                                                      .Group(x => x.StatusCode, g => new { label = g.Key, value = g.Count() })
-                                                      .Project(x => new Segment
-                                                      {
-                                                          Label = x.label,
-                                                          Value = x.value
-                                                      }).ToList();
-                    }
-                    else if (docfield == "secondary_role")
-                    {
-                        result = statusRepository.Collection.Aggregate()
-                                                      .Group(x => x.SecondaryRole, g => new { label = g.Key, value = g.Count() })
-                                                      .Project(x => new Segment
-                                                      {
-                                                          Label = x.label,
-                                                          Value = x.value
-                                                      }).ToList();
-
-
-                    }
-
-                    result.RemoveAll(item => item.Label == null);
-                    result.RemoveAll(item => item.Label == "");
-                    Serie serie = new Serie();
-                    serie.Title = docfield;
-                    serie.Segments = result;
-
-
-                    List<Serie> series = new List<Serie>();
-                    series.Add(serie);
-
-                    Chart chart = new Chart();
-                    chart.Title = docfield;
-                    chart.Series = series;
-
-                    Response = Common.CreateResponse(chart);
-
-
+                        //Might have to add additional types for support.  Format is IfThis ? DoThis : Else
+                        Label = doc["_id"].IsString ? doc["_id"].AsString :
+                            (doc["_id"].IsInt32 ? Convert.ToString(doc["_id"].AsInt32) :
+                            (doc["_id"].IsBoolean ? Convert.ToString(doc["_id"].AsBoolean) : Convert.ToString(doc["_id"].AsBsonValue))),
+                        Value = doc["count"].AsInt32
+                    };
+                    result.Add(segment);
                 }
+                
+
+                result.RemoveAll(item => item.Label == null);
+                result.RemoveAll(item => item.Label == "");
+                Serie serie = new Serie();
+                serie.Title = docfield;
+                serie.Segments = result;
+
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+
+                Chart chart = new Chart();
+                chart.Title = docfield;
+                chart.Series = series;
+
+                Response = Common.CreateResponse(chart);
 
                 return Response;
             }
