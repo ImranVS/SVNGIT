@@ -20,7 +20,6 @@ export class IBMSametimeDetails implements OnInit {
     @ViewChild('tab', { read: ViewContainerRef }) target: ViewContainerRef;
 
     errorMessage: string;
-    deviceid: any;
     serviceId: any;
     service: any;
 
@@ -57,10 +56,10 @@ export class IBMSametimeDetails implements OnInit {
             // Get tabs associated with selected service
             //http://private-ad10c-ibm.apiary-mock.com/services/sametime/1
             //this.dataProvider.get(`/services/device_details?device_id=57d30363bf467154b0bd9e94&destination=dashboard`)
-            this.dataProvider.get(`http://private-ad10c-ibm.apiary-mock.com/services/sametime/1`)
+            this.dataProvider.get(`/services/device_details?device_id=57d30363bf467154b0bd9e94&destination=dashboard`)
                 .subscribe(
                 data => {
-                    this.service = data;
+                    this.service = data.data;
                     this.selectTab(this.service.tabs[0]);
                 },
                 error => this.errorMessage = <any>error

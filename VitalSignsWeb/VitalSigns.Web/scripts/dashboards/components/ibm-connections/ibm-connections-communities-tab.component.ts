@@ -83,7 +83,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
-                    url: '/connections/top_5_communities',
+                    url: 'http://private-ad10c-ibm.apiary-mock.com/connections/top_5_communities',
                     chart: {
                         chart: {
                             renderTo: 'top5Communities',

@@ -40,10 +40,10 @@ export class ServiceClusterHealthTab extends WidgetController implements OnInit 
             },
             {
                 id: 'domcluster',
-                title: 'DomCluster',
+                title: 'Cluster Seconds On Queue',
                 path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                css: 'col-xs-12',
                 settings: {
                     url: '/services/statistics?statName=Replica.Cluster.SecondsOnQueue&deviceid=' + this.deviceId + '&operation=hourly',
                     chart: {

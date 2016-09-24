@@ -34,32 +34,23 @@ export class ServiceServerTasksGrid implements OnInit {
     @Input() settings: any;
     deviceId: any;
     //data: wijmo.collections.CollectionView;
-    monitoredData: wijmo.collections.CollectionView;
-    nonMonitoredData: wijmo.collections.CollectionView;
+    data: wijmo.collections.CollectionView;
     errorMessage: string;
 
     constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute) { }
 
     get pageSize(): number {
-        if (this.nonMonitoredData.pageSize) {
-            return this.nonMonitoredData.pageSize;
-        }
-        else {
-            return this.monitoredData.pageSize;
-        }
+
+        return this.data.pageSize;
 
     }
 
 
 
     set pageSize(value: number) {
-        if (this.nonMonitoredData.pageSize != value) {
-            this.nonMonitoredData.pageSize = value;
-            this.nonMonitoredData.refresh();
-        }
-        if (this.monitoredData.pageSize != value) {
-            this.monitoredData.pageSize = value;
-            this.monitoredData.refresh();
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
         }
     }
 
@@ -70,14 +61,12 @@ export class ServiceServerTasksGrid implements OnInit {
             this.deviceId = params['service'];
 
         });
-        this.service.get('/DashBoard/' + this.deviceId + '/monitoredtasks')
+        this.service.get('/DashBoard/' + this.deviceId + '/monitoredtasks?is_monitored=true')
             .subscribe(
             (response) => {
                 //this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                this.nonMonitoredData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.nonMonitoredData));
-                this.nonMonitoredData.pageSize = 10;
-                this.monitoredData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.monitoredData));
-                this.monitoredData.pageSize = 10;
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
             );
@@ -97,12 +86,4 @@ export class ServiceServerTasksGrid implements OnInit {
 
     }
 
-    refreshChart(event: wijmo.grid.CellRangeEventArgs) {
-
-        console.log(event.panel.grid.selectedItems);
-
-        this.widgetService.refreshWidget('responseTimes')
-            .catch(error => console.log(error));
-
-    }
 }

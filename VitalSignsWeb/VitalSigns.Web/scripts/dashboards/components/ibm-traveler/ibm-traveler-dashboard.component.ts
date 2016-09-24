@@ -33,12 +33,12 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/mobile_user_devices/count_by_type',
+                url: '/DashBoard/mobile_user_devices/count_by_type',
                 chart: {
                     chart: {
                         renderTo: 'mobileDevicesChart',
-                        type: 'bar',
-                        height: 240
+                        type: 'pie',
+                        height: 300
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
@@ -51,18 +51,6 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
                         allowDecimals: false,
                         title: {
                             enabled: false
-                        }
-                    },
-                    plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: false
-                            },
-                            groupPadding: 0.1,
-                            borderWidth: 0
-                        },
-                        series: {
-                            pointPadding: 0
                         }
                     },
                     legend: {
@@ -85,12 +73,12 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/mobile_user_devices/count_by_os',
+                url: '/DashBoard/mobile_user_devices/count_by_os',
                 chart: {
                     chart: {
                         renderTo: 'mobileDevicesOSChart',
-                        type: 'bar',
-                        height: 240
+                        type: 'pie',
+                        height: 300
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
@@ -103,18 +91,6 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
                         allowDecimals: false,
                         title: {
                             enabled: false
-                        }
-                    },
-                    plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: false
-                            },
-                            groupPadding: 0.1,
-                            borderWidth: 0
-                        },
-                        series: {
-                            pointPadding: 0
                         }
                     },
                     legend: {
@@ -137,7 +113,7 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
             settings: {
-                url: '/mobile_user_devices/group_by_sync_interval',
+                url: '/DashBoard/mobile_user_devices/group_by_sync_interval',
                 chart: {
                     chart: {
                         renderTo: 'syncTimeChart',
@@ -185,7 +161,7 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
             settings: {
-                url: '/mobile_user_devices/count_per_user',
+                url: '/DashBoard/mobile_user_devices/count_per_user',
                 chart: {
                     chart: {
                         renderTo: 'deviceCountUserChart',

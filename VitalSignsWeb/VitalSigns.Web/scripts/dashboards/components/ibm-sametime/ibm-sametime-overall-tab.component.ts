@@ -4,6 +4,8 @@ import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
+import {IBMSametimeGrid} from './ibm-sametime-grid.component';
+
 declare var injectSVG: any;
 
 @Component({
@@ -19,8 +21,13 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
     constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
-    
+
+    loadController() {
+        console.log('load controller');
+    }
     ngOnInit() {
+        let grid: IBMSametimeGrid = <IBMSametimeGrid>(this.widgetService.findWidget('sametimeGrid').component);
+        console.log(grid.serviceId);
         this.widgets = [
             {
                 id: 'responseTimes',
@@ -29,7 +36,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=ResponseTime&deviceid=${grid.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'responseTimes',
@@ -65,7 +72,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Users&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=Users&deviceid=${grid.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'dailyUserLogins',

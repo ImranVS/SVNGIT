@@ -4,13 +4,14 @@ import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
+import {IBMSametimeGrid} from './ibm-sametime-grid.component';
+
 declare var injectSVG: any;
 
 @Component({
     selector: 'tab-meetings',
     templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component.html',
-    directives: [WidgetContainer],
-    providers: [WidgetService]
+    directives: [WidgetContainer]
 })
 export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, ServiceTab {
 
@@ -22,7 +23,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
     }
     
     ngOnInit() {
-        this.serviceId = '57ace45abf46711cd4681e4c';
+        let grid: IBMSametimeGrid = <IBMSametimeGrid>(this.widgetService.findWidget('sametimeGrid').component);
         this.widgets = [
             {
                 id: 'activeMeetingsUsers',
@@ -31,7 +32,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=${grid.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'activeMeetingsUsers',
@@ -43,7 +44,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 1
+                                step: 4
                             },
                             categories: []
                         },

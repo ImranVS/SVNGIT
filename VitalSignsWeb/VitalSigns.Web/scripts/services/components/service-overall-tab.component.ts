@@ -87,7 +87,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                         yAxis: {
                             min: 0,
                             title: {
-                                text: 'Disk Space(GB)'
+                                text: 'Disk Space (GB)'
                             }
                         },
                         exporting: {
@@ -100,16 +100,12 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                         },
                         tooltip: {
                             formatter: function () {
-                                return '<div style="font-size: 11px; font-weight: normal;">' + this.key + '<br /><strong>' + this.y.toFixed(2) + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
+                                return '<div style="font-size: 11px; font-weight: normal;">' + this.series.name + '<br /><strong>' + this.y.toFixed(2) + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
                             },
                             useHTML: true
                         },
-                        legend: {
-                            labelFormatter: function () {
-                                return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
-                            }
-                        },
-                        series: []
+                        series: [],
+                        colors: ['#5FBE7F','#EF3A24']
                     }
                 }
             },
@@ -135,6 +131,11 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                                 step: 6
                             },
                             categories: []
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Percent'
+                            }
                         },
                         legend: {
                             enabled: false
@@ -174,6 +175,11 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                                 step: 6
                             },
                             categories: []
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Percent'
+                            }
                         },
                         legend: {
                             enabled: false

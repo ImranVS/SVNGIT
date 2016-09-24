@@ -39,6 +39,13 @@ export class ServiceTasksTab extends WidgetController implements OnInit {
                 path: '/app/services/components/service-servertasks-grid.component',
                 name: 'ServiceServerTasksGrid',
                 css: 'col-xs-12'
+            },
+            {
+                id: 'ServiceNMServerTasksGrid',
+                title: 'Non Monitored Tasks',
+                path: '/app/services/components/service-nm-servertasks-grid.component',
+                name: 'ServiceNMServerTasksGrid',
+                css: 'col-xs-12'
             }
            
         ]

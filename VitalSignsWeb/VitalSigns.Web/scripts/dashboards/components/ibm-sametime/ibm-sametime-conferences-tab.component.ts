@@ -4,13 +4,14 @@ import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
+import {IBMSametimeGrid} from './ibm-sametime-grid.component';
+
 declare var injectSVG: any;
 
 @Component({
     selector: 'tab-conferences',
     templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component.html',
-    directives: [WidgetContainer],
-    providers: [WidgetService]
+    directives: [WidgetContainer]
 })
 export class IBMSametimeConferencesTab extends WidgetController implements OnInit, ServiceTab {
 
@@ -22,7 +23,8 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
     }
     
     ngOnInit() {
-        this.serviceId = '57ace45abf46711cd4681e4c';
+        let grid1: IBMSametimeGrid = <IBMSametimeGrid>(this.widgetService.findWidget('sametimeGrid').component);
+        console.log('conferences: ' + grid1.serviceId);
         this.widgets = [
             {
                 id: 'oneOnOneCalls',
@@ -31,7 +33,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofall1x1calls&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=Totalcountofall1x1calls&deviceid=${grid1.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'oneOnOneCalls',
@@ -67,7 +69,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=${grid1.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'multiUserCalls',
@@ -103,7 +105,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofallcalls&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=Totalcountofallcalls&deviceid=${grid1.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allCalls',
@@ -139,7 +141,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=${grid1.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allCallsAllUsers',
@@ -175,7 +177,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=${grid1.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allOneOnOneCallsUsers',
@@ -211,7 +213,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=${grid1.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allMultiUserCallsUsers',
