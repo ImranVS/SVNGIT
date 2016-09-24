@@ -161,7 +161,7 @@ namespace VitalSigns.API.Controllers
                                      Access = x.Access,
                                      DeviceId = x.DeviceID
                                  });
-            return result.ToList();
+            return result.ToList().OrderBy(x => x.UserName);
         }
 
         ///<Author>Sowmya Pathuri</Author>
@@ -170,7 +170,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns>Chart</returns>
         [HttpGet("mobile_user_devices/count_by_type")]
-        public Chart CountUserDevicesByType()
+        public APIResponse CountUserDevicesByType()
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             var result = mobileDevicesRepository.Collection.Aggregate()
@@ -190,8 +190,8 @@ namespace VitalSigns.API.Controllers
             Chart chart = new Chart();
             chart.Title = "Mobile Devices";
             chart.Series = series;
-
-            return chart;
+            Response = Common.CreateResponse(chart);
+            return Response;
         }
 
         ///<Author>Swathi Dongari</Author>
@@ -200,7 +200,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns>Chart </returns>
         [HttpGet("mobile_user_devices/count_per_user")]
-        public Chart GroupByDevicesCountForUser()
+        public APIResponse GroupByDevicesCountForUser()
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             var result = mobileDevicesRepository.Collection.Aggregate()
@@ -215,7 +215,7 @@ namespace VitalSigns.API.Controllers
             foreach (double value in deviceCount)
             {
                 Segment segment = new Segment();
-                segment.Label = string.Format("Users with {0} device", value);
+                segment.Label = string.Format("Users with {0} device(s)", value);
                 segment.Value = result.Where(x => x.Value == value).Count();
                 segments.Add(segment);
 
@@ -229,8 +229,8 @@ namespace VitalSigns.API.Controllers
             Chart chart = new Chart();
             chart.Title = "Device count / user";
             chart.Series = series;
-
-            return chart;
+            Response = Common.CreateResponse(chart);
+            return Response;
         }
 
         ///<Author>Durga</Author>
@@ -239,7 +239,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns>Chart </returns>
         [HttpGet("mobile_user_devices/group_by_sync_interval")]
-        public Chart GroupBySyncInterval()
+        public APIResponse GroupBySyncInterval()
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
 
@@ -291,8 +291,8 @@ namespace VitalSigns.API.Controllers
             Chart chart = new Chart();
             chart.Title = "Sync times";
             chart.Series = series;
-
-            return chart;
+            Response = Common.CreateResponse(chart);
+            return Response;
         }
 
         ///<Author>Sowjanya Korumilli</Author>
@@ -301,7 +301,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns>Chart</returns>
         [HttpGet("mobile_user_devices/count_by_os")]
-        public Chart CountUserDevicesByOS()
+        public APIResponse CountUserDevicesByOS()
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             var result = mobileDevicesRepository.Collection.Aggregate()
@@ -321,8 +321,8 @@ namespace VitalSigns.API.Controllers
             Chart chart = new Chart();
             chart.Title = "Mobile devices OS for all Servers";
             chart.Series = series;
-
-            return chart;
+            Response = Common.CreateResponse(chart);
+            return Response;
         }
 
         [HttpGet("{id}/overall/disk-space-v2")]
@@ -497,7 +497,7 @@ namespace VitalSigns.API.Controllers
 
         [HttpGet("{deviceid}/monitoredtasks")]
 
-        public APIResponse GetMonitoredTasks(string deviceid)
+        public APIResponse GetMonitoredTasks(string deviceid, bool is_monitored)
         {
 
             statusRepository = new Repository<Status>(ConnectionString);
@@ -526,11 +526,9 @@ namespace VitalSigns.API.Controllers
                     
                 }
 
-                var monitoredData = monitoredTasks.Where(x => x.Monitored == true);
-                var nonMonitoredData = monitoredTasks.Where(x => x.Monitored!= true);
+                var monitoredData = monitoredTasks.Where(x => x.Monitored == is_monitored);
 
-
-                Response = Common.CreateResponse(new { monitoredData = monitoredData, nonMonitoredData= nonMonitoredData });
+                Response = Common.CreateResponse(monitoredData);
             }
             catch (Exception exception)
             {

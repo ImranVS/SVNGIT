@@ -68,13 +68,6 @@
             "type": "Dashboard",
             "component": "ServiceOutagesTab",
             "path": "/app/services/components/service-outages-tab.component"
-          },
-          {
-            "tab_id": 10,
-            "title": "Admin",
-            "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
           }
 
         ]
@@ -148,15 +141,7 @@
         "type": "Dashboard",
         "component": "ServiceOutagesTab",
         "path": "/app/services/components/service-outages-tab.component"
-      },
-      {
-        "tab_id": 10,
-        "title": "Admin",
-        "type": "Dashboard",
-        "component": "NotYetImplemented",
-        "path": "/app/not-yet-implemented.component"
       }
-      
     ]
 
   },
@@ -322,24 +307,32 @@
         "icon": "/img/servers/Paintbrush.svg",
         "tabs": [
           {
+            "tab_id": 1,
             "title": "Overall",
             "component": "IBMSametimeOverallTab",
-            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component"
+            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 2,
             "title": "Chats",
             "component": "IBMSametimeChatsTab",
-            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component"
+            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 3,
             "title": "Conferences",
             "component": "IBMSametimeConferencesTab",
-            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component"
+            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 4,
             "title": "Meetings",
             "component": "IBMSametimeMeetingsTab",
-            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component"
+            "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component",
+            "type": "Dashboard"
           }
         ]
 
