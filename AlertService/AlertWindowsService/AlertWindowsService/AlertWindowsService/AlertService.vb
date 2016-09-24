@@ -719,7 +719,8 @@ Public Class VitalSignsAlertService
             WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: " & ex.Message, LogLevel.Normal)
         End Try
 
-        filterEventsDetected = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False)
+        filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False),
+                                                             repoEventsDetected.Filter.Exists(Function(i) i.EventType, True))
         eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
         If eventsCreated.Length > 0 Then
             dt = New DataTable
@@ -763,7 +764,7 @@ Public Class VitalSignsAlertService
                 Next
             End If
         Catch ex As Exception
-            WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error processing the rows." & ex.Message, LogLevel.Normal)
+            WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error processing the rows. " & ex.Message, LogLevel.Normal)
         End Try
 
         ReDim ADefArrOut(0)
@@ -843,6 +844,7 @@ Public Class VitalSignsAlertService
         Dim alertDateCurrent As Date
         Dim alertDateCreated As Date
         Dim noNewRecipients As Boolean
+        Dim tempVal As String = ""
 
         SendTo = ""
         CC = ""
@@ -854,14 +856,20 @@ Public Class VitalSignsAlertService
         persistentInterval = 0
         Try
             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get PersistentAlertInterval from Settings", LogLevel.Verbose)
-            persistentInterval = Convert.ToInt32(getSettings("PersistentAlertInterval"))
+            tempVal = getSettings("PersistentAlertInterval")
+            If tempVal <> "" Then
+                persistentInterval = Convert.ToInt32(tempVal)
+            End If
         Catch ex As Exception
             WriteServiceHistoryEntry(Now.ToString & " Error getting Persistent Alert Interval from the Settings table:  " & ex.ToString, LogLevel.Normal)
         End Try
         persistentDuration = 0
         Try
             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get PersistentAlertDuration from Settings", LogLevel.Verbose)
-            persistentDuration = Convert.ToInt32(getSettings("PersistentAlertDuration"))
+            tempVal = getSettings("PersistentAlertDuration")
+            If tempVal <> "" Then
+                persistentDuration = Convert.ToInt32(tempVal)
+            End If
         Catch ex As Exception
             WriteServiceHistoryEntry(Now.ToString & " Error getting Persistent Alert Duration from the Settings table:  " & ex.ToString, LogLevel.Normal)
         End Try
@@ -1638,6 +1646,7 @@ Public Class VitalSignsAlertService
         '2/28/2014 NS added for VSPLUS-326
         'Flag variable to set to False if the primary server send fails
         Dim emailSent As Boolean = True
+        Dim tempVal As String = ""
 
         Try
             PHostName = getSettings("PrimaryHostName")
@@ -1645,9 +1654,15 @@ Public Class VitalSignsAlertService
             PEmail = getSettings("primaryUserID")
             Ppwd = getSettings("primarypwd")
             PFrom = getSettings("primaryFrom")
-            PAuth = Convert.ToBoolean(getSettings("primaryAuth").ToString())
+            tempVal = getSettings("primaryAuth").ToString()
+            If tempVal <> "" Then
+                PAuth = Convert.ToBoolean(tempVal)
+            End If
             '4/15/2014 NS added
-            PSSL = Convert.ToBoolean(getSettings("primarySSL").ToString())
+            tempVal = getSettings("primarySSL").ToString()
+            If tempVal <> "" Then
+                PSSL = Convert.ToBoolean(tempVal)
+            End If
             If PFrom.ToString = "" Then
                 PFrom = "VS Plus"
             End If
@@ -1669,12 +1684,18 @@ Public Class VitalSignsAlertService
                 PEmail2 = getSettings("SecondaryUserID")
                 Ppwd2 = getSettings("Secondarypwd")
                 PFrom2 = getSettings("SecondaryFrom")
-                PAuth2 = Convert.ToBoolean(getSettings("SecondaryAuth").ToString())
+                tempVal = getSettings("SecondaryAuth").ToString()
+                If tempVal <> "" Then
+                    PAuth2 = Convert.ToBoolean(tempVal)
+                End If
                 If PFrom2.ToString = "" Then
                     PFrom2 = "VS Plus"
                 End If
                 '4/15/2014 NS added
-                PSSL2 = Convert.ToBoolean(getSettings("SecondarySSL").ToString())
+                tempVal = getSettings("SecondarySSL").ToString()
+                If tempVal <> "" Then
+                    PSSL2 = Convert.ToBoolean(tempVal)
+                End If
             Catch ex As Exception
                 WriteServiceHistoryEntry(Now.ToString & " Error getting secondary settings from the Settings table:  " & ex.ToString, LogLevel.Normal)
             End Try
@@ -1858,7 +1879,11 @@ Public Class VitalSignsAlertService
     End Function
     Public Function getSettings(ByVal sname As String) As String
         Dim registry As New VSFramework.RegistryHandler
-        Return registry.ReadFromRegistry(sname).ToString()
+        Try
+            Return registry.ReadFromRegistry(sname).ToString()
+        Catch ex As Exception
+            Return ""
+        End Try
     End Function
     Private Sub InsertingSentMails(ByVal AlertID As String, ByVal SentTo As String, ByVal CcdTo As String, ByVal BccdTo As String,
                                    ByVal resent As Boolean, ByVal AlertKey As String)
@@ -2147,6 +2172,7 @@ Public Class VitalSignsAlertService
         Dim repoSettings As New Repository(Of NameValue)(connString)
         Dim filterSettings As FilterDefinition(Of NameValue)
         Dim settings() As NameValue
+        Dim tempVal As String = ""
 
         Try
             filterSettings = repoSettings.Filter.Eq(Function(j) j.Name, "EmergencyAlertEmail")
@@ -2158,8 +2184,14 @@ Public Class VitalSignsAlertService
                     PEmail = getSettings("primaryUserID")
                     Ppwd = getSettings("primarypwd")
                     PFrom = getSettings("primaryFrom")
-                    PAuth = Convert.ToBoolean(getSettings("primaryAuth").ToString())
-                    PSSL = Convert.ToBoolean(getSettings("primarySSL").ToString())
+                    tempVal = getSettings("primaryAuth").ToString()
+                    If tempVal <> "" Then
+                        PAuth = Convert.ToBoolean(tempVal)
+                    End If
+                    tempVal = getSettings("primarySSL").ToString()
+                    If tempVal <> "" Then
+                        PSSL = Convert.ToBoolean(tempVal)
+                    End If
                     If PFrom.ToString = "" Then
                         PFrom = "VS Plus"
                     End If

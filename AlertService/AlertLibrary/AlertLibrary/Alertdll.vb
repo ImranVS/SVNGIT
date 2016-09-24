@@ -287,7 +287,9 @@ Public Class Alertdll
         Dim repoOutages As New Repository(Of Outages)(connString)
         Dim filterDefEvents As MongoDB.Driver.FilterDefinition(Of EventsDetected)
         Dim filterServers As MongoDB.Driver.FilterDefinition(Of Server)
+        Dim filterDefOutages As MongoDB.Driver.FilterDefinition(Of Outages)
         Dim updateDefEvents As MongoDB.Driver.UpdateDefinition(Of EventsDetected)
+        Dim updateDefOutages As MongoDB.Driver.UpdateDefinition(Of Outages)
         Dim eventsEntity() As EventsDetected
         Dim servers() As Server
         Dim deviceId As String
@@ -315,9 +317,12 @@ Public Class Alertdll
                     servers = repoServers.Find(filterServers).ToArray()
                     If servers.Length > 0 Then
                         deviceId = servers(0).Id.ToString()
-                        Dim outages As New Outages With {.DeviceId = deviceId, .DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
-                        repoOutages.Insert(outages)
-                        WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                        filterDefOutages = repoOutages.Filter.And(repoOutages.Filter.Eq(Function(j) j.DateTimeUp, Nothing),
+                                                                  repoOutages.Filter.Eq(Function(j) j.DeviceName, DeviceName),
+                                                                  repoOutages.Filter.Eq(Function(j) j.DeviceType, DeviceType))
+                        updateDefOutages = repoOutages.Updater.Set(Function(i) i.DateTimeUp, Now)
+                        repoOutages.Update(filterDefOutages, updateDefOutages)
+                        WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update: " & DeviceType & "/" & DeviceName & " " & AlertType)
                     End If
                 End If
             End If
