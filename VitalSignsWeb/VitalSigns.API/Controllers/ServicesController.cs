@@ -683,15 +683,18 @@ namespace VitalSigns.API.Controllers
                 List<Segment> result = new List<Segment>();
                 foreach (BsonDocument doc in bsonDocs)
                 {
-                    Segment segment = new Segment()
+                    if (!doc["_id"].IsBsonNull)
                     {
-                        //Might have to add additional types for support.  Format is IfThis ? DoThis : Else
-                        Label = doc["_id"].IsString ? doc["_id"].AsString :
+                        Segment segment = new Segment()
+                        {
+                            //Might have to add additional types for support.  Format is IfThis ? DoThis : Else
+                            Label = doc["_id"].IsString ? doc["_id"].AsString :
                             (doc["_id"].IsInt32 ? Convert.ToString(doc["_id"].AsInt32) :
                             (doc["_id"].IsBoolean ? Convert.ToString(doc["_id"].AsBoolean) : Convert.ToString(doc["_id"].AsBsonValue))),
-                        Value = doc["count"].AsInt32
-                    };
-                    result.Add(segment);
+                            Value = doc["count"].AsInt32
+                        };
+                        result.Add(segment);
+                    }
                 }
                 
 
