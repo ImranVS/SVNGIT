@@ -4,6 +4,8 @@ import {HTTP_PROVIDERS}    from '@angular/http';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
+import {IBMConnectionsDetails} from './ibm-connections-details.component';
+
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
@@ -30,7 +32,11 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-    
+    _serviceId: string;
+
+    get serviceId(): string {
+        return this._serviceId;
+    }
     constructor(private service: RESTService, private widgetService: WidgetService) { }
 
     get pageSize(): number {
@@ -46,11 +52,18 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
 
     ngOnInit() {
 
+    }
+
+    ngAfterViewInit() {
+
         this.service.get('/services/status_list?type=IBM%20Connections')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = 10;
+                this.data.moveCurrentToPosition(0);
+                this._serviceId = this.data.currentItem.device_id;
+                console.log('service id: ' + this._serviceId);
             },
             (error) => this.errorMessage = <any>error
             );
@@ -69,11 +82,14 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
         }
 
     }
-
+    gridLoaded(event: wijmo.grid.CellRangeEventArgs) {
+        console.log('loaded');
+    }
     refreshChart(event: wijmo.grid.CellRangeEventArgs) {
 
-        console.log(`services/summarystats?statName=[BLOGS_CREATED_LAST_DAY,COMMENT_CREATED_LAST_DAY,ENTRY_CREATED_LAST_DAY]&deviceid=${event.panel.grid.selectedItems[0].device_id}`);
-        this.widgetService.refreshWidget('dailyActivities', `services/summarystats?statName=[BLOGS_CREATED_LAST_DAY,COMMENT_CREATED_LAST_DAY,ENTRY_CREATED_LAST_DAY]&deviceid=${event.panel.grid.selectedItems[0].device_id}`)
+        this.widgetService.refreshWidget('dailyActivities', `/services/summarystats?statName=[BLOGS_CREATED_LAST_DAY,COMMENT_CREATED_LAST_DAY,ENTRY_CREATED_LAST_DAY]&deviceid=${event.panel.grid.selectedItems[0].device_id}`)
+            .catch(error => console.log(error));
+        this.widgetService.refreshWidget('top5Tags', `/services/top_tags?deviceId=${event.panel.grid.selectedItems[0].device_id}`)
             .catch(error => console.log(error));
     }
 }

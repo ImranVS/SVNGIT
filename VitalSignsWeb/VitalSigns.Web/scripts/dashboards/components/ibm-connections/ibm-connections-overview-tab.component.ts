@@ -4,13 +4,14 @@ import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
+import {IBMConnectionsGrid} from './ibm-connections-grid.component';
+
 declare var injectSVG: any;
 
 @Component({
     selector: 'tab-overall',
     templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-overview-tab.component.html',
-    directives: [WidgetContainer],
-    providers: [WidgetService]
+    directives: [WidgetContainer]
 })
 export class IBMConnectionsOverviewTab extends WidgetController implements OnInit, ServiceTab {
 
@@ -22,7 +23,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
     }
     
     ngOnInit() {
-    
+        let grid: IBMConnectionsGrid = <IBMConnectionsGrid>(this.widgetService.findWidget('connectionsGrid').component);
         this.widgets = [
             {
                 id: 'dailyActivities',

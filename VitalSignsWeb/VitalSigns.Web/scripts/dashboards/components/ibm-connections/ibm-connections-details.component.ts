@@ -54,13 +54,11 @@ export class IBMConnectionsDetails implements OnInit {
     
         this.route.params.subscribe(params => {
 
-            this.serviceId = '2';
-
             // Get tabs associated with selected service
-            this.dataProvider.get(`http://private-ad10c-ibm.apiary-mock.com/services/connections/${this.serviceId}`)
+            this.dataProvider.get(`/services/device_details?device_id=57ace43fbf46711cd4681dcf&destination=dashboard`)
                 .subscribe(
                 data => {
-                    this.service = data;
+                    this.service = data.data;
                     this.selectTab(this.service.tabs[0]);
                 },
                 error => this.errorMessage = <any>error
