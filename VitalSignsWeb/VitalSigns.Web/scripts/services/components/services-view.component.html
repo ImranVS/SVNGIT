@@ -39,34 +39,20 @@
     </div>
     <div class="clearfix"></div>
 </div>
+
 <div id="zeusContent" class="noPadding twoColumns30-70">
 
     <div class="twoColumn30 serversList">
         <div id="serversFilters">
-            <div class="zeusFilterWrapper simple">
-
-                <div class="aZeusFilterHeader">
-                    <search-box (update)="searchText=$event"></search-box>
-                </div>
-                <div class="aZeusFilter">
-                    <span class="aZeusFilterName">Name : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
-                </div>
-                <div class="aZeusFilter">
-                    <span class="aZeusFilterName">Status : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
-                </div>
-                <div class="aZeusFilter">
-                    <span class="aZeusFilterName">Location : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
-                </div>
-            </div>
+            <search-server-list (name)="searchText=$event" (type)="searchType=$event" (status)="searchStatus=$event" (location)="searchLocation=$event"></search-server-list>
         </div>
-       
         <div id="serversResults">
             <div *ngIf="services">
-                {{services.length}} servers found
+                {{services.length}} servers found.
             </div>
         </div>
-        <div id="serversListWrapper">
-            <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" *ngFor="let service of services |search :searchText" (click)="selectService(service)">
+        <div id="serversListWrapper" style="overflow-y: auto;">
+            <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" *ngFor="let service of services |searchserverlist:searchText :searchType :searchStatus :searchLocation" (click)="selectService(service)">
                 <div class="serverIcon">
                     <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
                 </div>

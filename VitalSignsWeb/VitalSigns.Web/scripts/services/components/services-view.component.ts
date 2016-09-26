@@ -3,22 +3,26 @@ import {ROUTER_DIRECTIVES, Router} from '@angular/router';
 import {HTTP_PROVIDERS}    from '@angular/http';
 
 import {RESTService} from '../../core/services';
-import {SearchDevicePipe} from "./services-list.pipe";
-import {SearchBox} from "./search-box.component"
+import {SearchDeviceListPipe} from "./search-server-list.pipe";
+import {SearchServerList} from "./search-server-list.component"
 
 declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/services/components/services-view.component.html',
-    directives: [ROUTER_DIRECTIVES, SearchBox],
+    directives: [ROUTER_DIRECTIVES, SearchServerList],
     providers: [
         HTTP_PROVIDERS,
         RESTService
     ],
-    pipes: [SearchDevicePipe]
+    pipes: [SearchDeviceListPipe]
 })
 export class ServicesView implements OnInit, AfterViewChecked {
-    @Input() searchText;
+    @Input() searchText
+    @Input() searchType;
+    @Input() searchStatus;
+    @Input() searchLocation;
+
     errorMessage: string;
 
     services: any[];
