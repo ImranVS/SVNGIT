@@ -6039,9 +6039,6 @@ CleanUp:
                 Dim serverId As String = myServer.ServerObjectID
                 Dim serverName As String = myServer.Name
                 'Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                Dim repoObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                Dim filterdefObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.DeviceId.Equals(serverId) And i.Type.Equals("Activity"))
-                repoObjects.Delete(filterdefObjects)
 
                 'cmd.ExecuteNonQuery()
                 Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
@@ -6136,7 +6133,7 @@ CleanUp:
                     Catch ex As Exception
 
                     End Try
-                  
+
                     'Next
 
                     Dim IbmConnectionsObjects4 As New VSNext.Mongo.Entities.IbmConnectionsObjects
@@ -6483,7 +6480,7 @@ CleanUp:
                     Catch ex As Exception
 
                     End Try
-                   
+
 
                     Dim commUsers As List(Of String) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).FirstOrDefault().users
                     If commUsers Is Nothing Then
