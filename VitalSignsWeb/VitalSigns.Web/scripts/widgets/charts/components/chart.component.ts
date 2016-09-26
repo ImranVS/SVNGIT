@@ -35,7 +35,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
 
     }
 
-    private loadData(serviceUrl? : string) {
+    private loadData(serviceUrl?: string) {
         //console.log('chart1 ' + (serviceUrl || this.settings.url));
         //console.log('chart2 ' + serviceUrl);
         this.service.get(serviceUrl || this.settings.url)
@@ -46,10 +46,12 @@ export class ChartComponent implements WidgetComponent, OnInit {
                     this.chart.destroy();
                 }
 
+
+
                 // TODO: think about this one!
                 let chart = <Chart>data.data;
                 let first = true;
-                
+
                 chart.series.map(serie => {
 
                     let length = this.settings.chart.series.push({
@@ -58,23 +60,32 @@ export class ChartComponent implements WidgetComponent, OnInit {
                     });
 
                     this.settings.chart.series[length - 1].name = serie.title;
-
                     serie.segments.map(segment => {
 
                         if (first && this.settings.chart.xAxis)
                             this.settings.chart.xAxis.categories.push(segment.label);
 
+
                         this.settings.chart.series[length - 1].data.push({
                             name: segment.label,
                             y: segment.value,
                             color: segment.color
+
                         });
 
                     });
-
+                    if (serie.title == "Available" || serie.title == "Used") {
+                       
+                        if (this.settings.chart.xAxis.categories.length > 1) {
+                            this.settings.chart.chart.type = 'bar';
+                        }
+                        else {
+                            this.settings.chart.chart.type = 'pie';
+                        }
+                    }
                     first = false;
                 });
-                
+               
                 this.chart = new Highcharts.Chart(this.settings.chart);
 
             },
