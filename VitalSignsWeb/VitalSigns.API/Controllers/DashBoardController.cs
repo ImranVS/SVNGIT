@@ -253,11 +253,11 @@ namespace VitalSigns.API.Controllers
 
 
             List<Segment> segments = new List<Segment>();
-            double deviceSyncLast15Min = result.Where(x => x.LastSyncTime <= (DateTime.Now.AddMinutes(-15)) && x.LastSyncTime > DateTime.Now).Count();
-            double deviceSyncBetween15to30 = result.Where(x => x.LastSyncTime > DateTime.Now.AddMinutes(-15) && x.LastSyncTime <= DateTime.Now.AddMinutes(-30)).Count();
-            double deviceSyncBetween30to60 = result.Where(x => x.LastSyncTime > DateTime.Now.AddMinutes(-30) && x.LastSyncTime <= DateTime.Now.AddMinutes(-60)).Count();
-            double deviceSyncBetween60to120 = result.Where(x => x.LastSyncTime > DateTime.Now.AddMinutes(-60) && x.LastSyncTime <= DateTime.Now.AddMinutes(-120)).Count();
-            double deviceSyncGreater120 = result.Where(x => x.LastSyncTime > DateTime.Now.AddMinutes(-120)).Count();
+            double deviceSyncLast15Min = result.Where(x => x.LastSyncTime > (DateTime.Now.AddMinutes(-15)) && x.LastSyncTime <= DateTime.Now).Count();
+            double deviceSyncBetween15to30 = result.Where(x => x.LastSyncTime < DateTime.Now.AddMinutes(-15) && x.LastSyncTime >= DateTime.Now.AddMinutes(-30)).Count();
+            double deviceSyncBetween30to60 = result.Where(x => x.LastSyncTime < DateTime.Now.AddMinutes(-30) && x.LastSyncTime >= DateTime.Now.AddMinutes(-60)).Count();
+            double deviceSyncBetween60to120 = result.Where(x => x.LastSyncTime < DateTime.Now.AddMinutes(-60) && x.LastSyncTime >= DateTime.Now.AddMinutes(-120)).Count();
+            double deviceSyncGreater120 = result.Where(x => x.LastSyncTime < DateTime.Now.AddMinutes(-120)).Count();
             if (deviceSyncLast15Min > 0)
             {
                 segments.Add(new Segment { Label = "Within 15 mins.", Value = deviceSyncLast15Min });
