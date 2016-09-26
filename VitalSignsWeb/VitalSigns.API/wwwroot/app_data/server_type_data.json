@@ -235,49 +235,67 @@
         "icon": "/img/servers/Paintbrush.svg",
         "tabs": [
           {
+            "tab_id": 1,
             "title": "Overview",
             "component": "IBMConnectionsOverviewTab",
-            "path": "/app/dashboards/components/ibm-connections/ibm-connections-overview-tab.component"
+            "path": "/app/dashboards/components/ibm-connections/ibm-connections-overview-tab.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 2,
             "title": "Communities",
             "component": "IBMConnectionsCommunitiesTab",
-            "path": "/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component"
+            "path": "/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 3,
             "title": "Profiles",
             "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "path": "/app/not-yet-implemented.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 4,
             "title": "Activities",
             "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "path": "/app/not-yet-implemented.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 5,
             "title": "Blogs",
             "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "path": "/app/not-yet-implemented.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 6,
             "title": "Bookmarks",
             "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "path": "/app/not-yet-implemented.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 7,
             "title": "Files",
             "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "path": "/app/not-yet-implemented.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 8,
             "title": "Forums",
             "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "path": "/app/not-yet-implemented.component",
+            "type": "Dashboard"
           },
           {
+            "tab_id": 9,
             "title": "Wikis",
             "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "path": "/app/not-yet-implemented.component",
+            "type": "Dashboard"
           }
         ]
 
