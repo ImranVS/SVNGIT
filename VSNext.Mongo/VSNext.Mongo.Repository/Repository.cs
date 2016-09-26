@@ -11,11 +11,23 @@ namespace VSNext.Mongo.Repository
          where T : IEntity
     {
         #region MongoSpecific
+        private TimeSpan dateTimeOffset = new TimeSpan(100, 100, 100);
+        private Boolean isService = false; 
         public Repository(string connectionString,int? tenantId=null)
         {
             //read from machine
             Collection = Database<T>.GetCollectionFromConnectionString(connectionString);
             TenantId = tenantId;
+
+
+            if(dateTimeOffset == new TimeSpan(100, 100, 100))
+            {
+                DateTime now = DateTime.Now;
+                dateTimeOffset = new TimeSpan(now.ToLocalTime().Ticks - now.ToUniversalTime().Ticks);
+
+            }
+
+            isService = System.Environment.StackTrace.Contains("RPRWyatt.VitalSigns.Services.VSServices.OnStart") || System.Environment.StackTrace.Contains("TestMicrosoftServices");
         }
 
         public Repository()
@@ -75,39 +87,39 @@ namespace VSNext.Mongo.Repository
 
         public virtual IEnumerable<T> Find(Expression<Func<T, bool>> filter)
         {
-            return Query(filter).ToEnumerable();
+            return ConvertDateTimes(Query(filter).ToEnumerable());
         }
 
         public virtual IEnumerable<T> Find(FilterDefinition<T> filter)
         {
-            return Query(filter).ToEnumerable();
+            return ConvertDateTimes(Query(filter).ToEnumerable());
         }
 
         public virtual IEnumerable<T> Find(FilterDefinition<T> filter, ProjectionDefinition<T> projection)
         {
-            return Query(filter).Project<T>(projection).ToEnumerable();
+            return ConvertDateTimes(Query(filter).Project<T>(projection).ToEnumerable());
         }
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> filter, int pageIndex, int size)
         {
-            return Find(filter, i => i.Id, pageIndex, size);
+            return ConvertDateTimes(Find(filter, i => i.Id, pageIndex, size));
         }
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size)
         {
-            return Find(filter, order, pageIndex, size, true);
+            return ConvertDateTimes(Find(filter, order, pageIndex, size, true));
         }
 
         public virtual IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size, bool isDescending)
         {
             var query = Query(filter).Skip(pageIndex * size).Limit(size);
-            return (isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable();
+            return ConvertDateTimes((isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable());
         }
 
         public virtual IEnumerable<T> Find(FilterDefinition<T> filter, Expression<Func<T, object>> order, int pageIndex, int size, bool isDescending)
         {
             var query = Query(filter).Skip(pageIndex * size).Limit(size);
-            return (isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable();
+            return ConvertDateTimes((isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable());
         }
 
         public virtual void Insert(T entity)
@@ -219,6 +231,35 @@ namespace VSNext.Mongo.Repository
             return Collection.AsQueryable<T>().AsEnumerable<T>();
         }
         #endregion Simplicity
+
+        #region SupportingClasses
+
+        private IEnumerable<T> ConvertDateTimes(IEnumerable<T> entities)
+        {
+            //return entities;
+            if (!isService) return entities;
+            if (entities.Count() == 0)
+                return entities;
+            System.Reflection.PropertyInfo[] properties = entities.First().GetType().GetProperties().Where(i => ((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null).ToArray();
+            List<T> listOfEntities = entities.ToList();
+            foreach(T entity in listOfEntities)
+            {
+                foreach(System.Reflection.PropertyInfo prop in properties)
+                {
+
+                    DateTime? dt = (DateTime?)(prop.GetValue(entity));
+                    if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                    {
+                        prop.SetValue(entity, dt.Value.Add(dateTimeOffset));
+                    }
+                    DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
+                    
+                }
+            }
+            return listOfEntities;
+        }
+
+        #endregion
     }
 
     public class Repository
