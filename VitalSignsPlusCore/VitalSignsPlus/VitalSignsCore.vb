@@ -6040,6 +6040,10 @@ CleanUp:
                 Dim serverName As String = myServer.Name
                 'Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
 
+                Dim repoObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                Dim filterdefObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.DeviceId.Equals(serverId) And i.Type.Equals("Activity"))
+                'repoObjects.Delete(filterdefObjects)
+
                 'cmd.ExecuteNonQuery()
                 Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
 
