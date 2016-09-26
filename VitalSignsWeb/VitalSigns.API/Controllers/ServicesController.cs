@@ -122,8 +122,10 @@ namespace VitalSigns.API.Controllers
                                          Version = x.SoftwareVersion,
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
-                                         Status = x.StatusCode,
-                                         DeviceId = x.DeviceId
+                                         Status = x.StatusCode,// Holds the formated status code for displaying colors in UI
+                                         StatusCode=x.StatusCode,//Holds actual server code data
+                                         DeviceId = x.DeviceId,
+                                         Location=x.Location
 
                                      }).ToList();
                 foreach (ServerStatus item in result)
@@ -140,6 +142,15 @@ namespace VitalSigns.API.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Status))
                         item.Status = item.Status.ToLower().Replace(" ", "");
+                    else
+                        item.Status = string.Empty;
+                    if (string.IsNullOrEmpty(item.Type))
+                        item.Type = string.Empty;
+                    if (string.IsNullOrEmpty(item.StatusCode))
+                        item.StatusCode = string.Empty;
+
+                    if (string.IsNullOrEmpty(item.Location))
+                        item.Location = string.Empty;
                 }
                 Response = Common.CreateResponse(result.OrderBy(x => x.Name));
             }
@@ -756,6 +767,30 @@ namespace VitalSigns.API.Controllers
         }
 
         //  var diskresult = statusRepository.Find(typeexpression);
+        [HttpGet("server_list_selectlist_data")]
+        public APIResponse GetDeviceListDropDownData()
+        {
+
+            try
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+                var deviceTypeData = statusRepository.All().Where(x=>x.DeviceType!=null).Select(x => x.DeviceType).Distinct().OrderBy(x=>x).ToList();
+                var deviceStatusData = statusRepository.All().Where(x => x.StatusCode != null).Select(x => x.StatusCode).Distinct().OrderBy(x => x).ToList();
+                var deviceLocationData = statusRepository.All().Where(x => x.Location != null).Select(x => x.Location).Distinct().OrderBy(x => x).ToList();
+                deviceTypeData.Insert(0, "-All-");
+                deviceStatusData.Insert(0, "-All-");
+                deviceLocationData.Insert(0, "-All-");
+
+                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData , deviceLocationData = deviceLocationData });
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
 
     }
 }
