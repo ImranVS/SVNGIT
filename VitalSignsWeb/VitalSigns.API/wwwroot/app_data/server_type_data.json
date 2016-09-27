@@ -75,7 +75,7 @@
       },
   {
     "server_type": "Domino",
-    "icon": "/img/servers/ServerDaysUp.svg",
+    "icon": "/img/servers/IBMDomino.svg",
     "tabs": [
       {
         "tab_id": 1,
@@ -223,7 +223,7 @@
 
       {
         "server_type": "WebSphere",
-        "icon": "/img/servers/Paintbrush.svg",
+        "icon": "/img/servers/IBMWebsShere.svg",
         "tabs": [
 
         ]
@@ -232,7 +232,7 @@
 
       {
         "server_type": "IBM Connections",
-        "icon": "/img/servers/Paintbrush.svg",
+        "icon": "/img/servers/IBMConnections.svg",
         "tabs": [
           {
             "tab_id": 1,
@@ -322,7 +322,7 @@
 
       {
         "server_type": "Sametime",
-        "icon": "/img/servers/Paintbrush.svg",
+        "icon": "/img/servers/IBMSametime.svg",
         "tabs": [
           {
             "tab_id": 1,
