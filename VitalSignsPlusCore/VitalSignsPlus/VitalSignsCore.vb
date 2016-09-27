@@ -5780,7 +5780,9 @@ CleanUp:
                     Dim tags As New List(Of String)
                     For Each tagRow As DataRow In ds.Tables(7).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "parsing Activity Stats. objIbmConnectionsTags.Name : " & tagRow("NAME").ToString())
-                        tags.Add(tagRow("NAME").ToString())
+                        If Not tags.Contains(tagRow("NAME").ToString()) Then
+                            tags.Add(tagRow("NAME").ToString())
+                        End If
 
                         'cmd = New SqlClient.SqlCommand()
                         'cmd.Connection = sqlConn
@@ -5823,6 +5825,8 @@ CleanUp:
                     Next
 
                     IbmConnectionsObjects2.users = users
+
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "parsing Activity Stats. objIbmConnectionsUsers.Name---2 : " & IbmConnectionsObjects2.DeviceName.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                     repo.Insert(IbmConnectionsObjects2)
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "parsing Activity Stats. Inserted : ")
                 Next
@@ -6088,7 +6092,9 @@ CleanUp:
                     Dim tags As New List(Of String)
 
                     For Each tagRow As DataRow In ds.Tables(19).Select("WEBSITEID = '" & row("ID").ToString() & "'")
-                        tags.Add(tagRow("NAME").ToString())
+                        If Not tags.Contains(tagRow("NAME").ToString()) Then
+                            tags.Add(tagRow("NAME").ToString())
+                        End If
                         'Dim IbmConnectionsObjects3 As New VSNext.Mongo.Entities.IbmConnectionsObjectsTags
                         'IbmConnectionsObjects3.ServerName = row("NAME").ToString()
                         'IbmConnectionsObjects3.TagName = tagRow("NAME").ToString()
@@ -6339,8 +6345,9 @@ CleanUp:
                 For Each row As DataRow In dt.Rows()
                     Dim tags As New List(Of String)
                     For Each tag As String In row("TAGS_LIST").ToString().Split(",")
-
-                        tags.Add(tag)
+                        If Not tags.Contains(tag) Then
+                            tags.Add(tag)
+                        End If
                         'cmd = New SqlClient.SqlCommand()
                         'cmd.Connection = sqlConn
                         'cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
@@ -6790,7 +6797,10 @@ CleanUp:
                         'cmd.Parameters.AddWithValue("@GUID", tagRow("LINK_ID").ToString())
                         'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
                         'cmd.ExecuteNonQuery()
-                        tags.Add(tagRow("TAG").ToString())
+                        If Not tags.Contains(tagRow("TAG").ToString()) Then
+                            tags.Add(tagRow("TAG").ToString())
+                        End If
+
                     Next
                     IbmConnectionsObjects.tags = tags
                     repo.Insert(IbmConnectionsObjects)
@@ -7041,7 +7051,11 @@ CleanUp:
                         tags = New List(Of String)
                     End If
 
-                    tags.Add(tagRow("TAG").ToString())
+                   If Not tags.Contains(tagRow("TAG").ToString()) Then
+                        tags.Add(tagRow("TAG").ToString())
+                    End If
+
+                    'tags.Add(tagRow("TAG").ToString())
                     updatedef = repo.Updater _
                                 .Set(Function(i) i.tags, tags)
                     repo.Update(filterdef, updatedef)
