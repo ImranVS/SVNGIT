@@ -74,15 +74,17 @@ export class ChartComponent implements WidgetComponent, OnInit {
                         });
 
                     });
-                    if (serie.title == "Available" || serie.title == "Used") {
-                       
-                        if (this.settings.chart.xAxis.categories.length > 1) {
+
+                    
+                        if (this.settings.chart.xAxis.categories.length > 1 && serie.title == "Available" || serie.title == "Used") {
+                           
                             this.settings.chart.chart.type = 'bar';
                         }
-                        else {
+                        else if (serie.title.startsWith("Disk")) {
+                           
                             this.settings.chart.chart.type = 'pie';
                         }
-                    }
+                    
                     first = false;
                 });
                
