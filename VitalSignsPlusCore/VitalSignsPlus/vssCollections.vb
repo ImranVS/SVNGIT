@@ -615,20 +615,25 @@ Partial Public Class VitalSignsPlusCore
 
         WriteAuditEntry(Now.ToString & " Finished configuring " & MyBlackBerryServers.Count & " BES servers.")
     End Sub
-
+    Private Function getCurrentNode() As String
+        Dim NodeName As String = ""
+        If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
+            NodeName = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
+        End If
+        Return NodeName
+    End Function
     Private Sub CreateMailServicesCollection()
         WriteAuditEntry(Now.ToString & "  Reading configuration settings for Mail Services.")
         'start with fresh data
 
         'Connect to the data source
-
         Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
         Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
 
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Mail.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Mail.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -915,7 +920,7 @@ Partial Public Class VitalSignsPlusCore
             'removed UserThreshold, ChatThreshold, NChatThreshold, PlacesThreshold
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -1764,7 +1769,7 @@ Partial Public Class VitalSignsPlusCore
             'removed LastChecked, LastStatus, NextScan
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2102,7 +2107,7 @@ Partial Public Class VitalSignsPlusCore
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Cloud.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Cloud.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2408,7 +2413,7 @@ Partial Public Class VitalSignsPlusCore
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2431,7 +2436,7 @@ Partial Public Class VitalSignsPlusCore
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
 
-            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             projectionDef = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2440,7 +2445,7 @@ Partial Public Class VitalSignsPlusCore
             listOfNodes = repository.Find(filterDef, projectionDef).ToList()
 
 
-            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription())
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             projectionDef = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2978,7 +2983,7 @@ Partial Public Class VitalSignsPlusCore
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.IBMConnections.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.IBMConnections.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
