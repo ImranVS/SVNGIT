@@ -39,5 +39,10 @@ namespace VSNext.Mongo.Entities
         [BsonElement("days")]
         [BsonIgnoreIfNullAttribute]
         public string[] Days { get; set; }
+
+        [DataMember]
+        [BsonElement("device_id")]
+        public string DeviceId { get; set; }
+
     }
 }
