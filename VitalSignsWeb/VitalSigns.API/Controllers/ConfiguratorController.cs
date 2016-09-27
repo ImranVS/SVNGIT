@@ -27,6 +27,7 @@ namespace VitalSigns.API.Controllers
             businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
             var result = businessHoursRepository.All().Select(x => new BusinessHoursModel
             {
+
                 Name = x.Name,
                 StartTime = x.StartTime,
                 Duration = x.Duration,
