@@ -1,5 +1,5 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
@@ -11,17 +11,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 
 @Component({
     templateUrl: './app/dashboards/components/ibm-domino/ibm-domino-grid.component.html',
-    directives: [
-        wjFlexGrid.WjFlexGrid,
-        wjFlexGrid.WjFlexGridColumn,
-        wjFlexGrid.WjFlexGridCellTemplate,
-        wjFlexGridFilter.WjFlexGridFilter,
-        wjFlexGridGroup.WjGroupPanel,
-        wjFlexInput.WjMenu,
-        wjFlexInput.WjMenuItem
-    ],
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })
@@ -53,7 +44,8 @@ export class IBMDominoGrid implements WidgetComponent, OnInit {
                 this.data.pageSize = 20;
             },
             (error) => this.errorMessage = <any>error
-        );
+            );
+
     }
 
     getAccessColor(access: string) {

@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit, Injector} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
 
@@ -9,7 +9,6 @@ declare var injectSVG: any;
 @Component({
     selector: 'tab-overall',
     templateUrl: '/app/services/components/service-overall-tab.component.html',
-    directives: [WidgetContainer],
     providers: [WidgetService]
 })
 export class ServiceOverallTab extends WidgetController implements OnInit, ServiceTab {
@@ -18,7 +17,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
     serviceId: string;
     deviceId: any;
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
     
@@ -28,7 +27,6 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
             {
                 id: 'usersConnectionsDuringTheDay',
                 title: 'Users connections during the day',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
@@ -64,7 +62,6 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
             {
                 id: 'diskSpace',
                 title: 'Disk space',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
@@ -112,7 +109,6 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
             {
                 id: 'cpuUsage',
                 title: 'CPU Usage',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
@@ -156,7 +152,6 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
             {
                 id: 'memoryUsage',
                 title: 'Memory Usage',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {

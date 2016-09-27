@@ -1,5 +1,5 @@
 ﻿import {Component, Input, OnInit, AfterViewChecked} from '@angular/core';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
@@ -9,7 +9,7 @@ declare var injectSVG: any;
 @Component({
     templateUrl: './app/widgets/main-dashboard/components/app-status.component.html',
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

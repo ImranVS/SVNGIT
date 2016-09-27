@@ -1,34 +1,31 @@
-﻿import {Component, ComponentResolver, OnInit, Injector} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
-
-import {IBMConnectionsGrid} from './ibm-connections-grid.component';
 
 declare var injectSVG: any;
 
 @Component({
     selector: 'tab-overall',
     templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-overview-tab.component.html',
-    directives: [WidgetContainer]
+    providers: [WidgetService]
 })
 export class IBMConnectionsOverviewTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
     
     ngOnInit() {
-        let grid: IBMConnectionsGrid = <IBMConnectionsGrid>(this.widgetService.findWidget('connectionsGrid').component);
+    
         this.widgets = [
             {
                 id: 'dailyActivities',
                 title: 'Daily Activities',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -80,7 +77,6 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
             {
                 id: 'top5Tags',
                 title: 'Top 5 Tags',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {

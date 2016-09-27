@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit, ViewChild} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
@@ -13,7 +13,6 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/configurator/components/configurator-businesshours-tab.component.html',
-    directives: [WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class BusinessHoursTab extends WidgetController implements OnInit {
@@ -22,7 +21,7 @@ export class BusinessHoursTab extends WidgetController implements OnInit {
     @ViewChild('flex') flexInline: wijmo.grid.FlexGrid;
     editIndex: number;
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
     }
 
@@ -35,7 +34,6 @@ export class BusinessHoursTab extends WidgetController implements OnInit {
             {
                 id: 'BusinessHoursGrid',
                 title: '',
-                path: '/app/configurator/components/configurator-businesshours-grid.component',
                 name: 'BusinessHoursGrid',
                 css: 'col-xs-12',
             }

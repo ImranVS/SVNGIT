@@ -1,17 +1,15 @@
 ﻿import {Component, OnInit, AfterViewInit, ViewChildren} from '@angular/core';
-import {FormBuilder, FormGroup, FormControl, REACTIVE_FORM_DIRECTIVES, REACTIVE_FORM_PROVIDERS, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../core/services';
 
 @Component({
     selector: 'profiles-form',
     templateUrl: '/app/profiles/components/profiles-form.component.html',
-    directives: [REACTIVE_FORM_DIRECTIVES],
-    viewProviders: [REACTIVE_FORM_PROVIDERS],
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

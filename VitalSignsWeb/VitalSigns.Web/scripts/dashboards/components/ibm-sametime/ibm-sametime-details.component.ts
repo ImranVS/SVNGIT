@@ -1,17 +1,18 @@
-﻿import {Component, OnInit, ComponentResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
+﻿import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../../core/services';
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
-declare var System: any;
+import * as ServiceTabs from '../../../services/service-tab.collection';
 
 @Component({
+    selector: 'vs-sametime-details',
     templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-details.component.html',
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })
@@ -20,12 +21,13 @@ export class IBMSametimeDetails implements OnInit {
     @ViewChild('tab', { read: ViewContainerRef }) target: ViewContainerRef;
 
     errorMessage: string;
+
     serviceId: any;
     service: any;
 
-    activeTabComponent: ComponentRef<ServiceTab>;
+    activeTabComponent: ComponentRef<{}>;
 
-    constructor(private dataProvider: RESTService, private resolver: ComponentResolver, private elementRef: ElementRef, private route: ActivatedRoute) { }
+    constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private route: ActivatedRoute) { }
     
     selectTab(tab: any) {
     
@@ -38,24 +40,19 @@ export class IBMSametimeDetails implements OnInit {
             this.activeTabComponent.destroy();
             
         // Lazy-load selected tab component
-        System.import(tab.path).then(component => {
-            this.resolver
-                .resolveComponent(component[tab.component])
-                .then((factory: ComponentFactory<any>) => {
-                    this.activeTabComponent = this.target.createComponent(factory);
-                    this.activeTabComponent.instance.serviceId = this.serviceId;
-                });
-        });
+        let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
+        this.activeTabComponent = this.target.createComponent(factory);
+        (<ServiceTab>(this.activeTabComponent.instance)).serviceId = this.serviceId;
         
     }
     
     ngOnInit() {
 
         this.route.params.subscribe(params => {
-            
+
+            this.serviceId = '1';
+
             // Get tabs associated with selected service
-            //http://private-ad10c-ibm.apiary-mock.com/services/sametime/1
-            //this.dataProvider.get(`/services/device_details?device_id=57d30363bf467154b0bd9e94&destination=dashboard`)
             this.dataProvider.get(`/services/device_details?device_id=57d30363bf467154b0bd9e94&destination=dashboard`)
                 .subscribe(
                 data => {
@@ -83,4 +80,5 @@ export class IBMSametimeDetails implements OnInit {
         }
 
     }
+    
 }

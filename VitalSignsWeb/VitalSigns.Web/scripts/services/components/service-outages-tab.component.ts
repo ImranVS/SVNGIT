@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
@@ -12,14 +12,13 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/services/components/service-outages-tab.component.html',
-    directives: [WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class ServiceOutagesTab extends WidgetController implements OnInit {
     deviceId: any;
     widgets: WidgetContract[];
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
     }
 
@@ -32,7 +31,6 @@ export class ServiceOutagesTab extends WidgetController implements OnInit {
             {
                 id: 'ServiceOutagesGrid',
                 title: '',
-                path: '/app/services/components/service-outages-grid.component',
                 name: 'ServiceOutagesGrid',
                 css: 'col-xs-12',
             }

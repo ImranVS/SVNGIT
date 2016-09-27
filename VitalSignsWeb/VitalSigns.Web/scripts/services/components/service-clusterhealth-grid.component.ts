@@ -1,6 +1,6 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 import {WidgetComponent, WidgetService} from '../../core/widgets';
 import {RESTService} from '../../core/services';
 import {AppNavigator} from '../../navigation/app.navigator.component';
@@ -15,18 +15,8 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/services/components/service-clusterhealth-grid.component.html',
-    directives: [
-        wjFlexGrid.WjFlexGrid,
-        wjFlexGrid.WjFlexGridColumn,
-        wjFlexGrid.WjFlexGridCellTemplate,
-        wjFlexGridFilter.WjFlexGridFilter,
-        wjFlexGridGroup.WjGroupPanel,
-        wjFlexInput.WjMenu,
-        wjFlexInput.WjMenuItem,
-        AppNavigator
-    ],
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

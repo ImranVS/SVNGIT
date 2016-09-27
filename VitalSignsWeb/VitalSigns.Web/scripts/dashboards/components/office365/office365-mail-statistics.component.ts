@@ -1,5 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
@@ -9,7 +8,6 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/office365-mail-statistics.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class OfficeMailStatistics extends WidgetController implements OnInit {
@@ -18,7 +16,6 @@ export class OfficeMailStatistics extends WidgetController implements OnInit {
         {
             id: 'top5ActiveMailboxes',
             title: 'Top 5 mailboxes',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-8',
             settings: {
@@ -70,7 +67,6 @@ export class OfficeMailStatistics extends WidgetController implements OnInit {
         {
             id: 'activeUsers',
             title: 'Active users',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-4',
             settings: {
@@ -131,7 +127,6 @@ export class OfficeMailStatistics extends WidgetController implements OnInit {
         {
             id: 'top5InactiveMailboxes',
             title: 'Top 5 inactive mailboxes',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-8',
             settings: {
@@ -183,7 +178,6 @@ export class OfficeMailStatistics extends WidgetController implements OnInit {
         {
             id: 'inactiveUsers',
             title: 'Inactive users',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-4',
             settings: {
@@ -243,7 +237,7 @@ export class OfficeMailStatistics extends WidgetController implements OnInit {
         }
     ]
     
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
 

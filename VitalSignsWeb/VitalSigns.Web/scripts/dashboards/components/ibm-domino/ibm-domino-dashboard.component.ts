@@ -1,5 +1,4 @@
-﻿import {Component, ComponentResolver, Input, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+﻿import {Component, ComponentFactoryResolver, Input, OnInit} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
@@ -12,7 +11,6 @@ declare var bootstrapNavigator: any;
 @Component({
     selector: 'sample-dashboard',
     templateUrl: '/app/dashboards/components/ibm-domino/ibm-domino-dashboard.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class IBMDominoDashboard extends WidgetController implements OnInit {
@@ -20,7 +18,6 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
         {
             id: 'dominoGrid',
             title: 'Domino Info',
-            path: '/app/dashboards/components/ibm-domino/ibm-domino-grid.component',
             name: 'IBMDominoGrid',
             css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
             settings: {
@@ -30,7 +27,6 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
         {
             id: 'serverRoles',
             title: 'Roles',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
@@ -82,7 +78,6 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
         {
             id: 'serverStatus',
             title: 'Status',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
@@ -134,7 +129,6 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
         {
             id: 'serverOs',
             title: 'Operating Systems',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
@@ -185,7 +179,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
         }
     ]
     
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
 

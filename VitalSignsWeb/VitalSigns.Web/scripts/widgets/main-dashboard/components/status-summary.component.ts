@@ -1,5 +1,5 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
@@ -7,7 +7,7 @@ import {RESTService} from '../../../core/services';
 @Component({
     templateUrl: './app/widgets/main-dashboard/components/status-summary.component.html',
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

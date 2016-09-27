@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
@@ -12,7 +12,6 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/services/components/service-mainhealth-tab.component.html',
-    directives: [WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class ServiceMainHealthTab extends WidgetController implements OnInit {
@@ -21,7 +20,7 @@ export class ServiceMainHealthTab extends WidgetController implements OnInit {
     
     widgets: WidgetContract[];
    
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
     }
 
@@ -34,7 +33,6 @@ export class ServiceMainHealthTab extends WidgetController implements OnInit {
             {
                 id: 'ServiceMainHealthGrid',
                 title: 'Health Assessment',
-                path: '/app/services/components/service-mainhealth-grid.component',
                 name: 'ServiceMainHealthGrid',
                 css: 'col-xs-12',
             }

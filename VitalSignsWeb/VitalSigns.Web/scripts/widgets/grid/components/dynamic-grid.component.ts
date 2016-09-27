@@ -1,5 +1,5 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
@@ -8,9 +8,8 @@ import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 
 @Component({
     templateUrl:'/app/widgets/grid/components/dynamic-grid.component.html' ,
-    directives: [wjFlexGrid.WjFlexGrid, wjFlexGrid.WjFlexGridColumn],
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

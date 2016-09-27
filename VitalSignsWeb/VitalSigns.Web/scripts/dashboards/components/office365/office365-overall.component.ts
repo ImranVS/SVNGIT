@@ -1,5 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
@@ -9,7 +8,6 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/office365-overall.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class Office365Overall extends WidgetController implements OnInit {
@@ -18,7 +16,6 @@ export class Office365Overall extends WidgetController implements OnInit {
         {
             id: 'dailyUserLogins',
             title: 'Daily user logins',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-4',
             settings: {
@@ -70,7 +67,6 @@ export class Office365Overall extends WidgetController implements OnInit {
         {
             id: 'lastLogon',
             title: 'Last logon',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-4',
             settings: {
@@ -131,7 +127,6 @@ export class Office365Overall extends WidgetController implements OnInit {
         {
             id: 'activeInactiveUsers',
             title: 'Active/inactive users',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-4',
             settings: {
@@ -192,7 +187,6 @@ export class Office365Overall extends WidgetController implements OnInit {
         {
             id: 'top5Mailboxes',
             title: 'Top 5 mailboxes',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6',
             settings: {
@@ -244,7 +238,6 @@ export class Office365Overall extends WidgetController implements OnInit {
         {
             id: 'top5InactiveMailboxes',
             title: 'Top 5 inactive mailboxes',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6',
             settings: {
@@ -295,7 +288,7 @@ export class Office365Overall extends WidgetController implements OnInit {
         }
     ]
     
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
 

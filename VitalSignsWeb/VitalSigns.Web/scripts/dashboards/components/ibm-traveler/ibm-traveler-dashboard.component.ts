@@ -1,5 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
 import 'rxjs/Rx';
 
@@ -12,7 +11,6 @@ declare var bootstrapNavigator: any;
 @Component({
     selector: 'traveler-dashboard',
     templateUrl: '/app/dashboards/components/ibm-traveler/ibm-traveler-dashboard.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class IBMTravelerDashboard extends WidgetController implements OnInit {
@@ -21,7 +19,6 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
         {
             id: 'mobileUsersGrid',
             title: 'Mobile users',
-            path: '/app/dashboards/components/ibm-traveler/ibm-traveler-grid.component',
             name: 'MobileUsersGrid',
             css: 'col-xs-12 col-sm-12 col-md-12 col-lg-8',
             settings: {}
@@ -29,7 +26,6 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
         {
             id: 'mobileDevicesChart',
             title: 'Mobile devices',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
@@ -69,7 +65,6 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
         {
             id: 'mobileDevicesOSChart',
             title: 'Mobile devices OS for all Servers',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
@@ -109,7 +104,6 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
         {
             id: 'syncTimeChart',
             title: 'Sync times',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
             settings: {
@@ -157,7 +151,6 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
         {
             id: 'deviceCountUserChart',
             title: 'Device count / user',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
             settings: {
@@ -203,7 +196,7 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
         }
     ]
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
 

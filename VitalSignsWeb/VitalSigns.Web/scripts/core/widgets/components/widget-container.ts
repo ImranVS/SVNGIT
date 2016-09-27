@@ -18,7 +18,6 @@ export class WidgetContainer implements WidgetContract, OnInit {
 
     @Input() id: string;
     @Input() title: string;
-    @Input() path: string;
     @Input() name: string;
     @Input() css: string;
     @Input() settings: any;
@@ -31,7 +30,6 @@ export class WidgetContainer implements WidgetContract, OnInit {
         
             this.id = this.id || this.contract.id;
             this.title = this.title || this.contract.title;
-            this.path = this.path || this.contract.path;
             this.name = this.name || this.contract.name;
             this.css = this.css || this.contract.css;
             this.settings = this.settings || this.contract.settings;

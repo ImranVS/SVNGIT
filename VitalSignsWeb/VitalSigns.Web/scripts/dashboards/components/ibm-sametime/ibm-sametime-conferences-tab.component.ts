@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit, Injector} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 
@@ -11,14 +11,14 @@ declare var injectSVG: any;
 @Component({
     selector: 'tab-conferences',
     templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component.html',
-    directives: [WidgetContainer]
+    providers: [WidgetService]
 })
 export class IBMSametimeConferencesTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
     
@@ -29,7 +29,6 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
             {
                 id: 'oneOnOneCalls',
                 title: 'One-on-one Calls',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -65,7 +64,6 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
             {
                 id: 'multiUserCalls',
                 title: 'Multi-user Calls',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -101,7 +99,6 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
             {
                 id: 'allCalls',
                 title: 'All Calls',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -137,7 +134,6 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
             {
                 id: 'allCallsAllUsers',
                 title: 'All Calls/All Users',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -173,7 +169,6 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
             {
                 id: 'allOneOnOneCallsUsers',
                 title: 'All One-on-one Calls/All One-on-one Call Users',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -209,7 +204,6 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
             {
                 id: 'allMultiUserCallsUsers',
                 title: 'All Multi-user Calls/All Multi-user Call Users',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {

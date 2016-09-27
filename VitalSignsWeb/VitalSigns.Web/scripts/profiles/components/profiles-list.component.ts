@@ -1,5 +1,5 @@
 ﻿import {Component, OnInit} from '@angular/core';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../core/services';
 
@@ -7,7 +7,7 @@ import {RESTService} from '../../core/services';
     selector: 'profiles-list',
     templateUrl: '/app/profiles/components/profiles-list.component.html',
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

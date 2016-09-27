@@ -1,5 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
 import 'rxjs/Rx';
 
@@ -12,7 +11,6 @@ declare var bootstrapNavigator: any;
 @Component({
     selector: 'traveler-dashboard',
     templateUrl: '/app/dashboards/components/overall-dashboard.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class OverallDashboard extends WidgetController implements OnInit {
@@ -20,7 +18,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
     widgetAppsStatus: WidgetContract[] = [
         {
             id: 'widgetOnPremisesApps1',
-            path: '/app/widgets/main-dashboard/components/app-status.component',
             name: 'AppStatus',
             settings: {
                 serviceId: 1
@@ -28,7 +25,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
         },
         {
             id: 'widgetOnPremisesApps2',
-            path: '/app/widgets/main-dashboard/components/app-status.component',
             name: 'AppStatus',
             settings: {
                 serviceId: 2
@@ -36,7 +32,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
         },
         {
             id: 'widgetOnPremisesApps3',
-            path: '/app/widgets/main-dashboard/components/app-status.component',
             name: 'AppStatus',
             settings: {
                 serviceId: 3
@@ -44,7 +39,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
         },
         {
             id: 'widgetOnPremisesApps4',
-            path: '/app/widgets/main-dashboard/components/app-status.component',
             name: 'AppStatus',
             settings: {
                 serviceId: 4
@@ -55,7 +49,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
     widgetOnPremisesApps: WidgetContract = {
         id: 'widgetOnPremisesApps',
         title: 'On premises applications',
-        path: '/app/widgets/main-dashboard/components/on-premises-apps.component',
         name: 'OnPremisesApps',
         css: 'col-md-6 col-lg-12',
         settings: {}
@@ -63,7 +56,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
 
     widgetStatusSummary: WidgetContract = {
         id: 'widgetStatusSummary',
-        path: '/app/widgets/main-dashboard/components/status-summary.component',
         name: 'StatusSummary',
         settings: {}
     }
@@ -71,7 +63,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
     widgetUsersSessions: WidgetContract = 
         {
         id: 'widgetUserSessions',
-        path: '/app/widgets/main-dashboard/components/user-sessions.component',
         name: 'UserSessions',
         settings: {}
         }
@@ -80,7 +71,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
     weeklyEvents: WidgetContract = {
         id: 'weeklyEventsRepartitionChartWrapper',
         title: 'Weekly events repartition',
-        path: '/app/widgets/charts/components/chart.component',
         name: 'ChartComponent',
         css: 'col-lg-12 col-md-6 col-sm-6',
         settings: {
@@ -129,7 +119,6 @@ export class OverallDashboard extends WidgetController implements OnInit {
     lastMonthEvents: WidgetContract = {
         id: 'eventsCountChartWrapper',
         title: 'Last month events',
-        path: '/app/widgets/charts/components/chart.component',
         name: 'ChartComponent',
         css: 'col-md-6 col-lg-12',
         settings: {
@@ -162,7 +151,7 @@ export class OverallDashboard extends WidgetController implements OnInit {
         }
     }
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
 
         super(resolver, widgetService);
         

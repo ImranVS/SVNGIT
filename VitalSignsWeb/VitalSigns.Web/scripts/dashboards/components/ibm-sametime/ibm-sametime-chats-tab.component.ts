@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit, Injector} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 
@@ -11,17 +11,17 @@ declare var injectSVG: any;
 @Component({
     selector: 'tab-chats',
     templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component.html',
-    directives: [WidgetContainer]
+    providers: [WidgetService]
 })
 export class IBMSametimeChatsTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
-
+    
     ngOnInit() {
         let grid: IBMSametimeGrid = <IBMSametimeGrid>(this.widgetService.findWidget('sametimeGrid').component);
         console.log(grid.serviceId);
@@ -29,7 +29,6 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
             {
                 id: 'nWayChats',
                 title: 'N-way Chats',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -65,7 +64,6 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
             {
                 id: 'activeNWayChats',
                 title: 'Active N-way Chats',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -101,7 +99,6 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
             {
                 id: 'openChatSessions',
                 title: 'Open Chat Sessions',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
@@ -137,7 +134,6 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
             {
                 id: 'chatMessages',
                 title: 'Chat Messages',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {

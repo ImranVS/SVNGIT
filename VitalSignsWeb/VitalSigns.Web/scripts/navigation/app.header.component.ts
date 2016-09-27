@@ -1,6 +1,6 @@
 ﻿import {Component, AfterViewChecked, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES, Router} from '@angular/router';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {Router} from '@angular/router';
+import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../core/services';
 
@@ -9,9 +9,8 @@ declare var bootstrapNavigator: any;
 @Component({
     selector: 'app-header',
     templateUrl: '/app/navigation/app.header.component.html',
-    directives: [ROUTER_DIRECTIVES],
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })
@@ -27,7 +26,6 @@ export class AppHeader implements OnInit {
             .subscribe(
             response => {
                 this.deviceSummary = response.data;
-                console.log(response);
             },
             error => {
                 this.errorMessage = <any>error;

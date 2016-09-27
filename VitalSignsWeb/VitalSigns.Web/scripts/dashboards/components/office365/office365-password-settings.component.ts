@@ -1,5 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
@@ -9,7 +8,6 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/office365-password-settings.component.html',
-    directives: [ROUTER_DIRECTIVES, WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class Office365PasswordSettings extends WidgetController implements OnInit {
@@ -18,7 +16,6 @@ export class Office365PasswordSettings extends WidgetController implements OnIni
         {
             id: 'greetings',
             title: 'Say hello',
-            path: '/app/widgets/charts/components/chart.component',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6',
             settings: {
@@ -69,7 +66,7 @@ export class Office365PasswordSettings extends WidgetController implements OnIni
         }
     ]
     
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
 

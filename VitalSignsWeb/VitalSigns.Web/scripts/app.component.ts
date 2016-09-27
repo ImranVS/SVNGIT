@@ -1,5 +1,4 @@
 ﻿import {Component, OnInit} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
 
 import {AppHeader} from './navigation/app.header.component';
 import {AppMainMenu} from './navigation/app.main-menu.component';
@@ -21,8 +20,7 @@ declare var injectSVG: any;
         <router-outlet></router-outlet>
     </div>
 </div>
-`,
-    directives: [AppHeader, AppMainMenu, ROUTER_DIRECTIVES]
+`
 })
 export class AppComponent implements OnInit {
     ngOnInit() {

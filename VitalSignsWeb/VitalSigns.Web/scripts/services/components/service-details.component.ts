@@ -1,17 +1,17 @@
-﻿import {Component, OnInit, ComponentResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
+﻿import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../core/services';
 
 import {ServiceTab} from '../models/service-tab.interface';
 
-declare var System: any;
+import * as ServiceTabs from '../service-tab.collection';
 
 @Component({
     templateUrl: '/app/services/components/service-details.component.html',
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })
@@ -24,9 +24,9 @@ export class ServiceDetails implements OnInit {
     deviceId: any;
     service: any;
 
-    activeTabComponent: ComponentRef<ServiceTab>;
+    activeTabComponent: ComponentRef<{}>;
 
-    constructor(private dataProvider: RESTService, private resolver: ComponentResolver, private elementRef: ElementRef, private route: ActivatedRoute) { }
+    constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private route: ActivatedRoute) { }
     
     selectTab(tab: any) {
     
@@ -37,16 +37,11 @@ export class ServiceDetails implements OnInit {
         // Dispose current tab if one already active
         if (this.activeTabComponent)
             this.activeTabComponent.destroy();
-            
+
         // Lazy-load selected tab component
-        System.import(tab.path).then(component => {
-            this.resolver
-                .resolveComponent(component[tab.component])
-                .then((factory: ComponentFactory<any>) => {
-                    this.activeTabComponent = this.target.createComponent(factory);
-                    this.activeTabComponent.instance.serviceId = this.deviceId;
-                });
-        });
+        let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
+        this.activeTabComponent = this.target.createComponent(factory);
+        (<ServiceTab>(this.activeTabComponent.instance)).serviceId = this.deviceId;
         
     }
     

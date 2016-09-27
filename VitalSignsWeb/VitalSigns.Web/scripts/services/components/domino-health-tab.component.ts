@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit, Injector} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
 
@@ -9,7 +9,6 @@ declare var injectSVG: any;
 @Component({
     selector: 'tab-overall',
     templateUrl: '/app/services/components/domino-health-tab.component.html',
-    directives: [WidgetContainer],
     providers: [WidgetService]
 })
 export class DominoHealthTab extends WidgetController implements OnInit, ServiceTab {
@@ -17,7 +16,7 @@ export class DominoHealthTab extends WidgetController implements OnInit, Service
     widgets: WidgetContract[];
     serviceId: string;
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
     
@@ -27,7 +26,6 @@ export class DominoHealthTab extends WidgetController implements OnInit, Service
             {
                 id: 'usersConnectionsDuringTheDay',
                 title: 'Daily Activities',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
@@ -63,7 +61,6 @@ export class DominoHealthTab extends WidgetController implements OnInit, Service
             {
                 id: 'id2',
                 title: 'Top 5 Tags',
-                path: '/app/not-yet-implemented.component',
                 name: 'NotYetImplemented',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {}
@@ -71,7 +68,6 @@ export class DominoHealthTab extends WidgetController implements OnInit, Service
             {
                 id: 'id3',
                 title: 'Statistics',
-                path: '/app/not-yet-implemented.component',
                 name: 'NotYetImplemented',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {}

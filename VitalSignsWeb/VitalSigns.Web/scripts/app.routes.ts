@@ -45,6 +45,9 @@ export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.compone
 export * from './dashboards/components/ms-sharepoint/ms-sharepoint-dashboard.component';
 
 export * from './dashboards/components/office365/office365-dashboard.component';
+export * from './dashboards/components/office365/office365-overall.component';
+export * from './dashboards/components/office365/office365-mail-statistics.component';
+export * from './dashboards/components/office365/office365-password-settings.component';
 
 export * from './dashboards/components/cloud-services-dashboard.component';
 

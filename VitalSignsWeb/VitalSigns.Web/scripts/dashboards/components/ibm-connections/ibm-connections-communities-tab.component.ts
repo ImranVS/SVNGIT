@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit, Injector} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 
@@ -9,7 +9,6 @@ declare var injectSVG: any;
 @Component({
     selector: 'tab-communities',
     templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component.html',
-    directives: [WidgetContainer],
     providers: [WidgetService]
 })
 export class IBMConnectionsCommunitiesTab extends WidgetController implements OnInit, ServiceTab {
@@ -17,7 +16,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
     widgets: WidgetContract[];
     serviceId: string;
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
     
@@ -27,7 +26,6 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
             {
                 id: 'communitiesByType',
                 title: 'Communities by Type',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
@@ -79,7 +77,6 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
             {
                 id: 'top5Communities',
                 title: 'Top 5 Most Active Communities',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
@@ -119,7 +116,6 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
             {
                 id: 'mostActiveCommunity',
                 title: 'Most Active Community is \"VS Dev\"',
-                path: '/app/widgets/charts/components/chart.component',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {

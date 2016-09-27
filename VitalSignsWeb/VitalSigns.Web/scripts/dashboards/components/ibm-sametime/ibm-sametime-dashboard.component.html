@@ -17,16 +17,27 @@
 </div>
 <div id="zeusContent">
     <div class="row">
-        <div class="{{widget.css}}" *ngFor="let widget of widgets">
+        
+        <div class="col-xs-12">
             <div class="widgetWrapper">
                 <div class="widgetTitle">
-                    {{widget.title}}
+                    Sametime Info
                 </div>
                 <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
-                <div class="widgetContent" id="{{widget.id}}">
-                    <my-widget [contract]="widget">loading...</my-widget>
+                <div class="widgetContent" id="sametimeGrid">
+                    <vs-sametime-grid>loading...</vs-sametime-grid>
                 </div>
             </div>
         </div>
+
+        <div class="col-xs-12">
+            <div class="widgetWrapper">
+                <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+                <div class="widgetContent" id="sametimeDetails">
+                    <vs-sametime-details>loading...</vs-sametime-details>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

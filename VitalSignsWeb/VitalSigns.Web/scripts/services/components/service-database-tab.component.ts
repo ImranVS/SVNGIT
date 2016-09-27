@@ -1,4 +1,4 @@
-﻿import {Component, ComponentResolver, OnInit} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
@@ -12,19 +12,17 @@ declare var bootstrapNavigator: any;
 
 @Component({
     templateUrl: '/app/services/components/service-database-tab.component.html',
-    directives: [WidgetContainer, AppNavigator],
     providers: [WidgetService]
 })
 export class ServiceDatabaseTab extends WidgetController implements OnInit {
     deviceId: any;
     widgets: WidgetContract[]; 
 
-    constructor(protected resolver: ComponentResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
     }
 
     ngOnInit() {
-      
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
 
@@ -33,7 +31,6 @@ export class ServiceDatabaseTab extends WidgetController implements OnInit {
             {
                 id: 'ServiceDatabaseGrid',
                 title: 'All Databases',
-                path: '/app/services/components/service-database-grid.component',
                 name: 'ServiceDatabaseGrid',
                 css: 'col-xs-12'               
             }
