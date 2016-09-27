@@ -1,0 +1,85 @@
+﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+<wj-flex-grid [itemsSource]="data" selectionMode="none" [frozenColumns]="1" [isReadOnly]="true"  #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell" style="padding:3px;">
+            <div *ngIf="cell && cell.row && cell.row.index < data.length" [ngSwitch]="cell.row.index == editIndex">
+                <div *ngSwitchWhen="true">
+                    <input id="Name" class="form-control" [value]="cell.col.grid.getCellData(cell.row.index, cell.col.index, true)" />
+                </div>
+                <div *ngSwitchWhen="false">
+                    {{cell.col.grid.getCellData(cell.row.index, cell.col.index, true)}}
+                </div>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    
+    <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Sunday'" [binding]="'sunday'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Monday'" [binding]="'monday'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Tuesday'" [binding]="'tuesday'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Wednesday'" [binding]="'wednesday'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Thursday'" [binding]="'thursday'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Friday'" [binding]="'friday'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Saturday'" [binding]="'saturday'" [width]="100"></wj-flex-grid-column>
+    
+    <wj-flex-grid-column [name]="'buttons'" [width]="200">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell" style="padding:3px;">
+            <div *ngIf="cell && cell.row && cell.row.index == editIndex">
+                <button class="btn btn-primary btn-sm" (click)="commitRow(cell.row.index)">
+                    <span class="glyphicon glyphicon-ok"></span> OK
+                </button>
+                &nbsp;&nbsp;
+                <button class="btn btn-warning btn-sm" (click)="cancelRow(cell.row.index)">
+                    <span class="glyphicon glyphicon-ban-circle"></span> Cancel
+                </button>
+            </div>
+            <div *ngIf="cell && cell.row && cell.row.index != editIndex">
+                <button class="btn btn-default btn-sm" (click)="editRow(cell.row.index)">
+                    <span class="glyphicon glyphicon-pencil"></span> Edit
+                </button>
+                &nbsp;&nbsp;
+                <button class="btn btn-default btn-sm" (click)="deleteRow(cell.row.index)">
+                    <span class="glyphicon glyphicon-remove"></span> Delete
+                </button>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+
+</wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{
+data.pageIndex + 1 | number
+        }} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>
