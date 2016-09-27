@@ -25,7 +25,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Drive> diskRepository;
 
 
-        private IRepository<IbmConnectionsTopStats> ibmRepository;
+        //private IRepository<IbmConnectionsTopStats> ibmRepository;
 
 
 
@@ -549,48 +549,48 @@ namespace VitalSigns.API.Controllers
             }
         }
 
-        [HttpGet("top_tags")]
-        public APIResponse GetIbmConnection(string deviceId)
-        {
-            ibmRepository = new Repository<IbmConnectionsTopStats>(ConnectionString);
-            try
-            {
-                if (!string.IsNullOrEmpty(deviceId))
-                {
+        //[HttpGet("top_tags")]
+        //public APIResponse GetIbmConnection(string deviceId)
+        //{
+        //    ibmRepository = new Repository<IbmConnectionsTopStats>(ConnectionString);
+        //    try
+        //    {
+        //        if (!string.IsNullOrEmpty(deviceId))
+        //        {
 
-                    Expression<Func<IbmConnectionsTopStats, bool>> expression = (p => p.DeviceId == deviceId);
-                    var topTags = ibmRepository.Find(expression);
-                    var result = topTags
-                                      .GroupBy(row => row.Name)
-                                      .Select(grp => new Segment
-                                      {
-                                          Label = grp.Key,
-                                          Value = grp.Count(),
+        //            Expression<Func<IbmConnectionsTopStats, bool>> expression = (p => p.DeviceId == deviceId);
+        //            var topTags = ibmRepository.Find(expression);
+        //            var result = topTags
+        //                              .GroupBy(row => row.Name)
+        //                              .Select(grp => new Segment
+        //                              {
+        //                                  Label = grp.Key,
+        //                                  Value = grp.Count(),
 
-                                      }).ToList();
-                    List<Segment> segments = new List<Segment>();
-                    Serie serie = new Serie();
-                    //serie.Title = name;
-                    serie.Segments = result.OrderBy(x => x.Value).Take(5).ToList();
+        //                              }).ToList();
+        //            List<Segment> segments = new List<Segment>();
+        //            Serie serie = new Serie();
+        //            //serie.Title = name;
+        //            serie.Segments = result.OrderBy(x => x.Value).Take(5).ToList();
 
-                    List<Serie> series = new List<Serie>();
-                    series.Add(serie);
+        //            List<Serie> series = new List<Serie>();
+        //            series.Add(serie);
 
-                    Chart chart = new Chart();
-                    // chart.Title = name;
-                    chart.Series = series;
-                    Response = Common.CreateResponse(chart);
+        //            Chart chart = new Chart();
+        //            // chart.Title = name;
+        //            chart.Series = series;
+        //            Response = Common.CreateResponse(chart);
 
-                }
-                return Response;
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+        //        }
+        //        return Response;
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        Response = Common.CreateResponse(null, "Error", exception.Message);
 
-                return Response;
-            }
-        }
+        //        return Response;
+        //    }
+        //}
 
 
         [HttpGet("status_list")]
@@ -707,8 +707,9 @@ namespace VitalSigns.API.Controllers
 
                 List<Serie> series = new List<Serie>();
                 series.Add(serie);
-
+                
                 Chart chart = new Chart();
+                
                 chart.Title = docfield;
                 chart.Series = series;
 
@@ -735,16 +736,19 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Status, bool>> diskexpression = (p => p.DeviceId == deviceid);
                 var result = statusRepository.Find(diskexpression).FirstOrDefault();
                 List<Serie> diskserie = new List<Serie>();
-                if (result != null)
-                {
+                result.Disks.RemoveAll(item => item.DiskFree == null || item.DiskFree == 0.0);
+                result.Disks.RemoveAll(item => item.DiskSize - item.DiskFree == null || item.DiskFree == 0.0);
+                
                     var data = result.Disks.Select(x => new  {
                        Name=x.DiskName,
                        Free=x.DiskFree,
                        Used= x.DiskSize - x.DiskFree
                     });
-
+                if (result.Disks.Count>1)
+                {
+                   
                     Serie diskFreeSerie = new Serie();
-                    diskFreeSerie.Title = "Available";
+                    diskFreeSerie.Title = "Available";                                      
                     diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value,Color= "rgba(95, 190, 127, 1)" }).ToList();
                     diskserie.Add(diskFreeSerie);
                     Serie diskUsedSerie = new Serie();
@@ -752,8 +756,24 @@ namespace VitalSigns.API.Controllers
                     diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value,Color= "rgba(239, 58, 36, 1)" }).ToList();
                     diskserie.Add(diskUsedSerie);
 
-                }                
+                } 
+                else
+                {
+                    foreach (Disk drive in result.Disks)
+                    {
+                        List<Segment> segments = new List<Segment>();
+                        segments.Add(new Segment { Label = "Available", Value = Math.Round(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0, 2) });
+                        segments.Add(new Segment { Label ="Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree ), 2) });
+
+                        Serie serie = new Serie();
+                        serie.Segments = segments;
+                        serie.Title = drive.DiskName;                        
+                        diskserie.Add(serie);
+
+                    }
+                }                             
                 Chart chart = new Chart();
+               
                 chart.Title = "Disk Space";
                 chart.Series = diskserie;
                 Response = Common.CreateResponse(chart);
@@ -769,7 +789,7 @@ namespace VitalSigns.API.Controllers
 
         }
 
-        //  var diskresult = statusRepository.Find(typeexpression);
+        
         [HttpGet("server_list_selectlist_data")]
         public APIResponse GetDeviceListDropDownData()
         {
