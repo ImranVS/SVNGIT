@@ -59,8 +59,8 @@
             "tab_id": 8,
             "title": "Alerts",
             "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "BusinessHoursTab",
+            "path": "/app/configurator/components/configurator-businesshours-tab.component"
           },
           {
             "tab_id": 9,
@@ -132,8 +132,8 @@
         "tab_id": 8,
         "title": "Alerts",
         "type": "Dashboard",
-        "component": "NotYetImplemented",
-        "path": "/app/not-yet-implemented.component"
+        "component": "BusinessHoursTab",
+        "path": "/app/configurator/components/configurator-businesshours-tab.component"
       },
       {
         "tab_id": 9,
