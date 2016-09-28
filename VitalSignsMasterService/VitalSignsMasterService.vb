@@ -866,7 +866,8 @@ Public Class VSMaster
                                                                                                         .Include(Function(x) x.NextScan) _
                                                                                                         .Include(Function(x) x.LastUpdated) _
                                                                                                         .Include(Function(x) x.DeviceType) _
-                                                                                                        .Include(Function(x) x.Description)
+                                                                                                        .Include(Function(x) x.Description) _
+                                                                                                        .Include(Function(x) x.DeviceName)
 
                         listOfStatus = statusRepository.Find(statusFilterDef, statusProjection).ToList()
 
@@ -923,15 +924,19 @@ Public Class VSMaster
                     Dim ts As New TimeSpan()
                     Try
                         Dim tempList As List(Of VSNext.Mongo.Entities.Status) = listOfStatus _
+                                                                                .Where(Function(x) x.LastUpdated.HasValue()) _
                                                                                 .Where(Function(x) New TimeSpan((Now - x.LastUpdated.Value).Ticks).TotalMinutes > 45) _
                                                                                 .Where(Function(x) x.DeviceType.Equals(VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())) _
                                                                                 .Where(Function(x) Not {"Scanning", "Not Scanned", "Disabled", "Insufficient Licenses"}.Contains(x.CurrentStatus)) _
                                                                                 .ToList()
                         intResult = tempList.Count
                         WriteAuditEntry(Now.ToString & " There are  " & tempList.Count & " Domino servers with status older than 45 minutes.")
-                        Servername = String.Join(",", tempList)
-                        Servername.Substring(0, Servername.Length - 1)
-                        WriteAuditEntry(Now.ToString & " Domino Servers with status older than 45 minutes are  " & Servername & "")
+                        If tempList.Count > 0 Then
+                            Servername = String.Join(",", tempList)
+                            Servername.Substring(0, Servername.Length - 1)
+                            WriteAuditEntry(Now.ToString & " Domino Servers with status older than 45 minutes are  " & Servername & "")
+                        End If
+
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error printing out the servers over 45 minutes. Error: " & ex.Message)
                     End Try
@@ -1032,10 +1037,10 @@ Public Class VSMaster
                                 Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)()
                                 Try
                                     Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-                                    Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Where(Function(x) True)
+                                    Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
                                     listOfServers = repositoryServers.Find(filterDefServers).ToList()
                                 Catch ex As Exception
-
+                                    WriteAuditEntry(Now.ToString & " Exception #3.1 Inner Try: " & ex.ToString)
                                 End Try
 
                                 For Each statusEntity As VSNext.Mongo.Entities.Status In listOfStatus
@@ -1057,7 +1062,7 @@ Public Class VSMaster
                                         scanInterval = 10
                                     End Try
 
-                                    If (Now - statusEntity.LastUpdated.Value).TotalMinutes > (scanInterval * 2) Then
+                                    If (statusEntity.LastUpdated.HasValue) AndAlso (Now - statusEntity.LastUpdated.Value).TotalMinutes > (scanInterval * 2) Then
                                         If DateTime.Now.Subtract(dominoKilled).Minutes > 15 Then
                                             dominoKilled = DateTime.Now
                                             '#2
@@ -2014,7 +2019,8 @@ Public Class VSMaster
                     '    isPriamry = Convert.ToBoolean(dt.Rows(0)(0).ToString())
                     'End If
                     Dim repoLiveNodes As New VSNext.Mongo.Repository.Repository(Of Nodes)(connectionString)
-                    Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(Function(i) i.Name = NodeName).ToList()
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Nodes) = repoLiveNodes.Filter.Eq(Function(i) i.Name, NodeName)
+                    Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(filterDef).ToList()
                     For Each n As Nodes In nodesListAlive
                         If n.IsPrimary Then
                             isPriamry = True
@@ -2467,7 +2473,8 @@ Public Class VSMaster
                     '    boolIsPrimary = Convert.ToBoolean(dt.Rows(0)(0).ToString())
                     'End If
                     Dim repoLiveNodes As New VSNext.Mongo.Repository.Repository(Of Nodes)(connectionString)
-                    Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(Function(i) i.Name = NodeName).ToList()
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Nodes) = repoLiveNodes.Filter.Eq(Function(i) i.Name, NodeName)
+                    Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(filterDef).ToList()
                     For Each n As Nodes In nodesListAlive
                         If n.IsPrimary Then
                             boolIsPrimary = True

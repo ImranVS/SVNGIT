@@ -1786,10 +1786,11 @@ Partial Public Class VitalSignsPlusDomino
                 entity.Href = Device.href
                 entity.LastUpdated = (Now)
                 entity.HAPool = HAPoolName
+                entity.DeviceType = Device.DeviceType
 
             Else
 
-                List.Add(New VSNext.Mongo.Entities.MobileDevices With {
+                list.Add(New VSNext.Mongo.Entities.MobileDevices With {
                     .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString(),
                     .DeviceID = Device.DeviceID,
                     .ClientBuild = Device.Client_Build,
@@ -1802,7 +1803,8 @@ Partial Public Class VitalSignsPlusDomino
                     .SyncType = Device.AutoSyncType,
                     .Href = Device.href,
                     .LastUpdated = (Now),
-                    .HAPool = HAPoolName
+                    .HAPool = HAPoolName,
+                    .DeviceType = Device.DeviceType
                 })
 
             End If

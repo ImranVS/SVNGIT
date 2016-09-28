@@ -69,7 +69,8 @@ Partial Public Class VitalSignsPlusDomino
 
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription()) _
+                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -532,7 +533,8 @@ Partial Public Class VitalSignsPlusDomino
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.TravelerHaDatastore.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.TravelerHaDatastore.ToDescription()) _
+                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -595,7 +597,8 @@ Partial Public Class VitalSignsPlusDomino
             'Removed DominoServers.DiskSpaceThreshold, DominoServers.NotificationGroup, DominoServer.ScanServlet
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()) _
+                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -1596,7 +1599,8 @@ Partial Public Class VitalSignsPlusDomino
             'Removed DominoServers.DiskSpaceThreshold, DominoServers.NotificationGroup, DominoServer.ScanServlet
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription()) _
+                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.Category) _
@@ -2003,7 +2007,8 @@ Partial Public Class VitalSignsPlusDomino
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DominoLogScanning.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DominoLogScanning.ToDescription()) _
+                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2077,7 +2082,8 @@ Partial Public Class VitalSignsPlusDomino
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DominoCluster.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DominoCluster.ToDescription()) _
+                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2533,42 +2539,49 @@ Partial Public Class VitalSignsPlusDomino
 
     End Sub
 
-
     Private Sub InsufficentLicensesTest(ByRef coll As System.Collections.CollectionBase)
 
         If (coll.Count = 0) Then
-			Return
-		End If
+            Return
+        End If
 
-		Dim ServerType As String = ""
-		Dim ServerTypeForTypeAndName As String = ""
-		Select Case coll.GetType()
+        Dim ServerType As String = ""
+        Dim ServerTypeForTypeAndName As String = ""
+        Select Case coll.GetType()
 
-			Case GetType(MonitoredItems.NotesDatabaseCollection)
+            Case GetType(MonitoredItems.NotesDatabaseCollection)
                 ServerType = "Notes Database"
                 '5/5/2016 NS modified
                 'Changed from NDB to Notes Database
                 ServerTypeForTypeAndName = "Notes Database"
 
-			Case GetType(MonitoredItems.DominoCollection)
-				ServerType = "Domino"
-				ServerTypeForTypeAndName = "Domino"
+            Case GetType(MonitoredItems.DominoCollection)
+                ServerType = "Domino"
+                ServerTypeForTypeAndName = "Domino"
 
-			Case GetType(MonitoredItems.DominoMailProbeCollection)
+            Case GetType(MonitoredItems.DominoMailProbeCollection)
                 ServerType = "NotesMail Probe"
                 '5/5/2016 NS modified
                 'Changed from NMP to NotesMail Probe
                 ServerTypeForTypeAndName = "NotesMail Probe"
 
-			Case GetType(MonitoredItems.DominoMailClusterCollection)
+            Case GetType(MonitoredItems.DominoMailClusterCollection)
                 ServerType = "Domino Cluster database"
                 '5/5/2016 NS modified
                 ServerTypeForTypeAndName = "Domino Cluster database"
 
-		End Select
-		CheckForInsufficentLicenses(coll, ServerType, ServerTypeForTypeAndName)
+        End Select
+        CheckForInsufficentLicenses(coll, ServerType, ServerTypeForTypeAndName)
 
-	End Sub
+    End Sub
+
+    Private Function getCurrentNode() As String
+        Dim NodeName As String = ""
+        If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
+            NodeName = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
+        End If
+        Return NodeName
+    End Function
 
 #End Region
 

@@ -227,7 +227,15 @@ Partial Class VitalSignsCore
 
 #Region "Collections"
 
-	Public Sub CreateCollections()
+    Private Function getCurrentNode() As String
+        Dim NodeName As String = ""
+        If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
+            NodeName = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
+        End If
+        Return NodeName
+    End Function
+
+    Public Sub CreateCollections()
 
 		Try
 			CreateNetworkDevicesCollection()
@@ -239,25 +247,49 @@ Partial Class VitalSignsCore
 
 	Private Sub CreateNetworkDevicesCollection()
 
-		'Connect to the data source
-		Dim dsNetworkDevices As New Data.DataSet
+        'Connect to the data source
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
 
-		Try
-			Dim strSQL As String = "SELECT nd.ID, nd.Address, nd.Category, nd.Description, nd.Enabled, nd.LastChecked, nd.LastStatus, nd.[Next Scan], nd.OffHoursScanInterval, nd.[Password], " & _
-			 "nd.Port, nd.[Scanning Interval], nd.Username, nd.Location, nd.Name, nd.ResponseThreshold, nd.RetryInterval, nd.NetworkType, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID FROM [Network Devices] nd "
+        Try
 
-			If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
-				Dim nodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-				strSQL += "inner join DeviceInventory di on nd.ID=di.DeviceID and di.DeviceTypeId=8 " & _
-				 "inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" & nodeName & "' "
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NetworkDevice.ToDescription()) _
+                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.IPAddress) _
+                .Include(Function(x) x.Category) _
+                .Include(Function(x) x.Description) _
+                .Include(Function(x) x.IsEnabled) _
+                .Include(Function(x) x.OffHoursScanInterval) _
+                .Include(Function(x) x.Username) _
+                .Include(Function(x) x.Password) _
+                .Include(Function(x) x.PortNumber) _
+                .Include(Function(x) x.ScanInterval) _
+                .Include(Function(x) x.LocationId) _
+                .Include(Function(x) x.ResponseTime) _
+                .Include(Function(x) x.RetryInterval) _
+                .Include(Function(x) x.NetworkType) _
+                .Include(Function(x) x.CurrentNode)
 
-			End If
-			strSQL += " left outer join Status st on st.Type=(select ServerType From ServerTypes where id=8) and st.Name=nd.Name "
-			strSQL += " where nd.Enabled=1"
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "servers", strSQL, dsNetworkDevices, "Network_Devices")
-		Catch ex As Exception
-			WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateNetworkDevicesCollection processing code. Exception: " & ex.Message)
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
+
+            Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NetworkDevice.ToDescription())
+            Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+                .Include(Function(x) x.StatusCode) _
+                .Include(Function(x) x.CurrentStatus) _
+                .Include(Function(x) x.LastUpdated) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
+
+            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateNetworkDevicesCollection processing code. Exception: " & ex.Message)
 			'Exit Sub
 		End Try
 
@@ -265,297 +297,306 @@ Partial Class VitalSignsCore
 
 		Dim i As Integer = 0
 		WriteAuditEntry(Now.ToString & "  Reading configuration settings for Network Devices.")
-		'Add the network Devices to the collection
+        'Add the network Devices to the collection
 
-		Try
-			Dim myString As String = ""
-			Dim dr As DataRow
-			For Each dr In dsNetworkDevices.Tables("Network_Devices").Rows()
-				i += 1
-				Dim MyName As String
-				If dr.Item("Name") Is Nothing Then
-					MyName = "NetworkDevice" & i.ToString
-				Else
-					MyName = dr.Item("Name")
-				End If
-				'See if this server is already in the collection; if so, update its settings otherwise create a new one
-				MyNetworkDevice = MyNetworkDevices.Search(MyName)
-				If MyNetworkDevice Is Nothing Then
-					MyNetworkDevice = New MonitoredItems.NetworkDevice(MyName)
-					'MyNetworkDevice.LastScan = Now
-					MyNetworkDevice.NextScan = Now
+        Try
+            Dim myString As String = ""
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                i += 1
+                Dim MyName As String
+                If entity.DeviceName Is Nothing Then
+                    MyName = "NetworkDevice" & i.ToString
+                Else
+                    MyName = entity.DeviceName
+                End If
+                'See if this server is already in the collection; if so, update its settings otherwise create a new one
+                MyNetworkDevice = MyNetworkDevices.Search(MyName)
+                If MyNetworkDevice Is Nothing Then
+                    MyNetworkDevice = New MonitoredItems.NetworkDevice(MyName)
+                    'MyNetworkDevice.LastScan = Now
+                    MyNetworkDevice.NextScan = Now
                     MyNetworkDevice.AlertCondition = False
                     MyNetworkDevice.ServerType = VSNext.Mongo.Entities.Enums.ServerType.NetworkDevice.ToDescription()
                     'MyNetworkDevice.Status = "Not Scanned"
                     MyNetworkDevice.IncrementUpCount()
-					MyNetworkDevices.Add(MyNetworkDevice)
-					If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Adding new network device-- " & MyNetworkDevice.Name & " -- to the collection.")
-				Else
-					If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Updating settings for existing network device-- " & MyNetworkDevice.Name & ".")
-				End If
+                    MyNetworkDevices.Add(MyNetworkDevice)
+                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Adding new network device-- " & MyNetworkDevice.Name & " -- to the collection.")
+                Else
+                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Updating settings for existing network device-- " & MyNetworkDevice.Name & ".")
+                End If
 
 
-				With MyNetworkDevice
-					If MyLogLevel = LogLevel.Verbose Then
-						WriteAuditEntry(Now.ToString & " Configuring Network Device: " & dr.Item("Name"))
-						WriteAuditEntry(Now.ToString & " Status: " & MyNetworkDevice.Status)
-						WriteAuditEntry(Now.ToString & " Enabled: " & MyNetworkDevice.Enabled)
-						WriteAuditEntry(Now.ToString & " Next Scan: " & MyNetworkDevice.NextScan)
-					End If
+                With MyNetworkDevice
+                    If MyLogLevel = LogLevel.Verbose Then
+                        WriteAuditEntry(Now.ToString & " Configuring Network Device: " & entity.DeviceName)
+                        WriteAuditEntry(Now.ToString & " Status: " & MyNetworkDevice.Status)
+                        WriteAuditEntry(Now.ToString & " Enabled: " & MyNetworkDevice.Enabled)
+                        WriteAuditEntry(Now.ToString & " Next Scan: " & MyNetworkDevice.NextScan)
+                    End If
 
-					Try
-						.OffHours = False
-					Catch ex As Exception
-						.OffHours = False
-					End Try
-
-					Try
-						If dr.Item("Address") Is Nothing Then
-							.IPAddress = ""
-						Else
-							.IPAddress = dr.Item("Address")
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " Invalid IP Address")
-						.IPAddress = ""
-					End Try
-
-					Try
-						If dr.Item("Enabled") Is Nothing Then
-							.Enabled = True
-						Else
-							.Enabled = dr.Item("Enabled")
-						End If
-
-					Catch ex As Exception
-						.Enabled = True
-					End Try
-
-					If .Enabled = False Then
-						.Status = "Disabled"
-					End If
-
-					If .Enabled = True And .Status = "Disabled" Then
-						.Status = "Not Scanned"
-					End If
-
-					Try
-						If dr.Item("Description") Is Nothing Then
-							.Description = ""
-						Else
-							.Description = dr.Item("Description")
-						End If
-					Catch ex As Exception
-						.Description = ""
-					End Try
-
-					Try
-						If dr.Item("ResponseThreshold") Is Nothing Then
-							.ResponseThreshold = 100
-						Else
-							.ResponseThreshold = dr.Item("ResponseThreshold")
-						End If
-					Catch ex As Exception
-						.ResponseThreshold = 100
-					End Try
-
-
-					Try
-						If dr.Item("Scanning Interval") Is Nothing Then
-							.ScanInterval = 10
-						Else
-							.ScanInterval = dr.Item("Scanning Interval")
-						End If
-					Catch ex As Exception
-						.ScanInterval = 10
-					End Try
-
-					Try
-						If dr.Item("OffHoursScanInterval") Is Nothing Then
-							.OffHoursScanInterval = 30
-						Else
-							.OffHoursScanInterval = dr.Item("OffHoursScanInterval")
-						End If
-					Catch ex As Exception
-						.OffHoursScanInterval = 30
-					End Try
-					Try
-						'   WriteAuditEntry(Now.ToString & "Adding Category")
-						If dr.Item("Category") Is Nothing Then
-							.Category = "Not Categorized"
-						Else
-							.Category = dr.Item("Category")
-						End If
-					Catch ex As Exception
-						.Category = "Not Categorized"
-					End Try
-
-					Try
-						'WriteAuditEntry(Now.ToString & "Adding Location")
-						If dr.Item("Location") Is Nothing Then
-							.Location = "None"
-						Else
-							.Location = dr.Item("Location")
-						End If
-
-					Catch ex As Exception
-						.Location = "None"
-					End Try
-
-					Try
-						If dr.Item("RetryInterval") Is Nothing Then
-							.RetryInterval = 2
-							WriteAuditEntry(Now.ToString & " " & .Name & " Network Device retry scan interval not set, using default of 10 minutes.")
-						Else
-							.RetryInterval = dr.Item("RetryInterval")
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " " & .Name & " Network Device retry scan interval not set, using default of 10 minutes.")
-						.RetryInterval = 2
-					End Try
-
-					Try
-						If dr.Item("ID") Is Nothing Then
-							.ID = -1
-						Else
-							.ID = dr.Item("ID")
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " " & .Name & " Network Device retry scan interval not set, using default of 10 minutes.")
-						.RetryInterval = 2
-					End Try
-
-					Try
-						If dr.Item("NetworkType") Is Nothing Then
-							.NetworkType = ""
-						Else
-							.NetworkType = dr.Item("NetworkType")
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " " & .Name & " Network Device NetworkType not set.")
-
-					End Try
-
-					Try
-						If dr.Item("Username") Is Nothing Then
-							.UserName = ""
-						Else
-							.UserName = dr.Item("Username")
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " " & .Name & " Network Device Username not set.")
-
-					End Try
-
-					Try
-						If dr.Item("NetworkType") Is Nothing Then
-							.NetworkType = ""
-						Else
-							.NetworkType = dr.Item("NetworkType")
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " " & .Name & " Network Device NetworkType not set.")
-
-					End Try
-
-					Try
-						If dr.Item("Password") Is Nothing Then
-							.NetworkType = ""
-						Else
-
-							Dim strEncryptedPassword As String = dr.Item("Password").ToString()
-							Dim Password As String
-							Dim myPass As Byte()
-
-
-							Try
-								Dim strValue As Object
-								Dim str1() As String
-								str1 = strEncryptedPassword.Split(",")
-								Dim bstr1(str1.Length - 1) As Byte
-								For j As Integer = 0 To str1.Length - 1
-									bstr1(j) = str1(j).ToString()
-								Next
-								myPass = bstr1
-							Catch ex As Exception
-
-							End Try
-
-
-							Dim mySecrets As New VSFramework.TripleDES
-							Try
-								If Not strEncryptedPassword Is Nothing Then
-									Password = mySecrets.Decrypt(myPass) 'password in clear text, stored in memory now
-									' If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Successfully decrypted the Notes password as " & MyDominoPassword)
-									' WriteAuditEntry(Now.ToString & " HTTP password is " & Password, LogLevel.Verbose)
-								Else
-									Password = Nothing
-								End If
-							Catch ex As Exception
-								Password = ""
-								WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString)
-							End Try
-							.Password = Password
-
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " " & .Name & " Network Device NetworkType not set.")
-
-					End Try
-
-
-					Try
-						If dr.Item("LastUpdate") Is Nothing Then
-							.LastScan = Now
-						Else
-							.LastScan = dr.Item("LastUpdate")
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " " & .Name & " Network Device LastScan not set.")
-
-					End Try
-
-					Try
-						If dr.Item("Status") Is Nothing Then
-							.Status = "Not Scanned"
-						Else
-							.Status = dr.Item("Status")
-						End If
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " " & .Name & " Network Device Status not set.")
-
-					End Try
-
-					Try
-						If dr.Item("CurrentNodeID") Is Nothing Then
-							.InsufficentLicenses = True
-						Else
-							If dr.Item("CurrentNodeID").ToString() = "-1" Then
-								.InsufficentLicenses = True
-							Else
-								.InsufficentLicenses = False
-							End If
-
-						End If
+                    Try
+                        .OffHours = False
                     Catch ex As Exception
+                        .OffHours = False
+                    End Try
+
+                    Try
+                        If entity.IPAddress Is Nothing Then
+                            .IPAddress = ""
+                        Else
+                            .IPAddress = entity.IPAddress
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Invalid IP Address")
+                        .IPAddress = ""
+                    End Try
+
+                    Try
+                        If entity.IsEnabled Is Nothing Then
+                            .Enabled = True
+                        Else
+                            .Enabled = entity.IsEnabled
+                        End If
+
+                    Catch ex As Exception
+                        .Enabled = True
+                    End Try
+
+                    If .Enabled = False Then
+                        .Status = "Disabled"
+                    End If
+
+                    If .Enabled = True And .Status = "Disabled" Then
+                        .Status = "Not Scanned"
+                    End If
+
+                    Try
+                        If entity.Description Is Nothing Then
+                            .Description = ""
+                        Else
+                            .Description = entity.Description
+                        End If
+                    Catch ex As Exception
+                        .Description = ""
+                    End Try
+
+                    Try
+                        If entity.ResponseTime Is Nothing Then
+                            .ResponseThreshold = 100
+                        Else
+                            .ResponseThreshold = entity.ResponseTime
+                        End If
+                    Catch ex As Exception
+                        .ResponseThreshold = 100
+                    End Try
+
+
+                    Try
+                        If entity.ScanInterval Is Nothing Then
+                            .ScanInterval = 10
+                        Else
+                            .ScanInterval = entity.ScanInterval
+                        End If
+                    Catch ex As Exception
+                        .ScanInterval = 10
+                    End Try
+
+                    Try
+                        If entity.OffHoursScanInterval Is Nothing Then
+                            .OffHoursScanInterval = 30
+                        Else
+                            .OffHoursScanInterval = entity.OffHoursScanInterval
+                        End If
+                    Catch ex As Exception
+                        .OffHoursScanInterval = 30
+                    End Try
+                    Try
+                        '   WriteAuditEntry(Now.ToString & "Adding Category")
+                        If entity.Category Is Nothing Then
+                            .Category = "Not Categorized"
+                        Else
+                            .Category = entity.Category
+                        End If
+                    Catch ex As Exception
+                        .Category = "Not Categorized"
+                    End Try
+
+                    Try
+                        If entity.LocationId Is Nothing Then
+                            .Location = "Not Set"
+                        Else
+
+                            Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
+                            Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
+                            .Location = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias
+
+                        End If
+                    Catch ex As Exception
+                        .Location = "Not Set"
+                    End Try
+
+                    Try
+                        If entity.RetryInterval Is Nothing Then
+                            .RetryInterval = 2
+                            WriteAuditEntry(Now.ToString & " " & .Name & " Network Device retry scan interval not set, using default of 10 minutes.")
+                        Else
+                            .RetryInterval = entity.RetryInterval
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Network Device retry scan interval not set, using default of 10 minutes.")
+                        .RetryInterval = 2
+                    End Try
+
+                    'Try
+                    '    If dr.Item("ID") Is Nothing Then
+                    '        .ID = -1
+                    '    Else
+                    '        .ID = dr.Item("ID")
+                    '    End If
+                    'Catch ex As Exception
+                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Network Device retry scan interval not set, using default of 10 minutes.")
+                    '    .RetryInterval = 2
+                    'End Try
+
+                    Try
+                        If entity.NetworkType Is Nothing Then
+                            .NetworkType = ""
+                        Else
+                            .NetworkType = entity.NetworkType
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Network Device NetworkType not set.")
+
+                    End Try
+
+                    Try
+                        If entity.Username Is Nothing Then
+                            .UserName = ""
+                        Else
+                            .UserName = entity.Username
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Network Device Username not set.")
+
+                    End Try
+
+                    'Try
+                    '    If dr.Item("NetworkType") Is Nothing Then
+                    '        .NetworkType = ""
+                    '    Else
+                    '        .NetworkType = dr.Item("NetworkType")
+                    '    End If
+                    'Catch ex As Exception
+                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Network Device NetworkType not set.")
+
+                    'End Try
+
+                    Try
+                        If entity.Password Is Nothing Then
+                            .NetworkType = ""
+                        Else
+
+                            Dim strEncryptedPassword As String = entity.Password.ToString()
+                            Dim Password As String
+                            Dim myPass As Byte()
+
+
+                            Try
+                                Dim strValue As Object
+                                Dim str1() As String
+                                str1 = strEncryptedPassword.Split(",")
+                                Dim bstr1(str1.Length - 1) As Byte
+                                For j As Integer = 0 To str1.Length - 1
+                                    bstr1(j) = str1(j).ToString()
+                                Next
+                                myPass = bstr1
+                            Catch ex As Exception
+
+                            End Try
+
+
+                            Dim mySecrets As New VSFramework.TripleDES
+                            Try
+                                If Not strEncryptedPassword Is Nothing Then
+                                    Password = mySecrets.Decrypt(myPass) 'password in clear text, stored in memory now
+                                    ' If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Successfully decrypted the Notes password as " & MyDominoPassword)
+                                    ' WriteAuditEntry(Now.ToString & " HTTP password is " & Password, LogLevel.Verbose)
+                                Else
+                                    Password = Nothing
+                                End If
+                            Catch ex As Exception
+                                Password = ""
+                                WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString)
+                            End Try
+                            .Password = Password
+
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Network Device NetworkType not set.")
+
+                    End Try
+
+
+                    Try
+                        Dim entityStatus As VSNext.Mongo.Entities.Status
+                        Try
+                            entityStatus = listOfStatus.Where(Function(x) x.DeviceType.Equals(entity.DeviceType) And x.DeviceName.Equals(entity.DeviceName)).ToList()(0)
+                        Catch ex As Exception
+                        End Try
+
+                        Try
+                            If entityStatus.CurrentStatus Is Nothing Then
+                                .Status = "Not Scanned"
+                            Else
+                                .Status = entityStatus.CurrentStatus
+                            End If
+                        Catch ex As Exception
+                            .Status = "Not Scanned"
+                        End Try
+
+                        Try
+                            If entityStatus.LastUpdated Is Nothing Then
+                                .LastScan = Now
+                            Else
+                                .LastScan = entityStatus.LastUpdated
+                            End If
+                        Catch ex As Exception
+                            .LastScan = Now
+                        End Try
+
+                    Catch ex As Exception
+
+                    End Try
+
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+
+                        End If
+                    Catch ex As Exception
+
                         '7/8/2015 NS modified for VSPLUS-1959
-                        WriteAuditEntry(Now.ToString & " " & .Name & " Network Device Insufficient Licenses not set.")
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Domino Servers insufficient licenses not set.")
 
-					End Try
+                    End Try
 
-				End With
+                End With
 
-				MyNetworkDevice = Nothing
-			Next
-			dr = Nothing
-		Catch exception As DataException
-			WriteAuditEntry(Now.ToString & " Network Devices data exception" & exception.Message)
+                MyNetworkDevice = Nothing
+            Next
+        Catch exception As DataException
+            WriteAuditEntry(Now.ToString & " Network Devices data exception" & exception.Message)
 		Catch ex As Exception
 			WriteAuditEntry(Now.ToString & " Network Devices " & ex.ToString)
 		End Try
-		dsNetworkDevices.Dispose()
 
-		InsufficentLicensesTest(MyNetworkDevices)
+        InsufficentLicensesTest(MyNetworkDevices)
 
 	End Sub
 
@@ -700,65 +741,62 @@ Partial Class VitalSignsCore
 		Do
 			WriteAuditEntry(Now.ToString & " Creating new Network Device monitoring thread.")
 			Dim threadMonitorDevices As New Thread(AddressOf MonitorNetworkDevices)
-			Try
-				threadMonitorDevices.CurrentCulture = New CultureInfo(sCultureString)
-				threadMonitorDevices.Start()
-				Thread.Sleep(4000) 'sleep 4 seconds to give thread a chance to start
-				Do
-					Dim myLastUpdate As TimeSpan
+            Try
+                threadMonitorDevices.CurrentCulture = New CultureInfo(sCultureString)
+                threadMonitorDevices.Start()
+                Thread.Sleep(4000) 'sleep 4 seconds to give thread a chance to start
+                Do
+                    Dim myLastUpdate As TimeSpan
 
-					Try
+                    Try
+                        myLastUpdate = dtNetworkDevicesLastUpdate.Subtract(Now)
+                        '   WriteAuditEntry(Now.ToString & " ND thread last updated " & myLastUpdate.TotalSeconds & " seconds ago.")
+                        If myLastUpdate.TotalSeconds < -890 Then
+                            'The ND Thread hasn't looped in 90 seconds
+                            WriteAuditEntry(Now.ToString & " Destroying Network Devices thread because it hasn't updated in " & myLastUpdate.TotalSeconds & " seconds. ")
+                            threadMonitorDevices.Abort()
+                            threadMonitorDevices.Join(5000)
+                            dtNetworkDevicesLastUpdate = Now
+                            threadMonitorDevices = Nothing
+                            Exit Do
+                        End If
+                        done = Now.Ticks
+                        elapsed = New TimeSpan(done - start)
 
-						myLastUpdate = dtNetworkDevicesLastUpdate.Subtract(Now)
-						'   WriteAuditEntry(Now.ToString & " ND thread last updated " & myLastUpdate.TotalSeconds & " seconds ago.")
-						If myLastUpdate.TotalSeconds < -890 Then
-							'The ND Thread hasn't looped in 90 seconds
-							WriteAuditEntry(Now.ToString & " Destroying Network Devices thread because it hasn't updated in " & myLastUpdate.TotalSeconds & " seconds. ")
-							threadMonitorDevices.Abort()
-							threadMonitorDevices.Join(5000)
-							dtNetworkDevicesLastUpdate = Now
-							threadMonitorDevices = Nothing
-							Exit Do
-						End If
+                        If elapsed.TotalMinutes > 5 Then
+                            start = Now.Ticks
+                            WriteAuditEntry(Now.ToString & " Refreshing configuration of Network Devices")
+                            Try
+                                threadMonitorDevices.Suspend()
+                                CreateNetworkDevicesCollection()
+                                UpdateStatusTableWithNetworkDevices()
+                            Catch ex As Exception
 
-						done = Now.Ticks
-						elapsed = New TimeSpan(done - start)
+                            End Try
 
-						If elapsed.TotalMinutes > 5 Or myRegistry.ReadFromRegistry("Network Device Update") = True Then
-							start = Now.Ticks
-							WriteAuditEntry(Now.ToString & " Refreshing configuration of Network Devices")
-							Try
-								threadMonitorDevices.Suspend()
-								CreateNetworkDevicesCollection()
-								UpdateStatusTableWithNetworkDevices()
-								myRegistry.WriteToRegistry("Network Device Update", False)
-							Catch ex As Exception
+                            Try
+                                threadMonitorDevices.Resume()
+                            Catch ex As Exception
 
-							End Try
+                            End Try
 
-							Try
-								threadMonitorDevices.Resume()
-							Catch ex As Exception
-
-							End Try
-
-						End If
+                        End If
 
 
-					Catch ex As ThreadAbortException
-						WriteAuditEntry(Now.ToString & " Destroying Network Devices to shut down service. ")
-						threadMonitorDevices.Abort()
-						threadMonitorDevices.Join(5000)
-						threadMonitorDevices = Nothing
-						Exit Sub
-					Catch ex As Exception
-						WriteAuditEntry(Now.ToString & " Network Device Thread error: " & ex.Message)
-					End Try
-					Thread.Sleep(29000)
-				Loop
-			Catch ex As Exception
-				WriteAuditEntry(Now.ToString & " Network Device Thread error: " & ex.Message)
-			End Try
+                    Catch ex As ThreadAbortException
+                        WriteAuditEntry(Now.ToString & " Destroying Network Devices to shut down service. ")
+                        threadMonitorDevices.Abort()
+                        threadMonitorDevices.Join(5000)
+                        threadMonitorDevices = Nothing
+                        Exit Sub
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Network Device Thread 1 error: " & ex.Message)
+                    End Try
+                    Thread.Sleep(29000)
+                Loop
+            Catch ex As Exception
+                WriteAuditEntry(Now.ToString & " Network Device Thread 2 error: " & ex.Message)
+            End Try
 
 
 		Loop

@@ -28,16 +28,18 @@ Partial Public Class VitalSignsPlusDomino
 
 		Public Property DeviceOSType As String
 		Public Property DeviceName As String
-		Public Property DeviceOSTypeMin As String
+        Public Property DeviceOSTypeMin As String
+        Public Property DeviceType As String
 
-		Public Sub New(ByVal DeviceName As String, ByVal DeviceOSType As String, ByVal DeviceOSTypeMin As String)
-			Me.DeviceOSType = DeviceOSType
-			Me.DeviceOSTypeMin = DeviceOSTypeMin
-			Me.DeviceName = DeviceName
-		End Sub
+        Public Sub New(ByVal DeviceName As String, ByVal DeviceOSType As String, ByVal DeviceOSTypeMin As String, ByVal DeviceType As String)
+            Me.DeviceOSType = DeviceOSType
+            Me.DeviceOSTypeMin = DeviceOSTypeMin
+            Me.DeviceName = DeviceName
+            Me.DeviceType = DeviceType
+        End Sub
 
 
-	End Class
+    End Class
 
 	Private Sub CheckTravelerServer(ByRef myDominoServer As MonitoredItems.DominoServer)
 
@@ -1704,6 +1706,7 @@ Partial Public Class VitalSignsPlusDomino
             ThisDevice.DeviceName = obj.DeviceName
             ThisDevice.OS_Type = obj.DeviceOSType
             ThisDevice.OS_Type_Min = obj.DeviceOSTypeMin
+            ThisDevice.DeviceType = obj.DeviceType
             Exit Sub
         End If
 
@@ -1723,12 +1726,14 @@ Partial Public Class VitalSignsPlusDomino
             WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Raw OS Type : " & OsType, LogLevel.Verbose)
             WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Raw Device Type : " & DeviceType, LogLevel.Verbose)
             If ThisDevice.OS_Type.ToLower.Contains("apple") Then
+                ThisDevice.DeviceType = "iPhone"
                 'split the device_type with "/" and the first part will be decoded  and put into DeviceName , the second part will be decoded and put into Os_Type
                 ThisDevice.DeviceName = TranslateAppleDeviceType(DeviceType)
                 If OsType <> "" Then
                     ThisDevice.OS_Type = TranslateAppleOSType(OsType)
                 End If
             ElseIf ThisDevice.OS_Type.ToLower.Contains("android") Then
+                ThisDevice.DeviceType = "Android"
                 ThisDevice.DeviceName = TranslateAndroidDeviceType(DeviceType)
                 If OsType <> "" Then
                     ThisDevice.OS_Type = TranslateAndroidOSType(ThisDevice.OS_Type)
@@ -1742,9 +1747,11 @@ Partial Public Class VitalSignsPlusDomino
                 Else
                     ThisDevice.OS_Type = OsType
                 End If
+                ThisDevice.DeviceType = ThisDevice.OS_Type
             End If
         ElseIf ThisDevice.OS_Type.ToLower.Contains("android") Then
             ' DeviceName contains the actual device name of the device like SAMSUNG SGH-M919
+            ThisDevice.DeviceType = "Android"
             Dim translatedDeviceName As String = TranslateAndroidDeviceType(ThisDevice.DeviceName)
 
             If ThisDevice.DeviceName = translatedDeviceName Then
@@ -1756,6 +1763,7 @@ Partial Public Class VitalSignsPlusDomino
             'ThisDevice.DeviceName = TranslateAndroidDeviceType(ThisDevice.DeviceName)
             ThisDevice.OS_Type = TranslateAndroidOSType(ThisDevice.OS_Type)
         ElseIf ThisDevice.OS_Type = "8.0" Or ThisDevice.OS_Type = "8.1" Then
+            ThisDevice.DeviceType = "Windows"
             ThisDevice.DeviceName = "Windows Phone"
             ThisDevice.OS_Type = "Windows"
 
@@ -1771,11 +1779,12 @@ Partial Public Class VitalSignsPlusDomino
                 ThisDevice.DeviceName = "BlackBerry Q5"
             End If
             ThisDevice.OS_Type = "BlackBerry " + ThisDevice.OS_Type.ToString
+            ThisDevice.DeviceType = "BlackBerry"
         End If
 
         'OS_Type dec precision to 2 : 7.1.2 should be 7.1
         ThisDevice.OS_Type_Min = TrimOsType(ThisDevice.OS_Type)
-        DeviceIDTranslations.TryAdd(ThisDevice.DeviceID, New DeviceIDTranslationsObj(ThisDevice.DeviceName, ThisDevice.OS_Type, ThisDevice.OS_Type_Min))
+        DeviceIDTranslations.TryAdd(ThisDevice.DeviceID, New DeviceIDTranslationsObj(ThisDevice.DeviceName, ThisDevice.OS_Type, ThisDevice.OS_Type_Min, ThisDevice.DeviceType))
 
         WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Translated OS Type : " & ThisDevice.OS_Type, LogLevel.Verbose)
         WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Translated Device Type : " & ThisDevice.DeviceName, LogLevel.Verbose)
@@ -3305,7 +3314,8 @@ Alerts:
                     .Interval = rangeVal,
                     .Delta = deltaVal,
                     .OpenTimes = timeVal,
-                    .DateUpdated = dtNow
+                    .DateUpdated = dtNow,
+                    .DeviceId = myDominoServer.ServerObjectID
                 }
                 repository.Insert(entity)
                 WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Attempting to update Traveler Table with new entity")
@@ -3713,8 +3723,10 @@ Alerts:
     Public Class TravelerDevice
         <DataMember(Name:="username")> _
         Public Property UserName As String = ""
-        <DataMember(Name:="device_provider")> _
+        <DataMember(Name:="device_provider")>
         Public Property DeviceName As String = ""
+
+        Public Property DeviceType As String = ""
 
         Public Property ConnectionState As String = ""
         <DataMember(Name:="notification_type")> Public Property AutoSyncType As String = ""

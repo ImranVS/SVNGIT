@@ -875,8 +875,8 @@ Update:
        
         Dim NetworkDeviceDetails As New NetworkDeviceDetails
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NetworkDeviceDetails)(connectionString)
-        NetworkDeviceDetails.ServerId = MyDevice.ID
-        NetworkDeviceDetails.StatName = Name
+            NetworkDeviceDetails.ServerId = MyDevice.ServerObjectID
+            NetworkDeviceDetails.StatName = Name
         NetworkDeviceDetails.StatValue = Value
         repo.Insert(NetworkDeviceDetails)
         Catch ex As Exception
@@ -899,7 +899,7 @@ Update:
 
 		WriteDeviceHistoryEntry("Network_Device", MyDevice.Name, sqlQuery)
 
-        filterdef = repo.Filter.Where(Function(i) i.ServerId.Equals(MyDevice.ID))
+        filterdef = repo.Filter.Where(Function(i) i.ServerId.Equals(MyDevice.ServerObjectID))
         repo.Delete(filterdef)
 		Dim adapter As New VSAdaptor
 		adapter.ExecuteNonQueryAny("VitalSigns", "", sqlQuery)
