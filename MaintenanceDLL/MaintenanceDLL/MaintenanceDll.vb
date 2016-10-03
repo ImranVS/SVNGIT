@@ -1,9 +1,15 @@
-﻿Imports System.Data
+﻿Imports System.Configuration
+Imports System.Data
 Imports System.Data.SqlClient
 Imports VSFramework
 Imports System.IO
 Imports System.Globalization
 Imports LogUtilities
+Imports VSNext.Mongo
+Imports VSNext.Mongo.Entities
+Imports VSNext.Mongo.Repository
+Imports MongoDB.Driver
+
 
 
 Public Class MaintenanceDll
@@ -17,68 +23,72 @@ Public Class MaintenanceDll
     ''' <remarks></remarks>
     ''' New Version 17Sep13:Mukund D
     Public Function InMaintenance(ByVal DeviceType As String, ByVal DeviceName As String) As Boolean
-        Dim objVSAdaptor As New VSAdaptor
-
-        'WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & "is in maintenance function.")
-
-
-        Dim dsMaintWindows As New Data.DataSet
         Dim InMaintenanceWindow As Boolean = False
-        Dim strSQL As String = ""
+        Dim connString As String = GetDBConnection()
+        Dim repoServers As New Repository(Of Server)(connString)
+        Dim filterServers As FilterDefinition(Of Server)
+        Dim serversEntity() As Server
+        Dim repoMaint As New Repository(Of Maintenance)(connString)
+        Dim filterMaint As FilterDefinition(Of Maintenance)
+        Dim maintEntity() As Maintenance
+        Dim dt As DateTime
+        Dim dt1 As DataTable
+        Dim dr As DataRow
 
-        '9/18/2013 NS modified - added a UNION clause to include URLs
-        '12/7/2015 NS modified for VSPLUS-2227
-		strSQL = "select m1.ID,ServerName, ServerType ,Name,StartDate,StartTime,Duration,EndDate,MaintType,MaintDaysList " &
-		  "from Maintenance m1 " &
-		  " inner Join " &
-		  " ServerMaintenance m2 ON m1.ID=m2.MaintID " &
-		 "  INNER Join " &
-		  " Servers s1 ON s1.ID=m2.ServerID and s1.ServerTypeID =m2.ServerTypeID " &
-		   "  INNER Join " &
-		  " ServerTypes s2 ON s2.ID=s1.ServerTypeID " &
-		  " where ServerName= '" & DeviceName & "' and ServerType= '" & DeviceType & "' and GETDATE() between StartDate and EndDate +' 11:59:59 PM' " &
-		  " union " &
-		  " select m1.ID,TheURL, ServerType ,m1.Name,StartDate,StartTime,Duration,EndDate,MaintType,MaintDaysList " &
-		  " from Maintenance m1 " &
-		  " inner Join " &
-		  " ServerMaintenance m2 ON m1.ID=m2.MaintID " &
-		  " INNER Join " &
-		  " URLs s1 ON s1.ID=m2.ServerID " &
-		  " INNER Join " &
-		  " ServerTypes s2 ON s2.ID=m2.ServerTypeID " &
-		  " where s1.Name= '" & DeviceName & "' and ServerType= '" & DeviceType & "' and m2.ServerTypeID=s2.ID and " &
-		  " GETDATE() between StartDate and EndDate +' 11:59:59 PM' " &
-		  " union " &
-		  " select m1.ID,ServerName, ServerType ,Name,StartDate,StartTime,Duration,EndDate,MaintType,MaintDaysList " &
-		  " from Maintenance m1 " &
-		  " inner Join " &
-		  " ServerMaintenance m2 ON m1.ID=m2.MaintID " &
-		  " INNER Join " &
-		  " Traveler_Devices s1 ON s1.UserName + '-' + s1.DeviceID=m2.DeviceID " &
-		  " INNER Join " &
-		  " ServerTypes s2 ON s2.ID=m2.ServerTypeID " &
-		  " where s1.UserName + '-' + s1.DeviceID= '" & DeviceName & "' and ServerType= '" & DeviceType & "' and GETDATE() between StartDate and EndDate +' 11:59:59 PM' "
-
-
-        ' WriteDeviceHistoryEntry("Maintenance", DeviceName, Now.ToString & " sql " & strSQL)
-
+        dt = DateTime.Now
         Try
-            dsMaintWindows.Tables.Add("MaintWindows")
-
-            'Dim connectionString As String = "Data Source=174.46.239.207,443; User ID=sa;Password=vsadmin123!;Persist Security Info=True;Initial Catalog=vitalsigns;"
-            'Dim Sqlcon As New SqlConnection(connectionString)
-            'Dim DA As New SqlDataAdapter(strSQL, Sqlcon)
-            'Dim Ds As New DataSet
-            'DA.Fill(dsMaintWindows, "MaintWindows")
-
-            objVSAdaptor.FillDatasetAny("vitalsigns", "None", strSQL, dsMaintWindows, "MaintWindows")
-
-            'WriteDeviceHistoryEntry("Domino", DeviceName, dsMaintWindows.Tables("MaintWindows").Rows.Count)
-
+            dt1 = New DataTable
+            dt1.Columns.Add("ID")
+            dt1.Columns.Add("ServerName")
+            dt1.Columns.Add("ServerType")
+            dt1.Columns.Add("Name")
+            dt1.Columns.Add("StartDate")
+            dt1.Columns.Add("StartTime")
+            dt1.Columns.Add("Duration")
+            dt1.Columns.Add("EndDate")
+            dt1.Columns.Add("MaintType")
+            dt1.Columns.Add("MaintDaysList")
+            filterMaint = repoMaint.Filter.And(repoMaint.Filter.Gte(Of DateTime)(dt.Date, Convert.ToDateTime(Function(j) j.StartDate)),
+                                                   repoMaint.Filter.Lte(Of DateTime)(dt.Date, Convert.ToDateTime(Function(j) j.EndDate)))
+            maintEntity = repoMaint.Find(filterMaint).ToArray()
+            If maintEntity.Length > 0 Then
+                filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Of String)(Function(j) j.DeviceName, DeviceName),
+                                                   repoServers.Filter.Eq(Of String)(Function(j) j.DeviceType, DeviceType),
+                                                   repoServers.Filter.Exists(Function(j) j.MaintenanceWindows, True))
+                serversEntity = repoServers.Find(filterServers).ToArray()
+                If serversEntity.Length > 0 Then
+                    For x As Integer = 0 To maintEntity.Length - 1
+                        For i As Integer = 0 To serversEntity.Length - 1
+                            For j As Integer = 0 To serversEntity(i).MaintenanceWindows.Count
+                                If serversEntity(i).MaintenanceWindows(j) = maintEntity(x).Id Then
+                                    dr = dt1.NewRow()
+                                    dr("ID") = serversEntity(i).MaintenanceWindows(j)
+                                    dr("ServerName") = serversEntity(i).DeviceName
+                                    dr("ServerType") = serversEntity(i).DeviceType
+                                    dr("Name") = maintEntity(x).Name
+                                    dr("StartDate") = maintEntity(x).StartDate
+                                    dr("StartTime") = maintEntity(x).StartTime
+                                    dr("Duration") = maintEntity(x).Duration
+                                    dr("EndDate") = maintEntity(x).EndDate
+                                    dr("MaintType") = maintEntity(x).MaintenanceFrequency
+                                    dr("MaintDaysList") = maintEntity(x).MaintenanceDaysList
+                                    dt1.Rows.Add(dr)
+                                End If
+                            Next
+                        Next
+                    Next
+                Else
+                    'If no server records have maintenance windows defined, exit function with False
+                    Return False
+                    Exit Function
+                End If
+            Else
+                'If no maintenance records found, exit function with False
+                Return False
+                Exit Function
+            End If
         Catch ex As Exception
-            'WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Error in maint window module dataset creation: " & ex.Message)
             WriteHistoryEntry(Now.ToString & " Server " & DeviceName & " Error in maint window module dataset creation: " & ex.Message)
-            'WriteAuditEntry(Now.ToString & " Error in maint window module dataset creation: " & ex.Message)
             Return False
             Exit Function
         End Try
@@ -92,20 +102,16 @@ Public Class MaintenanceDll
         Dim MinTime, MaxTime As TimeSpan
         Dim TimeNow As DateTime = Now
         Dim Wknum, Duration, StartWknum, TodayWknum As Integer
-        
+        Wknum = b2.GetWeekOfMonth(Convert.ToDateTime(Now)) 'Format(Now.Date, "w")
+
         Try
-            Dim dr As DataRow
-            WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " has " & dsMaintWindows.Tables("MaintWindows").Rows.Count & " maintenance windows.")
-
-
-            For Each dr In dsMaintWindows.Tables("MaintWindows").Rows
+            WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " has " & dt1.Rows.Count & " maintenance windows.")
+            For Each dr In dt1.Rows
 
                 Try
                     MyStartTime = CType(dr.Item("StartTime"), DateTime)
-                    'MyEndTime = CType(dr.Item("EndTime"), DateTime)
                     MaintType = dr.Item("MaintType").ToString()
                     MaintDayList = dr.Item("MaintDaysList").ToString()
-
                     StartDate = CType(dr.Item("StartDate"), DateTime)
                     StartTime = CType(dr.Item("StartTime"), DateTime)
                     MinTime = StartTime.TimeOfDay
@@ -113,7 +119,7 @@ Public Class MaintenanceDll
                     EndDate = CType(dr.Item("EndDate"), DateTime)
                     'for case 3,to get the week nos from the start date
                     StartWknum = DatePart(DateInterval.WeekOfYear, StartDate)
-                    
+                    TodayWknum = DatePart(DateInterval.WeekOfYear, Now)
                     Select Case MaintType
                         Case "1"
                             'One time
@@ -266,139 +272,63 @@ Public Class MaintenanceDll
                             End If
                     End Select
                 Catch ex As Exception
-                    'WriteDeviceHistoryEntry("Domino", DeviceName, " Error calculating maintenance window start and end times. Error: " & ex.Message)
                     WriteHistoryEntry(Now.ToString & " Server " & DeviceName & " Error calculating maintenance window start and end times. Error: " & ex.Message)
-                    'WriteAuditEntry(" Error calculating maintenance window start and end times. Error: " & ex.Message)
                 End Try
             Next
             dr = Nothing
         Catch ex As Exception
-            'WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Error in maint window module: " & ex.Message)
             WriteHistoryEntry(Now.ToString & " Server " & DeviceName & " Error in maint window module: " & ex.Message)
-            'WriteAuditEntry(Now.ToString & " Error in maint window module: " & ex.Message)
         End Try
 
         Try
-            dsMaintWindows.Dispose()
-            'myPath = Nothing
             GC.Collect()
         Catch ex As Exception
             WriteHistoryEntry(Now.ToString & " Server " & DeviceName & " Error in maint window module: " & ex.Message)
 
         End Try
 
-        'WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " InMaintenanceWindow:" & InMaintenanceWindow.ToString())
-        WriteHistoryEntry(Now.ToString & " Server " & DeviceName & " has " & dsMaintWindows.Tables("MaintWindows").Rows.Count & " maintenance windows. and is now in Maintenance = " & InMaintenanceWindow)
+        WriteHistoryEntry(Now.ToString & " Server " & DeviceName & " has " & dt1.Rows.Count & " maintenance windows. It is now in Maintenance = " & InMaintenanceWindow)
         Return InMaintenanceWindow
     End Function
 
-	Private Sub WriteDeviceHistoryEntry(ByVal DeviceType As String, ByVal DeviceName As String, ByVal strMsg As String, Optional ByVal LogLevelInput As LogUtils.LogLevel = LogUtils.LogLevel.Normal)
-		LogUtils.WriteDeviceHistoryEntry(DeviceType, DeviceName, strMsg, LogLevelInput)
-	End Sub
+    Private Sub WriteDeviceHistoryEntry(ByVal DeviceType As String, ByVal DeviceName As String, ByVal strMsg As String, Optional ByVal LogLevelInput As LogUtils.LogLevel = LogUtils.LogLevel.Normal)
+        LogUtils.WriteDeviceHistoryEntry(DeviceType, DeviceName, strMsg, LogLevelInput)
+    End Sub
 
+    Public Function OffHours(ByVal servername As String) As Boolean
+        Dim strSQL As String
+        Dim dt As New DataTable
+        Dim ds As New DataSet
+        Dim vsobj As New VSAdaptor
+        Dim isoffhours As Boolean
 
-	'Private Sub WriteDeviceHistoryEntry(ByVal DeviceType As String, ByVal DeviceName As String, ByVal strMsg As String)
-	'    Dim DeviceLogDestination As String = ""
-	'    Dim appendMode As Boolean = True
-	'    '   If Left(strAppPath, 1) = "\" Then
-	'    'DeviceLogDestination = strAppPath & "Data\Logfiles\" & DeviceType & "_" & DeviceName & "_Log.txt"
-	'    '  Else
-	'    '    DeviceLogDestination = strAppPath & "\Data\Logfiles\" & DeviceType & "_" & DeviceName & "_Log.txt"
-	'    '    End If
-	'    Try
-	'        DeviceLogDestination = AppDomain.CurrentDomain.BaseDirectory.ToString & "\Log_Files\" & DeviceType & "_" & DeviceName & "_Log.txt"
-	'        If InStr(DeviceLogDestination, "/") > 0 Then
-	'            DeviceLogDestination = DeviceLogDestination.Replace("/", "_")
-	'        End If
-	'    Catch ex As Exception
+        Try
+            'strSQL = "select hr.Starttime,hr.Duration, hr.is" & DateTime.Now.ToString("dddd") & " DayOfWeek from [servers] sr inner join HoursIndicator hr on sr.BusinesshoursID=hr.ID where sr.ServerName='" & servername & "'"
+            '6/8/15 WS modified for VSPLUS-1816
+            strSQL = "exec InBusinessHoursByServer '" & servername & "'"
+            dt.TableName = "HoursIndicator"
+            ds.Tables.Add(dt)
 
-	'    End Try
+            vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "HoursIndicator")
+            If dt.Rows.Count = 1 Then
+                Dim isHours As String = dt(0)("InBusinessHours").ToString()
 
-	'    Try
-	'        Dim sw As New StreamWriter(DeviceLogDestination, appendMode, System.Text.Encoding.Unicode)
-	'        sw.WriteLine(strMsg)
-	'        sw.Close()
-	'        sw = Nothing
-	'    Catch ex As Exception
+                If (isHours = "1") Then
+                    Return False
+                Else
+                    Return True
+                End If
 
-	'    End Try
-	'    GC.Collect()
-	'End Sub
+            End If
 
+            Return False
 
-	'VSPLUS-1298 Durga
-    'Public Function OffHours() As Boolean
-    '	Dim strSQL As String
-    '	Dim dt As New DataTable
-    '	Dim ds As New DataSet
-    '	Dim vsobj As New VSAdaptor
-    '	Dim isoffhours As Boolean
+        Catch ex As Exception
+            WriteHistoryEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
 
-    '	Try
-    '		strSQL = "select Starttime,Duration from HoursIndicator where ID=0"
-
-    '		dt.TableName = "HoursIndicator"
-    '		ds.Tables.Add(dt)
-
-    '		vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "HoursIndicator")
-    '		If dt.Rows.Count = 0 Then
-    '			Return False
-    '		End If
-    '		If dt.Rows.Count > 0 Then
-
-    '			Dim currenttime As DateTime = DateTime.Now
-    '			'Dim starttime As String = dt.Rows(0)(1).ToString()
-    '			Dim starttime As DateTime = Convert.ToDateTime(dt.Rows(0)(0).ToString())
-    '			Dim duration As Int32 = Convert.ToInt32(dt.Rows(0)(1).ToString())
-    '			Dim endtime As DateTime = starttime.AddMinutes(duration)
-    '			If currenttime > starttime And currenttime < endtime Then
-    '				isoffhours = False
-    '			Else
-    '				isoffhours = True
-    '			End If
-    '		End If
-
-    '	Catch ex As Exception
-    '		WriteHistoryEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
-    '	End Try
-    '	Return isoffhours
-    'End Function
-    'VSPLUS-1298 Durga
-    'Returns true if in off-hours, false otherwise
-	Public Function OffHours(ByVal servername As String) As Boolean
-		Dim strSQL As String
-		Dim dt As New DataTable
-		Dim ds As New DataSet
-		Dim vsobj As New VSAdaptor
-		Dim isoffhours As Boolean
-
-		Try
-			'strSQL = "select hr.Starttime,hr.Duration, hr.is" & DateTime.Now.ToString("dddd") & " DayOfWeek from [servers] sr inner join HoursIndicator hr on sr.BusinesshoursID=hr.ID where sr.ServerName='" & servername & "'"
-			'6/8/15 WS modified for VSPLUS-1816
-			strSQL = "exec InBusinessHoursByServer '" & servername & "'"
-			dt.TableName = "HoursIndicator"
-			ds.Tables.Add(dt)
-
-			vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "HoursIndicator")
-			If dt.Rows.Count = 1 Then
-				Dim isHours As String = dt(0)("InBusinessHours").ToString()
-
-				If (isHours = "1") Then
-					Return False
-				Else
-					Return True
-				End If
-
-			End If
-
-			Return False
-
-		Catch ex As Exception
-			WriteHistoryEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
-
-		End Try
-		Return isoffhours
-	End Function
+        End Try
+        Return isoffhours
+    End Function
 
     ''' <summary>
     ''' Fetches values from Settings table
@@ -436,36 +366,20 @@ Public Class MaintenanceDll
         Return InBusinessHours
     End Function
 
-	Private Sub WriteHistoryEntry(ByVal strMsg As String, Optional ByVal LogLevelInput As LogUtils.LogLevel = LogUtils.LogLevel.Normal)
-		LogUtils.WriteHistoryEntry(strMsg, "All_Maintenance_Log.txt", LogLevelInput)
-	End Sub
+    Private Sub WriteHistoryEntry(ByVal strMsg As String, Optional ByVal LogLevelInput As LogUtils.LogLevel = LogUtils.LogLevel.Normal)
+        LogUtils.WriteHistoryEntry(strMsg, "All_Maintenance_Log.txt", LogLevelInput)
+    End Sub
 
-
-	'Private Sub WriteHistoryEntry(ByVal strMsg As String)
-	'    Dim DeviceLogDestination As String = ""
-	'    Dim appendMode As Boolean = True
-
-	'    Try
-	'        DeviceLogDestination = AppDomain.CurrentDomain.BaseDirectory.ToString & "\Log_Files\All_Maintenance_Log.txt"
-	'        If InStr(DeviceLogDestination, "/") > 0 Then
-	'            DeviceLogDestination = DeviceLogDestination.Replace("/", "_")
-	'        End If
-	'    Catch ex As Exception
-
-	'    End Try
-
-	'    Try
-	'        Dim sw As New IO.StreamWriter(DeviceLogDestination, appendMode, System.Text.Encoding.Unicode)
-	'        sw.WriteLine(strMsg)
-	'        sw.Close()
-	'        sw = Nothing
-	'    Catch ex As Exception
-
-	'    End Try
-	'    GC.Collect()
-	'End Sub
-
-
+    Private Function GetDBConnection() As String
+        'Return "mongodb://localhost/local"
+        Dim connString As String = ""
+        Try
+            connString = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "Alerts", Now, "Error getting connection information: " & ex.Message)
+        End Try
+        Return connString
+    End Function
 End Class
 
 Public Class DateTimeExtensions
