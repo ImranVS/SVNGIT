@@ -511,29 +511,7 @@ Public Class Alertdll
 
         GC.Collect()
     End Sub
-    Public Sub SysMessageForLicenses()
-        'HA related design hasn't been discussed yet; leaving the function as is for now
-        Dim myConnectionString As New VSFramework.XMLOperation
-        Dim myAdapter As New VSFramework.VSAdaptor
-        '7/8/2015 NS modified verbiage for VSPLUS-1959
-        Dim message As String = "There is an insufficient number of licenses for your servers."
-        Try
 
-            'Dim sql As String = "SELECT Count(*) FROM DeviceInventory WHERE CurrentNodeID=-1"
-            Dim sql As String = "select COUNT(*) from DeviceInventory,Nodes  where CurrentNodeId =-1 and nodes.Alive =1"
-            Dim dt As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sql)
-
-            If (dt.Rows.Count > 0 And dt.Rows(0)(0).ToString() = "0") Then
-                ResetSysMessage(message)
-            Else
-                QueueSysMessage(message)
-
-            End If
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("All", "SysMessages", Now.ToShortTimeString & " System Message for License: " & ex.Message)
-            WriteAuditEntry(Now.ToShortTimeString & " System Message for License: " & ex.Message)
-        End Try
-    End Sub
 #End Region
 
 
