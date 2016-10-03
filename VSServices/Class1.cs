@@ -220,8 +220,10 @@ namespace RPRWyatt.VitalSigns.Services
                         }
                     }
 
-                    AlertLibrary.Alertdll myAlert = new AlertLibrary.Alertdll();
-                    myAlert.SysMessageForLicenses();
+                    //10/3/2016 NS commented out per discussion with Wes - the insufficient licenses system message is being queued 
+                    //using the QueueSysMessage function elsewhere. The SysMessageForLicenses is outdated and will be removed from the Alertdll
+                    //AlertLibrary.Alertdll myAlert = new AlertLibrary.Alertdll();
+                    //myAlert.SysMessageForLicenses();
 
                 }
             }
