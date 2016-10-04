@@ -20,6 +20,7 @@ import { Office365PasswordSettings } from './dashboards/components/office365/off
 import { CloudServicesDashboard } from './dashboards/components/cloud-services-dashboard.component';
 
 import { FinancialDashboard } from './dashboards/components/financial-dashboard.component';
+import { IssuesDashboard } from './dashboards/components/issues/issues-dashboard.component';
 
 import { BusinessHours} from './configurator/components/configurator-businesshours.component';
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
@@ -32,6 +33,7 @@ import { ProfilesList } from './profiles/components/profiles-list.component';
 import { ProfilesForm } from './profiles/components/profiles-form.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
+import {ServerCredentials} from './configurator/components/configurator-servercredentials.component';
 
 export * from './dashboards/components/overall-dashboard.component';
 
@@ -53,6 +55,7 @@ export * from './dashboards/components/office365/office365-password-settings.com
 export * from './dashboards/components/cloud-services-dashboard.component';
 
 export * from './dashboards/components/financial-dashboard.component';
+export * from './dashboards/components/issues/issues-dashboard.component';
 
 export * from './configurator/components/configurator-businesshours.component';
 
@@ -66,6 +69,8 @@ export * from './profiles/components/profiles-list.component';
 export * from './profiles/components/profiles-form.component';
 
 export * from './not-yet-implemented.component';
+export * from './configurator/components/configurator-businesshours.component';
+export * from './configurator/components/configurator-servercredentials.component';
 
 const appRoutes: Routes = [
     {
@@ -136,7 +141,7 @@ const appRoutes: Routes = [
     },
     {
         path: 'dashboard/status-map',
-        component: StatusMapDashboard
+        component: IssuesDashboard
     },
     {
         path: 'services',
@@ -171,7 +176,12 @@ const appRoutes: Routes = [
     {
         path: 'profiles/:email',
         component: ProfilesForm
-    }
+    },
+    
+    {
+        path: 'configurator/credentials',
+        component: ServerCredentials
+    },
 ];
 
 export const APP_ROUTES = RouterModule.forRoot(appRoutes);
