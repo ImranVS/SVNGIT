@@ -20,7 +20,7 @@ namespace VitalSigns.API.Controllers
     {
 
         private IRepository<BusinessHours> businessHoursRepository;
-
+        private IRepository<Credentials> credentialsRepository;
         [HttpGet("business_hours")]
         public APIResponse GetAllBusinessHours()
         {
@@ -100,6 +100,86 @@ namespace VitalSigns.API.Controllers
             Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
             businessHoursRepository.Delete(expression);
 
+
+
+        }
+        //[HttpGet("credentials/{UserId}")]
+        //public Credentials GetCredentials(string UserId)
+        //{
+        //    credentialsRepository = new Repository<Credentials>(ConnectionString);
+        //    Expression<Func<Credentials, bool>> expression = (p => p.UserId == UserId);
+        //    var result = credentialsRepository.Find(expression).FirstOrDefault();
+
+
+        //    return result;
+        //}
+       
+        [HttpPut("save_server_credentials")]
+        public APIResponse UpdateServerCredentials([FromBody]ServerCredentialsModel serverCredential)
+        {
+            try
+            {
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+
+             
+
+                if (string.IsNullOrEmpty(serverCredential.Id))
+                {
+                    Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = serverCredential.Password, DeviceType = serverCredential.DeviceType,UserId=serverCredential.UserId};
+                    credentialsRepository.Insert(serverCredentials);
+                    Response = Common.CreateResponse(true, "OK", "Server Credential inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
+                    var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
+                                                             .Set(p => p.DeviceType, serverCredential.DeviceType)
+                                                             .Set(p => p.Password, serverCredential.Password)
+                                                             .Set(p => p.UserId, serverCredential.UserId);
+                    var result = credentialsRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+
+
+        [HttpDelete("delete_credential/{Id}")]
+        public void DeleteCredential(string Id)
+        {
+            credentialsRepository = new Repository<Credentials>(ConnectionString);
+            Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
+            credentialsRepository.Delete(expression);
+
+
+
+        }
+
+        [HttpGet("credentials")]
+        public APIResponse GetAllCredentials()
+        {
+            credentialsRepository = new Repository<Credentials>(ConnectionString);
+            var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
+            {
+                Alias = x.Alias,
+                UserId = x.UserId,
+                DeviceType = x.DeviceType,
+                //Password = x.Password,
+                Id = x.Id
+
+
+            }).ToList();
+
+
+            Response = Common.CreateResponse(result);
+            return Response;
 
 
         }
