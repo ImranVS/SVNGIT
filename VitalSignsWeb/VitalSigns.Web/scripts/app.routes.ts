@@ -20,7 +20,7 @@ import { Office365PasswordSettings } from './dashboards/components/office365/off
 import { CloudServicesDashboard } from './dashboards/components/cloud-services-dashboard.component';
 
 import { FinancialDashboard } from './dashboards/components/financial-dashboard.component';
-import { IssuesDashboard } from './dashboards/components/issues/issues-dashboard.component';
+//import { IssuesDashboard } from './dashboards/components/issues/issues-dashboard.component';
 
 import { BusinessHours} from './configurator/components/configurator-businesshours.component';
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
@@ -55,7 +55,7 @@ export * from './dashboards/components/office365/office365-password-settings.com
 export * from './dashboards/components/cloud-services-dashboard.component';
 
 export * from './dashboards/components/financial-dashboard.component';
-export * from './dashboards/components/issues/issues-dashboard.component';
+//export * from './dashboards/components/issues/issues-dashboard.component';
 
 export * from './configurator/components/configurator-businesshours.component';
 
@@ -139,10 +139,10 @@ const appRoutes: Routes = [
         path: 'dashboard/financial',
         component: FinancialDashboard
     },
-    {
-        path: 'dashboard/status-map',
-        component: IssuesDashboard
-    },
+    //{
+    //    path: 'dashboard/status-map',
+    //    component: IssuesDashboard
+    //},
     {
         path: 'services',
         component: ServicesView,
