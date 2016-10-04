@@ -171,7 +171,7 @@ namespace VitalSigns.API.Controllers
                 Alias = x.Alias,
                 UserId = x.UserId,
                 DeviceType = x.DeviceType,
-                //Password = x.Password,
+                Password = x.Password,
                 Id = x.Id
 
 
