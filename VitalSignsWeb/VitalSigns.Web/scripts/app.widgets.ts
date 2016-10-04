@@ -12,7 +12,7 @@ export * from './widgets/main-dashboard/components/status-summary.component';
 export * from './widgets/mobile-users/components/mobile-users-list.component';
 export * from './widgets/sample/sample-widget.component';
 
-export * from './configurator/components/configurator-businesshours-grid.component'
+export * from './configurator/components/configurator-businesshours.component'
 export * from './services/components/service-clusterhealth-grid.component';
 export * from './services/components/service-database-grid.component';
 export * from './services/components/service-mainhealth-grid.component';

@@ -21,6 +21,7 @@ import { CloudServicesDashboard } from './dashboards/components/cloud-services-d
 
 import { FinancialDashboard } from './dashboards/components/financial-dashboard.component';
 
+import { BusinessHours} from './configurator/components/configurator-businesshours.component';
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
 
 import { ServicesView } from './services/components/services-view.component';
@@ -52,6 +53,8 @@ export * from './dashboards/components/office365/office365-password-settings.com
 export * from './dashboards/components/cloud-services-dashboard.component';
 
 export * from './dashboards/components/financial-dashboard.component';
+
+export * from './configurator/components/configurator-businesshours.component';
 
 export * from './dashboards/components/status-map-dashboard.component';
 
@@ -154,8 +157,8 @@ const appRoutes: Routes = [
         component: NotYetImplemented
     },
     {
-        path: 'configurator',
-        component: NotYetImplemented
+        path: 'configurator/businesshours',
+        component: BusinessHours
     },
     {
         path: 'profiles',
