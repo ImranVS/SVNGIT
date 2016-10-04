@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace VitalSigns.API.Models
 {
-    public class BusinessHoursModel
+    public class BusinessHourModel
     {
 
         [JsonProperty("id")]
@@ -19,7 +19,7 @@ namespace VitalSigns.API.Models
         public string StartTime { get; set; }
 
         [JsonProperty("duration")]
-        public int? Duration { get; set; }
+        public int Duration { get; set; }
 
         [JsonProperty("sunday")]
         public bool Sunday { get; set; }
