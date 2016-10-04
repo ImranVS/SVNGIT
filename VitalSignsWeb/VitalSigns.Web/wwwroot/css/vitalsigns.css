@@ -644,3 +644,7 @@
 .visible{display: block !important;}
 
 .overflowHidden{overflow: hidden !important;}
+
+ .ng-valid[required] { border-left: 5px solid #5fbe7f; }
+
+ .ng-invalid { border-left: 5px solid #ef3a24; }
