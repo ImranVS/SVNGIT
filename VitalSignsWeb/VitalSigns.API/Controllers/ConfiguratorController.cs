@@ -25,10 +25,10 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetAllBusinessHours()
         {
             businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-            var result = businessHoursRepository.All().Select(x => new BusinessHoursModel
+            var result = businessHoursRepository.All().Select(x => new BusinessHourModel
             {
-
-                Name = x.Name,
+                Id = x.Id,
+                Name = x.Name,                
                 StartTime = x.StartTime,
                 Duration = x.Duration,
                 Sunday = x.Days.Contains("Sunday"),
@@ -42,46 +42,62 @@ namespace VitalSigns.API.Controllers
             Response = Common.CreateResponse(result);
             return Response;
         }
-        [HttpGet("{device_id}/business_hours")]
-        public BusinessHours GetBusinessHours( string device_id)
+       
+        [HttpPut("save_business_hours")]
+        public APIResponse UpdateBusinessHours([FromBody]BusinessHourModel businesshour)
         {
-            businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-            Expression<Func<BusinessHours, bool>> expression = (p => p.DeviceId == device_id);
-            var result = businessHoursRepository.Find(expression).FirstOrDefault();
+            try
+            {
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
 
+                List<string> days = new List<string>();
+                if (businesshour.Sunday)
+                    days.Add("Sunday");
+                if (businesshour.Monday)
+                    days.Add("Monday");
+                if (businesshour.Tuesday)
+                    days.Add("Tuesday");
+                if (businesshour.Wednesday)
+                    days.Add("Wednesday");
+                if (businesshour.Thursday)
+                    days.Add("Thursday");
+                if (businesshour.Friday)
+                    days.Add("Friday");
+                if (businesshour.Saturday)
+                    days.Add("Saturday");
 
-            return result;
+                if (string.IsNullOrEmpty(businesshour.Id))
+                {
+                    BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray() };
+                    businessHoursRepository.Insert(businessHours);
+                    Response = Common.CreateResponse(true, "OK", "Business hour inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<BusinessHours> filterDefination = Builders<BusinessHours>.Filter.Where(p => p.Id == businesshour.Id);
+                    var updateDefination = businessHoursRepository.Updater.Set(p => p.Name, businesshour.Name)
+                                                             .Set(p => p.Duration, businesshour.Duration)
+                                                             .Set(p => p.StartTime, businesshour.StartTime)
+                                                             .Set(p => p.Days, days.ToArray());
+                    var result = businessHoursRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
+                }
+            }catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error","Save business hours falied .\n Error Message :"+ exception.Message);
+            }
+
+                return Response;
+            
         }
-        [HttpPut("update_business_hours")]
-        public bool UpdateBusinessHours([FromBody]BusinessHours businesshours)
+
+
+
+        [HttpDelete("{id}/delete_business_hours")]
+        public void DeleteBusinessHours(string id)
         {
             businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-            //Expression<Func<Location, bool>> expression = (p => p.Id == location.Id);
-            FilterDefinition<BusinessHours> filterDefination = Builders<BusinessHours>.Filter.Where(p => p.Id == businesshours.Id);
-            var updateDefination = businessHoursRepository.Updater.Set(p => p.Name, businesshours.Name)
-                                                     .Set(p => p.Duration, businesshours.Duration)
-                                                     .Set(p => p.StartTime, businesshours.StartTime)
-                                                     .Set(p => p.Days, businesshours.Days);
-            var result = businessHoursRepository.Update(filterDefination, updateDefination);
-
-
-            return result;
-        }
-
-        [HttpPut("insert_business_hours")]
-        public void InsertBusinessHours([FromBody]BusinessHours businesshours)
-        {
-            businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-
-            businessHoursRepository.Insert(businesshours);
-
-        }
-
-        [HttpGet("{device_id}/delete_business_hours")]
-        public void DeleteLocation(string device_id)
-        {
-            businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-            Expression<Func<BusinessHours, bool>> expression = (p => p.DeviceId == device_id);
+            Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
             businessHoursRepository.Delete(expression);
 
 
