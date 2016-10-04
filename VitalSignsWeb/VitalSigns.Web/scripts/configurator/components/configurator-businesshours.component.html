@@ -2,9 +2,9 @@
 
     <h1>Business Hours</h1>
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid [itemsSource]="businessHoursList" selectionMode="none" [frozenColumns]="1" [isReadOnly]="true" #flex>
+    <wj-flex-grid  #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"> </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="100"> </wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="100"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="100"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Sunday'" [binding]="'sunday'" [width]="100"></wj-flex-grid-column>
@@ -50,4 +50,103 @@ data.pageIndex + 1 | number
             <wj-menu-item [value]="50">50</wj-menu-item>
         </wj-menu>
     </div>
+    <div class="modal fade" id="dlgDetail">
+        <form [formGroup]="businessHoursForm" (ngSubmit)="onSubmit(businessHoursForm.value)">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                (itemsSourceChanged)="itemsSourceChangedHandler()"
+                                (click)="flex.collectionView.cancelEdit()"
+                                aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Edit Item</h4>
+                    </div>
+                    <div class="modal-body" *ngIf="flex.collectionView">
+                       
+                        <dl class="dl-horizontal">                            
+                            <dt>Name</dt>
+                            <dd>
+                                <input type="text" class="form-control" formControlName="name" />
+                            </dd>
+                            <dt>Start Time</dt>
+                            <dd>
+                                <input type="text" class="form-control" formControlName="start_time" />
+                            </dd>
+                            <dt>Duration</dt>
+                            <dd>
+                                <input type="number" formControlName="duration" />
+                            </dd>
+                            <dt>Sunday</dt>
+                            <dd style="align-items:flex-start">
+                                <input type="checkbox" class="form-control" formControlName="sunday" />
+                            </dd>
+                            <dt>Monday</dt>
+                            <dd>
+                                <input type="checkbox" class="form-control" formControlName="monday" />
+                            </dd>
+                            <dt>Tuesday</dt>
+                            <dd>
+                                <input type="checkbox" class="form-control" formControlName="tuesday" />
+                            </dd>
+                            <dt>Webnesday</dt>
+                            <dd>
+                                <input type="checkbox" class="form-control" formControlName="wednesday" />
+                            </dd>
+                            <dt>Thursday</dt>
+                            <dd>
+                                <input type="checkbox" class="form-control" formControlName="thursday" />
+                            </dd>
+                            <dt>Friday</dt>
+                            <dd>
+                                <input type="checkbox" class="form-control" formControlName="friday" />
+                            </dd>
+                            <dt>Saturday</dt>
+                            <dd>
+                                <input type="checkbox" class="form-control" formControlName="saturday" />
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-ok" (click)="flex.collectionView.commitEdit()"></span>
+                            OK
+                        </button>
+                        <button type="button" class="btn btn-warning" data-dismiss="modal"
+                                (click)="flex.collectionView.cancelEdit()">
+                            <span class="glyphicon glyphicon-ban-circle"></span>
+                            Cancel
+                        </button>
+                    </div>
+                </div><!-- modal-content -->l
+            </div><!-- modal-dialog -->
+        </form>
+</div><!-- modal -->
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail"  (click)="editBusinessHour()">
+            Edit
+        </button>
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail" (click)="addBusinessHour()" >
+           Add
+        </button>
+        <button class="btn btn-default"               
+                data-target="#dlgDetail" (click)="delteBusinessHour();">
+            Delete
+        </button>
+    </div>
 </div>
+
+
