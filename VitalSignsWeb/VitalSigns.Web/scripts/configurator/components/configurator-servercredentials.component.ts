@@ -22,6 +22,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         wjFlexGridGroup.WjGroupPanel,
         wjFlexInput.WjMenu,
         wjFlexInput.WjMenuItem,
+        wjFlexInput.WjComboBox,
         AppNavigator
     ],
     viewProviders: [REACTIVE_FORM_PROVIDERS],
@@ -34,9 +35,11 @@ export class ServerCredentials implements OnInit, AfterViewInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+    selectedDeviceType: string;
     //Columns in grid
     serverCredentialForm: FormGroup;
     ServerCredentialId: string;
+    deviceTypes: any;
     get pageSize(): number {
         return this.data.pageSize;
     }
@@ -54,14 +57,26 @@ export class ServerCredentials implements OnInit, AfterViewInit {
 
             'alias': ['', Validators.required],
             'user_id': ['', Validators.required],
-            'password': ['', Validators.required],
+            'password': [''],
           
-            'device_type': ['', Validators.required]
+            'device_type': ['']
         });
        
     }
     ngOnInit() {
         this.bindGrid();
+        this.service.get('/services/server_list_selectlist_data')
+            .subscribe(
+            (response) => {
+                this.deviceTypes = response.data.deviceTypeData;
+                //delete this.deviceTypes[0];
+               
+                    this.deviceTypes.splice(0, 1);
+               
+              
+            },
+            (error) => this.errorMessage = <any>error
+            );
 
     }
     bindGrid() {
@@ -114,6 +129,8 @@ export class ServerCredentials implements OnInit, AfterViewInit {
         }
 
         this.serverCredentialForm.setValue(this.flex.collectionView.currentItem);
+        this.selectedDeviceType = this.flex.collectionView.currentItem.device_type;
+        //alert(this.selectedDeviceType);
         console.log(this.flex.collectionView);
 
     }
