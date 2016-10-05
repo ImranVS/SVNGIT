@@ -21,26 +21,39 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<BusinessHours> businessHoursRepository;
         private IRepository<Credentials> credentialsRepository;
+
+        private IRepository<Maintenance> maintenanceRepository;
+
         private IRepository<NameValue> nameValueRepository;
+
         [HttpGet("business_hours")]
         public APIResponse GetAllBusinessHours()
         {
-            businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-            var result = businessHoursRepository.All().Select(x => new BusinessHourModel
+            try
             {
-                Id = x.Id,
-                Name = x.Name,                
-                StartTime = x.StartTime,
-                Duration = x.Duration,
-                Sunday = x.Days.Contains("Sunday"),
-                Monday = x.Days.Contains("Monday"),
-                Tuesday = x.Days.Contains("Tuesday"),
-                Wednesday = x.Days.Contains("Wednesday"),
-                Thursday = x.Days.Contains("Thursday"),
-                Friday = x.Days.Contains("Friday"),
-                Saturday = x.Days.Contains("Saturday")
-            }).ToList();
-            Response = Common.CreateResponse(result);
+
+
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                var result = businessHoursRepository.All().Select(x => new BusinessHourModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    StartTime = x.StartTime,
+                    Duration = x.Duration,
+                    Sunday = x.Days.Contains("Sunday"),
+                    Monday = x.Days.Contains("Monday"),
+                    Tuesday = x.Days.Contains("Tuesday"),
+                    Wednesday = x.Days.Contains("Wednesday"),
+                    Thursday = x.Days.Contains("Thursday"),
+                    Friday = x.Days.Contains("Friday"),
+                    Saturday = x.Days.Contains("Saturday")
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+            catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get business hours falied .\n Error Message :" + exception.Message);
+            }
             return Response;
         }
        
@@ -70,7 +83,7 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(businesshour.Id))
                 {
                     BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray() };
-                    string id=businessHoursRepository.Insert(businessHours);
+                    string id=  businessHoursRepository.Insert(businessHours);
                     Response = Common.CreateResponse( id, "OK", "Business hour inserted successfully");
                 }
                 else
@@ -97,9 +110,21 @@ namespace VitalSigns.API.Controllers
         [HttpDelete("delete_business_hours/{id}")]
         public void DeleteBusinessHours(string id)
         {
+            try
+            { 
             businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
             Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
             businessHoursRepository.Delete(expression);
+
+            }
+
+            catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+            }
+
+
+
         }
         //[HttpGet("credentials/{UserId}")]
         //public Credentials GetCredentials(string UserId)
@@ -213,6 +238,33 @@ namespace VitalSigns.API.Controllers
             return Response;
 
 
+        }
+
+        [HttpGet("maintenance")]
+        public APIResponse GetAllMaintenance()
+        {
+            try { 
+            maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+            var result = maintenanceRepository.All().Select(x => new MaintenanceModel
+            {
+                Id = x.Id,
+                Name = x.Name,
+               StartDate =  x.StartDate,
+                StartTime = x.StartTime,
+                EndDate = x.EndDate,
+                Duration = x.Duration,
+                MaintenanceFrequency = x.MaintenanceFrequency,
+                MaintenanceDaysList = x.MaintenanceDaysList,
+                ContinueForever = x.ContinueForever
+
+            }).ToList();
+            Response = Common.CreateResponse(result);
+            }
+            catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get Maintenance falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
         }
     }
 }
