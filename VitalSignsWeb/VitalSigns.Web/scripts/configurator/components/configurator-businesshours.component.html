@@ -66,59 +66,57 @@ data.pageIndex + 1 | number
                         <h4 class="modal-title">Edit Item</h4>
                     </div>
                     <div class="modal-body" *ngIf="flex.collectionView">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" required name="name" formControlName="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="start_time">Start Time</label>
+                            <input type="text" class="form-control" id="start_time" required name="start_time" formControlName="start_time">
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Duration</label>
+                            <input type="number" class="form-control" id="duration" required name="duration" formControlName="duration">
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Sunday</label>
+                            <input type="checkbox" class="form-control" id="sunday"  formControlName="sunday">
+                        </div>
+                        <div class="form-group">
+                            <label for="monday">Monday</label>
+                            <input type="checkbox" class="form-control" id="monday"  formControlName="monday">
+                        </div>
+                        <div class="form-group">
+                            <label for="tuesday">Tuesday</label>
+                            <input type="checkbox" class="form-control" id="tuesday"  formControlName="tuesday">
+                        </div>
+                        <div class="form-group">
+                            <label for="wednesday">Wednesday</label>
+                            <input type="checkbox" class="form-control" id="wednesday"  formControlName="wednesday">
+                        </div>
+                        <div class="form-group">
+                            <label for="thursday">Thursday</label>
+                            <input type="checkbox" class="form-control" id="thursday"  formControlName="thursday">
+                        </div>
+                        <div class="form-group">
+                            <label for="friday">Friday</label>
+                            <input type="checkbox" class="form-control" id="friday" formControlName="friday">
+                        </div>
+                        <div class="form-group">
+                            <label for="saturday">Saturday</label>
+                            <input type="checkbox" class="form-control" id="saturday"  formControlName="saturday">
+                        </div>
                        
-                        <dl class="dl-horizontal">                            
-                            <dt>Name</dt>
-                            <dd>
-                                <input type="text" class="form-control" formControlName="name" />
-                            </dd>
-                            <dt>Start Time</dt>
-                            <dd>
-                                <input type="text" class="form-control" formControlName="start_time" />
-                            </dd>
-                            <dt>Duration</dt>
-                            <dd>
-                                <input type="number" formControlName="duration" />
-                            </dd>
-                            <dt>Sunday</dt>
-                            <dd style="align-items:flex-start">
-                                <input type="checkbox" class="form-control" formControlName="sunday" />
-                            </dd>
-                            <dt>Monday</dt>
-                            <dd>
-                                <input type="checkbox" class="form-control" formControlName="monday" />
-                            </dd>
-                            <dt>Tuesday</dt>
-                            <dd>
-                                <input type="checkbox" class="form-control" formControlName="tuesday" />
-                            </dd>
-                            <dt>Webnesday</dt>
-                            <dd>
-                                <input type="checkbox" class="form-control" formControlName="wednesday" />
-                            </dd>
-                            <dt>Thursday</dt>
-                            <dd>
-                                <input type="checkbox" class="form-control" formControlName="thursday" />
-                            </dd>
-                            <dt>Friday</dt>
-                            <dd>
-                                <input type="checkbox" class="form-control" formControlName="friday" />
-                            </dd>
-                            <dt>Saturday</dt>
-                            <dd>
-                                <input type="checkbox" class="form-control" formControlName="saturday" />
-                            </dd>
-                        </dl>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <span class="glyphicon glyphicon-ok" (click)="flex.collectionView.commitEdit()"></span>
-                            OK
+                            Save
                         </button>
                         <button type="button" class="btn btn-warning" data-dismiss="modal"
                                 (click)="flex.collectionView.cancelEdit()">
                             <span class="glyphicon glyphicon-ban-circle"></span>
-                            Cancel
+                            Close
                         </button>
                     </div>
                 </div><!-- modal-content -->l
