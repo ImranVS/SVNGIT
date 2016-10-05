@@ -21,6 +21,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<BusinessHours> businessHoursRepository;
         private IRepository<Credentials> credentialsRepository;
+        private IRepository<NameValue> nameValueRepository;
         [HttpGet("business_hours")]
         public APIResponse GetAllBusinessHours()
         {
@@ -123,8 +124,10 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(serverCredential.Id))
                 {
                     Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = serverCredential.Password, DeviceType = serverCredential.DeviceType,UserId=serverCredential.UserId};
-                    credentialsRepository.Insert(serverCredentials);
-                    Response = Common.CreateResponse(true, "OK", "Server Credential inserted successfully");
+
+                    
+                    string id = credentialsRepository.Insert(serverCredentials);
+                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
                 }
                 else
                 {
@@ -151,18 +154,26 @@ namespace VitalSigns.API.Controllers
         [HttpDelete("delete_credential/{Id}")]
         public void DeleteCredential(string Id)
         {
-            credentialsRepository = new Repository<Credentials>(ConnectionString);
+            try
+            {
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
             Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
             credentialsRepository.Delete(expression);
 
 
-
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
         }
 
         [HttpGet("credentials")]
         public APIResponse GetAllCredentials()
         {
-            credentialsRepository = new Repository<Credentials>(ConnectionString);
+            try
+            {
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
             var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
             {
                 Alias = x.Alias,
@@ -172,6 +183,29 @@ namespace VitalSigns.API.Controllers
                 Id = x.Id
 
 
+            }).ToList();
+
+
+            Response = Common.CreateResponse(result);
+           
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        
+        [HttpGet("ibm_domino_settings")]
+        public APIResponse GetIbmDominoSettings()
+        {
+            nameValueRepository = new Repository<NameValue>(ConnectionString);
+            var result = nameValueRepository.All().Select(x => new NameValue
+            {
+               Name=x.Name,
+               Value=x.Value,
+               Id = x.Id
+               
             }).ToList();
 
 
