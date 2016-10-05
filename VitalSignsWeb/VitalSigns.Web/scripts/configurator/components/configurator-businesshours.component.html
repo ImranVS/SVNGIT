@@ -50,8 +50,7 @@ data.pageIndex + 1 | number
             <wj-menu-item [value]="50">50</wj-menu-item>
         </wj-menu>
     </div>
-    <div class="modal fade" id="dlgDetail">
-        <form [formGroup]="businessHoursForm" (ngSubmit)="onSubmit(businessHoursForm.value)">
+    <div class="modal fade" id="dlgDetail">       
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -63,54 +62,54 @@ data.pageIndex + 1 | number
                                 aria-hidden="true">
                             &times;
                         </button>
-                        <h4 class="modal-title">Edit Item</h4>
+                        <h4 class="modal-title">{{formTitle}}</h4>
                     </div>
-                    <div class="modal-body" *ngIf="flex.collectionView">
+                    <div class="modal-body" *ngIf="currentEditItem">
                         <div class="form-group">
                             <label for="name">Name</label>
-                            <input type="text" class="form-control" id="name" required name="name" formControlName="name">
+                            <input type="text" class="form-control" id="name" required name="name"  [(ngModel)]="currentEditItem.name">
                         </div>
                         <div class="form-group">
                             <label for="start_time">Start Time</label>
-                            <input type="text" class="form-control" id="start_time" required name="start_time" formControlName="start_time">
+                            <input type="text" class="form-control" id="start_time" required name="start_time"  [(ngModel)]="currentEditItem.start_time">
                         </div>
                         <div class="form-group">
                             <label for="duration">Duration</label>
-                            <input type="number" class="form-control" id="duration" required name="duration" formControlName="duration">
+                            <input type="number" class="form-control" id="duration" required name="duration"  [(ngModel)]="currentEditItem.duration">
                         </div>
                         <div class="form-group">
                             <label for="duration">Sunday</label>
-                            <input type="checkbox" class="form-control" id="sunday"  formControlName="sunday">
+                            <input type="checkbox" class="checkbox-inline" id="sunday"   [(ngModel)]="currentEditItem.sunday">
                         </div>
                         <div class="form-group">
                             <label for="monday">Monday</label>
-                            <input type="checkbox" class="form-control" id="monday"  formControlName="monday">
+                            <input type="checkbox" class="checkbox-inline" id="monday"   [(ngModel)]="currentEditItem.monday">
                         </div>
                         <div class="form-group">
                             <label for="tuesday">Tuesday</label>
-                            <input type="checkbox" class="form-control" id="tuesday"  formControlName="tuesday">
+                            <input type="checkbox" class="checkbox-inline" id="tuesday"   [(ngModel)]="currentEditItem.tuesday">
                         </div>
                         <div class="form-group">
                             <label for="wednesday">Wednesday</label>
-                            <input type="checkbox" class="form-control" id="wednesday"  formControlName="wednesday">
+                            <input type="checkbox" class="checkbox-inline" id="wednesday"   [(ngModel)]="currentEditItem.wednesday">
                         </div>
                         <div class="form-group">
                             <label for="thursday">Thursday</label>
-                            <input type="checkbox" class="form-control" id="thursday"  formControlName="thursday">
+                            <input type="checkbox" class="checkbox-inline" id="thursday"   [(ngModel)]="currentEditItem.thursday">
                         </div>
                         <div class="form-group">
                             <label for="friday">Friday</label>
-                            <input type="checkbox" class="form-control" id="friday" formControlName="friday">
+                            <input type="checkbox" class="checkbox-inline" id="friday"  [(ngModel)]="currentEditItem.friday">
                         </div>
                         <div class="form-group">
                             <label for="saturday">Saturday</label>
-                            <input type="checkbox" class="form-control" id="saturday"  formControlName="saturday">
+                            <input type="checkbox" class="checkbox-inline" id="saturday"   [(ngModel)]="currentEditItem.saturday">
                         </div>
                        
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="glyphicon glyphicon-ok" (click)="flex.collectionView.commitEdit()"></span>
+                        <button type="submit" class="btn btn-primary" (click)="saveBusinessHour()">
+                            <span class="glyphicon glyphicon-ok" ></span>
                             Save
                         </button>
                         <button type="button" class="btn btn-warning" data-dismiss="modal"
@@ -120,8 +119,7 @@ data.pageIndex + 1 | number
                         </button>
                     </div>
                 </div><!-- modal-content -->l
-            </div><!-- modal-dialog -->
-        </form>
+            </div><!-- modal-dialog -->       
 </div><!-- modal -->
     <div class="well grid-sort-group">
 
@@ -130,14 +128,14 @@ data.pageIndex + 1 | number
                 data-toggle="modal"
                 data-backdrop="static"
                 data-keyboard="false"
-                data-target="#dlgDetail"  (click)="editBusinessHour()">
+                data-target="#dlgDetail"  (click)="editGridRow()">
             Edit
         </button>
         <button class="btn btn-default"
                 data-toggle="modal"
                 data-backdrop="static"
                 data-keyboard="false"
-                data-target="#dlgDetail" (click)="addBusinessHour()" >
+                data-target="#dlgDetail" (click)="addGridRow()" >
            Add
         </button>
         <button class="btn btn-default"               
