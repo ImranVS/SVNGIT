@@ -87,6 +87,7 @@
     <Compile Include="SummaryStatistics.cs" />
     <Compile Include="Tenant.cs" />
     <Compile Include="TravelerStats.cs" />
+    <Compile Include="ValidLocation.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VSNext.Mongo.Repository\VSNext.Mongo.Repository.csproj">
