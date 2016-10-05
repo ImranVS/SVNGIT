@@ -25,7 +25,7 @@ export abstract class GridBase  {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     constructor(service: RESTService, dataURI: string) {   
         this.service = service;    
-       this.service.get('/Configurator/business_hours')
+        this.service.get(dataURI)
             .subscribe(
             response => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
