@@ -35,6 +35,8 @@ import { ProfilesForm } from './profiles/components/profiles-form.component';
 import { NotYetImplemented } from './not-yet-implemented.component';
 import {ServerCredentials} from './configurator/components/configurator-servercredentials.component';
 
+import { MaintainUser } from './security/components/security-maintainusers.component';
+
 export * from './dashboards/components/overall-dashboard.component';
 
 export * from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
@@ -71,6 +73,8 @@ export * from './profiles/components/profiles-form.component';
 export * from './not-yet-implemented.component';
 export * from './configurator/components/configurator-businesshours.component';
 export * from './configurator/components/configurator-servercredentials.component';
+
+export * from './security/components/security-maintainusers.component';
 
 const appRoutes: Routes = [
     {
@@ -181,6 +185,10 @@ const appRoutes: Routes = [
     {
         path: 'configurator/credentials',
         component: ServerCredentials
+    },
+    {
+        path: 'security/maintainusers',
+        component: MaintainUser
     },
 ];
 
