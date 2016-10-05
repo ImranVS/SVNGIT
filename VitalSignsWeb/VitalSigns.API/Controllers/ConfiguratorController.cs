@@ -69,8 +69,8 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(businesshour.Id))
                 {
                     BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray() };
-                    businessHoursRepository.Insert(businessHours);
-                    Response = Common.CreateResponse(true, "OK", "Business hour inserted successfully");
+                    string id=businessHoursRepository.Insert(businessHours);
+                    Response = Common.CreateResponse( id, "OK", "Business hour inserted successfully");
                 }
                 else
                 {
@@ -93,15 +93,12 @@ namespace VitalSigns.API.Controllers
 
 
 
-        [HttpDelete("{id}/delete_business_hours")]
+        [HttpDelete("delete_business_hours/{id}")]
         public void DeleteBusinessHours(string id)
         {
             businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
             Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
             businessHoursRepository.Delete(expression);
-
-
-
         }
         //[HttpGet("credentials/{UserId}")]
         //public Credentials GetCredentials(string UserId)
