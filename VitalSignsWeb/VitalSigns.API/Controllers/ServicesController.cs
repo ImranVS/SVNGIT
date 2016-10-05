@@ -22,7 +22,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
-        private IRepository<Drive> diskRepository;
+        private IRepository<NameValue> nameValueRepository;
 
 
         //private IRepository<IbmConnectionsTopStats> ibmRepository;
@@ -123,9 +123,9 @@ namespace VitalSigns.API.Controllers
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
                                          Status = x.StatusCode,// Holds the formated status code for displaying colors in UI
-                                         StatusCode=x.StatusCode,//Holds actual server code data
+                                         StatusCode = x.StatusCode,//Holds actual server code data
                                          DeviceId = x.DeviceId,
-                                         Location=x.Location
+                                         Location = x.Location
 
                                      }).ToList();
                 foreach (ServerStatus item in result)
@@ -200,7 +200,7 @@ namespace VitalSigns.API.Controllers
                     result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
                 else
                 {
-                    var secondaryRoles = result.SecondaryRole.Split(';').Select(x=>x.Trim());
+                    var secondaryRoles = result.SecondaryRole.Split(';').Select(x => x.Trim());
                     result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
                 }
 
@@ -696,7 +696,7 @@ namespace VitalSigns.API.Controllers
                         result.Add(segment);
                     }
                 }
-                
+
 
                 result.RemoveAll(item => item.Label == null);
                 result.RemoveAll(item => item.Label == "");
@@ -707,9 +707,9 @@ namespace VitalSigns.API.Controllers
 
                 List<Serie> series = new List<Serie>();
                 series.Add(serie);
-                
+
                 Chart chart = new Chart();
-                
+
                 chart.Title = docfield;
                 chart.Series = series;
 
@@ -738,42 +738,43 @@ namespace VitalSigns.API.Controllers
                 List<Serie> diskserie = new List<Serie>();
                 result.Disks.RemoveAll(item => item.DiskFree == null || item.DiskFree == 0.0);
                 result.Disks.RemoveAll(item => item.DiskSize - item.DiskFree == null || item.DiskFree == 0.0);
-                
-                    var data = result.Disks.Select(x => new  {
-                       Name=x.DiskName,
-                       Free=x.DiskFree,
-                       Used= x.DiskSize - x.DiskFree
-                    });
-                if (result.Disks.Count>1)
+
+                var data = result.Disks.Select(x => new
                 {
-                   
+                    Name = x.DiskName,
+                    Free = x.DiskFree,
+                    Used = x.DiskSize - x.DiskFree
+                });
+                if (result.Disks.Count > 1)
+                {
+
                     Serie diskFreeSerie = new Serie();
-                    diskFreeSerie.Title = "Available";                                      
-                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value,Color= "rgba(95, 190, 127, 1)" }).ToList();
+                    diskFreeSerie.Title = "Available";
+                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value, Color = "rgba(95, 190, 127, 1)" }).ToList();
                     diskserie.Add(diskFreeSerie);
                     Serie diskUsedSerie = new Serie();
                     diskUsedSerie.Title = "Used";
-                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value,Color= "rgba(239, 58, 36, 1)" }).ToList();
+                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value, Color = "rgba(239, 58, 36, 1)" }).ToList();
                     diskserie.Add(diskUsedSerie);
 
-                } 
+                }
                 else
                 {
                     foreach (Disk drive in result.Disks)
                     {
                         List<Segment> segments = new List<Segment>();
                         segments.Add(new Segment { Label = "Available", Value = Math.Round(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0, 2) });
-                        segments.Add(new Segment { Label ="Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree ), 2) });
+                        segments.Add(new Segment { Label = "Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree), 2) });
 
                         Serie serie = new Serie();
                         serie.Segments = segments;
-                        serie.Title = drive.DiskName;                        
+                        serie.Title = drive.DiskName;
                         diskserie.Add(serie);
 
                     }
-                }                             
+                }
                 Chart chart = new Chart();
-               
+
                 chart.Title = "Disk Space";
                 chart.Series = diskserie;
                 Response = Common.CreateResponse(chart);
@@ -789,7 +790,7 @@ namespace VitalSigns.API.Controllers
 
         }
 
-        
+
         [HttpGet("server_list_selectlist_data")]
         public APIResponse GetDeviceListDropDownData()
         {
@@ -797,14 +798,14 @@ namespace VitalSigns.API.Controllers
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-                var deviceTypeData = statusRepository.All().Where(x=>x.DeviceType!=null).Select(x => x.DeviceType).Distinct().OrderBy(x=>x).ToList();
+                var deviceTypeData = statusRepository.All().Where(x => x.DeviceType != null).Select(x => x.DeviceType).Distinct().OrderBy(x => x).ToList();
                 var deviceStatusData = statusRepository.All().Where(x => x.StatusCode != null).Select(x => x.StatusCode).Distinct().OrderBy(x => x).ToList();
                 var deviceLocationData = statusRepository.All().Where(x => x.Location != null).Select(x => x.Location).Distinct().OrderBy(x => x).ToList();
                 deviceTypeData.Insert(0, "-All-");
                 deviceStatusData.Insert(0, "-All-");
                 deviceLocationData.Insert(0, "-All-");
 
-                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData , deviceLocationData = deviceLocationData });
+                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData, deviceLocationData = deviceLocationData });
                 return Response;
             }
             catch (Exception exception)
@@ -815,6 +816,56 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("get-name-values")]
+        public APIResponse GetNameVlaues(string category, string name)
+        {
+            try
+            {
+
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+                if (string.IsNullOrEmpty(category) && string.IsNullOrEmpty(name))
+                {
+                    var result = nameValueRepository.All().ToList();
+                    Response = Common.CreateResponse(result);
+
+                }
+                else if (!string.IsNullOrEmpty(category))
+                {
+                    Expression<Func<NameValue, bool>> expression = (p => p.Category == category);
+                    var result = nameValueRepository.Find(expression)
+                        .Select(x => new NameValueModel
+
+                        { Name = x.Name, Id = x.Id, Category = x.Category, Value = x.Value }).ToList();
+                    Response = Common.CreateResponse(result);
+                }
+                else if (!string.IsNullOrEmpty(name))
+                {
+                    var names = name.Replace("[", "").Replace("]", "").Split(',');
+                    Expression<Func<NameValue, bool>> expression = (p => names.Contains(p.Name));
+                    var result = nameValueRepository.Find(expression).Select(x => new NameValueModel
+
+                    { Name = x.Name, Id = x.Id, Category = x.Category, Value = x.Value }).ToList();
+                    Response = Common.CreateResponse(result);
+
+                }
+
+               
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+            return Response;
+        }
     }
+
 }
+
+   
+
 
