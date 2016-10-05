@@ -122,10 +122,11 @@ namespace VSNext.Mongo.Repository
             return ConvertDateTimes((isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable());
         }
 
-        public virtual void Insert(T entity)
+        public virtual string Insert(T entity)
         {
             entity.TenantId = TenantId;
             Collection.InsertOne(entity);
+            return entity.Id;
         }
 
         public virtual void Insert(IEnumerable<T> entities)

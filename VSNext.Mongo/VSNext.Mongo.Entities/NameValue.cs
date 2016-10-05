@@ -24,5 +24,9 @@ namespace VSNext.Mongo.Entities
         [BsonElement("value")]
         [BsonIgnoreIfNullAttribute]
         public string Value { get; set; }
+        [DataMember]
+        [BsonElement("category")]
+        [BsonIgnoreIfNullAttribute]
+        public string Category { get; set; }
     }
 }

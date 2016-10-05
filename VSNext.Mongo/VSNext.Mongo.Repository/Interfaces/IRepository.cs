@@ -19,7 +19,7 @@ namespace VSNext.Mongo.Repository
         IEnumerable<T> Find(Expression<Func<T, bool>> filter, int pageIndex, int size);
         IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size);
         IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size, bool isDescending);
-        void Insert(T entity);
+        string Insert(T entity);
         void Insert(IEnumerable<T> entities);
         void Replace(T entity);
         void Replace(IEnumerable<T> entities);
