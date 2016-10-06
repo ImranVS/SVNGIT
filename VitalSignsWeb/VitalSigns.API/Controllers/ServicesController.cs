@@ -24,6 +24,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<NameValue> nameValueRepository;
 
+        private string DateFormat = "yyyy-MM-dd";
 
         //private IRepository<IbmConnectionsTopStats> ibmRepository;
 
@@ -123,9 +124,9 @@ namespace VitalSigns.API.Controllers
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
                                          Status = x.StatusCode,// Holds the formated status code for displaying colors in UI
-                                         StatusCode = x.StatusCode,//Holds actual server code data
+                                         StatusCode=x.StatusCode,//Holds actual server code data
                                          DeviceId = x.DeviceId,
-                                         Location = x.Location
+                                         Location=x.Location
 
                                      }).ToList();
                 foreach (ServerStatus item in result)
@@ -200,7 +201,7 @@ namespace VitalSigns.API.Controllers
                     result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
                 else
                 {
-                    var secondaryRoles = result.SecondaryRole.Split(';').Select(x => x.Trim());
+                    var secondaryRoles = result.SecondaryRole.Split(';').Select(x=>x.Trim());
                     result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
                 }
 
@@ -442,30 +443,71 @@ namespace VitalSigns.API.Controllers
         /// <param name="id"></param>
         /// <returns> summary stats data </returns>
         [HttpGet("summarystats")]
-        public APIResponse GetSummaryStat(string deviceId, string statName)
+        public APIResponse GetSummaryStat(string deviceId, string statName, string startDate = "", string endDate = "")
         {
+            //DateFormat is YYYY-MM-DD
+            if (startDate == "")
+                startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
+                
+            if (endDate == "")
+                endDate = DateTime.Today.ToString(DateFormat);
+
+            //1 day is added to the end so we include that days data
+            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
+
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
             var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
             try
             {
+                FilterDefinition<SummaryStatistics> filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
+                               
                 if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
-                    Expression<Func<SummaryStatistics, bool>> expression = (p => statNames.Contains(p.StatName));
-                    var result = summaryRepository.Find(expression).Select(x => new StatsData
+
+                    FilterDefinition<SummaryStatistics> filterDefTemp = filterDef & 
+                        summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*"))));
+
+
+                    var result = summaryRepository.Find(filterDefTemp).Select(x => new StatsData
                     {
                         //DeviceId = x.DeviceId,
                         StatName = x.StatName,
                         StatValue = x.StatValue
 
                     }).Take(500).ToList();
+
+                    foreach (string currString in statNames.Where(i => i.Contains("*")))
+                    {
+                        filterDefTemp = filterDef & 
+                            summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
+
+                        result.AddRange(
+                            summaryRepository.Find(filterDefTemp).Select(x => new StatsData
+                            {
+                                //DeviceId = x.DeviceId,
+                                StatName = x.StatName,
+                                StatValue = x.StatValue
+
+                            }).Take(500).ToList()
+                        );
+                    }
                     Response = Common.CreateResponse(result);
 
                 }
                 else if (!string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
+                    filterDef = filterDef &
+                        summaryRepository.Filter.Eq(p => p.DeviceId, deviceId);
 
-                    Expression<Func<SummaryStatistics, bool>> expression = (p => statNames.Contains(p.StatName) && p.DeviceId == deviceId);
-                    var statsHourly = summaryRepository.Find(expression);
+
+                    FilterDefinition<SummaryStatistics> filterDefTemp = filterDef &
+                        summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*"))));
+
+
+                    var statsHourly = summaryRepository.Find(filterDefTemp);
+
                     var result = statsHourly
                                        .GroupBy(row => new
                                        {
@@ -481,54 +523,95 @@ namespace VitalSigns.API.Controllers
 
                                        }).ToList();
 
-
-
-                    DateTime now = DateTime.Now;
-                    var startDate = new DateTime(now.Year, now.Month, 1);
-                    var endDate = now;
-                    List<Serie> series = new List<Serie>();
-                    foreach (var name in statNames)
+                    foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
+                        filterDefTemp = filterDef & 
+                            summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
 
-                        List<Segment> segments = new List<Segment>();
-                        Serie serie = new Serie();
+                        result.AddRange(
+                            summaryRepository.Find(filterDefTemp)
+                            .GroupBy(row => new
+                            {
+                                row.CreatedOn.Date,
+                                row.StatName
+                            })
+                            .Select(row => new 
+                            {
+                                Date = row.Key.Date,
+                                Value = Math.Round(row.Average(x => x.StatValue), 2),
+                                StatName = row.Key.StatName
 
+                            }).Take(500).ToList()
+                        );
+                    }
 
+                    List<Serie> series = new List<Serie>();
 
-                        for (DateTime date = startDate.Date; date.Date <= endDate.Date; date = date.AddDays(1))
+                    if ((dtEnd - dtStart).TotalDays <= 1)
+                    {
+                        var segments = new List<Segment>();
+
+                        foreach (var item in result)
                         {
-                            var item = result.Where(x => x.Date == date).FirstOrDefault();
-                            var output = result.Where(x => x.Date == date && x.StatName == name.ToString()).ToList();
+                            segments.Add(new Segment()
+                            {
+                                Label = item.StatName,
+                                Value = item.Value
+                            });
+                        }
 
-                            string statdate = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
-                            if (item != null && statNames.Length == 1)
+                        Serie serie = new Serie();
+                        serie.Title = dtStart.ToString(DateFormat);
+                        serie.Segments = segments;
+
+                        series.Add(serie);
+                        
+                    }
+                    else
+                    {
+                        foreach (var name in result.Select(i => i.StatName).Distinct())
+                        {
+
+                            List<Segment> segments = new List<Segment>();
+                            Serie serie = new Serie();
+
+
+                            //WS changed to just less then end date due to the end date being the next day to include all of the previous day values.
+                            for (DateTime date = dtStart.Date; date.Date < dtEnd.Date; date = date.AddDays(1))
                             {
-                                segments.Add(new Segment { Label = statdate.ToString(), Value = item.Value });
-                                serie.Title = name.ToString();
-                                serie.Segments = segments;
-                            }
-                            else if (item != null && output != null && statNames.Length > 1)
-                            {
-                                foreach (var statvalue in output)
+                                var item = result.Where(x => x.Date == date).FirstOrDefault();
+                                var output = result.Where(x => x.Date == date && x.StatName == name.ToString()).ToList();
+
+                                string statdate = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
+                                if (item != null && statNames.Length == 1)
                                 {
-                                    segments.Add(new Segment { Label = statdate, Value = statvalue.Value });
+                                    segments.Add(new Segment { Label = statdate.ToString(), Value = item.Value });
                                     serie.Title = name.ToString();
                                     serie.Segments = segments;
                                 }
-                            }
-                            else
-                            {
-                                segments.Add(new Segment { Label = statdate.ToString(), Value = 0 });
-                                serie.Title = name.ToString();
-                                serie.Segments = segments;
+                                else if (item != null && output != null && statNames.Length > 1)
+                                {
+                                    foreach (var statvalue in output)
+                                    {
+                                        segments.Add(new Segment { Label = statdate, Value = statvalue.Value });
+                                        serie.Title = name.ToString();
+                                        serie.Segments = segments;
+                                    }
+                                }
+                                else
+                                {
+                                    segments.Add(new Segment { Label = statdate.ToString(), Value = 0 });
+                                    serie.Title = name.ToString();
+                                    serie.Segments = segments;
+
+                                }
+
+
 
                             }
-
-
+                            series.Add(serie);
 
                         }
-                        series.Add(serie);
-
                     }
 
 
@@ -696,7 +779,7 @@ namespace VitalSigns.API.Controllers
                         result.Add(segment);
                     }
                 }
-
+                
 
                 result.RemoveAll(item => item.Label == null);
                 result.RemoveAll(item => item.Label == "");
@@ -709,7 +792,7 @@ namespace VitalSigns.API.Controllers
                 series.Add(serie);
 
                 Chart chart = new Chart();
-
+                
                 chart.Title = docfield;
                 chart.Series = series;
 
@@ -738,23 +821,23 @@ namespace VitalSigns.API.Controllers
                 List<Serie> diskserie = new List<Serie>();
                 result.Disks.RemoveAll(item => item.DiskFree == null || item.DiskFree == 0.0);
                 result.Disks.RemoveAll(item => item.DiskSize - item.DiskFree == null || item.DiskFree == 0.0);
-
+                
                 var data = result.Disks.Select(x => new
                 {
-                    Name = x.DiskName,
-                    Free = x.DiskFree,
-                    Used = x.DiskSize - x.DiskFree
-                });
-                if (result.Disks.Count > 1)
+                       Name=x.DiskName,
+                       Free=x.DiskFree,
+                       Used= x.DiskSize - x.DiskFree
+                    });
+                if (result.Disks.Count>1)
                 {
 
                     Serie diskFreeSerie = new Serie();
                     diskFreeSerie.Title = "Available";
-                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value, Color = "rgba(95, 190, 127, 1)" }).ToList();
+                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value,Color= "rgba(95, 190, 127, 1)" }).ToList();
                     diskserie.Add(diskFreeSerie);
                     Serie diskUsedSerie = new Serie();
                     diskUsedSerie.Title = "Used";
-                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value, Color = "rgba(239, 58, 36, 1)" }).ToList();
+                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value,Color= "rgba(239, 58, 36, 1)" }).ToList();
                     diskserie.Add(diskUsedSerie);
 
                 }
@@ -764,17 +847,17 @@ namespace VitalSigns.API.Controllers
                     {
                         List<Segment> segments = new List<Segment>();
                         segments.Add(new Segment { Label = "Available", Value = Math.Round(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0, 2) });
-                        segments.Add(new Segment { Label = "Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree), 2) });
+                        segments.Add(new Segment { Label ="Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree ), 2) });
 
                         Serie serie = new Serie();
                         serie.Segments = segments;
-                        serie.Title = drive.DiskName;
+                        serie.Title = drive.DiskName;                        
                         diskserie.Add(serie);
 
                     }
-                }
+                }                             
                 Chart chart = new Chart();
-
+               
                 chart.Title = "Disk Space";
                 chart.Series = diskserie;
                 Response = Common.CreateResponse(chart);
@@ -790,7 +873,7 @@ namespace VitalSigns.API.Controllers
 
         }
 
-
+        
         [HttpGet("server_list_selectlist_data")]
         public APIResponse GetDeviceListDropDownData()
         {
@@ -798,14 +881,14 @@ namespace VitalSigns.API.Controllers
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-                var deviceTypeData = statusRepository.All().Where(x => x.DeviceType != null).Select(x => x.DeviceType).Distinct().OrderBy(x => x).ToList();
+                var deviceTypeData = statusRepository.All().Where(x=>x.DeviceType!=null).Select(x => x.DeviceType).Distinct().OrderBy(x=>x).ToList();
                 var deviceStatusData = statusRepository.All().Where(x => x.StatusCode != null).Select(x => x.StatusCode).Distinct().OrderBy(x => x).ToList();
                 var deviceLocationData = statusRepository.All().Where(x => x.Location != null).Select(x => x.Location).Distinct().OrderBy(x => x).ToList();
                 deviceTypeData.Insert(0, "-All-");
                 deviceStatusData.Insert(0, "-All-");
                 deviceLocationData.Insert(0, "-All-");
 
-                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData, deviceLocationData = deviceLocationData });
+                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData , deviceLocationData = deviceLocationData });
                 return Response;
             }
             catch (Exception exception)
@@ -828,7 +911,7 @@ namespace VitalSigns.API.Controllers
                     var result = nameValueRepository.All().ToList();
                     Response = Common.CreateResponse(result);
 
-                }
+    }
                 else if (!string.IsNullOrEmpty(category))
                 {
                     Expression<Func<NameValue, bool>> expression = (p => p.Category == category);
@@ -837,7 +920,7 @@ namespace VitalSigns.API.Controllers
 
                         { Name = x.Name, Id = x.Id, Category = x.Category, Value = x.Value }).ToList();
                     Response = Common.CreateResponse(result);
-                }
+}
                 else if (!string.IsNullOrEmpty(name))
                 {
                     var names = name.Replace("[", "").Replace("]", "").Split(',');
