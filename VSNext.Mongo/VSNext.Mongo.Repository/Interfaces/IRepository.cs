@@ -16,6 +16,7 @@ namespace VSNext.Mongo.Repository
         #region CRUD
         T Get(string id);
         IEnumerable<T> Find(Expression<Func<T, bool>> filter);
+        IEnumerable<T> Find(FilterDefinition<T> filter);
         IEnumerable<T> Find(Expression<Func<T, bool>> filter, int pageIndex, int size);
         IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size);
         IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size, bool isDescending);
