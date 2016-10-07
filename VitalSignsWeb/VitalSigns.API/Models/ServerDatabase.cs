@@ -55,5 +55,11 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("categories")]
         public string Categories { get; set; }
+
+        [JsonProperty("template_count")]
+        public int TemplateCount { get; set; }
+
+        [JsonProperty("percent_quota")]
+        public double PercentQuota { get; set; }
     }
 }

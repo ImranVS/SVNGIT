@@ -146,7 +146,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns> </returns>
         [HttpGet("mobile_user_devices")]
-        public IEnumerable<MobileUserDevice> GetAllMobileUserDevices()
+        public APIResponse GetAllMobileUserDevices()
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             var result = mobileDevicesRepository.Collection
@@ -161,7 +161,8 @@ namespace VitalSigns.API.Controllers
                                      Access = x.Access,
                                      DeviceId = x.DeviceID
                                  });
-            return result.ToList().OrderBy(x => x.UserName);
+            Response = Common.CreateResponse(result.ToList().OrderBy(x => x.UserName));
+            return Response;
         }
 
         ///<Author>Sowmya Pathuri</Author>
@@ -253,11 +254,11 @@ namespace VitalSigns.API.Controllers
 
 
             List<Segment> segments = new List<Segment>();
-            double deviceSyncLast15Min = result.Where(x => x.LastSyncTime > (DateTime.Now.AddMinutes(-15)) && x.LastSyncTime <= DateTime.Now).Count();
-            double deviceSyncBetween15to30 = result.Where(x => x.LastSyncTime < DateTime.Now.AddMinutes(-15) && x.LastSyncTime >= DateTime.Now.AddMinutes(-30)).Count();
-            double deviceSyncBetween30to60 = result.Where(x => x.LastSyncTime < DateTime.Now.AddMinutes(-30) && x.LastSyncTime >= DateTime.Now.AddMinutes(-60)).Count();
-            double deviceSyncBetween60to120 = result.Where(x => x.LastSyncTime < DateTime.Now.AddMinutes(-60) && x.LastSyncTime >= DateTime.Now.AddMinutes(-120)).Count();
-            double deviceSyncGreater120 = result.Where(x => x.LastSyncTime < DateTime.Now.AddMinutes(-120)).Count();
+            double deviceSyncLast15Min = result.Where(x => x.LastSyncTime > (DateTime.Now.ToUniversalTime().AddMinutes(-15)) && x.LastSyncTime <= DateTime.Now.ToUniversalTime()).Count();
+            double deviceSyncBetween15to30 = result.Where(x => x.LastSyncTime < DateTime.Now.ToUniversalTime().AddMinutes(-15) && x.LastSyncTime >= DateTime.Now.ToUniversalTime().AddMinutes(-30)).Count();
+            double deviceSyncBetween30to60 = result.Where(x => x.LastSyncTime < DateTime.Now.ToUniversalTime().AddMinutes(-30) && x.LastSyncTime >= DateTime.Now.ToUniversalTime().AddMinutes(-60)).Count();
+            double deviceSyncBetween60to120 = result.Where(x => x.LastSyncTime < DateTime.Now.ToUniversalTime().AddMinutes(-60) && x.LastSyncTime >= DateTime.Now.ToUniversalTime().AddMinutes(-120)).Count();
+            double deviceSyncGreater120 = result.Where(x => x.LastSyncTime < DateTime.Now.ToUniversalTime().AddMinutes(-120)).Count();
             if (deviceSyncLast15Min > 0)
             {
                 segments.Add(new Segment { Label = "Within 15 mins.", Value = deviceSyncLast15Min });
@@ -433,41 +434,243 @@ namespace VitalSigns.API.Controllers
             return result.ToList();
         }
 
+        [HttpGet("database")]
 
-        [HttpGet("{device_id}/database")]
-        public APIResponse GetDatabase(string device_id)
+        public APIResponse GetDatabase(string filter_by, string filter_value, string order_by, string order_type, string group_by, string top_x, bool get_chart)
         {
-
-            databaseRepository = new Repository<Database>(ConnectionString);
+            List<ServerDatabase> data = null;
+            List<Segment> segments = new List<Segment>();
+            List<BsonDocument> bsonDocs;
 
             try
             {
-                Expression<Func<Database, bool>> expression = (p => p.DeviceId == device_id);
-                var result = databaseRepository.Find(expression).Select(x => new ServerDatabase
+                var builder = Builders<Database>.Filter;
+                databaseRepository = new Repository<Database>(ConnectionString);
+                // filter_by is not specified - getting all documents in the collection
+                if (string.IsNullOrEmpty(filter_by))
                 {
-                    DeviceId = x.DeviceId,
-                    Title = x.Title,           
-                    DeviceName = x.DeviceName,
-                    Status = x.Status,                   
-                    Folder = x.Folder,                
-                    FolderCount = x.FolderCount,
-                    Details = x.Details,
-                    FileName = x.FileName,
-                    DesignTemplateName = x.DesignTemplateName,
-                    FileSize = x.FileSize,
-                    Quota = x.Quota,
-                    InboxDocCount = x.InboxDocCount,
-                    ScanDateTime =Convert.ToString( x.ScanDateTime.Value),
-                    ReplicaId = x.ReplicaId,
-                    DocumentCount = x.DocumentCount,
-                    Categories = x.Categories
-                }).ToList();
-                Response = Common.CreateResponse(result);
+                    // group_by is not specified - getting a flat list of entries, no grouping
+                    if (string.IsNullOrEmpty(group_by))
+                    {
+                        var res = databaseRepository.Collection.Aggregate()
+                                    .Match(_ => true).ToList();
+
+                        data = res.Select(x => new ServerDatabase
+                        {
+                            DeviceId = x.DeviceId,
+                            Title = x.Title,
+                            DeviceName = x.DeviceName,
+                            Status = x.Status,
+                            Folder = x.Folder,
+                            FolderCount = x.FolderCount,
+                            Details = x.Details,
+                            FileName = x.FileName,
+                            DesignTemplateName = x.DesignTemplateName,
+                            FileSize = x.FileSize,
+                            Quota = x.Quota,
+                            InboxDocCount = x.InboxDocCount,
+                            ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                            ReplicaId = x.ReplicaId,
+                            DocumentCount = x.DocumentCount,
+                            Categories = x.Categories,
+                            PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
+                        }).ToList();
+                        // order_by is specified - sorting resulting data by th field specified in order_by in order specified by order_type (asc/desc)
+                        if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
+                        {
+                            var propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
+                            data = order_type == "asc" ? data.OrderBy(x => propertyInfo.GetValue(x, null)).ToList() : data.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                        }
+                        if (!string.IsNullOrEmpty(top_x))
+                        {
+                            data = data.Take(Convert.ToInt32(top_x)).ToList();
+                        }
+                    }
+                    // group_by is specified - grouping data by the field specified by the group_by parameter
+                    else
+                    {
+                        bsonDocs = databaseRepository.Collection.Aggregate()
+                                    .Group(new BsonDocument { { "_id", "$" + group_by }, { "count", new BsonDocument("$sum", 1) } }).ToList();
+                        if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
+                        {
+                            var propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
+                            bsonDocs = order_type == "asc" ? bsonDocs.OrderBy(x => propertyInfo.GetValue(x, null)).ToList() : bsonDocs.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                        }
+                        foreach (BsonDocument doc in bsonDocs)
+                        {
+                            if (!doc["_id"].IsBsonNull)
+                            {
+                                Segment segment = new Segment()
+                                {
+                                    //Might have to add additional types for support.  Format is IfThis ? DoThis : Else
+                                    Label = doc["_id"].IsString ? doc["_id"].AsString :
+                                    (doc["_id"].IsInt32 ? Convert.ToString(doc["_id"].AsInt32) :
+                                    (doc["_id"].IsBoolean ? Convert.ToString(doc["_id"].AsBoolean) : Convert.ToString(doc["_id"].AsBsonValue))),
+                                    Value = doc["count"].AsInt32
+                                };
+                                segments.Add(segment);
+                            }
+                        }
+                    }
+                }
+                // filter_by is specified - getting a subset of documents using the value specified in the filter_value parameter
+                else
+                {
+                    // group_by is not specified - getting a flat list of entries, no grouping
+                    if (string.IsNullOrEmpty(group_by))
+                    {
+                        bool flag;
+                        if (Boolean.TryParse(filter_value, out flag))
+                        {
+                            data = databaseRepository.Find(builder.Eq(filter_by, flag))
+                                    .Select(x => new ServerDatabase
+                                    {
+                                        DeviceId = x.DeviceId,
+                                        Title = x.Title,
+                                        DeviceName = x.DeviceName,
+                                        Status = x.Status,
+                                        Folder = x.Folder,
+                                        FolderCount = x.FolderCount,
+                                        Details = x.Details,
+                                        FileName = x.FileName,
+                                        DesignTemplateName = x.DesignTemplateName,
+                                        FileSize = x.FileSize,
+                                        Quota = x.Quota,
+                                        InboxDocCount = x.InboxDocCount,
+                                        ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                        ReplicaId = x.ReplicaId,
+                                        DocumentCount = x.DocumentCount,
+                                        Categories = x.Categories,
+                                        PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
+                                    }).ToList();
+                        }
+                        else
+                        {
+                            data = databaseRepository.Find(builder.Eq(filter_by, filter_value))
+                                    .Select(x => new ServerDatabase
+                                    {
+                                        DeviceId = x.DeviceId,
+                                        Title = x.Title,
+                                        DeviceName = x.DeviceName,
+                                        Status = x.Status,
+                                        Folder = x.Folder,
+                                        FolderCount = x.FolderCount,
+                                        Details = x.Details,
+                                        FileName = x.FileName,
+                                        DesignTemplateName = x.DesignTemplateName,
+                                        FileSize = x.FileSize,
+                                        Quota = x.Quota,
+                                        InboxDocCount = x.InboxDocCount,
+                                        ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                        ReplicaId = x.ReplicaId,
+                                        DocumentCount = x.DocumentCount,
+                                        Categories = x.Categories,
+                                        PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
+                                    }).ToList();
+                        }
+                        // order_by is specified - sorting resulting data by th field specified in order_by in order specified by order_type (asc/desc)
+                        if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
+                        {
+                            var propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
+                            data = order_type == "asc" ? data.OrderBy(x => propertyInfo.GetValue(x, null)).ToList() : data.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                        }
+                        if (!string.IsNullOrEmpty(top_x))
+                        {
+                            data = data.Take(Convert.ToInt32(top_x)).ToList();
+                        }
+                    }
+                    // group_by is specified - grouping data by the field specified by the group_by parameter
+                    else
+                    {
+                        bool flag;
+                        if (Boolean.TryParse(filter_value, out flag))
+                        {
+                            bsonDocs = databaseRepository.Collection.Aggregate()
+                               .Match(builder.Eq(filter_by, flag))
+                               .Group(new BsonDocument { { "_id", "$" + group_by }, { "count", new BsonDocument("$sum", 1) } }).ToList();
+                        }
+                        else
+                        {
+                            bsonDocs = databaseRepository.Collection.Aggregate()
+                               .Match(builder.Eq(filter_by, filter_value))
+                               .Group(new BsonDocument { { "_id", "$" + group_by }, { "count", new BsonDocument("$sum", 1) } }).ToList();
+                        }
+                        if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
+                        {
+                            var propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
+                            bsonDocs = order_type == "asc" ? bsonDocs.OrderBy(x => propertyInfo.GetValue(x, null)).ToList() : bsonDocs.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                        }
+                        foreach (BsonDocument doc in bsonDocs)
+                        {
+                            if (!doc["_id"].IsBsonNull)
+                            {
+                                if (!doc["_id"].IsBsonNull)
+                                {
+                                    var labelVal = "";
+                                    labelVal = doc["_id"].IsString ? doc["_id"].AsString :
+                                        (doc["_id"].IsInt32 ? Convert.ToString(doc["_id"].AsInt32) :
+                                        (doc["_id"].IsBoolean ? Convert.ToString(doc["_id"].AsBoolean) : Convert.ToString(doc["_id"].AsBsonValue)));
+                                    if (doc["_id"].AsString == "")
+                                    {
+                                        labelVal = "Not Assigned";
+                                    }
+                                    Segment segment = new Segment()
+                                    {
+                                        Label = labelVal,
+                                        Value = doc["count"].AsInt32
+                                    };
+                                    segments.Add(segment);
+                                }
+                            }
+                        }
+                    }
+                }
+                    
+                // If a call was made without the group_by parameter, return data set as is,
+                // otherwise, return data as a chart
+                if (!string.IsNullOrEmpty(get_chart.ToString()))
+                {
+                    if (!get_chart)
+                    {
+                        Response = Common.CreateResponse(data);
+                    }
+                    else
+                    {
+                        if (segments.Count == 0)
+                        {
+                            foreach (ServerDatabase doc in data)
+                            {
+                                var bsondoc = doc.ToBsonDocument();
+                                var propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
+                                Segment segment = new Segment()
+                                {
+                                    Label = doc.Title + " (" + doc.DeviceName + ")",
+                                    Value = Convert.ToDouble(propertyInfo.GetValue(doc))
+                                };
+                                segments.Add(segment);
+                            }
+                        }
+                        List<Serie> dbseries = new List<Serie>();
+                        Serie dbserie = new Serie();
+                        segments.RemoveAll(item => item.Label == null);
+                        segments.RemoveAll(item => item.Label == "");
+                        dbserie.Title = "Data";
+                        dbserie.Segments = segments;
+                        dbseries.Add(dbserie);
+                        Chart chart = new Chart();
+                        chart.Title = "Database";
+                        chart.Series = dbseries;
+                        Response = Common.CreateResponse(chart);
+                    }
+                }
+                else
+                {
+                    Response = Common.CreateResponse(data);
+                }
             }
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", exception.Message);
-
             }
             return Response;
         }
@@ -484,7 +687,7 @@ namespace VitalSigns.API.Controllers
                     DeviceId = x.DeviceId,
                     DeviceName = x.DeviceName,
                     DateTimeDown =Convert.ToString( x.DateTimeDown),
-                    DateTimeUp = x.DateTimeUp,
+                    DateTimeUp = Convert.ToString(x.DateTimeUp),
                 }).ToList();
                 Response = Common.CreateResponse(result);
             }

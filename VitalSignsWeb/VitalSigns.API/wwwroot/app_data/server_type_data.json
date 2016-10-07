@@ -95,7 +95,7 @@
         "tab_id": 3,
         "title": "Traveler Health",
         "type": "Dashboard",
-        "component": "ServiceTravelerHealth",
+        "component": "ServiceTravelerHealthTab",
         "path": "/app/services/components/service-travelerhealth-tab.component",
         "secondary_role": "Traveler"
       },

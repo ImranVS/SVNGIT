@@ -18,7 +18,7 @@ namespace VitalSigns.API.Models
         public string DateTimeDown { get; set; }
 
         [JsonProperty("date_time_up")]
-        public DateTime? DateTimeUp { get; set; }
+        public string DateTimeUp { get; set; }
 
     }
 }
