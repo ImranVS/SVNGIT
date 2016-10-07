@@ -13,7 +13,7 @@ Imports MongoDB.Driver
 
 
 Public Class MaintenanceDll
-
+    Dim connectionString As String = System.Configuration.ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
     ''' <summary>
     ''' This function returns true if in maintenance, false if not. Current date time is checked against settings given.
     ''' </summary>
@@ -291,9 +291,44 @@ Public Class MaintenanceDll
         Return InMaintenanceWindow
     End Function
 
-    Private Sub WriteDeviceHistoryEntry(ByVal DeviceType As String, ByVal DeviceName As String, ByVal strMsg As String, Optional ByVal LogLevelInput As LogUtils.LogLevel = LogUtils.LogLevel.Normal)
-        LogUtils.WriteDeviceHistoryEntry(DeviceType, DeviceName, strMsg, LogLevelInput)
-    End Sub
+	Private Sub WriteDeviceHistoryEntry(ByVal DeviceType As String, ByVal DeviceName As String, ByVal strMsg As String, Optional ByVal LogLevelInput As LogUtils.LogLevel = LogUtils.LogLevel.Normal)
+		LogUtils.WriteDeviceHistoryEntry(DeviceType, DeviceName, strMsg, LogLevelInput)
+	End Sub
+
+    'Public Function OffHours(ByVal servername As String) As Boolean
+    '	Dim strSQL As String
+    '	Dim dt As New DataTable
+    '	Dim ds As New DataSet
+    '	Dim vsobj As New VSAdaptor
+    '	Dim isoffhours As Boolean
+
+    '	Try
+    '		'strSQL = "select hr.Starttime,hr.Duration, hr.is" & DateTime.Now.ToString("dddd") & " DayOfWeek from [servers] sr inner join HoursIndicator hr on sr.BusinesshoursID=hr.ID where sr.ServerName='" & servername & "'"
+    '		'6/8/15 WS modified for VSPLUS-1816
+    '		strSQL = "exec InBusinessHoursByServer '" & servername & "'"
+    '		dt.TableName = "HoursIndicator"
+    '		ds.Tables.Add(dt)
+
+    '		vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "HoursIndicator")
+    '		If dt.Rows.Count = 1 Then
+    '			Dim isHours As String = dt(0)("InBusinessHours").ToString()
+
+    '			If (isHours = "1") Then
+    '				Return False
+    '			Else
+    '				Return True
+    '			End If
+
+    '		End If
+
+    '		Return False
+
+    '	Catch ex As Exception
+    '		WriteHistoryEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
+
+    '	End Try
+    '	Return isoffhours
+    '   End Function
 
     Public Function OffHours(ByVal servername As String) As Boolean
         Dim strSQL As String
@@ -303,26 +338,65 @@ Public Class MaintenanceDll
         Dim isoffhours As Boolean
 
         Try
-            'strSQL = "select hr.Starttime,hr.Duration, hr.is" & DateTime.Now.ToString("dddd") & " DayOfWeek from [servers] sr inner join HoursIndicator hr on sr.BusinesshoursID=hr.ID where sr.ServerName='" & servername & "'"
-            '6/8/15 WS modified for VSPLUS-1816
-            strSQL = "exec InBusinessHoursByServer '" & servername & "'"
-            dt.TableName = "HoursIndicator"
-            ds.Tables.Add(dt)
-
-            vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "HoursIndicator")
-            If dt.Rows.Count = 1 Then
-                Dim isHours As String = dt(0)("InBusinessHours").ToString()
-
-                If (isHours = "1") Then
-                    Return False
-                Else
-                    Return True
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim repoBusinessHours As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.BusinessHours)(connectionString)
+            Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Server) = repo.Filter.Where(Function(i) i.DeviceName.Equals(servername))
+            Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repo.Project.Include(Function(i) i.BusinessHoursId)
+            Dim projectDefBusinessHours As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repo.Project.Include(Function(i) i.BusinessHoursId)
+            Dim server As VSNext.Mongo.Entities.Server = repo.Find(filterdef, projectDef).FirstOrDefault()
+            Dim businessId As String = server.BusinessHoursId
+            Dim filterdefBusinessHours As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.BusinessHours) = repoBusinessHours.Filter.Where(Function(i) i.Id.Equals(server.BusinessHoursId))
+            Dim businessHours As List(Of VSNext.Mongo.Entities.BusinessHours) = repoBusinessHours.All().ToList()
+            Dim currentBH As VSNext.Mongo.Entities.BusinessHours
+            For Each BH As VSNext.Mongo.Entities.BusinessHours In businessHours
+                If BH.ObjectId.ToString = businessId Then
+                    currentBH = BH
+                    Exit For
                 End If
+            Next
+            Dim bCurrentDay As Boolean = False
+            Dim bcurrntTime As Boolean = False
+            If currentBH IsNot Nothing Then
+                For Each s As String In currentBH.Days
+                    If s = Now.DayOfWeek.ToString() Then
+                        bCurrentDay = True
+                    End If
+                Next
+                ' Dim startTime As String() = currentBH.StartTime.Split(":")
+                Dim dtStart As DateTime = Now.ToShortDateString + " " + currentBH.StartTime
+                Dim duration As Integer = currentBH.Duration
+                Dim days As String() = currentBH.Days
+                Dim dtFuture As DateTime = dtStart.AddMinutes(duration)
 
+                If dtFuture.Ticks < dtStart.Ticks Then
+                    'EndTime is time for next day  
+                    If (Now.Ticks >= dtStart.Ticks And Now.Ticks >= dtFuture.Ticks) Or _
+                        (Now.Ticks <= dtStart.Ticks And Now.Ticks <= dtFuture.Ticks) Then
+                        Console.WriteLine("Time is within range.")
+                        bcurrntTime = True
+                    Else
+                        Console.WriteLine("Time is outside of range.")
+                        bcurrntTime = False
+                    End If
+                Else
+                    If Now.Ticks >= dtStart.Ticks And Now.Ticks <= dtFuture.Ticks Then
+                        Console.WriteLine("Time is within range.")
+                        bcurrntTime = True
+                    Else
+                        Console.WriteLine("Time is outside of range.")
+                        bcurrntTime = False
+                    End If
+                End If
+            Else
+                ' if a server is not associated with a business hour record, we will treat it as working hour
+                isoffhours = False
             End If
 
-            Return False
-
+            If bCurrentDay And bcurrntTime Then
+                isoffhours = False
+            Else
+                isoffhours = True
+            End If
         Catch ex As Exception
             WriteHistoryEntry(Now.ToString & " Error in Business Hours module: " & ex.Message)
 
@@ -366,9 +440,9 @@ Public Class MaintenanceDll
         Return InBusinessHours
     End Function
 
-    Private Sub WriteHistoryEntry(ByVal strMsg As String, Optional ByVal LogLevelInput As LogUtils.LogLevel = LogUtils.LogLevel.Normal)
-        LogUtils.WriteHistoryEntry(strMsg, "All_Maintenance_Log.txt", LogLevelInput)
-    End Sub
+	Private Sub WriteHistoryEntry(ByVal strMsg As String, Optional ByVal LogLevelInput As LogUtils.LogLevel = LogUtils.LogLevel.Normal)
+		LogUtils.WriteHistoryEntry(strMsg, "All_Maintenance_Log.txt", LogLevelInput)
+	End Sub
 
     Private Function GetDBConnection() As String
         'Return "mongodb://localhost/local"
