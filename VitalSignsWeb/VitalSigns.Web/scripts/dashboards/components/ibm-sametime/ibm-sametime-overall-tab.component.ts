@@ -22,25 +22,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
         super(resolver, widgetService);
 
     }
-
-    onPropertyChanged(key: string, value: any) {
-
-        if (key === 'serviceId') {
-
-            this.serviceId = value;
-
-            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`)
-                .catch(error => console.log(error));
-
-            this.widgetService.refreshWidget('dailyUserLogins', `/services/statistics?statName=Users&deviceid=${this.serviceId}&operation=hourly`)
-                .catch(error => console.log(error));
-                
-        }
-
-        super.onPropertyChanged(key, value);
-
-    }
-
+    
     ngOnInit() {
 
         this.serviceId = this.widgetService.getProperty('serviceId');
@@ -119,6 +101,24 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
         ];
     
         injectSVG();
+    }
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('dailyUserLogins', `/services/statistics?statName=Users&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+        }
+
+        super.onPropertyChanged(key, value);
+
     }
 
 }

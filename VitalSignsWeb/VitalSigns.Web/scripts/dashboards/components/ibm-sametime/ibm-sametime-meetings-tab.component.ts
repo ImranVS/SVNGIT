@@ -10,8 +10,7 @@ declare var injectSVG: any;
 
 @Component({
     selector: 'tab-meetings',
-    templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component.html',
-    providers: [WidgetService]
+    templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component.html'
 })
 export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, ServiceTab {
 
@@ -23,7 +22,9 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
     }
     
     ngOnInit() {
-        let grid: IBMSametimeGrid = <IBMSametimeGrid>(this.widgetService.findWidget('sametimeGrid').component);
+        
+        this.serviceId = this.widgetService.getProperty('serviceId');
+
         this.widgets = [
             {
                 id: 'activeMeetingsUsers',
@@ -31,7 +32,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=${grid.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'activeMeetingsUsers',
@@ -63,6 +64,21 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
         ];
     
         injectSVG();
+    }
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            this.widgetService.refreshWidget('activeMeetingsUsers', `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+        }
+
+        super.onPropertyChanged(key, value);
+        
     }
 
 }

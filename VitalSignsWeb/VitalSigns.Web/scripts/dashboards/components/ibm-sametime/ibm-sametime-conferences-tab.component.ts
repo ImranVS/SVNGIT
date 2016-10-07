@@ -10,8 +10,7 @@ declare var injectSVG: any;
 
 @Component({
     selector: 'tab-conferences',
-    templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component.html',
-    providers: [WidgetService]
+    templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component.html'
 })
 export class IBMSametimeConferencesTab extends WidgetController implements OnInit, ServiceTab {
 
@@ -23,8 +22,9 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
     }
     
     ngOnInit() {
-        let grid1: IBMSametimeGrid = <IBMSametimeGrid>(this.widgetService.findWidget('sametimeGrid').component);
-        console.log('conferences: ' + grid1.serviceId);
+
+        this.serviceId = this.widgetService.getProperty('serviceId');
+
         this.widgets = [
             {
                 id: 'oneOnOneCalls',
@@ -32,7 +32,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofall1x1calls&deviceid=${grid1.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=Totalcountofall1x1calls&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'oneOnOneCalls',
@@ -67,7 +67,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=${grid1.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'multiUserCalls',
@@ -102,7 +102,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofallcalls&deviceid=${grid1.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=Totalcountofallcalls&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allCalls',
@@ -137,7 +137,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=${grid1.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allCallsAllUsers',
@@ -172,7 +172,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=${grid1.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allOneOnOneCallsUsers',
@@ -207,7 +207,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=${grid1.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allMultiUserCallsUsers',
@@ -239,6 +239,34 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
         ];
     
         injectSVG();
+
+    }
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            this.widgetService.refreshWidget('multiUserCalls', `/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('allCalls', `/services/statistics?statName=Totalcountofallcalls&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('allCallsAllUsers', `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('allOneOnOneCallsUsers', `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('allMultiUserCallsUsers', `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+        }
+
+        super.onPropertyChanged(key, value);
+
     }
 
 }

@@ -26,7 +26,9 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
     errorMessage: string;
     
     get serviceId(): string {
+
         return this.widgetService.getProperty('serviceId');
+
     }
 
     set serviceId(id: string) {
@@ -65,6 +67,12 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
         
     }
 
+    onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {
+
+        this.serviceId = event.panel.grid.selectedItems[0].device_id;
+
+    }
+
     getAccessColor(access: string) {
 
         switch (access) {
@@ -77,10 +85,5 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
         }
 
     }
-
-    onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {
-
-        this.serviceId = event.panel.grid.selectedItems[0].device_id;
     
-    }
 }

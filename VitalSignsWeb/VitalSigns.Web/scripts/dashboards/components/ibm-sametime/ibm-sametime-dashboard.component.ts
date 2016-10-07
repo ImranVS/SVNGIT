@@ -24,9 +24,9 @@ export class IBMSametimeDashboard implements OnInit {
 
     }
 
-    onSelect(arg: string) {
+    onSelect(serviceId: string) {
 
-        this.serviceId = arg;
+        this.serviceId = serviceId;
 
     }
     
