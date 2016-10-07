@@ -14,10 +14,14 @@ export class WidgetController implements AfterViewInit, OnDestroy {
     constructor(
         protected factoryResolver: ComponentFactoryResolver,
         protected widgetService: WidgetService
-    ) {}
+    ) { }
+
+    onPropertyChanged(key: string, value: any) { }
 
     ngAfterViewInit() {
-    
+
+        this.widgetService.loadController(this);
+
         this.containers.forEach(containerRef => {
 
             var container: WidgetContainer = <WidgetContainer>(<any>containerRef)._element.component;

@@ -16,6 +16,34 @@ export interface WidgetServiceItem {
 export class WidgetService {
 
     private _widgets: WidgetServiceItem[] = [];
+    private _controllers: WidgetController[] = [];
+    private _properties: { [key: string]: any; } = {};
+
+    getProperty(key: string) {
+
+        return this._properties[key];
+
+    }
+
+    setProperty(key: string, value: any) {
+    
+        this._properties[key] = value;
+        
+        this._controllers.forEach(controller => {
+        
+            if (controller.onPropertyChanged)
+                controller.onPropertyChanged(key, value);
+
+        });
+
+        this._widgets.forEach(widget => {
+
+            if (widget.component.onPropertyChanged)
+                widget.component.onPropertyChanged(key, value);
+
+        });
+        
+    }
     
     exists(widgetId: string): boolean {
 
@@ -57,7 +85,7 @@ export class WidgetService {
 
         if (this.exists(contract.id))
             throw new Error(`Widget identifier (${contract.id}) already in use.`);
-
+            
         this._widgets.push({
             controller: controller,
             contract: contract,
@@ -66,9 +94,17 @@ export class WidgetService {
 
     }
 
+    loadController(controller: WidgetController) {
+
+        this._controllers.push(controller);
+
+    }
+
     unloadController(controller: WidgetController) {
     
         this._widgets = this._widgets.filter(widget => widget.controller !== controller);
+
+        this._controllers = this._controllers.filter(item => item !== controller);
             
     }
     

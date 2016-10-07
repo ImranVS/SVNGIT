@@ -1,6 +1,6 @@
 /*
     *
-    * Wijmo Library 5.20162.207
+    * Wijmo Library 5.20162.211
     * http://wijmo.com/
     *
     * Copyright(c) GrapeCity, Inc.  All rights reserved.
@@ -1569,7 +1569,7 @@ declare module wijmo {
 
 /**
  * Defines interfaces and classes related to data, including the @see:ICollectionView
- * interface and the @see:CollectionView class and @see:ObservableArray classes.
+ * interface, @see:CollectionView and @see:ObservableArray classes.
  */
 declare module wijmo.collections {
     /**

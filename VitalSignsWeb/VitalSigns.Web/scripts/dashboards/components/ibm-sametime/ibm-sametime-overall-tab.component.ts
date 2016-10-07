@@ -18,15 +18,33 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
     serviceId: string;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
+
         super(resolver, widgetService);
+
     }
 
-    loadController() {
-        console.log('load controller');
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('dailyUserLogins', `/services/statistics?statName=Users&deviceid=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+                
+        }
+
+        super.onPropertyChanged(key, value);
+
     }
+
     ngOnInit() {
-        let grid: IBMSametimeGrid = <IBMSametimeGrid>(this.widgetService.findWidget('sametimeGrid').component);
-        console.log(grid.serviceId);
+
+        this.serviceId = this.widgetService.getProperty('serviceId');
+        
         this.widgets = [
             {
                 id: 'responseTimes',
@@ -34,7 +52,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=ResponseTime&deviceid=${grid.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'responseTimes',
@@ -69,7 +87,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Users&deviceid=${grid.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=Users&deviceid=${this.serviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'dailyUserLogins',

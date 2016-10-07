@@ -70,7 +70,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
 
                     });
 
-                    // TODO: [OM] not obvious to hard code string values there and it introduces a strong dependency with business rules
+                    // TODO: [OM] not obvious to hard code string value there and it introduces a strong dependency with business rules
                         if (this.settings.chart.xAxis.categories.length > 1 && serie.title == "Available" || serie.title == "Used") {
                            
                             this.settings.chart.chart.type = 'bar';

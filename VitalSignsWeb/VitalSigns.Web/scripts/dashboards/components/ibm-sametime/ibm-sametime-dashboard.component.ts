@@ -1,4 +1,4 @@
-﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, ViewChild} from '@angular/core';
 
 import {WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
@@ -15,9 +15,19 @@ declare var bootstrapNavigator: any;
 })
 export class IBMSametimeDashboard implements OnInit {
 
+    serviceId: string;
+
     ngOnInit() {
+
         injectSVG();
         bootstrapNavigator();
+
     }
 
+    onSelect(arg: string) {
+
+        this.serviceId = arg;
+
+    }
+    
 }

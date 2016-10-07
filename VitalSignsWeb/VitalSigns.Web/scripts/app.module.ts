@@ -24,6 +24,7 @@ import {AppNavigator} from './navigation/app.navigator.component';
 import {SearchServerList} from './services/components/search-server-list.component';
 import {SearchDeviceListPipe} from './services/components/search-server-list.pipe';
 
+import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
 
 @NgModule({
@@ -40,6 +41,7 @@ import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-samet
         AppHeader,
         AppMainMenu,
         AppNavigator,
+        IBMConnectionsDetails,
         IBMSametimeDetails,
         SearchServerList,
         SearchDeviceListPipe,
@@ -109,7 +111,8 @@ import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-samet
         wjFlexGridFilter.WjFlexGridFilter,
         wjFlexGridGroup.WjGroupPanel,
         wjFlexInput.WjMenu,
-        wjFlexInput.WjMenuItem
+        wjFlexInput.WjMenuItem,
+        wjFlexInput.WjMenuItemTemplateDir
     ],
     entryComponents: [
         widgets.AppStatus,

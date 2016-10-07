@@ -25,12 +25,12 @@
                 </div>
                 <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
                 <div class="widgetContent" id="sametimeGrid">
-                    <vs-sametime-grid>loading...</vs-sametime-grid>
+                    <vs-sametime-grid (select)="onSelect($event)">loading...</vs-sametime-grid>
                 </div>
             </div>
         </div>
 
-        <div class="col-xs-12">
+        <div class="col-xs-12" *ngIf="serviceId">
             <div class="widgetWrapper">
                 <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
                 <div class="widgetContent" id="sametimeDetails">
