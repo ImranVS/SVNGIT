@@ -6,6 +6,7 @@ import {AppNavigator} from '../../navigation/app.navigator.component';
 
 
 import {ServiceTab} from '../models/service-tab.interface';
+
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
@@ -13,12 +14,11 @@ declare var bootstrapNavigator: any;
     templateUrl: '/app/services/components/service-travelerhealth-tab.component.html',
     providers: [WidgetService]
 })
-export class ServiceTravelerHealth extends WidgetController implements OnInit {
+export class ServiceTravelerHealthTab extends WidgetController implements OnInit {
     deviceId: any;
+    service: any;
     widgets: WidgetContract[]; 
        
-       
-    
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
     }
@@ -41,7 +41,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=Traveler.IncrementalDeviceSyncs&deviceid=' + this.deviceId +'&operation=hourly',
+                    url: `/services/statistics?statName=Traveler.IncrementalDeviceSyncs&deviceid=${this.deviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'successfuldevicesyncs',
@@ -77,7 +77,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=Http.CurrentConnections&deviceid=' + this.deviceId +'&operation=hourly',
+                    url: `/services/statistics?statName=Http.CurrentConnections&deviceid=${this.deviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'httpsessions',
@@ -112,7 +112,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=Traveler.Memory.Java.Current&deviceid=' + this.deviceId +'&operation=hourly',
+                    url: `/services/statistics?statName=Traveler.Memory.Java.Current&deviceid=${this.deviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allocatedjavamemory',
@@ -148,7 +148,7 @@ export class ServiceTravelerHealth extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: '/services/statistics?statName=Traveler.Memory.C.Current&deviceid=' + this.deviceId +'&operation=hourly',
+                    url: `/services/statistics?statName=Traveler.Memory.C.Current&deviceid=${this.deviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'allocatedCmemory',

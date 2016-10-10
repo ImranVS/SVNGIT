@@ -1,35 +1,13 @@
-﻿ <div role="tabpanel" class="tab-pane active" id="overall">
-
-    <div class="visible-xs titleTabMobile">Health Assessment</div>
-     <div class="row">
-         <div class="{{widget.css}}" *ngFor="let widget of widgets">
-             <div class="widgetWrapper">
-                 <div class="widgetTitle">
-                     {{widget.title}}
-                 </div>
-                 <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
-                 <div class="widgetContent" id="{{widget.id}}">
-                     <my-widget [contract]="widget">loading...</my-widget>
-                 </div>
-             </div>
-         </div>
-     </div>
-</div>
-
-<!--<div role="tabpanel" class="tab-pane active" id="overall">
-
-    <div class="visible-xs titleTabMobile">Traveler</div>
-    <div class="row">
-        <div class="{{widget.css}}" *ngFor="let widget of widgets">
-            <div class="widgetWrapper">
-                <div class="widgetTitle">
-                    {{widget.title}}
-                </div>
-                <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
-                <div class="widgetContent" id="{{widget.id}}">
-                    <my-widget [contract]="widgets">loading...</my-widget>
-                </div>
+﻿<div class="row">
+    <div class="{{widget.css}}" *ngFor="let widget of widgets">
+        <div class="widgetWrapper">
+            <div class="widgetTitle">
+                {{widget.title}}
+            </div>
+            <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+            <div class="widgetContent" id="{{widget.id}}">
+                <my-widget [contract]="widget">loading...</my-widget>
             </div>
         </div>
     </div>
-</div>-->
+</div>

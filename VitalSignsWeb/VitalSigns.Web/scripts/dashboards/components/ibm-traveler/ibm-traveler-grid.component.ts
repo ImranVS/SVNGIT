@@ -40,7 +40,7 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
         this.service.get('/dashboard/mobile_user_devices')
             .subscribe(
             (data) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data));
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = 50;
             },
             (error) => this.errorMessage = <any>error

@@ -42,7 +42,7 @@ export class ServiceClusterHealthTab extends WidgetController implements OnInit 
                 name: 'ChartComponent',
                 css: 'col-xs-12',
                 settings: {
-                    url: '/services/statistics?statName=Replica.Cluster.SecondsOnQueue&deviceid=' + this.deviceId + '&operation=hourly',
+                    url: `/services/statistics?statName=Replica.Cluster.SecondsOnQueue&deviceid=${this.deviceId}&operation=hourly`,
                     chart: {
                         chart: {
                             renderTo: 'domcluster',
@@ -70,7 +70,7 @@ export class ServiceClusterHealthTab extends WidgetController implements OnInit 
                         series: []
                     }
                 }
-            },
+            }
         ]
         injectSVG();
         bootstrapNavigator();

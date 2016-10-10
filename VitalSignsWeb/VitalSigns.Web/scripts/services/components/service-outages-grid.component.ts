@@ -67,13 +67,4 @@ export class ServiceOutagesGrid implements OnInit {
         }
 
     }
-
-    refreshChart(event: wijmo.grid.CellRangeEventArgs) {
-
-        console.log(event.panel.grid.selectedItems);
-
-        this.widgetService.refreshWidget('responseTimes')
-            .catch(error => console.log(error));
-
-    }
 }

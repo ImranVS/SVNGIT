@@ -91,6 +91,17 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                             enabled: false
                         },
                         plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                    style: {
+                                        color: 'black'
+                                    }
+                                }
+                            },
                             series: {
                                 stacking: 'normal'
                             }
@@ -102,7 +113,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                             useHTML: true
                         },
                         series: [],
-                        colors: ['#5FBE7F','#EF3A24']
+                        colors: ['#5FBE7F', '#EF3A24']
                     }
                 }
             },

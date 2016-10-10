@@ -29,11 +29,9 @@ export class ServiceDetails implements OnInit {
     constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private route: ActivatedRoute) { }
     
     selectTab(tab: any) {
-    
         // Activate selected tab
         this.service.tabs.forEach(tab => tab.active = false);
         tab.active = true;    
-
         // Dispose current tab if one already active
         if (this.activeTabComponent)
             this.activeTabComponent.destroy();

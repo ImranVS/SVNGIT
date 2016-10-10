@@ -99,10 +99,8 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 }
             }
         ];
-    
         injectSVG();
     }
-
     onPropertyChanged(key: string, value: any) {
 
         if (key === 'serviceId') {

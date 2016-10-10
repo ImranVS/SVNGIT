@@ -45,7 +45,7 @@ export class ServiceDatabaseGrid implements OnInit {
             this.deviceId = params['service'];
 
         });
-        this.service.get('/DashBoard/' + this.deviceId + '/database')
+        this.service.get(`/dashboard/database?device_id=${this.deviceId}&is_alpha=true`)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));

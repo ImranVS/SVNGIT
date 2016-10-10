@@ -4,12 +4,13 @@ import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
+import {IBMConnectionsGrid} from './ibm-connections-grid.component';
+
 declare var injectSVG: any;
 
 @Component({
     selector: 'tab-communities',
-    templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component.html',
-    providers: [WidgetService]
+    templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component.html'
 })
 export class IBMConnectionsCommunitiesTab extends WidgetController implements OnInit, ServiceTab {
 
@@ -21,7 +22,9 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
     }
     
     ngOnInit() {
-    
+
+        this.serviceId = this.widgetService.getProperty('serviceId');
+
         this.widgets = [
             {
                 id: 'communitiesByType',
@@ -29,7 +32,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=57ace43fbf46711cd4681dcf`,
+                    url: `/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=${this.serviceId}`,
                     chart: {
                         chart: {
                             renderTo: 'communitiesByType',

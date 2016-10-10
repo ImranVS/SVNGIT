@@ -20,21 +20,21 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
             id: 'mobileUsersGrid',
             title: 'Mobile users',
             name: 'MobileUsersGrid',
-            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-8',
+            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
             settings: {}
         },
         {
             id: 'mobileDevicesChart',
             title: 'Mobile devices',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
             settings: {
                 url: '/DashBoard/mobile_user_devices/count_by_type',
                 chart: {
                     chart: {
                         renderTo: 'mobileDevicesChart',
                         type: 'pie',
-                        height: 300
+                        height: 240
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
@@ -66,14 +66,14 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
             id: 'mobileDevicesOSChart',
             title: 'Mobile devices OS for all Servers',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
             settings: {
                 url: '/DashBoard/mobile_user_devices/count_by_os',
                 chart: {
                     chart: {
                         renderTo: 'mobileDevicesOSChart',
                         type: 'pie',
-                        height: 300
+                        height: 240
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
@@ -112,12 +112,15 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
                     chart: {
                         renderTo: 'syncTimeChart',
                         type: 'pie',
-                        height: 300
+                        height: 240
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
                     credits: {
                         enabled: false
+                    },
+                    xAxis: {
+                        categories: []
                     },
                     exporting: {
                         enabled: false
@@ -159,12 +162,15 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
                     chart: {
                         renderTo: 'deviceCountUserChart',
                         type: 'pie',
-                        height: 300
+                        height: 240
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
                     credits: {
                         enabled: false
+                    },
+                    xAxis: {
+                        categories: []
                     },
                     exporting: {
                         enabled: false

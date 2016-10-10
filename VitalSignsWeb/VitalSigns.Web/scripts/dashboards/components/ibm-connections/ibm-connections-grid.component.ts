@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
@@ -20,13 +20,26 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 export class IBMConnectionsGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
 
+    @Output() select: EventEmitter<string> = new EventEmitter<string>();
+
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-    _serviceId: string;
-
+    
     get serviceId(): string {
-        return this._serviceId;
+
+        return this.widgetService.getProperty('serviceId');
+
     }
+
+    set serviceId(id: string) {
+
+        this.widgetService.setProperty('serviceId', id);
+
+        this.select.emit(this.widgetService.getProperty('serviceId'));
+
+    }
+
+
     constructor(private service: RESTService, private widgetService: WidgetService) { }
 
     get pageSize(): number {
@@ -41,39 +54,23 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-
-    }
-
-    ngAfterViewInit() {
-
         this.service.get('/services/status_list?type=IBM%20Connections')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = 10;
                 this.data.moveCurrentToPosition(0);
-                this._serviceId = this.data.currentItem.device_id;
-                console.log('service id: ' + this._serviceId);
+                this.serviceId = this.data.currentItem.device_id;
             },
             (error) => this.errorMessage = <any>error
             );
 
     }
 
-    getAccessColor(access: string) {
+    onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {
 
-        switch (access) {
-            case 'Allow':
-                return 'green';
-            case 'Blocked':
-                return 'red';
-            default:
-                return '';
-        }
+        this.serviceId = event.panel.grid.selectedItems[0].device_id;
 
-    }
-    gridLoaded(event: wijmo.grid.CellRangeEventArgs) {
-        console.log('loaded');
     }
     refreshChart(event: wijmo.grid.CellRangeEventArgs) {
 

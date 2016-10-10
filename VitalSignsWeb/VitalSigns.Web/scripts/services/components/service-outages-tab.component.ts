@@ -30,7 +30,7 @@ export class ServiceOutagesTab extends WidgetController implements OnInit {
         this.widgets = [
             {
                 id: 'ServiceOutagesGrid',
-                title: '',
+                title: 'Outages',
                 name: 'ServiceOutagesGrid',
                 css: 'col-xs-12',
             }

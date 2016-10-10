@@ -48,6 +48,11 @@ export class IBMSametimeDetails implements OnInit {
     
     ngOnInit() {
 
+        
+        
+    }
+
+    ngAfterViewInit() {
         this.route.params.subscribe(params => {
 
             this.serviceId = '1';
@@ -58,12 +63,12 @@ export class IBMSametimeDetails implements OnInit {
                 data => {
                     this.service = data.data;
                     this.selectTab(this.service.tabs[0]);
+                    console.log(this.service.tabs[0]);
                 },
                 error => this.errorMessage = <any>error
                 );
 
         });
-        
     }
 
     getStatusDescription(status: string) {
