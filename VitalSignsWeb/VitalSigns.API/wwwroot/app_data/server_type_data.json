@@ -251,8 +251,8 @@
           {
             "tab_id": 3,
             "title": "Profiles",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component",
+            "component": "IBMConnectionsProfilesTab",
+            "path": "/app/dashboards/components/ibm-connections/ibm-connections-profiles-tab.component",
             "type": "Dashboard"
           },
           {
