@@ -8,6 +8,8 @@ import { IBMSametimeDashboard } from './dashboards/components/ibm-sametime/ibm-s
 import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 
+import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component'; 
+
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
 import { MSSharePointDashboard } from './dashboards/components/ms-sharepoint/ms-sharepoint-dashboard.component';
@@ -44,6 +46,8 @@ export * from './dashboards/components/ibm-connections/ibm-connections-dashboard
 export * from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.component';
 export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
+
+export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
 
 export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
