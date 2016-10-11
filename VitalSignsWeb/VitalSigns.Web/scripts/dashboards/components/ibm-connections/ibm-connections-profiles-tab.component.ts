@@ -9,10 +9,10 @@ import {IBMConnectionsGrid} from './ibm-connections-grid.component';
 declare var injectSVG: any;
 
 @Component({
-    selector: 'tab-communities',
-    templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component.html'
+    selector: 'tab-profiles',
+    templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-profiles-tab.component.html'
 })
-export class IBMConnectionsCommunitiesTab extends WidgetController implements OnInit, ServiceTab {
+export class IBMConnectionsProfilesTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
@@ -27,15 +27,15 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
 
         this.widgets = [
             {
-                id: 'communitiesByType',
-                title: 'Communities by Type',
+                id: 'managersNonManagers',
+                title: 'Managers/Non Managers',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=${this.serviceId}&startDate=2016-10-10&endDate=2016-10-10`,
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_MANAGERS,NUM_OF_PROFILES_PROFILES]&deviceid=${this.serviceId}&startDate=2016-10-10&endDate=2016-10-10`,
                     chart: {
                         chart: {
-                            renderTo: 'communitiesByType',
+                            renderTo: 'managersNonManagers',
                             type: 'pie',
                             height: 240
                         },
@@ -78,69 +78,45 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 }
             },
             {
-                id: 'top5Communities',
-                title: 'Top 5 Most Active Communities',
+                id: 'pictureNoPicture',
+                title: 'Picture/No Picture',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: 'http://private-ad10c-ibm.apiary-mock.com/connections/top_5_communities',
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_NO_PICTURE,NUM_OF_PROFILES_PROFILES]&deviceid=${this.serviceId}&startDate=2016-10-10&endDate=2016-10-10`,
                     chart: {
                         chart: {
-                            renderTo: 'top5Communities',
-                            type: 'bar',
-                            height: 240
-                        },
-                        title: { text: '' },
-                        subtitle: { text: '' },
-                        xAxis: {
-                            labels: {
-                                step: 1
-                            },
-                            categories: []
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        },
-                        plotOptions: {
-                            series: {
-                                stacking: 'normal'
-                            }
-                        },
-                        series: []
-                    }
-                }
-            },
-            {
-                id: 'mostActiveCommunity',
-                title: 'Most Active Community is \"VS Dev\"',
-                name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
-                settings: {
-                    url: '/connections/most_active_community',
-                    chart: {
-                        chart: {
-                            renderTo: 'mostActiveCommunity',
+                            renderTo: 'pictureNoPicture',
                             type: 'pie',
                             height: 240
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
-                            labels: {
-                                step: 1
-                            },
                             categories: []
                         },
-                        legend: {
-                            labelFormatter: function () {
-                                return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                        yAxis: {
+                            min: 0,
+                            endOnTick: false,
+                            allowDecimals: false,
+                            title: {
+                                enabled: false
                             }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
+                            }
+                        },
+                        legend: {
+                            enabled: false
                         },
                         credits: {
                             enabled: false
@@ -148,16 +124,56 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                         exporting: {
                             enabled: false
                         },
+                        series: []
+                    }
+                }
+            },
+            {
+                id: 'jobHierarchyNoJobHierarchy',
+                title: 'Job Hierarchy/No Job Hierarchy',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                settings: {
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_JOB_HIERARCHY,NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY]&deviceid=${this.serviceId}&startDate=2016-10-10&endDate=2016-10-10`,
+                    chart: {
+                        chart: {
+                            renderTo: 'jobHierarchyNoJobHierarchy',
+                            type: 'pie',
+                            height: 240
+                        },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            categories: []
+                        },
+                        yAxis: {
+                            min: 0,
+                            endOnTick: false,
+                            allowDecimals: false,
+                            title: {
+                                enabled: false
+                            }
+                        },
                         plotOptions: {
-                            pie: {
-                                allowPointSelect: true,
-                                cursor: 'pointer',
+                            bar: {
                                 dataLabels: {
                                     enabled: false
                                 },
-                                showInLegend: true,
-                                innerSize: '70%'
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
                             }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
                         },
                         series: []
                     }

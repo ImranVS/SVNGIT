@@ -5,6 +5,8 @@ export * from './components/service-overall-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-overview-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-communities-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-profiles-tab.component';
+export * from '../dashboards/components/ibm-connections/ibm-connections-activities-tab.component';
+export * from '../dashboards/components/ibm-connections/ibm-connections-blogs-tab.component';
 
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component';
