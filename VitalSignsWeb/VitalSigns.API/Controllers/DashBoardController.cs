@@ -11,6 +11,7 @@ using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using System.Globalization;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,7 +30,9 @@ namespace VitalSigns.API.Controllers
         private IRepository<Database> databaseRepository;
         private IRepository<Outages> outagesRepository;
        private IRepository<TravelerStatusSummary> travelerStatsRepository;
- 
+        private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
+        private IRepository<DailyStatistics> dailyStatisticsRepository;
+        private IRepository<SummaryStatistics> summaryStatisticsRepository;
 
 
         /// <summary>
@@ -823,7 +826,69 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+		[HttpGet("connections/top_tags")]
+        public APIResponse ConnectionsTopTags(string type, string count = "5")
+        {
+            try
+            {
+
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+
+                var result = connectionsObjectsRepository.Collection.Aggregate()
+                                               .Match(x => x.Type == type)
+                                               .Unwind(x => x.tags)
+                                               .Group(new BsonDocument
+                                               {
+                                                   {
+                                                       "_id", "$tags"
+                                                   },
+                                                   {
+                                                       "count", new BsonDocument("$sum", 1 )
+                                                   }
+                                               })
+                                               .Sort(new BsonDocument("count", -1))
+                                               .Limit(Convert.ToInt32(count))
+                                               .ToList();
+
+
+
+                List<Segment> segmentList = new List<Segment>();
+
+                foreach (var doc in result)
+                {
+                    Segment segment = new Segment()
+                    {
+                        Label = doc["_id"].AsString,
+                        Value = doc["count"].AsInt32
+                    };
+                    segmentList.Add(segment);
+                }
+
+                Serie serie = new Serie();
+                serie.Title = "total";
+                serie.Segments = segmentList;
+
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+
+                Chart chart = new Chart();
+
+                chart.Title = "Top 5 tags";
+                chart.Series = series;
+
+                Response = Common.CreateResponse(chart);
+
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
     }
 }
-
-        
