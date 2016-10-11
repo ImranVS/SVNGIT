@@ -258,15 +258,15 @@
           {
             "tab_id": 4,
             "title": "Activities",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component",
+            "component": "IBMConnectionsActivitiesTab",
+            "path": "/app/dashboards/components/ibm-connections/ibm-connections-activities-tab.component",
             "type": "Dashboard"
           },
           {
             "tab_id": 5,
             "title": "Blogs",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component",
+            "component": "IBMConnectionsBlogsTab",
+            "path": "/app/dashboards/components/ibm-connections/ibm-connections-blogs-tab.component",
             "type": "Dashboard"
           },
           {
