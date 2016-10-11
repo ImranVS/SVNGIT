@@ -462,7 +462,7 @@ namespace VitalSigns.API.Controllers
             {
                 FilterDefinition<SummaryStatistics> filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
                     summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
-                               
+
                 if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
 
@@ -579,7 +579,7 @@ namespace VitalSigns.API.Controllers
                             //WS changed to just less then end date due to the end date being the next day to include all of the previous day values.
                             for (DateTime date = dtStart.Date; date.Date < dtEnd.Date; date = date.AddDays(1))
                             {
-                                var item = result.Where(x => x.Date == date).FirstOrDefault();
+                                var item = result.Where(x => x.Date == date && x.StatName == name.ToString()).FirstOrDefault();
                                 var output = result.Where(x => x.Date == date && x.StatName == name.ToString()).ToList();
 
                                 string statdate = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
