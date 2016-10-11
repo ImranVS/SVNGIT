@@ -827,8 +827,8 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-		[HttpGet("connections/top_tags")]
-        public APIResponse ConnectionsTopTags(string type, string count = "5")
+        [HttpGet("connections/top_tags")]
+        public APIResponse ConnectionsTopTags(string type, string deviceid, string count = "5")
         {
             try
             {
@@ -836,7 +836,7 @@ namespace VitalSigns.API.Controllers
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
 
                 var result = connectionsObjectsRepository.Collection.Aggregate()
-                                               .Match(x => x.Type == type)
+                                               .Match(x => x.Type == type && x.DeviceId == deviceid)
                                                .Unwind(x => x.tags)
                                                .Group(new BsonDocument
                                                {
