@@ -143,7 +143,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public double? SoftwareVersion { get; set; }
 
-
+        [DataMember]
+        [BsonElement("maintenance_windows")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> MaintenanceWindows { get; set; }
 
         #region Domino
 
