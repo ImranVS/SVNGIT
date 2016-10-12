@@ -443,7 +443,7 @@ namespace VitalSigns.API.Controllers
         /// <param name="id"></param>
         /// <returns> summary stats data </returns>
         [HttpGet("summarystats")]
-        public APIResponse GetSummaryStat(string deviceId, string statName, string startDate = "", string endDate = "")
+        public APIResponse GetSummaryStat(string deviceId, string statName, string startDate = "", string endDate = "", string isChart = "")
         {
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
@@ -451,6 +451,9 @@ namespace VitalSigns.API.Controllers
                 
             if (endDate == "")
                 endDate = DateTime.Today.ToString(DateFormat);
+
+            if (isChart == "")
+                isChart = "True";
 
             //1 day is added to the end so we include that days data
             DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
@@ -460,16 +463,25 @@ namespace VitalSigns.API.Controllers
             var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
             try
             {
+                FilterDefinition<SummaryStatistics> filterDefTemp;
                 FilterDefinition<SummaryStatistics> filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
                     summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
 
-                if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
+                if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName) || !string.IsNullOrEmpty(deviceId) && Convert.ToBoolean(isChart) == false)
                 {
-
-                    FilterDefinition<SummaryStatistics> filterDefTemp = filterDef & 
+                    if (string.IsNullOrEmpty(deviceId))
+                    {
+                        filterDefTemp = filterDef &
                         summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*"))));
+                    }
+                    else
+                    {
+                        filterDefTemp = filterDef &
+                        summaryRepository.Filter.And(summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*")))),
+                                                     summaryRepository.Filter.Eq(p => p.DeviceId, deviceId));
 
-
+                    }
+                    
                     var result = summaryRepository.Find(filterDefTemp).Select(x => new StatsData
                     {
                         //DeviceId = x.DeviceId,
@@ -502,7 +514,7 @@ namespace VitalSigns.API.Controllers
                         summaryRepository.Filter.Eq(p => p.DeviceId, deviceId);
 
 
-                    FilterDefinition<SummaryStatistics> filterDefTemp = filterDef &
+                    filterDefTemp = filterDef &
                         summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*"))));
 
 
