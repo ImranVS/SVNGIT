@@ -15,27 +15,37 @@ using MongoDB.Bson;
 
 namespace VitalSigns.API.Controllers
 {
+    [Route("[controller]")]
     public class SecurityController : BaseController
     {
         private IRepository<MaintainUser> maintainUsersRepository;
+
         [HttpGet("maintain_users")]
         public APIResponse GetAllMaintainUsers()
         {
-            maintainUsersRepository = new Repository<MaintainUser>(ConnectionString);
-            var result = maintainUsersRepository.All().Select(x => new MaintainUsersModel
+            try
             {
+                maintainUsersRepository = new Repository<MaintainUser>(ConnectionString);
+                var result = maintainUsersRepository.All().Select(x => new MaintainUsersModel
+                {
 
-                Id = x.Id,
-                LoginName = x.LoginName,
-                FullName = x.FullName,
-                Email = x.Email,
-                Status = x.Status,
-                SuperAdmin = x.SuperAdmin,
-                ConfiguratorAccess = x.ConfiguratorAccess,
-                ConsoleCommandAccess = x.ConsoleCommandAccess
+                    Id = x.Id,
+                    LoginName = x.LoginName,
+                    FullName = x.FullName,
+                    Email = x.Email,
+                    Status = x.Status,
+                    SuperAdmin = x.SuperAdmin,
+                    ConfiguratorAccess = x.ConfiguratorAccess,
+                    ConsoleCommandAccess = x.ConsoleCommandAccess
 
-            }).ToList();
-            Response = Common.CreateResponse(result);
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
             return Response;
         }
 
@@ -77,7 +87,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpDelete("delete_maintain_users/{id}")]
-        public void DeleteBusinessHours(string id)
+        public void DeleteMaintainUsers(string id)
         {
             maintainUsersRepository = new Repository<MaintainUser>(ConnectionString);
             Expression<Func<MaintainUser, bool>> expression = (p => p.Id == id);
