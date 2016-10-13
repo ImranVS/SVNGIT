@@ -11,6 +11,7 @@ using MongoDB.Driver;
 using System.Linq.Expressions;
 using System.Globalization;
 using MongoDB.Bson;
+using System.Dynamic;
 
 namespace VitalSigns.API.Controllers
 {
@@ -459,6 +460,9 @@ namespace VitalSigns.API.Controllers
             DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
             DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
 
+            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+            dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
             var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
             try
@@ -697,63 +701,47 @@ namespace VitalSigns.API.Controllers
             {
                 if (string.IsNullOrEmpty(type))
                 {
-                    var result = statusRepository.Collection.AsQueryable()
-                                     .Select(x => new ServerStatus
-                                     {
+                    var list = statusRepository.Collection.AsQueryable().OrderBy(x => x.DeviceName).ToList();
 
-                                         DeviceId = x.DeviceId,
-                                         Name = x.DeviceName,
-                                         Status = x.StatusCode,
-                                         Country = x.Location,
-                                         Details = x.Details,
-                                         UserCount = x.UserCount,
-                                         CPU = x.CPU,
-                                         Type = x.DeviceType
-                                         // LastUpdated = x.LastUpdated,
-                                         // Description = x.Description,
+                    List<dynamic> result = new List<dynamic>();
 
-
-                                     });
+                    foreach (Status status in list)
+                    {
+                        var x = new ExpandoObject() as IDictionary<string, Object>;
+                        foreach (var field in status.ToBsonDocument())
+                        {
+                            x.Add(field.Name, field.Value.IsString ? field.Value.AsString :
+                                    (field.Value.IsInt32 ? Convert.ToString(field.Value.AsInt32) :
+                                    (field.Value.IsDouble ? Convert.ToString(field.Value.AsDouble) :
+                                    (field.Value.IsBoolean ? Convert.ToString(field.Value.AsBoolean) : ""))));
+                        }
+                        result.Add(x);
+                    }
                     Response = Common.CreateResponse(result);
-
                 }
                 else if (!string.IsNullOrEmpty(type))
                 {
 
                     Expression<Func<Status, bool>> expression = (p => p.DeviceType == type);
-                    var result = statusRepository.Find(expression).AsQueryable()
-                                                                    .Select(x => new ServerStatus
-                                                                    {
+                    var list = statusRepository.Find(expression).AsQueryable().OrderBy(x => x.DeviceName).ToList();
 
-                                                                        // Id = x.Id,
-                                                                        DeviceId = x.DeviceId,
-                                                                        Name = x.DeviceName,
-                                                                        Status = x.StatusCode,
-                                                                        Country = x.Location,
-                                                                        Details = x.Details,
-                                                                        UserCount = x.UserCount,
-                                                                        CPU = x.CPU,
-                                                                        Type = x.DeviceType
-                                                                        // LastUpdated = x.LastUpdated,
-                                                                        // Description = x.Description,
+                    List<dynamic> result = new List<dynamic>();
 
-
-                                                                    });
-
+                    foreach (Status status in list)
+                    {
+                        var x = new ExpandoObject() as IDictionary<string, Object>;
+                        foreach (var field in status.ToBsonDocument())
+                        {
+                            x.Add(field.Name, field.Value.IsString ? field.Value.AsString :
+                                    (field.Value.IsInt32 ? Convert.ToString(field.Value.AsInt32) :
+                                    (field.Value.IsDouble ? Convert.ToString(field.Value.AsDouble) :
+                                    (field.Value.IsBoolean ? Convert.ToString(field.Value.AsBoolean) : ""))));
+                        }
+                        result.Add(x);
+                    }
                     Response = Common.CreateResponse(result);
-
-
-
-
-
-
-
-                    // Response = Common.CreateResponse(chart);
-                    //Response = Common.CreateResponse(result);
-
                 }
                 return Response;
-
             }
             catch (Exception exception)
             {
