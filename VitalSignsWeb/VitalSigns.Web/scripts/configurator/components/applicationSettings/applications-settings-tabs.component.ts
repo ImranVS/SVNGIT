@@ -58,8 +58,8 @@ export class ApplicationSettings implements OnInit {
             },
             {
                 "title": "Maintainance",
-                "component": "NotYetImplemented",
-                "path": "/app/configurator/components/applicationSettings/applications-settings-tabs.component",
+                "component": "Maintenance",
+                "path": "/app/configurator/components/applicationSettings/configurator-maintenance.component",
                 "active": "false"
             },
             {

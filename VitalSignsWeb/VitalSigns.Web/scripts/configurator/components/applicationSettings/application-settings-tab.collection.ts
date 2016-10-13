@@ -5,6 +5,7 @@ export * from './configurator-servercredentials.component';
 export * from './configurator-ibm-domino-settings.component';
 export * from './configurator-locations.component';
 export * from './configurator-maintainusers.component';
+export * from './configurator-maintenance.component';
 
 
 
