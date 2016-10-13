@@ -64,14 +64,14 @@ export class ApplicationSettings implements OnInit {
             },
             {
                 "title": "Locations",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "Location",
+                "path": "/app/configurator/components/applicationSettings/configurator-locations.component",
                 "active": "false"
             },
             {
                 "title": "Users",
                 "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "path": "/app/configurator/components/applicationSettings/configurator-maintainusers.component",
                 "active": "false"
             },
             {

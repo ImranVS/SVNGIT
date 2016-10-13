@@ -3,7 +3,7 @@ import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
-import {RESTService} from '../../core/services';
+import {RESTService} from '../../../core/services';
 
 @Component({
     selector: 'ibmDominoSettings-form',
