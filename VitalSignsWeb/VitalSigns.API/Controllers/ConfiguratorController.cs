@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
 using VitalSigns.API.Models;
+using VitalSigns.API.Models.Configurator;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using VitalSigns.API.Models.Charts;
@@ -21,12 +22,111 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<BusinessHours> businessHoursRepository;
         private IRepository<Credentials> credentialsRepository;
+        private IRepository<Location> locationRepository;
+
+        private IRepository<ValidLocation> validLocationsRepository;
 
         private IRepository<Maintenance> maintenanceRepository;
 
         private IRepository<NameValue> nameValueRepository;
 
+
+
+        [HttpGet("get_locations")]
+        public APIResponse GetLocationsDropDownData(string country,string state)
+        {
+
+            try
+            {
+                validLocationsRepository = new Repository<ValidLocation>(ConnectionString);
+                var countryData = validLocationsRepository.All().Where(x => x.Country != null).Select(x => x.Country).Distinct().OrderBy(x => x).ToList();
+                Response = Common.CreateResponse(new { countryData = countryData });
+                if (!string.IsNullOrEmpty(country))
+                {
+                    var stateData = validLocationsRepository.All().Where(x => x.States != null && x.Country == country).Select(x => x.States).Distinct().OrderBy(x => x).ToList();
+                    stateData.Insert(0, stateData.FirstOrDefault());
+                    Response = Common.CreateResponse(new { countryData = countryData,stateData=stateData });
+                }
+               
+
+                countryData.Insert(0, "-All-");
+                
+
+
+                
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("locations")]
+        public APIResponse GetAllLocations()
+        {
+            locationRepository = new Repository<Location>(ConnectionString);
+            var result = locationRepository.All().Select(x => new LocationsModel
+            {
+                LocationName = x.LocationName,
+                Country = x.Country,
+                City = x.City,
+                Region = x.Region,
+                Id = x.Id
+
+
+            }).ToList();
+
+
+            Response = Common.CreateResponse(result);
+            return Response;
+
+
+        }
+
+        [HttpPut("save_locations")]
+        public APIResponse UpdateLocation([FromBody]LocationsModel locations)
+        {
+            try
+            {
+                locationRepository = new Repository<Location>(ConnectionString);
+                if (string.IsNullOrEmpty(locations.Id))
+                {
+                    Location location = new Location { LocationName = locations.LocationName, Country = locations.Country, Region = locations.Region, City = locations.City };
+                    locationRepository.Insert(location);
+                    Response = Common.CreateResponse(true, "OK", "Location inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Location> filterDefination = Builders<Location>.Filter.Where(p => p.Id == locations.Id);
+                    var updateDefination = locationRepository.Updater.Set(p => p.LocationName, locations.LocationName)
+                                                             .Set(p => p.City, locations.City)
+                                                             .Set(p => p.Country, locations.Country)
+                                                             .Set(p => p.Region, locations.Region);
+                    var result = locationRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Location updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save locations falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+        [HttpDelete("{id}/delete_location")]
+        public void DeleteLocation(string id)
+        {
+            locationRepository = new Repository<Location>(ConnectionString);
+            Expression<Func<Location, bool>> expression = (p => p.Id == id);
+            locationRepository.Delete(expression);
+        }
+
         private IRepository<MaintainUser> maintainUsersRepository;
+
 
         [HttpGet("business_hours")]
         public APIResponse GetAllBusinessHours()
