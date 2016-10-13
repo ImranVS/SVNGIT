@@ -232,7 +232,7 @@ Partial Public Class VitalSignsPlusDomino
 
                         Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
                         Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
-                        Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias.ToString()
+                        Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).LocationName.ToString()
 
                         .Location = locationAlias
                         WriteAuditEntry(Now.ToString & " The location for this Notes database is " & .Location)
@@ -1278,7 +1278,7 @@ Partial Public Class VitalSignsPlusDomino
 
                             Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
                             Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
-                            .Location = repositoryLocation.Find(filterDefLocation).ToList()(0).Alias
+                            .Location = repositoryLocation.Find(filterDefLocation).ToList()(0).LocationName
 
                         End If
                     Catch ex As Exception
