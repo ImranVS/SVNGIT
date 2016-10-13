@@ -6,7 +6,7 @@ import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../core/services';
 
 @Component({
-    selector: 'profiles-form',
+    selector: 'ibmDominoSettings-form',
     templateUrl: '/app/profiles/components/configurator-ibm-domino-settings.component.html',
     providers: [
         HttpModule,
@@ -42,19 +42,15 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
 
             this.profileEmail = params['email'];
 
-            if (!this.profileEmail) {
-                this.insertMode = true;
-                this.formTitle = "Create profile";
-            }
-            else {
-                this.formTitle = "Edit profile";
-                this.dataProvider.get(`http://localhost:1234/profiles/${this.profileEmail}`)
+           
+                this.formTitle = "IBM Domino Settings";
+                this.dataProvider.get('/services/get_ibm_domino_settings')
                     .subscribe(
                     (data) => this.ibmDominoSettingsForm.setValue(data),
                     (error) => this.errorMessage = <any>error
                     );
-            }
 
+               
         });
 
     }
