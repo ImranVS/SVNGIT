@@ -1,7 +1,7 @@
 ﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" (selectionChanged)="onSelectionChanged($event)">
     <wj-flex-grid-filter></wj-flex-grid-filter>
-    <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div [ngSwitch]="cell.item.status">
