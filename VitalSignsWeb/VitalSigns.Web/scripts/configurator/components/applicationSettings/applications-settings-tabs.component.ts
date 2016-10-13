@@ -81,7 +81,7 @@ export class ApplicationSettings implements OnInit {
                 "active": "false"
             },
             {
-                "title": "IBM Damino Settings",
+                "title": "IBM Domino Settings",
                 "component": "IbmDominoSettingsForm",
                 "path": "/app/configurator/components/applicationSettings/configurator-ibm-domino-settings.component",
                 "active": "false"
