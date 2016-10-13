@@ -12,18 +12,24 @@ declare var injectSVG: any;
     selector: 'tab-communities',
     templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component.html'
 })
+
 export class IBMConnectionsCommunitiesTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
+    today: Date;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
+
+    
     
     ngOnInit() {
 
         this.serviceId = this.widgetService.getProperty('serviceId');
+
+        var displayDate = (new Date()).toISOString().slice(0, 10);
 
         this.widgets = [
             {
@@ -32,7 +38,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=${this.serviceId}&startDate=2016-10-10&endDate=2016-10-10`,
+                    url: `/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
                     chart: {
                         chart: {
                             renderTo: 'communitiesByType',

@@ -19,9 +19,9 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
     widgets: WidgetContract[] = [
         {
             id: 'websphereGrid',
-            title: 'Websphere Info',
+            title: 'Cells',
             name: 'IBMWebsphereGrid',
-            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
+            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-6',
             settings: {
 
             }
@@ -30,7 +30,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
             id: 'serverStatus',
             title: 'Status',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
             settings: {
                 url: '/services/status_count?type=WebSphere&docfield=status_code',
                 chart: {
@@ -63,6 +63,102 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
                     },
                     series: []
                 }
+            }
+        },
+        {
+            id: 'activeThreads',
+            title: 'Active Thread Count',
+            name: 'ChartComponent',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
+            settings: {
+                url: '/services/status_count?type=WebSphere&docfield=status_code',
+                chart: {
+                    chart: {
+                        renderTo: 'activeThreads',
+                        type: 'pie',
+                        height: 240
+                    },
+                    title: { text: '' },
+                    subtitle: { text: '' },
+                    xAxis: {
+                        categories: []
+                    },
+                    yAxis: {
+
+                    },
+                    plotOptions: {
+                        series: {
+                            pointPadding: 0
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: []
+                }
+            }
+        },
+        {
+            id: 'hungThreads',
+            title: 'Hung Thread Count',
+            name: 'ChartComponent',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
+            settings: {
+                url: '/services/status_count?type=WebSphere&docfield=status_code',
+                chart: {
+                    chart: {
+                        renderTo: 'hungThreads',
+                        type: 'pie',
+                        height: 240
+                    },
+                    title: { text: '' },
+                    subtitle: { text: '' },
+                    xAxis: {
+                        categories: []
+                    },
+                    yAxis: {
+
+                    },
+                    plotOptions: {
+                        series: {
+                            pointPadding: 0
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: []
+                }
+            }
+        },
+        {
+            id: 'websphereServerGrid',
+            title: 'Servers',
+            name: 'IBMWebsphereServerGrid',
+            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-7',
+            settings: {
+
+            }
+        },
+        {
+            id: 'websphereNodeGrid',
+            title: 'Nodes',
+            name: 'IBMWebsphereNodeGrid',
+            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-5',
+            settings: {
+
             }
         }
     ]

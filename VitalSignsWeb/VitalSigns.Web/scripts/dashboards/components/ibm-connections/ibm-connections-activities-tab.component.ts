@@ -6,6 +6,8 @@ import {ServiceTab} from '../../../services/models/service-tab.interface';
 
 import {IBMConnectionsGrid} from './ibm-connections-grid.component';
 
+import {IBMConnectionsActivitiesGrid} from './ibm-connections-activities-grid.component';
+
 declare var injectSVG: any;
 
 @Component({
@@ -30,7 +32,7 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
                 id: 'activities',
                 title: 'Activities',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
                     url: `/services/summarystats?statName=[NUM_OF_ACTIVITIES_ACTIVITIES_CREATED_YESTERDAY,NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY,ACTIVITY_LOGINS_LAST_DAY]&deviceid=${this.serviceId}`,
                     chart: {
@@ -76,6 +78,47 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
                         series: []
                     }
                 }
+            },
+            {
+                id: 'top5CommunitiesActivities',
+                title: 'Top 5 Communities for Activities',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                settings: {
+                    url: `/dashboard/connections/top_tags?deviceid=${this.serviceId}&type=Bookmark&count=5`,
+                    chart: {
+                        chart: {
+                            renderTo: 'top5CommunitiesActivities',
+                            type: 'bar',
+                            height: 240
+                        },
+                        colors: ['#5fbe7f'],
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: {
+                                step: 1
+                            },
+                            categories: []
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+            {
+                id: 'activitiesGrid',
+                title: '',
+                name: 'IBMConnectionsActivitiesGrid',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
             }
         ];
     

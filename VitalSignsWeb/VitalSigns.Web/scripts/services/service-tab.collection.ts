@@ -7,6 +7,10 @@ export * from '../dashboards/components/ibm-connections/ibm-connections-communit
 export * from '../dashboards/components/ibm-connections/ibm-connections-profiles-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-activities-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-blogs-tab.component';
+export * from '../dashboards/components/ibm-connections/ibm-connections-bookmarks-tab.component';
+export * from '../dashboards/components/ibm-connections/ibm-connections-files-tab.component';
+export * from '../dashboards/components/ibm-connections/ibm-connections-forums-tab.component';
+export * from '../dashboards/components/ibm-connections/ibm-connections-wikis-tab.component';
 
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component';

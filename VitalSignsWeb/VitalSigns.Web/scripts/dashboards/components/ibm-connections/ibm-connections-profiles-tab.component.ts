@@ -25,6 +25,8 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
 
         this.serviceId = this.widgetService.getProperty('serviceId');
 
+        var displayDate = (new Date()).toISOString().slice(0, 10);
+
         this.widgets = [
             {
                 id: 'managersNonManagers',
@@ -32,7 +34,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_MANAGERS,NUM_OF_PROFILES_PROFILES]&deviceid=${this.serviceId}&startDate=2016-10-10&endDate=2016-10-10`,
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_MANAGERS,NUM_OF_PROFILES_PROFILES]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
                     chart: {
                         chart: {
                             renderTo: 'managersNonManagers',
@@ -83,7 +85,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_NO_PICTURE,NUM_OF_PROFILES_PROFILES]&deviceid=${this.serviceId}&startDate=2016-10-10&endDate=2016-10-10`,
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_NO_PICTURE,NUM_OF_PROFILES_PROFILES]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
                     chart: {
                         chart: {
                             renderTo: 'pictureNoPicture',
@@ -134,7 +136,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_JOB_HIERARCHY,NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY]&deviceid=${this.serviceId}&startDate=2016-10-10&endDate=2016-10-10`,
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_JOB_HIERARCHY,NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
                     chart: {
                         chart: {
                             renderTo: 'jobHierarchyNoJobHierarchy',

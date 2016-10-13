@@ -5,7 +5,7 @@ import { OverallDashboard } from './dashboards/components/overall-dashboard.comp
 import { IBMDominoDashboard } from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
 import { IBMConnectionsDashboard } from './dashboards/components/ibm-connections/ibm-connections-dashboard.component';
 import { IBMSametimeDashboard } from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.component';
-import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
+import { MobileUsersDashboard } from './dashboards/components/mobile-users/mobile-users-dashboard.component';
 import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 
 import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component'; 
@@ -42,7 +42,7 @@ export * from './dashboards/components/overall-dashboard.component';
 export * from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
 export * from './dashboards/components/ibm-connections/ibm-connections-dashboard.component';
 export * from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.component';
-export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
+export * from './dashboards/components/mobile-users/mobile-users-dashboard.component';
 export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
@@ -95,8 +95,8 @@ const appRoutes: Routes = [
         component: IBMSametimeDashboard
     },
     {
-        path: 'dashboard/ibm/traveler',
-        component: IBMTravelerDashboard
+        path: 'dashboard/mobileusers',
+        component: MobileUsersDashboard
     },
     {
         path: 'dashboard/ibm/websphere',

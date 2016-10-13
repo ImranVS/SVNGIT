@@ -3,20 +3,25 @@
 <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
 <wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
-    <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div [ngSwitch]="cell.item.status">
                 <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Telnet'" class="label label-pill label-success">{{cell.item.status}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.status}}</span>
                 <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.status}}</span>
                 <span *ngSwitchCase="'Maintenance'" class="label label-pill label-info">{{cell.item.status}}</span>
-                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Not Scanned'" class="label label-pill label-info">{{cell.item.status}}</span>
+                <span *ngSwitchDefault class="label label-pill label-warning">{{cell.item.status}}</span>
             </div>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Details'" [binding]="'details'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'OS'" [binding]="'operating_system'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Secondary Role'" [binding]="'secondary_role'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="300"></wj-flex-grid-column>
+
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"

@@ -10,13 +10,13 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 
 @Component({
-    templateUrl: './app/dashboards/components/ibm-websphere/ibm-websphere-grid.component.html',
+    templateUrl: './app/dashboards/components/mobile-users/mobile-users-key-user-grid.component.html',
     providers: [
         HttpModule,
         RESTService
     ]
 })
-export class IBMWebsphereGrid implements WidgetComponent, OnInit {
+export class MobileUsersKeyUserGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     data: wijmo.collections.CollectionView;
@@ -37,7 +37,7 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
 
     ngOnInit() {
 
-        this.service.get('/services/status_list?type=WebSphere')
+        this.service.get('/dashboard/mobile_user_devices')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
@@ -60,17 +60,4 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
         }
 
     }
-    
-    collapse(flex) {
-        flex.collapseGroupsToLevel(0);
-    }
-
-    expand(flex) {
-        var rows = flex.rows;
-        for (var rowIdx = 0; rowIdx < rows.length; rowIdx++) {
-            var rootRow = rows[rowIdx];
-            if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
-        }
-    }
-    
 }

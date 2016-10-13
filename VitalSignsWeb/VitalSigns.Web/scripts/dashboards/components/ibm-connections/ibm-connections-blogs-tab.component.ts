@@ -32,7 +32,7 @@ export class IBMConnectionsBlogsTab extends WidgetController implements OnInit, 
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/summarystats?statName=[NUM_OF_BLOGS_BLOGS_CREATED_YESTERDAY,NUM_OF_BLOGS_COMMENTS_CREATED_YESTERDAY,NUM_OF_BLOGS_ENTRIES_CREATED_YESTERDAY,NUM_OF_BLOGS_NOTIFICATIONS_CREATED_YESTERDAY]&deviceid=${this.serviceId}`,
+                    url: `/services/summarystats?statName=NUM_OF_BLOGS_*_CREATED_YESTERDAY&deviceid=${this.serviceId}`,
                     chart: {
                         chart: {
                             renderTo: 'blogs',
@@ -63,6 +63,41 @@ export class IBMConnectionsBlogsTab extends WidgetController implements OnInit, 
                             series: {
                                 pointPadding: 0
                             }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+            {
+                id: 'top5CommunitiesBlogs',
+                title: 'Top 5 Communities for Blogs',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                settings: {
+                    url: `/dashboard/connections/top_tags?deviceid=${this.serviceId}&type=Bookmark&count=5`,
+                    chart: {
+                        chart: {
+                            renderTo: 'top5CommunitiesBlogs',
+                            type: 'bar',
+                            height: 240
+                        },
+                        colors: ['#5fbe7f'],
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: {
+                                step: 1
+                            },
+                            categories: []
                         },
                         legend: {
                             enabled: false
