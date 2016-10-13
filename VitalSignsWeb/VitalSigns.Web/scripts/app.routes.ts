@@ -22,10 +22,7 @@ import { Office365PasswordSettings } from './dashboards/components/office365/off
 import { CloudServicesDashboard } from './dashboards/components/cloud-services-dashboard.component';
 
 import { FinancialDashboard } from './dashboards/components/financial-dashboard.component';
-//import { IssuesDashboard } from './dashboards/components/issues/issues-dashboard.component';
 
-//import { BusinessHours} from './configurator/components/configurator-businesshours.component';
-import { Location } from './configurator/components/configurator-locations.component';
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
 
 import { ServicesView } from './services/components/services-view.component';
@@ -36,9 +33,6 @@ import { ProfilesList } from './profiles/components/profiles-list.component';
 import { ProfilesForm } from './profiles/components/profiles-form.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
-//import {ServerCredentials} from './configurator/components/configurator-servercredentials.component';
-
-import { MaintainUser } from './security/components/security-maintainusers.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/applications-settings-tabs.component';
 
 
@@ -62,14 +56,8 @@ export * from './dashboards/components/office365/office365-mail-statistics.compo
 export * from './dashboards/components/office365/office365-password-settings.component';
 
 export * from './dashboards/components/cloud-services-dashboard.component';
-
 export * from './dashboards/components/financial-dashboard.component';
-//export * from './dashboards/components/issues/issues-dashboard.component';
-
-//export * from './configurator/components/configurator-businesshours.component';
-
 export * from './dashboards/components/status-map-dashboard.component';
-
 export * from './services/components/services-view.component';
 export * from './services/components/service-details.component';
 export * from './services/components/no-selected-service.component';
@@ -78,18 +66,9 @@ export * from './profiles/components/profiles-list.component';
 export * from './profiles/components/profiles-form.component';
 
 export * from './not-yet-implemented.component';
-<<<<<<< .mine
-export * from './configurator/components/configurator-businesshours.component';
-export * from './configurator/components/configurator-locations.component';
-export * from './configurator/components/configurator-servercredentials.component';
-=======
-//export * from './configurator/components/configurator-businesshours.component';
-//export * from './configurator/components/configurator-servercredentials.component';
+
 export * from './configurator/components/applicationSettings/applications-settings-tabs.component';
->>>>>>> .r678
 
-
-export * from './security/components/security-maintainusers.component';
 
 const appRoutes: Routes = [
     {
@@ -181,10 +160,6 @@ const appRoutes: Routes = [
         component: NotYetImplemented
     },
     {
-        path: 'configurator/locations',
-        component: Location
-    },
-    {
         path: 'profiles',
         component: ProfilesList
     },
@@ -199,11 +174,7 @@ const appRoutes: Routes = [
     {
         path: 'configurator/applicationsettings',
         component: ApplicationSettings
-    },
-    {
-        path: 'security/maintainusers',
-        component: MaintainUser
-    },
+    }
 ];
 
 export const APP_ROUTES = RouterModule.forRoot(appRoutes);
