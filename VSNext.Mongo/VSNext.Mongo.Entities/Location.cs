@@ -23,9 +23,9 @@ namespace VSNext.Mongo.Entities
         }
 
         [DataMember]
-        [BsonElement("alias")]
+        [BsonElement("location_name")]
         [BsonIgnoreIfNull]
-        public string Alias { get; set; }
+        public string LocationName { get; set; }
 
         [DataMember]
         [BsonElement("city")]
