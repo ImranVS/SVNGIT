@@ -25,6 +25,7 @@ import { FinancialDashboard } from './dashboards/components/financial-dashboard.
 //import { IssuesDashboard } from './dashboards/components/issues/issues-dashboard.component';
 
 //import { BusinessHours} from './configurator/components/configurator-businesshours.component';
+import { Location } from './configurator/components/configurator-locations.component';
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
 
 import { ServicesView } from './services/components/services-view.component';
@@ -77,9 +78,15 @@ export * from './profiles/components/profiles-list.component';
 export * from './profiles/components/profiles-form.component';
 
 export * from './not-yet-implemented.component';
+<<<<<<< .mine
+export * from './configurator/components/configurator-businesshours.component';
+export * from './configurator/components/configurator-locations.component';
+export * from './configurator/components/configurator-servercredentials.component';
+=======
 //export * from './configurator/components/configurator-businesshours.component';
 //export * from './configurator/components/configurator-servercredentials.component';
 export * from './configurator/components/applicationSettings/applications-settings-tabs.component';
+>>>>>>> .r678
 
 
 export * from './security/components/security-maintainusers.component';
@@ -172,6 +179,10 @@ const appRoutes: Routes = [
     {
         path: 'reports',
         component: NotYetImplemented
+    },
+    {
+        path: 'configurator/locations',
+        component: Location
     },
     {
         path: 'profiles',
