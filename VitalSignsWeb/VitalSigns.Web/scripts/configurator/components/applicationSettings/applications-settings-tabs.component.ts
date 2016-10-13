@@ -70,7 +70,7 @@ export class ApplicationSettings implements OnInit {
             },
             {
                 "title": "Users",
-                "component": "NotYetImplemented",
+                "component": "MaintainUser",
                 "path": "/app/configurator/components/applicationSettings/configurator-maintainusers.component",
                 "active": "false"
             },
