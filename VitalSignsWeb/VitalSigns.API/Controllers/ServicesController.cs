@@ -124,9 +124,9 @@ namespace VitalSigns.API.Controllers
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
                                          Status = x.StatusCode,// Holds the formated status code for displaying colors in UI
-                                         StatusCode=x.StatusCode,//Holds actual server code data
+                                         StatusCode = x.StatusCode,//Holds actual server code data
                                          DeviceId = x.DeviceId,
-                                         Location=x.Location
+                                         Location = x.Location
 
                                      }).ToList();
                 foreach (ServerStatus item in result)
@@ -201,7 +201,7 @@ namespace VitalSigns.API.Controllers
                     result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
                 else
                 {
-                    var secondaryRoles = result.SecondaryRole.Split(';').Select(x=>x.Trim());
+                    var secondaryRoles = result.SecondaryRole.Split(';').Select(x => x.Trim());
                     result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
                 }
 
@@ -448,7 +448,7 @@ namespace VitalSigns.API.Controllers
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
                 startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
-                
+
             if (endDate == "")
                 endDate = DateTime.Today.ToString(DateFormat);
 
@@ -481,7 +481,7 @@ namespace VitalSigns.API.Controllers
                                                      summaryRepository.Filter.Eq(p => p.DeviceId, deviceId));
 
                     }
-                    
+
                     var result = summaryRepository.Find(filterDefTemp).Select(x => new StatsData
                     {
                         //DeviceId = x.DeviceId,
@@ -492,7 +492,7 @@ namespace VitalSigns.API.Controllers
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
-                        filterDefTemp = filterDef & 
+                        filterDefTemp = filterDef &
                             summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
 
                         result.AddRange(
@@ -537,7 +537,7 @@ namespace VitalSigns.API.Controllers
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
-                        filterDefTemp = filterDef & 
+                        filterDefTemp = filterDef &
                             summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
 
                         result.AddRange(
@@ -547,7 +547,7 @@ namespace VitalSigns.API.Controllers
                                 row.CreatedOn.Date,
                                 row.StatName
                             })
-                            .Select(row => new 
+                            .Select(row => new
                             {
                                 Date = row.Key.Date,
                                 Value = Math.Round(row.Average(x => x.StatValue), 2),
@@ -577,7 +577,7 @@ namespace VitalSigns.API.Controllers
                         serie.Segments = segments;
 
                         series.Add(serie);
-                        
+
                     }
                     else
                     {
@@ -791,7 +791,7 @@ namespace VitalSigns.API.Controllers
                         result.Add(segment);
                     }
                 }
-                
+
 
                 result.RemoveAll(item => item.Label == null);
                 result.RemoveAll(item => item.Label == "");
@@ -804,7 +804,7 @@ namespace VitalSigns.API.Controllers
                 series.Add(serie);
 
                 Chart chart = new Chart();
-                
+
                 chart.Title = docfield;
                 chart.Series = series;
 
@@ -833,23 +833,23 @@ namespace VitalSigns.API.Controllers
                 List<Serie> diskserie = new List<Serie>();
                 result.Disks.RemoveAll(item => item.DiskFree == null || item.DiskFree == 0.0);
                 result.Disks.RemoveAll(item => item.DiskSize - item.DiskFree == null || item.DiskFree == 0.0);
-                
+
                 var data = result.Disks.Select(x => new
                 {
-                       Name=x.DiskName,
-                       Free=x.DiskFree,
-                       Used= x.DiskSize - x.DiskFree
-                    });
-                if (result.Disks.Count>1)
+                    Name = x.DiskName,
+                    Free = x.DiskFree,
+                    Used = x.DiskSize - x.DiskFree
+                });
+                if (result.Disks.Count > 1)
                 {
 
                     Serie diskFreeSerie = new Serie();
                     diskFreeSerie.Title = "Available";
-                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value,Color= "rgba(95, 190, 127, 1)" }).ToList();
+                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value, Color = "rgba(95, 190, 127, 1)" }).ToList();
                     diskserie.Add(diskFreeSerie);
                     Serie diskUsedSerie = new Serie();
                     diskUsedSerie.Title = "Used";
-                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value,Color= "rgba(239, 58, 36, 1)" }).ToList();
+                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value, Color = "rgba(239, 58, 36, 1)" }).ToList();
                     diskserie.Add(diskUsedSerie);
 
                 }
@@ -859,17 +859,17 @@ namespace VitalSigns.API.Controllers
                     {
                         List<Segment> segments = new List<Segment>();
                         segments.Add(new Segment { Label = "Available", Value = Math.Round(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0, 2) });
-                        segments.Add(new Segment { Label ="Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree ), 2) });
+                        segments.Add(new Segment { Label = "Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree), 2) });
 
                         Serie serie = new Serie();
                         serie.Segments = segments;
-                        serie.Title = drive.DiskName;                        
+                        serie.Title = drive.DiskName;
                         diskserie.Add(serie);
 
                     }
-                }                             
+                }
                 Chart chart = new Chart();
-               
+
                 chart.Title = "Disk Space";
                 chart.Series = diskserie;
                 Response = Common.CreateResponse(chart);
@@ -885,7 +885,7 @@ namespace VitalSigns.API.Controllers
 
         }
 
-        
+
         [HttpGet("server_list_selectlist_data")]
         public APIResponse GetDeviceListDropDownData()
         {
@@ -893,14 +893,14 @@ namespace VitalSigns.API.Controllers
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-                var deviceTypeData = statusRepository.All().Where(x=>x.DeviceType!=null).Select(x => x.DeviceType).Distinct().OrderBy(x=>x).ToList();
+                var deviceTypeData = statusRepository.All().Where(x => x.DeviceType != null).Select(x => x.DeviceType).Distinct().OrderBy(x => x).ToList();
                 var deviceStatusData = statusRepository.All().Where(x => x.StatusCode != null).Select(x => x.StatusCode).Distinct().OrderBy(x => x).ToList();
                 var deviceLocationData = statusRepository.All().Where(x => x.Location != null).Select(x => x.Location).Distinct().OrderBy(x => x).ToList();
                 deviceTypeData.Insert(0, "-All-");
                 deviceStatusData.Insert(0, "-All-");
                 deviceLocationData.Insert(0, "-All-");
 
-                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData , deviceLocationData = deviceLocationData });
+                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData, deviceLocationData = deviceLocationData });
                 return Response;
             }
             catch (Exception exception)
@@ -923,7 +923,7 @@ namespace VitalSigns.API.Controllers
                     var result = nameValueRepository.All().ToList();
                     Response = Common.CreateResponse(result);
 
-    }
+                }
                 else if (!string.IsNullOrEmpty(category))
                 {
                     Expression<Func<NameValue, bool>> expression = (p => p.Category == category);
@@ -932,7 +932,7 @@ namespace VitalSigns.API.Controllers
 
                         { Name = x.Name, Id = x.Id, Category = x.Category, Value = x.Value }).ToList();
                     Response = Common.CreateResponse(result);
-}
+                }
                 else if (!string.IsNullOrEmpty(name))
                 {
                     var names = name.Replace("[", "").Replace("]", "").Split(',');
@@ -944,7 +944,7 @@ namespace VitalSigns.API.Controllers
 
                 }
 
-               
+
 
 
             }
@@ -956,6 +956,85 @@ namespace VitalSigns.API.Controllers
             }
 
             return Response;
+        }
+
+
+        [HttpGet("get_ibm_domino_settings")]
+        public APIResponse GetIbmDominoSettings()
+        {
+
+
+
+            nameValueRepository = new Repository<NameValue>(ConnectionString);
+            var result = nameValueRepository.All()
+                                          .Select(x => new
+                                          {
+                                              Name = x.Name,
+                                              Value = x.Value
+                                          }).ToList();
+
+            var notesProgramDirectory = result.Where(x => x.Name == "Notes Program Directory").Select(x => x.Value).FirstOrDefault();
+            var notesUserID = result.Where(x => x.Name == "Notes User ID").Select(x => x.Value).FirstOrDefault();
+            var notesIni = result.Where(x => x.Name == "Notes.ini").Select(x => x.Value).FirstOrDefault();
+            var password = result.Where(x => x.Name == "password").Select(x => x.Value).FirstOrDefault();
+            var enableExJournal = result.Where(x => x.Name == "Enable ExJournal").Select(x => x.Value).FirstOrDefault();
+            var enableDominoConsoleCommands = result.Where(x => x.Name == "Enable Domino Console Commands").Select(x => x.Value).FirstOrDefault();
+            var exJournalthreshold = result.Where(x => x.Name == "ExJournal Threshold").Select(x => x.Value).FirstOrDefault();
+            var consecutiveTelnet = result.Where(x => x.Name == "Consecutive Telnet").Select(x => x.Value).FirstOrDefault();
+            return Common.CreateResponse(new DominoSettingsModel
+            {
+                NotesProgramDirectory = notesProgramDirectory,
+                NotesUserID = notesUserID,
+                NotesIni = notesIni,
+                NotesPassword = password,
+                EnableExJournal = enableExJournal,
+                EnableDominoConsoleCommands = enableDominoConsoleCommands,
+                ExJournalThreshold = exJournalthreshold,
+                ConsecutiveTelnet = consecutiveTelnet
+            });
+        }
+
+        [HttpPut("save_ibm_domino_settings")]
+        public APIResponse UpdateIbmDominoSettings([FromBody]NameValueModel nameValue)
+        {
+            try
+            {
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+                var result = nameValueRepository.All()
+                                              .Select(x => new
+                                              {
+                                                  Name = x.Name,
+                                                  Value = x.Value
+                                              }).Where(x => x.Name == "Notes Program Directory").ToList();
+
+                if (result.Count == 0)
+                {
+                    NameValue nameValues = new NameValue { Name = nameValue.Name, Value = nameValue.Value };
+
+
+                    string id = nameValueRepository.Insert(nameValues);
+                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
+                }
+                else
+                {
+
+
+                    FilterDefinition<NameValue> filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == nameValue.Name);
+                    var updateDefination = nameValueRepository.Updater.Set(p => p.Name, nameValue.Name)
+                                                             .Set(p => p.Value, nameValue.Value);
+
+                    var results = nameValueRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                }
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
         }
     }
 

@@ -20,5 +20,12 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("category")]
         public string Category { get; set; }
+
+
+
+
+
+
+
     }
 }
