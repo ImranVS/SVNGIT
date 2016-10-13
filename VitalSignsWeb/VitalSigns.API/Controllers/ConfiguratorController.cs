@@ -11,6 +11,7 @@ using VitalSigns.API.Models.Charts;
 using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using System.Linq.Expressions;
+using System.Linq;
 using MongoDB.Bson;
 
 
@@ -29,6 +30,13 @@ namespace VitalSigns.API.Controllers
         private IRepository<Maintenance> maintenanceRepository;
 
         private IRepository<NameValue> nameValueRepository;
+
+
+        private IRepository<Server> serversRepository;
+
+        private IRepository<MobileDevices> mobiledevicesRepository;
+
+
 
 
 
@@ -154,7 +162,7 @@ namespace VitalSigns.API.Controllers
             }
             catch(Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get business hours falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Fetching business hours failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -351,7 +359,7 @@ namespace VitalSigns.API.Controllers
             {
                 Id = x.Id,
                 Name = x.Name,
-               StartDate =  x.StartDate,
+                StartDate =  x.StartDate,
                 StartTime = x.StartTime,
                 EndDate = x.EndDate,
                 Duration = x.Duration,
@@ -364,10 +372,65 @@ namespace VitalSigns.API.Controllers
             }
             catch(Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get Maintenance falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
+
+
+        [HttpGet("servers_list")]
+        public APIResponse GetAllServersList()
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                var result = serversRepository.All().Select(x => new ServersModel
+                {
+
+                    ServerName = x.DeviceName,
+                    ServerType = x.DeviceType,
+                    Description = x.Description,
+                    ServerId = x.ServerId
+                   
+
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        //[HttpGet("mobileusers")]
+        //public APIResponse GetAllMobileUsersList()
+        //{
+        //    try
+        //    {
+        //        mobiledevicesRepository = new Repository<MobileDevices>(ConnectionString);
+        //        var result = mobiledevicesRepository.All().Select(x => new MobileUserDevice
+        //        {
+        //            UserName = x.UserName,
+        //            DeviceName = x.DeviceName,
+        //           LastSyncTime = x.LastSyncTime
+                    
+
+
+        //        }).ToList();
+
+
+        //        Response = Common.CreateResponse(result);
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+        //    }
+        //    return Response;
+        //}
+
 
         [HttpGet("maintain_users")]
         public APIResponse GetAllMaintainUsers()
@@ -442,5 +505,6 @@ namespace VitalSigns.API.Controllers
             Expression<Func<MaintainUser, bool>> expression = (p => p.Id == id);
             maintainUsersRepository.Delete(expression);
         }
+
     }
 }
