@@ -12,7 +12,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 import {GridBase} from '../../../core/gridBase';
 
 @Component({
-    templateUrl: '/app/configurator/components/configurator-servercredentials.component.html',
+    templateUrl: '/app/configurator/components/applicationSettings/configurator-servercredentials.component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,

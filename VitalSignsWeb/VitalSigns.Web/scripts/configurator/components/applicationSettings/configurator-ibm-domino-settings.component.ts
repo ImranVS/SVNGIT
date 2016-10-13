@@ -7,7 +7,7 @@ import {RESTService} from '../../../core/services';
 
 @Component({
     selector: 'ibmDominoSettings-form',
-    templateUrl: '/app/profiles/components/configurator-ibm-domino-settings.component.html',
+    templateUrl: '/app/configurator/components/applicationSettings/configurator-ibm-domino-settings.component.html',
     providers: [
         HttpModule,
         RESTService

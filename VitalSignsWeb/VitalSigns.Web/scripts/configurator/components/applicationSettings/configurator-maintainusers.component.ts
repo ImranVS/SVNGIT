@@ -13,7 +13,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 
 @Component({
-    templateUrl: '/app/configurator/components/configurator-maintainusers.component.html',
+    templateUrl: '/app/configurator/components/applicationSettings/configurator-maintainusers.component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
@@ -32,14 +32,14 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 export class MaintainUser extends GridBase {
 
     constructor(service: RESTService) {
-        super(service, '/security/maintain_users');
+        super(service, '/configurator/maintain_users');
         this.formName = "Maintain Users";
     }
     saveBusinessHour() {
-        this.saveGridRow('/security/save_maintain_users');
+        this.saveGridRow('/configurator/save_maintain_users');
     }
     delteBusinessHour() {
-        this.delteGridRow('/security/delete_maintain_users/');
+        this.delteGridRow('/configurator/delete_maintain_users/');
     }
 }
 
