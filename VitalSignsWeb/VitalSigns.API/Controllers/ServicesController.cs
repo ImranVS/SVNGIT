@@ -710,10 +710,7 @@ namespace VitalSigns.API.Controllers
                         var x = new ExpandoObject() as IDictionary<string, Object>;
                         foreach (var field in status.ToBsonDocument())
                         {
-                            x.Add(field.Name, field.Value.IsString ? field.Value.AsString :
-                                    (field.Value.IsInt32 ? Convert.ToString(field.Value.AsInt32) :
-                                    (field.Value.IsDouble ? Convert.ToString(field.Value.AsDouble) :
-                                    (field.Value.IsBoolean ? Convert.ToString(field.Value.AsBoolean) : ""))));
+                            x.Add(field.Name, field.Value.ToString());
                         }
                         result.Add(x);
                     }
@@ -732,10 +729,7 @@ namespace VitalSigns.API.Controllers
                         var x = new ExpandoObject() as IDictionary<string, Object>;
                         foreach (var field in status.ToBsonDocument())
                         {
-                            x.Add(field.Name, field.Value.IsString ? field.Value.AsString :
-                                    (field.Value.IsInt32 ? Convert.ToString(field.Value.AsInt32) :
-                                    (field.Value.IsDouble ? Convert.ToString(field.Value.AsDouble) :
-                                    (field.Value.IsBoolean ? Convert.ToString(field.Value.AsBoolean) : ""))));
+                            x.Add(field.Name, field.Value.ToString());
                         }
                         result.Add(x);
                     }
