@@ -17,6 +17,10 @@ export * from './widgets/sample/sample-widget.component';
 export * from './configurator/components/applicationSettings/configurator-businesshours.component';
 export * from './configurator/components/applicationSettings/configurator-servercredentials.component'
 export * from './configurator/components/applicationSettings/configurator-locations.component'
+export * from './configurator/components/applicationSettings/configurator-maintainusers.component'
+export * from './configurator/components/applicationSettings/configurator-ibm-domino-settings.component'
+
+
 export * from './services/components/service-clusterhealth-grid.component';
 export * from './services/components/service-database-grid.component';
 export * from './services/components/service-mainhealth-grid.component';
