@@ -1,10 +1,10 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HTTP_PROVIDERS}    from '@angular/http';
-import {RESTService} from '../../core/services';
-import {GridBase} from '../../core/gridBase';
+import {RESTService} from '../../../core/services';
+import {GridBase} from '../../../core/gridBase';
 
-import {AppNavigator} from '../../navigation/app.navigator.component';
+import {AppNavigator} from '../../../navigation/app.navigator.component';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
