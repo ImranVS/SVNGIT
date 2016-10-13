@@ -1,0 +1,240 @@
+﻿<div class="container">
+
+    <h1>Maintenance</h1>
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid  #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="100"> </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'StartDate'" [binding]="'start_date'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="100"></wj-flex-grid-column>
+       
+        <wj-flex-grid-column [header]="'EndDate'" [binding]="'end_date'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'MaintenanceFrequency'" [binding]="'maintenance_frequency'" [width]="100"></wj-flex-grid-column>
+      
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+    <div class="modal fade" id="dlgDetail">       
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                (itemsSourceChanged)="itemsSourceChangedHandler()"
+                                (click)="flex.collectionView.cancelEdit()"
+                                aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">{{formTitle}}</h4>
+                    </div>
+
+                    <div class="modal-body" *ngIf="currentEditItem">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                        </div>
+                        <div class="form-group">
+                            <label for="start_date">Start Date</label>
+                            <input type="text" class="form-control" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="start_time">Start Time</label>
+                            <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
+                        </div>
+                        <div class="form-group">
+                            <label for="end_date">End Date</label>
+                            <input type="text" class="checkbox-inline" id="end_date" [(ngModel)]="currentEditItem.end_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Duration</label>
+                            <input type="text" class="checkbox-inline" id="duration" [(ngModel)]="currentEditItem.duration">
+                        </div>
+                        <div class="form-group">
+                            <label for="maintenance_frequency">Maintenance Frequency</label>
+                            <input type="text" class="checkbox-inline" id="maintenance_frequency" [(ngModel)]="currentEditItem.maintenance_frequency">
+                        </div>
+
+
+
+
+                        <table>
+                            <tr  width="100%">
+
+                                <td>
+                               
+
+                                    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+                                    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1"  [isReadOnly]="true">
+                                        <wj-flex-grid-filter></wj-flex-grid-filter>
+                                        <wj-flex-grid-column [header]="'Servers'" [binding]="'servers'"   > </wj-flex-grid-column>
+                                        <wj-flex-grid-column [header]="'Server Type'" [binding]="'server_type'" ></wj-flex-grid-column>
+                                        <wj-flex-grid-column [header]="'Description'" [binding]="'description'" ></wj-flex-grid-column>
+
+                                       
+                                    </wj-flex-grid>
+                                    <div class="btn-group" *ngIf="data != null">
+                                        <button type="button" class="btn btn-default"
+                                                (click)="data.moveToFirstPage()"
+                                                [disabled]="data.pageIndex <= 0">
+                                            <span class="glyphicon glyphicon-fast-backward"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-default"
+                                                (click)="data.moveToPreviousPage()"
+                                                [disabled]="data.pageIndex <= 0">
+                                            <span class="glyphicon glyphicon-step-backward">
+                                            </span>
+                                        </button>
+                                        <button type="button" class="btn btn-default" disabled style="width:100px">
+                                            {{
+                                               data.pageIndex + 1 | number
+                                            }} / {{data.pageCount | number}}
+                                        </button>
+                                        <button type="button" class="btn btn-default"
+                                                (click)="data.moveToNextPage()"
+                                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                                            <span class="glyphicon glyphicon-step-forward"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-default"
+                                                (click)="data.moveToLastPage()"
+                                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                                            <span class="glyphicon glyphicon-fast-forward"></span>
+                                        </button>
+                                    </div>
+                                    <div class="pull-right" *ngIf="data != null">
+                                        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                                            <wj-menu-item [value]="10">10</wj-menu-item>
+                                            <wj-menu-item [value]="20">20</wj-menu-item>
+                                            <wj-menu-item [value]="50">50</wj-menu-item>
+                                        </wj-menu>
+                                    </div>
+                                </td>
+                                
+                            </tr>
+                            <tr width ="100%">
+                                <td >
+
+
+                                    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+                                    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                                        <wj-flex-grid-filter></wj-flex-grid-filter>
+                                        <wj-flex-grid-column [header]="'User Name'" [binding]="'username'"> </wj-flex-grid-column>
+                                        <wj-flex-grid-column [header]="'Device Name'" [binding]="'devicename'"></wj-flex-grid-column>
+                                        <wj-flex-grid-column [header]="'Last Synchronous Time'" [binding]="'lastsynchronoustime'"></wj-flex-grid-column>
+
+
+                                    </wj-flex-grid>
+                                    <div class="btn-group" *ngIf="data != null">
+                                        <button type="button" class="btn btn-default"
+                                                (click)="data.moveToFirstPage()"
+                                                [disabled]="data.pageIndex <= 0">
+                                            <span class="glyphicon glyphicon-fast-backward"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-default"
+                                                (click)="data.moveToPreviousPage()"
+                                                [disabled]="data.pageIndex <= 0">
+                                            <span class="glyphicon glyphicon-step-backward">
+                                            </span>
+                                        </button>
+                                        <button type="button" class="btn btn-default" disabled style="width:100px">
+                                            {{
+                                               data.pageIndex + 1 | number
+                                            }} / {{data.pageCount | number}}
+                                        </button>
+                                        <button type="button" class="btn btn-default"
+                                                (click)="data.moveToNextPage()"
+                                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                                            <span class="glyphicon glyphicon-step-forward"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-default"
+                                                (click)="data.moveToLastPage()"
+                                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                                            <span class="glyphicon glyphicon-fast-forward"></span>
+                                        </button>
+                                    </div>
+                                    <div class="pull-right" *ngIf="data != null">
+                                        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                                            <wj-menu-item [value]="10">10</wj-menu-item>
+                                            <wj-menu-item [value]="20">20</wj-menu-item>
+                                            <wj-menu-item [value]="50">50</wj-menu-item>
+                                        </wj-menu>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" (click)="saveBusinessHour()">
+                            <span class="glyphicon glyphicon-ok" ></span>
+                            Save
+                        </button>
+                        <button type="button" class="btn btn-warning" data-dismiss="modal"
+                                (click)="flex.collectionView.cancelEdit()">
+                            <span class="glyphicon glyphicon-ban-circle"></span>
+                            Close
+                        </button>
+                    </div>
+                </div><!-- modal-content -->l
+            </div><!-- modal-dialog -->       
+</div><!-- modal -->
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail"  (click)="editGridRow()">
+            Edit
+        </button>
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail" (click)="addGridRow()" >
+           Add
+        </button>
+        <button class="btn btn-default"               
+                data-target="#dlgDetail" (click)="delteBusinessHour();">
+            Delete
+        </button>
+    </div>
+</div>
+
+
