@@ -67,6 +67,7 @@ import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-samet
         dashboards.Office365Overall,
         dashboards.Office365PasswordSettings,
         dashboards.OfficeMailStatistics,
+        dashboards.ApplicationSettings,
         widgets.AppStatus,
         widgets.ChartComponent,
         widgets.DynamicGrid,
