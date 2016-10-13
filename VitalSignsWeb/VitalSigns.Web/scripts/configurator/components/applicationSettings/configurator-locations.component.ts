@@ -37,11 +37,13 @@ export class Location extends GridBase implements OnInit  {
     data: wijmo.collections.CollectionView;
     selectedCountry: string;
     selectedState: string;
+    selectedCity: string;
     errorMessage: string;
     locationsForm: FormGroup;
     locationsId: string;
     countries: any;
     states: any;
+    cities: any;
     get pageSize(): number {
         return this.data.pageSize;
     }
@@ -55,7 +57,7 @@ export class Location extends GridBase implements OnInit  {
             (response) => {
                 this.countries = response.data.countryData;
                 //delete this.deviceTypes[0];
-                alert(this.countries);
+               
                 this.countries.splice(0, 1);
 
 
@@ -63,19 +65,8 @@ export class Location extends GridBase implements OnInit  {
             },
             (error) => this.errorMessage = <any>error
         );
-        this.service.get('/Configurator/get_locations?' + this.selectedCountry + '')
-            .subscribe(
-            (response) => {
-                this.states = response.data.stateData;
-                //delete this.deviceTypes[0];
-                alert(this.states);
-                this.states.splice(0, 1);
 
-
-            },
-            (error) => this.errorMessage = <any>error
-            );   
-
+      
     }
 
 
