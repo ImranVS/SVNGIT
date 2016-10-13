@@ -13,7 +13,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 
 @Component({
-    templateUrl: '/app/configurator/components/applicationsetings/configurator-maintenance.component.html',
+    templateUrl: '/app/configurator/components/applicationsettings/configurator-maintenance.component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
@@ -36,6 +36,8 @@ export class Maintenance extends GridBase  {
     constructor(service: RESTService) {
         super(service, '/Configurator/maintenance');
         this.formName = "Maintenance";
+        //super(service, '/Dashboard/mobile_user_devices');
+        //this.formName = "MobileUsers";
     }   
     //saveBusinessHour() {
     //    this.saveGridRow('/Configurator/save_business_hours');  
