@@ -76,8 +76,8 @@ export class ApplicationSettings implements OnInit {
             },
             {
                 "title": "Traveller Data Store",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "TravelerDataStore",
+                "path": "/app/configurator/components/applicationSettings/configurator-travelerdatastore.component",
                 "active": "false"
             },
             {

@@ -1,0 +1,150 @@
+﻿<div class="container">
+
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Traveler Service Pool Name'" [binding]="'traveler_service_pool_name'" [width]="300"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="300"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+    <div class="modal fade" id="dlgDetail">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            (itemsSourceChanged)="itemsSourceChangedHandler()"
+                            (click)="flex.collectionView.cancelEdit()"
+                            aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title">{{formTitle}}</h4>
+                </div>
+                <div class="modal-body" *ngIf="currentEditItem">
+                    <div class="form-group">
+                        <label for="traveler_service_pool_name">Traveler Service Pool Name</label>
+                        <input type="text" class="form-control" id="traveler_service_pool_name" required name="traveler_service_pool_name" [(ngModel)]="currentEditItem.traveler_service_pool_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="device_name">Server Name</label>
+                        <input type="text" class="form-control" id="device_name" required name="device_name" [(ngModel)]="currentEditItem.device_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="data_store">Data Store</label>
+                        <select name="data_store" class="form-control" [(ngModel)]="currentEditItem.data_store">
+                            <option value="DB">DB2</option>
+                            <option value="Sql">SQL Server</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="database_name">Database</label>
+                        <input type="text" class="form-control" id="database_name" required name="database_name" [(ngModel)]="currentEditItem.database_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="port">Port</label>
+                        <input type="text" class="form-control" id="port" required name="port" [(ngModel)]="currentEditItem.port">
+                    </div>
+                    <div class="form-group">
+                        <label for="user_name">User Name</label>
+                        <input type="text" class="form-control" id="user_name" required name="user_name" [(ngModel)]="currentEditItem.user_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="text" class="form-control" id="password" required name="password" [(ngModel)]="currentEditItem.password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="integrated_security">Authentication Type</label>
+                        <select name="integrated_security" class="form-control" [(ngModel)]="currentEditItem.integrated_security">
+                            <option value="SQL Server">SQL Server</option>
+                            <option value="Windows">Windows</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="test_scan_server">Test when scanning Traveler Server</label>
+                        <select name="test_scan_server" class="form-control" [(ngModel)]="currentEditItem.test_scan_server">
+                            <option value=""></option>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="used_by_servers">Used by Servers</label>
+                        <select name="used_by_servers" class="form-control" [(ngModel)]="currentEditItem.used_by_servers">
+                            <option value=""></option>
+                            <option value=""></option>
+                        </select>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" (click)="saveTravelerDataStore()">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal"
+                            (click)="flex.collectionView.cancelEdit()">
+                        <span class="glyphicon glyphicon-ban-circle"></span>
+                        Close
+                    </button>
+                </div>
+            </div><!-- modal-content -->l
+        </div><!-- modal-dialog -->
+    </div><!-- modal -->
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail" (click)="editGridRow()">
+            Edit
+        </button>
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail" (click)="addGridRow()">
+            Add
+        </button>
+        <button class="btn btn-default" (click)="delteTravelerDataStore();">
+            Delete
+        </button>
+    </div>
+</div>

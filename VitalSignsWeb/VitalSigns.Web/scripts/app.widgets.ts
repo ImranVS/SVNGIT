@@ -24,6 +24,7 @@ export * from './configurator/components/applicationSettings/configurator-locati
 export * from './configurator/components/applicationSettings/configurator-maintainusers.component'
 export * from './configurator/components/applicationSettings/configurator-ibm-domino-settings.component'
 export * from './configurator/components/applicationSettings/configurator-maintenance.component'
+export * from './configurator/components/applicationSettings/configurator-travelerdatastore.component'
 
 export * from './services/components/service-clusterhealth-grid.component';
 export * from './services/components/service-database-grid.component';

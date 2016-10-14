@@ -40,6 +40,8 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Users> maintainUsersRepository;
 
+        private IRepository<TravelerDataStore> travelerdatastoreRepository;
+
 
 
 
@@ -159,9 +161,6 @@ namespace VitalSigns.API.Controllers
             locationRepository.Delete(expression);
         }
 
-        
-
-
         [HttpGet("business_hours")]
         public APIResponse GetAllBusinessHours()
         {
@@ -241,8 +240,6 @@ namespace VitalSigns.API.Controllers
             
         }
 
-
-
         [HttpDelete("delete_business_hours/{id}")]
         public void DeleteBusinessHours(string id)
         {
@@ -309,8 +306,6 @@ namespace VitalSigns.API.Controllers
             return Response;
 
         }
-
-
 
         [HttpDelete("delete_credential/{Id}")]
         public void DeleteCredential(string Id)
@@ -587,6 +582,83 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("travelerdatastore")]
+        public APIResponse GetAllTravelerDataStore()
+        {
+            try
+            {
+                travelerdatastoreRepository = new Repository<TravelerDataStore>(ConnectionString);
+                var result = travelerdatastoreRepository.All().Select(x => new TravelerDataStoresModel
+                {
+                    Id = x.Id,
+                    TravelerServicePoolName = x.TravelerServicePoolName,
+                    DeviceName = x.DeviceName,
+                    DataStore = x.DataStore,
+                    DatabaseName = x.DatabaseName,
+                    Port = x.Port,
+                    UserName = x.UserName,
+                    Password = x.Password,
+                    IntegratedSecurity = x.IntegratedSecurity,
+                    TestScanServer = x.TestScanServer,
+                    UsedByServers = x.UsedByServers
 
+                }).ToList();
+
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get traveler data falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+
+        [HttpPut("save_traveler_data_store")]
+        public APIResponse UpdateTravelerDataStore([FromBody]TravelerDataStoresModel travelerdatas)
+        {
+            try
+            {
+                travelerdatastoreRepository = new Repository<TravelerDataStore>(ConnectionString);
+                if (string.IsNullOrEmpty(travelerdatas.Id))
+                {
+                    TravelerDataStore travelerds = new TravelerDataStore { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer, UsedByServers = travelerdatas.UsedByServers };
+                    travelerdatastoreRepository.Insert(travelerds);
+                    Response = Common.CreateResponse(true, "OK", "traveler data inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<TravelerDataStore> filterDefination = Builders<TravelerDataStore>.Filter.Where(p => p.Id == travelerdatas.Id);
+                    var updateDefination = travelerdatastoreRepository.Updater.Set(p => p.TravelerServicePoolName, travelerdatas.TravelerServicePoolName)
+                                                             .Set(p => p.DeviceName, travelerdatas.DeviceName)
+                                                             .Set(p => p.DataStore, travelerdatas.DataStore)
+                                                             .Set(p => p.DatabaseName, travelerdatas.DatabaseName)
+                                                             .Set(p => p.Port, travelerdatas.Port)
+                                                             .Set(p => p.UserName, travelerdatas.UserName)
+                                                             .Set(p => p.Password, travelerdatas.Password)
+                                                             .Set(p => p.IntegratedSecurity, travelerdatas.IntegratedSecurity)
+                                                             .Set(p => p.TestScanServer, travelerdatas.TestScanServer)
+                                                             .Set(p => p.UsedByServers, travelerdatas.UsedByServers);
+                    var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "traveler data updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save traveler data falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+
+        [HttpDelete("delete_traveler_data_store/{id}")]
+        public void DeleteTravelerDataStore(string id)
+        {
+            travelerdatastoreRepository = new Repository<TravelerDataStore>(ConnectionString);
+            Expression<Func<TravelerDataStore, bool>> expression = (p => p.Id == id);
+            travelerdatastoreRepository.Delete(expression);
+        }
     }
 }
