@@ -36,6 +36,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<MobileDevices> mobiledevicesRepository;
 
+        private IRepository<Users> maintainUsersRepository;
 
 
 
@@ -133,7 +134,7 @@ namespace VitalSigns.API.Controllers
             locationRepository.Delete(expression);
         }
 
-        private IRepository<MaintainUser> maintainUsersRepository;
+        
 
 
         [HttpGet("business_hours")]
@@ -437,7 +438,7 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                maintainUsersRepository = new Repository<MaintainUser>(ConnectionString);
+                maintainUsersRepository = new Repository<Users>(ConnectionString);
                 var result = maintainUsersRepository.All().Select(x => new MaintainUsersModel
                 {
 
@@ -466,18 +467,18 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                maintainUsersRepository = new Repository<MaintainUser>(ConnectionString);
+                maintainUsersRepository = new Repository<Users>(ConnectionString);
 
 
                 if (string.IsNullOrEmpty(maintainuser.Id))
                 {
-                    MaintainUser maintainUsers = new MaintainUser { LoginName = maintainuser.LoginName, FullName = maintainuser.FullName, Email = maintainuser.Email, Status = maintainuser.Status, SuperAdmin = maintainuser.SuperAdmin, ConfiguratorAccess = maintainuser.ConfiguratorAccess, ConsoleCommandAccess = maintainuser.ConsoleCommandAccess };
+                    Users maintainUsers = new Users { LoginName = maintainuser.LoginName, FullName = maintainuser.FullName, Email = maintainuser.Email, Status = maintainuser.Status, SuperAdmin = maintainuser.SuperAdmin, ConfiguratorAccess = maintainuser.ConfiguratorAccess, ConsoleCommandAccess = maintainuser.ConsoleCommandAccess };
                     maintainUsersRepository.Insert(maintainUsers);
                     Response = Common.CreateResponse(true, "OK", "Maintain Users inserted successfully");
                 }
                 else
                 {
-                    FilterDefinition<MaintainUser> filterDefination = Builders<MaintainUser>.Filter.Where(p => p.Id == maintainuser.Id);
+                    FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(p => p.Id == maintainuser.Id);
                     var updateDefination = maintainUsersRepository.Updater.Set(p => p.LoginName, maintainuser.LoginName)
                                                              .Set(p => p.FullName, maintainuser.FullName)
                                                              .Set(p => p.Email, maintainuser.Email)
@@ -501,8 +502,8 @@ namespace VitalSigns.API.Controllers
         [HttpDelete("delete_maintain_users/{id}")]
         public void DeleteMaintainUsers(string id)
         {
-            maintainUsersRepository = new Repository<MaintainUser>(ConnectionString);
-            Expression<Func<MaintainUser, bool>> expression = (p => p.Id == id);
+            maintainUsersRepository = new Repository<Users>(ConnectionString);
+            Expression<Func<Users, bool>> expression = (p => p.Id == id);
             maintainUsersRepository.Delete(expression);
         }
 
