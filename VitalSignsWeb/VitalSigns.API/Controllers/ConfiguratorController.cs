@@ -40,7 +40,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Users> maintainUsersRepository;
 
-        private IRepository<TravelerDataStore> travelerdatastoreRepository;
+        private IRepository<TravelerDTS> travelerdatastoreRepository;
 
 
 
@@ -587,7 +587,7 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                travelerdatastoreRepository = new Repository<TravelerDataStore>(ConnectionString);
+                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
                 var result = travelerdatastoreRepository.All().Select(x => new TravelerDataStoresModel
                 {
                     Id = x.Id,
@@ -620,16 +620,16 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                travelerdatastoreRepository = new Repository<TravelerDataStore>(ConnectionString);
+                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
                 if (string.IsNullOrEmpty(travelerdatas.Id))
                 {
-                    TravelerDataStore travelerds = new TravelerDataStore { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer, UsedByServers = travelerdatas.UsedByServers };
+                    TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer, UsedByServers = travelerdatas.UsedByServers };
                     travelerdatastoreRepository.Insert(travelerds);
                     Response = Common.CreateResponse(true, "OK", "traveler data inserted successfully");
                 }
                 else
                 {
-                    FilterDefinition<TravelerDataStore> filterDefination = Builders<TravelerDataStore>.Filter.Where(p => p.Id == travelerdatas.Id);
+                    FilterDefinition<TravelerDTS> filterDefination = Builders<TravelerDTS>.Filter.Where(p => p.Id == travelerdatas.Id);
                     var updateDefination = travelerdatastoreRepository.Updater.Set(p => p.TravelerServicePoolName, travelerdatas.TravelerServicePoolName)
                                                              .Set(p => p.DeviceName, travelerdatas.DeviceName)
                                                              .Set(p => p.DataStore, travelerdatas.DataStore)
@@ -656,8 +656,8 @@ namespace VitalSigns.API.Controllers
         [HttpDelete("delete_traveler_data_store/{id}")]
         public void DeleteTravelerDataStore(string id)
         {
-            travelerdatastoreRepository = new Repository<TravelerDataStore>(ConnectionString);
-            Expression<Func<TravelerDataStore, bool>> expression = (p => p.Id == id);
+            travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
+            Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
             travelerdatastoreRepository.Delete(expression);
         }
     }
