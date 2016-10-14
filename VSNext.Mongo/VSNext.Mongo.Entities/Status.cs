@@ -829,6 +829,12 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public int? JvmMonitoredCount { get; set; }
 
+        [DataMember]
+        [BsonElement("process_id")]
+        [BsonIgnoreIfNullAttribute]
+        public int? ProcessId { get; set; }
+        
+
         #endregion
 
 

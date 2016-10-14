@@ -366,7 +366,7 @@ Public Class XMLOperation
         sConnectionString = GetDBConnectionString("VitalSigns")
 
         Try
-            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NameValue)("")
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NameValue)(GetMongoDBConnectionString())
             Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.NameValue) = repository.Filter.Eq(Function(x) x.Name, strSetting)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.NameValue) = repository.Updater.Set(Function(x) x.Value, strChangeValue)
             repository.Upsert(filterDef, updateDef)

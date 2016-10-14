@@ -474,18 +474,6 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public Boolean? ConferenceRequireSSL { get; set; }
 
-        [DataMember]
-        [BsonElement("websphere_cell_id")]
-        [BsonIgnoreIfNull]
-        public string WebSphereCellId { get; set; }
-
-        [DataMember]
-        [BsonElement("websphere_node_id")]
-        [BsonIgnoreIfNull]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string WebSphereNodeId { get; set; }
-
-
         #endregion
 
         #region SharePoint

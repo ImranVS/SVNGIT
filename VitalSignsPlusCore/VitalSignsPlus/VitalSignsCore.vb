@@ -6782,7 +6782,7 @@ CleanUp:
                     Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                     IbmConnectionsObjects.Name = row("TITLE").ToString()
                     IbmConnectionsObjects.DeviceName = myServer.Name
-                    IbmConnectionsObjects.DeviceName = myServer.ServerObjectID
+                    IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
                     IbmConnectionsObjects.Type = "Bookmark"
                     IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("MEMBER_ID").ToString())
                     IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("DATE").ToString())
@@ -6805,9 +6805,12 @@ CleanUp:
                         'cmd.Parameters.AddWithValue("@GUID", tagRow("LINK_ID").ToString())
                         'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
                         'cmd.ExecuteNonQuery()
-                        If Not tags.Contains(tagRow("TAG").ToString()) Then
-                            tags.Add(tagRow("TAG").ToString())
+                        If (tagRow("LINK_ID").ToString().Equals(row("LINK_ID").ToString())) Then
+                            If Not tags.Contains(tagRow("TAG").ToString()) Then
+                                tags.Add(tagRow("TAG").ToString())
+                            End If
                         End If
+
 
                     Next
                     IbmConnectionsObjects.tags = tags
@@ -6841,7 +6844,23 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/topic' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" & _
             "SELECT COUNT(*) NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/reply' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;"
 
+        Try
 
+
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.Type, "Community") And
+                repo.Filter.Eq(Function(x) x.DeviceId, myServer.ServerObjectID)
+            Dim str As String = String.Join("','", repo.Find(filterDef).ToList().Select(Function(x) x.GUID).ToList())
+
+            'sql += "SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE com.COMMUNITYUUID IN ('" & String.Join("','", linq) & "') AND node.STATE = 0 AND NODEALIAS = 'community';"
+            sql += " SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE com.COMMUNITYUUID IN ('" & str & "') AND node.STATE = 0 AND NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
+
+        Catch ex As Exception
+
+        End Try
+
+        sql += "SELECT node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODE node INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE node.FORUMUUID IN (Select FORUMUUID FROM FORUM.DF_NODE WHERE NODEALIAS != 'community' AND NODETYPE = 'application/forum' AND STATE = 0 AND DELSTATE = 0) AND node.NODEALIAS != 'community' AND node.STATE = 0 AND node.DELSTATE = 0 AND node.NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
+        sql += "SELECT NAME, NODEUUID FROM FORUM.DF_TAG;"
 
 
         Dim Category As String = "File"
@@ -6917,6 +6936,141 @@ CleanUp:
 
 
                 'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+
+
+
+                Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+
+                    Dim cmd As New SqlClient.SqlCommand()
+
+                    For Each row As DataRow In ds.Tables(6).Rows()
+
+                        Dim type As String = ""
+                        Dim parent As String = ""
+                        Dim parentType As String = ""
+
+                        If (row("NODETYPE").ToString() = "application/forum") Then
+                            type = "Forum"
+                            parent = row("COMMUNITYUUID").ToString()
+                            parentType = "Community"
+                        ElseIf (row("NODETYPE").ToString() = "forum/reply") Then
+                            type = "Forum Reply"
+                            parent = row("PARENTUUID").ToString()
+                            parentType = "Forum Topic"
+                        ElseIf (row("NODETYPE").ToString() = "forum/topic") Then
+                            type = "Forum Topic"
+                            parent = row("PARENTUUID").ToString()
+                            parentType = "Forum"
+                        End If
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                        Dim parentObjectId As String = Nothing
+                        Try
+                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
+                                repo.Filter.Eq(Function(x) x.Type, parentType)
+                            parentObjectId = repo.Find(filterDef).ToList()(0).Id
+                        Catch ex As Exception
+                            parentObjectId = Nothing
+                        End Try
+
+                        'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
+                        Dim entity As New VSNext.Mongo.Entities.IbmConnectionsObjects() With {
+                            .Name = row("NAME").ToString(),
+                            .ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString()),
+                            .ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString()),
+                            .DeviceId = myServer.ServerObjectID,
+                            .DeviceName = myServer.Name,
+                            .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
+                            .GUID = row("NODEUUID").ToString(),
+                            .Type = type,
+                            .ParentGUID = parentObjectId
+                        }
+
+                        Dim tagList As New List(Of String)()
+
+
+                        For Each tagRow As DataRow In ds.Tables(8).Rows()
+                            If row("NODEUUID").ToString() <> tagRow("NODEUUID") Then
+                                Continue For
+                            End If
+                            tagList.Add(tagRow("NAME").ToString)
+                        Next
+
+
+                        entity.tags = tagList
+
+                        repo.Insert(entity)
+
+                    Next
+
+
+                    'node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED
+
+                    For Each row As DataRow In ds.Tables(7).Rows()
+
+                        Dim type As String = ""
+                        Dim parent As String = ""
+                        Dim parentType As String = ""
+
+                        If (row("NODETYPE").ToString() = "application/forum") Then
+                            type = "Forum"
+                            parent = ""
+                            parentType = ""
+                        ElseIf (row("NODETYPE").ToString() = "forum/reply") Then
+                            type = "Forum Reply"
+                            parent = row("PARENTUUID").ToString()
+                            parentType = "Forum Topic"
+                        ElseIf (row("NODETYPE").ToString() = "forum/topic") Then
+                            type = "Forum Topic"
+                            parent = row("PARENTUUID").ToString()
+                            parentType = "Forum"
+                        End If
+
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                        Dim parentObjectId As String = Nothing
+                        Try
+                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
+                                repo.Filter.Eq(Function(x) x.Type, parentType)
+                            parentObjectId = repo.Find(filterDef).ToList()(0).Id
+                        Catch ex As Exception
+                            parentObjectId = Nothing
+                        End Try
+
+                        'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
+                        Dim entity As New VSNext.Mongo.Entities.IbmConnectionsObjects() With {
+                            .Name = row("NAME").ToString(),
+                            .ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString()),
+                            .ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString()),
+                            .DeviceId = myServer.ServerObjectID,
+                            .DeviceName = myServer.Name,
+                            .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
+                            .GUID = row("NODEUUID").ToString(),
+                            .Type = type,
+                            .ParentGUID = parentObjectId
+                        }
+
+                        Dim tagList As New List(Of String)()
+
+
+                        For Each tagRow As DataRow In ds.Tables(8).Rows()
+                            If row("NODEUUID").ToString() <> tagRow("NODEUUID") Then
+                                Continue For
+                            End If
+                            tagList.Add(tagRow("NAME").ToString)
+                        Next
+
+
+                        entity.tags = tagList
+
+                        repo.Insert(entity)
+
+
+                    Next
+
+                End Using
+
+
+
+
 
 
 
@@ -7139,7 +7293,7 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_PROFILES_NOT_RECENTLY_UPDATED FROM EMPINST.EMPLOYEE WHERE PROF_LAST_UPDATE > CURRENT_DATE - 90 DAYS;" & _
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_PRONUNCIATION FROM EMPINST.EMPLOYEE WHERE PROF_KEY NOT IN (SELECT PROF_KEY FROM EMPINST.PRONUNCIATION); " & _
             "SELECT COUNT(*) NUM_OF_PROFILES_MANAGERS FROM EMPINST.EMPLOYEE WHERE PROF_UID IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE);" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NOT NULL;" & _
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID NOT IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE) OR PROF_MANAGER_UID IS NULL;" & _
             "SELECT COUNT(DISTINCT PROF_UID) NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY FROM (SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NULL AND PROF_UID NOT IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NOT NULL));" & _
             "SELECT COUNT(DISTINCT PROF_UID) NUM_OF_PROFILES_WITH_JOB_HIERARCHY FROM (SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NOT NULL UNION SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_UID IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE));" & _
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_JOB_TITLE FROM EMPINST.EMPLOYEE WHERE PROF_JOB_RESPONSIBILITIES IS NULL;" & _
@@ -7147,7 +7301,9 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_PROFILES_EDITED_YESTERDAY FROM EMPINST.EMPLOYEE WHERE DATE(PROF_LAST_UPDATE) = CURRENT_DATE - 1 DAY;" & _
             "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" & _
             "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE FROM EMPINST.EMPLOYEE;"
+            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE FROM EMPINST.EMPLOYEE;" & _
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" & _
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);"
 
 
 
@@ -7208,6 +7364,10 @@ CleanUp:
                 dict.Add("NUM_OF_PROFILES_PROFILES", ds.Tables(10).Rows(0)("NUM_OF_PROFILES_PROFILES"))
 
                 dict.Add("NUM_OF_PROFILES_CREATED_YESTERDAY", ds.Tables(11).Rows(0)("NUM_OF_PROFILES_CREATED_YESTERDAY"))
+
+                dict.Add("NUM_OF_PROFILES_WITH_PICTURE", ds.Tables(13).Rows(0)("NUM_OF_PROFILES_WITH_PICTURE"))
+
+                dict.Add("NUM_OF_PROFILES_WITH_MANAGER", ds.Tables(14).Rows(0)("NUM_OF_PROFILES_WITH_MANAGER"))
 
                 sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
@@ -7369,7 +7529,7 @@ CleanUp:
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
         Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.Type.Equals("Community"))
         Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.GUID)
-        Dim IbmConnectionsObjectsList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.All.ToList()
+        Dim IbmConnectionsObjectsList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(filterdef, projectDef).ToList()
 
         Try
             Dim objVSAdaptor As New VSFramework.VSAdaptor()
@@ -7387,7 +7547,7 @@ CleanUp:
             '           Where row.Field(Of String)("Type") = "Community"
             '           Select row.Field(Of String)("GUID")
 
-            sql += "SELECT READER_ID, SOURCE, CONTAINER_ID, ITEM_ID FROM HOMEPAGE.NR_COMMUNITIES_VIEW WHERE READER_ID IN ( '" & String.Join("','", IbmConnectionsObjectsList) & "') AND READER_ID != CONTAINER_ID;"
+            sql += "SELECT READER_ID, SOURCE, CONTAINER_ID, ITEM_ID FROM HOMEPAGE.NR_COMMUNITIES_VIEW WHERE READER_ID IN ( '" & String.Join("','", IbmConnectionsObjectsList.Select(Function(i) i.GUID).ToList()) & "') AND READER_ID != CONTAINER_ID;"
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Homepage Stats DB@ sql : " & sql, LogUtilities.LogUtils.LogLevel.Normal)
 

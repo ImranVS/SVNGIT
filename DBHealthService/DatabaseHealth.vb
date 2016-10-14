@@ -179,29 +179,39 @@ Public Class VitalSignsDBHealth
 		'WriteAuditEntry(Now.ToString + " Cleaning up log files")
 		fileArray = Directory.GetFiles(strAppPath & "\Log_Files\Database_Health", "*.txt")
 
-		' Set the global password to be used every where... 
-		' ------------------------- START OF GETTING PASSWORD AND SET TO GLOBAL VARIABLE -------------------
-		Dim MyPass As Byte()
-		Try
-			MyPass = myRegistry.ReadFromRegistry("Password")  'Domino password as encrypted byte stream
-		Catch ex As Exception
-			MyPass = Nothing
-		End Try
+        ' Set the global password to be used every where... 
+        ' ------------------------- START OF GETTING PASSWORD AND SET TO GLOBAL VARIABLE -------------------
+        Dim MyPass As Byte()
+        Try
 
-		Dim mySecrets As New VSFramework.TripleDES
+            Dim strValue As String = myRegistry.ReadFromRegistry("Password")
+            Dim str1() As String
+            str1 = strValue.Split(",")
+            Dim bstr1(str1.Length - 1) As Byte
+            For j As Integer = 0 To str1.Length - 1
+                bstr1(j) = str1(j).ToString()
+            Next
+            MyPass = bstr1
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString, LogLevel.Normal)
+            MyPass = Nothing
+        End Try
+
+        Dim mySecrets As New VSFramework.TripleDES
 		Try
 			If Not MyPass Is Nothing Then
 				MyDominoPassword = mySecrets.Decrypt(MyPass) 'password in clear text, stored in memory now
 				WriteAuditEntry(Now.ToString & " DB Health module successfully decrypted the Notes password.", LogLevel.Verbose)
 			End If
 		Catch ex As Exception
-			'  MyDominoPassword = ""
-			WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString, LogLevel.Verbose)
-		End Try
+            '  MyDominoPassword = ""
+            WriteAuditEntry(Now.ToString & " Error decrypting the Notes password.  " & ex.ToString, LogLevel.Normal)
+        End Try
 
-		' ------------------------- END OF GETTING PASSWORD ---------------------------
+        ' ------------------------- END OF GETTING PASSWORD ---------------------------
 
-		Dim myFile As String
+        Dim myFile As String
 		For Each myFile In fileArray
 			'WriteAuditEntry(Now.ToString + " Deleting " & myFile)
 
@@ -416,6 +426,14 @@ Public Class VitalSignsDBHealth
 
 #Region "Create Collections of items to Monitor"
 
+    Private Function getCurrentNode() As String
+        Dim NodeName As String = ""
+        If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") <> Nothing Then
+            NodeName = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
+        End If
+        Return NodeName
+    End Function
+
     Public Sub CreateCollections()
 
         Try
@@ -440,7 +458,8 @@ Public Class VitalSignsDBHealth
             'Removed DominoServers.DiskSpaceThreshold, DominoServers.NotificationGroup, DominoServer.ScanServlet
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()) _
+                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -1850,7 +1869,7 @@ SkipDatabase:
                 Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Database)(connectionString)
                 Dim entity As New VSNext.Mongo.Entities.Database() With {
                     .Temp = True,
-                    .Status = .Status,
+                    .Status = myNotesDatabase.Status,
                     .FileNamePath = myNotesDatabase.FileNamePath,
                     .ScanDateTime = GetFixedDateTime(DateTime.Now),
                     .FileName = myNotesDatabase.FileName,

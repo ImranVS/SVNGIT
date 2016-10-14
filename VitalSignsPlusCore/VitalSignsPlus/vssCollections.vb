@@ -2418,8 +2418,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
                 .Include(Function(x) x.DeviceType) _
-                .Include(Function(x) x.WebSphereNodeId) _
-                .Include(Function(x) x.WebSphereCellId) _
+                .Include(Function(x) x.NodeId) _
+                .Include(Function(x) x.CellId) _
                 .Include(Function(x) x.IsEnabled) _
                 .Include(Function(x) x.LocationId) _
                 .Include(Function(x) x.ScanInterval) _
@@ -2436,7 +2436,7 @@ Partial Public Class VitalSignsPlusCore
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
 
-            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             projectionDef = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2445,7 +2445,7 @@ Partial Public Class VitalSignsPlusCore
             listOfNodes = repository.Find(filterDef, projectionDef).ToList()
 
 
-            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             projectionDef = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2742,8 +2742,18 @@ Partial Public Class VitalSignsPlusCore
 
                     Try
                         Dim node As VSNext.Mongo.Entities.Server
+
                         Try
-                            node = listOfNodes.Where(Function(x) x.ObjectId.Equals(entity.NodeId)).ToList()(0)
+                            .NodeID = entity.NodeId
+                        Catch ex As Exception
+
+                        End Try
+
+                        Try
+                            WriteAuditEntry(Now.ToString & " NodeList : " & listOfNodes.ToList().Count(), LogLevel.Normal)
+                            WriteAuditEntry(Now.ToString & " NodeList after filter: " & listOfNodes.Where(Function(x) x.Id.Equals(entity.NodeId)).ToList().Count(), LogLevel.Normal)
+                            WriteAuditEntry(Now.ToString & " NodeName : " & listOfNodes.Where(Function(x) x.Id.Equals(entity.NodeId)).ToList()(0).NodeName, LogLevel.Normal)
+                            node = listOfNodes.Where(Function(x) x.Id.Equals(entity.NodeId)).ToList()(0)
                         Catch ex As Exception
 
                         End Try
@@ -2766,8 +2776,15 @@ Partial Public Class VitalSignsPlusCore
 
                     Try
                         Dim cell As VSNext.Mongo.Entities.Server
+
                         Try
-                            cell = listOfNodes.Where(Function(x) x.ObjectId.Equals(entity.CellId)).ToList()(0)
+                            .CellID = entity.CellId
+                        Catch ex As Exception
+
+                        End Try
+
+                        Try
+                            cell = listOfNodes.Where(Function(x) x.Id.Equals(entity.CellId)).ToList()(0)
                         Catch ex As Exception
 
                         End Try

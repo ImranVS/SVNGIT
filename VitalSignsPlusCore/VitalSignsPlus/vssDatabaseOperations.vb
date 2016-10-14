@@ -863,10 +863,10 @@ Partial Public Class VitalSignsPlusCore
 
             End With
 
-                
-                
 
-            
+
+
+
 
         Next n
 
@@ -2832,7 +2832,9 @@ Partial Public Class VitalSignsPlusCore
                                   .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
                                   .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
                                   .[Set](Function(i) i.NextScan, .NextScan) _
-                                  .[Set](Function(i) i.DeviceId, .ServerObjectID)
+                                  .[Set](Function(i) i.DeviceId, .ServerObjectID) _
+                                  .[Set](Function(i) i.ProcessId, .ProcessId) _
+                                  .[Set](Function(i) i.UpMinutes, New TimeSpan(0, 0, .UpTime).TotalMinutes)
 
             End With
             repo.Upsert(filterdef, updatedef)
@@ -2909,7 +2911,7 @@ Partial Public Class VitalSignsPlusCore
 
             'Finds the worst status
             Dim worstStatus As String = ""
-            Dim listOfDistinctStatuses As List(Of String) = listOfStatus.Select(Function(x) x.StatusCode).ToList().Distinct()
+            Dim listOfDistinctStatuses As List(Of String) = listOfStatus.Select(Function(x) x.StatusCode).ToList().Distinct().ToList()
 
             If listOfDistinctStatuses.Contains("Not Responding") Then
                 worstStatus = "Not Responding"
@@ -2933,14 +2935,8 @@ Partial Public Class VitalSignsPlusCore
 
             repository.Upsert(filterDef, updateDef)
 
-
-            strSQL = "UPDATE WebSphereNode Set Status=tbl.StatusCode, JVMs=tbl2.JVMs From ( select Top 1 StatusCode, ServerName, " & _
-             "case when StatusCode='Not Responding' then '1' when StatusCode='Issue' then '2' when StatusCode='OK' then '3' when StatusCode='Maintenance' then '4' end Rank " & _
-             "from WebSphereNode wsn inner join WebSphereServer wss on wsn.NodeID=wss.NodeID and wsn.NodeID=" & MyWebSphereServer.NodeID & " inner join Status st on st.TypeANDName " & _
-             "=wss.ServerName + '-" & MyWebSphereServer.ServerType & "' order by rank ) tbl cross join (select count(*) JVMs  from WebSphereServer where NodeID=" & MyWebSphereServer.NodeID & " Group By NodeID) tbl2  WHERE NodeID = " & MyWebSphereServer.NodeID & ""
-
         Catch ex As Exception
-
+            WriteDeviceHistoryEntry("WebSphere", MyWebSphereServer.Name, Now.ToString & " Error in WebSphereNode module creating statement for status table: " & ex.Message)
         End Try
 
         'WS Commented out for VSPLUS-2596
@@ -2998,7 +2994,7 @@ Partial Public Class VitalSignsPlusCore
 
             'Finds the worst status
             Dim worstStatus As String = ""
-            Dim listOfDistinctStatuses As List(Of String) = listOfStatus.Select(Function(x) x.StatusCode).ToList().Distinct()
+            Dim listOfDistinctStatuses As List(Of String) = listOfStatus.Select(Function(x) x.StatusCode).ToList().Distinct().ToList()
 
             If listOfDistinctStatuses.Contains("Not Responding") Then
                 worstStatus = "Not Responding"
@@ -3023,28 +3019,8 @@ Partial Public Class VitalSignsPlusCore
             repository.Upsert(filterDef, updateDef)
 
 
-
-            strSQL = "Select count(*) from WebSphereCellStats where CellId = " & MyWebSphereServer.CellID
-            Dim ds As New DataSet()
-            ds.Tables.Add("table")
-            'objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "table")
-            Dim s As String = ds.Tables("table").Rows(0)(0).ToString()
-            'If ds.Tables("table").Rows(0)(0) = False Then
-            'strSQL = "INSERT INTO WebSphereCellStats (CellId, CellName) VALUES (" & MyWebSphereServer.CellID & ", '" & MyWebSphereServer.CellName & "');"
-            'End If
-
-            strSQL += "UPDATE WebSphereCellStats Set Status=tbl.Status, TotalJVM=tbl2.TotalJVMs, MonitoredJVMs=tbl2.MonitoredJVMs " & _
-               "From (( select Top 1 Status, NodeName, " & _
-               "case when Status='Not Responding' then '1' when Status='Issue' then '2' when Status='OK' then '3' when Status='Maintenance' then '4' end Rank from WebSphereCell wsc " & _
-               "inner join WebSphereNode wsn on wsn.CellID=wsc.CellID and wsc.CellId=" & MyWebSphereServer.CellID & " order by rank ) tbl cross join " & _
-               "(select count(*) TotalJVMs, sum(cast(Enabled as Int)) MonitoredJVMs from WebSphereServer where CellID=" & MyWebSphereServer.CellID & ") tbl2 ) WHERE CellID=" & MyWebSphereServer.CellID & ""
-
-
-            'objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
-
-
         Catch ex As Exception
-
+            WriteDeviceHistoryEntry("WebSphere", MyWebSphereServer.Name, Now.ToString & " Error in WebSphereCell module creating statement for status table: " & ex.Message)
         End Try
 
         'WS Commented out for VSPLUS-2596

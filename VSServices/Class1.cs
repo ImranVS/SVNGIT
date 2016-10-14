@@ -19,15 +19,26 @@ namespace RPRWyatt.VitalSigns.Services
 	{
 		String logPath;
 		Dictionary<string, string> fileNameDicnry = new Dictionary<string, string>();
+        static String connectionString = "";
 
-		private static LogUtils.LogLevel DefaultLogLevel = LogUtils.LogLevel.Normal;
+        private static LogUtils.LogLevel DefaultLogLevel = LogUtils.LogLevel.Normal;
 
 		protected override void OnStart(string[] args)
 		{
-			LogUtils utils = new LogUtils();
+            
+            LogUtils utils = new LogUtils();
 			ServiceOnStart(args);
 
-		}
+            try
+            {
+                connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + " Error getting the conneciton string. Error : " + ex.Message, "VSServices.txt", LogUtils.LogLevel.Normal);
+            }
+
+        }
 
 		protected abstract void ServiceOnStart(string[] args);
 
@@ -241,7 +252,7 @@ namespace RPRWyatt.VitalSigns.Services
 
             try
             {
-                String connectionString = "";
+                
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes>(connectionString);
                 FilterDefinition<VSNext.Mongo.Entities.Nodes> filterDef = repository.Filter.Eq(i => i.Name, NodeName);
                 if (repository.Find(filterDef).ToList()[0].CollectionResets.Contains(ServerType))
