@@ -39,12 +39,12 @@ export class Maintenance extends GridBase  {
         //super(service, '/Dashboard/mobile_user_devices');
         //this.formName = "MobileUsers";
     }   
-    //saveBusinessHour() {
-    //    this.saveGridRow('/Configurator/save_business_hours');  
-    //}
-    //delteBusinessHour() {      
-    //    this.delteGridRow('/Configurator/delete_business_hours/');  
-    //}
+    saveMaintenance() {
+        this.saveGridRow('/Configurator/save_maintenancedata');  
+    }
+    deleteMaintenance() {      
+        this.delteGridRow('/Configurator/delete_maintenancedata/');  
+    }
 }
 
 

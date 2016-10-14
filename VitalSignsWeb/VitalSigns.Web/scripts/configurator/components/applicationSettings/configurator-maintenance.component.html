@@ -77,15 +77,15 @@ data.pageIndex + 1 | number
                         </div>
                         <div class="form-group">
                             <label for="end_date">End Date</label>
-                            <input type="text" class="checkbox-inline" id="end_date" [(ngModel)]="currentEditItem.end_date">
+                            <input type="text" class="form-control" id="end_date" [(ngModel)]="currentEditItem.end_date">
                         </div>
                         <div class="form-group">
                             <label for="duration">Duration</label>
-                            <input type="text" class="checkbox-inline" id="duration" [(ngModel)]="currentEditItem.duration">
+                            <input type="text" class="form-control" id="duration" [(ngModel)]="currentEditItem.duration">
                         </div>
                         <div class="form-group">
                             <label for="maintenance_frequency">Maintenance Frequency</label>
-                            <input type="text" class="checkbox-inline" id="maintenance_frequency" [(ngModel)]="currentEditItem.maintenance_frequency">
+                            <input type="text" class="form-control" id="maintenance_frequency" [(ngModel)]="currentEditItem.maintenance_frequency">
                         </div>
 
 
@@ -199,7 +199,7 @@ data.pageIndex + 1 | number
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" (click)="saveBusinessHour()">
+                        <button type="submit" class="btn btn-primary" (click)="saveMaintenance()">
                             <span class="glyphicon glyphicon-ok" ></span>
                             Save
                         </button>
@@ -230,7 +230,7 @@ data.pageIndex + 1 | number
            Add
         </button>
         <button class="btn btn-default"               
-                data-target="#dlgDetail" (click)="delteBusinessHour();">
+                data-target="#dlgDetail" (click)="deleteMaintenance();">
             Delete
         </button>
     </div>
