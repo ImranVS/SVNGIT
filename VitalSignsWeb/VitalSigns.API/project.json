@@ -26,6 +26,10 @@
       "dependencies": {
         "VSNext.Mongo.Entities": "1.0.0-*",
         "VSNext.Mongo.Repository": "1.0.0-*"
+      },
+      "frameworkAssemblies": {
+       
+        "System.Runtime.Serialization": "4.0.0.0"
       }
     },
   },
