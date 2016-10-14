@@ -38,11 +38,7 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
             'enable_domino_console_commands': [''],
             'exjournal_threshold': [''],
             'consecutive_telnet': ['']
-            //'id': [''],
-            //'name': [''],
-            //'value': [''],
-            //'category': ['']
-          
+         
 
         });
 
@@ -50,14 +46,13 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
 
     ngOnInit() {
       
-       // alert("Hi");
+      
         this.route.params.subscribe(params => {
 
-            this.profileEmail = params['email'];
-            
+          
            
             this.formTitle = "IBM Domino Settings";
-          //  this.dataProvider.get('/services/get_ibm_domino_settings')
+        
                 this.dataProvider.get('/services/get_ibm_domino_settings')
                     .subscribe(
                     (data) => this.ibmDominoSettingsForm.setValue(data.data),
@@ -72,16 +67,13 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
 
-    
-
     }
 
     onSubmit(nameValue: any): void {
-
+     
         this.dataProvider.put(
-            '/services/get_ibm_domino_settings',
-            nameValue,
-            () => this.router.navigate(['profiles']));
+            '/services/save_ibm_domino_settings',
+            nameValue);
 
     }
 }
