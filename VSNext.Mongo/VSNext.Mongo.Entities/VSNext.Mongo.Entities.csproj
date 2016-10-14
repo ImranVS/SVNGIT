@@ -73,6 +73,7 @@
     <Compile Include="ExJournalStats.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Mailbox.cs" />
+    <Compile Include="TravelerDataStore.cs" />
     <Compile Include="Users.cs" />
     <Compile Include="Maintenance.cs" />
     <Compile Include="MenuItems.cs" />
