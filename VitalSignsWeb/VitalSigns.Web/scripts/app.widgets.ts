@@ -1,5 +1,5 @@
 ﻿export * from './dashboards/components/ibm-connections/ibm-connections-grid.component';
-export * from './dashboards/components/ibm-connections/ibm-connections-activities-grid.component';
+export * from './dashboards/components/ibm-connections/ibm-connections-stats-grid.component';
 export * from './dashboards/components/ibm-domino/ibm-domino-grid.component';
 export * from './dashboards/components/ibm-sametime/ibm-sametime-grid.component';
 export * from './dashboards/components/mobile-users/mobile-users-grid.component';

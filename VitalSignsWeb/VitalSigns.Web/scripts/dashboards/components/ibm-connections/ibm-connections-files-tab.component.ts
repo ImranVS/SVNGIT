@@ -23,6 +23,8 @@ export class IBMConnectionsFilesTab extends WidgetController implements OnInit, 
     
     ngOnInit() {
 
+        this.widgetService.setProperty("tabname", "FILES");
+
         this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
@@ -76,6 +78,12 @@ export class IBMConnectionsFilesTab extends WidgetController implements OnInit, 
                         series: []
                     }
                 }
+            },
+            {
+                id: 'filesGrid',
+                title: '',
+                name: 'IBMConnectionsStatsGrid',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
             }
         ];
     

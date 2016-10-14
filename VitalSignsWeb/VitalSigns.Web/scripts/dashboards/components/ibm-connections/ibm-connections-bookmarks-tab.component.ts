@@ -23,6 +23,8 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
     
     ngOnInit() {
 
+        this.widgetService.setProperty("tabname", "BOOKMARKS");
+
         this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
@@ -30,7 +32,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                 id: 'bookmarks',
                 title: 'Bookmarks',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
                     url: `/services/summarystats?statName=NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY&deviceid=${this.serviceId}`,
                     chart: {
@@ -81,7 +83,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                 id: 'top5CommunitiesBookmarks',
                 title: 'Top 5 Communities for Bookmarks',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
                     url: `/dashboard/connections/top_tags?deviceid=${this.serviceId}&type=Bookmark&count=5`,
                     chart: {
@@ -111,6 +113,12 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                         series: []
                     }
                 }
+            },
+            {
+                id: 'bookmarksGrid',
+                title: '',
+                name: 'IBMConnectionsStatsGrid',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
             }
         ];
     

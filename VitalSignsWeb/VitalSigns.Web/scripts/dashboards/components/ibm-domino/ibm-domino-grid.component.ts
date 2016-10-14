@@ -44,8 +44,8 @@ export class IBMDominoGrid implements WidgetComponent, OnInit {
                 this.data.pageSize = 20;
             },
             (error) => this.errorMessage = <any>error
-            );
-
+        );
+        
     }
 
     getAccessColor(access: string) {

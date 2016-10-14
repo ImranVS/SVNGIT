@@ -23,6 +23,8 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
     
     ngOnInit() {
 
+        this.widgetService.setProperty("tabname", "WIKIS");
+
         this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
@@ -30,7 +32,7 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                 id: 'wikis',
                 title: 'Wikis',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
                     url: `/services/summarystats?statName=NUM_OF_WIKIS_*_YESTERDAY&deviceid=${this.serviceId}`,
                     chart: {
@@ -76,6 +78,47 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                         series: []
                     }
                 }
+            },
+            {
+                id: 'top5CommunitiesWikis',
+                title: 'Top 5 Communities for Wikis',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                settings: {
+                    url: `/dashboard/connections/top_tags?deviceid=${this.serviceId}&type=Bookmark&count=5`,
+                    chart: {
+                        chart: {
+                            renderTo: 'top5CommunitiesWikis',
+                            type: 'bar',
+                            height: 240
+                        },
+                        colors: ['#5fbe7f'],
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: {
+                                step: 1
+                            },
+                            categories: []
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+            {
+                id: 'wikisGrid',
+                title: '',
+                name: 'IBMConnectionsStatsGrid',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
             }
         ];
     

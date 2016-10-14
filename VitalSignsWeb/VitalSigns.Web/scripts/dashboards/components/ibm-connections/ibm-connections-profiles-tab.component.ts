@@ -34,7 +34,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_MANAGERS,NUM_OF_PROFILES_PROFILES]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_MANAGERS,NUM_OF_PROFILES_WITH_NO_MANAGER]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
                     chart: {
                         chart: {
                             renderTo: 'managersNonManagers',
@@ -85,7 +85,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_NO_PICTURE,NUM_OF_PROFILES_PROFILES]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_NO_PICTURE,NUM_OF_PROFILES_WITH_PICTURE]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
                     chart: {
                         chart: {
                             renderTo: 'pictureNoPicture',

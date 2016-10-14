@@ -6,8 +6,6 @@ import {ServiceTab} from '../../../services/models/service-tab.interface';
 
 import {IBMConnectionsGrid} from './ibm-connections-grid.component';
 
-import {IBMConnectionsActivitiesGrid} from './ibm-connections-activities-grid.component';
-
 declare var injectSVG: any;
 
 @Component({
@@ -24,6 +22,8 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
     }
     
     ngOnInit() {
+
+        this.widgetService.setProperty("tabname", "ACTIVITIES");
 
         this.serviceId = this.widgetService.getProperty('serviceId');
 
@@ -117,7 +117,7 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
             {
                 id: 'activitiesGrid',
                 title: '',
-                name: 'IBMConnectionsActivitiesGrid',
+                name: 'IBMConnectionsStatsGrid',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
             }
         ];

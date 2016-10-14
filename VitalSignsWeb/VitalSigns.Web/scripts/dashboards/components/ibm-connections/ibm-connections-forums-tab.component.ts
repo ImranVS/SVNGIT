@@ -23,6 +23,8 @@ export class IBMConnectionsForumsTab extends WidgetController implements OnInit,
     
     ngOnInit() {
 
+        this.widgetService.setProperty("tabname", "FORUMS");
+
         this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
@@ -76,6 +78,12 @@ export class IBMConnectionsForumsTab extends WidgetController implements OnInit,
                         series: []
                     }
                 }
+            },
+            {
+                id: 'forumsGrid',
+                title: '',
+                name: 'IBMConnectionsStatsGrid',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
             }
         ];
     
