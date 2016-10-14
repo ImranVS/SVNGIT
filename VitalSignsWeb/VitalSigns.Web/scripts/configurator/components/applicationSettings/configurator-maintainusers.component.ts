@@ -38,7 +38,7 @@ export class MaintainUser extends GridBase {
     saveMaintainUser() {
         this.saveGridRow('/configurator/save_maintain_users');
     }
-    delteMaintainUser() {
+    delteMaintainUsers() {
         this.delteGridRow('/configurator/delete_maintain_users/');
     }
 }
