@@ -13,7 +13,7 @@ namespace VSNext.Mongo.Entities
     [DataContract]
     [Serializable]
     [CollectionName("traveler_data_store")]
-    public class TravelerDataStore : Entity
+    public class TravelerDTS:Entity
     {
         [DataMember]
         [BsonElement("traveler_service_pool_name")]
