@@ -890,5 +890,64 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+        [HttpGet("connections/most_active_object")]
+        public APIResponse ConnectionsMostActiveObject(string type, string count = "5")
+        {
+            try
+            {
+                //returns the top N communities (name and count) that have the most of type
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+
+                var result = connectionsObjectsRepository.Collection.Aggregate()
+                    .Match(i => i.Type == type && i.ParentGUID != null)
+                    .Group(i => new { ParentGuid = i.ParentGUID }, g => new { Key = g.Key, Count = g.Count() })
+                    .ToList()
+                    .OrderByDescending(i => i.Count)
+                    .Take(Convert.ToInt32(count))
+                    .ToList();
+
+                var filterDef = connectionsObjectsRepository.Filter.In(i => i.Id, result.Select(i => i.Key.ParentGuid).ToList());
+                var listOfParents = connectionsObjectsRepository.Find(filterDef).ToList();
+
+                List<Segment> segmentList = new List<Segment>();
+
+                foreach (var doc in result)
+                {
+                    Segment segment = new Segment()
+                    {
+                        Label = listOfParents.Where(i => i.Id.Equals(doc.Key.ParentGuid.ToString())).FirstOrDefault().Name,
+                        Value = doc.Count
+                    };
+                    segmentList.Add(segment);
+                }
+
+                Serie serie = new Serie();
+                serie.Title = "total";
+                serie.Segments = segmentList;
+
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+
+                Chart chart = new Chart();
+
+                chart.Title = "Top 5 tags";
+                chart.Series = series;
+
+                Response = Common.CreateResponse(chart);
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
     }
 }
+
+        
