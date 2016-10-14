@@ -79,7 +79,38 @@ export class Location extends GridBase implements OnInit  {
 
     }
 
+    getstates() {
+      
+        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country)
 
+            .subscribe(
+            (response) => {
+                this.states = response.data.stateData;
+                //delete this.deviceTypes[0];
+               
+                this.states.splice(0, 1);
+
+
+            },
+            (error) => this.errorMessage = <any>error
+            );
+    }
+    getcities() {
+       
+        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country+'&state='+ this.currentEditItem.region)
+            .subscribe(
+            (response) => {
+               
+                this.cities = response.data.cityData 
+             //   this.cities.splice(0, 1);
+
+            },
+            (error) => this.errorMessage = <any>error
+            );
+    }
+    //getchanged() {
+    //    alert("I am changed");
+    //}
 
     deltelocations() {
 

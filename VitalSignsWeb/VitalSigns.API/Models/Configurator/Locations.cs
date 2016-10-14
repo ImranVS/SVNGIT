@@ -23,4 +23,9 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("city")]
         public string City { get; set; }
     }
+
+    public class CityNames
+    {
+        public string City { get; set; }
+    }
 }

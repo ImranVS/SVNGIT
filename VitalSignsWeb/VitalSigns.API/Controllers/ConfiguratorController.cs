@@ -13,6 +13,9 @@ using VSNext.Mongo.Entities;
 using System.Linq.Expressions;
 using System.Linq;
 using MongoDB.Bson;
+using System.Data;
+using System.Runtime.Serialization.Json;
+
 
 
 namespace VitalSigns.API.Controllers
@@ -48,21 +51,44 @@ namespace VitalSigns.API.Controllers
             try
             {
                 validLocationsRepository = new Repository<ValidLocation>(ConnectionString);
-                var countryData = validLocationsRepository.All().Where(x => x.Country != null).Select(x => x.Country).Distinct().OrderBy(x => x).ToList();
-                Response = Common.CreateResponse(new { countryData = countryData });
+                if (string.IsNullOrEmpty(country) && string.IsNullOrEmpty(state))
+                {
+                    
+                    var countryData = validLocationsRepository.All().Where(x => x.Country != null).Select(x => x.Country).Distinct().OrderBy(x => x).ToList();
+                    Response = Common.CreateResponse(new { countryData = countryData });
+                    countryData.Insert(0, "-All-");
+                }
                 if (!string.IsNullOrEmpty(country))
                 {
-                    var stateData = validLocationsRepository.All().Where(x => x.States != null && x.Country == country).Select(x => x.States).Distinct().OrderBy(x => x).ToList();
-                    stateData.Insert(0, stateData.FirstOrDefault());
-                    Response = Common.CreateResponse(new { countryData = countryData,stateData=stateData });
+                    var stateData = validLocationsRepository.All().FirstOrDefault(x => x.Country == country).States;                   
+                    Response = Common.CreateResponse(new { stateData=stateData });
+                    
                 }
-               
 
-                countryData.Insert(0, "-All-");
-                
+                if (!string.IsNullOrEmpty(country) && !string.IsNullOrEmpty(state))
+                {
+                    System.Net.WebClient web = new System.Net.WebClient();
+                  
+                    string cityresponse = web.DownloadString("http://jnitinc.com/WebService/GetCity.php?Country=" + country + "&State=" + state + "");
 
+                    //List<City> ls = deserializeJson<List<LocationValues>>(response);
+                    List<CityNames> lst = new List<CityNames>();
 
-                
+                    DataContractJsonSerializer jsonSer = new DataContractJsonSerializer(lst.GetType());
+                    System.IO.MemoryStream ms = new System.IO.MemoryStream(System.Text.Encoding.Unicode.GetBytes(cityresponse));
+                    lst = (List<CityNames>)jsonSer.ReadObject(ms);
+                   // var cities = lst.Select(x => new CityNames
+                   //{
+                   //    City = x.City,                       
+                   //}).ToList();
+                    List<string> citynames = new List<string>();
+                    foreach (CityNames city in lst)
+                    {
+                     string   cityes = city.City;
+                        citynames.Add(city.City);
+                    }
+                    Response = Common.CreateResponse(new { cityData = citynames });
+                }
                 return Response;
             }
             catch (Exception exception)
@@ -126,7 +152,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpDelete("{id}/delete_location")]
+        [HttpDelete("delete_location/{id}")]
         public void DeleteLocation(string id)
         {
             locationRepository = new Repository<Location>(ConnectionString);
