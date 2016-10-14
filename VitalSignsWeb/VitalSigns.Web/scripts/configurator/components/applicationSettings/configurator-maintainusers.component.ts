@@ -35,10 +35,10 @@ export class MaintainUser extends GridBase {
         super(service, '/configurator/maintain_users');
         this.formName = "Maintain Users";
     }
-    saveBusinessHour() {
+    saveMaintainUser() {
         this.saveGridRow('/configurator/save_maintain_users');
     }
-    delteBusinessHour() {
+    delteMaintainUser() {
         this.delteGridRow('/configurator/delete_maintain_users/');
     }
 }
