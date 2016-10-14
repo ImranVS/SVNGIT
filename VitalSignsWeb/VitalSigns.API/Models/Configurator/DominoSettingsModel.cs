@@ -21,10 +21,10 @@ namespace VitalSigns.API.Models
         public string NotesPassword { get; set; }
 
         [JsonProperty("enableex_journal")]
-        public string EnableExJournal { get; set; }
+        public bool EnableExJournal { get; set; }
 
         [JsonProperty("enable_domino_console_commands")]
-        public string EnableDominoConsoleCommands { get; set; }
+        public bool EnableDominoConsoleCommands { get; set; }
 
         [JsonProperty("exjournal_threshold")]
         public string ExJournalThreshold { get; set; }
