@@ -892,7 +892,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("connections/most_active_object")]
-        public APIResponse ConnectionsMostActiveObject(string type, string count = "5")
+        public APIResponse ConnectionsMostActiveObject(string type, string deviceid, string count = "5")
         {
             try
             {
@@ -900,14 +900,16 @@ namespace VitalSigns.API.Controllers
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
 
                 var result = connectionsObjectsRepository.Collection.Aggregate()
-                    .Match(i => i.Type == type && i.ParentGUID != null)
+                    .Match(i => i.Type == type && i.ParentGUID != null && i.DeviceId == deviceid)
                     .Group(i => new { ParentGuid = i.ParentGUID }, g => new { Key = g.Key, Count = g.Count() })
                     .ToList()
                     .OrderByDescending(i => i.Count)
                     .Take(Convert.ToInt32(count))
                     .ToList();
 
-                var filterDef = connectionsObjectsRepository.Filter.In(i => i.Id, result.Select(i => i.Key.ParentGuid).ToList());
+                var filterDef = connectionsObjectsRepository.Filter.In(i => i.Id, result.Select(i => i.Key.ParentGuid).ToList()) &
+                    connectionsObjectsRepository.Filter.Eq(i => i.DeviceId, deviceid);
+
                 var listOfParents = connectionsObjectsRepository.Find(filterDef).ToList();
 
                 List<Segment> segmentList = new List<Segment>();
