@@ -24,6 +24,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<NameValue> nameValueRepository;
+       // private IRepository<DominoSettingsModel> dominoSettingsRepository;
 
         private string DateFormat = "yyyy-MM-dd";
 
@@ -958,56 +959,83 @@ namespace VitalSigns.API.Controllers
             var notesProgramDirectory = result.Where(x => x.Name == "Notes Program Directory").Select(x => x.Value).FirstOrDefault();
             var notesUserID = result.Where(x => x.Name == "Notes User ID").Select(x => x.Value).FirstOrDefault();
             var notesIni = result.Where(x => x.Name == "Notes.ini").Select(x => x.Value).FirstOrDefault();
-            var password = result.Where(x => x.Name == "password").Select(x => x.Value).FirstOrDefault();
+            var password = result.Where(x => x.Name == "Password").Select(x => x.Value).FirstOrDefault();
             var enableExJournal = result.Where(x => x.Name == "Enable ExJournal").Select(x => x.Value).FirstOrDefault();
             var enableDominoConsoleCommands = result.Where(x => x.Name == "Enable Domino Console Commands").Select(x => x.Value).FirstOrDefault();
             var exJournalthreshold = result.Where(x => x.Name == "ExJournal Threshold").Select(x => x.Value).FirstOrDefault();
-            var consecutiveTelnet = result.Where(x => x.Name == "Consecutive Telnet").Select(x => x.Value).FirstOrDefault();
+            var consecutiveTelnet = result.Where(x => x.Name == "ConsecutiveTelnet").Select(x => x.Value).FirstOrDefault();
             return Common.CreateResponse(new DominoSettingsModel
             {
                 NotesProgramDirectory = notesProgramDirectory,
                 NotesUserID = notesUserID,
                 NotesIni = notesIni,
                 NotesPassword = password,
-                EnableExJournal = enableExJournal,
-                EnableDominoConsoleCommands = enableDominoConsoleCommands,
+                EnableExJournal = Convert.ToBoolean(enableExJournal),
+                EnableDominoConsoleCommands = Convert.ToBoolean(enableDominoConsoleCommands),
                 ExJournalThreshold = exJournalthreshold,
                 ConsecutiveTelnet = consecutiveTelnet
             });
         }
 
         [HttpPut("save_ibm_domino_settings")]
-        public APIResponse UpdateIbmDominoSettings([FromBody]NameValueModel nameValue)
+        public APIResponse UpdateIbmDominoSettings([FromBody]DominoSettingsModel dominoSettings)
         {
             try
             {
+                FilterDefinition<NameValue> filterDefination;
+
                 nameValueRepository = new Repository<NameValue>(ConnectionString);
-                var result = nameValueRepository.All()
-                                              .Select(x => new
-                                              {
-                                                  Name = x.Name,
-                                                  Value = x.Value
-                                              }).Where(x => x.Name == "Notes Program Directory").ToList();
+                
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes Program Directory");
+                var updateDefination = nameValueRepository.Updater.Set(p => p.Value,dominoSettings.NotesProgramDirectory);
+                
+                var results = nameValueRepository.Update(filterDefination, updateDefination);
+              
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes User ID");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Notes User ID")
+                                                             .Set(p => p.Value, dominoSettings.NotesUserID);
 
-                if (result.Count == 0)
-                {
-                    NameValue nameValues = new NameValue { Name = nameValue.Name, Value = nameValue.Value };
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes.ini");
+                 updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Notes.ini")
+                                                             .Set(p => p.Value, dominoSettings.NotesIni);
+
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Password");
+                 updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Password")
+                                                             .Set(p => p.Value, dominoSettings.NotesPassword);
+
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Enable Domino Console Commands");
+                 updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Enable Domino Console Commands")
+                                                             .Set(p => p.Value,dominoSettings.EnableDominoConsoleCommands.ToString());
+
+                results = nameValueRepository.Update(filterDefination, updateDefination);
 
 
-                    string id = nameValueRepository.Insert(nameValues);
-                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
-                }
-                else
-                {
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Enable ExJournal");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Enable ExJournal")
+                                                            .Set(p => p.Value, dominoSettings.EnableExJournal.ToString());
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "ExJournal Threshold");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "ExJournal Threshold")
+                                                            .Set(p => p.Value, dominoSettings.ExJournalThreshold);
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "ConsecutiveTelnet");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "ConsecutiveTelnet")
+                                                            .Set(p => p.Value, dominoSettings.ConsecutiveTelnet);
 
 
-                    FilterDefinition<NameValue> filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == nameValue.Name);
-                    var updateDefination = nameValueRepository.Updater.Set(p => p.Name, nameValue.Name)
-                                                             .Set(p => p.Value, nameValue.Value);
+                results = nameValueRepository.Update(filterDefination, updateDefination);
 
-                    var results = nameValueRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
-                }
+
+
+
+                Response = Common.CreateResponse(results, "OK", "Server Credential updated successfully");
+                
 
             }
             catch (Exception exception)
