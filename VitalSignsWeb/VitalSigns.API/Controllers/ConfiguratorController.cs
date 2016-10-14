@@ -532,5 +532,61 @@ namespace VitalSigns.API.Controllers
             maintainUsersRepository.Delete(expression);
         }
 
+        [HttpPut("save_maintenancedata")]
+        public APIResponse UpdateMaintenancedata([FromBody]MaintenanceModel maintenance)
+        {
+            try
+            {
+                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+
+
+
+                if (string.IsNullOrEmpty(maintenance.Id))
+                {
+                    Maintenance maintenancedata = new Maintenance { Name = maintenance.Name, StartDate = maintenance.StartDate, StartTime = maintenance.StartTime, Duration = maintenance.Duration, EndDate = maintenance.EndDate, MaintenanceDaysList = maintenance.MaintenanceDaysList };
+
+
+                    string id = maintenanceRepository.Insert(maintenancedata);
+                    Response = Common.CreateResponse(id, "OK", "Maintenancedata inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Maintenance> filterDefination = Builders<Maintenance>.Filter.Where(p => p.Id == maintenance.Id);
+                    var updateDefination = maintenanceRepository.Updater.Set(p => p.Name, maintenance.Name)
+                                                             .Set(p => p.StartDate, maintenance.StartDate)
+                                                             .Set(p => p.StartTime, maintenance.StartTime)
+                                                             .Set(p => p.Duration, maintenance.Duration)
+                                                             .Set(p => p.EndDate, maintenance.EndDate) 
+                                                             .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
+                    var result = maintenanceRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Maintenancedata falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpDelete("delete_maintenancedata/{id}")]
+        public void DeleteMaintenancedata(string id)
+        {
+            try
+            { 
+            maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+            Expression<Func<Maintenance, bool>> expression = (p => p.Id == id);
+            maintenanceRepository.Delete(expression);
+            }
+
+            catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Maintenancedata falied .\n Error Message :" + exception.Message);
+            }
+        }
+
+
     }
 }
