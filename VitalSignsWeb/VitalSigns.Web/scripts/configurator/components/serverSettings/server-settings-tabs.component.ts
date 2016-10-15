@@ -62,8 +62,9 @@ export class ServerSettings implements OnInit {
             },
             {
                 "title": "Location/Credentials/Business Hours",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "ServerLocations",
+                "path": "/app/configurator/components/serverSettings/server-locations-credentials-businesshours.component",
+               
                 "active": "false"
             }
 
