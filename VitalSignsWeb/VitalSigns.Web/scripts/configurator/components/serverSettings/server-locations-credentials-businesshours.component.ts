@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, AfterViewInit, ViewChildren,Output, EventEmitter,} from '@angular/core';
+﻿import {Component, OnInit, AfterViewInit, ViewChildren,Output, EventEmitter} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
