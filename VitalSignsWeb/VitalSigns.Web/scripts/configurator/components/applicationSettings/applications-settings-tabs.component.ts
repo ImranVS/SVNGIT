@@ -38,9 +38,9 @@ export class ApplicationSettings implements OnInit {
         this.tabsData= [
             {
                 "title": "Preferences",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
-                "active": "true"
+                "component": "PreferencesForm",
+                "path": "/app/configurator/components/applicationSettings/configurator-preferences.componenet",
+                "active": "false"
             },
             {
                 "title": "Credentials",

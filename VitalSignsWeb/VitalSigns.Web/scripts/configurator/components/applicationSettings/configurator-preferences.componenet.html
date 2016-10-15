@@ -1,0 +1,99 @@
+﻿<div class="container">
+    <form [formGroup]="preferencesForm" (ngSubmit)="onSubmit(preferencesForm.value)">
+        <div class="row">  
+           
+      
+            <div class="col-xs-12 col-md-3 col-sm-12 col-lg-3">
+              
+                <h4>License Information</h4>
+                <div class="form-inline">
+                  <label for="subscription_version">Subscription version Expires on</label>   
+                     <button type="submit" class="btn btn-success">Enter License Key</button> 
+                </div>                
+                <div class="panel panel-default">
+                    <div class="panel-heading">Features</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="ibm_connections" formControlName="ibm_connections">
+                            <label for="ibm_connections">IBM Connections </label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="ibm_domino" formControlName="ibm_domino">
+                            <label for="ibm_domino">IBM Domino </label><br />
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="ibm_notes_mail" formControlName="ibm_notes_mail">
+                            <label for="ibm_notes_mail">IBM NotesMail </label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="ibm_sametime" formControlName="ibm_sametime">
+                            <label for="ibm_sametime">IBM Sametime </label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="ibm_websphere" formControlName="ibm_websphere">
+                            <label for="ibm_websphere">IBM Websphere </label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="microsoft_active_directory" formControlName="microsoft_active_directory">
+                            <label for="microsoft_active_directory">Microsoft Active Directory</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="microsoft_exchange" formControlName="microsoft_exchange">
+                            <label for="microsoft_exchange">Microsoft Exchange</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="microsoft_sharepoint" formControlName="microsoft_sharepoint">
+                            <label for="microsoft_sharepoint">Microsoft Sharepoint</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="microsoft_skype_for_business" formControlName="microsoft_skype_for_business">
+                            <label for="microsoft_skype_for_business">Microsoft Skype for Business</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="microsoft_office365" formControlName="microsoft_office365">
+                            <label for="microsoft_office365">Microsoft Office365</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="checkbox-inline" id="disabled" formControlName="disabled" />
+                            <label for="disabled">Disabled</label>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="col-xs-12 col-md-1 col-sm-12 col-lg-1">
+            </div>
+            <div class="col-xs-12 col-md-8 col-sm-12 col-lg-8">
+                <div class="form-group">
+                    <label for="company_name">Company Name</label>
+                    <input type="text" class="form-control" #companyname name="company_name" formControlName="company_name">
+                </div>
+                <div class="form-group">
+                    <label for="currency_symbol">Currency Symbol</label>
+                    <input type="text" class="form-control" #currencysymbol name="currency_symbol" formControlName="currency_symbol">
+                </div>
+                <div class="form-group">
+                    <label for="monitoring_delay">Monitoring Delay</label>
+                    <input type="text" class="form-control" #monitoringdelay name="monitoring_delay" formControlName="monitoring_delay">
+                </div>
+                <div class="form-group">
+                    <label for="threshold_show">% of threshold to show on yellow</label>
+                    <input type="text" class="form-control" #thresholdshow name="threshold_show" formControlName="threshold_show">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" class="checkbox-inline" id="dashboard_only" formControlName="dashboard_only">
+                    <label for="dashboard_only">Dashboard only/Exec Summary Buttons</label><br />
+                </div>
+
+                <div class="form-group">
+                    <label for="bing_key">Bing Key</label>
+                    <input type="text" class="form-control" #bingkey name="bing_key" formControlName="bing_key"><br/>
+
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
