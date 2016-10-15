@@ -29,7 +29,7 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("default_value")]
-        public int DefaultValue { get; set; }
+        public string DefaultValue { get; set; }
 
         [DataMember]
         [BsonElement("field_name")]
