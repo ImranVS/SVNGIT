@@ -25,6 +25,7 @@ export * from './configurator/components/applicationSettings/configurator-mainta
 export * from './configurator/components/applicationSettings/configurator-ibm-domino-settings.component'
 export * from './configurator/components/applicationSettings/configurator-maintenance.component'
 export * from './configurator/components/applicationSettings/configurator-travelerdatastore.component'
+export * from './configurator/components/serverSettings/configurator-domino-server-tasks.component'
 
 export * from './services/components/service-clusterhealth-grid.component';
 export * from './services/components/service-database-grid.component';
@@ -35,3 +36,4 @@ export * from './services/components/service-travelerhealth-grid.component';
 export * from './services/components/service-travelermailservers-grid.component';
 export * from './services/components/service-nm-servertasks-grid.component';
 export * from './configurator/components/serverSettings/server-locations-credentials-businesshours.component'
+export * from './configurator/components/serverSettings/configurator-server-attributes.component'
