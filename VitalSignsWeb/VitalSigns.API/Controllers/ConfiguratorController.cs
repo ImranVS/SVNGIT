@@ -670,14 +670,15 @@ namespace VitalSigns.API.Controllers
             {
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                locationRepository = new Repository<Location>(ConnectionString);
                 var credentialsData = credentialsRepository.All().Where(x => x.Alias != null).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
                 var businessHoursData = businessHoursRepository.All().Where(x => x.Name != null).Select(x => x.Name).Distinct().OrderBy(x => x).ToList();
-
+                var locationsData = locationRepository.All().Where(x => x.LocationName != null).Select(x => x.LocationName).Distinct().OrderBy(x => x).ToList();
                 credentialsData.Insert(0, "-All-");
                 businessHoursData.Insert(0, "-All-");
-               
+                locationsData.Insert(0, "-All-");
 
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData});
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData,locationsData=locationsData});
                 return Response;
             }
             catch (Exception exception)
