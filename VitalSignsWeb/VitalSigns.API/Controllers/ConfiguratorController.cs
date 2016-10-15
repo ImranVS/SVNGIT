@@ -660,5 +660,33 @@ namespace VitalSigns.API.Controllers
             Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
             travelerdatastoreRepository.Delete(expression);
         }
+
+
+        [HttpGet("get-server-credentials-businesshours")]
+        public APIResponse GetDeviceListDropDownData()
+        {
+
+            try
+            {
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                var credentialsData = credentialsRepository.All().Where(x => x.Alias != null).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
+                var businessHoursData = businessHoursRepository.All().Where(x => x.Name != null).Select(x => x.Name).Distinct().OrderBy(x => x).ToList();
+
+                credentialsData.Insert(0, "-All-");
+                businessHoursData.Insert(0, "-All-");
+               
+
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData});
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
     }
 }
