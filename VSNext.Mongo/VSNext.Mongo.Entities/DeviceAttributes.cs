@@ -30,5 +30,10 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("default_value")]
         public int DefaultValue { get; set; }
+
+        [DataMember]
+        [BsonElement("field_name")]
+        public string FieldName { get; set; }
+
     }
 }
