@@ -1,6 +1,8 @@
 ﻿
-export * from '../../../not-yet-implemented.component';
+export * from './configurator-server-attributes.component';
+export * from './configurator-domino-server-tasks.component';
 export * from './server-locations-credentials-businesshours.component';
+
 
 
 

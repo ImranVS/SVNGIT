@@ -38,14 +38,14 @@ export class ServerSettings implements OnInit {
         this.tabsData= [
             {
                 "title": "Server Atributes",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "ServerAttributes",
+                "path": "/app/configurator/components/serverSettings/configurator-server-attributes.component",
                 "active": "true"
             },
             {
                 "title": "Domino Server Tasks",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "DominoServerTasks",
+                "path": "/app/configurator/components/serverSettings/configurator-domino-server-tasks.component",
                 "active": "false"
             },
             {
