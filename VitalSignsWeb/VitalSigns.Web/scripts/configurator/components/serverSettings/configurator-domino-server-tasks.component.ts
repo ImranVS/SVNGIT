@@ -30,17 +30,14 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class DominoServerTasks extends GridBase  {  
-    
+    devices: string;
     constructor(service: RESTService) {
         super(service, '/Configurator/business_hours');
         this.formName = "Domino";
     }   
-    //saveBusinessHour() {
-    //    this.saveGridRow('/Configurator/save_business_hours');  
-    //}
-    //delteBusinessHour() {      
-    //    this.delteGridRow('/Configurator/delete_business_hours/');  
-    //}
+    changeInDevices(devices: string) {
+        this.devices = devices;
+    }
 }
 
 

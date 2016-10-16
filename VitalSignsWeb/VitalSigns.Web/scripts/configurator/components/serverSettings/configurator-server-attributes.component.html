@@ -48,7 +48,9 @@ data.pageIndex + 1 | number
             <wj-menu-item [value]="50">50</wj-menu-item>
         </wj-menu>
     </div>
-   
+    <div>
+        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+    </div>
 </div>
 
 

@@ -15,34 +15,23 @@ import {RESTService} from '../../../core/services';
 })
 export class ServerLocations implements OnInit, AfterViewInit {
 
-    @ViewChildren('name') inputName;
-    @Output() location = new EventEmitter();
-    @Output() credential = new EventEmitter();
-    @Output() businessHour = new EventEmitter();
-    insertMode: boolean = false;
-    ibmDominoSettingsForm: FormGroup;
-    errorMessage: string;
-    profileEmail: string;
-    formTitle: string;
+    @ViewChildren('name') inputName; 
+    errorMessage: any;
     deviceLocationData: any;
     deviceCredentialData: any;
     devicebusinessHourData: any;
-    credentials: any;
-    businessHours: any;
-    deviceLocation: string = "-All-";
-    deviceCredential: string = "-All-";
-    devicebusinessHour: string = "-All-";
-    constructor(
-        private formBuilder: FormBuilder,
-        private dataProvider: RESTService,
-        private router: Router,
-        private route: ActivatedRoute) {
+    selectedSetting: any;
+    selectedSettingValue: any;
+    devices: string;
+    selectedLocation: string;
+    selectedCredential: string;
+    selectedBusinessHour: string;
+    postData: any;
+    constructor(    
+        private dataProvider: RESTService) {
+   }
 
-        this.location.emit('-All-');
-        this.credential.emit('-All-');
-        this.businessHour.emit('-All-');
-      
-
+    ngOnInit() {
         this.dataProvider.get('/Configurator/get-server-credentials-businesshours')
             .subscribe(
             (response) => {
@@ -55,16 +44,24 @@ export class ServerLocations implements OnInit, AfterViewInit {
             );
     }
 
-    ngOnInit() {
-      
-     
-     
-
-    }
-
     ngAfterViewInit() {
 
     }
-
+    applySetting() {
+        if (this.selectedSetting == "locations")
+            this.selectedSettingValue = this.selectedLocation;
+        else if (this.selectedSetting == "credentials")
+            this.selectedSettingValue = this.selectedCredential;
+        else if (this.selectedSetting == "businessHours")
+            this.selectedSettingValue = this.selectedBusinessHour;  
+        this.postData = {
+            "setting": this.selectedSetting,
+            "value": this.selectedSettingValue,
+            "devices": this.devices
+        };     
+    }
+    changeInDevices(servers: string) {
+        this.devices = servers;
+    }
    
 }

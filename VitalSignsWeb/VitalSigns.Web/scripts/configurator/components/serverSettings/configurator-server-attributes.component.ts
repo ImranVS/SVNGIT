@@ -30,7 +30,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class ServerAttributes extends GridBase  {  
-    
+    devices: string;
     constructor(service: RESTService) {
         super(service, '/Configurator/business_hours');
         this.formName = "Business Hours";
@@ -41,6 +41,10 @@ export class ServerAttributes extends GridBase  {
     }
     delteBusinessHour() {      
         this.delteGridRow('/Configurator/delete_business_hours/');  
+    }
+
+    changeInDevices(devices: string) {
+        this.devices = devices;
     }
 }
 

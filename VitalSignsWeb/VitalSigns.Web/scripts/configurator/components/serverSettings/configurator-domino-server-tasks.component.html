@@ -137,6 +137,9 @@ data.pageIndex + 1 | number
             Delete
         </button>
     </div>
+    <div>
+        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+    </div>
 </div>
 
 

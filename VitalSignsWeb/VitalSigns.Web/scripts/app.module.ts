@@ -22,6 +22,8 @@ import {AppMainMenu} from './navigation/app.main-menu.component';
 import {AppNavigator} from './navigation/app.navigator.component';
 
 import {SearchServerList} from './services/components/search-server-list.component';
+import {ServersLocation} from './configurator/components/server-list-location.component';
+
 import {SearchDeviceListPipe} from './services/components/search-server-list.pipe';
 
 import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
@@ -44,6 +46,7 @@ import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-samet
         IBMConnectionsDetails,
         IBMSametimeDetails,
         SearchServerList,
+        ServersLocation,
         SearchDeviceListPipe,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,

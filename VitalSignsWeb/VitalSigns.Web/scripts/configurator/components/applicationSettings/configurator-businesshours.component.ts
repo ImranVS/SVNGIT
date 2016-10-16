@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+﻿import {Component, OnInit, ViewChild, AfterViewInit,Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HTTP_PROVIDERS}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -30,16 +30,22 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class BusinessHours extends GridBase  {  
-    
+     selectedServers:string;
     constructor(service: RESTService) {
         super(service, '/Configurator/business_hours');
         this.formName = "Business Hours";
     }   
     saveBusinessHour() {
+        
         this.saveGridRow('/Configurator/save_business_hours');  
+
+    }
+    selectedServer(servers: string) {
+        this.selectedServers = servers;
     }
     delteBusinessHour() {      
-        this.delteGridRow('/Configurator/delete_business_hours/');  
+        alert(this.selectedServers);
+        //this.delteGridRow('/Configurator/delete_business_hours/');  
     }
 }
 
