@@ -671,13 +671,9 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
                 locationRepository = new Repository<Location>(ConnectionString);
-                var credentialsData = credentialsRepository.All().Where(x => x.Alias != null).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
-                var businessHoursData = businessHoursRepository.All().Where(x => x.Name != null).Select(x => x.Name).Distinct().OrderBy(x => x).ToList();
-                var locationsData = locationRepository.All().Where(x => x.LocationName != null).Select(x => x.LocationName).Distinct().OrderBy(x => x).ToList();
-                credentialsData.Insert(0, "-All-");
-                businessHoursData.Insert(0, "-All-");
-                locationsData.Insert(0, "-All-");
-
+                var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText= x.Alias,Value=x.Id }).ToList().OrderBy(x=>x.DisplayText);
+                var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+                var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData,locationsData=locationsData});
                 return Response;
             }
@@ -688,6 +684,42 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+        [HttpGet("device_list")]
+        public APIResponse GetAllServersWithLocation()
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            List<ServerLocation> serverLocations = new List<ServerLocation>();
+            try
+            {
+
+                var result = serversRepository.Collection.Aggregate()
+                                                         .Lookup("location", "location_id", "_id", "result").ToList();
+               foreach (var x in result)
+                {
+                    ServerLocation serverLocation = new ServerLocation();
+                    {
+                        serverLocation.Id = x["_id"].AsObjectId.ToString();
+                        serverLocation.DeviceName = x.GetValue("device_name", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.DeviceType = x.GetValue("device_type", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.Description = x.GetValue("description", BsonString.Create(string.Empty)).ToString();
+                        if (!string.IsNullOrEmpty(x.GetValue("result", BsonValue.Create(string.Empty)).ToString()))
+                        {
+                            serverLocation.LocationName = x.GetValue("result", BsonValue.Create(string.Empty))[0]["location_name"].ToString();
+                        }
+                        serverLocation.IsSelected = false;
+                    }
+                    serverLocations.Add(serverLocation);
+                }
+                Response = Common.CreateResponse(serverLocations.OrderBy(x => x.LocationName));
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
+
 
     }
 }
