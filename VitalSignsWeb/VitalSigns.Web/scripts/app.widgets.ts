@@ -38,5 +38,10 @@ export * from './services/components/service-travelerhealth-grid.component';
 export * from './services/components/service-travelermailservers-grid.component';
 export * from './services/components/service-nm-servertasks-grid.component';
 export * from './configurator/components/serverSettings/server-locations-credentials-businesshours.component'
+
+export * from './configurator/components/serverSettings/configurator-server-attributes.component';
+export * from './configurator/components/serverSettings/configurator-windows-services .component'
+export * from './configurator/components/serverSettings/configurator-server-attributes.component'
 export * from './configurator/components/serverSettings/configurator-server-attributes.component'
 export * from './configurator/components/serverSettings/server-disk-settings'
+
