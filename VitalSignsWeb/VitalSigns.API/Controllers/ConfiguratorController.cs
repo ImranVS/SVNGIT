@@ -45,7 +45,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<NameValue> namevalueRepository;
 
-        private IRepository<WindowsServices> windowsservicesRepository;
+        private IRepository<WindowsService> windowsservicesRepository;
 
         private IRepository<DominoServerTasks> dominoservertasksRepository;
 
@@ -781,7 +781,7 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                windowsservicesRepository = new Repository<WindowsServices>(ConnectionString);
+                windowsservicesRepository = new Repository<WindowsService>(ConnectionString);
                 var result = windowsservicesRepository.All().Select(x => new WindowsServiceModel
                 {
                     Id = x.Id,
