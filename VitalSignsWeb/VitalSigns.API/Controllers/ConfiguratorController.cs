@@ -772,7 +772,7 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpPut("save_server_credentials_businesshours")]
-        public APIResponse UpdateIbmDominoSettings([FromBody]DeviceSettings deviceSettings)
+        public APIResponse UpdateServerCredentialsBusinessHours([FromBody]DeviceSettings deviceSettings)
         {
             serversRepository = new Repository<Server>(ConnectionString);
             try
