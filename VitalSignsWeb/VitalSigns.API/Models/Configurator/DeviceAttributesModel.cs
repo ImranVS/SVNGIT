@@ -30,4 +30,14 @@ namespace VitalSigns.API.Models
         [JsonProperty("is_selected")]
         public bool IsSelected { get; set; }
     }
+
+    public class DeviceAttributeValue
+    {
+        [JsonProperty("field_name")]
+        public string FieldName { get; set; }
+
+        [JsonProperty("value")]
+        public string Value { get; set; }
+      
+    }
 }
