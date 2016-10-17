@@ -828,7 +828,7 @@ namespace VitalSigns.API.Controllers
         }
 
 
-        [HttpGet("connections/most_active_community")]
+        [HttpGet("connections/top_communities")]
         public APIResponse ConnectionsMostActive(string count = "5")
         {
             try
