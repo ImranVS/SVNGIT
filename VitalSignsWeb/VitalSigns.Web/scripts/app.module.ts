@@ -28,6 +28,8 @@ import {SearchDeviceListPipe} from './services/components/search-server-list.pip
 
 import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
+import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
+
 
 @NgModule({
     imports: [
@@ -48,6 +50,7 @@ import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-samet
         SearchServerList,
         ServersLocation,
         SearchDeviceListPipe,
+        FilterByDeviceTypePipe,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,

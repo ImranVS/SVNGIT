@@ -41,7 +41,7 @@ export class BusinessHours extends GridBase  {
     }
     
     delteBusinessHour() {      
-        his.delteGridRow('/Configurator/delete_business_hours/');  
+        this.delteGridRow('/Configurator/delete_business_hours/');  
     }
 }
 
