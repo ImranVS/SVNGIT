@@ -13,7 +13,7 @@ namespace VSNext.Mongo.Entities
     [DataContract]
     [Serializable]
     [CollectionName("windows_services")]
-    public  class WindowsServices:Entity
+    public  class WindowsService:Entity
     {
         [DataMember]
         [BsonElement("display_name")]
@@ -22,5 +22,9 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("service_name")]
         public string ServiceName { get; set; }
+
+        [DataMember]
+        [BsonElement("device_type")]
+        public string DeviceType { get; set; }
     }
 }
