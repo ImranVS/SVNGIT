@@ -50,8 +50,8 @@ export class ServerSettings implements OnInit {
             },
             {
                 "title": "Windows Services",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "WindowsServices",
+                "path": "/app/configurator/components/serverSettings/configurator-windows-services .component",
                 "active": "false"
             },
             {

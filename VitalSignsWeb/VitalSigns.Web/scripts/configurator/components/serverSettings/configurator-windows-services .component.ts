@@ -10,11 +10,11 @@ import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
-import {DominoServerTasksValue} from '../../models/domino-server-tasks';
+import {WindowsServicesValue} from '../../models/windows-services';
 
 
 @Component({
-    templateUrl: '/app/configurator/components/serverSettings/configurator-domino-server-tasks.component.html',
+    templateUrl: '/app/configurator/components/serverSettings/configurator-windows-services .component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
@@ -30,12 +30,19 @@ import {DominoServerTasksValue} from '../../models/domino-server-tasks';
         RESTService
     ]
 })
-export class DominoServerTasks extends GridBase  {  
+export class WindowsServices extends GridBase  {  
     devices: string;
-   
+    selectedSetting: any;
+    deviceTypeData: any;
+    errorMessage: any;
+    selectedSettingValue: any;
+    selectedServerType: string;
     currentForm: FormGroup;
+    postData: any;
+
     constructor(service: RESTService, private formBuilder: FormBuilder) {
-        super(service, '/Configurator/domino_server_tasks');
+        super(service, '/Configurator/windows_services');
+      
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
@@ -43,36 +50,44 @@ export class DominoServerTasks extends GridBase  {
 
 
         });
-        this.formName = "DominoServerTasks";
     }   
-    changeInDevices(devices: string) {
-        this.devices = devices;
+
+    ngOnInit() {
+        this.service.get('/configurator/get_Device_type__list')
+            .subscribe(
+            (response) => {
+                this.deviceTypeData = response.data;
+
+            },
+            (error) => this.errorMessage = <any>error
+            );
     }
 
     applySetting() {
-      var   slectedDominoServerValues: DominoServerTasksValue[] = [];
+        var slectedWindowsServicesValues: WindowsServicesValue[] = [];
         for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
             var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
             if (item.is_selected) {
-                var dominoserverObject = new DominoServerTasksValue();
-                dominoserverObject.is_load = item.is_load;
-                dominoserverObject.is_restart_asap = item.is_restart_asap;
-                dominoserverObject.is_resart_later = item.is_resart_later;
-                dominoserverObject.is_disallow = item.is_disallow;
-                dominoserverObject.task_name = item.task_name;
-                slectedDominoServerValues.push(dominoserverObject);
+                var windowsservicesObject = new WindowsServicesValue();
+               
+                windowsservicesObject.service_name = item.service_name;
+                slectedWindowsServicesValues.push(windowsservicesObject);
             }
 
         }
         var postData = {
             "setting": "",
-            "value": slectedDominoServerValues,
+            "value": slectedWindowsServicesValues,
             "devices": this.devices
         };
-
         console.log(postData);
         this.currentForm.setValue(postData);
-        this.service.put('/Configurator/save_domino_server_tasks', postData);
+        this.service.put('/Configurator/save_windows_services', postData);
+    }
+
+
+    changeInDevices(devices: string) {
+        this.devices = devices;
     }
 }
 
