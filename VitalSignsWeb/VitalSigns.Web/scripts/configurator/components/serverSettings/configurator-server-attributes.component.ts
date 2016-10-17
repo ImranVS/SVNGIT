@@ -37,7 +37,6 @@ export class DeviceAttributes extends GridBase implements OnInit {
     deviceTypeData: any;
     errorMessage: any;
     selectedDeviceType: any;
-    slectedAttributeValues: DeviceAttributeValue[] = [];
     currentForm: FormGroup;
     constructor(service: RESTService,
         private formBuilder: FormBuilder) {
@@ -67,21 +66,23 @@ export class DeviceAttributes extends GridBase implements OnInit {
             );
     }
     applySetting() { 
+       var slectedAttributeValues: DeviceAttributeValue[] = [];
         for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
             var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
             if (item.is_selected) {
                 var deviceAttrObject=new DeviceAttributeValue();
                 deviceAttrObject.value = item.default_value;
                 deviceAttrObject.field_name = item.field_name;
-                this.slectedAttributeValues.push(deviceAttrObject);
+                slectedAttributeValues.push(deviceAttrObject);
             }
 
         }
         var postData = {
             "setting": "",
-            "value": this.slectedAttributeValues,
+            "value": slectedAttributeValues,
             "devices": this.devices
         };   
+        console.log(postData);
         this.currentForm.setValue(postData);
         this.service.put('/Configurator/save_device_attributes', postData);
     }
