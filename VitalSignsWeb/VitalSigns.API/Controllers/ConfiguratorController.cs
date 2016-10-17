@@ -41,6 +41,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<Users> maintainUsersRepository;
 
         private IRepository<TravelerDTS> travelerdatastoreRepository;
+        private IRepository<DeviceAttributes> deviceAttributesRepository;
+
 
 
 
@@ -426,6 +428,24 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpGet("get_Device_type__list")]
+        public APIResponse GetDeviceTypes()
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                var result = serversRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.DeviceType, Value = x.DeviceType }).Distinct().ToList().OrderBy(x => x.DisplayText);
+
+
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
         //[HttpGet("mobileusers")]
         //public APIResponse GetAllMobileUsersList()
         //{
@@ -437,7 +457,7 @@ namespace VitalSigns.API.Controllers
         //            UserName = x.UserName,
         //            DeviceName = x.DeviceName,
         //           LastSyncTime = x.LastSyncTime
-                    
+
 
 
         //        }).ToList();
@@ -720,6 +740,30 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpGet("get_device_attributes")]
+        public APIResponse GetDeviceAttributes()
+        {
+            try
+            {
+                deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+                var result = deviceAttributesRepository.All().Select(x=> new DeviceAttributesModel
+                {
+                    Id=x.Id,
+                    AttributeName=x.AttributeName,
+                    DefaultValue=x.DefaultValue,
+                    DeviceType=x.DeviceType,
+                    FieldName=x.FieldName,
+                    Unitofmeasurement=x.Unitofmeasurement,
+                    IsSelected=false
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
 
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
     }
 }
