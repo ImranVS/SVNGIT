@@ -46,16 +46,13 @@ export class ServersLocation extends GridBase {
     }
   
     serverCheck(value,event) {
-       // alert(value);
+     
         if (event.target.checked)
             this.devices.push(value);
-        else {
-           // console.log(this.servers.findIndex(value));
+        else {          
             this.devices.splice(this.devices.indexOf(value), 1);
         }
-      //  console.log()
         this.checkedDevices.emit(this.devices);
-
     }
 }
 

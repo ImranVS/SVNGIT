@@ -1,8 +1,11 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {HTTP_PROVIDERS}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
+import {DeviceAttributeValue} from '../../models/device-attribute';
+
 
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -34,12 +37,23 @@ export class DeviceAttributes extends GridBase implements OnInit {
     deviceTypeData: any;
     errorMessage: any;
     selectedDeviceType: any;
-    constructor(service: RESTService) {
+    slectedAttributeValues: DeviceAttributeValue[] = [];
+    currentForm: FormGroup;
+    constructor(service: RESTService,
+        private formBuilder: FormBuilder) {
         super(service, '/Configurator/get_device_attributes');
+        this.currentForm = this.formBuilder.group({
+            'setting': [''],
+            'value': [''],
+            'devices': ['']
+
+
+        });
     }  
      
     changeInDevices(devices: string) {
         this.devices = devices;
+       
     }
 
     ngOnInit()
@@ -47,11 +61,29 @@ export class DeviceAttributes extends GridBase implements OnInit {
         this.service.get('/configurator/get_Device_type__list')
             .subscribe(
             (response) => {
-                this.deviceTypeData = response.data;
-                
+                this.deviceTypeData = response.data;                
             },
             (error) => this.errorMessage = <any>error
             );
+    }
+    applySetting() { 
+        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+            if (item.is_selected) {
+                var deviceAttrObject=new DeviceAttributeValue();
+                deviceAttrObject.value = item.default_value;
+                deviceAttrObject.field_name = item.field_name;
+                this.slectedAttributeValues.push(deviceAttrObject);
+            }
+
+        }
+        var postData = {
+            "setting": "",
+            "value": this.slectedAttributeValues,
+            "devices": this.devices
+        };   
+        this.currentForm.setValue(postData);
+        this.service.put('/Configurator/save_device_attributes', postData);
     }
 }
 
