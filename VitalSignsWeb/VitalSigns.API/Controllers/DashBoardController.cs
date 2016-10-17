@@ -828,6 +828,57 @@ namespace VitalSigns.API.Controllers
         }
 
 
+        [HttpGet("mail_health")]
+        public APIResponse GetMailHealth(string month)
+        {
+            try
+            {
+                string[] statNames = { "Mail.TotalRouted", "Mail.Delivered", "Mail.TransferFailures", "Mail.TotalPending",
+                    "Mail.AverageDeliverTime", "Mail.AverageServerHops", "Mail.AverageSizeDelivered", "SMTP.MessagesProcessed" };
+                string DateFormat = "yyyy-MM";
+                DateTime date = DateTime.ParseExact(month, DateFormat, CultureInfo.InvariantCulture);
+                DateTime firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+                DateTime nextMonth = firstDayOfMonth.AddMonths(1);
+
+                dailyStatisticsRepository = new Repository<DailyStatistics>(ConnectionString);
+
+                FilterDefinition<DailyStatistics> filterDef = dailyStatisticsRepository.Filter.Gte(x => x.CreatedOn, firstDayOfMonth) &
+                    dailyStatisticsRepository.Filter.Lt(x => x.CreatedOn, nextMonth) &
+                    dailyStatisticsRepository.Filter.In(x => x.StatName, statNames);
+
+                var dailyStats = dailyStatisticsRepository.Find(filterDef).ToList();
+                List<Object> result = new List<object>();
+                foreach(string deviceName in dailyStats.Select(i => i.DeviceName).Distinct())
+                {
+                    var dailyStatsTemp = dailyStats.Where(i => i.DeviceName == deviceName).ToList();
+                    result.Add(new
+                    {
+                        DeviceName = deviceName,
+                        TotalRouted = Convert.ToInt32(dailyStatsTemp.Where(i => i.StatName == "Mail.TotalRouted").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
+                        Delivered = Convert.ToInt32(dailyStatsTemp.Where(i => i.StatName == "Mail.Delivered").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
+                        TransferFailures = Convert.ToInt32(dailyStatsTemp.Where(i => i.StatName == "Mail.TransferFailures").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
+                        TotalPending = Math.Round(dailyStatsTemp.Where(i => i.StatName == "Mail.TotalPending").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
+                        AvgDeliveryTimeInSeconds = Math.Round(dailyStatsTemp.Where(i => i.StatName == "Mail.AverageDeliverTime").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
+                        AvgServerHops = Math.Round(dailyStatsTemp.Where(i => i.StatName == "Mail.AverageServerHops").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
+                        AvgSizeDelivered = Math.Round(dailyStatsTemp.Where(i => i.StatName == "Mail.AverageSizeDelivered").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
+                        SmtpMessagesProcessed = Convert.ToInt32(dailyStatsTemp.Where(i => i.StatName == "SMTP.MessagesProcessed").Select(i => i.StatValue).DefaultIfEmpty(0).Sum())
+                    });
+                }
+
+                var param = "DeviceName";
+                var propertyInfo = result[0].GetType().GetProperty(param);
+                Response = Common.CreateResponse(result.OrderBy(i => propertyInfo.GetValue(i, null)));
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
         [HttpGet("connections/top_communities")]
         public APIResponse ConnectionsMostActive(string count = "5")
         {
@@ -861,27 +912,49 @@ namespace VitalSigns.API.Controllers
                 var topLists = result.Where(i => topParents.Contains(i.Key.ParentGuid)).ToList();
 
                 List<Serie> listOfSeries = new List<Serie>();
-                foreach(var currType in topLists.Select(i => i.Key.Type).Distinct())
+
+                if (count == "1")
                 {
-                    List<Segment> listOfSegments = new List<Segment>();
-                    var resultByType = topLists.Where(i => i.Key.Type == currType).ToList();
-                    foreach(var currObj in resultByType.Select(i => i.Key.ParentGuid).Distinct())
+                    var segments = new List<Segment>();
+
+                    foreach (var type in topLists.Select(i => i.Key.Type).Distinct())
                     {
-                        Segment segment = new Segment()
+                        segments.Add(new Segment()
                         {
-                            Label = listOfCommunity.Where(i => i.Id == currObj).FirstOrDefault().Name,
-                            Value = resultByType.Where(i => i.Key.ParentGuid == currObj).Select(i => i.Count).FirstOrDefault()
-                        };
-                        listOfSegments.Add(segment);
+                            Label = type,
+                            Value = topLists.Where(i => i.Key.Type == type).FirstOrDefault().Count
+                        });
                     }
 
-                    listOfSeries.Add(new Serie() { Segments = listOfSegments, Title = currType});
+                    Serie serie = new Serie();
+                    serie.Title = listOfCommunity.Where(i => i.Id == topLists.FirstOrDefault().Key.ParentGuid).FirstOrDefault().Name;
+                    serie.Segments = segments;
 
+                    listOfSeries.Add(serie);
                 }
+                else
+                {
+                    foreach (var currType in topLists.Select(i => i.Key.Type).Distinct())
+                    {
+                        List<Segment> listOfSegments = new List<Segment>();
+                        var resultByType = topLists.Where(i => i.Key.Type == currType).ToList();
+                        foreach (var currObj in resultByType.Select(i => i.Key.ParentGuid).Distinct())
+                        {
+                            Segment segment = new Segment()
+                            {
+                                Label = listOfCommunity.Where(i => i.Id == currObj).FirstOrDefault().Name,
+                                Value = resultByType.Where(i => i.Key.ParentGuid == currObj).Select(i => i.Count).FirstOrDefault()
+                            };
+                            listOfSegments.Add(segment);
+                        }
 
+                        listOfSeries.Add(new Serie() { Segments = listOfSegments, Title = currType });
+
+                    }
+                }
                 Chart chart = new Chart() {
                     Series = listOfSeries,
-                    Title = "Top 5 Communities"
+                    Title = "Top " + count + " Communities"
                 };
 
                 
