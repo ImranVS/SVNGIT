@@ -779,13 +779,13 @@ namespace VitalSigns.API.Controllers
             {
                 string setting = Convert.ToString(deviceSettings.Setting);
                 string settingValue = Convert.ToString(deviceSettings.Value);
-                string devices = Convert.ToString(deviceSettings.Devices);
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
                 UpdateDefinition<Server> updateDefinition = null;
 
-                if (!string.IsNullOrEmpty(devices))
+                if (devicesList.Count() >0 && !string.IsNullOrEmpty(setting) && !string.IsNullOrEmpty(settingValue))
                 {
                     //var devicesList = devices.Replace('[',' ').Replace(']', ' ').Trim().Split(',');
-                    var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
+                   
                     foreach(string id in devicesList)
                     {
 
@@ -862,7 +862,22 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+        [HttpPut("save_device_attributes")]
+        public APIResponse SaveDeviceAttributes([FromBody]DeviceSettings deviceSettings)
+        {
+            try
+            {              
+                var settingValue = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<DeviceAttributeValue>>();
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
+                //Response = Common.CreateResponse(result);
+            }
 
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
 
     }
 }
