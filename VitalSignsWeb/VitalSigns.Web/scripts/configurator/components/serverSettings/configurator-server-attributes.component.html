@@ -1,16 +1,19 @@
 ﻿<div class="container">
     <label for="servertypes">ServerTypes</label>
 
-    <wj-combo-box name="servertypes" [itemsSource]="deviceLocationData"
-                  [(ngModel)]="deviceLocation">
-    </wj-combo-box>
-    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid  #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
-        <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Select'" [binding]="'select'" [width]="100"> </wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Attribute Name'" [binding]="'attribute_name'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Default Value'" [binding]="'defaultvalue'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Unit of Measurement'" [binding]="'unitofmeasurement'" [width]="100"></wj-flex-grid-column>
+    <div class="form-group" >
+        <label for="deviceType">Device Type</label>
+
+        <wj-combo-box name="deviceType"  displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceTypeData"
+                      [(ngModel)]="selectedDeviceType" placeholder="Select Device Type">
+
+        </wj-combo-box>
+    </div>      
+    <wj-flex-grid  #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" >
+         <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="100"> </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Attribute Name'" [binding]="'attribute_name'" [width]="100" is-read-only="true"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Default Value'" [binding]="'default_value'" [width]="100" ></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Unit of Measurement'" [binding]="'unit_of_measurement'" [width]="100" is-read-only="true"></wj-flex-grid-column>
        
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">

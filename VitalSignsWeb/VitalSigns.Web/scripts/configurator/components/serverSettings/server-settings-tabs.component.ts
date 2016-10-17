@@ -38,7 +38,7 @@ export class ServerSettings implements OnInit {
         this.tabsData= [
             {
                 "title": "Server Atributes",
-                "component": "ServerAttributes",
+                "component": "DeviceAttributes",
                 "path": "/app/configurator/components/serverSettings/configurator-server-attributes.component",
                 "active": "true"
             },

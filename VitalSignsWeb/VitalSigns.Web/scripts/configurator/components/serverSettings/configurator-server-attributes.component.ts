@@ -29,22 +29,29 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         RESTService
     ]
 })
-export class ServerAttributes extends GridBase  {  
+export class DeviceAttributes extends GridBase implements OnInit {  
     devices: string;
+    deviceTypeData: any;
+    errorMessage: any;
+    selectedDeviceType: any;
     constructor(service: RESTService) {
-        super(service, '/Configurator/business_hours');
-        this.formName = "Business Hours";
-
-    }   
-    saveBusinessHour() {
-        this.saveGridRow('/Configurator/save_business_hours');  
-    }
-    delteBusinessHour() {      
-        this.delteGridRow('/Configurator/delete_business_hours/');  
-    }
-
+        super(service, '/Configurator/get_device_attributes');
+    }  
+     
     changeInDevices(devices: string) {
         this.devices = devices;
+    }
+
+    ngOnInit()
+    {
+        this.service.get('/configurator/get_Device_type__list')
+            .subscribe(
+            (response) => {
+                this.deviceTypeData = response.data;
+                
+            },
+            (error) => this.errorMessage = <any>error
+            );
     }
 }
 
