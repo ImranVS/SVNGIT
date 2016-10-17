@@ -49,7 +49,9 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<DominoServerTasks> dominoservertasksRepository;
 
+        private IRepository<Status> statusRepository;
 
+        List<string> diskNames = new List<string>();
 
         [HttpGet("get_locations")]
         public APIResponse GetLocationsDropDownData(string country, string state)
@@ -981,6 +983,63 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+
+        [HttpGet("get_disk_names")]
+        public APIResponse GetStatusOfServerDiskDrives()
+        {
+
+            try
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+
+                var disks = statusRepository.All().Select(x => x.Disks).ToList();
+
+
+
+                ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
+
+                //foreach (List<Disk> drive in disks)
+                //{
+                //    if (drive != null)
+                //    {
+                //        var diskNamesList = drive.Select(x => x.DiskName).ToList();
+                //        foreach (string diskName in diskNamesList)
+                //        {
+                //            if (!diskNames.Contains(diskName))
+                //                diskNames.Add(diskName);
+
+                //        }
+
+
+                //    }
+                //}
+
+
+                //    ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
+
+                //foreach (List<Disk> drive in disks)
+                //{
+                //    serverDiskStatus.Drives.Add(new DiskDriveStatus
+                //    {
+
+                //        DiskName = drive.Select(new d).
+
+                //    });
+                //}
+                Response = Common.CreateResponse(serverDiskStatus);
+            }
+            catch (Exception ex)
+            {
+
+                Response = Common.CreateResponse(null, "Error", "Error in getting disk names");
+            }
+
+
+
+            return Response;
+        }
+
 
 
 
