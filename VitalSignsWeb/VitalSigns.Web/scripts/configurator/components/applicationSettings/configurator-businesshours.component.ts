@@ -35,17 +35,13 @@ export class BusinessHours extends GridBase  {
         super(service, '/Configurator/business_hours');
         this.formName = "Business Hours";
     }   
-    saveBusinessHour() {
-        
+    saveBusinessHour() {        
         this.saveGridRow('/Configurator/save_business_hours');  
 
     }
-    selectedServer(servers: string) {
-        this.selectedServers = servers;
-    }
+    
     delteBusinessHour() {      
-        alert(this.selectedServers);
-        //this.delteGridRow('/Configurator/delete_business_hours/');  
+        his.delteGridRow('/Configurator/delete_business_hours/');  
     }
 }
 
