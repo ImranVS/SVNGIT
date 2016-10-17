@@ -21,12 +21,13 @@ export class ServerDiskSettings implements OnInit, AfterViewInit {
     deviceCredentialData: any;
     devicebusinessHourData: any;
     serverLocationsBusinessHoursCredentialsForm: FormGroup;
-    selectedSetting: any;
-    selectedSettingValue: any;
+    selectedDiskSetting: any;
+    selectedDiskSettingValue: any;
     devices: string;
-    selectedLocation: string;
-    selectedCredential: string;
-    selectedBusinessHour: string;
+    selectedDiskByPercentage: string;
+    selectedDiskByGB: string;
+    selectedDisks: string;
+    selectedNoDiskAlerts: string;
     postData: any;
     constructor(    
         private dataProvider: RESTService,
@@ -42,16 +43,7 @@ export class ServerDiskSettings implements OnInit, AfterViewInit {
    }
 
     ngOnInit() {
-        this.dataProvider.get('/Configurator/get_server_credentials_businesshours')
-            .subscribe(
-            (response) => {
-
-                this.deviceLocationData = response.data.locationsData;
-                this.deviceCredentialData = response.data.credentialsData;
-                this.devicebusinessHourData = response.data.businessHoursData;
-            },
-            (error) => this.errorMessage = <any>error
-            );
+      
     }
 
     ngAfterViewInit() {
@@ -59,23 +51,21 @@ export class ServerDiskSettings implements OnInit, AfterViewInit {
     }
     applySetting(nameValue: any): void{
 
-        if (this.selectedSetting == "locations")
-            this.selectedSettingValue = this.selectedLocation;
-        else if (this.selectedSetting == "credentials")
-            this.selectedSettingValue = this.selectedCredential;
-        else if (this.selectedSetting == "businessHours")
-            this.selectedSettingValue = this.selectedBusinessHour;  
+        if (this.selectedDiskSetting == "allDisksBypercentage")
+            
+            this.selectedDiskSettingValue = this.selectedDiskByPercentage;
+        else if (this.selectedDiskSetting == "allDisksByGB")
+            this.selectedDiskSettingValue = this.selectedDiskByGB;
+        else if (this.selectedDiskSetting == "selectedDisks")
+            this.selectedDiskSettingValue = this.selectedDisks;  
+        else if (this.selectedDiskSetting == "noDiskAlerts")
+            this.selectedDiskSettingValue = this.selectedNoDiskAlerts;  
         this.postData = {
-            "setting": this.selectedSetting,
-            "value": this.selectedSettingValue,
+            "setting": this.selectedDiskSetting,
+            "value": this.selectedDiskSettingValue,
             "devices": this.devices
         }; 
-        this.serverLocationsBusinessHoursCredentialsForm.setValue(this.postData);
-        this.dataProvider.put(
-            '/Configurator/save_server_credentials_businesshours',
-            this.postData);
-       //alert(this.postData);
-
+      
 
     }
     changeInDevices(server: string) {
