@@ -827,6 +827,76 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        [HttpGet("connections/most_active_community")]
+        public APIResponse ConnectionsMostActive(string count = "5")
+        {
+            try
+            {
+
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+
+                var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community").ToList();
+
+                var filterDef = connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(i => i.Id).ToList());
+
+
+                var result = connectionsObjectsRepository.Collection.Aggregate()
+                    .Match(filterDef)
+                    .Group(i => new { ParentGuid = i.ParentGUID, Type = i.Type }, g => new { Key = g.Key, Count = g.Count() })
+                    .ToList()
+                    .OrderByDescending(i => i.Count)
+                    .ToList();
+
+                var topParents = result.GroupBy(i => i.Key.ParentGuid)
+                    .Select(group => new
+                    {
+                        ParentGUID = group.Key,
+                        Total = group.Sum(x => x.Count)
+                    })
+                    .OrderByDescending(group => group.Total)
+                    .Select(i => i.ParentGUID)
+                    .Take(Convert.ToInt32(count));
+
+                var topLists = result.Where(i => topParents.Contains(i.Key.ParentGuid)).ToList();
+
+                List<Serie> listOfSeries = new List<Serie>();
+                foreach(var currType in topLists.Select(i => i.Key.Type).Distinct())
+                {
+                    List<Segment> listOfSegments = new List<Segment>();
+                    var resultByType = topLists.Where(i => i.Key.Type == currType).ToList();
+                    foreach(var currObj in resultByType.Select(i => i.Key.ParentGuid).Distinct())
+                    {
+                        Segment segment = new Segment()
+                        {
+                            Label = listOfCommunity.Where(i => i.Id == currObj).FirstOrDefault().Name,
+                            Value = resultByType.Where(i => i.Key.ParentGuid == currObj).Select(i => i.Count).FirstOrDefault()
+                        };
+                        listOfSegments.Add(segment);
+                    }
+
+                    listOfSeries.Add(new Serie() { Segments = listOfSegments, Title = currType});
+
+                }
+
+                Chart chart = new Chart() {
+                    Series = listOfSeries,
+                    Title = "Top 5 Communities"
+                };
+
+                
+                Response = Common.CreateResponse(chart);
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
         [HttpGet("connections/top_tags")]
         public APIResponse ConnectionsTopTags(string type, string deviceid, string count = "5")
         {
