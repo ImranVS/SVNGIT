@@ -20,7 +20,7 @@ using System.Runtime.Serialization.Json;
 namespace VitalSigns.API.Controllers
 {
     [Route("[controller]")]
-    public class ConfiguratorController :BaseController
+    public class ConfiguratorController : BaseController
     {
 
         private IRepository<BusinessHours> businessHoursRepository;
@@ -50,7 +50,7 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("get_locations")]
-        public APIResponse GetLocationsDropDownData(string country,string state)
+        public APIResponse GetLocationsDropDownData(string country, string state)
         {
 
             try
@@ -58,22 +58,22 @@ namespace VitalSigns.API.Controllers
                 validLocationsRepository = new Repository<ValidLocation>(ConnectionString);
                 if (string.IsNullOrEmpty(country) && string.IsNullOrEmpty(state))
                 {
-                    
+
                     var countryData = validLocationsRepository.All().Where(x => x.Country != null).Select(x => x.Country).Distinct().OrderBy(x => x).ToList();
                     Response = Common.CreateResponse(new { countryData = countryData });
                     countryData.Insert(0, "-All-");
                 }
                 if (!string.IsNullOrEmpty(country))
                 {
-                    var stateData = validLocationsRepository.All().FirstOrDefault(x => x.Country == country).States;                   
-                    Response = Common.CreateResponse(new { stateData=stateData });
-                    
+                    var stateData = validLocationsRepository.All().FirstOrDefault(x => x.Country == country).States;
+                    Response = Common.CreateResponse(new { stateData = stateData });
+
                 }
 
                 if (!string.IsNullOrEmpty(country) && !string.IsNullOrEmpty(state))
                 {
                     System.Net.WebClient web = new System.Net.WebClient();
-                  
+
                     string cityresponse = web.DownloadString("http://jnitinc.com/WebService/GetCity.php?Country=" + country + "&State=" + state + "");
 
                     //List<City> ls = deserializeJson<List<LocationValues>>(response);
@@ -82,14 +82,14 @@ namespace VitalSigns.API.Controllers
                     DataContractJsonSerializer jsonSer = new DataContractJsonSerializer(lst.GetType());
                     System.IO.MemoryStream ms = new System.IO.MemoryStream(System.Text.Encoding.Unicode.GetBytes(cityresponse));
                     lst = (List<CityNames>)jsonSer.ReadObject(ms);
-                   // var cities = lst.Select(x => new CityNames
-                   //{
-                   //    City = x.City,                       
-                   //}).ToList();
+                    // var cities = lst.Select(x => new CityNames
+                    //{
+                    //    City = x.City,                       
+                    //}).ToList();
                     List<string> citynames = new List<string>();
                     foreach (CityNames city in lst)
                     {
-                     string   cityes = city.City;
+                        string cityes = city.City;
                         citynames.Add(city.City);
                     }
                     Response = Common.CreateResponse(new { cityData = citynames });
@@ -189,13 +189,13 @@ namespace VitalSigns.API.Controllers
                 }).ToList();
                 Response = Common.CreateResponse(result);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Fetching business hours failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
-       
+
         [HttpPut("save_business_hours")]
         public APIResponse UpdateBusinessHours([FromBody]BusinessHourModel businesshour)
         {
@@ -222,8 +222,8 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(businesshour.Id))
                 {
                     BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray() };
-                    string id=  businessHoursRepository.Insert(businessHours);
-                    Response = Common.CreateResponse( id, "OK", "Business hour inserted successfully");
+                    string id = businessHoursRepository.Insert(businessHours);
+                    Response = Common.CreateResponse(id, "OK", "Business hour inserted successfully");
                 }
                 else
                 {
@@ -235,27 +235,28 @@ namespace VitalSigns.API.Controllers
                     var result = businessHoursRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
                 }
-            }catch(Exception exception)
+            }
+            catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error","Save business hours falied .\n Error Message :"+ exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Save business hours falied .\n Error Message :" + exception.Message);
             }
 
-                return Response;
-            
+            return Response;
+
         }
 
         [HttpDelete("delete_business_hours/{id}")]
         public void DeleteBusinessHours(string id)
         {
             try
-            { 
-            businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-            Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
-            businessHoursRepository.Delete(expression);
+            {
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
+                businessHoursRepository.Delete(expression);
 
             }
 
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
             }
@@ -273,7 +274,7 @@ namespace VitalSigns.API.Controllers
 
         //    return result;
         //}
-       
+
         [HttpPut("save_server_credentials")]
         public APIResponse UpdateServerCredentials([FromBody]ServerCredentialsModel serverCredential)
         {
@@ -281,13 +282,13 @@ namespace VitalSigns.API.Controllers
             {
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
 
-             
+
 
                 if (string.IsNullOrEmpty(serverCredential.Id))
                 {
-                    Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = serverCredential.Password, DeviceType = serverCredential.DeviceType,UserId=serverCredential.UserId};
+                    Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = serverCredential.Password, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
 
-                    
+
                     string id = credentialsRepository.Insert(serverCredentials);
                     Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
                 }
@@ -317,8 +318,8 @@ namespace VitalSigns.API.Controllers
             try
             {
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
-            Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
-            credentialsRepository.Delete(expression);
+                Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
+                credentialsRepository.Delete(expression);
 
 
             }
@@ -334,20 +335,20 @@ namespace VitalSigns.API.Controllers
             try
             {
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
-            var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
-            {
-                Alias = x.Alias,
-                UserId = x.UserId,
-                DeviceType = x.DeviceType,
-                Password = x.Password,
-                Id = x.Id
+                var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
+                {
+                    Alias = x.Alias,
+                    UserId = x.UserId,
+                    DeviceType = x.DeviceType,
+                    Password = x.Password,
+                    Id = x.Id
 
 
-            }).ToList();
+                }).ToList();
 
 
-            Response = Common.CreateResponse(result);
-           
+                Response = Common.CreateResponse(result);
+
             }
             catch (Exception exception)
             {
@@ -355,17 +356,17 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-        
+
         [HttpGet("ibm_domino_settings")]
         public APIResponse GetIbmDominoSettings()
         {
             nameValueRepository = new Repository<NameValue>(ConnectionString);
             var result = nameValueRepository.All().Select(x => new NameValue
             {
-               Name=x.Name,
-               Value=x.Value,
-               Id = x.Id
-               
+                Name = x.Name,
+                Value = x.Value,
+                Id = x.Id
+
             }).ToList();
 
 
@@ -378,24 +379,25 @@ namespace VitalSigns.API.Controllers
         [HttpGet("maintenance")]
         public APIResponse GetAllMaintenance()
         {
-            try { 
-            maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-            var result = maintenanceRepository.All().Select(x => new MaintenanceModel
+            try
             {
-                Id = x.Id,
-                Name = x.Name,
-                StartDate =  x.StartDate,
-                StartTime = x.StartTime,
-                EndDate = x.EndDate,
-                Duration = x.Duration,
-                MaintenanceFrequency = x.MaintenanceFrequency,
-                MaintenanceDaysList = x.MaintenanceDaysList,
-                ContinueForever = x.ContinueForever
+                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+                var result = maintenanceRepository.All().Select(x => new MaintenanceModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    StartDate = x.StartDate,
+                    StartTime = x.StartTime,
+                    EndDate = x.EndDate,
+                    Duration = x.Duration,
+                    MaintenanceFrequency = x.MaintenanceFrequency,
+                    MaintenanceDaysList = x.MaintenanceDaysList,
+                    ContinueForever = x.ContinueForever
 
-            }).ToList();
-            Response = Common.CreateResponse(result);
+                }).ToList();
+                Response = Common.CreateResponse(result);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
             }
@@ -416,7 +418,7 @@ namespace VitalSigns.API.Controllers
                     ServerType = x.DeviceType,
                     Description = x.Description,
                     ServerId = x.ServerId
-                   
+
 
                 }).ToList();
 
@@ -573,7 +575,7 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.StartDate, maintenance.StartDate)
                                                              .Set(p => p.StartTime, maintenance.StartTime)
                                                              .Set(p => p.Duration, maintenance.Duration)
-                                                             .Set(p => p.EndDate, maintenance.EndDate) 
+                                                             .Set(p => p.EndDate, maintenance.EndDate)
                                                              .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
                     var result = maintenanceRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
@@ -592,13 +594,13 @@ namespace VitalSigns.API.Controllers
         public void DeleteMaintenancedata(string id)
         {
             try
-            { 
-            maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-            Expression<Func<Maintenance, bool>> expression = (p => p.Id == id);
-            maintenanceRepository.Delete(expression);
+            {
+                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+                Expression<Func<Maintenance, bool>> expression = (p => p.Id == id);
+                maintenanceRepository.Delete(expression);
             }
 
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Delete Maintenancedata falied .\n Error Message :" + exception.Message);
             }
@@ -684,7 +686,7 @@ namespace VitalSigns.API.Controllers
         }
 
 
-        [HttpGet("get-server-credentials-businesshours")]
+        [HttpGet("get_server_credentials_businesshours")]
         public APIResponse GetDeviceListDropDownData()
         {
 
@@ -693,10 +695,10 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
                 locationRepository = new Repository<Location>(ConnectionString);
-                var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText= x.Alias,Value=x.Id }).ToList().OrderBy(x=>x.DisplayText);
+                var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData,locationsData=locationsData});
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData, locationsData = locationsData });
                 return Response;
             }
             catch (Exception exception)
@@ -716,7 +718,7 @@ namespace VitalSigns.API.Controllers
 
                 var result = serversRepository.Collection.Aggregate()
                                                          .Lookup("location", "location_id", "_id", "result").ToList();
-               foreach (var x in result)
+                foreach (var x in result)
                 {
                     ServerLocation serverLocation = new ServerLocation();
                     {
@@ -748,15 +750,15 @@ namespace VitalSigns.API.Controllers
             try
             {
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-                var result = deviceAttributesRepository.All().Select(x=> new DeviceAttributesModel
+                var result = deviceAttributesRepository.All().Select(x => new DeviceAttributesModel
                 {
-                    Id=x.Id,
-                    AttributeName=x.AttributeName,
-                    DefaultValue=x.DefaultValue,
-                    DeviceType=x.DeviceType,
-                    FieldName=x.FieldName,
-                    Unitofmeasurement=x.Unitofmeasurement,
-                    IsSelected=false
+                    Id = x.Id,
+                    AttributeName = x.AttributeName,
+                    DefaultValue = x.DefaultValue,
+                    DeviceType = x.DeviceType,
+                    FieldName = x.FieldName,
+                    Unitofmeasurement = x.Unitofmeasurement,
+                    IsSelected = false
                 }).ToList();
                 Response = Common.CreateResponse(result);
             }
@@ -767,6 +769,61 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+
+        [HttpPut("save_server_credentials_businesshours")]
+        public APIResponse UpdateIbmDominoSettings([FromBody]DeviceSettings deviceSettings)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                string setting = Convert.ToString(deviceSettings.Setting);
+                string settingValue = Convert.ToString(deviceSettings.Value);
+                string devices = Convert.ToString(deviceSettings.Devices);
+                UpdateDefinition<Server> updateDefinition = null;
+
+                if (!string.IsNullOrEmpty(devices))
+                {
+                    //var devicesList = devices.Replace('[',' ').Replace(']', ' ').Trim().Split(',');
+                    var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
+                    foreach(string id in devicesList)
+                    {
+
+                        FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id==id);
+                        if (setting.Equals("locations"))
+                            updateDefinition = serversRepository.Updater.Set(p => p.LocationId, settingValue);
+                        else if (setting.Equals("credentials"))
+                            updateDefinition = serversRepository.Updater.Set(p => p.CredentialsId, settingValue);
+                        else if (setting.Equals("businessHours"))
+
+                            updateDefinition = serversRepository.Updater.Set(p => p.BusinessHoursId, settingValue);
+                        if (updateDefinition != null)
+                        {
+                            var result = serversRepository.Update(filterDefination, updateDefinition);
+                            Response = Common.CreateResponse(result, "OK", "Location updated successfully");
+                        }
+                        else
+                        {
+                            Response = Common.CreateResponse(null, "OK", "Settings are not selected");
+                        }
+                    }
+                    
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
+                }
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
 
         [HttpPut("save_preferences")]
         public APIResponse UpdatePreferences([FromBody]PreferencesModel userpreference)
@@ -805,6 +862,7 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+
 
     }
 }
