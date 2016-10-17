@@ -1,0 +1,38 @@
+﻿
+<div class="container">
+
+    <div class="form-group">
+
+        <label for="locations">Locations:</label><input type="radio" name="selectionType" value="locations" [(ngModel)]="selectedSetting">
+        <label for="credentials">Credentials:</label><input type="radio" name="selectionType" value="credentials" [(ngModel)]="selectedSetting">
+        <label for="businessHours">Business Hours:</label><input type="radio" name="selectionType" value="businessHours" [(ngModel)]="selectedSetting">
+    </div>
+
+    <div class="form-group" *ngIf="selectedSetting=='locations'">
+        <label for="location">Locations</label>
+
+        <wj-combo-box displayMemberPath="text" selectedValuePath="value" name="location" [itemsSource]="deviceLocationData"
+                      [(ngModel)]="selectedLocation" placeholder="Select Location">
+
+        </wj-combo-box>
+    </div>
+    <div class="form-group" *ngIf="selectedSetting=='credentials'">
+        <label for="credential">Credentials</label>
+
+        <wj-combo-box name="credential" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                      [(ngModel)]="selectedCredential" placeholder="Select Credential">
+        </wj-combo-box>
+    </div>
+    <div class="form-group" *ngIf="selectedSetting=='businessHours'">
+        <label for="businessHour">Business Hours</label>
+
+        <wj-combo-box name="businessHour" [itemsSource]="devicebusinessHourData" displayMemberPath="text" selectedValuePath="value"
+                      [(ngModel)]="selectedBusinessHour" placeholder="Select Business Hour">
+        </wj-combo-box>
+    </div>
+
+    <div class="form-group" *ngIf="selectedSetting">       
+            <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+        <button type="button" class="btn btn-success" (click)="applySetting(serverLocationsBusinessHoursCredentialsForm.value)">Apply</button>      
+    </div>
+</div>

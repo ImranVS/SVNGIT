@@ -56,8 +56,8 @@ export class ServerSettings implements OnInit {
             },
             {
                 "title": "Disk Settings",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "ServerDiskSettings",
+                "path": "/app/configurator/components/serverSettings/server-disk-settings.component",
                 "active": "false"
             },
             {
