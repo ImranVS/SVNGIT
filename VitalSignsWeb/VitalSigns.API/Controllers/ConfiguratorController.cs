@@ -45,7 +45,9 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<NameValue> namevalueRepository;
 
+        private IRepository<WindowsServices> windowsservicesRepository;
 
+        private IRepository<DominoServerTasks> dominoservertasksRepository;
 
 
 
@@ -771,6 +773,73 @@ namespace VitalSigns.API.Controllers
         }
 
 
+
+        [HttpGet("windows_services")]
+        public APIResponse GetAllWindowservices()
+        {
+            try
+            {
+                windowsservicesRepository = new Repository<WindowsServices>(ConnectionString);
+                var result = windowsservicesRepository.All().Select(x => new WindowsServiceModel
+                {
+                    Id = x.Id,
+                    ServiceName = x.ServiceName,
+                    IsSelected = false
+                    // Id = x.Id
+
+
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+
+            return Response;
+        }
+
+
+        [HttpGet("domino_server_tasks")]
+        public APIResponse GetAllDominoServerTasks()
+        {
+            try
+            {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                var result = dominoservertasksRepository.All().Select(x => new DominoServerTasksModel
+                {
+                    Id = x.Id,
+                    IsSelected = false,
+                    TaskName = x.TaskName,
+                    IsLoad = false,
+                    IsRestartASAP = false,
+                    IsResartLater = false,
+                    IsDisallow = false
+                   
+
+
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+
+            return Response;
+        }
+
+
+
+
+
+
         [HttpPut("save_server_credentials_businesshours")]
         public APIResponse UpdateServerCredentialsBusinessHours([FromBody]DeviceSettings deviceSettings)
         {
@@ -878,6 +947,42 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpPut("save_domino_server_tasks")]
+        public APIResponse SaveDominoServerTasks([FromBody]DeviceSettings dominoserversettings)
+        {
+            try
+            {
+                var settingValue = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Value).ToObject<List<DominoServerTasksValue>>();
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Devices).ToObject<string[]>();
+                //Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_windows_services")]
+        public APIResponse SaveWindowsServices([FromBody]DeviceSettings windowsservicesettings)
+        {
+            try
+            {
+                var settingValue = ((Newtonsoft.Json.Linq.JArray)windowsservicesettings.Value).ToObject<List<WindowsServicesValue>>();
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)windowsservicesettings.Devices).ToObject<string[]>();
+                //Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+
 
     }
 }

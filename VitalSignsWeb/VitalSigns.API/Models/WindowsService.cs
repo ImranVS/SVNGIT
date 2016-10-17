@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace VitalSigns.API.Models
 {
-    public class WindowsService
+    public class WindowsServiceModel
     {
         [JsonProperty("server_required")]
         public bool ServerRequired { get; set; }
@@ -25,5 +25,20 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("Status")]
         public string Status { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("is_selected")]
+        public bool IsSelected { get; set; }
+    }
+
+    public class WindowsServicesValue
+    {
+        [JsonProperty("service_name")]
+        public string ServiceName { get; set; }
+
+       
+
     }
 }
