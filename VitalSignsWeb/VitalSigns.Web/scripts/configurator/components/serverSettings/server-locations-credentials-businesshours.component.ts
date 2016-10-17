@@ -20,6 +20,7 @@ export class ServerLocations implements OnInit, AfterViewInit {
     deviceLocationData: any;
     deviceCredentialData: any;
     devicebusinessHourData: any;
+    serverLocationsBusinessHoursCredentialsForm: FormGroup;
     selectedSetting: any;
     selectedSettingValue: any;
     devices: string;
@@ -28,11 +29,20 @@ export class ServerLocations implements OnInit, AfterViewInit {
     selectedBusinessHour: string;
     postData: any;
     constructor(    
-        private dataProvider: RESTService) {
+        private dataProvider: RESTService,
+        private formBuilder: FormBuilder) {
+
+        this.serverLocationsBusinessHoursCredentialsForm = this.formBuilder.group({
+            'setting': [''],
+            'value': [''],
+            'devices': ['']
+           
+
+        });
    }
 
     ngOnInit() {
-        this.dataProvider.get('/Configurator/get-server-credentials-businesshours')
+        this.dataProvider.get('/Configurator/get_server_credentials_businesshours')
             .subscribe(
             (response) => {
 
@@ -47,7 +57,8 @@ export class ServerLocations implements OnInit, AfterViewInit {
     ngAfterViewInit() {
 
     }
-    applySetting() {
+    applySetting(nameValue: any): void{
+
         if (this.selectedSetting == "locations")
             this.selectedSettingValue = this.selectedLocation;
         else if (this.selectedSetting == "credentials")
@@ -58,10 +69,17 @@ export class ServerLocations implements OnInit, AfterViewInit {
             "setting": this.selectedSetting,
             "value": this.selectedSettingValue,
             "devices": this.devices
-        };     
+        }; 
+        this.serverLocationsBusinessHoursCredentialsForm.setValue(this.postData);
+        this.dataProvider.put(
+            '/Configurator/save_server_credentials_businesshours',
+            this.postData);
+       alert(this.postData);
+
+
     }
-    changeInDevices(servers: string) {
-        this.devices = servers;
+    changeInDevices(server: string) {
+        this.devices = server;
     }
    
 }
