@@ -938,7 +938,7 @@ namespace VitalSigns.API.Controllers
                     {
                         List<Segment> listOfSegments = new List<Segment>();
                         var resultByType = topLists.Where(i => i.Key.Type == currType).ToList();
-                        foreach (var currObj in resultByType.Select(i => i.Key.ParentGuid).Distinct())
+                        foreach (var currObj in topParents)
                         {
                             Segment segment = new Segment()
                             {
