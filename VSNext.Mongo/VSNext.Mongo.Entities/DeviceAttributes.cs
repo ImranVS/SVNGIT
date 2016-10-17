@@ -25,7 +25,7 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("unitofmeasurement")]
-        public int Unitofmeasurement { get; set; }
+        public string Unitofmeasurement { get; set; }
 
         [DataMember]
         [BsonElement("default_value")]
