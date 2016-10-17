@@ -74,7 +74,7 @@ export class ServerLocations implements OnInit, AfterViewInit {
         this.dataProvider.put(
             '/Configurator/save_server_credentials_businesshours',
             this.postData);
-       alert(this.postData);
+       //alert(this.postData);
 
 
     }
