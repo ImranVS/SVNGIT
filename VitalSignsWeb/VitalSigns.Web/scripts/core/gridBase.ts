@@ -86,6 +86,14 @@ export abstract class GridBase  {
         }
 
     }
+    cancelEditAdd() {
+        if ((<wijmo.collections.CollectionView>this.flex.collectionView).isAddingNew) {
+            (<wijmo.collections.CollectionView>this.flex.collectionView).cancelNew();
+        }
+        else if ((<wijmo.collections.CollectionView>this.flex.collectionView).isEditingItem) {
+            (<wijmo.collections.CollectionView>this.flex.collectionView).cancelEdit();
+        }
+    }
     toggleColumnVisibility() {
         var flex = this.flex;
         var col = flex.columns[0];
