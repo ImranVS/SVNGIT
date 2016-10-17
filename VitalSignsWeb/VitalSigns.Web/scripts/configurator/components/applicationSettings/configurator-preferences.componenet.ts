@@ -45,7 +45,7 @@ export class PreferencesForm implements OnInit, AfterViewInit {
             'currency_symbol': [''],
             'monitoring_delay': [''],
             'threshold_show': [''],
-            'dashboard_only': [''],
+            'dashboard_only': [false],
             'bing_key': ['']
         });
 
@@ -73,11 +73,11 @@ export class PreferencesForm implements OnInit, AfterViewInit {
 
     }
 
-    //onSubmit(nameValue: any): void {
+    onSubmit(nameValue: any): void {
 
-    //    this.dataProvider.put(
-    //        '/services/save_ibm_domino_settings',
-    //        nameValue);
+        this.dataProvider.put(
+            '/configurator/save_preferences',
+            nameValue);
 
-    //}
+    }
 }

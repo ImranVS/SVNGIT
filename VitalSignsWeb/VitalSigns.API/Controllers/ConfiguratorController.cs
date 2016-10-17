@@ -43,6 +43,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<TravelerDTS> travelerdatastoreRepository;
         private IRepository<DeviceAttributes> deviceAttributesRepository;
 
+        private IRepository<NameValue> namevalueRepository;
+
 
 
 
@@ -765,5 +767,44 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpPut("save_preferences")]
+        public APIResponse UpdatePreferences([FromBody]PreferencesModel userpreference)
+        {
+            try
+            {
+                var preferencesSettings = new List<NameValue> { new NameValue { Name = "Company Name", Value = userpreference.CompanyName },
+                                                                new NameValue { Name = "Currency Symbol", Value = userpreference.CurrencySymbol },
+                                                                new NameValue { Name = "Monitoring Delay", Value = Convert.ToString(userpreference.MonitoringDelay)},
+                                                                new NameValue { Name = "Threshold Show", Value =Convert.ToString(userpreference.ThresholdShow)},
+                                                                new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
+                                                                new NameValue { Name = "Bing Key", Value = userpreference.BingKey }
+                                                             };
+
+                namevalueRepository = new Repository<NameValue>(ConnectionString);
+
+                foreach (var setting in preferencesSettings)
+                {
+                    if (namevalueRepository.Collection.AsQueryable().Where(x => x.Name.Equals(setting.Name)).Count() > 0)
+                    {
+                        var filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == setting.Name);
+                        var updateDefinitaion = namevalueRepository.Updater.Set(p => p.Value, setting.Value);
+                        var results = namevalueRepository.Update(filterDefination, updateDefinitaion);
+                    }
+                    else
+                    {
+                        namevalueRepository.Insert(setting);
+                    }
+                }
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save preferences falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
     }
 }
