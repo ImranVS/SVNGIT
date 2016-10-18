@@ -56,7 +56,7 @@ export class ServerCredentials extends GridBase implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-      
+        //alert(this.deviceTypes);
     } 
   
 
