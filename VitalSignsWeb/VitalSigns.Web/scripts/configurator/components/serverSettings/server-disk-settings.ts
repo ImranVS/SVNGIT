@@ -35,9 +35,10 @@ export class ServerDiskSettings extends GridBase implements OnInit  {
         private dataProvider: RESTService,
         private formBuilder: FormBuilder) {
 
-      
         super(dataProvider, '/Configurator/get_disk_names');
-
+      
+       // super(dataProvider, '/Configurator/get_disk_names');
+       this.formName = "Disk Information";
         this.diskSettingsForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
