@@ -1,4 +1,4 @@
-﻿export class DominoServerTasksValue {
+﻿export class DiskSttingsValue {
     is_selected: boolean;
     disk_name: string;
    
