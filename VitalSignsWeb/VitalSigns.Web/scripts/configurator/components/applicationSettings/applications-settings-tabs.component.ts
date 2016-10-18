@@ -21,17 +21,12 @@ export class ApplicationSettings implements OnInit {
     constructor(private resolver: ComponentFactoryResolver, private elementRef: ElementRef) { }
     selectTab(tab: any) {
         // Activate selected tab
-        this.tabsData.forEach(tab => tab.active = "false");
-        tab.active = "true";
+        this.tabsData.forEach(tab => tab.active = false);
+        tab.active = true;
         // Dispose current tab if one already active
         if (this.activeTabComponent)
-            this.activeTabComponent.destroy();
-
-        // Lazy-load selected tab component
-       // console.log(tab.component);
-        console.log(ServiceTabs[tab.component]);
-        let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
-        console.log(factory);
+            this.activeTabComponent.destroy();       
+        let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);       
         this.activeTabComponent = this.target.createComponent(factory);
     }
     ngOnInit() {   
@@ -40,13 +35,13 @@ export class ApplicationSettings implements OnInit {
                 "title": "Preferences",
                 "component": "PreferencesForm",
                 "path": "/app/configurator/components/applicationSettings/configurator-preferences.componenet",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "Credentials",
                 "component": "ServerCredentials",
                 "path": "/app/configurator/components/applicationSettings/configurator-servercredentials.component",
-                "active": "false"
+                "active": false
 
 
             },
@@ -54,37 +49,37 @@ export class ApplicationSettings implements OnInit {
                 "title": "Business Hours",
                 "component": "BusinessHours",
                 "path": "/app/configurator/components/applicationSettings/configurator-businesshours.component",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "Maintainance",
                 "component": "Maintenance",
                 "path": "/app/configurator/components/applicationSettings/configurator-maintenance.component",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "Locations",
                 "component": "Location",
                 "path": "/app/configurator/components/applicationSettings/configurator-locations.component",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "Users",
                 "component": "MaintainUser",
                 "path": "/app/configurator/components/applicationSettings/configurator-maintainusers.component",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "Traveller Data Store",
                 "component": "TravelerDataStore",
                 "path": "/app/configurator/components/applicationSettings/configurator-travelerdatastore.component",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "IBM Domino Settings",
                 "component": "IbmDominoSettingsForm",
                 "path": "/app/configurator/components/applicationSettings/configurator-ibm-domino-settings.component",
-                "active": "false"
+                "active": false
             }
 
         ];

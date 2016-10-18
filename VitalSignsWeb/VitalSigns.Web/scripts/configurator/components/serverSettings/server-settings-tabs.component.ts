@@ -21,17 +21,13 @@ export class ServerSettings implements OnInit {
     constructor(private resolver: ComponentFactoryResolver, private elementRef: ElementRef) { }
     selectTab(tab: any) {
         // Activate selected tab
-        this.tabsData.forEach(tab => tab.active = "false");
-        tab.active = "true";
+        this.tabsData.forEach(tab => tab.active = false);
+        tab.active = true;
         // Dispose current tab if one already active
         if (this.activeTabComponent)
             this.activeTabComponent.destroy();
-
-        // Lazy-load selected tab component
-       // console.log(tab.component);
-        console.log(ServiceTabs[tab.component]);
-        let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
-        console.log(factory);
+        // Lazy-load selected tab component     
+        let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);     
         this.activeTabComponent = this.target.createComponent(factory);
     }
     ngOnInit() {   
@@ -46,30 +42,29 @@ export class ServerSettings implements OnInit {
                 "title": "Domino Server Tasks",
                 "component": "DominoServerTasks",
                 "path": "/app/configurator/components/serverSettings/configurator-domino-server-tasks.component",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "Windows Services",
                 "component": "WindowsServices",
                 "path": "/app/configurator/components/serverSettings/configurator-windows-services .component",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "Disk Settings",
                 "component": "ServerDiskSettings",
                 "path": "/app/configurator/components/serverSettings/server-disk-settings.component",
-                "active": "false"
+                "active": false
             },
             {
                 "title": "Location/Credentials/Business Hours",
                 "component": "ServerLocations",
                 "path": "/app/configurator/components/serverSettings/server-locations-credentials-businesshours.component",
                
-                "active": "false"
+                "active": false
             }
 
         ];
-        console.log(this.tabsData);
               this.selectTab(this.tabsData[0]);
              
         };
