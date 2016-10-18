@@ -20,8 +20,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("threshold_type")]       
         public string ThresholdType { get; set; }
 
-        [JsonProperty("is_load")]
-        public bool IsLoad { get; set; }
+     
 
         
 
