@@ -987,47 +987,38 @@ namespace VitalSigns.API.Controllers
 
         [HttpGet("get_disk_names")]
         public APIResponse GetStatusOfServerDiskDrives()
+
         {
 
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
 
-                var disks = statusRepository.All().Select(x => x.Disks).ToList();
+              
+                var disks = statusRepository.Collection.AsQueryable().Select(x => x.Disks).ToList();
+               
 
+                SelectedDiksModel serverDiskStatus = new SelectedDiksModel();
 
+               
+                List<string> diskNames =new List<string>();
+                foreach (List<Disk> drive in disks)
+                {
+                    if (drive != null)
+                        diskNames.AddRange(drive.Select(x => x.DiskName));
+                }
+                // var result = serverDiskStatus.Drives.Select(x => x.DiskName).Distinct().ToList();
+                List<SelectedDiksModel> drives = new List<SelectedDiksModel>();
+                foreach (var name in diskNames.Distinct())
+                {
+                    SelectedDiksModel drive = new SelectedDiksModel();
+                    drive.IsSelected = false;
+                    drive.DiskName = name;
+                    drive.FreespaceThreshold ="";
+                    drives.Add(drive);
+                }
 
-                ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
-
-                //foreach (List<Disk> drive in disks)
-                //{
-                //    if (drive != null)
-                //    {
-                //        var diskNamesList = drive.Select(x => x.DiskName).ToList();
-                //        foreach (string diskName in diskNamesList)
-                //        {
-                //            if (!diskNames.Contains(diskName))
-                //                diskNames.Add(diskName);
-
-                //        }
-
-
-                //    }
-                //}
-
-
-                //    ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
-
-                //foreach (List<Disk> drive in disks)
-                //{
-                //    serverDiskStatus.Drives.Add(new DiskDriveStatus
-                //    {
-
-                //        DiskName = drive.Select(new d).
-
-                //    });
-                //}
-                Response = Common.CreateResponse(serverDiskStatus);
+                Response = Common.CreateResponse(drives);
             }
             catch (Exception ex)
             {
