@@ -9,9 +9,6 @@ Imports VSNext.Mongo
 Imports VSNext.Mongo.Entities
 Imports VSNext.Mongo.Repository
 
-
-
-
 Public Class Alertdll
 
 #Region "Declarations"
@@ -71,7 +68,7 @@ Public Class Alertdll
         Dim eventsDetectedEntity() As EventsDetected
         Dim repeatEventsEntity() As EventsDetected
         Dim servers() As Server
-        Dim deviceId As String
+        Dim deviceId As String = ""
 
         qalert = True
         AlertsRepeatOn = False
@@ -150,21 +147,23 @@ Public Class Alertdll
                     repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType)
                 eventsDetectedEntity = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsDetectedEntity.Count = 0 Then
-                    Dim entity As New EventsDetected With {.Device = DeviceName, .DeviceType = DeviceType, .EventType = AlertType, .EventDetected = Now, .Details = Details}
+                    'Get device_id from the server collection to insert the value into events_detected
+                    filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Function(j) j.DeviceName, DeviceName),
+                                                           repoServers.Filter.Eq(Function(j) j.DeviceType, DeviceType))
+                    servers = repoServers.Find(filterServers).ToArray()
+                    If servers.Length > 0 Then
+                        deviceId = servers(0).Id.ToString()
+                    End If
+
+                    Dim entity As New EventsDetected With {.DeviceId = deviceId, .Device = DeviceName, .DeviceType = DeviceType, .EventType = AlertType, .EventDetected = Now, .Details = Details}
                     repoEventsDetected.Insert(entity)
                     If AlertType = "Not Responding" Then
                         '6/15/2016 NS added
                         'OUTAGES
                         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update started: " & DeviceType & "/" & DeviceName & " " & AlertType)
-                        filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Function(j) j.DeviceName, DeviceName),
-                                                               repoServers.Filter.Eq(Function(j) j.DeviceType, DeviceType))
-                        servers = repoServers.Find(filterServers).ToArray()
-                        If servers.Length > 0 Then
-                            deviceId = servers(0).Id.ToString()
-                            Dim outages As New Outages With {.DeviceId = deviceId, .DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
-                            repoOutages.Insert(outages)
-                            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
-                        End If
+                        Dim outages As New Outages With {.DeviceId = deviceId, .DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
+                        repoOutages.Insert(outages)
+                        WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
                     End If
                 Else
                     If (AlertType = "Dead Mail" Or AlertType = "Pending Mail" Or AlertType = "Held Mail") Then
