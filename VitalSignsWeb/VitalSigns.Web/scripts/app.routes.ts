@@ -155,7 +155,7 @@ const appRoutes: Routes = [
     //    component: IssuesDashboard
     //},
     {
-        path: 'services',
+        path: 'services/:module',
         component: ServicesView,
         children: [
             {
