@@ -25,7 +25,7 @@ export class OnPremisesApps implements WidgetComponent, OnInit {
             .subscribe(
             data => this.onPremApps = data,
             error => this.errorMessage = <any>error
-            );
+        );
     }
 
     ngOnInit() {

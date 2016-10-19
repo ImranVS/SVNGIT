@@ -1,10 +1,8 @@
-﻿import {Component, Input, OnInit, AfterViewChecked} from '@angular/core';
+﻿import {Component, Input, OnInit} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
-
-declare var injectSVG: any;
 
 @Component({
     templateUrl: './app/widgets/main-dashboard/components/user-sessions.component.html',
@@ -13,7 +11,7 @@ declare var injectSVG: any;
         RESTService
     ]
 })
-export class UserSessions implements WidgetComponent, OnInit, AfterViewChecked {
+export class UserSessions implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     errorMessage: string;
@@ -31,19 +29,11 @@ export class UserSessions implements WidgetComponent, OnInit, AfterViewChecked {
           
             error => this.errorMessage = <any>error
         );
-      
     }
-
 
     ngOnInit() {
         this.loadData();
-        
-      
+       
     }
 
-    ngAfterViewChecked() {
-        injectSVG();
-    }
-
-    
 }

@@ -16,6 +16,7 @@ export * from './widgets/grid/components/sample-grid.component';
 export * from './widgets/main-dashboard/components/app-status.component';
 export * from './widgets/main-dashboard/components/on-premises-apps.component';
 export * from './widgets/main-dashboard/components/status-summary.component';
+export * from './widgets/main-dashboard/components/user-sessions.component';
 export * from './widgets/mobile-users/components/mobile-users-list.component';
 export * from './widgets/sample/sample-widget.component';
 export * from './configurator/components/applicationSettings/configurator-businesshours.component';

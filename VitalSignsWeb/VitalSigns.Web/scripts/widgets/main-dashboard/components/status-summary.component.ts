@@ -23,6 +23,7 @@ export class StatusSummary implements WidgetComponent, OnInit {
         this.service.get('/services/dashboard_summary')
             .subscribe(
             response => this.statusSummary = response.data,
+
             error => this.errorMessage = <any>error
         );
     }

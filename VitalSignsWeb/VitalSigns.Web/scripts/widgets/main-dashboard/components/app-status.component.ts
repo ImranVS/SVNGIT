@@ -42,7 +42,7 @@ export class AppStatus implements WidgetComponent, OnInit, AfterViewChecked {
 
         switch (status) {
             case 'noIssue':
-                return 'No issue';
+                return 'No issues';
             case 'notResponding':
                 return 'Not responding';
             case 'issue':
