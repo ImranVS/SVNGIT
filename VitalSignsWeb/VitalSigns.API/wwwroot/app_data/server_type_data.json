@@ -141,6 +141,48 @@
         "type": "Dashboard",
         "component": "ServiceOutagesTab",
         "path": "/app/services/components/service-outages-tab.component"
+      },
+      {
+        "tab_id": 1,
+        "title": "Device Attributes",
+        "type": "Configurator",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Server Tasks",
+        "type": "Configurator",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "Disk Settings",
+        "type": "Configurator",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 4,
+        "title": "Advanced Settings",
+        "type": "Configurator",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 5,
+        "title": "Maintainance Window",
+        "type": "Configurator",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
+      },
+      {
+        "tab_id": 6,
+        "title": "Events",
+        "type": "Configurator",
+        "component": "NotYetImplemented",
+        "path": "/app/not-yet-implemented.component"
       }
     ]
 
@@ -225,7 +267,13 @@
         "server_type": "WebSphere",
         "icon": "/img/servers/IBMWebSphere.svg",
         "tabs": [
-
+          {
+            "tab_id": 1,
+            "title": "Device Attributes",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          }
         ]
 
       },
@@ -314,7 +362,43 @@
             "component": "IBMConnectionsWikisTab",
             "path": "/app/dashboards/components/ibm-connections/ibm-connections-wikis-tab.component",
             "type": "Dashboard"
+          },
+          {
+            "tab_id": 1,
+            "title": "Device Attributes",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 2,
+            "title": "Simulation Tests",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 3,
+            "title": "Advanced Settings",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 4,
+            "title": "Maintainance Window",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 5,
+            "title": "Events",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
           }
+
         ]
 
       },
@@ -369,7 +453,36 @@
             "component": "IBMSametimeMeetingsTab",
             "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component",
             "type": "Dashboard"
+          },
+          {
+            "tab_id": 1,
+            "title": "Device Attributes",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 2,
+            "title": "Advanced Settings",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 3,
+            "title": "Maintainance Window",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
+          },
+          {
+            "tab_id": 4,
+            "title": "Events",
+            "type": "Configurator",
+            "component": "NotYetImplemented",
+            "path": "/app/not-yet-implemented.component"
           }
+
         ]
 
       },
