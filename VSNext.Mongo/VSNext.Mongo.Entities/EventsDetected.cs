@@ -13,6 +13,11 @@ namespace VSNext.Mongo.Entities
     public class EventsDetected : Entity
     {
         [DataMember]
+        [BsonElement("device_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
+
+        [DataMember]
         [BsonElement("device")]
         [BsonIgnoreIfNullAttribute]
         public string Device { get; set; }
