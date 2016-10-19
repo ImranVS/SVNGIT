@@ -57,10 +57,10 @@
           },
           {
             "tab_id": 8,
-            "title": "Alerts",
+            "title": "Events",
             "type": "Dashboard",
-            "component": "BusinessHoursTab",
-            "path": "/app/configurator/components/configurator-businesshours-tab.component"
+            "component": "ServiceEventsTab",
+            "path": "/app/services/components/service-events-tab.component"
           },
           {
             "tab_id": 9,
@@ -130,10 +130,10 @@
       },
       {
         "tab_id": 8,
-        "title": "Alerts",
+        "title": "Events",
         "type": "Dashboard",
-        "component": "BusinessHoursTab",
-        "path": "/app/configurator/components/configurator-businesshours-tab.component"
+        "component": "ServiceEventsTab",
+        "path": "/app/services/components/service-events-tab.component"
       },
       {
         "tab_id": 9,
@@ -223,7 +223,25 @@
 
       {
         "server_type": "WebSphere",
-        "icon": "/img/servers/IBMWebsShere.svg",
+        "icon": "/img/servers/IBMWebSphere.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "WebSphereNode",
+        "icon": "/img/servers/IBMWebSphere.svg",
+        "tabs": [
+
+        ]
+
+      },
+
+      {
+        "server_type": "WebSphereCell",
+        "icon": "/img/servers/IBMWebSphere.svg",
         "tabs": [
 
         ]
@@ -368,10 +386,30 @@
       },
 
       {
-        "server_type": "Notes Database",
+        "server_type": "Database",
         "icon": "/img/servers/DatabaseHealth.svg",
         "tabs": [
-
+          {
+            "tab_id": 1,
+            "title": "All Databases",
+            "component": "OverallDatabaseAllTab",
+            "path": "/app/dashboards/components/overall-database-all-tab.component",
+            "type": "Dashboard"
+          },
+          {
+            "tab_id": 2,
+            "title": "Problems",
+            "component": "OverallDatabaseProblemsTab",
+            "path": "/app/dashboards/components/overall-database-problems-tab.component",
+            "type": "Dashboard"
+          },
+          {
+            "tab_id": 3,
+            "title": "By Template",
+            "component": "OverallDatabaseByTemplateTab",
+            "path": "/app/dashboards/components/overall-database-by-template-tab.component",
+            "type": "Dashboard"
+          }
         ]
 
       },

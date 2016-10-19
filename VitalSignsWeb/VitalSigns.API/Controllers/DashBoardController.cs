@@ -12,6 +12,7 @@ using VSNext.Mongo.Entities;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using System.Globalization;
+using System.Dynamic;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,7 +30,8 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Database> databaseRepository;
         private IRepository<Outages> outagesRepository;
-       private IRepository<TravelerStatusSummary> travelerStatsRepository;
+        private IRepository<EventsDetected> eventsRepository;
+        private IRepository<TravelerStatusSummary> travelerStatsRepository;
         private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
@@ -439,7 +441,7 @@ namespace VitalSigns.API.Controllers
 
         [HttpGet("database")]
 
-        public APIResponse GetDatabase(string filter_by, string filter_value, string order_by, string order_type, string group_by, string top_x, bool get_chart)
+        public APIResponse GetDatabase(string filter_by, string filter_value, string order_by, string order_type, string group_by, string top_x, bool get_chart, string exceptions)
         {
             List<ServerDatabase> data = null;
             List<Segment> segments = new List<Segment>();
@@ -455,29 +457,60 @@ namespace VitalSigns.API.Controllers
                     // group_by is not specified - getting a flat list of entries, no grouping
                     if (string.IsNullOrEmpty(group_by))
                     {
-                        var res = databaseRepository.Collection.Aggregate()
+                        // exceptions is not requested - getting all entries, no exceptions
+                        if (string.IsNullOrEmpty(exceptions))
+                        {
+                            var res = databaseRepository.Collection.Aggregate()
                                     .Match(_ => true).ToList();
 
-                        data = res.Select(x => new ServerDatabase
+                            data = res.Select(x => new ServerDatabase
+                            {
+                                DeviceId = x.DeviceId,
+                                Title = x.Title,
+                                DeviceName = x.DeviceName,
+                                Status = x.Status,
+                                Folder = x.Folder,
+                                FolderCount = x.FolderCount,
+                                Details = x.Details,
+                                FileName = x.FileName,
+                                DesignTemplateName = Convert.ToString(x.DesignTemplateName == null || x.DesignTemplateName == "" ? "" : x.DesignTemplateName),
+                                FileSize = x.FileSize,
+                                Quota = x.Quota,
+                                InboxDocCount = x.InboxDocCount,
+                                ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                ReplicaId = x.ReplicaId,
+                                DocumentCount = x.DocumentCount,
+                                Categories = x.Categories,
+                                PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
+                            }).ToList();
+                        }
+                        else
                         {
-                            DeviceId = x.DeviceId,
-                            Title = x.Title,
-                            DeviceName = x.DeviceName,
-                            Status = x.Status,
-                            Folder = x.Folder,
-                            FolderCount = x.FolderCount,
-                            Details = x.Details,
-                            FileName = x.FileName,
-                            DesignTemplateName = x.DesignTemplateName,
-                            FileSize = x.FileSize,
-                            Quota = x.Quota,
-                            InboxDocCount = x.InboxDocCount,
-                            ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
-                            ReplicaId = x.ReplicaId,
-                            DocumentCount = x.DocumentCount,
-                            Categories = x.Categories,
-                            PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
-                        }).ToList();
+                            var filterDef = databaseRepository.Filter.Ne(i => i.Status, "OK");
+                            var res = databaseRepository.Collection.Aggregate()
+                                    .Match(filterDef).ToList();
+
+                            data = res.Select(x => new ServerDatabase
+                            {
+                                DeviceId = x.DeviceId,
+                                Title = x.Title,
+                                DeviceName = x.DeviceName,
+                                Status = x.Status,
+                                Folder = x.Folder,
+                                FolderCount = x.FolderCount,
+                                Details = x.Details,
+                                FileName = x.FileName,
+                                DesignTemplateName = x.DesignTemplateName,
+                                FileSize = x.FileSize,
+                                Quota = x.Quota,
+                                InboxDocCount = x.InboxDocCount,
+                                ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                ReplicaId = x.ReplicaId,
+                                DocumentCount = x.DocumentCount,
+                                Categories = x.Categories,
+                                PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
+                            }).ToList();
+                        }  
                         // order_by is specified - sorting resulting data by th field specified in order_by in order specified by order_type (asc/desc)
                         if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
                         {
@@ -670,6 +703,34 @@ namespace VitalSigns.API.Controllers
                 {
                     Response = Common.CreateResponse(data);
                 }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("{device_id}/notifications")]
+        public APIResponse GetNotifications(string device_id)
+        {
+            List<dynamic> result = new List<dynamic>();
+            eventsRepository = new Repository<EventsDetected>(ConnectionString);
+            try
+            {
+                Expression<Func<EventsDetected, bool>> expression = (p => p.DeviceId == device_id);
+                var events1 = eventsRepository.Find(expression).AsQueryable().ToList();
+                foreach (EventsDetected event1 in events1)
+                {
+                    var x = new ExpandoObject() as IDictionary<string, Object>;
+                    foreach (var field in event1.ToBsonDocument())
+                    {
+                        x.Add(field.Name, field.Value.ToString());
+                    }
+                    result.Add(x);
+                }
+
+                Response = Common.CreateResponse(result);
             }
             catch (Exception exception)
             {
