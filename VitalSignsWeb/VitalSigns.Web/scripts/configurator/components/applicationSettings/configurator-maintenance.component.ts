@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import {HTTP_PROVIDERS}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-
+import {ActivatedRoute} from '@angular/router';
+import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
@@ -31,19 +32,41 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class Maintenance extends GridBase  {  
-    
+    devices: string;
+    errorMessage: string;
+    dataMobileUsers: wijmo.collections.CollectionView;
+    selectedSetting: any;
+    selectedSettingValue: any;
 
     constructor(service: RESTService) {
         super(service, '/Configurator/maintenance');
         this.formName = "Maintenance";
-        //super(service, '/Dashboard/mobile_user_devices');
-        //this.formName = "MobileUsers";
-    }   
+      
+    } 
+
+    ngOnInit() {
+
+        this.service.get('/Dashboard/mobile_user_devices')
+            .subscribe(
+            (response) => {
+                this.dataMobileUsers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.dataMobileUsers.pageSize = 10;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+
+      
+
+    }
     saveMaintenance() {
         this.saveGridRow('/Configurator/save_maintenancedata');  
     }
     deleteMaintenance() {      
         this.delteGridRow('/Configurator/delete_maintenancedata/');  
+    }
+
+    changeInDevices(devices: string) {
+        this.devices = devices;
     }
 }
 
