@@ -21,7 +21,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
             id: 'websphereGrid',
             title: 'Cells',
             name: 'IBMWebsphereGrid',
-            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-6',
+            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
             settings: {
 
             }
@@ -30,7 +30,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
             id: 'serverStatus',
             title: 'Status',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
                 url: '/services/status_count?type=WebSphere&docfield=status_code',
                 chart: {
@@ -66,69 +66,35 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
             }
         },
         {
-            id: 'activeThreads',
-            title: 'Active Thread Count',
-            name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
+            id: 'websphereNodeGrid',
+            title: 'Nodes',
+            name: 'IBMWebsphereNodeGrid',
+            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
             settings: {
-                url: '/services/status_count?type=WebSphere&docfield=status_code',
-                chart: {
-                    chart: {
-                        renderTo: 'activeThreads',
-                        type: 'pie',
-                        height: 240
-                    },
-                    title: { text: '' },
-                    subtitle: { text: '' },
-                    xAxis: {
-                        categories: []
-                    },
-                    yAxis: {
 
-                    },
-                    plotOptions: {
-                        series: {
-                            pointPadding: 0
-                        }
-                    },
-                    legend: {
-                        enabled: false
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    exporting: {
-                        enabled: false
-                    },
-                    series: []
-                }
             }
         },
         {
-            id: 'hungThreads',
-            title: 'Hung Thread Count',
+            id: 'activeThreads',
+            title: 'Active Thread Count',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-2',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/services/status_count?type=WebSphere&docfield=status_code',
+                url: '/services/statistics?statName=ActiveThreadCount&operation=AVG',
                 chart: {
                     chart: {
-                        renderTo: 'hungThreads',
-                        type: 'pie',
+                        renderTo: 'activeThreads',
+                        type: 'bar',
                         height: 240
                     },
+                    colors: ['#5fbe7f'],
                     title: { text: '' },
                     subtitle: { text: '' },
                     xAxis: {
+                        labels: {
+                            step: 1
+                        },
                         categories: []
-                    },
-                    yAxis: {
-
-                    },
-                    plotOptions: {
-                        series: {
-                            pointPadding: 0
-                        }
                     },
                     legend: {
                         enabled: false
@@ -147,18 +113,44 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
             id: 'websphereServerGrid',
             title: 'Servers',
             name: 'IBMWebsphereServerGrid',
-            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-7',
+            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
             settings: {
 
             }
         },
         {
-            id: 'websphereNodeGrid',
-            title: 'Nodes',
-            name: 'IBMWebsphereNodeGrid',
-            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-5',
+            id: 'hungThreads',
+            title: 'Hung Thread Count',
+            name: 'ChartComponent',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-
+                url: '/services/statistics?statName=CurrentHungThreadCount&operation=AVG',
+                chart: {
+                    chart: {
+                        renderTo: 'hungThreads',
+                        type: 'bar',
+                        height: 240
+                    },
+                    colors: ['#5fbe7f'],
+                    title: { text: '' },
+                    subtitle: { text: '' },
+                    xAxis: {
+                        labels: {
+                            step: 1
+                        },
+                        categories: []
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: []
+                }
             }
         }
     ]

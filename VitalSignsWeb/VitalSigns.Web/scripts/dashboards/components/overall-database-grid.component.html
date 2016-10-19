@@ -1,5 +1,5 @@
 ﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" (selectionChanged)="refreshChart($event)" #flex>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Title'" [binding]="'title'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
@@ -15,6 +15,8 @@
         </template>
     </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'File Name'" [binding]="'file_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Template'" [binding]="'design_template_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'File Size'" [binding]="'file_size'" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="280"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">

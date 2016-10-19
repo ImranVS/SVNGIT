@@ -18,123 +18,21 @@ export class KeyMetricsDashboard extends WidgetController implements OnInit {
         {
             id: 'keymetricsGrid',
             title: 'Alphabetical Order (by File Name)',
-            name: 'KeyMetricsAlphabeticalGrid',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
+            name: 'OverallDatabaseGrid',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-8'
         },
         {
             id: 'biggestMailFiles',
             title: 'Top 20 Biggest Mail Files',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
                 url: '/dashboard/database?filter_by=IsMailFile&filter_value=true&order_by=FileSize&order_type=desc&top_x=20&get_chart=true',
                 chart: {
                     chart: {
                         renderTo: 'biggestMailFiles',
                         type: 'bar',
-                        height: 360
-                    },
-                    title: { text: '' },
-                    subtitle: { text: '' },
-                    xAxis: {
-                        categories: []
-                    },
-                    yAxis: {
-                        min: 0,
-                        endOnTick: false,
-                        allowDecimals: false,
-                        title: {
-                            text: 'Size (MB)'
-                        }
-                    },
-                    plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: false
-                            },
-                            groupPadding: 0.1,
-                            borderWidth: 0
-                        },
-                        series: {
-                            pointPadding: 0
-                        }
-                    },
-                    legend: {
-                        enabled: false
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    exporting: {
-                        enabled: false
-                    },
-                    series: []
-                }
-            }
-        },
-        {
-            id: 'biggestMailFilesQuota',
-            title: 'Top 20 Largest Mail Files as a % of Quota',
-            name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
-            settings: {
-                url: '/dashboard/database?filter_by=IsMailFile&filter_value=true&order_by=PercentQuota&order_type=desc&top_x=20&get_chart=true',
-                chart: {
-                    chart: {
-                        renderTo: 'biggestMailFilesQuota',
-                        type: 'bar',
-                        height: 360
-                    },
-                    title: { text: '' },
-                    subtitle: { text: '' },
-                    xAxis: {
-                        categories: []
-                    },
-                    yAxis: {
-                        min: 0,
-                        endOnTick: false,
-                        allowDecimals: false,
-                        title: {
-                            text: 'Percent of Quota'
-                        }
-                    },
-                    plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: false
-                            },
-                            groupPadding: 0.1,
-                            borderWidth: 0
-                        },
-                        series: {
-                            pointPadding: 0
-                        }
-                    },
-                    legend: {
-                        enabled: false
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    exporting: {
-                        enabled: false
-                    },
-                    series: []
-                }
-            }
-        },
-        {
-            id: 'byTempalate',
-            title: 'Mail Templates',
-            name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
-            settings: {
-                url: '/dashboard/database?filter_by=IsMailFile&filter_value=true&group_by=design_template_name&get_chart=true',
-                chart: {
-                    chart: {
-                        renderTo: 'byTempalate',
-                        type: 'pie',
-                        height: 280
+                        height: 400
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
@@ -178,7 +76,109 @@ export class KeyMetricsDashboard extends WidgetController implements OnInit {
             id: 'statisticsGrid',
             title: 'Statistics',
             name: 'KeyMetricsStatisticsGrid',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-8'
+        },
+        {
+            id: 'biggestMailFilesQuota',
+            title: 'Top 20 Largest Mail Files as a % of Quota',
+            name: 'ChartComponent',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+            settings: {
+                url: '/dashboard/database?filter_by=IsMailFile&filter_value=true&order_by=PercentQuota&order_type=desc&top_x=20&get_chart=true',
+                chart: {
+                    chart: {
+                        renderTo: 'biggestMailFilesQuota',
+                        type: 'bar',
+                        height: 400
+                    },
+                    title: { text: '' },
+                    subtitle: { text: '' },
+                    xAxis: {
+                        categories: []
+                    },
+                    yAxis: {
+                        min: 0,
+                        endOnTick: false,
+                        allowDecimals: false,
+                        title: {
+                            text: 'Percent of Quota'
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: false
+                            },
+                            groupPadding: 0.1,
+                            borderWidth: 0
+                        },
+                        series: {
+                            pointPadding: 0
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: []
+                }
+            }
+        },
+        {
+            id: 'byTemplate',
+            title: 'Mail Templates',
+            name: 'ChartComponent',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+            settings: {
+                url: '/dashboard/database?filter_by=IsMailFile&filter_value=true&group_by=design_template_name&get_chart=true',
+                chart: {
+                    chart: {
+                        renderTo: 'byTemplate',
+                        type: 'pie',
+                        height: 280
+                    },
+                    title: { text: '' },
+                    subtitle: { text: '' },
+                    xAxis: {
+                        categories: []
+                    },
+                    yAxis: {
+                        min: 0,
+                        endOnTick: false,
+                        allowDecimals: false,
+                        title: {
+                            text: 'Size (MB)'
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: false
+                            },
+                            groupPadding: 0.1,
+                            borderWidth: 0
+                        },
+                        series: {
+                            pointPadding: 0
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: []
+                }
+            }
         }
     ]
     
@@ -187,6 +187,7 @@ export class KeyMetricsDashboard extends WidgetController implements OnInit {
     }
 
     ngOnInit() {
+        this.widgetService.setProperty("ismailpage", "True");
         injectSVG();
         bootstrapNavigator();
     }

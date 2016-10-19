@@ -89,7 +89,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
-                    url: 'http://private-ad10c-ibm.apiary-mock.com/connections/top_5_communities',
+                    url: `/dashboard/connections/top_communities`,
                     chart: {
                         chart: {
                             renderTo: 'top5Communities',
@@ -124,11 +124,11 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
             },
             {
                 id: 'mostActiveCommunity',
-                title: 'Most Active Community is \"VS Dev\"',
+                title: 'Most Active Community',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
-                    url: '/connections/most_active_community',
+                    url: `/dashboard/connections/top_communities?count=1`,
                     chart: {
                         chart: {
                             renderTo: 'mostActiveCommunity',
@@ -170,8 +170,18 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 }
             }
         ];
-    
+        
         injectSVG();
     }
 
+    //ngAfterInit() {
+    //    var object = this.widgets[2].settings.chart.series;
+    //    console.log(object);
+    //    for (var obj in object) {
+    //        console.log('test');
+    //        console.log(obj);
+    //    }
+    //    console.log(object[0]);
+    //    this.widgets[2].title = this.widgets[2].settings;
+    //}
 }

@@ -28,8 +28,8 @@ import {SearchDeviceListPipe} from './services/components/search-server-list.pip
 
 import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
+import {OverallDatabaseDetails} from './dashboards/components/overall-database-details.component';
 import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
-
 
 @NgModule({
     imports: [
@@ -47,6 +47,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         AppNavigator,
         IBMConnectionsDetails,
         IBMSametimeDetails,
+        OverallDatabaseDetails,
         SearchServerList,
         ServersLocation,
         SearchDeviceListPipe,
@@ -61,6 +62,8 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         dashboards.MSExchangeDashboard,
         dashboards.MSSharePointDashboard,
         dashboards.Office365Dashboard,
+        dashboards.KeyMetricsDashboard,
+        dashboards.OverallDatabaseDashboard,
         dashboards.CloudServicesDashboard,
         dashboards.FinancialDashboard,
         dashboards.StatusMapDashboard,
@@ -86,7 +89,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.IBMWebsphereGrid,
         widgets.IBMWebsphereNodeGrid,
         widgets.IBMWebsphereServerGrid,
-        widgets.KeyMetricsAlphabeticalGrid,
+        widgets.OverallDatabaseGrid,
         widgets.KeyMetricsStatisticsGrid,
         widgets.MobileUsers,
         widgets.MobileUsersGrid,
@@ -117,6 +120,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.ServiceTravelerHealthGrid,
         widgets.ServiceTravelerMailServersGrid,
         widgets.ServiceNMServerTasksGrid,
+        widgets.ServiceEventsGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -134,6 +138,9 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         tabs.IBMConnectionsFilesTab,
         tabs.IBMConnectionsForumsTab,
         tabs.IBMConnectionsWikisTab,
+        tabs.OverallDatabaseAllTab,
+        tabs.OverallDatabaseProblemsTab,
+        tabs.OverallDatabaseByTemplateTab,
         tabs.NotYetImplemented,
         tabs.ServiceMainHealthTab,
         tabs.ServiceTravelerHealthTab,
@@ -141,6 +148,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         tabs.ServiceTasksTab,
         tabs.ServiceClusterHealthTab,
         tabs.ServiceOutagesTab,
+        tabs.ServiceEventsTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -162,7 +170,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.IBMWebsphereGrid,
         widgets.IBMWebsphereNodeGrid,
         widgets.IBMWebsphereServerGrid,
-        widgets.KeyMetricsAlphabeticalGrid,
+        widgets.OverallDatabaseGrid,
         widgets.KeyMetricsStatisticsGrid,
         widgets.MobileUsers,
         widgets.MobileUsersGrid,
@@ -193,7 +201,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.ServiceTravelerHealthGrid,
         widgets.ServiceTravelerMailServersGrid,
         widgets.ServiceNMServerTasksGrid,
-
+        widgets.ServiceEventsGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -210,12 +218,16 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         tabs.IBMSametimeConferencesTab,
         tabs.IBMSametimeMeetingsTab,
         tabs.IBMSametimeOverallTab,
+        tabs.OverallDatabaseAllTab,
+        tabs.OverallDatabaseProblemsTab,
+        tabs.OverallDatabaseByTemplateTab,
         tabs.NotYetImplemented,
         tabs.ServiceMainHealthTab,
         tabs.ServiceTravelerHealthTab,
         tabs.ServiceDatabaseTab,
         tabs.ServiceTasksTab,
         tabs.ServiceClusterHealthTab,
+        tabs.ServiceEventsTab,
         tabs.ServiceOutagesTab
     ],
     bootstrap: [

@@ -85,7 +85,7 @@ export class IBMConnectionsBlogsTab extends WidgetController implements OnInit, 
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/dashboard/connections/top_tags?deviceid=${this.serviceId}&type=Bookmark&count=5`,
+                    url: `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Blog&count=5`,
                     chart: {
                         chart: {
                             renderTo: 'top5CommunitiesBlogs',

@@ -43,13 +43,13 @@ export class KeyMetricsStatisticsGrid implements WidgetComponent, OnInit {
 
     ngOnInit() {
 
-        this.service.get('/services/summarystats?statName=[Mail.Delivered,Mail.TotalRouted]&startDate=2016-08-01&endDate=2016-08-19')
+        var displayDate = (new Date()).toISOString().slice(0, 7);
+
+        this.service.get(`/dashboard/mail_health?month=${displayDate}`)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = 20;
-                this.data.moveCurrentToPosition(0);
-                this._serviceId = this.data.currentItem.device_id;
             },
             (error) => this.errorMessage = <any>error
             );

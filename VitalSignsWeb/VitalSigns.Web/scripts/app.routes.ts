@@ -9,6 +9,7 @@ import { MobileUsersDashboard } from './dashboards/components/mobile-users/mobil
 import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 
 import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component'; 
+import {OverallDatabaseDashboard} from './dashboards/components/overall-database-dashboard.component'; 
 
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -46,6 +47,7 @@ export * from './dashboards/components/mobile-users/mobile-users-dashboard.compo
 export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
+export * from './dashboards/components/overall-database-dashboard.component'
 
 export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -135,6 +137,14 @@ const appRoutes: Routes = [
     {
         path: 'dashboard/cloud',
         component: CloudServicesDashboard
+    },
+    {
+        path: 'dashboard/keymetrics',
+        component: KeyMetricsDashboard
+    },
+    {
+        path: 'dashboard/dominodatabases',
+        component: OverallDatabaseDashboard
     },
     {
         path: 'dashboard/financial',

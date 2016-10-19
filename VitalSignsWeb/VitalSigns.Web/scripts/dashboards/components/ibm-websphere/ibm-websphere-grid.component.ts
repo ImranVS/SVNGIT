@@ -1,7 +1,7 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
-import {WidgetComponent} from '../../../core/widgets';
+import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -19,10 +19,26 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 export class IBMWebsphereGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
 
+    @Output() select: EventEmitter<string> = new EventEmitter<string>();
+
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-    
-    constructor(private service: RESTService) { }
+
+    get serviceId(): string {
+
+        return this.widgetService.getProperty('serviceId');
+
+    }
+
+    set serviceId(id: string) {
+
+        this.widgetService.setProperty('serviceId', id);
+
+        this.select.emit(this.widgetService.getProperty('serviceId'));
+
+    }
+
+    constructor(private service: RESTService, private widgetService: WidgetService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -37,11 +53,13 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
 
     ngOnInit() {
 
-        this.service.get('/services/status_list?type=WebSphere')
+        this.service.get('/services/status_list?type=WebSphereCell')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = 10;
+                this.data.moveCurrentToPosition(0);
+                this.serviceId = this.data.currentItem.device_id;
             },
             (error) => this.errorMessage = <any>error
             );
@@ -71,6 +89,12 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
             var rootRow = rows[rowIdx];
             if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
         }
+    }
+
+    onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {
+
+        this.serviceId = event.panel.grid.selectedItems[0].device_id;
+
     }
     
 }

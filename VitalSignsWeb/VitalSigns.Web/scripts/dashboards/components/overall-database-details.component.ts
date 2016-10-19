@@ -1,22 +1,22 @@
 ﻿import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
-import {RESTService} from '../../../core/services';
+import {WidgetComponent, WidgetService} from '../../core/widgets';
+import {RESTService} from '../../core/services';
 
-import {ServiceTab} from '../../../services/models/service-tab.interface';
+import {ServiceTab} from '../../services/models/service-tab.interface';
 
-import * as ServiceTabs from '../../../services/service-tab.collection';
+import * as ServiceTabs from '../../services/service-tab.collection';
 
 @Component({
-    selector: 'vs-connections-details',
-    templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-details.component.html',
+    selector: 'vs-overall-database-details',
+    templateUrl: '/app/dashboards/components/overall-database-details.component.html',
     providers: [
         HttpModule,
         RESTService
     ]
 })
-export class IBMConnectionsDetails implements OnInit {
+export class OverallDatabaseDetails implements OnInit {
 
     @ViewChild('tab', { read: ViewContainerRef }) target: ViewContainerRef;
 
@@ -51,7 +51,7 @@ export class IBMConnectionsDetails implements OnInit {
         this.route.params.subscribe(params => {
 
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/device_details?device_id=${this.widgetService.getProperty('serviceId')}&destination=dashboard`)
+            this.dataProvider.get(`/services/device_details?deviceType=Database`)
                 .subscribe(
                 data => {
                     this.service = data.data;

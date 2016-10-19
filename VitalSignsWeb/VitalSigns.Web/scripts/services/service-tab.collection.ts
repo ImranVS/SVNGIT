@@ -17,11 +17,16 @@ export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-ta
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component';
 
+export * from '../dashboards/components/overall-database-all-tab.component';
+export * from '../dashboards/components/overall-database-problems-tab.component';
+export * from '../dashboards/components/overall-database-by-template-tab.component';
+
 export * from '../not-yet-implemented.component';
 
 export * from './components/service-mainhealth-tab.component';
 export * from './components/service-database-tab.component';
 export * from './components/service-servertasks-tab.component';
+export * from './components/service-events-tab.component';
 export * from './components/service-outages-tab.component';
 
 export * from './components/service-travelerhealth-tab.component';

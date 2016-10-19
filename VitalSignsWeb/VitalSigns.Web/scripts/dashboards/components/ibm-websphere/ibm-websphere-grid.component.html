@@ -1,4 +1,4 @@
-﻿<wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
+﻿<wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="360"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status_code'" [width]="180" align="center">
@@ -12,8 +12,8 @@
             </div>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Total JVMs'" [binding]="'total_jvms'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Monitored JVMs'" [binding]="'mon_jvms'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Total JVMs'" [binding]="'jvm_count'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Monitored JVMs'" [binding]="'jvm_monitored_count'" wordwrap="true" align="right"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"

@@ -18,8 +18,11 @@
         </template>
     </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'OS'" [binding]="'operating_system'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Secondary Role'" [binding]="'secondary_role'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" data-type="number" format="p0" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Version'" [binding]="'software_version'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Architecture'" [binding]="'version_architecture'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Secondary Role'" [binding]="'secondary_role'" [wordWrap]="'true'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'CPU Count'" [binding]="'cpu_count'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" data-type="number" format="n2" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="300"></wj-flex-grid-column>
 
 </wj-flex-grid>

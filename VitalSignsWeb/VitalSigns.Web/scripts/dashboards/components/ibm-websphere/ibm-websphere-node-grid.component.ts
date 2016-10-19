@@ -1,7 +1,7 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
-import {WidgetComponent} from '../../../core/widgets';
+import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -18,11 +18,11 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 })
 export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
-
+    serviceId: string;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     
-    constructor(private service: RESTService) { }
+    constructor(private service: RESTService, protected widgetService: WidgetService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -36,8 +36,9 @@ export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
+        this.serviceId = this.widgetService.getProperty('serviceId');
 
-        this.service.get('/services/status_list?type=WebSphere')
+        this.service.get('/services/status_list?type=WebSphereNode')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));

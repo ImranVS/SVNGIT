@@ -19,7 +19,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             id: 'dominoGrid',
             title: 'Domino Info',
             name: 'IBMDominoGrid',
-            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
+            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-9',
             settings: {
                 
             }
@@ -28,7 +28,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             id: 'serverRoles',
             title: 'Roles',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
             settings: {
                 url: '/services/status_count?type=Domino&docfield=secondary_role',
                 chart: {
@@ -79,7 +79,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             id: 'serverStatus',
             title: 'Status',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
             settings: {
                 url: '/services/status_count?type=Domino&docfield=status_code',
                 chart: {
@@ -130,7 +130,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             id: 'serverOs',
             title: 'Operating Systems',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
             settings: {
                 url: '/services/status_count?type=Domino&docfield=operating_system',
                 chart: {
