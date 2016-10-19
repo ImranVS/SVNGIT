@@ -1,4 +1,6 @@
-﻿import {Component, AfterViewChecked, OnInit, Input} from '@angular/core';
+﻿import {Component, AfterViewChecked, OnInit, Input} from '@angular/core'
+
+import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
@@ -20,10 +22,10 @@ export class ServicesView implements OnInit, AfterViewChecked {
     @Input() searchLocation;
 
     errorMessage: string;
-
+    module: string;
     services: any[];
 
-    constructor(private service: RESTService, private router: Router) { }
+    constructor(private service: RESTService, private router: Router, private route: ActivatedRoute) { }
 
     selectService(service: any) {
 
@@ -31,7 +33,7 @@ export class ServicesView implements OnInit, AfterViewChecked {
         this.services.forEach(service => service.active = false);
         service.active = true;  
         
-        this.router.navigate(['services', service.device_id]);
+        this.router.navigate(['services/' + this.module,  service.device_id ]);
     }
 
     loadData() {
@@ -43,7 +45,11 @@ export class ServicesView implements OnInit, AfterViewChecked {
     }
 
     ngOnInit() {
-        this.loadData();
+       
+        this.route.params.subscribe(params => {
+            this.module = params['module']; 
+            this.loadData(); 
+        });
     }
 
     ngAfterViewChecked() {

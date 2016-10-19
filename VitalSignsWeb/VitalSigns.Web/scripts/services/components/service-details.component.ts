@@ -1,6 +1,7 @@
 ﻿import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
+import {Router} from '@angular/router';
 
 import {RESTService} from '../../core/services';
 
@@ -23,10 +24,12 @@ export class ServiceDetails implements OnInit {
 
     deviceId: any;
     service: any;
-
+    module: string;
     activeTabComponent: ComponentRef<{}>;
 
-    constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private route: ActivatedRoute) { }
+    constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute) {
+        //.map(routeParams => routeParams.id);
+    }
     
     selectTab(tab: any) {
         // Activate selected tab
@@ -44,13 +47,14 @@ export class ServiceDetails implements OnInit {
     }
     
     ngOnInit() {
-    
+        const parentActivatedRoute = this.router.routerState.parent(this.route);
+        parentActivatedRoute.params.subscribe(params => {
+            this.module = params['module'];
+        });
         this.route.params.subscribe(params => {
-
             this.deviceId = params['service'];
-           
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/device_details?device_id=${this.deviceId}&destination=dashboard`)
+            this.dataProvider.get(`/services/device_details?device_id=${this.deviceId}&destination=${this.module}`)
                 .subscribe(
                 response => {
                    
