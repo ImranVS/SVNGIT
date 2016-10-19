@@ -1012,7 +1012,7 @@ namespace VitalSigns.API.Controllers
                 foreach (var name in diskNames.Distinct())
                 {
                     SelectedDiksModel drive = new SelectedDiksModel();
-                    drive.IsSelected = false;
+                  //  drive.IsSelected=false;
                     drive.DiskName = name;
                     drive.FreespaceThreshold ="";
                     drives.Add(drive);
@@ -1031,8 +1031,31 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpPut("save_disk_settings")]
+        public APIResponse UpdateDiskSettings([FromBody]DeviceSettings deviceSettings)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                string setting = Convert.ToString(deviceSettings.Setting);
+                string settingValue = Convert.ToString(deviceSettings.Value);
+                string devices = Convert.ToString(deviceSettings.Devices);
+                UpdateDefinition<Server> updateDefinition = null;
+                if (!string.IsNullOrEmpty(devices))
+                {
 
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
+                }
+            }
 
-
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
     }
 }
