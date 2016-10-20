@@ -60,7 +60,7 @@ export class ApplicationSettings implements OnInit {
             {
                 "title": "Locations",
                 "component": "Location",
-                "path": "/app/configurator/components/applicationSettings/configurator-locations.component",
+                "path": "/app/configurator/components/applicationSettings/application-settings-locations.component",
                 "active": false
             },
             {

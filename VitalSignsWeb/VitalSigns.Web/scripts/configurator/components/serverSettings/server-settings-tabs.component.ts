@@ -46,9 +46,11 @@ export class ServerSettings implements OnInit {
             },
             {
                 "title": "Windows Services",
+
                 "component": "WindowsServices",
-                "path": "/app/configurator/components/serverSettings/configurator-windows-services .component",
+                "path": "/app/configurator/components/serverSettings/server-settings-windows-services .component",
                 "active": false
+
             },
             {
                 "title": "Disk Settings",
