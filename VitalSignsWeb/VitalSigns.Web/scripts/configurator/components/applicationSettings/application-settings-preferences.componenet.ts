@@ -60,7 +60,7 @@ export class PreferencesForm implements OnInit, AfterViewInit {
 
             this.formTitle = "Preferences";
 
-            this.dataProvider.get('/configurator/get_preferences')
+            this.dataProvider.get('/configurator/preferences')
                 .subscribe(
                 (data) => this.preferencesForm.setValue(data.data),
                 (error) => this.errorMessage = <any>error
