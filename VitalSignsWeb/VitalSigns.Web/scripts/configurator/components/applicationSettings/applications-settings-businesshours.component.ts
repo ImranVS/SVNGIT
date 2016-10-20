@@ -32,7 +32,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 export class BusinessHours extends GridBase  {  
      selectedServers:string;
     constructor(service: RESTService) {
-        super(service, '/Configurator/business_hours');
+        super(service, '/Configurator/get_business_hours');
         this.formName = "Business Hours";
     }   
     saveBusinessHour() {        
