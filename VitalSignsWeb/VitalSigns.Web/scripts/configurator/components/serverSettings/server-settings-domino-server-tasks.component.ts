@@ -35,7 +35,7 @@ export class DominoServerTasks extends GridBase  {
    
     currentForm: FormGroup;
     constructor(service: RESTService, private formBuilder: FormBuilder) {
-        super(service, '/Configurator/domino_server_tasks');
+        super(service, '/Configurator/get_domino_server_tasks');
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
