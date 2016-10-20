@@ -161,7 +161,7 @@
         "title": "Disk Settings",
         "type": "Configurator",
         "component": "DominoServerDiskSettings",
-        "path": "/app/configurator/components/server/server-disk-settings"
+        "path": "/app/configurator/components/server/server-disk-settings.component"
       },
       {
         "tab_id": 4,
