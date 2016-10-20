@@ -34,7 +34,7 @@ export class ApplicationSettings implements OnInit {
             {
                 "title": "Preferences",
                 "component": "PreferencesForm",
-                "path": "/app/configurator/components/applicationSettings/configurator-preferences.componenet",
+                "path": "/app/configurator/components/applicationSettings/application-settings-preferences.componenet",
                 "active": false
             },
             {
@@ -66,13 +66,13 @@ export class ApplicationSettings implements OnInit {
             {
                 "title": "Users",
                 "component": "MaintainUser",
-                "path": "/app/configurator/components/applicationSettings/configurator-maintainusers.component",
+                "path": "/app/configurator/components/applicationSettings/application-settings-maintainusers.component",
                 "active": false
             },
             {
                 "title": "Traveller Data Store",
                 "component": "TravelerDataStore",
-                "path": "/app/configurator/components/applicationSettings/configurator-travelerdatastore.component",
+                "path": "/app/configurator/components/applicationSettings/application-settings-travelerdatastore.component",
                 "active": false
             },
             {
