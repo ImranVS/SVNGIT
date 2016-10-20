@@ -62,51 +62,14 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Locations
-        #endregion
-
-        #region Business Hours
-        #endregion
-
-        #region Maintainance
-        #endregion
-
-        #region Users
-        #endregion
-
-        #region Traveller Data Store
-        #endregion
-
-        #region IBM Domino Settings
-        #endregion
-
-        #endregion
-
-
-        #region Device Settings
-        #region Device Attributes
-        #endregion
-
-        #region Domino Server Tasks
-        #endregion
-
-        #region Windows Services
-        #endregion
-
-        #region Disk Settings
-        #endregion
-
-        #region Location/Credentials/Business Hours
-        #endregion
-
-        #endregion
-
         /// <summary>
         /// 
         /// </summary>
-        /// <author> </author>
+        /// <author>Swathi </author>
         /// <param name="country"></param>
         /// <param name="state"></param>
         /// <returns></returns>
+
         [HttpGet("get_locations")]
         public APIResponse GetLocationsDropDownData(string country, string state)
         {
@@ -222,6 +185,80 @@ namespace VitalSigns.API.Controllers
             Expression<Func<Location, bool>> expression = (p => p.Id == id);
             locationRepository.Delete(expression);
         }
+        #endregion
+
+        #region Business Hours
+        #endregion
+
+        #region Maintainance
+        #endregion
+
+        #region Users
+        #endregion
+
+        #region Traveller Data Store
+        #endregion
+
+        #region IBM Domino Settings
+        #endregion
+
+        #endregion
+
+
+        #region Device Settings
+        #region Device Attributes
+        #endregion
+
+        #region Domino Server Tasks
+        #endregion
+
+        #region Windows Services
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author>Swathi </author>
+        /// <param name=""></param>
+        /// <param name=""></param>
+        /// <returns></returns>
+        [HttpGet("get_windows_services")]
+        public APIResponse GetAllWindowservices()
+        {
+            try
+            {
+                windowsservicesRepository = new Repository<WindowsService>(ConnectionString);
+                var result = windowsservicesRepository.All().Select(x => new WindowsServiceModel
+                {
+                    Id = x.Id,
+                    ServiceName = x.ServiceName,
+                    IsSelected = false
+                    // Id = x.Id
+
+
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+
+            return Response;
+        }
+        #endregion
+
+        #region Disk Settings
+        #endregion
+
+        #region Location/Credentials/Business Hours
+        #endregion
+
+        #endregion
+
+       
+
 
         [HttpGet("business_hours")]
         public APIResponse GetAllBusinessHours()
@@ -820,33 +857,7 @@ namespace VitalSigns.API.Controllers
 
 
 
-        [HttpGet("windows_services")]
-        public APIResponse GetAllWindowservices()
-        {
-            try
-            {
-                windowsservicesRepository = new Repository<WindowsService>(ConnectionString);
-                var result = windowsservicesRepository.All().Select(x => new WindowsServiceModel
-                {
-                    Id = x.Id,
-                    ServiceName = x.ServiceName,
-                    IsSelected = false
-                    // Id = x.Id
-
-
-                }).ToList();
-
-
-                Response = Common.CreateResponse(result);
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
-            }
-
-            return Response;
-        }
+     
 
 
         [HttpGet("domino_server_tasks")]
