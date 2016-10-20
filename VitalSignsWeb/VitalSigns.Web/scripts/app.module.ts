@@ -170,7 +170,9 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         wjFlexGridGroup.WjGroupPanel,
         wjFlexInput.WjMenu,
         wjFlexInput.WjMenuItem,
-        wjFlexInput.WjMenuItemTemplateDir
+        wjFlexInput.WjMenuItemTemplateDir,
+        wjFlexInput.WjPopup,
+        wjFlexInput.WjComboBox
     ],
     entryComponents: [
         widgets.AppStatus,
