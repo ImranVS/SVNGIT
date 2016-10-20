@@ -36,7 +36,7 @@ export class MaintainUser extends GridBase {
         this.formName = "Maintain Users";
 
     }
-    saveMaintainUser(dlg: wijmo.input.Popup) {
+    saveMaintainUser(dlg: wijmo.input.Popup) {      
         this.saveGridRow1('/configurator/save_maintain_users', dlg);
     }
     delteMaintainUsers() {

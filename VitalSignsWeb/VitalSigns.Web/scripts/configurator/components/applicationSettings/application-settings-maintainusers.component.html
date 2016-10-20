@@ -1,7 +1,7 @@
 ﻿<div class="container">
 
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" >
+    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility ="Column" >
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Login Name'" [binding]="'login_name'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Full Name'" [binding]="'full_name'" [width]="200"></wj-flex-grid-column>
@@ -50,24 +50,22 @@ data.pageIndex + 1 | number
         <div class="well grid-sort-group">
 
             <!-- edit details in a popup -->
-            <button class="btn btn-default" (click)="editGridRow(frmDialog)">
+            <button class="btn btn-default" (click)="editGridRow1(frmDialog)">
                 Edit
             </button>
-            <button class="btn btn-default" (click)="addGridRow(frmDialog)">
+            <button class="btn btn-default" (click)="addGridRow1(frmDialog)">
                 Add
             </button>
             <button class="btn btn-default" (click)="delteMaintainUsers();">
                 Delete
             </button>
         </div>
-    <wj-popup class="col-md-6 modal-content" #frmDialog>
-        
+    <wj-popup class="col-md-6 modal-content" #frmDialog>       
    
-        <!--<form (ngSubmit)="saveMaintainUser()" >-->
-
+        <form (ngSubmit)="saveMaintainUser(frmDialog)" #frmUser="ngForm">
             <h4 class="modal-header">
-                {{formTitle}}
-                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()">&times;</button>
+               {{formTitle}}
+                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
             </h4>
             <div class="modal-body" *ngIf="currentEditItem">
                 <div class="form-group">
@@ -84,37 +82,33 @@ data.pageIndex + 1 | number
                 </div>
                 <div class="form-group">
                     <label for="status">Status</label>
-                    <select name="status" class="form-control" [(ngModel)]="currentEditItem.status">
+                    <select name="status" class="form-control" [(ngModel)]="currentEditItem.status" id="status">
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="super_admin">Super Admin</label>
-                    <select name="super_admin" class="form-control" [(ngModel)]="currentEditItem.super_admin">
+                    <select name="super_admin" class="form-control" [(ngModel)]="currentEditItem.super_admin" id="super_admin">
                         <option value="Y">Yes</option>
                         <option value="N">No</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="configurator_access">Configurator Access</label>
-                    <input type="checkbox" class="checkbox-inline" id="configurator_access" [(ngModel)]="currentEditItem.configurator_access">
+                    <input type="checkbox" class="checkbox-inline" id="configurator_access" [(ngModel)]="currentEditItem.configurator_access" name="configurator_access">
                 </div>
                 <div class="form-group">
                     <label for="console_command_access">Console Command Access</label>
-                    <input type="checkbox" class="checkbox-inline" id="console_command_access" [(ngModel)]="currentEditItem.console_command_access">
+                    <input type="checkbox" class="checkbox-inline" id="console_command_access" [(ngModel)]="currentEditItem.console_command_access" name="console_command_access">
                 </div>
 
 
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary"
-                        (click)="saveMaintainUser(frmDialog)"
-                        type="button">
-                    Save
-                </button>
+                <button class="btn btn-primary" type="submit" name="submit">Save</button>
             </div>
-
+        </form>
       </wj-popup>
    
 
