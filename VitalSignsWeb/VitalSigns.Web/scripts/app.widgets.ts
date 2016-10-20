@@ -46,5 +46,9 @@ export * from './configurator/components/serverSettings/server-settings-disk-set
 
 //server
 export * from './configurator/components/server/server-simulation-tests.compoment'
+
+export * from './configurator/components/server/server-maintenance-windows.component'
+
 export * from './configurator/components/server/server-disk-settings.component'
+
 

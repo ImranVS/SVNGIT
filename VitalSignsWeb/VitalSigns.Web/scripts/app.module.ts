@@ -123,7 +123,9 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.ServiceNMServerTasksGrid,
         widgets.ServiceEventsGrid,
         widgets.SimulationTests,
+        widgets.MaintenanceWindows,
         widgets.DominoServerDiskSettings,
+
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -207,7 +209,9 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.ServiceNMServerTasksGrid,
         widgets.ServiceEventsGrid,
         widgets.SimulationTests,
+        widgets.MaintenanceWindows,
         widgets.DominoServerDiskSettings,
+
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
