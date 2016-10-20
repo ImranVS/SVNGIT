@@ -7,7 +7,7 @@ import {RESTService} from '../../../core/services';
 
 @Component({
     selector: 'preferences-form',
-    templateUrl: '/app/configurator/components/applicationSettings/configurator-preferences.componenet.html',
+    templateUrl: '/app/configurator/components/applicationSettings/application-settings-preferences.componenet.html',
     providers: [
         HttpModule,
         RESTService

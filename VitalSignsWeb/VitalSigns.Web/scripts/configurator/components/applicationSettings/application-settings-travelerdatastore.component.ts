@@ -13,7 +13,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 
 @Component({
-    templateUrl: '/app/configurator/components/applicationSettings/configurator-travelerdatastore.component.html',
+    templateUrl: '/app/configurator/components/applicationSettings/application-settings-travelerdatastore.component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
@@ -32,7 +32,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 export class TravelerDataStore extends GridBase {
 
     constructor(service: RESTService) {
-        super(service, '/configurator/travelerdatastore');
+        super(service, '/configurator/get_travelerdatastore');
         this.formName = "Traveler Data Store";
     }
     saveTravelerDataStore() {
