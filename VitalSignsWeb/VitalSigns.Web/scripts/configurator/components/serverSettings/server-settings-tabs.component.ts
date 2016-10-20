@@ -35,13 +35,13 @@ export class ServerSettings implements OnInit {
             {
                 "title": "Server Atributes",
                 "component": "DeviceAttributes",
-                "path": "/app/configurator/components/serverSettings/configurator-server-attributes.component",
+                "path": "/app/configurator/components/serverSettings/server-settings-server-attributes.component",
                 "active": "true"
             },
             {
                 "title": "Domino Server Tasks",
                 "component": "DominoServerTasks",
-                "path": "/app/configurator/components/serverSettings/configurator-domino-server-tasks.component",
+                "path": "/app/configurator/components/serverSettings/server-settings-domino-server-tasks.component",
                 "active": false
             },
             {
