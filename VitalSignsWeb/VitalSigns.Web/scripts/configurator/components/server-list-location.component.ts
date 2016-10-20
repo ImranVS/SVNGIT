@@ -30,21 +30,20 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         RESTService
     ]
 })
-export class ServersLocation extends GridBase {
+export class ServersLocation implements OnInit, AfterViewInit {
+   
     @Output() checkedDevices = new EventEmitter();   
-
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    data: wijmo.collections.CollectionView;
     devices: string[]=[];
-    constructor(service: RESTService) {
-        super(service, '/Configurator/device_list');
-        this.formName = "Server Location Grid";        
-    }
-    saveBusinessHour() {
-        this.saveGridRow('/Configurator/save_business_hours');
-    }
-    delteBusinessHour() {
-        this.delteGridRow('/Configurator/delete_business_hours/');
-    }
-  
+    constructor(private service: RESTService) {
+        this.flex.formatItem.addHandler(function (sender, args) {
+
+            console.log(sender);
+            console.log(args);
+
+        });
+    } 
     serverCheck(value,event) {
      
         if (event.target.checked)
@@ -54,6 +53,20 @@ export class ServersLocation extends GridBase {
         }
         this.checkedDevices.emit(this.devices);
     }
+
+    ngOnInit() {       
+        this.service.get("/Configurator/device_list")
+            .subscribe(
+            response => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
+                this.data.pageSize = 10;
+            });        
+    }
+    ngAfterViewInit() {
+      
+    }
+    
 }
 
 
