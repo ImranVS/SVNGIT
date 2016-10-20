@@ -7,7 +7,7 @@ import {RESTService} from '../../../core/services';
 import * as ServiceTabs from './application-settings-tab.collection';
 
 @Component({
-    templateUrl: '/app/configurator/components/applicationSettings/applications-settings-tabs.component.html',
+    templateUrl: '/app/configurator/components/applicationSettings/application-settings-tabs.component.html',
     providers: [
         HttpModule,
         RESTService
