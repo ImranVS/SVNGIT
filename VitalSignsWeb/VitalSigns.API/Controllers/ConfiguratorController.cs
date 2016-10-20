@@ -794,9 +794,114 @@ namespace VitalSigns.API.Controllers
 
         #region Device Settings
         #region Device Attributes
+        /// <summary>
+        /// Get all device attributes data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        /// <returns>List of device attributes data</returns>
+        [HttpGet("get_device_attributes")]
+        public APIResponse GetDeviceAttributes()
+        {
+            try
+            {
+                deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+                var result = deviceAttributesRepository.All().Select(x => new DeviceAttributesModel
+                {
+                    Id = x.Id,
+                    AttributeName = x.AttributeName,
+                    DefaultValue = x.DefaultValue,
+                    DeviceType = x.DeviceType,
+                    FieldName = x.FieldName,
+                    Unitofmeasurement = x.Unitofmeasurement,
+                    IsSelected = false
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_device_attributes")]
+        public APIResponse SaveDeviceAttributes([FromBody]DeviceSettings deviceSettings)
+        {
+            try
+            {
+                var settingValue = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<DeviceAttributeValue>>();
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
+                //Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
         #endregion
 
         #region Domino Server Tasks
+        /// <summary>
+        /// Get all domino server tasks data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        /// <returns>List of domino servertasks data</returns>
+
+        [HttpGet("get_domino_server_tasks")]
+        public APIResponse GetAllDominoServerTasks()
+        {
+            try
+            {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                var result = dominoservertasksRepository.All().Select(x => new DominoServerTasksModel
+                {
+                    Id = x.Id,
+                    IsSelected = false,
+                    TaskName = x.TaskName,
+                    IsLoad = false,
+                    IsRestartASAP = false,
+                    IsResartLater = false,
+                    IsDisallow = false
+
+
+
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+
+            return Response;
+        }
+
+
+        [HttpPut("save_domino_server_tasks")]
+        public APIResponse SaveDominoServerTasks([FromBody]DeviceSettings dominoserversettings)
+        {
+            try
+            {
+                var settingValue = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Value).ToObject<List<DominoServerTasksValue>>();
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Devices).ToObject<string[]>();
+                //Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+
+
         #endregion
 
         #region Windows Services
@@ -1129,68 +1234,14 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpGet("get_device_attributes")]
-        public APIResponse GetDeviceAttributes()
-        {
-            try
-            {
-                deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-                var result = deviceAttributesRepository.All().Select(x => new DeviceAttributesModel
-                {
-                    Id = x.Id,
-                    AttributeName = x.AttributeName,
-                    DefaultValue = x.DefaultValue,
-                    DeviceType = x.DeviceType,
-                    FieldName = x.FieldName,
-                    Unitofmeasurement = x.Unitofmeasurement,
-                    IsSelected = false
-                }).ToList();
-                Response = Common.CreateResponse(result);
-            }
-
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
+      
 
 
 
      
 
 
-        [HttpGet("domino_server_tasks")]
-        public APIResponse GetAllDominoServerTasks()
-        {
-            try
-            {
-                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
-                var result = dominoservertasksRepository.All().Select(x => new DominoServerTasksModel
-                {
-                    Id = x.Id,
-                    IsSelected = false,
-                    TaskName = x.TaskName,
-                    IsLoad = false,
-                    IsRestartASAP = false,
-                    IsResartLater = false,
-                    IsDisallow = false
-                   
-
-
-                }).ToList();
-
-
-                Response = Common.CreateResponse(result);
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
-            }
-
-            return Response;
-        }
+     
 
 
 
@@ -1200,39 +1251,8 @@ namespace VitalSigns.API.Controllers
       
 
        
-        [HttpPut("save_device_attributes")]
-        public APIResponse SaveDeviceAttributes([FromBody]DeviceSettings deviceSettings)
-        {
-            try
-            {              
-                var settingValue = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<DeviceAttributeValue>>();
-                var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
-                //Response = Common.CreateResponse(result);
-            }
+      
 
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
-
-        [HttpPut("save_domino_server_tasks")]
-        public APIResponse SaveDominoServerTasks([FromBody]DeviceSettings dominoserversettings)
-        {
-            try
-            {
-                var settingValue = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Value).ToObject<List<DominoServerTasksValue>>();
-                var devicesList = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Devices).ToObject<string[]>();
-                //Response = Common.CreateResponse(result);
-            }
-
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
 
         [HttpPut("save_windows_services")]
         public APIResponse SaveWindowsServices([FromBody]DeviceSettings windowsservicesettings)
