@@ -32,4 +32,7 @@ export * from './components/service-outages-tab.component';
 export * from './components/service-travelerhealth-tab.component';
 export * from './components/service-clusterhealth-tab.component';
 
+//servers
+
+export * from '../configurator/components/server/server-simulation-tests.compoment'
 
