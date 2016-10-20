@@ -56,6 +56,50 @@ namespace VitalSigns.API.Controllers
         #region Application Settings
 
         #region Preferences
+        /// <summary>
+        /// Save preferences values
+        /// </summary>
+        /// <author>Sowmya</author>
+        /// <param name="userpreference"></param>
+        /// <returns>It returns id value</returns>
+        
+        [HttpPut("save_preferences")]
+        public APIResponse UpdatePreferences([FromBody]PreferencesModel userpreference)
+        {
+            try
+            {
+                var preferencesSettings = new List<NameValue> { new NameValue { Name = "Company Name", Value = userpreference.CompanyName },
+                                                                new NameValue { Name = "Currency Symbol", Value = userpreference.CurrencySymbol },
+                                                                new NameValue { Name = "Monitoring Delay", Value = Convert.ToString(userpreference.MonitoringDelay)},
+                                                                new NameValue { Name = "Threshold Show", Value =Convert.ToString(userpreference.ThresholdShow)},
+                                                                new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
+                                                                new NameValue { Name = "Bing Key", Value = userpreference.BingKey }
+                                                             };
+
+                namevalueRepository = new Repository<NameValue>(ConnectionString);
+
+                foreach (var setting in preferencesSettings)
+                {
+                    if (namevalueRepository.Collection.AsQueryable().Where(x => x.Name.Equals(setting.Name)).Count() > 0)
+                    {
+                        var filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == setting.Name);
+                        var updateDefinitaion = namevalueRepository.Updater.Set(p => p.Value, setting.Value);
+                        var results = namevalueRepository.Update(filterDefination, updateDefinitaion);
+                    }
+                    else
+                    {
+                        namevalueRepository.Insert(setting);
+                    }
+                }
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save preferences falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
         #endregion
 
         #region Credentials
@@ -473,9 +517,170 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Users
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author>Sowmya</author>
+        /// <returns></returns>
+        
+        [HttpGet("get_maintain_users")]
+        public APIResponse GetAllMaintainUsers()
+        {
+            try
+            {
+                maintainUsersRepository = new Repository<Users>(ConnectionString);
+                var result = maintainUsersRepository.All().Select(x => new MaintainUsersModel
+                {
+
+                    Id = x.Id,
+                    LoginName = x.LoginName,
+                    FullName = x.FullName,
+                    Email = x.Email,
+                    Status = x.Status,
+                    SuperAdmin = x.SuperAdmin,
+                    ConfiguratorAccess = x.ConfiguratorAccess,
+                    ConsoleCommandAccess = x.ConsoleCommandAccess
+
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_maintain_users")]
+        public APIResponse UpdateMaintainUsers([FromBody]MaintainUsersModel maintainuser)
+        {
+            try
+            {
+                maintainUsersRepository = new Repository<Users>(ConnectionString);
+
+
+                if (string.IsNullOrEmpty(maintainuser.Id))
+                {
+                    Users maintainUsers = new Users { LoginName = maintainuser.LoginName, FullName = maintainuser.FullName, Email = maintainuser.Email, Status = maintainuser.Status, SuperAdmin = maintainuser.SuperAdmin, ConfiguratorAccess = maintainuser.ConfiguratorAccess, ConsoleCommandAccess = maintainuser.ConsoleCommandAccess };
+                    maintainUsersRepository.Insert(maintainUsers);
+                    Response = Common.CreateResponse(true, "OK", "Maintain Users inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(p => p.Id == maintainuser.Id);
+                    var updateDefination = maintainUsersRepository.Updater.Set(p => p.LoginName, maintainuser.LoginName)
+                                                             .Set(p => p.FullName, maintainuser.FullName)
+                                                             .Set(p => p.Email, maintainuser.Email)
+                                                             .Set(p => p.Status, maintainuser.Status)
+                                                             .Set(p => p.SuperAdmin, maintainuser.SuperAdmin)
+                                                             .Set(p => p.ConfiguratorAccess, maintainuser.ConfiguratorAccess)
+                                                             .Set(p => p.ConsoleCommandAccess, maintainuser.ConsoleCommandAccess);
+
+                    var result = maintainUsersRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Maintain Users updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Maintain Users falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+        [HttpDelete("delete_maintain_users/{id}")]
+        public void DeleteMaintainUsers(string id)
+        {
+            maintainUsersRepository = new Repository<Users>(ConnectionString);
+            Expression<Func<Users, bool>> expression = (p => p.Id == id);
+            maintainUsersRepository.Delete(expression);
+        }
         #endregion
 
         #region Traveller Data Store
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author>Sowmya</author>
+        /// <returns></returns>
+
+        [HttpGet("get_travelerdatastore")]
+        public APIResponse GetAllTravelerDataStore()
+        {
+            try
+            {
+                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
+                var result = travelerdatastoreRepository.All().Select(x => new TravelerDataStoresModel
+                {
+                    Id = x.Id,
+                    TravelerServicePoolName = x.TravelerServicePoolName,
+                    DeviceName = x.DeviceName,
+                    DataStore = x.DataStore,
+                    DatabaseName = x.DatabaseName,
+                    Port = x.Port,
+                    UserName = x.UserName,
+                    Password = x.Password,
+                    IntegratedSecurity = x.IntegratedSecurity,
+                    TestScanServer = x.TestScanServer,
+                    UsedByServers = x.UsedByServers
+
+                }).ToList();
+
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get traveler data falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_traveler_data_store")]
+        public APIResponse UpdateTravelerDataStore([FromBody]TravelerDataStoresModel travelerdatas)
+        {
+            try
+            {
+                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
+                if (string.IsNullOrEmpty(travelerdatas.Id))
+                {
+                    TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer, UsedByServers = travelerdatas.UsedByServers };
+                    travelerdatastoreRepository.Insert(travelerds);
+                    Response = Common.CreateResponse(true, "OK", "traveler data inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<TravelerDTS> filterDefination = Builders<TravelerDTS>.Filter.Where(p => p.Id == travelerdatas.Id);
+                    var updateDefination = travelerdatastoreRepository.Updater.Set(p => p.TravelerServicePoolName, travelerdatas.TravelerServicePoolName)
+                                                             .Set(p => p.DeviceName, travelerdatas.DeviceName)
+                                                             .Set(p => p.DataStore, travelerdatas.DataStore)
+                                                             .Set(p => p.DatabaseName, travelerdatas.DatabaseName)
+                                                             .Set(p => p.Port, travelerdatas.Port)
+                                                             .Set(p => p.UserName, travelerdatas.UserName)
+                                                             .Set(p => p.Password, travelerdatas.Password)
+                                                             .Set(p => p.IntegratedSecurity, travelerdatas.IntegratedSecurity)
+                                                             .Set(p => p.TestScanServer, travelerdatas.TestScanServer)
+                                                             .Set(p => p.UsedByServers, travelerdatas.UsedByServers);
+                    var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "traveler data updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save traveler data falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+        [HttpDelete("delete_traveler_data_store/{id}")]
+        public void DeleteTravelerDataStore(string id)
+        {
+            travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
+            Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
+            travelerdatastoreRepository.Delete(expression);
+        }
         #endregion
 
         #region IBM Domino Settings
@@ -880,160 +1085,11 @@ namespace VitalSigns.API.Controllers
         //}
 
 
-        [HttpGet("maintain_users")]
-        public APIResponse GetAllMaintainUsers()
-        {
-            try
-            {
-                maintainUsersRepository = new Repository<Users>(ConnectionString);
-                var result = maintainUsersRepository.All().Select(x => new MaintainUsersModel
-                {
-
-                    Id = x.Id,
-                    LoginName = x.LoginName,
-                    FullName = x.FullName,
-                    Email = x.Email,
-                    Status = x.Status,
-                    SuperAdmin = x.SuperAdmin,
-                    ConfiguratorAccess = x.ConfiguratorAccess,
-                    ConsoleCommandAccess = x.ConsoleCommandAccess
-
-                }).ToList();
-                Response = Common.CreateResponse(result);
-            }
-
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
-
-        [HttpPut("save_maintain_users")]
-        public APIResponse UpdateMaintainUsers([FromBody]MaintainUsersModel maintainuser)
-        {
-            try
-            {
-                maintainUsersRepository = new Repository<Users>(ConnectionString);
-
-
-                if (string.IsNullOrEmpty(maintainuser.Id))
-                {
-                    Users maintainUsers = new Users { LoginName = maintainuser.LoginName, FullName = maintainuser.FullName, Email = maintainuser.Email, Status = maintainuser.Status, SuperAdmin = maintainuser.SuperAdmin, ConfiguratorAccess = maintainuser.ConfiguratorAccess, ConsoleCommandAccess = maintainuser.ConsoleCommandAccess };
-                    maintainUsersRepository.Insert(maintainUsers);
-                    Response = Common.CreateResponse(true, "OK", "Maintain Users inserted successfully");
-                }
-                else
-                {
-                    FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(p => p.Id == maintainuser.Id);
-                    var updateDefination = maintainUsersRepository.Updater.Set(p => p.LoginName, maintainuser.LoginName)
-                                                             .Set(p => p.FullName, maintainuser.FullName)
-                                                             .Set(p => p.Email, maintainuser.Email)
-                                                             .Set(p => p.Status, maintainuser.Status)
-                                                             .Set(p => p.SuperAdmin, maintainuser.SuperAdmin)
-                                                             .Set(p => p.ConfiguratorAccess, maintainuser.ConfiguratorAccess)
-                                                             .Set(p => p.ConsoleCommandAccess, maintainuser.ConsoleCommandAccess);
-
-                    var result = maintainUsersRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Maintain Users updated successfully");
-                }
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Save Maintain Users falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-        }
-
-        [HttpDelete("delete_maintain_users/{id}")]
-        public void DeleteMaintainUsers(string id)
-        {
-            maintainUsersRepository = new Repository<Users>(ConnectionString);
-            Expression<Func<Users, bool>> expression = (p => p.Id == id);
-            maintainUsersRepository.Delete(expression);
-        }
+      
 
        
 
-        [HttpGet("travelerdatastore")]
-        public APIResponse GetAllTravelerDataStore()
-        {
-            try
-            {
-                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
-                var result = travelerdatastoreRepository.All().Select(x => new TravelerDataStoresModel
-                {
-                    Id = x.Id,
-                    TravelerServicePoolName = x.TravelerServicePoolName,
-                    DeviceName = x.DeviceName,
-                    DataStore = x.DataStore,
-                    DatabaseName = x.DatabaseName,
-                    Port = x.Port,
-                    UserName = x.UserName,
-                    Password = x.Password,
-                    IntegratedSecurity = x.IntegratedSecurity,
-                    TestScanServer = x.TestScanServer,
-                    UsedByServers = x.UsedByServers
-
-                }).ToList();
-
-                Response = Common.CreateResponse(result);
-            }
-
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Get traveler data falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
-
-
-        [HttpPut("save_traveler_data_store")]
-        public APIResponse UpdateTravelerDataStore([FromBody]TravelerDataStoresModel travelerdatas)
-        {
-            try
-            {
-                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
-                if (string.IsNullOrEmpty(travelerdatas.Id))
-                {
-                    TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer, UsedByServers = travelerdatas.UsedByServers };
-                    travelerdatastoreRepository.Insert(travelerds);
-                    Response = Common.CreateResponse(true, "OK", "traveler data inserted successfully");
-                }
-                else
-                {
-                    FilterDefinition<TravelerDTS> filterDefination = Builders<TravelerDTS>.Filter.Where(p => p.Id == travelerdatas.Id);
-                    var updateDefination = travelerdatastoreRepository.Updater.Set(p => p.TravelerServicePoolName, travelerdatas.TravelerServicePoolName)
-                                                             .Set(p => p.DeviceName, travelerdatas.DeviceName)
-                                                             .Set(p => p.DataStore, travelerdatas.DataStore)
-                                                             .Set(p => p.DatabaseName, travelerdatas.DatabaseName)
-                                                             .Set(p => p.Port, travelerdatas.Port)
-                                                             .Set(p => p.UserName, travelerdatas.UserName)
-                                                             .Set(p => p.Password, travelerdatas.Password)
-                                                             .Set(p => p.IntegratedSecurity, travelerdatas.IntegratedSecurity)
-                                                             .Set(p => p.TestScanServer, travelerdatas.TestScanServer)
-                                                             .Set(p => p.UsedByServers, travelerdatas.UsedByServers);
-                    var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "traveler data updated successfully");
-                }
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Save traveler data falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-        }
-
-
-        [HttpDelete("delete_traveler_data_store/{id}")]
-        public void DeleteTravelerDataStore(string id)
-        {
-            travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
-            Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
-            travelerdatastoreRepository.Delete(expression);
-        }
+      
 
 
        
@@ -1143,43 +1199,7 @@ namespace VitalSigns.API.Controllers
 
       
 
-        [HttpPut("save_preferences")]
-        public APIResponse UpdatePreferences([FromBody]PreferencesModel userpreference)
-        {
-            try
-            {
-                var preferencesSettings = new List<NameValue> { new NameValue { Name = "Company Name", Value = userpreference.CompanyName },
-                                                                new NameValue { Name = "Currency Symbol", Value = userpreference.CurrencySymbol },
-                                                                new NameValue { Name = "Monitoring Delay", Value = Convert.ToString(userpreference.MonitoringDelay)},
-                                                                new NameValue { Name = "Threshold Show", Value =Convert.ToString(userpreference.ThresholdShow)},
-                                                                new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
-                                                                new NameValue { Name = "Bing Key", Value = userpreference.BingKey }
-                                                             };
-
-                namevalueRepository = new Repository<NameValue>(ConnectionString);
-
-                foreach (var setting in preferencesSettings)
-                {
-                    if (namevalueRepository.Collection.AsQueryable().Where(x => x.Name.Equals(setting.Name)).Count() > 0)
-                    {
-                        var filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == setting.Name);
-                        var updateDefinitaion = namevalueRepository.Updater.Set(p => p.Value, setting.Value);
-                        var results = namevalueRepository.Update(filterDefination, updateDefinitaion);
-                    }
-                    else
-                    {
-                        namevalueRepository.Insert(setting);
-                    }
-                }
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Save preferences falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-        }
+       
         [HttpPut("save_device_attributes")]
         public APIResponse SaveDeviceAttributes([FromBody]DeviceSettings deviceSettings)
         {
