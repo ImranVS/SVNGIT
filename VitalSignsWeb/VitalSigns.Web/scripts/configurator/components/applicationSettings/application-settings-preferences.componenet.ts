@@ -15,14 +15,13 @@ import {RESTService} from '../../../core/services';
 })
 export class PreferencesForm implements OnInit, AfterViewInit {
 
-    @ViewChildren('name') inputName;
+    @ViewChildren('licencekey') licencekey;
 
     insertMode: boolean = false;
     preferencesForm: FormGroup;
     errorMessage: string;
     profileEmail: string;
-    formTitle: string;
-
+    licenceKey: string;   
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
@@ -54,11 +53,7 @@ export class PreferencesForm implements OnInit, AfterViewInit {
     ngOnInit() {
 
 
-        //this.route.params.subscribe(params => {
-
-
-
-        //    this.formTitle = "Preferences";
+     
 
         //    this.dataProvider.get('/configurator/preferences')
         //        .subscribe(
@@ -66,7 +61,7 @@ export class PreferencesForm implements OnInit, AfterViewInit {
         //        (error) => this.errorMessage = <any>error
 
         //        );
-        //});
+        
     }
 
     ngAfterViewInit() {
@@ -81,5 +76,15 @@ export class PreferencesForm implements OnInit, AfterViewInit {
 
             });
 
+    }
+    saveLicence(dialog: wijmo.input.Popup) {
+        var licencekey=this.licencekey.first.nativeElement.value;
+        if (licencekey == "") {
+            alert("error");
+        } else
+        {
+            alert(licencekey);
+            dialog.hide();
+        }
     }
 }
