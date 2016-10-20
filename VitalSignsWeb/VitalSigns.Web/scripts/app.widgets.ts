@@ -19,14 +19,14 @@ export * from './widgets/main-dashboard/components/status-summary.component';
 export * from './widgets/main-dashboard/components/user-sessions.component';
 export * from './widgets/mobile-users/components/mobile-users-list.component';
 export * from './widgets/sample/sample-widget.component';
-export * from './configurator/components/applicationSettings/configurator-businesshours.component';
+export * from './configurator/components/applicationSettings/applications-settings-businesshours.component';
 export * from './configurator/components/applicationSettings/configurator-servercredentials.component'
 export * from './configurator/components/applicationSettings/configurator-locations.component'
 export * from './configurator/components/applicationSettings/configurator-maintainusers.component'
 export * from './configurator/components/applicationSettings/configurator-ibm-domino-settings.component'
-export * from './configurator/components/applicationSettings/configurator-maintenance.component'
+export * from './configurator/components/applicationSettings/applications-settings-maintenance.component'
 export * from './configurator/components/applicationSettings/configurator-travelerdatastore.component'
-export * from './configurator/components/serverSettings/configurator-domino-server-tasks.component'
+export * from './configurator/components/serverSettings/server-settings-domino-server-tasks.component'
 export * from './configurator/components/applicationSettings/configurator-preferences.componenet'
 
 
@@ -40,10 +40,7 @@ export * from './services/components/service-travelerhealth-grid.component';
 export * from './services/components/service-travelermailservers-grid.component';
 export * from './services/components/service-nm-servertasks-grid.component';
 export * from './configurator/components/serverSettings/server-locations-credentials-businesshours.component'
-
-export * from './configurator/components/serverSettings/configurator-server-attributes.component';
 export * from './configurator/components/serverSettings/configurator-windows-services .component'
-export * from './configurator/components/serverSettings/configurator-server-attributes.component'
-export * from './configurator/components/serverSettings/configurator-server-attributes.component'
+export * from './configurator/components/serverSettings/server-settings-server-attributes.component'
 export * from './configurator/components/serverSettings/server-disk-settings'
 

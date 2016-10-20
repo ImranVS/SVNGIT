@@ -1,0 +1,296 @@
+﻿<div class="container">
+
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"> </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Start Date'" [binding]="'start_date'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="150"></wj-flex-grid-column>
+
+        <wj-flex-grid-column [header]="'End Date'" [binding]="'end_date'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="160"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Maintenance Frequency'" [binding]="'maintenance_frequency'" [width]="200"></wj-flex-grid-column>
+
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+    <div class="modal fade" id="dlgDetail">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            (itemsSourceChanged)="itemsSourceChangedHandler()"
+                            (click)="cancelEditAdd()"
+                            aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title">{{formTitle}}</h4>
+                </div>
+
+                <div class="modal-body" *ngIf="currentEditItem">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                    </div>
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="text" class="form-control" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="start_time">Start Time</label>
+                        <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date</label>
+                        <input type="text" class="form-control" id="end_date" [(ngModel)]="currentEditItem.end_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration</label>
+                        <input type="text" class="form-control" id="duration" [(ngModel)]="currentEditItem.duration">
+                    </div>
+                    <div class="form-group">
+                        <label for="maintenance_frequency">Maintenance Frequency</label>
+                        <input type="text" class="form-control" id="maintenance_frequency" [(ngModel)]="currentEditItem.maintenance_frequency">
+                    </div>
+
+                    <div class="form-group">
+
+                        <input type="radio" name="selectionType" value="onetime" [(ngModel)]="selectedSetting"> <label for="onetime">One time:</label>
+                        <input type="radio" name="selectionType" value="daily" [(ngModel)]="selectedSetting"><label for="daily">Daily:</label>
+                        <input type="radio" name="selectionType" value="weekly" [(ngModel)]="selectedSetting"> <label for="weekly">Weekly:</label>
+                        <input type="radio" name="selectionType" value="monthly" [(ngModel)]="selectedSetting"><label for="monthly">Monthly:</label>
+                    </div>
+
+                    <!--<div class="form-group" *ngIf="selectedSetting=='onetime'">
+                       
+
+                       
+                    </div>-->
+
+                    <div class="form-group" *ngIf="selectedSetting=='weekly'">
+
+                        <div class="form-group">
+                            <label for="repeattxtbx">Repeat every:</label>
+                            <input type="text" class="form-control" id="repeattxtbx" [(ngModel)]="currentEditItem.repeat">
+                            <label for="repeattxtbx">weeks on</label>
+                        </div>
+
+                        <div class="panel panel-default">
+
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="sunday" formControlName="sunday">
+                                    <label for="sunday">Sunday </label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="monday" formControlName="monday">
+                                    <label for="monday">Monday </label><br />
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="tuesday" formControlName="tuesday">
+                                    <label for="tuesday">Tuesday</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="wednesday" formControlName="wednesday">
+                                    <label for="wednesday">Wednesday</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="thursday" formControlName="thursday">
+                                    <label for="thursday">Thursday</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="friday" formControlName="friday">
+                                    <label for="friday">Friday</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="saturday" formControlName="saturday">
+                                    <label for="saturday">Saturday</label>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" *ngIf="selectedSetting=='monthly'">
+                        <label for="monthly">Monthly</label>
+
+                        <div class="form-group">
+                            <label for="month">Repeat every month on</label>
+
+                            <select name="month" class="form-control">
+                                <option value="first">First</option>
+                                <option value="second">Second</option>
+                                <option value="third">Third</option>
+                                <option value="last">Last</option>
+                                <option value="specific_day">Specific Day</option>
+
+                            </select>
+                        </div>
+
+                        <div class="panel panel-default">
+
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="sunday" formControlName="sunday">
+                                    <label for="sunday">Sunday </label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="monday" formControlName="monday">
+                                    <label for="monday">Monday </label><br />
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="tuesday" formControlName="tuesday">
+                                    <label for="tuesday">Tuesday</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="wednesday" formControlName="wednesday">
+                                    <label for="wednesday">Wednesday</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="thursday" formControlName="thursday">
+                                    <label for="thursday">Thursday</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="friday" formControlName="friday">
+                                    <label for="friday">Friday</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="checkbox" class="checkbox-inline" id="saturday" formControlName="saturday">
+                                    <label for="saturday">Saturday</label>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="width:auto">
+                        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+                    </div>
+
+
+                    <div>
+                        <wj-group-panel [grid]="flex1" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+
+                        <wj-flex-grid #flex1 [itemsSource]="dataMobileUsers" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                            <wj-flex-grid-filter></wj-flex-grid-filter>
+                            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'"> </wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'"> </wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'"></wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'Last Synchronous Time'" [binding]="'last_sync_time'"></wj-flex-grid-column>
+                        </wj-flex-grid>
+                    </div>
+                    <div class="btn-group" *ngIf="dataMobileUsers != null">
+                        <button type="button" class="btn btn-default"
+                                (click)="dataMobileUsers.moveToFirstPage()"
+                                [disabled]="dataMobileUsers.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-fast-backward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="dataMobileUsers.moveToPreviousPage()"
+                                [disabled]="dataMobileUsers.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-step-backward">
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-default" disabled style="width:100px">
+                                                        {{
+                                               dataMobileUsers.pageIndex + 1 | number
+                            }} / {{data.pageCount | number}}
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="dataMobileUsers.moveToNextPage()"
+                                [disabled]="dataMobileUsers.pageIndex >= dataMobileUsers.pageCount - 1">
+                            <span class="glyphicon glyphicon-step-forward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="dataMobileUsers.moveToLastPage()"
+                                [disabled]="dataMobileUsers.pageIndex >= dataMobileUsers.pageCount - 1">
+                            <span class="glyphicon glyphicon-fast-forward"></span>
+                        </button>
+                    </div>
+                    <div class="pull-right" *ngIf="dataMobileUsers != null">
+                        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                            <wj-menu-item [value]="10">10</wj-menu-item>
+                            <wj-menu-item [value]="20">20</wj-menu-item>
+                            <wj-menu-item [value]="50">50</wj-menu-item>
+                        </wj-menu>
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" (click)="saveMaintenance()">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal"
+                            (click)="cancelEditAdd()">
+                        <span class="glyphicon glyphicon-ban-circle"></span>
+                        Close
+                    </button>
+                </div>
+            </div><!-- modal-content -->l
+        </div><!-- modal-dialog -->
+    </div><!-- modal -->
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail" (click)="editGridRow()">
+            Edit
+        </button>
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail" (click)="addGridRow()">
+            Add
+        </button>
+        <button class="btn btn-default"
+                data-target="#dlgDetail" (click)="deleteMaintenance();">
+            Delete
+        </button>
+    </div>
+</div>
+
+

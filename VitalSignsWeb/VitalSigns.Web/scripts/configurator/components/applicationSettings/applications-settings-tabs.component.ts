@@ -48,13 +48,13 @@ export class ApplicationSettings implements OnInit {
             {
                 "title": "Business Hours",
                 "component": "BusinessHours",
-                "path": "/app/configurator/components/applicationSettings/configurator-businesshours.component",
+                "path": "/app/configurator/components/applicationSettings/applications-settings-businesshours.component",
                 "active": false
             },
             {
                 "title": "Maintainance",
                 "component": "Maintenance",
-                "path": "/app/configurator/components/applicationSettings/configurator-maintenance.component",
+                "path": "/app/configurator/components/applicationSettings/applications-settings-maintenance.component",
                 "active": false
             },
             {
