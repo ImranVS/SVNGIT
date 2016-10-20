@@ -68,10 +68,10 @@ export class ProfilesForm implements OnInit, AfterViewInit {
 
     onSubmit(profile: any): void {
     
-        this.dataProvider.put(
-            `http://localhost:1234/profiles/${profile.email}`,
-            profile,
-            () => this.router.navigate(['profiles']));
+        //this.dataProvider.put(
+        //    `http://localhost:1234/profiles/${profile.email}`,
+        //    profile,
+        //    () => this.router.navigate(['profiles']));
 
     }
 }
