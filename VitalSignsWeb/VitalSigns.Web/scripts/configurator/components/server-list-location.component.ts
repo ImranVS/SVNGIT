@@ -37,12 +37,7 @@ export class ServersLocation implements OnInit, AfterViewInit {
     data: wijmo.collections.CollectionView;
     devices: string[]=[];
     constructor(private service: RESTService) {
-        this.flex.formatItem.addHandler(function (sender, args) {
-
-            console.log(sender);
-            console.log(args);
-
-        });
+       
     } 
     serverCheck(value,event) {
      
