@@ -62,7 +62,7 @@ export class ServerDiskSettings  {
        
         if (this.selectedDiskSetting == "allDisksBypercentage")
         {
-            alert(this.diskByPercentage);
+          //  alert(this.diskByPercentage);
             this.selectedDiskSettingValue = this.diskByPercentage;
         }
         else if (this.selectedDiskSetting == "allDisksByGB")
