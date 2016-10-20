@@ -71,9 +71,11 @@ export class ServerLocations implements OnInit, AfterViewInit {
             "devices": this.devices
         }; 
         this.serverLocationsBusinessHoursCredentialsForm.setValue(this.postData);
-        this.dataProvider.put(
-            '/Configurator/save_server_credentials_businesshours',
-            this.postData);
+        this.dataProvider.put('/Configurator/save_server_credentials_businesshours', this.postData)
+            .subscribe(
+            response => {
+
+            });
        //alert(this.postData);
 
 

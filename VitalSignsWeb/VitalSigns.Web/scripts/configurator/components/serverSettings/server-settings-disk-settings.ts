@@ -109,9 +109,11 @@ export class ServerDiskSettings  {
         }
       
         this.diskSettingsForm.setValue(this.postData);
-        this.dataProvider.put(
-            '/Configurator/save_disk_settings',
-            this.postData);
+        this.dataProvider.put('/Configurator/save_disk_settings', this.postData)
+            .subscribe(
+            response => {
+
+            });
     }
     changeInDevices(server: string) {
         this.devices = server;

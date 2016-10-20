@@ -72,7 +72,11 @@ export class DominoServerTasks extends GridBase  {
 
         console.log(postData);
         this.currentForm.setValue(postData);
-        this.service.put('/Configurator/save_domino_server_tasks', postData);
+        this.service.put('/Configurator/save_domino_server_tasks', postData)
+            .subscribe(
+            response => {
+
+            });
     }
 }
 

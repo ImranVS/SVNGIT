@@ -120,7 +120,11 @@ export class WindowsServices implements WidgetComponent, OnInit {
         };
         console.log(postData);
         this.currentForm.setValue(postData);
-        this.service.put('/Configurator/save_windows_services', postData);
+        this.service.put('/Configurator/save_windows_services', postData)
+            .subscribe(
+            response => {
+
+            });
     }
 
 

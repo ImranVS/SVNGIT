@@ -84,7 +84,11 @@ export class DeviceAttributes extends GridBase implements OnInit {
         };   
         console.log(postData);
         this.currentForm.setValue(postData);
-        this.service.put('/Configurator/save_device_attributes', postData);
+        this.service.put('/Configurator/save_device_attributes', postData)
+            .subscribe(
+            response => {
+
+            });
     }
 }
 
