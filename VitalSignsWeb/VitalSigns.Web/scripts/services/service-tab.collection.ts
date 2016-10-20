@@ -35,6 +35,6 @@ export * from './components/service-clusterhealth-tab.component';
 //servers
 
 export * from '../configurator/components/server/server-simulation-tests.compoment'
-export * from '../configurator/components/server/server-disk-settings'
+export * from '../configurator/components/server/server-disk-settings.component'
 
 
