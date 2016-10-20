@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 using System.IO;
 using VitalSigns.API.Models;
 using System.Linq;
+using VSNext.Mongo.Repository;
+using MongoDB.Driver;
+using System;
 
 namespace VitalSigns.API
 {
@@ -30,6 +33,32 @@ namespace VitalSigns.API
         {
             return new APIResponse {Data=data,Status=status,Message=message };
             
+        }
+
+        public static bool SaveNameValues(List<VSNext.Mongo.Entities.NameValue> nameValues)
+        {
+            bool result = true;
+            try
+            {
+                Repository<VSNext.Mongo.Entities.NameValue> namevalueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
+                foreach (var setting in nameValues)
+                {
+                    if (namevalueRepository.Collection.AsQueryable().Where(x => x.Name.Equals(setting.Name)).Count() > 0)
+                    {
+                        var filterDefination = Builders<VSNext.Mongo.Entities.NameValue>.Filter.Where(p => p.Name == setting.Name);
+                        var updateDefinitaion = namevalueRepository.Updater.Set(p => p.Value, setting.Value);
+                        var results = namevalueRepository.Update(filterDefination, updateDefinitaion);
+                    }
+                    else
+                    {
+                        namevalueRepository.Insert(setting);
+                    }
+                }
+            }catch(Exception ex)
+            {
+                result = false;
+            }
+            return result;
         }
     }
 }

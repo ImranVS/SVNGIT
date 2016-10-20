@@ -64,7 +64,7 @@ namespace VitalSigns.API.Controllers
         /// <returns>It returns id value</returns>
         
         [HttpPut("save_preferences")]
-        public APIResponse UpdatePreferences([FromBody]PreferencesModel userpreference)
+        public APIResponse SavePreferences([FromBody]PreferencesModel userpreference)
         {
             try
             {
@@ -75,23 +75,8 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
                                                                 new NameValue { Name = "Bing Key", Value = userpreference.BingKey }
                                                              };
-
-                namevalueRepository = new Repository<NameValue>(ConnectionString);
-
-                foreach (var setting in preferencesSettings)
-                {
-                    if (namevalueRepository.Collection.AsQueryable().Where(x => x.Name.Equals(setting.Name)).Count() > 0)
-                    {
-                        var filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == setting.Name);
-                        var updateDefinitaion = namevalueRepository.Updater.Set(p => p.Value, setting.Value);
-                        var results = namevalueRepository.Update(filterDefination, updateDefinitaion);
-                    }
-                    else
-                    {
-                        namevalueRepository.Insert(setting);
-                    }
-                }
-
+                var result = Common.SaveNameValues(preferencesSettings);
+                Response = Common.CreateResponse(true);
             }
             catch (Exception exception)
             {
