@@ -1,0 +1,41 @@
+﻿<div class="container siteMapEditor">
+    <h1>Edit site map</h1>
+    <sitemap-node *ngIf="siteMap" [nodes]="siteMap.nodes" (select)="selectNode($event)"></sitemap-node>
+    <div class="form" [style.height]='formHeight'>
+        <div class="overlay" *ngIf="!this.formExpanded">
+            <button class="btn btn-primary" (click)="saveSiteMap()">Save</button>
+            <a class="btn btn-success" [routerLink]="['/sitemaps']" role="button">Close</a>
+            <div class="btn-wrapper btn-success dropup contextButton" *ngIf="this.selectedNode">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" (click)="editSelectedNode()">Edit</button>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-left">
+                        <li><a (click)="insertChild()">New child</a></li>
+                        <li><a (click)="insertSibling()">New sibling</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a (click)="sortChildren()">Sort children</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a (click)="cutSelectedNode()">Cut</a></li>
+                        <li><a (click)="copySelectedNode()">Copy</a></li>
+                        <li><a (click)="pasteNode()">Paste</a></li>
+                    </ul>
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger contextButton" *ngIf="this.selectedNode" (click)="deleteSelectedNode()">Delete</button>
+        </div>
+        <form [formGroup]="selectedNodeForm" (ngSubmit)="onNodeSave(selectedNodeForm.value)">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" #name d="title" required name="title" formControlName="title">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" class="form-control" id="url" name="url" formControlName="url">
+            </div>
+            <button type="submit" class="btn btn-success">Save</button>
+        </form>
+    </div>
+</div>

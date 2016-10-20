@@ -1,0 +1,26 @@
+﻿<div class="container">
+    <style>
+        table.table tr td .btn { display:none;}
+        table.table tr:hover td .btn { display:inline-block;}
+        .table-cell-height { height: 25px; }
+    </style>
+    <h1>Site maps</h1>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th class="col-md-10">Title</th>
+                <th class="col-md-2"></th>
+            </tr>
+        </thead>
+        <tbody *ngIf="siteMapsList">
+            <tr *ngFor="let siteMap of siteMapsList">
+                <th scope="row">{{siteMap.title}}</th>
+                <td>
+                    <div class="table-cell-height">
+                        <a class="btn btn-primary btn-xs" [routerLink]="['/sitemaps/' + siteMap._id]" role="button">Edit</a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
