@@ -22,7 +22,7 @@ namespace VitalSigns.API.Controllers
     [Route("[controller]")]
     public class ConfiguratorController : BaseController
     {
-
+        #region Repository declaration
         private IRepository<BusinessHours> businessHoursRepository;
         private IRepository<Credentials> credentialsRepository;
         private IRepository<Location> locationRepository;
@@ -50,9 +50,63 @@ namespace VitalSigns.API.Controllers
         private IRepository<DominoServerTasks> dominoservertasksRepository;
 
         private IRepository<Status> statusRepository;
+        #endregion
 
-        List<string> diskNames = new List<string>();
 
+        #region Application Settings
+
+        #region Preferences
+        #endregion
+
+        #region Credentials
+        #endregion
+
+        #region Locations
+        #endregion
+
+        #region Business Hours
+        #endregion
+
+        #region Maintainance
+        #endregion
+
+        #region Users
+        #endregion
+
+        #region Traveller Data Store
+        #endregion
+
+        #region IBM Domino Settings
+        #endregion
+
+        #endregion
+
+
+        #region Device Settings
+        #region Device Attributes
+        #endregion
+
+        #region Domino Server Tasks
+        #endregion
+
+        #region Windows Services
+        #endregion
+
+        #region Disk Settings
+        #endregion
+
+        #region Location/Credentials/Business Hours
+        #endregion
+
+        #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author> </author>
+        /// <param name="country"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
         [HttpGet("get_locations")]
         public APIResponse GetLocationsDropDownData(string country, string state)
         {
@@ -267,17 +321,7 @@ namespace VitalSigns.API.Controllers
 
 
 
-        }
-        //[HttpGet("credentials/{UserId}")]
-        //public Credentials GetCredentials(string UserId)
-        //{
-        //    credentialsRepository = new Repository<Credentials>(ConnectionString);
-        //    Expression<Func<Credentials, bool>> expression = (p => p.UserId == UserId);
-        //    var result = credentialsRepository.Find(expression).FirstOrDefault();
-
-
-        //    return result;
-        //}
+        }     
 
         [HttpPut("save_server_credentials")]
         public APIResponse UpdateServerCredentials([FromBody]ServerCredentialsModel serverCredential)
