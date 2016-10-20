@@ -1,8 +1,8 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
-import {FormBuilder, FormGroup, FormControl, REACTIVE_FORM_DIRECTIVES, REACTIVE_FORM_PROVIDERS, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -16,19 +16,8 @@ import {GridBase} from '../../../core/gridBase';
 
 @Component({
     templateUrl: '/app/configurator/components/applicationSettings/application-settings-locations.component.html',
-    directives: [REACTIVE_FORM_DIRECTIVES,
-        wjFlexGrid.WjFlexGrid,
-        wjFlexGrid.WjFlexGridColumn,
-        wjFlexGrid.WjFlexGridCellTemplate,
-        wjFlexGridFilter.WjFlexGridFilter,
-        wjFlexGridGroup.WjGroupPanel,
-        wjFlexInput.WjMenu,
-        wjFlexInput.WjMenuItem,
-		wjFlexInput.WjComboBox,
-        AppNavigator
-    ],
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

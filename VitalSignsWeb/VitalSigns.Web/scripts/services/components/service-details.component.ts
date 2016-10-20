@@ -47,11 +47,9 @@ export class ServiceDetails implements OnInit {
     }
     
     ngOnInit() {
-        const parentActivatedRoute = this.router.routerState.parent(this.route);
-        parentActivatedRoute.params.subscribe(params => {
-            this.module = params['module'];
-        });
+        
         this.route.params.subscribe(params => {
+            this.module = params['module'];
             this.deviceId = params['service'];
             // Get tabs associated with selected service
             this.dataProvider.get(`/services/device_details?device_id=${this.deviceId}&destination=${this.module}`)

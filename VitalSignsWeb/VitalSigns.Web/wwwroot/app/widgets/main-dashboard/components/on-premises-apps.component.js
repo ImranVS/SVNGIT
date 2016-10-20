@@ -30,7 +30,7 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                 }
                 OnPremisesApps.prototype.loadData = function () {
                     var _this = this;
-                    this.service.get('/status_summary_by_type')
+                    this.service.get('/services/status_summary_by_type')
                         .subscribe(function (data) { return _this.onPremApps = data; }, function (error) { return _this.errorMessage = error; });
                 };
                 OnPremisesApps.prototype.ngOnInit = function () {
@@ -44,7 +44,7 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                     core_1.Component({
                         templateUrl: './app/widgets/main-dashboard/components/on-premises-apps.component.html',
                         providers: [
-                            http_1.HTTP_PROVIDERS,
+                            http_1.HttpModule,
                             services_1.RESTService
                         ]
                     }), 

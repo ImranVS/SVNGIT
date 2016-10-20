@@ -1,7 +1,7 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {DeviceAttributeValue} from '../../models/device-attribute';
@@ -17,18 +17,8 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 @Component({
     templateUrl: '/app/configurator/components/serverSettings/server-settings-server-attributes.component.html',
-    directives: [
-        wjFlexGrid.WjFlexGrid,
-        wjFlexGrid.WjFlexGridColumn,
-        wjFlexGrid.WjFlexGridCellTemplate,
-        wjFlexGridFilter.WjFlexGridFilter,
-        wjFlexGridGroup.WjGroupPanel,
-        wjFlexInput.WjMenu,
-        wjFlexInput.WjMenuItem,
-        AppNavigator
-    ],  
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

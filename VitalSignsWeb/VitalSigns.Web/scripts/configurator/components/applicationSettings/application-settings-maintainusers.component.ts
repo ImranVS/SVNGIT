@@ -1,6 +1,6 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 
@@ -14,19 +14,8 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 @Component({
     templateUrl: '/app/configurator/components/applicationSettings/application-settings-maintainusers.component.html',
-    directives: [
-        wjFlexGrid.WjFlexGrid,
-        wjFlexGrid.WjFlexGridColumn,
-        wjFlexGrid.WjFlexGridCellTemplate,
-        wjFlexGridFilter.WjFlexGridFilter,
-        wjFlexGridGroup.WjGroupPanel,
-        wjFlexInput.WjMenu,
-        wjFlexInput.WjMenuItem,
-        wjFlexInput.WjPopup,
-        AppNavigator
-    ],
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

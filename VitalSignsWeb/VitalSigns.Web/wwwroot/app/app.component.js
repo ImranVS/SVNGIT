@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router', './navigation/app.header.component', './navigation/app.main-menu.component'], function(exports_1, context_1) {
+System.register(['@angular/core'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,21 +10,12 @@ System.register(['@angular/core', '@angular/router', './navigation/app.header.co
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_1, app_header_component_1, app_main_menu_component_1;
+    var core_1;
     var AppComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
-            },
-            function (router_1_1) {
-                router_1 = router_1_1;
-            },
-            function (app_header_component_1_1) {
-                app_header_component_1 = app_header_component_1_1;
-            },
-            function (app_main_menu_component_1_1) {
-                app_main_menu_component_1 = app_main_menu_component_1_1;
             }],
         execute: function() {
             AppComponent = (function () {
@@ -37,8 +28,7 @@ System.register(['@angular/core', '@angular/router', './navigation/app.header.co
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'app',
-                        template: "\n<div id=\"zeusMain\">\n    <div id=\"zeusMenu\">\n        <app-main-menu></app-main-menu>\n    </div>\n    <div id=\"zeusHeader\">\n        <app-header></app-header>\n    </div>\n    <div id=\"zeusWrapper\">\n        <router-outlet></router-outlet>\n    </div>\n</div>\n",
-                        directives: [app_header_component_1.AppHeader, app_main_menu_component_1.AppMainMenu, router_1.ROUTER_DIRECTIVES]
+                        template: "\n<div id=\"zeusMain\">\n    <div id=\"zeusMenu\">\n        <app-main-menu></app-main-menu>\n    </div>\n    <div id=\"zeusHeader\">\n        <app-header></app-header>\n    </div>\n    <div id=\"zeusWrapper\">\n        <router-outlet></router-outlet>\n    </div>\n</div>\n"
                     }), 
                     __metadata('design:paramtypes', [])
                 ], AppComponent);

@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router', '../../../core/widgets', '../../../navigation/app.navigator.component'], function(exports_1, context_1) {
+System.register(['@angular/core', 'rxjs/Rx', '../../../core/widgets'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -15,29 +15,154 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_1, widgets_1, app_navigator_component_1;
+    var core_1, widgets_1;
     var IBMWebsphereDashboard;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (router_1_1) {
-                router_1 = router_1_1;
-            },
+            function (_1) {},
             function (widgets_1_1) {
                 widgets_1 = widgets_1_1;
-            },
-            function (app_navigator_component_1_1) {
-                app_navigator_component_1 = app_navigator_component_1_1;
             }],
         execute: function() {
             IBMWebsphereDashboard = (function (_super) {
                 __extends(IBMWebsphereDashboard, _super);
-                function IBMWebsphereDashboard(resolver) {
-                    _super.call(this, resolver);
+                function IBMWebsphereDashboard(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
-                    this.widgets = [];
+                    this.widgetService = widgetService;
+                    this.widgets = [
+                        {
+                            id: 'websphereGrid',
+                            title: 'Cells',
+                            name: 'IBMWebsphereGrid',
+                            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
+                            settings: {}
+                        },
+                        {
+                            id: 'serverStatus',
+                            title: 'Status',
+                            name: 'ChartComponent',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                            settings: {
+                                url: '/services/status_count?type=WebSphere&docfield=status_code',
+                                chart: {
+                                    chart: {
+                                        renderTo: 'serverStatus',
+                                        type: 'pie',
+                                        height: 240
+                                    },
+                                    title: { text: '' },
+                                    subtitle: { text: '' },
+                                    xAxis: {
+                                        categories: []
+                                    },
+                                    yAxis: {},
+                                    plotOptions: {
+                                        series: {
+                                            pointPadding: 0
+                                        }
+                                    },
+                                    legend: {
+                                        enabled: false
+                                    },
+                                    credits: {
+                                        enabled: false
+                                    },
+                                    exporting: {
+                                        enabled: false
+                                    },
+                                    series: []
+                                }
+                            }
+                        },
+                        {
+                            id: 'websphereNodeGrid',
+                            title: 'Nodes',
+                            name: 'IBMWebsphereNodeGrid',
+                            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
+                            settings: {}
+                        },
+                        {
+                            id: 'activeThreads',
+                            title: 'Active Thread Count',
+                            name: 'ChartComponent',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                            settings: {
+                                url: '/services/statistics?statName=ActiveThreadCount&operation=AVG',
+                                chart: {
+                                    chart: {
+                                        renderTo: 'activeThreads',
+                                        type: 'bar',
+                                        height: 240
+                                    },
+                                    colors: ['#5fbe7f'],
+                                    title: { text: '' },
+                                    subtitle: { text: '' },
+                                    xAxis: {
+                                        labels: {
+                                            step: 1
+                                        },
+                                        categories: []
+                                    },
+                                    legend: {
+                                        enabled: false
+                                    },
+                                    credits: {
+                                        enabled: false
+                                    },
+                                    exporting: {
+                                        enabled: false
+                                    },
+                                    series: []
+                                }
+                            }
+                        },
+                        {
+                            id: 'websphereServerGrid',
+                            title: 'Servers',
+                            name: 'IBMWebsphereServerGrid',
+                            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
+                            settings: {}
+                        },
+                        {
+                            id: 'hungThreads',
+                            title: 'Hung Thread Count',
+                            name: 'ChartComponent',
+                            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                            settings: {
+                                url: '/services/statistics?statName=CurrentHungThreadCount&operation=AVG',
+                                chart: {
+                                    chart: {
+                                        renderTo: 'hungThreads',
+                                        type: 'bar',
+                                        height: 240
+                                    },
+                                    colors: ['#5fbe7f'],
+                                    title: { text: '' },
+                                    subtitle: { text: '' },
+                                    xAxis: {
+                                        labels: {
+                                            step: 1
+                                        },
+                                        categories: []
+                                    },
+                                    legend: {
+                                        enabled: false
+                                    },
+                                    credits: {
+                                        enabled: false
+                                    },
+                                    exporting: {
+                                        enabled: false
+                                    },
+                                    series: []
+                                }
+                            }
+                        }
+                    ];
                 }
                 IBMWebsphereDashboard.prototype.ngOnInit = function () {
                     injectSVG();
@@ -45,10 +170,11 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
                 };
                 IBMWebsphereDashboard = __decorate([
                     core_1.Component({
-                        templateUrl: '/app/dashboards/components/ibm-websphere-dashboard.component.html',
-                        directives: [router_1.ROUTER_DIRECTIVES, widgets_1.WidgetContainer, app_navigator_component_1.AppNavigator]
+                        selector: 'websphere-dashboard',
+                        templateUrl: '/app/dashboards/components/ibm-websphere/ibm-websphere-dashboard.component.html',
+                        providers: [widgets_1.WidgetService]
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], IBMWebsphereDashboard);
                 return IBMWebsphereDashboard;
             }(widgets_1.WidgetController));

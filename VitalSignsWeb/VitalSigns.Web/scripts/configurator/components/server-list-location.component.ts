@@ -1,6 +1,6 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit, Output, EventEmitter} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../core/services';
 import {GridBase} from '../../core/gridBase';
 
@@ -15,18 +15,8 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 @Component({
     selector: 'server-location-list',
     templateUrl: '/app/configurator/components/server-list-location.component.html',
-    directives: [
-        wjFlexGrid.WjFlexGrid,
-        wjFlexGrid.WjFlexGridColumn,
-        wjFlexGrid.WjFlexGridCellTemplate,
-        wjFlexGridFilter.WjFlexGridFilter,
-        wjFlexGridGroup.WjGroupPanel,
-        wjFlexInput.WjMenu,
-        wjFlexInput.WjMenuItem,
-        AppNavigator
-    ],
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

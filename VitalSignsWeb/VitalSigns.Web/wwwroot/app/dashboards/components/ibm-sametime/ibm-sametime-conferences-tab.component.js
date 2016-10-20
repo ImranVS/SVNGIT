@@ -28,20 +28,21 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
         execute: function() {
             IBMSametimeConferencesTab = (function (_super) {
                 __extends(IBMSametimeConferencesTab, _super);
-                function IBMSametimeConferencesTab(resolver) {
-                    _super.call(this, resolver);
+                function IBMSametimeConferencesTab(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                 }
                 IBMSametimeConferencesTab.prototype.ngOnInit = function () {
+                    this.serviceId = this.widgetService.getProperty('serviceId');
                     this.widgets = [
                         {
                             id: 'oneOnOneCalls',
                             title: 'One-on-one Calls',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/one_on_one_calls',
+                                url: "/services/statistics?statName=Totalcountofall1x1calls&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'oneOnOneCalls',
@@ -53,7 +54,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -73,11 +74,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'multiUserCalls',
                             title: 'Multi-user Calls',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/multi_user_calls',
+                                url: "/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'multiUserCalls',
@@ -89,7 +89,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -109,11 +109,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'allCalls',
                             title: 'All Calls',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/all_calls',
+                                url: "/services/statistics?statName=Totalcountofallcalls&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'allCalls',
@@ -125,7 +124,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -145,11 +144,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'allCallsAllUsers',
                             title: 'All Calls/All Users',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/all_calls_all_users',
+                                url: "/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'allCallsAllUsers',
@@ -161,7 +159,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -181,11 +179,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'allOneOnOneCallsUsers',
                             title: 'All One-on-one Calls/All One-on-one Call Users',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/all_one_on_one_calls_users',
+                                url: "/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'allOneOnOneCallsUsers',
@@ -197,7 +194,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -217,11 +214,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'allMultiUserCallsUsers',
                             title: 'All Multi-user Calls/All Multi-user Call Users',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/all_multi_user_calls_users',
+                                url: "/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'allMultiUserCallsUsers',
@@ -233,7 +229,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -253,13 +249,28 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                     ];
                     injectSVG();
                 };
+                IBMSametimeConferencesTab.prototype.onPropertyChanged = function (key, value) {
+                    if (key === 'serviceId') {
+                        this.serviceId = value;
+                        this.widgetService.refreshWidget('multiUserCalls', "/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('allCalls', "/services/statistics?statName=Totalcountofallcalls&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('allCallsAllUsers', "/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('allOneOnOneCallsUsers', "/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('allMultiUserCallsUsers', "/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                    }
+                    _super.prototype.onPropertyChanged.call(this, key, value);
+                };
                 IBMSametimeConferencesTab = __decorate([
                     core_1.Component({
-                        selector: 'tab-chats',
-                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component.html',
-                        directives: [widgets_1.WidgetContainer]
+                        selector: 'tab-conferences',
+                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component.html'
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], IBMSametimeConferencesTab);
                 return IBMSametimeConferencesTab;
             }(widgets_1.WidgetController));

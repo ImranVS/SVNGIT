@@ -28,20 +28,20 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
         execute: function() {
             ServiceOverallTab = (function (_super) {
                 __extends(ServiceOverallTab, _super);
-                function ServiceOverallTab(resolver) {
-                    _super.call(this, resolver);
+                function ServiceOverallTab(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                 }
                 ServiceOverallTab.prototype.ngOnInit = function () {
                     this.widgets = [
                         {
                             id: 'usersConnectionsDuringTheDay',
                             title: 'Users connections during the day',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                             settings: {
-                                url: '/services/1/overall/hourly-connections',
+                                url: "/services/statistics?statname=Server.Users&deviceId=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'usersConnectionsDuringTheDay',
@@ -73,21 +73,29 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                         {
                             id: 'diskSpace',
                             title: 'Disk space',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                             settings: {
-                                url: '/services/1/overall/disk-space',
+                                url: "/services/disk_space?deviceid=" + this.serviceId,
                                 chart: {
                                     chart: {
                                         renderTo: 'diskSpace',
-                                        type: 'pie',
+                                        type: 'bar',
                                         height: 300
                                     },
                                     title: { text: '' },
                                     subtitle: { text: '' },
                                     credits: {
                                         enabled: false
+                                    },
+                                    xAxis: {
+                                        categories: []
+                                    },
+                                    yAxis: {
+                                        min: 0,
+                                        title: {
+                                            text: 'Disk Space (GB)'
+                                        }
                                     },
                                     exporting: {
                                         enabled: false
@@ -97,40 +105,35 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                             allowPointSelect: true,
                                             cursor: 'pointer',
                                             dataLabels: {
-                                                enabled: false
-                                            },
-                                            showInLegend: true
+                                                enabled: true,
+                                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                                style: {
+                                                    color: 'black'
+                                                }
+                                            }
+                                        },
+                                        series: {
+                                            stacking: 'normal'
                                         }
                                     },
                                     tooltip: {
                                         formatter: function () {
-                                            return '<div style="font-size: 11px; font-weight: normal;">' + this.key + '<br /><strong>' + this.y + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
+                                            return '<div style="font-size: 11px; font-weight: normal;">' + this.series.name + '<br /><strong>' + this.y.toFixed(2) + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
                                         },
                                         useHTML: true
                                     },
-                                    legend: {
-                                        labelFormatter: function () {
-                                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
-                                        }
-                                    },
-                                    series: [
-                                        {
-                                            name: 'Go',
-                                            data: [],
-                                            innerSize: '70%'
-                                        }
-                                    ]
+                                    series: [],
+                                    colors: ['#5FBE7F', '#EF3A24']
                                 }
                             }
                         },
                         {
                             id: 'cpuUsage',
                             title: 'CPU Usage',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                             settings: {
-                                url: "http://localhost:50278/services/" + this.serviceId + "/overall/cpu-usage",
+                                url: "/services/statistics?statname=Platform.System.PctCombinedCpuUtil&deviceId=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'cpuUsage',
@@ -145,6 +148,11 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                             step: 6
                                         },
                                         categories: []
+                                    },
+                                    yAxis: {
+                                        title: {
+                                            text: 'Percent'
+                                        }
                                     },
                                     legend: {
                                         enabled: false
@@ -165,11 +173,10 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                         {
                             id: 'memoryUsage',
                             title: 'Memory Usage',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                             settings: {
-                                url: "http://USDOPVSDEV11SVC.jnittech.com/services/" + this.serviceId + "/overall/memory-usage",
+                                url: "/services/statistics?statname=Mem.PercentUsed&deviceId=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'memoryUsage',
@@ -184,6 +191,11 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                                             step: 6
                                         },
                                         categories: []
+                                    },
+                                    yAxis: {
+                                        title: {
+                                            text: 'Percent'
+                                        }
                                     },
                                     legend: {
                                         enabled: false
@@ -208,9 +220,9 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                     core_1.Component({
                         selector: 'tab-overall',
                         templateUrl: '/app/services/components/service-overall-tab.component.html',
-                        directives: [widgets_1.WidgetContainer]
+                        providers: [widgets_1.WidgetService]
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], ServiceOverallTab);
                 return ServiceOverallTab;
             }(widgets_1.WidgetController));

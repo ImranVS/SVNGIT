@@ -28,20 +28,21 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
         execute: function() {
             IBMSametimeMeetingsTab = (function (_super) {
                 __extends(IBMSametimeMeetingsTab, _super);
-                function IBMSametimeMeetingsTab(resolver) {
-                    _super.call(this, resolver);
+                function IBMSametimeMeetingsTab(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                 }
                 IBMSametimeMeetingsTab.prototype.ngOnInit = function () {
+                    this.serviceId = this.widgetService.getProperty('serviceId');
                     this.widgets = [
                         {
                             id: 'activeMeetingsUsers',
                             title: 'Active Meetings/Users in Meetings',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/active_meetings_users',
+                                url: "/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'activeMeetingsUsers',
@@ -53,7 +54,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -73,13 +74,20 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                     ];
                     injectSVG();
                 };
+                IBMSametimeMeetingsTab.prototype.onPropertyChanged = function (key, value) {
+                    if (key === 'serviceId') {
+                        this.serviceId = value;
+                        this.widgetService.refreshWidget('activeMeetingsUsers', "/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                    }
+                    _super.prototype.onPropertyChanged.call(this, key, value);
+                };
                 IBMSametimeMeetingsTab = __decorate([
                     core_1.Component({
-                        selector: 'tab-chats',
-                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component.html',
-                        directives: [widgets_1.WidgetContainer]
+                        selector: 'tab-meetings',
+                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component.html'
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], IBMSametimeMeetingsTab);
                 return IBMSametimeMeetingsTab;
             }(widgets_1.WidgetController));

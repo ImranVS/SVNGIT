@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router', '@angular/http', '../../core/services'], function(exports_1, context_1) {
+System.register(['@angular/core', '@angular/router', '@angular/http', '../../core/services', '../service-tab.collection'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../cor
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_1, http_1, services_1;
+    var core_1, router_1, http_1, router_2, services_1, ServiceTabs;
     var ServiceDetails;
     return {
         setters:[
@@ -19,23 +19,28 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../cor
             },
             function (router_1_1) {
                 router_1 = router_1_1;
+                router_2 = router_1_1;
             },
             function (http_1_1) {
                 http_1 = http_1_1;
             },
             function (services_1_1) {
                 services_1 = services_1_1;
+            },
+            function (ServiceTabs_1) {
+                ServiceTabs = ServiceTabs_1;
             }],
         execute: function() {
             ServiceDetails = (function () {
-                function ServiceDetails(dataProvider, resolver, elementRef, route) {
+                function ServiceDetails(dataProvider, resolver, elementRef, router, route) {
                     this.dataProvider = dataProvider;
                     this.resolver = resolver;
                     this.elementRef = elementRef;
+                    this.router = router;
                     this.route = route;
+                    //.map(routeParams => routeParams.id);
                 }
                 ServiceDetails.prototype.selectTab = function (tab) {
-                    var _this = this;
                     // Activate selected tab
                     this.service.tabs.forEach(function (tab) { return tab.active = false; });
                     tab.active = true;
@@ -43,36 +48,32 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../cor
                     if (this.activeTabComponent)
                         this.activeTabComponent.destroy();
                     // Lazy-load selected tab component
-                    System.import(tab.path).then(function (component) {
-                        _this.resolver
-                            .resolveComponent(component[tab.component])
-                            .then(function (factory) {
-                            _this.activeTabComponent = _this.target.createComponent(factory);
-                            _this.activeTabComponent.instance.serviceId = _this.serviceId;
-                        });
-                    });
+                    var factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
+                    this.activeTabComponent = this.target.createComponent(factory);
+                    (this.activeTabComponent.instance).serviceId = this.deviceId;
                 };
                 ServiceDetails.prototype.ngOnInit = function () {
                     var _this = this;
                     this.route.params.subscribe(function (params) {
-                        _this.serviceId = params['service'];
+                        _this.module = params['module'];
+                        _this.deviceId = params['service'];
                         // Get tabs associated with selected service
-                        _this.dataProvider.get("/services/" + _this.serviceId)
-                            .subscribe(function (data) {
-                            _this.service = data;
+                        _this.dataProvider.get("/services/device_details?device_id=" + _this.deviceId + "&destination=" + _this.module)
+                            .subscribe(function (response) {
+                            _this.service = response.data;
                             _this.selectTab(_this.service.tabs[0]);
                         }, function (error) { return _this.errorMessage = error; });
                     });
                 };
                 ServiceDetails.prototype.getStatusDescription = function (status) {
                     switch (status) {
-                        case 'noIssue':
-                            return 'No <br /> issue';
-                        case 'notResponding':
+                        case 'ok':
+                            return 'OK';
+                        case 'notresponding':
                             return 'No <br /> resp.';
-                        case 'issues':
-                            return 'Issues';
-                        case 'inMaintenance':
+                        case 'issue':
+                            return 'Issue';
+                        case 'maintenance':
                             return 'Mainten.';
                     }
                 };
@@ -84,11 +85,11 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../cor
                     core_1.Component({
                         templateUrl: '/app/services/components/service-details.component.html',
                         providers: [
-                            http_1.HTTP_PROVIDERS,
+                            http_1.HttpModule,
                             services_1.RESTService
                         ]
                     }), 
-                    __metadata('design:paramtypes', [services_1.RESTService, core_1.ComponentResolver, core_1.ElementRef, router_1.ActivatedRoute])
+                    __metadata('design:paramtypes', [services_1.RESTService, core_1.ComponentFactoryResolver, core_1.ElementRef, router_2.Router, router_1.ActivatedRoute])
                 ], ServiceDetails);
                 return ServiceDetails;
             }());

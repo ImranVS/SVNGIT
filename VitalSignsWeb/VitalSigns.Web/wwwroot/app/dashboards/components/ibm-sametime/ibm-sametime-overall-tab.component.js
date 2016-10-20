@@ -28,20 +28,21 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
         execute: function() {
             IBMSametimeOverallTab = (function (_super) {
                 __extends(IBMSametimeOverallTab, _super);
-                function IBMSametimeOverallTab(resolver) {
-                    _super.call(this, resolver);
+                function IBMSametimeOverallTab(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                 }
                 IBMSametimeOverallTab.prototype.ngOnInit = function () {
+                    this.serviceId = this.widgetService.getProperty('serviceId');
                     this.widgets = [
                         {
                             id: 'responseTimes',
                             title: 'Response Time',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/response_times',
+                                url: "/services/statistics?statName=ResponseTime&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'responseTimes',
@@ -53,7 +54,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -73,11 +74,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'dailyUserLogins',
                             title: 'Daily User Logins',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/daily_user_logins',
+                                url: "/services/statistics?statName=Users&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'dailyUserLogins',
@@ -89,7 +89,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -109,13 +109,22 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                     ];
                     injectSVG();
                 };
+                IBMSametimeOverallTab.prototype.onPropertyChanged = function (key, value) {
+                    if (key === 'serviceId') {
+                        this.serviceId = value;
+                        this.widgetService.refreshWidget('responseTimes', "/services/statistics?statName=ResponseTime&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('dailyUserLogins', "/services/statistics?statName=Users&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                    }
+                    _super.prototype.onPropertyChanged.call(this, key, value);
+                };
                 IBMSametimeOverallTab = __decorate([
                     core_1.Component({
                         selector: 'tab-overall',
                         templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component.html',
-                        directives: [widgets_1.WidgetContainer]
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], IBMSametimeOverallTab);
                 return IBMSametimeOverallTab;
             }(widgets_1.WidgetController));

@@ -28,14 +28,14 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
         execute: function() {
             SampleDashboard = (function (_super) {
                 __extends(SampleDashboard, _super);
-                function SampleDashboard(resolver) {
-                    _super.call(this, resolver);
+                function SampleDashboard(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                     this.firstWidgets = [
                         {
-                            id: 'greetings',
+                            id: 'greetings1',
                             title: 'Say hello',
-                            path: '/app/widgets/sample/sample-widget.component',
                             name: 'GreetingsWidget',
                             css: 'col-xs-12 col-sm-12 col-md-6 ',
                             settings: {
@@ -43,9 +43,8 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                             }
                         },
                         {
-                            id: 'greetings',
+                            id: 'greetings2',
                             title: 'Say hello',
-                            path: '/app/widgets/sample/sample-widget.component',
                             name: 'GreetingsWidget',
                             css: 'col-xs-12 col-sm-12 col-md-6 ',
                             settings: {
@@ -53,9 +52,8 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                             }
                         },
                         {
-                            id: 'greetings',
+                            id: 'greetings3',
                             title: 'Say hello',
-                            path: '/app/widgets/mobile-users/components/mobile-users-list.component',
                             name: 'MobileUsers',
                             css: 'col-xs-12',
                             settings: {}
@@ -66,9 +64,9 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                     core_1.Component({
                         selector: 'sample-dashboard',
                         templateUrl: '/app/dashboards/components/sample-dashboard.component.html',
-                        directives: [widgets_1.WidgetContainer]
+                        providers: [widgets_1.WidgetService]
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], SampleDashboard);
                 return SampleDashboard;
             }(widgets_1.WidgetController));

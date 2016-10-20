@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router', '../../../core/widgets', '../../../navigation/app.navigator.component'], function(exports_1, context_1) {
+System.register(['@angular/core', '../../../core/widgets'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -15,33 +15,27 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_1, widgets_1, app_navigator_component_1;
+    var core_1, widgets_1;
     var Office365Overall;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (router_1_1) {
-                router_1 = router_1_1;
-            },
             function (widgets_1_1) {
                 widgets_1 = widgets_1_1;
-            },
-            function (app_navigator_component_1_1) {
-                app_navigator_component_1 = app_navigator_component_1_1;
             }],
         execute: function() {
             Office365Overall = (function (_super) {
                 __extends(Office365Overall, _super);
-                function Office365Overall(resolver) {
-                    _super.call(this, resolver);
+                function Office365Overall(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                     this.widgets = [
                         {
                             id: 'dailyUserLogins',
                             title: 'Daily user logins',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-4',
                             settings: {
@@ -93,7 +87,6 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
                         {
                             id: 'lastLogon',
                             title: 'Last logon',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-4',
                             settings: {
@@ -154,7 +147,6 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
                         {
                             id: 'activeInactiveUsers',
                             title: 'Active/inactive users',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-4',
                             settings: {
@@ -215,7 +207,6 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
                         {
                             id: 'top5Mailboxes',
                             title: 'Top 5 mailboxes',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6',
                             settings: {
@@ -267,7 +258,6 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
                         {
                             id: 'top5InactiveMailboxes',
                             title: 'Top 5 inactive mailboxes',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6',
                             settings: {
@@ -324,9 +314,9 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
                 Office365Overall = __decorate([
                     core_1.Component({
                         templateUrl: '/app/dashboards/components/office365-overall.component.html',
-                        directives: [router_1.ROUTER_DIRECTIVES, widgets_1.WidgetContainer, app_navigator_component_1.AppNavigator]
+                        providers: [widgets_1.WidgetService]
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], Office365Overall);
                 return Office365Overall;
             }(widgets_1.WidgetController));

@@ -30,7 +30,7 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                 }
                 AppStatus.prototype.loadData = function () {
                     var _this = this;
-                    this.service.get('/status_widget/' + this.settings.serviceId)
+                    this.service.get('http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/status_widget/' + this.settings.serviceId)
                         .subscribe(function (data) { return _this.appStatus = data; }, function (error) { return _this.errorMessage = error; });
                 };
                 AppStatus.prototype.ngOnInit = function () {
@@ -42,7 +42,7 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                 AppStatus.prototype.getStatusDescription = function (status) {
                     switch (status) {
                         case 'noIssue':
-                            return 'No issue';
+                            return 'No issues';
                         case 'notResponding':
                             return 'Not responding';
                         case 'issue':
@@ -59,7 +59,7 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                     core_1.Component({
                         templateUrl: './app/widgets/main-dashboard/components/app-status.component.html',
                         providers: [
-                            http_1.HTTP_PROVIDERS,
+                            http_1.HttpModule,
                             services_1.RESTService
                         ]
                     }), 

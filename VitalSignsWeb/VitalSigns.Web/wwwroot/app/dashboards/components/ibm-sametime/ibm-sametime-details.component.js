@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router', '@angular/http', '../../../core/services'], function(exports_1, context_1) {
+System.register(['@angular/core', '@angular/router', '@angular/http', '../../../core/services', '../../../services/service-tab.collection'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../../
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_1, http_1, services_1;
+    var core_1, router_1, http_1, services_1, ServiceTabs;
     var IBMSametimeDetails;
     return {
         setters:[
@@ -25,6 +25,9 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../../
             },
             function (services_1_1) {
                 services_1 = services_1_1;
+            },
+            function (ServiceTabs_1) {
+                ServiceTabs = ServiceTabs_1;
             }],
         execute: function() {
             IBMSametimeDetails = (function () {
@@ -35,7 +38,6 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../../
                     this.route = route;
                 }
                 IBMSametimeDetails.prototype.selectTab = function (tab) {
-                    var _this = this;
                     // Activate selected tab
                     this.service.tabs.forEach(function (tab) { return tab.active = false; });
                     tab.active = true;
@@ -43,24 +45,22 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../../
                     if (this.activeTabComponent)
                         this.activeTabComponent.destroy();
                     // Lazy-load selected tab component
-                    System.import(tab.path).then(function (component) {
-                        _this.resolver
-                            .resolveComponent(component[tab.component])
-                            .then(function (factory) {
-                            _this.activeTabComponent = _this.target.createComponent(factory);
-                            _this.activeTabComponent.instance.serviceId = _this.serviceId;
-                        });
-                    });
+                    var factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
+                    this.activeTabComponent = this.target.createComponent(factory);
+                    (this.activeTabComponent.instance).serviceId = this.serviceId;
                 };
                 IBMSametimeDetails.prototype.ngOnInit = function () {
+                };
+                IBMSametimeDetails.prototype.ngAfterViewInit = function () {
                     var _this = this;
                     this.route.params.subscribe(function (params) {
                         _this.serviceId = '1';
                         // Get tabs associated with selected service
-                        _this.dataProvider.get("/services/sametime/" + _this.serviceId)
+                        _this.dataProvider.get("/services/device_details?device_id=57d30363bf467154b0bd9e94&destination=dashboard")
                             .subscribe(function (data) {
-                            _this.service = data;
+                            _this.service = data.data;
                             _this.selectTab(_this.service.tabs[0]);
+                            console.log(_this.service.tabs[0]);
                         }, function (error) { return _this.errorMessage = error; });
                     });
                 };
@@ -82,13 +82,14 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../../
                 ], IBMSametimeDetails.prototype, "target", void 0);
                 IBMSametimeDetails = __decorate([
                     core_1.Component({
+                        selector: 'vs-sametime-details',
                         templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-details.component.html',
                         providers: [
-                            http_1.HTTP_PROVIDERS,
+                            http_1.HttpModule,
                             services_1.RESTService
                         ]
                     }), 
-                    __metadata('design:paramtypes', [services_1.RESTService, core_1.ComponentResolver, core_1.ElementRef, router_1.ActivatedRoute])
+                    __metadata('design:paramtypes', [services_1.RESTService, core_1.ComponentFactoryResolver, core_1.ElementRef, router_1.ActivatedRoute])
                 ], IBMSametimeDetails);
                 return IBMSametimeDetails;
             }());

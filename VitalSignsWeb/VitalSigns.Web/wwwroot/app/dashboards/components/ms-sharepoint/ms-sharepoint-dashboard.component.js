@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router', '../../../core/widgets', '../../../navigation/app.navigator.component'], function(exports_1, context_1) {
+System.register(['@angular/core', '../../../core/widgets'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -15,28 +15,23 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_1, widgets_1, app_navigator_component_1;
+    var core_1, widgets_1;
     var MSSharePointDashboard;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (router_1_1) {
-                router_1 = router_1_1;
-            },
             function (widgets_1_1) {
                 widgets_1 = widgets_1_1;
-            },
-            function (app_navigator_component_1_1) {
-                app_navigator_component_1 = app_navigator_component_1_1;
             }],
         execute: function() {
             MSSharePointDashboard = (function (_super) {
                 __extends(MSSharePointDashboard, _super);
-                function MSSharePointDashboard(resolver) {
-                    _super.call(this, resolver);
+                function MSSharePointDashboard(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                     this.widgets = [];
                 }
                 MSSharePointDashboard.prototype.ngOnInit = function () {
@@ -46,9 +41,9 @@ System.register(['@angular/core', '@angular/router', '../../../core/widgets', '.
                 MSSharePointDashboard = __decorate([
                     core_1.Component({
                         templateUrl: '/app/dashboards/components/ms-sharepoint-dashboard.component.html',
-                        directives: [router_1.ROUTER_DIRECTIVES, widgets_1.WidgetContainer, app_navigator_component_1.AppNavigator]
+                        providers: [widgets_1.WidgetService]
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], MSSharePointDashboard);
                 return MSSharePointDashboard;
             }(widgets_1.WidgetController));

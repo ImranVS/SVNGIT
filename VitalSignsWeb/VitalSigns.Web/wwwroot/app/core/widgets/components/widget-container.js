@@ -1,4 +1,4 @@
-System.register(['@angular/core'], function(exports_1, context_1) {
+System.register(['@angular/core', '../services/widget.service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,17 +10,40 @@ System.register(['@angular/core'], function(exports_1, context_1) {
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1;
+    var core_1, widget_service_1;
     var WidgetContainer;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
+            },
+            function (widget_service_1_1) {
+                widget_service_1 = widget_service_1_1;
             }],
         execute: function() {
             WidgetContainer = (function () {
-                function WidgetContainer() {
+                function WidgetContainer(widgetService) {
+                    this.widgetService = widgetService;
                 }
+                WidgetContainer.prototype.ngOnInit = function () {
+                    if (this.contract) {
+                        this.id = this.id || this.contract.id;
+                        this.title = this.title || this.contract.title;
+                        this.name = this.name || this.contract.name;
+                        this.css = this.css || this.contract.css;
+                        this.settings = this.settings || this.contract.settings;
+                    }
+                    if (!this.id) {
+                        var i = 1;
+                        while (this.widgetService.exists("" + this.name + i))
+                            i++;
+                        this.id = "" + this.name + i;
+                    }
+                };
+                __decorate([
+                    core_1.Input(), 
+                    __metadata('design:type', Object)
+                ], WidgetContainer.prototype, "contract", void 0);
                 __decorate([
                     core_1.Input(), 
                     __metadata('design:type', String)
@@ -29,10 +52,6 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                     core_1.Input(), 
                     __metadata('design:type', String)
                 ], WidgetContainer.prototype, "title", void 0);
-                __decorate([
-                    core_1.Input(), 
-                    __metadata('design:type', String)
-                ], WidgetContainer.prototype, "path", void 0);
                 __decorate([
                     core_1.Input(), 
                     __metadata('design:type', String)
@@ -50,7 +69,7 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                         selector: 'my-widget',
                         template: ''
                     }), 
-                    __metadata('design:paramtypes', [])
+                    __metadata('design:paramtypes', [widget_service_1.WidgetService])
                 ], WidgetContainer);
                 return WidgetContainer;
             }());

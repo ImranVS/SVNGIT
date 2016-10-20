@@ -30,8 +30,8 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                 }
                 StatusSummary.prototype.loadData = function () {
                     var _this = this;
-                    this.service.get('/status_summary')
-                        .subscribe(function (data) { return _this.statusSummary = data; }, function (error) { return _this.errorMessage = error; });
+                    this.service.get('/services/dashboard_summary')
+                        .subscribe(function (response) { return _this.statusSummary = response.data; }, function (error) { return _this.errorMessage = error; });
                 };
                 StatusSummary.prototype.ngOnInit = function () {
                     this.loadData();
@@ -44,7 +44,7 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                     core_1.Component({
                         templateUrl: './app/widgets/main-dashboard/components/status-summary.component.html',
                         providers: [
-                            http_1.HTTP_PROVIDERS,
+                            http_1.HttpModule,
                             services_1.RESTService
                         ]
                     }), 

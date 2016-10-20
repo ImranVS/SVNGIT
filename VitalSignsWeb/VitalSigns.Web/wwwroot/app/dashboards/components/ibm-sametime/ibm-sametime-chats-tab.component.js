@@ -28,20 +28,35 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
         execute: function() {
             IBMSametimeChatsTab = (function (_super) {
                 __extends(IBMSametimeChatsTab, _super);
-                function IBMSametimeChatsTab(resolver) {
-                    _super.call(this, resolver);
+                function IBMSametimeChatsTab(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                 }
+                IBMSametimeChatsTab.prototype.onPropertyChanged = function (key, value) {
+                    if (key === 'serviceId') {
+                        this.serviceId = value;
+                        this.widgetService.refreshWidget('nWayChats', "/services/statistics?statName=Numberofnwaychats&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('activeNWayChats', "/services/statistics?statName=Numberofactivenwaychats&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('openChatSessions', "/services/statistics?statName=Numberofopenchatsessions&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('chatMessages', "/services/statistics?statName=Numberofchatmessages&deviceid=" + this.serviceId + "&operation=hourly")
+                            .catch(function (error) { return console.log(error); });
+                    }
+                    _super.prototype.onPropertyChanged.call(this, key, value);
+                };
                 IBMSametimeChatsTab.prototype.ngOnInit = function () {
+                    this.serviceId = this.widgetService.getProperty('serviceId');
                     this.widgets = [
                         {
                             id: 'nWayChats',
                             title: 'N-way Chats',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/n_way_chats',
+                                url: "/services/statistics?statName=Numberofnwaychats&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'nWayChats',
@@ -53,7 +68,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -73,11 +88,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'activeNWayChats',
                             title: 'Active N-way Chats',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/active_n_way_chats',
+                                url: "/services/statistics?statName=Numberofactivenwaychats&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'activeNWayChats',
@@ -89,7 +103,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -109,11 +123,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'openChatSessions',
                             title: 'Open Chat Sessions',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/open_chat_sessions',
+                                url: "/services/statistics?statName=Numberofopenchatsessions&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'openChatSessions',
@@ -125,7 +138,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -145,11 +158,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'chatMessages',
                             title: 'Chat Messages',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/sametime/chat_messages',
+                                url: "/services/statistics?statName=Numberofchatmessages&deviceid=" + this.serviceId + "&operation=hourly",
                                 chart: {
                                     chart: {
                                         renderTo: 'chatMessages',
@@ -161,7 +173,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                                     subtitle: { text: '' },
                                     xAxis: {
                                         labels: {
-                                            step: 1
+                                            step: 4
                                         },
                                         categories: []
                                     },
@@ -184,10 +196,9 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                 IBMSametimeChatsTab = __decorate([
                     core_1.Component({
                         selector: 'tab-chats',
-                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component.html',
-                        directives: [widgets_1.WidgetContainer]
+                        templateUrl: '/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component.html'
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], IBMSametimeChatsTab);
                 return IBMSametimeChatsTab;
             }(widgets_1.WidgetController));

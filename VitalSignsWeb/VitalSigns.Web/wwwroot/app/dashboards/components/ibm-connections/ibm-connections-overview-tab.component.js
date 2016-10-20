@@ -28,20 +28,21 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
         execute: function() {
             IBMConnectionsOverviewTab = (function (_super) {
                 __extends(IBMConnectionsOverviewTab, _super);
-                function IBMConnectionsOverviewTab(resolver) {
-                    _super.call(this, resolver);
+                function IBMConnectionsOverviewTab(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                 }
                 IBMConnectionsOverviewTab.prototype.ngOnInit = function () {
+                    this.serviceId = this.widgetService.getProperty('serviceId');
                     this.widgets = [
                         {
                             id: 'dailyActivities',
                             title: 'Daily Activities',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/connections/daily_activities',
+                                url: "/services/summarystats?statName=*_CREATED_LAST_DAY&deviceid=" + this.serviceId,
                                 chart: {
                                     chart: {
                                         renderTo: 'dailyActivities',
@@ -89,11 +90,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'top5Tags',
                             title: 'Top 5 Tags',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                             settings: {
-                                url: '/connections/top_5_tags',
+                                url: "/dashboard/connections/top_tags?deviceid=" + this.serviceId + "&type=Bookmark&count=5",
                                 chart: {
                                     chart: {
                                         renderTo: 'top5Tags',
@@ -128,10 +128,9 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                 IBMConnectionsOverviewTab = __decorate([
                     core_1.Component({
                         selector: 'tab-overall',
-                        templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-overview-tab.component.html',
-                        directives: [widgets_1.WidgetContainer]
+                        templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-overview-tab.component.html'
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], IBMConnectionsOverviewTab);
                 return IBMConnectionsOverviewTab;
             }(widgets_1.WidgetController));

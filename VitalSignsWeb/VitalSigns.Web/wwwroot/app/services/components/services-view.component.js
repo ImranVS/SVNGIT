@@ -10,7 +10,7 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../cor
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_1, http_1, services_1;
+    var core_1, router_1, router_2, http_1, services_1;
     var ServicesView;
     return {
         setters:[
@@ -19,6 +19,7 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../cor
             },
             function (router_1_1) {
                 router_1 = router_1_1;
+                router_2 = router_1_1;
             },
             function (http_1_1) {
                 http_1 = http_1_1;
@@ -28,37 +29,57 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../cor
             }],
         execute: function() {
             ServicesView = (function () {
-                function ServicesView(service, router) {
+                function ServicesView(service, router, route) {
                     this.service = service;
                     this.router = router;
+                    this.route = route;
                 }
                 ServicesView.prototype.selectService = function (service) {
                     // Activate selected tab
                     this.services.forEach(function (service) { return service.active = false; });
                     service.active = true;
-                    this.router.navigate(['services', service.id]);
+                    this.router.navigate(['services/' + this.module, service.device_id]);
                 };
                 ServicesView.prototype.loadData = function () {
                     var _this = this;
-                    this.service.get('/services')
-                        .subscribe(function (data) { return _this.services = data; }, function (error) { return _this.errorMessage = error; });
+                    this.service.get('/Services/device_list')
+                        .subscribe(function (data) { return _this.services = data.data; }, function (error) { return _this.errorMessage = error; });
                 };
                 ServicesView.prototype.ngOnInit = function () {
-                    this.loadData();
+                    var _this = this;
+                    this.route.params.subscribe(function (params) {
+                        _this.module = params['module'];
+                        _this.loadData();
+                    });
                 };
                 ServicesView.prototype.ngAfterViewChecked = function () {
                     injectSVG();
                 };
+                __decorate([
+                    core_1.Input(), 
+                    __metadata('design:type', Object)
+                ], ServicesView.prototype, "searchText", void 0);
+                __decorate([
+                    core_1.Input(), 
+                    __metadata('design:type', Object)
+                ], ServicesView.prototype, "searchType", void 0);
+                __decorate([
+                    core_1.Input(), 
+                    __metadata('design:type', Object)
+                ], ServicesView.prototype, "searchStatus", void 0);
+                __decorate([
+                    core_1.Input(), 
+                    __metadata('design:type', Object)
+                ], ServicesView.prototype, "searchLocation", void 0);
                 ServicesView = __decorate([
                     core_1.Component({
                         templateUrl: '/app/services/components/services-view.component.html',
-                        directives: [router_1.ROUTER_DIRECTIVES],
                         providers: [
-                            http_1.HTTP_PROVIDERS,
+                            http_1.HttpModule,
                             services_1.RESTService
                         ]
                     }), 
-                    __metadata('design:paramtypes', [services_1.RESTService, router_1.Router])
+                    __metadata('design:paramtypes', [services_1.RESTService, router_2.Router, router_1.ActivatedRoute])
                 ], ServicesView);
                 return ServicesView;
             }());

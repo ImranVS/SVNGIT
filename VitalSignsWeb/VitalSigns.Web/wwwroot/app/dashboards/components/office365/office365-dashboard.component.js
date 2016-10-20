@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router', '../../../navigation/app.navigator.component'], function(exports_1, context_1) {
+System.register(['@angular/core'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,18 +10,12 @@ System.register(['@angular/core', '@angular/router', '../../../navigation/app.na
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_1, app_navigator_component_1;
+    var core_1;
     var Office365Dashboard;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
-            },
-            function (router_1_1) {
-                router_1 = router_1_1;
-            },
-            function (app_navigator_component_1_1) {
-                app_navigator_component_1 = app_navigator_component_1_1;
             }],
         execute: function() {
             Office365Dashboard = (function () {
@@ -34,7 +28,6 @@ System.register(['@angular/core', '@angular/router', '../../../navigation/app.na
                 Office365Dashboard = __decorate([
                     core_1.Component({
                         templateUrl: '/app/dashboards/components/office365-dashboard.component.html',
-                        directives: [router_1.ROUTER_DIRECTIVES, app_navigator_component_1.AppNavigator]
                     }), 
                     __metadata('design:paramtypes', [])
                 ], Office365Dashboard);

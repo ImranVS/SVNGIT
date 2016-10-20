@@ -1,4 +1,4 @@
-System.register(['./widgets/components/widget-container', './widgets/components/widget-controller'], function(exports_1, context_1) {
+System.register(['./widgets/components/widget-container', './widgets/components/widget-controller', './widgets/services/widget.service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     function exportStar_1(m) {
@@ -15,6 +15,9 @@ System.register(['./widgets/components/widget-container', './widgets/components/
             },
             function (widget_controller_1_1) {
                 exportStar_1(widget_controller_1_1);
+            },
+            function (widget_service_1_1) {
+                exportStar_1(widget_service_1_1);
             }],
         execute: function() {
         }

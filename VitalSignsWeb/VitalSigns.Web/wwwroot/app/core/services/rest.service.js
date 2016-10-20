@@ -25,9 +25,13 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Observable'], function(
             }],
         execute: function() {
             RESTService = (function () {
+                // serverUrl = 'http://localhost:5000';
                 function RESTService(http) {
                     this.http = http;
-                    this.serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
+                    // serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
+                    // serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
+                    //serverUrl ='http://dev2.vsplus.jnitinc.com:5000';
+                    this.serverUrl = 'http://localhost:1234';
                 }
                 RESTService.prototype.get = function (path) {
                     var serviceUrl = path.indexOf('://') > -1 ? path : this.serverUrl + path;
@@ -40,10 +44,16 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Observable'], function(
                     this.http.post(serviceUrl, body)
                         .subscribe(function (res) { callback(); });
                 };
-                RESTService.prototype.put = function (path, body, callback) {
+                //put(path: string, body: any, callback: () => void) {
+                //    let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
+                //    this.http.put(serviceUrl, body)
+                //        .subscribe(res => { callback(); });
+                //}
+                RESTService.prototype.put = function (path, body) {
                     var serviceUrl = path.indexOf('://') > -1 ? path : this.serverUrl + path;
-                    this.http.put(serviceUrl, body)
-                        .subscribe(function (res) { callback(); });
+                    return this.http.put(serviceUrl, body)
+                        .map(function (res) { return res.json(); })
+                        .catch(this.handleError);
                 };
                 RESTService.prototype.delete = function (path, callback) {
                     var serviceUrl = path.indexOf('://') > -1 ? path : this.serverUrl + path;

@@ -44,7 +44,7 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                     core_1.Component({
                         templateUrl: './app/widgets/mobile-users/components/mobile-users-list.component.html',
                         providers: [
-                            http_1.HTTP_PROVIDERS,
+                            http_1.HttpModule,
                             services_1.RESTService
                         ]
                     }), 

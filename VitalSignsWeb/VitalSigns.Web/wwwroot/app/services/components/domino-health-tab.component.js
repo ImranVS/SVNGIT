@@ -28,16 +28,16 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
         execute: function() {
             DominoHealthTab = (function (_super) {
                 __extends(DominoHealthTab, _super);
-                function DominoHealthTab(resolver) {
-                    _super.call(this, resolver);
+                function DominoHealthTab(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                 }
                 DominoHealthTab.prototype.ngOnInit = function () {
                     this.widgets = [
                         {
                             id: 'usersConnectionsDuringTheDay',
                             title: 'Daily Activities',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                             settings: {
@@ -73,7 +73,6 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                         {
                             id: 'id2',
                             title: 'Top 5 Tags',
-                            path: '/app/not-yet-implemented.component',
                             name: 'NotYetImplemented',
                             css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                             settings: {}
@@ -81,7 +80,6 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                         {
                             id: 'id3',
                             title: 'Statistics',
-                            path: '/app/not-yet-implemented.component',
                             name: 'NotYetImplemented',
                             css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                             settings: {}
@@ -93,9 +91,9 @@ System.register(['@angular/core', '../../core/widgets'], function(exports_1, con
                     core_1.Component({
                         selector: 'tab-overall',
                         templateUrl: '/app/services/components/domino-health-tab.component.html',
-                        directives: [widgets_1.WidgetContainer]
+                        providers: [widgets_1.WidgetService]
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], DominoHealthTab);
                 return DominoHealthTab;
             }(widgets_1.WidgetController));

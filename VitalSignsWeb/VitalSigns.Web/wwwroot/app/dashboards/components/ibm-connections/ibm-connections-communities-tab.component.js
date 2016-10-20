@@ -28,20 +28,22 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
         execute: function() {
             IBMConnectionsCommunitiesTab = (function (_super) {
                 __extends(IBMConnectionsCommunitiesTab, _super);
-                function IBMConnectionsCommunitiesTab(resolver) {
-                    _super.call(this, resolver);
+                function IBMConnectionsCommunitiesTab(resolver, widgetService) {
+                    _super.call(this, resolver, widgetService);
                     this.resolver = resolver;
+                    this.widgetService = widgetService;
                 }
                 IBMConnectionsCommunitiesTab.prototype.ngOnInit = function () {
+                    this.serviceId = this.widgetService.getProperty('serviceId');
+                    var displayDate = (new Date()).toISOString().slice(0, 10);
                     this.widgets = [
                         {
                             id: 'communitiesByType',
                             title: 'Communities by Type',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                             settings: {
-                                url: '/connections/communities_by_type',
+                                url: "/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=" + this.serviceId + "&startDate=" + displayDate + "&endDate=" + displayDate,
                                 chart: {
                                     chart: {
                                         renderTo: 'communitiesByType',
@@ -89,11 +91,10 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         {
                             id: 'top5Communities',
                             title: 'Top 5 Most Active Communities',
-                            path: '/app/widgets/charts/components/chart.component',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                             settings: {
-                                url: '/connections/top_5_communities',
+                                url: "/dashboard/connections/top_communities",
                                 chart: {
                                     chart: {
                                         renderTo: 'top5Communities',
@@ -128,12 +129,11 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         },
                         {
                             id: 'mostActiveCommunity',
-                            title: 'Most Active Community is \"VS Dev\"',
-                            path: '/app/widgets/charts/components/chart.component',
+                            title: 'Most Active Community',
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                             settings: {
-                                url: '/connections/most_active_community',
+                                url: "/dashboard/connections/top_communities?count=1",
                                 chart: {
                                     chart: {
                                         renderTo: 'mostActiveCommunity',
@@ -180,10 +180,9 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                 IBMConnectionsCommunitiesTab = __decorate([
                     core_1.Component({
                         selector: 'tab-communities',
-                        templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component.html',
-                        directives: [widgets_1.WidgetContainer]
+                        templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component.html'
                     }), 
-                    __metadata('design:paramtypes', [core_1.ComponentResolver])
+                    __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])
                 ], IBMConnectionsCommunitiesTab);
                 return IBMConnectionsCommunitiesTab;
             }(widgets_1.WidgetController));

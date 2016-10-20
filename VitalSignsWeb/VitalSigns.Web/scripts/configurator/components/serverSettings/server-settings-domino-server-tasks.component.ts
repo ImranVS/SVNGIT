@@ -1,6 +1,6 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {HTTP_PROVIDERS}    from '@angular/http';
+import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
@@ -15,18 +15,8 @@ import {DominoServerTasksValue} from '../../models/domino-server-tasks';
 
 @Component({
     templateUrl: '/app/configurator/components/serverSettings/server-settings-domino-server-tasks.component.html',
-    directives: [
-        wjFlexGrid.WjFlexGrid,
-        wjFlexGrid.WjFlexGridColumn,
-        wjFlexGrid.WjFlexGridCellTemplate,
-        wjFlexGridFilter.WjFlexGridFilter,
-        wjFlexGridGroup.WjGroupPanel,
-        wjFlexInput.WjMenu,
-        wjFlexInput.WjMenuItem,
-        AppNavigator
-    ],  
     providers: [
-        HTTP_PROVIDERS,
+        HttpModule,
         RESTService
     ]
 })

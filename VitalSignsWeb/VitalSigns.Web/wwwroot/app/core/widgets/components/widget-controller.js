@@ -1,4 +1,4 @@
-System.register(['@angular/core', './widget-container'], function(exports_1, context_1) {
+System.register(['@angular/core', './widget-container', '../../../app.widgets'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', './widget-container'], function(exports_1, con
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, widget_container_1;
+    var core_1, widget_container_1, widgets;
     var WidgetController;
     return {
         setters:[
@@ -19,25 +19,31 @@ System.register(['@angular/core', './widget-container'], function(exports_1, con
             },
             function (widget_container_1_1) {
                 widget_container_1 = widget_container_1_1;
+            },
+            function (widgets_1) {
+                widgets = widgets_1;
             }],
         execute: function() {
             WidgetController = (function () {
-                function WidgetController(resolver) {
-                    this.resolver = resolver;
+                function WidgetController(factoryResolver, widgetService) {
+                    this.factoryResolver = factoryResolver;
+                    this.widgetService = widgetService;
                 }
+                WidgetController.prototype.onPropertyChanged = function (key, value) { };
                 WidgetController.prototype.ngAfterViewInit = function () {
                     var _this = this;
-                    this.containers.map(function (containerRef) {
+                    this.widgetService.loadController(this);
+                    this.containers.forEach(function (containerRef) {
                         var container = containerRef._element.component;
-                        System.import(container.path).then(function (component) {
-                            _this.resolver
-                                .resolveComponent(component[container.name])
-                                .then(function (factory) {
-                                var component = containerRef.createComponent(factory);
-                                component.instance.settings = container.settings;
-                            });
-                        });
+                        var factory = _this.factoryResolver.resolveComponentFactory(widgets[container.name]);
+                        var component = containerRef.createComponent(factory);
+                        var widget = (component.instance);
+                        widget.settings = container.settings;
+                        _this.widgetService.registerWidget(_this, container, widget);
                     });
+                };
+                WidgetController.prototype.ngOnDestroy = function () {
+                    this.widgetService.unloadController(this);
                 };
                 __decorate([
                     core_1.ViewChildren(widget_container_1.WidgetContainer, { read: core_1.ViewContainerRef }), 
