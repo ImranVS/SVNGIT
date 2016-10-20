@@ -15,7 +15,7 @@ import {GridBase} from '../../../core/gridBase';
 
 
 @Component({
-    templateUrl: '/app/configurator/components/applicationSettings/configurator-locations.component.html',
+    templateUrl: '/app/configurator/components/applicationSettings/application-settings-locations.component.html',
     directives: [REACTIVE_FORM_DIRECTIVES,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
