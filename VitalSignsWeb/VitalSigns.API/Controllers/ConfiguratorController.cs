@@ -364,6 +364,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        /// <summary>
+        ///saves the  business hours data
+        /// </summary>
+        /// <author>Sowjanya</author>
+       
         [HttpPut("save_business_hours")]
         public APIResponse UpdateBusinessHours([FromBody]BusinessHourModel businesshour)
         {
@@ -413,6 +419,10 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        /// <summary>
+        ///delete the  business hours data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpDelete("delete_business_hours/{id}")]
         public void DeleteBusinessHours(string id)
         {
@@ -469,6 +479,11 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        /// <summary>
+        ///saves the  maintenance data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpPut("save_maintenancedata")]
         public APIResponse UpdateMaintenancedata([FromBody]MaintenanceModel maintenance)
         {
@@ -508,6 +523,10 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        /// <summary>
+        ///delete the maintenance data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpDelete("delete_maintenancedata/{id}")]
         public void DeleteMaintenancedata(string id)
         {
@@ -843,7 +862,10 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-
+        /// <summary>
+        ///saves the device attributes data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpPut("save_device_attributes")]
         public APIResponse SaveDeviceAttributes([FromBody]DeviceSettings deviceSettings)
         {
@@ -901,7 +923,10 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-
+        /// <summary>
+        ///saves the domino server tasks  data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpPut("save_domino_server_tasks")]
         public APIResponse SaveDominoServerTasks([FromBody]DeviceSettings dominoserversettings)
         {
