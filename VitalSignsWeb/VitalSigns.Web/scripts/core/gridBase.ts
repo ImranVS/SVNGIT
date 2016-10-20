@@ -83,19 +83,31 @@ export abstract class GridBase  {
         }
        
     }
-    addGridRow(dlg: wijmo.input.Popup) {
+    addGridRow1(dlg: wijmo.input.Popup) {
         this.formTitle = "Add " + this.formName;
         this.currentEditItem = (<wijmo.collections.CollectionView>this.flex.collectionView).addNew()
         this.currentEditItem.id = "";
         this.showDialog(dlg);
     }
-    editGridRow(dlg: wijmo.input.Popup) {
+    editGridRow1(dlg: wijmo.input.Popup) {
         this.formTitle = "Edit " + this.formName;
         (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
         this.currentEditItem = this.flex.collectionView.currentItem;
-        console.log(this.currentEditItem);
+        console.log(this.currentEditItem);        
         this.showDialog(dlg);
     }
+    addGridRow() {
+        this.formTitle = "Add " + this.formName;
+        this.currentEditItem = (<wijmo.collections.CollectionView>this.flex.collectionView).addNew()
+        this.currentEditItem.id = "";      
+    }
+    editGridRow() {
+        this.formTitle = "Edit " + this.formName;
+        (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
+        this.currentEditItem = this.flex.collectionView.currentItem;
+        console.log(this.currentEditItem);       
+    }
+
 
     delteGridRow(deleteUrl) {
         this.key = this.flex.collectionView.currentItem.id;
@@ -103,7 +115,6 @@ export abstract class GridBase  {
             this.service.delete(deleteUrl + this.key);//'/Configurator/' + this.businessHourId + '/delete_business_hours');
             (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
         }
-
     }
     cancelEditAdd() {
         if ((<wijmo.collections.CollectionView>this.flex.collectionView).isAddingNew) {
