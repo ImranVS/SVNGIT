@@ -125,7 +125,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.SimulationTests,
         widgets.MaintenanceWindows,
         widgets.DominoServerDiskSettings,
-
+        widgets.ServerAdvancedSettings,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -211,6 +211,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.SimulationTests,
         widgets.MaintenanceWindows,
         widgets.DominoServerDiskSettings,
+        widgets.ServerAdvancedSettings,
 
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
