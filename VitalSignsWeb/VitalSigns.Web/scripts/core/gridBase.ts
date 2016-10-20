@@ -22,6 +22,7 @@ export abstract class GridBase  {
     key: string;
     formName: string;
     formTitle: string;
+    modal = true;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     constructor(service: RESTService, dataURI: string) {   
         this.service = service;    
@@ -46,7 +47,7 @@ export abstract class GridBase  {
         }
     }
    
-    saveGridRow(saveUrl:any) {
+    saveGridRow1(saveUrl: any, dlg?: wijmo.input.Popup) {
         if (this.currentEditItem.id == "") {
             this.service.put(saveUrl, this.currentEditItem)
                 .subscribe(
@@ -62,18 +63,38 @@ export abstract class GridBase  {
                 this.currentEditItem);
             (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
         }
-        
+        dlg.hide();
     }
-    addGridRow() {
+    saveGridRow(saveUrl: any) {
+        if (this.currentEditItem.id == "") {
+            this.service.put(saveUrl, this.currentEditItem)
+                .subscribe(
+                response => {
+                    this.currentEditItem.id = response.data;
+                }); //, this.getResponse);
+            (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew()
+        }
+        else {
+            this.flex.collectionView.currentItem = this.currentEditItem;
+            this.service.put(
+                saveUrl,//'/Configurator/save_business_hours',
+                this.currentEditItem);
+            (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
+        }
+       
+    }
+    addGridRow(dlg: wijmo.input.Popup) {
         this.formTitle = "Add " + this.formName;
         this.currentEditItem = (<wijmo.collections.CollectionView>this.flex.collectionView).addNew()
         this.currentEditItem.id = "";
+        this.showDialog(dlg);
     }
-    editGridRow() {
+    editGridRow(dlg: wijmo.input.Popup) {
         this.formTitle = "Edit " + this.formName;
         (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
         this.currentEditItem = this.flex.collectionView.currentItem;
         console.log(this.currentEditItem);
+        this.showDialog(dlg);
     }
 
     delteGridRow(deleteUrl) {
@@ -92,6 +113,13 @@ export abstract class GridBase  {
             (<wijmo.collections.CollectionView>this.flex.collectionView).cancelEdit();
         }
     }
+    showDialog(dlg: wijmo.input.Popup) {
+        if (dlg) {
+            dlg.modal = this.modal;
+            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
+            dlg.show();
+        }
+    };
     toggleColumnVisibility() {
         var flex = this.flex;
         var col = flex.columns[0];
