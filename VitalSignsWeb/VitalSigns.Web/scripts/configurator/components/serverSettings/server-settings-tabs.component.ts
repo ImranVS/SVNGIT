@@ -55,13 +55,13 @@ export class ServerSettings implements OnInit {
             {
                 "title": "Disk Settings",
                 "component": "ServerDiskSettings",
-                "path": "/app/configurator/components/serverSettings/server-disk-settings.component",
+                "path": "/app/configurator/components/serverSettings/server-settings-disk-settings",
                 "active": false
             },
             {
                 "title": "Location/Credentials/Business Hours",
                 "component": "ServerLocations",
-                "path": "/app/configurator/components/serverSettings/server-locations-credentials-businesshours.component",
+                "path": "/app/configurator/components/serverSettings/server-settings-locations-credentials-businesshours.component",
                
                 "active": false
             }

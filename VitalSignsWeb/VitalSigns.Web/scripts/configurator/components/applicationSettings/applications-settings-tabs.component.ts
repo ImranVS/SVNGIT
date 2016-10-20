@@ -40,7 +40,7 @@ export class ApplicationSettings implements OnInit {
             {
                 "title": "Credentials",
                 "component": "ServerCredentials",
-                "path": "/app/configurator/components/applicationSettings/configurator-servercredentials.component",
+                "path": "/app/configurator/components/applicationSettings/application-settings-servercredentials.component",
                 "active": false
 
 
@@ -78,7 +78,7 @@ export class ApplicationSettings implements OnInit {
             {
                 "title": "IBM Domino Settings",
                 "component": "IbmDominoSettingsForm",
-                "path": "/app/configurator/components/applicationSettings/configurator-ibm-domino-settings.component",
+                "path": "/app/configurator/components/applicationSettings/application-settings-ibm-domino-settings.component",
                 "active": false
             }
 
