@@ -22,6 +22,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         wjFlexGridGroup.WjGroupPanel,
         wjFlexInput.WjMenu,
         wjFlexInput.WjMenuItem,
+        wjFlexInput.WjPopup,
         AppNavigator
     ],
     providers: [
@@ -30,17 +31,18 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class MaintainUser extends GridBase {
-
     constructor(service: RESTService) {
         super(service, '/configurator/get_maintain_users');
         this.formName = "Maintain Users";
+
     }
-    saveMaintainUser() {
-        this.saveGridRow('/configurator/save_maintain_users');
+    saveMaintainUser(dlg: wijmo.input.Popup) {
+        this.saveGridRow1('/configurator/save_maintain_users', dlg);
     }
     delteMaintainUsers() {
         this.delteGridRow('/configurator/delete_maintain_users/');
     }
+  
 
 }
 
