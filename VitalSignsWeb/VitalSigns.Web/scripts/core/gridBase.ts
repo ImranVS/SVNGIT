@@ -30,7 +30,6 @@ export abstract class GridBase  {
             response => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
                 this.data.pageSize = 10;
-
             }); 
 
     }
@@ -46,15 +45,14 @@ export abstract class GridBase  {
             }
         }
     }
-    getResponse(response: any) {
-       // alert("in Get Response")
-       // console.log(response.data);
-       // this.currentEditItem.id = response.data;
-        (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew()
-    }
+   
     saveGridRow(saveUrl:any) {
         if (this.currentEditItem.id == "") {
-            this.service.put( saveUrl, this.currentEditItem);//, this.getResponse);
+            this.service.put(saveUrl, this.currentEditItem)
+                .subscribe(
+                response => {
+                    this.currentEditItem.id = response.data;
+                }); //, this.getResponse);
             (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew()
         }
         else {
