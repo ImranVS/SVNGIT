@@ -26,6 +26,9 @@ import { FinancialDashboard } from './dashboards/components/financial-dashboard.
 
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
 
+import {SiteMapList} from './navigation/editor/components/sitemap-list.component';
+import {SiteMapEditor} from './navigation/editor/components/sitemap-editor.component';
+
 import { ServicesView } from './services/components/services-view.component';
 import { ServiceDetails } from './services/components/service-details.component';
 import { NoSelectedService } from './services/components/no-selected-service.component';
@@ -36,7 +39,6 @@ import { ProfilesForm } from './profiles/components/profiles-form.component';
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
 import { ServerSettings } from './configurator/components/serverSettings/server-settings-tabs.component';
-
 
 export * from './dashboards/components/overall-dashboard.component';
 
@@ -61,6 +63,7 @@ export * from './dashboards/components/office365/office365-password-settings.com
 export * from './dashboards/components/cloud-services-dashboard.component';
 export * from './dashboards/components/financial-dashboard.component';
 export * from './dashboards/components/status-map-dashboard.component';
+
 export * from './services/components/services-view.component';
 export * from './services/components/service-details.component';
 export * from './services/components/no-selected-service.component';
@@ -72,8 +75,6 @@ export * from './not-yet-implemented.component';
 
 export * from './configurator/components/applicationSettings/application-settings-tabs.component';
 export * from './configurator/components/serverSettings/server-settings-tabs.component';
-
-
 
 const appRoutes: Routes = [
     {
@@ -191,6 +192,14 @@ const appRoutes: Routes = [
     {
         path: 'configurator/serversettings',
         component: ServerSettings
+    },
+    {
+        path: 'sitemaps',
+        component: SiteMapList
+    },
+    {
+        path: 'sitemaps/:sitemap',
+        component: SiteMapEditor
     }
 ];
 

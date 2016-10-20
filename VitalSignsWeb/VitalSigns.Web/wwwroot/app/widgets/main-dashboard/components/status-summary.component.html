@@ -19,7 +19,7 @@
     <div class="widgetWrapper noPadding h-xs-237 zeusColorReact-success" data-widget-type="widgetStatusNumber">
 
         <div class="widgetContent">
-            <div class="widgetStatusNumber-head zeusColorReactText" *ngIf="statusSummary">{{statusSummary.OK}}</div>
+            <div class="widgetStatusNumber-head zeusColorReactText" *ngIf="statusSummary">{{statusSummary.ok}}</div>
             <div class="widgetStatusNumber-text zeusColorReactText">servers <strong>without issue</strong></div>
         </div>
 
@@ -55,7 +55,9 @@
             <div class="widgetStatusNumber-text zeusColorReactText">servers <strong>are in maintenance</strong></div>
         </div>
 
-        <div class="widgetFooter zeusColorReactBg">&nbsp;</div>
+        <a href="javascript:void(0);" class="widgetFooter zeusColorReactBg">
+            <span aria-hidden="true" class="glyphicon glyphicon-arrow-right"></span> Show me the list
+        </a>
 
     </div>
 </div>

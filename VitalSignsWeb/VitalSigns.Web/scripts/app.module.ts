@@ -6,6 +6,8 @@ import { HttpModule } from '@angular/http';
 import { AppComponent } from './app.component'
 import { APP_ROUTES } from './app.routes';
 
+import { DragulaModule } from 'ng2-dragula/ng2-dragula';
+
 import * as dashboards from './app.routes';
 import * as widgets from './app.widgets';
 import * as tabs from './services/service-tab.collection';
@@ -20,6 +22,9 @@ import {WidgetContainer} from './core/widgets';
 import {AppHeader} from './navigation/app.header.component';
 import {AppMainMenu} from './navigation/app.main-menu.component';
 import {AppNavigator} from './navigation/app.navigator.component';
+import {SiteMapList} from './navigation/editor/components/sitemap-list.component';
+import {SiteMapEditor} from './navigation/editor/components/sitemap-editor.component';
+import {SiteMapNode} from './navigation/editor/components/sitemap-node.component';
 
 import {SearchServerList} from './services/components/search-server-list.component';
 import {ServersLocation} from './configurator/components/server-list-location.component';
@@ -37,6 +42,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
+        DragulaModule,
         APP_ROUTES
     ],
     declarations: [
@@ -45,6 +51,9 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         AppHeader,
         AppMainMenu,
         AppNavigator,
+        SiteMapList,
+        SiteMapEditor,
+        SiteMapNode,
         IBMConnectionsDetails,
         IBMSametimeDetails,
         OverallDatabaseDetails,

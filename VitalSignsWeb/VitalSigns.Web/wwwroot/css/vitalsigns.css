@@ -534,8 +534,147 @@
 	fill: #4da56b;
 }
 
+.siteMapEditor {
+    padding-bottom: 100px;
+}
 
+.siteMapEditor .form {
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+    left: 50px;
+    transition: height 0.5s ease;
+    border-top: 5px solid #dcdbdb;
+    background-color: #f2f2f2;
+    padding: 25px 35px 25px 35px;
+}
 
+.siteMapEditor .form .overlay {
+    background-color: #f2f2f2;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    padding-right: 135px;
+    text-align: right;
+    padding-top: 15px;
+}
+
+.siteMapEditor .form .contextButton {
+    float: left;
+    margin-right: 5px;
+}
+
+.siteMapEditor ul {
+    list-style: outside none none;
+    padding: 0px;
+    font-family: Tahoma,Helvetica-Light,arial;
+}
+
+.siteMapEditor .hideItems li {
+    display: none;
+}
+
+.siteMapEditor ul ul {
+    padding-left: 18px;
+}
+
+.siteMapNode {
+    list-style: outside none none;
+}
+
+.siteMapNode div {
+    background-color: white;
+    margin: 5px 0;
+    width: 100%;
+    position: relative;
+    height: 36px;
+}
+
+.siteMapNode div .aDragger {
+    background: url(/img/menu/dragger.png) repeat-y;
+    cursor: move;
+    display: inline-block;
+    float: left;
+    height: 32px;
+    opacity: 0.15;
+    width: 15px;
+    margin-top: 2px;
+    margin-left: 2px;
+    border-right: 1px solid #000;
+}
+
+.siteMapNode div .aCollapse {
+    border-right: 1px solid #d2d2d2;
+    cursor: pointer;
+    display: inline-block;
+    float: left;
+    height: 36px;
+    opacity: 0.7;
+    width: 19px;
+    text-align: center;
+}
+
+.siteMapNode div .aCollapse b {
+    height: 100%;
+    display: block;
+    width: 100%;
+    font-weight: normal;
+    padding-top: 6px;
+}
+
+.siteMapNode div .aTitle {
+    float: left;
+    font-size: 12px;
+    padding-left: 10px;
+    line-height: 36px;
+    position: absolute;
+    width: 100%;
+    cursor: pointer;
+}
+
+.siteMapNode div .aToggle {
+    border-left: 1px solid #f2f2f2;
+    height: 36px;
+    padding: 2px 0 0 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 36px;
+}
+
+.siteMapNode div.selected {
+    font-weight: bold;
+}
+
+.vsToggle {
+    background-color: #f16922;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-block;
+    height: 12px;
+    position: relative;
+    width: 24px;
+    margin-top: 10px;
+}
+
+.vsToggle.checked {
+    background-color: #8be801;
+}
+
+.vsToggle span {
+    background-color: white;
+    border-radius: 4px;
+    height: 8px;
+    position: absolute;
+    top: 2px;
+    width: 8px;
+    left: 2px;
+}
+
+.vsToggle.checked span {
+    left: 14px;
+}
 
 /* Portrait phones and smaller */
 /* class="xs" */
