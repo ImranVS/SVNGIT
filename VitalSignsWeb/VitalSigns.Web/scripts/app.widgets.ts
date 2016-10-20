@@ -19,12 +19,12 @@ export * from './widgets/main-dashboard/components/status-summary.component';
 export * from './widgets/main-dashboard/components/user-sessions.component';
 export * from './widgets/mobile-users/components/mobile-users-list.component';
 export * from './widgets/sample/sample-widget.component';
-export * from './configurator/components/applicationSettings/applications-settings-businesshours.component';
+export * from './configurator/components/applicationSettings/application-settings-businesshours.component';
 export * from './configurator/components/applicationSettings/application-settings-servercredentials.component'
 export * from './configurator/components/applicationSettings/application-settings-locations.component'
 export * from './configurator/components/applicationSettings/application-settings-maintainusers.component'
 export * from './configurator/components/applicationSettings/application-settings-ibm-domino-settings.component'
-export * from './configurator/components/applicationSettings/applications-settings-maintenance.component'
+export * from './configurator/components/applicationSettings/application-settings-maintenance.component'
 export * from './configurator/components/applicationSettings/application-settings-travelerdatastore.component'
 export * from './configurator/components/serverSettings/server-settings-domino-server-tasks.component'
 export * from './configurator/components/applicationSettings/application-settings-preferences.componenet'

@@ -34,7 +34,7 @@ import { ProfilesList } from './profiles/components/profiles-list.component';
 import { ProfilesForm } from './profiles/components/profiles-form.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
-import { ApplicationSettings } from './configurator/components/applicationSettings/applications-settings-tabs.component';
+import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
 import { ServerSettings } from './configurator/components/serverSettings/server-settings-tabs.component';
 
 
@@ -70,7 +70,7 @@ export * from './profiles/components/profiles-form.component';
 
 export * from './not-yet-implemented.component';
 
-export * from './configurator/components/applicationSettings/applications-settings-tabs.component';
+export * from './configurator/components/applicationSettings/application-settings-tabs.component';
 export * from './configurator/components/serverSettings/server-settings-tabs.component';
 
 

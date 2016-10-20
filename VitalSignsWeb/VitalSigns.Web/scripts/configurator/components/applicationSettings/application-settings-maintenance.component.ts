@@ -14,7 +14,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 
 @Component({
-    templateUrl: '/app/configurator/components/applicationsettings/applications-settings-maintenance.component.html',
+    templateUrl: '/app/configurator/components/applicationsettings/application-settings-maintenance.component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,

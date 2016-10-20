@@ -13,7 +13,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 
 @Component({
-    templateUrl: '/app/configurator/components/applicationSettings/applications-settings-businesshours.component.html',
+    templateUrl: '/app/configurator/components/applicationSettings/application-settings-businesshours.component.html',
     directives: [
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
