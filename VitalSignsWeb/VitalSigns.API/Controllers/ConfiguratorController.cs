@@ -104,7 +104,7 @@ namespace VitalSigns.API.Controllers
 
         #region Credentials
         /// <summary>
-        /// API's for binding,inserting,updating,deleting crdentials grid
+        /// Returns Server Credentials
         /// <author>Durga</author>
         /// </summary>
         /// <returns></returns>
@@ -136,6 +136,11 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+        /// <summary>
+        /// Updates Server Credential
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("save_credentials")]
         public APIResponse UpdateServerCredentials([FromBody]ServerCredentialsModel serverCredential)
         {
@@ -172,7 +177,11 @@ namespace VitalSigns.API.Controllers
             return Response;
 
         }
-
+        /// <summary>
+        /// Delete Server Credential
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete("delete_credential/{Id}")]
         public void DeleteCredential(string Id)
         {
@@ -684,6 +693,11 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region IBM Domino Settings
+        /// <summary>
+        /// Returns IBM Domino Settings
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get_ibm_domino_settings")]
         public APIResponse GetIbmDominoSettings()
         {
@@ -718,6 +732,11 @@ namespace VitalSigns.API.Controllers
                 ConsecutiveTelnet = consecutiveTelnet
             });
         }
+        /// <summary>
+        /// Updates IBM Domino Settings
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("save_ibm_domino_settings")]
         public APIResponse UpdateIbmDominoSettings([FromBody]DominoSettingsModel dominoSettings)
         {
@@ -946,6 +965,11 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns></returns>
         #region Disk Settings
+        /// <summary>
+        /// Returns Disk Names
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get_disk_names")]
         public APIResponse GetStatusOfServerDiskDrives()
 
@@ -991,6 +1015,11 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+        /// <summary>
+        /// Updates Disk Settings
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("save_disk_settings")]
         public APIResponse UpdateDiskSettings([FromBody]DeviceSettings deviceSettings)
         {
@@ -1018,13 +1047,19 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
+
+        #region Location/Credentials/Business Hours
         /// <summary>
-        /// API's for getting,saving Location/Credentials/Business Hours data
+        /// Returns Locations\Credentials\Business Hours
         /// <author>Durga</author>
         /// </summary>
         /// <returns></returns>
-        #region Location/Credentials/Business Hours
         [HttpGet("get_server_credentials_businesshours")]
+        /// <summary>
+        /// Updates SSE Locations\Credentials\Business Hours
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         public APIResponse GetDeviceListDropDownData()
         {
 
