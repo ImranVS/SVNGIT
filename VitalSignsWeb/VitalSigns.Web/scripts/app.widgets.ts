@@ -45,5 +45,4 @@ export * from './configurator/components/serverSettings/server-settings-server-a
 export * from './configurator/components/serverSettings/server-settings-disk-settings'
 
 //server
-
-export * from './configurator/components/server/server- simulation- tests.compoment'
+export * from './configurator/components/server/server-simulation-tests.compoment'
