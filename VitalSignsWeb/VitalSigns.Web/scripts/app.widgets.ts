@@ -44,3 +44,6 @@ export * from './configurator/components/serverSettings/server-settings-windows-
 export * from './configurator/components/serverSettings/server-settings-server-attributes.component'
 export * from './configurator/components/serverSettings/server-settings-disk-settings'
 
+//server
+
+export * from './configurator/components/server/server- simulation- tests.compoment'
