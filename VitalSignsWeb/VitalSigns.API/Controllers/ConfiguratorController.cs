@@ -1055,11 +1055,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("get_server_credentials_businesshours")]
-        /// <summary>
-        /// Updates SSE Locations\Credentials\Business Hours
-        /// <author>Durga</author>
-        /// </summary>
-        /// <returns></returns>
+      
         public APIResponse GetDeviceListDropDownData()
         {
 
@@ -1081,6 +1077,11 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+        /// <summary>
+        /// Updates SSE Locations\Credentials\Business Hours
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("save_server_credentials_businesshours")]
         public APIResponse UpdateServerCredentialsBusinessHours([FromBody]DeviceSettings deviceSettings)
         {
