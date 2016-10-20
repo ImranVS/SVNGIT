@@ -274,9 +274,202 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Business Hours
+        /// <summary>
+        /// Get all business hours data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        /// <returns>List of business hours details</returns>
+
+        [HttpGet("get_business_hours")]
+        public APIResponse GetAllBusinessHours()
+        {
+            try
+            {
+
+
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                var result = businessHoursRepository.All().Select(x => new BusinessHourModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    StartTime = x.StartTime,
+                    Duration = x.Duration,
+                    Sunday = x.Days.Contains("Sunday"),
+                    Monday = x.Days.Contains("Monday"),
+                    Tuesday = x.Days.Contains("Tuesday"),
+                    Wednesday = x.Days.Contains("Wednesday"),
+                    Thursday = x.Days.Contains("Thursday"),
+                    Friday = x.Days.Contains("Friday"),
+                    Saturday = x.Days.Contains("Saturday")
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Fetching business hours failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_business_hours")]
+        public APIResponse UpdateBusinessHours([FromBody]BusinessHourModel businesshour)
+        {
+            try
+            {
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+
+                List<string> days = new List<string>();
+                if (businesshour.Sunday)
+                    days.Add("Sunday");
+                if (businesshour.Monday)
+                    days.Add("Monday");
+                if (businesshour.Tuesday)
+                    days.Add("Tuesday");
+                if (businesshour.Wednesday)
+                    days.Add("Wednesday");
+                if (businesshour.Thursday)
+                    days.Add("Thursday");
+                if (businesshour.Friday)
+                    days.Add("Friday");
+                if (businesshour.Saturday)
+                    days.Add("Saturday");
+
+                if (string.IsNullOrEmpty(businesshour.Id))
+                {
+                    BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray() };
+                    string id = businessHoursRepository.Insert(businessHours);
+                    Response = Common.CreateResponse(id, "OK", "Business hour inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<BusinessHours> filterDefination = Builders<BusinessHours>.Filter.Where(p => p.Id == businesshour.Id);
+                    var updateDefination = businessHoursRepository.Updater.Set(p => p.Name, businesshour.Name)
+                                                             .Set(p => p.Duration, businesshour.Duration)
+                                                             .Set(p => p.StartTime, businesshour.StartTime)
+                                                             .Set(p => p.Days, days.ToArray());
+                    var result = businessHoursRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save business hours falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpDelete("delete_business_hours/{id}")]
+        public void DeleteBusinessHours(string id)
+        {
+            try
+            {
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
+                businessHoursRepository.Delete(expression);
+
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+            }
+
+
+
+        }
+
         #endregion
 
         #region Maintainance
+        [HttpGet("get_maintenance")]
+        /// <summary>
+        /// Get all maintenance data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        /// <returns>List of maintenance data</returns>
+        public APIResponse GetAllMaintenance()
+        {
+            try
+            {
+                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+                var result = maintenanceRepository.All().Select(x => new MaintenanceModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    StartDate = x.StartDate,
+                    StartTime = x.StartTime,
+                    EndDate = x.EndDate,
+                    Duration = x.Duration,
+                    MaintenanceFrequency = x.MaintenanceFrequency,
+                    MaintenanceDaysList = x.MaintenanceDaysList,
+                    ContinueForever = x.ContinueForever
+
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_maintenancedata")]
+        public APIResponse UpdateMaintenancedata([FromBody]MaintenanceModel maintenance)
+        {
+            try
+            {
+                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+
+
+
+                if (string.IsNullOrEmpty(maintenance.Id))
+                {
+                    Maintenance maintenancedata = new Maintenance { Name = maintenance.Name, StartDate = maintenance.StartDate, StartTime = maintenance.StartTime, Duration = maintenance.Duration, EndDate = maintenance.EndDate, MaintenanceDaysList = maintenance.MaintenanceDaysList };
+
+
+                    string id = maintenanceRepository.Insert(maintenancedata);
+                    Response = Common.CreateResponse(id, "OK", "Maintenancedata inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Maintenance> filterDefination = Builders<Maintenance>.Filter.Where(p => p.Id == maintenance.Id);
+                    var updateDefination = maintenanceRepository.Updater.Set(p => p.Name, maintenance.Name)
+                                                             .Set(p => p.StartDate, maintenance.StartDate)
+                                                             .Set(p => p.StartTime, maintenance.StartTime)
+                                                             .Set(p => p.Duration, maintenance.Duration)
+                                                             .Set(p => p.EndDate, maintenance.EndDate)
+                                                             .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
+                    var result = maintenanceRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Maintenancedata falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpDelete("delete_maintenancedata/{id}")]
+        public void DeleteMaintenancedata(string id)
+        {
+            try
+            {
+                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+                Expression<Func<Maintenance, bool>> expression = (p => p.Id == id);
+                maintenanceRepository.Delete(expression);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Maintenancedata falied .\n Error Message :" + exception.Message);
+            }
+        }
         #endregion
 
         #region Users
@@ -603,105 +796,7 @@ namespace VitalSigns.API.Controllers
 
 
 
-        [HttpGet("business_hours")]
-        public APIResponse GetAllBusinessHours()
-        {
-            try
-            {
-
-
-                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-                var result = businessHoursRepository.All().Select(x => new BusinessHourModel
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    StartTime = x.StartTime,
-                    Duration = x.Duration,
-                    Sunday = x.Days.Contains("Sunday"),
-                    Monday = x.Days.Contains("Monday"),
-                    Tuesday = x.Days.Contains("Tuesday"),
-                    Wednesday = x.Days.Contains("Wednesday"),
-                    Thursday = x.Days.Contains("Thursday"),
-                    Friday = x.Days.Contains("Friday"),
-                    Saturday = x.Days.Contains("Saturday")
-                }).ToList();
-                Response = Common.CreateResponse(result);
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Fetching business hours failed .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
-
-        [HttpPut("save_business_hours")]
-        public APIResponse UpdateBusinessHours([FromBody]BusinessHourModel businesshour)
-        {
-            try
-            {
-                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-
-                List<string> days = new List<string>();
-                if (businesshour.Sunday)
-                    days.Add("Sunday");
-                if (businesshour.Monday)
-                    days.Add("Monday");
-                if (businesshour.Tuesday)
-                    days.Add("Tuesday");
-                if (businesshour.Wednesday)
-                    days.Add("Wednesday");
-                if (businesshour.Thursday)
-                    days.Add("Thursday");
-                if (businesshour.Friday)
-                    days.Add("Friday");
-                if (businesshour.Saturday)
-                    days.Add("Saturday");
-
-                if (string.IsNullOrEmpty(businesshour.Id))
-                {
-                    BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray() };
-                    string id = businessHoursRepository.Insert(businessHours);
-                    Response = Common.CreateResponse(id, "OK", "Business hour inserted successfully");
-                }
-                else
-                {
-                    FilterDefinition<BusinessHours> filterDefination = Builders<BusinessHours>.Filter.Where(p => p.Id == businesshour.Id);
-                    var updateDefination = businessHoursRepository.Updater.Set(p => p.Name, businesshour.Name)
-                                                             .Set(p => p.Duration, businesshour.Duration)
-                                                             .Set(p => p.StartTime, businesshour.StartTime)
-                                                             .Set(p => p.Days, days.ToArray());
-                    var result = businessHoursRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
-                }
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Save business hours falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-
-        }
-
-        [HttpDelete("delete_business_hours/{id}")]
-        public void DeleteBusinessHours(string id)
-        {
-            try
-            {
-                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-                Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
-                businessHoursRepository.Delete(expression);
-
-            }
-
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
-            }
-
-
-
-        }     
+      
 
      
 
@@ -710,33 +805,7 @@ namespace VitalSigns.API.Controllers
 
       
 
-        [HttpGet("maintenance")]
-        public APIResponse GetAllMaintenance()
-        {
-            try
-            {
-                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-                var result = maintenanceRepository.All().Select(x => new MaintenanceModel
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    StartDate = x.StartDate,
-                    StartTime = x.StartTime,
-                    EndDate = x.EndDate,
-                    Duration = x.Duration,
-                    MaintenanceFrequency = x.MaintenanceFrequency,
-                    MaintenanceDaysList = x.MaintenanceDaysList,
-                    ContinueForever = x.ContinueForever
-
-                }).ToList();
-                Response = Common.CreateResponse(result);
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
+       
 
 
         [HttpGet("servers_list")]
@@ -885,60 +954,7 @@ namespace VitalSigns.API.Controllers
             maintainUsersRepository.Delete(expression);
         }
 
-        [HttpPut("save_maintenancedata")]
-        public APIResponse UpdateMaintenancedata([FromBody]MaintenanceModel maintenance)
-        {
-            try
-            {
-                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-
-
-
-                if (string.IsNullOrEmpty(maintenance.Id))
-                {
-                    Maintenance maintenancedata = new Maintenance { Name = maintenance.Name, StartDate = maintenance.StartDate, StartTime = maintenance.StartTime, Duration = maintenance.Duration, EndDate = maintenance.EndDate, MaintenanceDaysList = maintenance.MaintenanceDaysList };
-
-
-                    string id = maintenanceRepository.Insert(maintenancedata);
-                    Response = Common.CreateResponse(id, "OK", "Maintenancedata inserted successfully");
-                }
-                else
-                {
-                    FilterDefinition<Maintenance> filterDefination = Builders<Maintenance>.Filter.Where(p => p.Id == maintenance.Id);
-                    var updateDefination = maintenanceRepository.Updater.Set(p => p.Name, maintenance.Name)
-                                                             .Set(p => p.StartDate, maintenance.StartDate)
-                                                             .Set(p => p.StartTime, maintenance.StartTime)
-                                                             .Set(p => p.Duration, maintenance.Duration)
-                                                             .Set(p => p.EndDate, maintenance.EndDate)
-                                                             .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
-                    var result = maintenanceRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
-                }
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Save Maintenancedata falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-
-        }
-
-        [HttpDelete("delete_maintenancedata/{id}")]
-        public void DeleteMaintenancedata(string id)
-        {
-            try
-            {
-                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-                Expression<Func<Maintenance, bool>> expression = (p => p.Id == id);
-                maintenanceRepository.Delete(expression);
-            }
-
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Delete Maintenancedata falied .\n Error Message :" + exception.Message);
-            }
-        }
+       
 
         [HttpGet("travelerdatastore")]
         public APIResponse GetAllTravelerDataStore()
