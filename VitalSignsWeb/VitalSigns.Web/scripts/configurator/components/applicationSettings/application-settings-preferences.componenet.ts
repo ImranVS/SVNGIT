@@ -54,19 +54,19 @@ export class PreferencesForm implements OnInit, AfterViewInit {
     ngOnInit() {
 
 
-        this.route.params.subscribe(params => {
+        //this.route.params.subscribe(params => {
 
 
 
-            this.formTitle = "Preferences";
+        //    this.formTitle = "Preferences";
 
-            this.dataProvider.get('/configurator/preferences')
-                .subscribe(
-                (data) => this.preferencesForm.setValue(data.data),
-                (error) => this.errorMessage = <any>error
+        //    this.dataProvider.get('/configurator/preferences')
+        //        .subscribe(
+        //        (data) => this.preferencesForm.setValue(data.data),
+        //        (error) => this.errorMessage = <any>error
 
-                );
-        });
+        //        );
+        //});
     }
 
     ngAfterViewInit() {
@@ -75,9 +75,11 @@ export class PreferencesForm implements OnInit, AfterViewInit {
 
     onSubmit(nameValue: any): void {
 
-        this.dataProvider.put(
-            '/configurator/save_preferences',
-            nameValue);
+        this.dataProvider.put('/configurator/save_preferences', nameValue)
+            .subscribe(
+            response => {
+
+            });
 
     }
 }

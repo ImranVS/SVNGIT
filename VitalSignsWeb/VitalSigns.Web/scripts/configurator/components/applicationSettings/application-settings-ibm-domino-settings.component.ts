@@ -70,10 +70,14 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
     }
 
     onSubmit(nameValue: any): void {
-     
-        this.dataProvider.put(
-            '/Configurator/save_ibm_domino_settings',
-            nameValue);
+        
+        this.dataProvider.put('/Configurator/save_ibm_domino_settings', nameValue)
+            .subscribe(
+            response => {
+              
+            });
+      
+
 
     }
 }
