@@ -59,6 +59,92 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Credentials
+        /// <summary>
+        /// API's for binding,inserting,updating,deleting crdentials grid
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+
+        [HttpGet("get_credentials")]
+        public APIResponse GetAllCredentials()
+        {
+            try
+            {
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+                var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
+                {
+                    Alias = x.Alias,
+                    UserId = x.UserId,
+                    DeviceType = x.DeviceType,
+                    Password = x.Password,
+                    Id = x.Id
+
+
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        [HttpPut("save_credentials")]
+        public APIResponse UpdateServerCredentials([FromBody]ServerCredentialsModel serverCredential)
+        {
+            try
+            {
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+
+
+
+                if (string.IsNullOrEmpty(serverCredential.Id))
+                {
+                    Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = serverCredential.Password, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
+
+
+                    string id = credentialsRepository.Insert(serverCredentials);
+                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
+                    var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
+                                                             .Set(p => p.DeviceType, serverCredential.DeviceType)
+                                                             .Set(p => p.Password, serverCredential.Password)
+                                                             .Set(p => p.UserId, serverCredential.UserId);
+                    var result = credentialsRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpDelete("delete_credential/{Id}")]
+        public void DeleteCredential(string Id)
+        {
+            try
+            {
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+                Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
+                credentialsRepository.Delete(expression);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+        }
         #endregion
 
         #region Locations
@@ -200,6 +286,109 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region IBM Domino Settings
+        [HttpGet("get_ibm_domino_settings")]
+        public APIResponse GetIbmDominoSettings()
+        {
+
+
+
+            nameValueRepository = new Repository<NameValue>(ConnectionString);
+            var result = nameValueRepository.All()
+                                          .Select(x => new
+                                          {
+                                              Name = x.Name,
+                                              Value = x.Value
+                                          }).ToList();
+
+            var notesProgramDirectory = result.Where(x => x.Name == "Notes Program Directory").Select(x => x.Value).FirstOrDefault();
+            var notesUserID = result.Where(x => x.Name == "Notes User ID").Select(x => x.Value).FirstOrDefault();
+            var notesIni = result.Where(x => x.Name == "Notes.ini").Select(x => x.Value).FirstOrDefault();
+            var password = result.Where(x => x.Name == "Password").Select(x => x.Value).FirstOrDefault();
+            var enableExJournal = result.Where(x => x.Name == "Enable ExJournal").Select(x => x.Value).FirstOrDefault();
+            var enableDominoConsoleCommands = result.Where(x => x.Name == "Enable Domino Console Commands").Select(x => x.Value).FirstOrDefault();
+            var exJournalthreshold = result.Where(x => x.Name == "ExJournal Threshold").Select(x => x.Value).FirstOrDefault();
+            var consecutiveTelnet = result.Where(x => x.Name == "ConsecutiveTelnet").Select(x => x.Value).FirstOrDefault();
+            return Common.CreateResponse(new DominoSettingsModel
+            {
+                NotesProgramDirectory = notesProgramDirectory,
+                NotesUserID = notesUserID,
+                NotesIni = notesIni,
+                NotesPassword = password,
+                EnableExJournal = Convert.ToBoolean(enableExJournal),
+                EnableDominoConsoleCommands = Convert.ToBoolean(enableDominoConsoleCommands),
+                ExJournalThreshold = exJournalthreshold,
+                ConsecutiveTelnet = consecutiveTelnet
+            });
+        }
+        [HttpPut("save_ibm_domino_settings")]
+        public APIResponse UpdateIbmDominoSettings([FromBody]DominoSettingsModel dominoSettings)
+        {
+            try
+            {
+                FilterDefinition<NameValue> filterDefination;
+
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes Program Directory");
+                var updateDefination = nameValueRepository.Updater.Set(p => p.Value, dominoSettings.NotesProgramDirectory);
+
+                var results = nameValueRepository.Update(filterDefination, updateDefination);
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes User ID");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Notes User ID")
+                                                             .Set(p => p.Value, dominoSettings.NotesUserID);
+
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes.ini");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Notes.ini")
+                                                            .Set(p => p.Value, dominoSettings.NotesIni);
+
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Password");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Password")
+                                                            .Set(p => p.Value, dominoSettings.NotesPassword);
+
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Enable Domino Console Commands");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Enable Domino Console Commands")
+                                                            .Set(p => p.Value, dominoSettings.EnableDominoConsoleCommands.ToString());
+
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+
+
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Enable ExJournal");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Enable ExJournal")
+                                                            .Set(p => p.Value, dominoSettings.EnableExJournal.ToString());
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "ExJournal Threshold");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "ExJournal Threshold")
+                                                            .Set(p => p.Value, dominoSettings.ExJournalThreshold);
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "ConsecutiveTelnet");
+                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "ConsecutiveTelnet")
+                                                            .Set(p => p.Value, dominoSettings.ConsecutiveTelnet);
+
+
+                results = nameValueRepository.Update(filterDefination, updateDefination);
+
+
+
+
+                Response = Common.CreateResponse(results, "OK", "Server Credential updated successfully");
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
         #endregion
 
         #endregion
@@ -248,16 +437,170 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
-
+        /// <summary>
+        /// API's for getting,saving Disk settings data.
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         #region Disk Settings
-        #endregion
+        [HttpGet("get_disk_names")]
+        public APIResponse GetStatusOfServerDiskDrives()
 
+        {
+
+            try
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+
+
+                var disks = statusRepository.Collection.AsQueryable().Select(x => x.Disks).ToList();
+
+
+                SelectedDiksModel serverDiskStatus = new SelectedDiksModel();
+
+
+                List<string> diskNames = new List<string>();
+                foreach (List<Disk> drive in disks)
+                {
+                    if (drive != null)
+                        diskNames.AddRange(drive.Select(x => x.DiskName));
+                }
+                // var result = serverDiskStatus.Drives.Select(x => x.DiskName).Distinct().ToList();
+                List<SelectedDiksModel> drives = new List<SelectedDiksModel>();
+                foreach (var name in diskNames.Distinct())
+                {
+                    SelectedDiksModel drive = new SelectedDiksModel();
+                    //  drive.IsSelected=false;
+                    drive.DiskName = name;
+                    drive.FreespaceThreshold = "";
+                    drives.Add(drive);
+                }
+
+                Response = Common.CreateResponse(drives);
+            }
+            catch (Exception ex)
+            {
+
+                Response = Common.CreateResponse(null, "Error", "Error in getting disk names");
+            }
+
+
+
+            return Response;
+        }
+        [HttpPut("save_disk_settings")]
+        public APIResponse UpdateDiskSettings([FromBody]DeviceSettings deviceSettings)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                string setting = Convert.ToString(deviceSettings.Setting);
+                string settingValue = Convert.ToString(deviceSettings.Value);
+                string devices = Convert.ToString(deviceSettings.Devices);
+                UpdateDefinition<Server> updateDefinition = null;
+                if (!string.IsNullOrEmpty(devices))
+                {
+
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
+                }
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
+        /// <summary>
+        /// API's for getting,saving Location/Credentials/Business Hours data
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         #region Location/Credentials/Business Hours
-        #endregion
+        [HttpGet("get_server_credentials_businesshours")]
+        public APIResponse GetDeviceListDropDownData()
+        {
+
+            try
+            {
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                locationRepository = new Repository<Location>(ConnectionString);
+                var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+                var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+                var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData, locationsData = locationsData });
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+        [HttpPut("save_server_credentials_businesshours")]
+        public APIResponse UpdateServerCredentialsBusinessHours([FromBody]DeviceSettings deviceSettings)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                string setting = Convert.ToString(deviceSettings.Setting);
+                string settingValue = Convert.ToString(deviceSettings.Value);
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
+                UpdateDefinition<Server> updateDefinition = null;
+
+                if (devicesList.Count() > 0 && !string.IsNullOrEmpty(setting) && !string.IsNullOrEmpty(settingValue))
+                {
+                    //var devicesList = devices.Replace('[',' ').Replace(']', ' ').Trim().Split(',');
+
+                    foreach (string id in devicesList)
+                    {
+
+                        FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
+                        if (setting.Equals("locations"))
+                            updateDefinition = serversRepository.Updater.Set(p => p.LocationId, settingValue);
+                        else if (setting.Equals("credentials"))
+                            updateDefinition = serversRepository.Updater.Set(p => p.CredentialsId, settingValue);
+                        else if (setting.Equals("businessHours"))
+
+                            updateDefinition = serversRepository.Updater.Set(p => p.BusinessHoursId, settingValue);
+                        if (updateDefinition != null)
+                        {
+                            var result = serversRepository.Update(filterDefination, updateDefinition);
+                            Response = Common.CreateResponse(result, "OK", "Location updated successfully");
+                        }
+                        else
+                        {
+                            Response = Common.CreateResponse(null, "OK", "Settings are not selected");
+                        }
+                    }
+
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
+                }
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
 
         #endregion
 
-       
+        #endregion
+
+
 
 
         [HttpGet("business_hours")]
@@ -360,106 +703,12 @@ namespace VitalSigns.API.Controllers
 
         }     
 
-        [HttpPut("save_server_credentials")]
-        public APIResponse UpdateServerCredentials([FromBody]ServerCredentialsModel serverCredential)
-        {
-            try
-            {
-                credentialsRepository = new Repository<Credentials>(ConnectionString);
+     
 
 
+      
 
-                if (string.IsNullOrEmpty(serverCredential.Id))
-                {
-                    Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = serverCredential.Password, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
-
-
-                    string id = credentialsRepository.Insert(serverCredentials);
-                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
-                }
-                else
-                {
-                    FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
-                    var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
-                                                             .Set(p => p.DeviceType, serverCredential.DeviceType)
-                                                             .Set(p => p.Password, serverCredential.Password)
-                                                             .Set(p => p.UserId, serverCredential.UserId);
-                    var result = credentialsRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
-                }
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-
-        }
-
-        [HttpDelete("delete_credential/{Id}")]
-        public void DeleteCredential(string Id)
-        {
-            try
-            {
-                credentialsRepository = new Repository<Credentials>(ConnectionString);
-                Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
-                credentialsRepository.Delete(expression);
-
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
-            }
-        }
-
-        [HttpGet("credentials")]
-        public APIResponse GetAllCredentials()
-        {
-            try
-            {
-                credentialsRepository = new Repository<Credentials>(ConnectionString);
-                var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
-                {
-                    Alias = x.Alias,
-                    UserId = x.UserId,
-                    DeviceType = x.DeviceType,
-                    Password = x.Password,
-                    Id = x.Id
-
-
-                }).ToList();
-
-
-                Response = Common.CreateResponse(result);
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
-
-        [HttpGet("ibm_domino_settings")]
-        public APIResponse GetIbmDominoSettings()
-        {
-            nameValueRepository = new Repository<NameValue>(ConnectionString);
-            var result = nameValueRepository.All().Select(x => new NameValue
-            {
-                Name = x.Name,
-                Value = x.Value,
-                Id = x.Id
-
-            }).ToList();
-
-
-            Response = Common.CreateResponse(result);
-            return Response;
-
-
-        }
+      
 
         [HttpGet("maintenance")]
         public APIResponse GetAllMaintenance()
@@ -771,28 +1020,7 @@ namespace VitalSigns.API.Controllers
         }
 
 
-        [HttpGet("get_server_credentials_businesshours")]
-        public APIResponse GetDeviceListDropDownData()
-        {
-
-            try
-            {
-                credentialsRepository = new Repository<Credentials>(ConnectionString);
-                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-                locationRepository = new Repository<Location>(ConnectionString);
-                var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
-                var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
-                var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData, locationsData = locationsData });
-                return Response;
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
-
-                return Response;
-            }
-        }
+       
         [HttpGet("device_list")]
         public APIResponse GetAllServersWithLocation()
         {
@@ -897,59 +1125,7 @@ namespace VitalSigns.API.Controllers
 
 
 
-        [HttpPut("save_server_credentials_businesshours")]
-        public APIResponse UpdateServerCredentialsBusinessHours([FromBody]DeviceSettings deviceSettings)
-        {
-            serversRepository = new Repository<Server>(ConnectionString);
-            try
-            {
-                string setting = Convert.ToString(deviceSettings.Setting);
-                string settingValue = Convert.ToString(deviceSettings.Value);
-                var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
-                UpdateDefinition<Server> updateDefinition = null;
-
-                if (devicesList.Count() >0 && !string.IsNullOrEmpty(setting) && !string.IsNullOrEmpty(settingValue))
-                {
-                    //var devicesList = devices.Replace('[',' ').Replace(']', ' ').Trim().Split(',');
-                   
-                    foreach(string id in devicesList)
-                    {
-
-                        FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id==id);
-                        if (setting.Equals("locations"))
-                            updateDefinition = serversRepository.Updater.Set(p => p.LocationId, settingValue);
-                        else if (setting.Equals("credentials"))
-                            updateDefinition = serversRepository.Updater.Set(p => p.CredentialsId, settingValue);
-                        else if (setting.Equals("businessHours"))
-
-                            updateDefinition = serversRepository.Updater.Set(p => p.BusinessHoursId, settingValue);
-                        if (updateDefinition != null)
-                        {
-                            var result = serversRepository.Update(filterDefination, updateDefinition);
-                            Response = Common.CreateResponse(result, "OK", "Location updated successfully");
-                        }
-                        else
-                        {
-                            Response = Common.CreateResponse(null, "OK", "Settings are not selected");
-                        }
-                    }
-                    
-                }
-                else
-                {
-                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
-                }
-
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-        }
-
+      
 
         [HttpPut("save_preferences")]
         public APIResponse UpdatePreferences([FromBody]PreferencesModel userpreference)
@@ -1040,77 +1216,8 @@ namespace VitalSigns.API.Controllers
         }
 
 
-        [HttpGet("get_disk_names")]
-        public APIResponse GetStatusOfServerDiskDrives()
+       
 
-        {
-
-            try
-            {
-                statusRepository = new Repository<Status>(ConnectionString);
-
-              
-                var disks = statusRepository.Collection.AsQueryable().Select(x => x.Disks).ToList();
-               
-
-                SelectedDiksModel serverDiskStatus = new SelectedDiksModel();
-
-               
-                List<string> diskNames =new List<string>();
-                foreach (List<Disk> drive in disks)
-                {
-                    if (drive != null)
-                        diskNames.AddRange(drive.Select(x => x.DiskName));
-                }
-                // var result = serverDiskStatus.Drives.Select(x => x.DiskName).Distinct().ToList();
-                List<SelectedDiksModel> drives = new List<SelectedDiksModel>();
-                foreach (var name in diskNames.Distinct())
-                {
-                    SelectedDiksModel drive = new SelectedDiksModel();
-                  //  drive.IsSelected=false;
-                    drive.DiskName = name;
-                    drive.FreespaceThreshold ="";
-                    drives.Add(drive);
-                }
-
-                Response = Common.CreateResponse(drives);
-            }
-            catch (Exception ex)
-            {
-
-                Response = Common.CreateResponse(null, "Error", "Error in getting disk names");
-            }
-
-
-
-            return Response;
-        }
-
-        [HttpPut("save_disk_settings")]
-        public APIResponse UpdateDiskSettings([FromBody]DeviceSettings deviceSettings)
-        {
-            serversRepository = new Repository<Server>(ConnectionString);
-            try
-            {
-                string setting = Convert.ToString(deviceSettings.Setting);
-                string settingValue = Convert.ToString(deviceSettings.Value);
-                string devices = Convert.ToString(deviceSettings.Devices);
-                UpdateDefinition<Server> updateDefinition = null;
-                if (!string.IsNullOrEmpty(devices))
-                {
-
-                }
-                else
-                {
-                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
-                }
-            }
-
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
+     
     }
 }
