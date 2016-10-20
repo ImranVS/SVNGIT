@@ -22,12 +22,12 @@ export * from './widgets/sample/sample-widget.component';
 export * from './configurator/components/applicationSettings/applications-settings-businesshours.component';
 export * from './configurator/components/applicationSettings/configurator-servercredentials.component'
 export * from './configurator/components/applicationSettings/configurator-locations.component'
-export * from './configurator/components/applicationSettings/configurator-maintainusers.component'
+export * from './configurator/components/applicationSettings/application-settings-maintainusers.component'
 export * from './configurator/components/applicationSettings/configurator-ibm-domino-settings.component'
 export * from './configurator/components/applicationSettings/applications-settings-maintenance.component'
-export * from './configurator/components/applicationSettings/configurator-travelerdatastore.component'
+export * from './configurator/components/applicationSettings/application-settings-travelerdatastore.component'
 export * from './configurator/components/serverSettings/server-settings-domino-server-tasks.component'
-export * from './configurator/components/applicationSettings/configurator-preferences.componenet'
+export * from './configurator/components/applicationSettings/application-settings-preferences.componenet'
 
 
 export * from './services/components/service-clusterhealth-grid.component';
