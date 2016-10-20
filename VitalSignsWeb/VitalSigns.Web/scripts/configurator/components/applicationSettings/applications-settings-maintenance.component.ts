@@ -39,7 +39,7 @@ export class Maintenance extends GridBase  {
     selectedSettingValue: any;
 
     constructor(service: RESTService) {
-        super(service, '/Configurator/maintenance');
+        super(service, '/Configurator/get_maintenance');
         this.formName = "Maintenance";
       
     } 
