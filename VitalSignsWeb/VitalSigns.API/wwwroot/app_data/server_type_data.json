@@ -374,8 +374,8 @@
             "tab_id": 2,
             "title": "Simulation Tests",
             "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "SimulationTests",
+            "path": "/app/configurator/components/server/server-simulation-tests.compoment"
           },
           {
             "tab_id": 3,
