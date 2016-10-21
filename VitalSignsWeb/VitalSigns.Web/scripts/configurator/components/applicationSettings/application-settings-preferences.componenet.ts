@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, AfterViewInit, ViewChildren} from '@angular/core';
+﻿import {Component, OnInit, ViewChildren} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
@@ -13,7 +13,7 @@ import {RESTService} from '../../../core/services';
         RESTService
     ]
 })
-export class PreferencesForm implements OnInit, AfterViewInit {
+export class PreferencesForm implements OnInit {
 
     @ViewChildren('licencekey') licencekey;
 
@@ -29,61 +29,44 @@ export class PreferencesForm implements OnInit, AfterViewInit {
         private route: ActivatedRoute) {
 
         this.preferencesForm = this.formBuilder.group({
-            'ibm_connections': [''],
-            'ibm_domino': [''],
-            'ibm_notes_mail': [''],
-            'ibm_sametime': [''],
-            'ibm_websphere': [''],
-            'microsoft_active_directory': [''],
-            'microsoft_exchange': [''],
-            'microsoft_sharepoint': [''],
-            'microsoft_skype_for_business': [''],
-            'microsoft_office365': [''],
-            'disabled': [''],
-            'company_name': [''],
-            'currency_symbol': [''],
-            'monitoring_delay': [''],
-            'threshold_show': [''],
-            'dashboard_only': [false],
+            'company_name': ['', Validators.required],
+            'currency_symbol': ['', Validators.required],
+            'monitoring_delay': ['', Validators.required],
+            'threshold_show': ['', Validators.required],
+            'dashboardonly_exec_summary_buttons': [false],
             'bing_key': ['']
         });
-
     }
 
     ngOnInit() {
+        this.dataProvider.get('/configurator/get_preferences')
+            .subscribe(
+            response => {
+                console.log(response.data);
+                this.preferencesForm.setValue(response.data);
+            },
+            (error) => this.errorMessage = <any>error
 
-
-     
-
-        //    this.dataProvider.get('/configurator/preferences')
-        //        .subscribe(
-        //        (data) => this.preferencesForm.setValue(data.data),
-        //        (error) => this.errorMessage = <any>error
-
-        //        );
-        
-    }
-
-    ngAfterViewInit() {
-
+            );
     }
 
     onSubmit(nameValue: any): void {
-
         this.dataProvider.put('/configurator/save_preferences', nameValue)
             .subscribe(
-            response => {
-
-            });
-
+            response => {});
     }
+
     saveLicence(dialog: wijmo.input.Popup) {
         var licencekey=this.licencekey.first.nativeElement.value;
         if (licencekey == "") {
             alert("error");
         } else
         {
-            alert(licencekey);
+            this.dataProvider.get('/configurator/save_licence/' + licencekey)
+                .subscribe(
+                response => {
+                    this.licencekey.first.nativeElement.value = "";
+                });
             dialog.hide();
         }
     }
