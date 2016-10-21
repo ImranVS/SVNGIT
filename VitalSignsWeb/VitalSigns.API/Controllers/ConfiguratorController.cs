@@ -85,6 +85,46 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+        [HttpGet("save_licence/{licencekey}")]
+        public APIResponse SaveLicence(string licencekey)
+        {
+            try
+            {
+                var preferencesSettings = new List<NameValue> { new NameValue { Name = "Licence Key", Value = licencekey}};
+                var result = Common.SaveNameValues(preferencesSettings);
+                Response = Common.CreateResponse(true);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save preferences falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+        [HttpGet("get_preferences")]
+        public APIResponse GetPreferences()
+        {
+            try
+            {
+                var preferencesSettings = new List<string> { "Company Name", "Currency Symbol", "Monitoring Delay", "Threshold Show", "Dashboard Only", "Bing Key" };
+                PreferencesModel userpreference = new PreferencesModel();              
+                var result = Common.GetNameValues(preferencesSettings);
+                userpreference.CompanyName = result.FirstOrDefault(x => x.Name == "Company Name").Value;
+                userpreference.CurrencySymbol = result.FirstOrDefault(x => x.Name == "Currency Symbol").Value;
+                userpreference.MonitoringDelay =Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Monitoring Delay").Value);
+                userpreference.ThresholdShow = Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Threshold Show").Value);
+                userpreference.DashboardonlyExecSummaryButtons = Convert.ToBoolean(result.FirstOrDefault(x => x.Name == "Dashboard Only").Value);
+                userpreference.BingKey = result.FirstOrDefault(x => x.Name == "Bing Key").Value;
+
+                Response = Common.CreateResponse(userpreference);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", " preferences falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
         #endregion
 
         #region Credentials
