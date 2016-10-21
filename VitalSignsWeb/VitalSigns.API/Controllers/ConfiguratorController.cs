@@ -748,63 +748,32 @@ namespace VitalSigns.API.Controllers
             {
                 FilterDefinition<NameValue> filterDefination;
 
-                nameValueRepository = new Repository<NameValue>(ConnectionString);
+                try
+                {
+                    var ibmDominoSettings = new List<NameValue> { new NameValue { Name = "Notes Program Directory", Value = dominoSettings.NotesProgramDirectory },
+                                                                new NameValue { Name = "Notes User ID", Value = dominoSettings.NotesUserID },
+                                                                new NameValue { Name = "Notes.ini", Value = dominoSettings.NotesIni},
+                                                                new NameValue { Name = "Password", Value = dominoSettings.NotesPassword},
+                                                                new NameValue { Name = "Enable Domino Console Commands", Value = Convert.ToString(dominoSettings.EnableDominoConsoleCommands)},
+                                                                new NameValue { Name = "Enable ExJournal", Value =  Convert.ToString(dominoSettings.EnableExJournal)},
+                                                                 new NameValue { Name = "ExJournal Threshold", Value = dominoSettings.ExJournalThreshold},
+                                                                  new NameValue { Name = "ConsecutiveTelnet", Value = dominoSettings.ConsecutiveTelnet}
+                                                             };
+                    var result = Common.SaveNameValues(ibmDominoSettings);
+                    Response = Common.CreateResponse(true);
+                }
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                }
 
-                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes Program Directory");
-                var updateDefination = nameValueRepository.Updater.Set(p => p.Value, dominoSettings.NotesProgramDirectory);
-
-                var results = nameValueRepository.Update(filterDefination, updateDefination);
-
-                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes User ID");
-                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Notes User ID")
-                                                             .Set(p => p.Value, dominoSettings.NotesUserID);
-
-                results = nameValueRepository.Update(filterDefination, updateDefination);
-
-                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Notes.ini");
-                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Notes.ini")
-                                                            .Set(p => p.Value, dominoSettings.NotesIni);
-
-                results = nameValueRepository.Update(filterDefination, updateDefination);
-
-                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Password");
-                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Password")
-                                                            .Set(p => p.Value, dominoSettings.NotesPassword);
-
-                results = nameValueRepository.Update(filterDefination, updateDefination);
-
-                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Enable Domino Console Commands");
-                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Enable Domino Console Commands")
-                                                            .Set(p => p.Value, dominoSettings.EnableDominoConsoleCommands.ToString());
-
-                results = nameValueRepository.Update(filterDefination, updateDefination);
-
-
-                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Enable ExJournal");
-                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "Enable ExJournal")
-                                                            .Set(p => p.Value, dominoSettings.EnableExJournal.ToString());
-                results = nameValueRepository.Update(filterDefination, updateDefination);
-                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "ExJournal Threshold");
-                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "ExJournal Threshold")
-                                                            .Set(p => p.Value, dominoSettings.ExJournalThreshold);
-                results = nameValueRepository.Update(filterDefination, updateDefination);
-                filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "ConsecutiveTelnet");
-                updateDefination = nameValueRepository.Updater.Set(p => p.Name, "ConsecutiveTelnet")
-                                                            .Set(p => p.Value, dominoSettings.ConsecutiveTelnet);
-
-
-                results = nameValueRepository.Update(filterDefination, updateDefination);
-
-
-
-
-                Response = Common.CreateResponse(results, "OK", "Server Credential updated successfully");
+                return Response;
 
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
