@@ -17,6 +17,9 @@ namespace VitalSigns.Web.Models
         [BsonElement("icon")]
         public string Icon { get; set; }
 
+        [BsonElement("disabled")]
+        public bool Disabled { get; set; }
+
         [BsonElement("nodes")]
         public ICollection<SiteMapNode> Nodes { get; set; }
     }
