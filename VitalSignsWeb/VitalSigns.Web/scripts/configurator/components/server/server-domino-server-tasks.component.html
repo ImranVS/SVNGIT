@@ -1,0 +1,108 @@
+﻿<div class="container">
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Enabled'" [binding]="'is_selected'" [width]="100"> </wj-flex-grid-column>
+       <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="100" is-read-only="true"> </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Load'" [binding]="'is_load'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Restart ASAP'" [binding]="'is_restart_asap'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Resart Later'" [binding]="'is_resart_later'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Disallow'" [binding]="'is_disallow'" [width]="100"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+    <div class="modal fade" id="dlgDetail">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            (itemsSourceChanged)="itemsSourceChangedHandler()"
+                            (click)="cancelEditAdd()"
+                            aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title">{{formTitle}}</h4>
+                </div>
+                <div class="modal-body" *ngIf="currentEditItem">
+                    <div class="form-group">
+                        <label for="name">Enabled for Task Scanning</label>
+                        <input type="checkbox" class="form-control" id="enabled" required name="enabled" [(ngModel)]="currentEditItem.enabled">
+                    </div>
+                  
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" (click)="saveBusinessHour()">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal"
+                            (click)="cancelEditAdd()">
+                        <span class="glyphicon glyphicon-ban-circle"></span>
+                        Close
+                    </button>
+                </div>
+            </div><!-- modal-content -->l
+        </div><!-- modal-dialog -->
+    </div><!-- modal -->
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail" (click)="editGridRow()">
+            Edit
+        </button>
+        <button class="btn btn-default"
+                data-toggle="modal"
+                data-backdrop="static"
+                data-keyboard="false"
+                data-target="#dlgDetail" (click)="addGridRow()">
+            Add
+        </button>
+        <button class="btn btn-default"
+                data-target="#dlgDetail" (click)="delteBusinessHour();">
+            Delete
+        </button>
+    </div>
+
+</div>
+
+
