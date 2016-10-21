@@ -468,7 +468,7 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("statistics")]
-        public APIResponse GetDailyStat(string deviceId, string statName, string operation)
+        public APIResponse GetDailyStat(string deviceId, string statName, string operation, bool isChart = false)
         {
 
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
@@ -518,31 +518,47 @@ namespace VitalSigns.API.Controllers
                             case "AVG":
 
                                 var statsAvg = dailyRepository.Find(expression);
-                                var statsAvgData = statsAvg
+                                
+                                if (isChart)
+                                {
+                                    var statsAvgData = statsAvg
                                           .GroupBy(row => row.DeviceName)
                                           .Select(grp => new
                                           {
                                               Label = grp.Key,
                                               Value = grp.Average(x => x.StatValue)
                                           }).ToList();
-                                foreach (var item in statsAvgData)
-                                {
-                                    segments.Add(new Segment()
+                                    foreach (var item in statsAvgData)
                                     {
-                                        Label = item.Label,
-                                        Value = item.Value
-                                    });
+                                        segments.Add(new Segment()
+                                        {
+                                            Label = item.Label,
+                                            Value = item.Value
+                                        });
+                                    }
+
+                                    serie = new Serie();
+                                    serie.Title = "test";
+                                    serie.Segments = segments;
+                                    series.Add(serie);
+
+                                    chart = new Chart();
+                                    chart.Title = "";
+                                    chart.Series = series;
+                                    Response = Common.CreateResponse(chart);
                                 }
-
-                                serie = new Serie();
-                                serie.Title = "test";
-                                serie.Segments = segments;
-                                series.Add(serie);
-
-                                chart = new Chart();
-                                chart.Title = "";
-                                chart.Series = series;
-                                Response = Common.CreateResponse(chart);
+                                else
+                                {
+                                    var statsAvgData = statsAvg
+                                          .GroupBy(row => row.DeviceName)
+                                          .Select(grp => new
+                                          {
+                                              StatName = grp.Key,
+                                              Value = grp.Sum(x => x.StatValue),
+                                              DeviceId = deviceId
+                                          }).ToList();
+                                    Response = Common.CreateResponse(statsAvgData);
+                                }
                                 break;
 
                             case "COUNT":
@@ -1122,8 +1138,11 @@ namespace VitalSigns.API.Controllers
             try
             {
                 string color = "";
+                var types = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
+                
+                Expression<Func<Status, bool>> expression = (p => types.Contains(p.DeviceType));
                 var bsonDocs = statusRepository.Collection.Aggregate()
-                                    .Match(x => x.DeviceType == type)
+                                    .Match(expression)
                                     .Group(new BsonDocument { { "_id", "$" + docfield }, { "count", new BsonDocument("$sum", 1) } }).ToList();
                 List<Segment> result = new List<Segment>();
                 foreach (BsonDocument doc in bsonDocs)

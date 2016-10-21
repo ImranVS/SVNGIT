@@ -364,6 +364,13 @@
             "type": "Dashboard"
           },
           {
+            "tab_id": 10,
+            "title": "Libraries",
+            "component": "IBMConnectionsLibrariesTab",
+            "path": "/app/dashboards/components/ibm-connections/ibm-connections-libraries-tab.component",
+            "type": "Dashboard"
+          },
+          {
             "tab_id": 1,
             "title": "Device Attributes",
             "type": "Configurator",
