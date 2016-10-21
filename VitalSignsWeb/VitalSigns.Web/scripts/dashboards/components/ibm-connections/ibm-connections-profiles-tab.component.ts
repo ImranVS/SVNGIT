@@ -186,4 +186,24 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
         injectSVG();
     }
 
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            var displayDate = (new Date()).toISOString().slice(0, 10);
+
+            this.widgetService.refreshWidget('managersNonManagers', `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_MANAGERS,NUM_OF_PROFILES_WITH_NO_MANAGER]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('pictureNoPicture', `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_NO_PICTURE,NUM_OF_PROFILES_WITH_PICTURE]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('jobHierarchyNoJobHierarchy', `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_JOB_HIERARCHY,NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`)
+                .catch(error => console.log(error));
+
+        }
+
+    }
 }

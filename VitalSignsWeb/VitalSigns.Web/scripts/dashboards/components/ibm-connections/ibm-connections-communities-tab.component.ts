@@ -1,4 +1,4 @@
-﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, Injector } from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 
@@ -89,7 +89,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
-                    url: `/dashboard/connections/top_communities`,
+                    url: `/dashboard/connections/top_communities?deviceid=${this.serviceId}`,
                     chart: {
                         chart: {
                             renderTo: 'top5Communities',
@@ -128,7 +128,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
-                    url: `/dashboard/connections/top_communities?count=1`,
+                    url: `/dashboard/connections/top_communities?deviceid=${this.serviceId}&count=1`,
                     chart: {
                         chart: {
                             renderTo: 'mostActiveCommunity',
@@ -170,18 +170,31 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 }
             }
         ];
-        
         injectSVG();
+        //console.log(this.widgetService.findWidget('mostActiveCommunity').component.settings);
+        //var chart = <Chart>this.widgetService.findWidget('mostActiveCommunity').component.settings;
+        //chart.setTitle('test');
     }
 
-    //ngAfterInit() {
-    //    var object = this.widgets[2].settings.chart.series;
-    //    console.log(object);
-    //    for (var obj in object) {
-    //        console.log('test');
-    //        console.log(obj);
-    //    }
-    //    console.log(object[0]);
-    //    this.widgets[2].title = this.widgets[2].settings;
-    //}
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            var displayDate = (new Date()).toISOString().slice(0, 10);
+
+            this.widgetService.refreshWidget('communitiesByType', `/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('top5Communities', `/dashboard/connections/top_communities?deviceid=${this.serviceId}`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('mostActiveCommunity', `/dashboard/connections/top_communities?deviceid=${this.serviceId}&count=1`)
+                .catch(error => console.log(error));
+            //console.log(`/dashboard/connections/top_communities?deviceid=${this.serviceId}&count=1`);
+            //console.log(this.widgetService.findWidget('mostActiveCommunity').component.settings);
+        }
+
+    }
 }

@@ -15,6 +15,7 @@ declare var bootstrapNavigator: any;
 })
 
 export class IBMWebsphereDashboard extends WidgetController implements OnInit {
+    serviceId: string;
 
     widgets: WidgetContract[] = [
         {
@@ -32,7 +33,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/services/status_count?type=WebSphere&docfield=status_code',
+                url: '/services/status_count?type=[WebSphereCell,WebSphereNode,WebSphere]&docfield=status_code',
                 chart: {
                     chart: {
                         renderTo: 'serverStatus',
@@ -80,7 +81,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/services/statistics?statName=ActiveThreadCount&operation=AVG',
+                url: '/services/statistics?statName=ActiveThreadCount&operation=AVG&isChart=true',
                 chart: {
                     chart: {
                         renderTo: 'activeThreads',
@@ -124,7 +125,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/services/statistics?statName=CurrentHungThreadCount&operation=AVG',
+                url: '/services/statistics?statName=CurrentHungThreadCount&operation=AVG&isChart=true',
                 chart: {
                     chart: {
                         renderTo: 'hungThreads',
@@ -164,4 +165,9 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
         bootstrapNavigator();
     }
 
+    onSelect(serviceId: string) {
+
+        this.serviceId = serviceId;
+
+    }
 }

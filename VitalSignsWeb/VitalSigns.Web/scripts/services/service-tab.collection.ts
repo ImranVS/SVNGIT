@@ -11,6 +11,7 @@ export * from '../dashboards/components/ibm-connections/ibm-connections-bookmark
 export * from '../dashboards/components/ibm-connections/ibm-connections-files-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-forums-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-wikis-tab.component';
+export * from '../dashboards/components/ibm-connections/ibm-connections-libraries-tab.component';
 
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component';

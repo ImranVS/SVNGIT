@@ -117,4 +117,19 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
         injectSVG();
     }
 
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            this.widgetService.refreshWidget('dailyActivities', `/services/summarystats?statName=*_CREATED_LAST_DAY&deviceid=${this.serviceId}`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('top5Tags', `/dashboard/connections/top_tags?deviceid=${this.serviceId}&type=Bookmark&count=5`)
+                .catch(error => console.log(error));
+
+        }
+
+    }
 }

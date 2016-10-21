@@ -125,4 +125,25 @@ export class IBMConnectionsBlogsTab extends WidgetController implements OnInit, 
         injectSVG();
     }
 
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            var displayDate = (new Date()).toISOString().slice(0, 10);
+
+            this.widgetService.refreshWidget('blogs', `/services/summarystats?statName=NUM_OF_BLOGS_*_CREATED_YESTERDAY&deviceid=${this.serviceId}`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('top5CommunitiesBlogs', `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Blog&count=5`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('blogsGrid', `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
+                .catch(error => console.log(error));
+            //console.log(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`);
+
+        }
+
+    }
 }

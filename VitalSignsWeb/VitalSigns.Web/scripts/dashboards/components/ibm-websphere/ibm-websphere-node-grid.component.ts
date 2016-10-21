@@ -38,7 +38,7 @@ export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
     ngOnInit() {
         this.serviceId = this.widgetService.getProperty('serviceId');
 
-        this.service.get('/services/status_list?type=WebSphereNode')
+        this.service.get(`/services/websphere_devices?parentid=${this.serviceId}&devicetype=WebSphereNode`)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
@@ -72,6 +72,27 @@ export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
             var rootRow = rows[rowIdx];
             if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
         }
+    }
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            this.service.get(`/services/websphere_devices?parentid=${this.serviceId}&devicetype=WebSphereNode`)
+                .subscribe(
+                (data) => {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                    this.data.pageSize = 10;
+                },
+                (error) => this.errorMessage = <any>error
+                );
+
+        }
+
+        //super.onPropertyChanged(key, value);
+
     }
     
 }

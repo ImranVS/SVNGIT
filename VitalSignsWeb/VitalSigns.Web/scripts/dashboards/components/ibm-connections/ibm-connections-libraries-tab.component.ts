@@ -9,10 +9,10 @@ import {IBMConnectionsGrid} from './ibm-connections-grid.component';
 declare var injectSVG: any;
 
 @Component({
-    selector: 'tab-bookmarks',
-    templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-bookmarks-tab.component.html'
+    selector: 'tab-libraries',
+    templateUrl: '/app/dashboards/components/ibm-connections/ibm-connections-libraries-tab.component.html'
 })
-export class IBMConnectionsBookmarksTab extends WidgetController implements OnInit, ServiceTab {
+export class IBMConnectionsLibrariesTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
@@ -23,21 +23,21 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
     
     ngOnInit() {
 
-        this.widgetService.setProperty("tabname", "BOOKMARKS");
+        this.widgetService.setProperty("tabname", "LIBRARIES");
 
         this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
             {
-                id: 'bookmarks',
-                title: 'Bookmarks',
+                id: 'libraries',
+                title: 'Libraries',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/summarystats?statName=NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY&deviceid=${this.serviceId}`,
+                    url: `/services/summarystats?statName=NUM_OF_LIBRARIES_*_YESTERDAY&deviceid=${this.serviceId}`,
                     chart: {
                         chart: {
-                            renderTo: 'bookmarks',
+                            renderTo: 'libraries',
                             type: 'spline',
                             height: 240
                         },
@@ -80,45 +80,10 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                 }
             },
             {
-                id: 'top5CommunitiesBookmarks',
-                title: 'Top 5 Communities for Bookmarks',
-                name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
-                settings: {
-                    url: `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Bookmark&count=5`,
-                    chart: {
-                        chart: {
-                            renderTo: 'top5CommunitiesBookmarks',
-                            type: 'bar',
-                            height: 240
-                        },
-                        colors: ['#5fbe7f'],
-                        title: { text: '' },
-                        subtitle: { text: '' },
-                        xAxis: {
-                            labels: {
-                                step: 1
-                            },
-                            categories: []
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        },
-                        series: []
-                    }
-                }
-            },
-            {
-                id: 'bookmarksGrid',
+                id: 'librariesGrid',
                 title: '',
                 name: 'IBMConnectionsStatsGrid',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
             }
         ];
     
@@ -133,15 +98,11 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
 
             var displayDate = (new Date()).toISOString().slice(0, 10);
 
-            this.widgetService.refreshWidget('bookmarks', `/services/summarystats?statName=NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY&deviceid=${this.serviceId}`)
+            this.widgetService.refreshWidget('libraries', `/services/summarystats?statName=NUM_OF_LIBRARIES_*_YESTERDAY&deviceid=${this.serviceId}`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('top5CommunitiesBookmarks', `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Bookmark&count=5`)
+            this.widgetService.refreshWidget('librariesGrid', `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
                 .catch(error => console.log(error));
-
-            this.widgetService.refreshWidget('bookmarksGrid', `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
-                .catch(error => console.log(error));
-
         }
 
     }

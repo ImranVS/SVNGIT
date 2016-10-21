@@ -12,8 +12,14 @@
             </div>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Avg Thread Pool'" [binding]="'avg_thread_pool'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Active Thread Count'" [binding]="'act_thread_count'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Avg Thread Pool'" [binding]="'AveragePoolSize'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Active Thread Count'" [binding]="'ActiveThreadCount'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Current Heap'" [binding]="'CurrentHeapSize'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Free Memory'" [binding]="'MemoryFree'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'CPU Utilization'" [binding]="'ProcessCPUUsage'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Up Time'" [binding]="'UpTime'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Hung Thread Count'" [binding]="'CurrentHungThreadCount'" align="right"></wj-flex-grid-column>
+    
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"

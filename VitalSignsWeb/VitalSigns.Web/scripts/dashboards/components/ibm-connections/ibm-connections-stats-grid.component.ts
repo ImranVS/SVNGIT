@@ -1,4 +1,4 @@
-﻿import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
+﻿import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
@@ -20,6 +20,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     ]
 })
 export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
 
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
@@ -57,12 +58,8 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
 
     ngOnInit() {
 
-        //console.log('the current tab is ' + this.widgetService.getProperty("tabname"));
-
-        this.serviceId = this.widgetService.getProperty('serviceId');
-
         var displayDate = (new Date()).toISOString().slice(0, 10);
-        
+
         this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
             .subscribe(
             (data) => {
@@ -73,4 +70,20 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
             );
 
     }
+
+    refresh(serviceUrl?: string) {
+
+        var displayDate = (new Date()).toISOString().slice(0, 10);
+
+        this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
+            .subscribe(
+            (data) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                this.data.pageSize = 10;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+
+    }
+
 }

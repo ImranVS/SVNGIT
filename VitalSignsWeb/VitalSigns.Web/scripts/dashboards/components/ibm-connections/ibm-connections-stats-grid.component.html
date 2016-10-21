@@ -1,4 +1,4 @@
-﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true">
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Statistic'" [binding]="'stat_name'" [width]="300"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Value'" [binding]="'stat_value'" [width]="180" align="right"></wj-flex-grid-column>
