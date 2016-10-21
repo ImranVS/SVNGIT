@@ -90,8 +90,8 @@ data.pageIndex + 1 | number
                 <div class="form-group">
                     <label for="super_admin">Super Admin</label>
                     <select name="super_admin" class="form-control" [(ngModel)]="currentEditItem.super_admin" id="super_admin">
-                        <option value="Y">Yes</option>
-                        <option value="N">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -106,7 +106,7 @@ data.pageIndex + 1 | number
 
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" type="submit" name="submit">Save</button>
+                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
             </div>
         </form>
       </wj-popup>
