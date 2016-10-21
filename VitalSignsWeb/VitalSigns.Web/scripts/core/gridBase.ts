@@ -58,9 +58,11 @@ export abstract class GridBase  {
         }
         else {
             this.flex.collectionView.currentItem = this.currentEditItem;
-            this.service.put(
-                saveUrl,//'/Configurator/save_business_hours',
-                this.currentEditItem);
+            this.service.put(saveUrl, this.currentEditItem)
+                .subscribe(
+                response => {
+                    this.currentEditItem.id = response.data;
+                }); 
             (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
         }
         dlg.hide();
