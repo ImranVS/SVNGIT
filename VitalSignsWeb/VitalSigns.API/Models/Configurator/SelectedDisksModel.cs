@@ -20,9 +20,15 @@ namespace VitalSigns.API.Models
         [JsonProperty("threshold_type")]       
         public string ThresholdType { get; set; }
 
-     
+        [JsonProperty("disk_size")]
+        public double? DiskSize { get; set; }
 
-        
+        [JsonProperty("disk_free")]
+        public double? DiskFree { get; set; }
+
+        [JsonProperty("percent_free")]
+        public double? PercentFree { get; set; }
+
 
 
     }
