@@ -60,5 +60,21 @@ namespace VitalSigns.API
             }
             return result;
         }
+
+        public static List<VSNext.Mongo.Entities.NameValue> GetNameValues(List<string> nameValues)
+        {
+            List<VSNext.Mongo.Entities.NameValue> result =new  List<VSNext.Mongo.Entities.NameValue>();
+            try
+            {
+                Repository<VSNext.Mongo.Entities.NameValue> namevalueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
+                 result = namevalueRepository.Collection.AsQueryable().Where(x => nameValues.Contains(x.Name)).ToList();
+                    
+            }
+            catch (Exception ex)
+            {
+                result = null;
+            }
+            return result;
+        }
     }
 }
