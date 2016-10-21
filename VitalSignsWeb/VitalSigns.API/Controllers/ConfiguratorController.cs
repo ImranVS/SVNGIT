@@ -1119,18 +1119,60 @@ namespace VitalSigns.API.Controllers
         #endregion
 
 
+        #region Servers
+
+        #region Disk Settings
+        [HttpGet("get_server_disk_info/{id}")]
+        public APIResponse GetServerDiskInformation(string id)
+
+        {
+
+            try
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+                Expression<Func<Status, bool>> expression = (p => p.DeviceId == id);
+                var result = statusRepository.Find(expression).Select(x=>x.Disks).FirstOrDefault();
+
+                SelectedDiksModel serverDiskStatus = new SelectedDiksModel();
+                List<SelectedDiksModel> drives = new List<SelectedDiksModel>();
+                foreach (Disk drive in result)
+                {
+                    drives.Add(new SelectedDiksModel
+                    {
+                        DiskFree = drive.DiskFree,
+
+                        DiskName = drive.DiskName,
+                        DiskSize = drive.DiskSize,
+
+                        PercentFree = drive.PercentFree,
+                    });
+
+                }
+
+                Response = Common.CreateResponse(drives);
+            }
+            catch (Exception ex)
+            {
+
+                Response = Common.CreateResponse(null, "Error", "Error in getting disk names");
+            }
 
 
-      
 
-     
+            return Response;
+        }
+        #endregion
+
+        #endregion
 
 
-      
 
-      
 
-       
+
+
+
+
+
 
 
         [HttpGet("servers_list")]
