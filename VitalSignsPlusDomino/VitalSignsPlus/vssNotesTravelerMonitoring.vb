@@ -1523,21 +1523,14 @@ Partial Public Class VitalSignsPlusDomino
 
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDevices)(connectionString)
-            Dim listOfMongoDevices As New List(Of VSNext.Mongo.Entities.MobileDevices)
+            Dim bulkOps As New List(Of WriteModel(Of MobileDevices))()
 
             Try
-                'Dim myRegistry As New RegistryHandler()
-                'maxTableSize = CType(myRegistry.ReadFromRegistry("Traveler Devices DateTable Size").ToString(), Integer)
-                maxTableSize = 0
+                Dim myRegistry As New RegistryHandler()
+                maxTableSize = CType(myRegistry.ReadFromRegistry("Traveler Devices DateTable Size").ToString(), Integer)
+                'maxTableSize = 0
             Catch ex As Exception
-                maxTableSize = 0
-            End Try
-
-            Try
-                Dim serverName As String = myDominoServer.Name
-                listOfMongoDevices = repository.Find(Function(x) x.ServerName = serverName)
-            Catch ex As Exception
-
+                maxTableSize = 100
             End Try
 
             While (myDevices IsNot Nothing) AndAlso (nextPage <> "" Or isFirstFetch)
@@ -1622,7 +1615,7 @@ Partial Public Class VitalSignsPlusDomino
                                         totalDeviceCount += 1
                                         WriteDeviceHistoryEntry("All", "Traveler_Users_" & myDominoServer.Name, Now.ToString & " Number " & totalDeviceCount)
                                         'adds the device to the Mongo Collection
-                                        UpdateTravelerDeviceStatusMongoCollection(device, myDominoServer.Name, myDominoServer.TravelerHA_Pool_Name, listOfMongoDevices)
+                                        UpdateTravelerDeviceStatusMongoCollection(device, myDominoServer.Name, myDominoServer.TravelerHA_Pool_Name, bulkOps)
                                         'UpdateTravelerDeviceStatusDataTable(device, myDominoServer.Name, myDominoServer.TravelerHA_Pool_Name, dt)
                                         WriteDeviceHistoryEntry("All", "Traveler_Users_" & myDominoServer.Name, Now.ToString & " update done.", LogLevel.Verbose)
                                     Catch ex As Exception
@@ -1640,10 +1633,10 @@ Partial Public Class VitalSignsPlusDomino
                                 End Try
 
                                 'adds the dt to the db if the setting is not 0
-                                'If Not (maxTableSize = 0) And dt.Rows.Count > maxTableSize Then
-                                '    AddDevicesToTempTable(myDominoServer.Name, dt, myConnection)
-                                '    dt.Clear()
-                                'End If
+                                If Not (maxTableSize = 0) And dt.Rows.Count > maxTableSize Then
+                                    AddDevicesToCollection(myDominoServer.Name, bulkOps, repository)
+                                    bulkOps.Clear()
+                                End If
 
                             Next ' For each Page End of loop. 
                         Catch ex As Exception
@@ -1680,7 +1673,7 @@ Partial Public Class VitalSignsPlusDomino
             WriteDeviceHistoryEntry("All", "Traveler_Users_" & myDominoServer.Name, Now.ToString & " Total Device Count " + totalDeviceCount.ToString(), LogLevel.Verbose)
             'adds the devices from the dt to the db
             'AddDevicesToTempTable(myDominoServer.Name, dt, myConnection)
-            AddDevicesToCollection(myDominoServer.Name, listOfMongoDevices, repository)
+            AddDevicesToCollection(myDominoServer.Name, bulkOps, repository)
 
             WriteDeviceHistoryEntry("All", "Traveler_Users_" & myDominoServer.Name, Now.ToString & " Done adding to temp table", LogUtilities.LogUtils.LogLevel.Verbose)
             'adds the entries from thetemp table to the main table
@@ -2052,7 +2045,7 @@ Partial Public Class VitalSignsPlusDomino
             ChilkatHTTP.Login = MyDominoServer.HTTP_UserName
             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino HTTP User is " & ChilkatHTTP.Login)
             ChilkatHTTP.Password = MyDominoServer.HTTP_Password
-            WriteDeviceHistoryEntry("All", "Traveler_Users", "username: " & ChilkatHTTP.Login & "...Password:" & ChilkatHTTP.Password)
+            'WriteDeviceHistoryEntry("All", "Traveler_Users", "username: " & ChilkatHTTP.Login & "...Password:" & ChilkatHTTP.Password)
             'MyPass = myRegistry.ReadFromRegistry("Domino HTTP Password")  'sametime password as encrypted byte stream
             'If Not MyPass Is Nothing Then
             '	ChilkatHTTP.Password = mySecrets.Decrypt(MyPass) 'password in clear text, stored in memory now

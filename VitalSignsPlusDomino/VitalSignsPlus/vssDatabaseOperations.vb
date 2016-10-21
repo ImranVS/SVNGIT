@@ -1752,7 +1752,7 @@ Partial Public Class VitalSignsPlusDomino
         End Try
 
     End Sub
-    Private Sub UpdateTravelerDeviceStatusMongoCollection(ByVal Device As TravelerDevice, ByVal ServerName As String, HAPoolName As String, ByRef list As List(Of VSNext.Mongo.Entities.MobileDevices))
+    Private Sub UpdateTravelerDeviceStatusMongoCollection(ByVal Device As TravelerDevice, ByVal ServerName As String, HAPoolName As String, ByRef bulkOps As List(Of WriteModel(Of MobileDevices)))
         '*************************************************************
         'Update the TravelerTemp Table
         '*************************************************************
@@ -1771,45 +1771,29 @@ Partial Public Class VitalSignsPlusDomino
         End Try
 
         Try
-            Dim entity As VSNext.Mongo.Entities.MobileDevices = List.Find(Function(x) x.DeviceID = Device.DeviceID)
-
-            If entity IsNot Nothing Then
-
-                entity.ClientBuild = Device.Client_Build
-                entity.ServerName = ServerName
-                entity.UserName = Device.UserName
-                entity.DeviceName = Device.DeviceName
-                entity.LastSyncTime = (Device.LastSyncTime)
-                entity.OSType = Device.OS_Type
-                entity.OSTypeMin = Device.OS_Type_Min
-                entity.SyncType = Device.AutoSyncType
-                entity.Href = Device.href
-                entity.LastUpdated = (Now)
-                entity.HAPool = HAPoolName
-                entity.DeviceType = Device.DeviceType
-
-            Else
-
-                list.Add(New VSNext.Mongo.Entities.MobileDevices With {
-                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString(),
-                    .DeviceID = Device.DeviceID,
-                    .ClientBuild = Device.Client_Build,
-                    .ServerName = ServerName,
-                    .UserName = Device.UserName,
-                    .DeviceName = Device.DeviceName,
-                    .LastSyncTime = (Device.LastSyncTime),
-                    .OSType = Device.OS_Type,
-                    .OSTypeMin = Device.OS_Type_Min,
-                    .SyncType = Device.AutoSyncType,
-                    .Href = Device.href,
-                    .LastUpdated = (Now),
-                    .HAPool = HAPoolName,
-                    .DeviceType = Device.DeviceType
-                })
-
-            End If
+            Dim filterBuilder As New FilterDefinitionBuilder(Of VSNext.Mongo.Entities.MobileDevices)()
+            Dim updateBuilder As New UpdateDefinitionBuilder(Of VSNext.Mongo.Entities.MobileDevices)()
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.MobileDevices) = filterBuilder.Eq(Function(x) x.ServerName, ServerName) And
+                filterBuilder.Eq(Function(x) x.DeviceID, Device.DeviceID)
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.MobileDevices) = updateBuilder.
+                Set(Function(x) x.ClientBuild, Device.Client_Build).
+                Set(Function(x) x.UserName, Device.UserName).
+                Set(Function(x) x.DeviceName, Device.DeviceName).
+                Set(Function(x) x.LastSyncTime, Convert.ToDateTime(Device.LastSyncTime)).
+                Set(Function(x) x.OSType, Device.OS_Type).
+                Set(Function(x) x.OSTypeMin, Device.OS_Type_Min).
+                Set(Function(x) x.SyncType, Device.AutoSyncType).
+                Set(Function(x) x.Href, Device.href).
+                Set(Function(x) x.LastUpdated, Now).
+                Set(Function(x) x.HAPool, HAPoolName).
+                Set(Function(x) x.DeviceType, Device.DeviceType).
+                Set(Function(x) x.LastUpdated, Now).
+                Set(Function(x) x.ModifiedOn, Now).
+                SetOnInsert(Function(x) x.CreatedOn, Now)
 
 
+
+            bulkOps.Add(New UpdateOneModel(Of MobileDevices)(filterDef, updateDef) With {.IsUpsert = True})
 
         Catch ex As Exception
             WriteDeviceHistoryEntry("All", "Traveler_Users_" & ServerName, ex.Message, LogLevel.Normal)
@@ -1851,19 +1835,19 @@ Partial Public Class VitalSignsPlusDomino
 
     End Sub
 
-    Private Sub AddDevicesToCollection(ByVal ServerName As String, ByRef list As List(Of VSNext.Mongo.Entities.MobileDevices), ByRef repository As VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDevices))
+    Private Sub AddDevicesToCollection(ByVal ServerName As String, ByRef bulkOps As List(Of WriteModel(Of MobileDevices)), ByRef repository As VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDevices))
         '*************************************************************
         ' delete from main table, insert into main from temp and delete from temp
         '*************************************************************
         Try
 
 
-            WriteDeviceHistoryEntry("All", "Traveler_Users_" & ServerName, Now.ToString & " Devices: " & list.Count.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+            WriteDeviceHistoryEntry("All", "Traveler_Users_" & ServerName, Now.ToString & " Devices: " & bulkOps.Count.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
 
 
             Dim n As Long = Now.Ticks
 
-            repository.Replace(list, New UpdateOptions() With {.IsUpsert = True})
+            repository.Collection.BulkWrite(bulkOps)
 
             n = Now.Ticks - n
 
