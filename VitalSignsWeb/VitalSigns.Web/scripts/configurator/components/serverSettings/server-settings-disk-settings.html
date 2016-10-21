@@ -30,7 +30,7 @@
     </div>
     <div class="form-group"  *ngIf="selectedDiskSetting=='selectedDisks'">
         <!--<label >Current disk:</label>-->
-        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1">
+        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility ="Column">
           
            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
 

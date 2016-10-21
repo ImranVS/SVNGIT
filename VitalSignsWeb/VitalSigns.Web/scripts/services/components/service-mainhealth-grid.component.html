@@ -1,5 +1,5 @@
 ﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex headersVisibility ="Column">
     <wj-flex-grid-filter></wj-flex-grid-filter>
 
     <wj-flex-grid-column [header]="'Category'" [binding]="'category'"></wj-flex-grid-column>
