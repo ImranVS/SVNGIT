@@ -5,7 +5,7 @@ import {HttpModule}    from '@angular/http';
 import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
 import {DiskSttingsValue} from '../../models/server-disk-settings';
-
+import {WidgetComponent, WidgetService} from '../../../core/widgets';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/server/server-disk-settings.component.html',
@@ -16,7 +16,7 @@ import {DiskSttingsValue} from '../../models/server-disk-settings';
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
 export class DominoServerDiskSettings  implements OnInit {
-    
+    deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: any;
     deviceLocationData: any;
@@ -36,15 +36,11 @@ export class DominoServerDiskSettings  implements OnInit {
 
     constructor(    
         private dataProvider: RESTService,
-        private formBuilder: FormBuilder) {
+        private formBuilder: FormBuilder,
        
-        this.dataProvider.get('/Configurator/get_disk_names')
-            .subscribe(
-            response => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                this.data.pageSize = 10;
-
-            }); 
+        private route: ActivatedRoute) {
+       
+      
       
         this.diskSettingsForm = this.formBuilder.group({
             'setting': [''],
@@ -56,66 +52,23 @@ export class DominoServerDiskSettings  implements OnInit {
    }
 
     ngOnInit() {
-        alert("hi");
-    }
-    
-    applySetting(nameValue: any): void{
-       // alert(this.flex);
-       
-        if (this.selectedDiskSetting == "allDisksBypercentage")
-        {
-          //  alert(this.diskByPercentage);
-            this.selectedDiskSettingValue = this.diskByPercentage;
-        }
-        else if (this.selectedDiskSetting == "allDisksByGB")
-            this.selectedDiskSettingValue = this.diskByGB;
-        else if (this.selectedDiskSetting == "selectedDisks")
-        {
-            this.selectedDiskSettingValue = this.selectedDisks;
-            var slectedDiskSettingValues: DiskSttingsValue[] = [];
-            for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+        this.route.params.subscribe(params => {
+            this.deviceId = params['service'];
 
-                var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
-
-                if (item.is_selected) {
-
-                    var dominoserverObject = new DiskSttingsValue();
-                    dominoserverObject.is_selected = item.is_selected;
-                    dominoserverObject.disk_name = item.disk_name;
-                    dominoserverObject.freespace_threshold = item.freespace_threshold;
-                    dominoserverObject.threshold_type = item.threshold_type;
-
-                    slectedDiskSettingValues.push(dominoserverObject);
-                }
-
-            }
-            this.diskValues = slectedDiskSettingValues;
-        }
-        else if (this.selectedDiskSetting == "noDiskAlerts")
-            this.selectedDiskSettingValue = this.noDiskAlerts;  
-        if (this.selectedDiskSetting == "selectedDisks")
-        {
-
-            this.postData = {
-                "setting": this.selectedDiskSetting,
-                "value": this.diskValues,
-                "devices": this.devices
-            };
-        }
-        else {
-            this.postData = {
-                "setting": this.selectedDiskSetting,
-                "value": this.selectedDiskSettingValue,
-                "devices": this.devices
-            };
-        }
-      
-        this.diskSettingsForm.setValue(this.postData);
-        this.dataProvider.put('/Configurator/save_disk_settings', this.postData)
+        });
+        this.dataProvider.get('/Configurator/get_server_disk_info/' + this.deviceId)
             .subscribe(
             response => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data.pageSize = 10;
 
-            });
+            }); 
+    }
+    
+    applySetting(nameValue: any){
+     
+      
+      
     }
     changeInDevices(server: string) {
         this.devices = server;

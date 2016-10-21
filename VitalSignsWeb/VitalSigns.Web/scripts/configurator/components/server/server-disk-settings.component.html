@@ -37,13 +37,13 @@
         <!--<label >Current disk:</label>-->
         <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column">
 
-            <wj-flex-grid-column [header]="'Select'"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Disk Name'" is-read-only="true"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Disk Size'" is-read-only="true"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Disk Free Space'" is-read-only="true"> </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Percent Free'" is-read-only="true"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Free Space Threshold'"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Threshold Type'">
+            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Disk Name'" is-read-only="true" [binding]="'disk_name'"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Disk Size'" is-read-only="true" [binding]="'disk_size'"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Disk Free Space'" is-read-only="true" [binding]="'disk_free'"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Percent Free'" is-read-only="true" [binding]="'percent_free'"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'disk_threshold'"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'is_selected'">
 
                 <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                     <select name="threshold_type" class="form-control">
