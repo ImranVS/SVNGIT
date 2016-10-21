@@ -941,16 +941,17 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("connections/top_communities")]
-        public APIResponse ConnectionsMostActive(string count = "5")
+        public APIResponse ConnectionsMostActive(string deviceid, string count = "5")
         {
             try
             {
 
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
 
-                var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community").ToList();
+                var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community" && i.DeviceId == deviceid).ToList();
 
-                var filterDef = connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(i => i.Id).ToList());
+                var filterDef = connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(i => i.Id).ToList()) & 
+                    connectionsObjectsRepository.Filter.Eq(i => i.DeviceId, deviceid);
 
 
                 var result = connectionsObjectsRepository.Collection.Aggregate()
