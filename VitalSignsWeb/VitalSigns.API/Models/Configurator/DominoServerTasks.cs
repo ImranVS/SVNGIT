@@ -9,7 +9,7 @@ namespace VitalSigns.API.Models
     public class DominoServerTasksModel
     {
         [JsonProperty("is_selected")]
-        public bool IsSelected { get; set; }
+        public bool? IsSelected { get; set; }
 
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -18,16 +18,16 @@ namespace VitalSigns.API.Models
         public string TaskName { get; set; }
 
         [JsonProperty("is_load")]
-        public bool IsLoad { get; set; }
+        public bool? IsLoad { get; set; }
 
         [JsonProperty("is_restart_asap")]
-        public bool IsRestartASAP { get; set; }
+        public bool? IsRestartASAP { get; set; }
 
         [JsonProperty("is_resart_later")]
-        public bool IsResartLater { get; set; }
+        public bool? IsResartLater { get; set; }
 
         [JsonProperty("is_disallow")]
-        public bool IsDisallow { get; set; }
+        public bool? IsDisallow { get; set; }
 
 
     }

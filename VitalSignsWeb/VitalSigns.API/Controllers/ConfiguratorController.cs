@@ -1203,6 +1203,50 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+        #region Server Tasks
+        [HttpGet("get_server_tasks_info/{id}")]
+        public APIResponse GetServerTasksInformation(string id)
+
+        {
+
+            try
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+                Expression<Func<Status, bool>> expression = (p => p.DeviceId == id);
+                var result = statusRepository.Find(expression).Select(x => x.DominoServerTasks).FirstOrDefault();
+
+                //SelectedDiksModel serverDiskStatus = new SelectedDiksModel();
+                List<DominoServerTasksModel> servertasks = new List<DominoServerTasksModel>();
+                foreach (DominoServerTask task in result)
+                {
+                    servertasks.Add(new DominoServerTasksModel
+                    {
+                        IsLoad = task.SendLoadCmd,
+                      IsResartLater = task.SendRestartCmd,
+                      IsRestartASAP =task.SendRestartCmdOffhours,
+                      IsDisallow =  task.SendExitCmd,
+                       TaskName = task.TaskName,
+                       IsSelected = task.Monitored
+
+                      
+                    });
+
+                }
+
+                Response = Common.CreateResponse(servertasks);
+            }
+            catch (Exception ex)
+            {
+
+                Response = Common.CreateResponse(null, "Error", "Error in getting disk names");
+            }
+
+
+
+            return Response;
+        }
+        #endregion
+
         #endregion
 
 
@@ -1331,26 +1375,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-      
-
-
-
-     
-
-
-     
-
-
-
-
-
-
-      
-
-       
-      
-
-
+    
         [HttpPut("save_windows_services")]
         public APIResponse SaveWindowsServices([FromBody]DeviceSettings windowsservicesettings)
         {
@@ -1369,8 +1394,56 @@ namespace VitalSigns.API.Controllers
         }
 
 
-       
 
-     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        [HttpGet("{device_id}/get_maintenance_windows")]
+        public APIResponse GetMaintenanceWindows(string device_id)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+
+                Expression<Func<Server, bool>> expression = (p => p.Id == device_id);
+                var result = serversRepository.Find(expression).Select(x => new Maintenance
+                {
+                    //DeviceId = x.DeviceId,
+                    //Type = x.Type,
+                    //Category = x.category,
+                    //LastScan = Convert.ToString(x.LastUpdate.Value),
+                    //TestName = x.TestName,
+                    //Result = x.Result,
+                    //Details = x.Details
+                });
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
+
+
+
+
+
     }
 }
