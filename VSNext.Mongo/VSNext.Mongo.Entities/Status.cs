@@ -1412,7 +1412,7 @@ namespace VSNext.Mongo.Entities
         public string ThresholdType { get; set; }
     }
 
-    public class DominoServerTask
+    public class DominoServerTask:Entity
     {
         public DominoServerTask()
         {

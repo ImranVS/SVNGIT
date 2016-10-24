@@ -128,10 +128,10 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string CredentialsId { get; set; }
 
-        [DataMember]
-        [BsonElement("disk_info")]
-        [BsonIgnoreIfNull]
-        public List<Disk> DiskInfo { get; set; }
+        //[DataMember]
+        //[BsonElement("disk_info")]
+        //[BsonIgnoreIfNull]
+        //public List<Disk> DiskInfo { get; set; }
 
         [DataMember]
         [BsonElement("server_roles")]
@@ -898,11 +898,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("database_settings_port")]
         public int? DatabaseSettingsPort{ get; set; }
 
-        //In Office365
-        //[DataMember]
-        //[BsonIgnoreIfNull]
-        //[BsonElement("tests")]
-        //public List<Tests> Tests { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("simulation_tests")]
+        public List<NameValuePair> SimulationTests { get; set; }
 
         #endregion
 
@@ -1222,6 +1222,13 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         [BsonElement("scan_agent_log")]
         public Boolean? ScanAgentLog { get; set; }
+
+    }
+
+    public class NameValuePair
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
 
     }
 
