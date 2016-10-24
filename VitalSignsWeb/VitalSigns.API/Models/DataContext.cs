@@ -11,6 +11,7 @@ namespace VitalSigns.API.Models
     {
         public const string DAILY_STATISTICS_COLLECTION_NAME = "daily_statistics";
         public const string PROFILES_COLLECTION_NAME = "profiles";
+        public const string SITEMAP_COLLECTION_NAME = "sitemap";
 
         // TODO: put this into an IoC container
         private static readonly IMongoClient _client;
@@ -40,6 +41,11 @@ namespace VitalSigns.API.Models
         public IMongoCollection<Profile> Profiles
         {
             get { return _database.GetCollection<Profile>(PROFILES_COLLECTION_NAME); }
+        }
+
+        public IMongoCollection<SiteMap> SiteMaps
+        {
+            get { return _database.GetCollection<SiteMap>(SITEMAP_COLLECTION_NAME); }
         }
     }
 }
