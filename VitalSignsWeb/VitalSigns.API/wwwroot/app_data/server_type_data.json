@@ -111,7 +111,8 @@
         "title": "Tasks",
         "type": "Dashboard",
         "component": "ServiceTasksTab",
-        "path": "/app/services/components/service-servertasks-tab.component"
+        "path": "/app/services/components/service-servertasks-tab.component",
+      
       },
       {
         "tab_id": 6,
@@ -153,8 +154,8 @@
         "tab_id": 2,
         "title": "Server Tasks",
         "type": "Configurator",
-        "component": "NotYetImplemented",
-        "path": "/app/not-yet-implemented.component"
+        "component": "ServerTasks",
+        "path": "/app/configurator/components/server/server-domino-server-tasks.component"
       },
       {
         "tab_id": 3,
@@ -174,8 +175,8 @@
         "tab_id": 5,
         "title": "Maintainance Window",
         "type": "Configurator",
-        "component": "NotYetImplemented",
-        "path": "/app/not-yet-implemented.component"
+        "component": "MaintenanceWindows",
+        "path": "/app/configurator/components/server/server-maintenance-windows.component"
       },
       {
         "tab_id": 6,
@@ -389,14 +390,14 @@
             "title": "Advanced Settings",
             "type": "Configurator",
             "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "path": "/app/configurator/components/server/server-maintenance-windows.compoment"
           },
           {
             "tab_id": 4,
             "title": "Maintainance Window",
             "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "MaintenanceWindows",
+            "path": "/app/configurator/components/server/server-maintenance-windows.component"
           },
           {
             "tab_id": 5,
@@ -479,8 +480,8 @@
             "tab_id": 3,
             "title": "Maintainance Window",
             "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+             "component": "MaintenanceWindows",
+            "path": "/app/configurator/components/server/server-maintenance-windows.component"
           },
           {
             "tab_id": 4,
