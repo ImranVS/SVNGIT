@@ -46,13 +46,7 @@ export class MaintenanceWindows implements OnInit {
 
             });
 
-        this.diskSettingsForm = this.formBuilder.group({
-            'setting': [''],
-            'value': [''],
-            'devices': ['']
-
-
-        });
+       
     }
 
 
