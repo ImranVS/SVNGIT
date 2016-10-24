@@ -18,22 +18,14 @@
 
 <div class="hidden-xs hidden-sm dashboard-menu" id="zeusContext">
 
-    <ul class="list-group">
-        <li class="list-group-item">
-            <a [routerLink]="['/dashboard/office365']">Overall</a>
+    <ul class="list-group" *ngIf="contextMenuSiteMap">
+
+        <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes" 
+            [routerLinkActive]="['selected']"
+            [routerLinkActiveOptions]="{exact: true}">
+            <a [routerLink]="[node.url]">{{node.title}}</a>
         </li>
-        <li class="list-group-item">
-            <a [routerLink]="['/dashboard/office365/mail-statistics']">Mail statistics</a>
-        </li>
-        <li class="list-group-item">
-            <a [routerLink]="['/dashboard/office365/password-settings']">Password settings</a>
-        </li>
-        <li class="list-group-item">
-            <a href="#">Skype for business</a>
-        </li>
-        <li class="list-group-item">
-            <a href="#">Service details</a>
-        </li>
+
     </ul>
 
 </div>

@@ -13,8 +13,8 @@ import {SiteMapTreeService} from '../services/sitemap-tree.service';
                 <b *ngIf="node.collapsed"> + </b>
             </span>
             <span class="aTitle" (click)="selectNode(node)">{{node.title}}</span>
-            <span class="aToggle" (click)="toggleActive(node)">
-                <b class="vsToggle" [class.checked]="!node.hasOwnProperty('active') || node.active">
+            <span class="aToggle" (click)="toggleDisabled(node)">
+                <b class="vsToggle" [class.checked]="!node.disabled">
                     <span> </span>
                 </b>
             </span>
@@ -47,13 +47,7 @@ export class SiteMapNode {
     @Output() select: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(private siteMapTreeService: SiteMapTreeService) { }
-
-    ngAfterViewInit() {
-
-        //this.siteMapTreeService.registerNode(this.container.element.nativeElement, this.nodes);
-
-    }
-
+    
     ngOnDestroy() {
 
         this.siteMapTreeService.removeNode(this.container.element.nativeElement);
@@ -72,12 +66,12 @@ export class SiteMapNode {
 
     }
 
-    private toggleActive(node: any) {
+    private toggleDisabled(node: any) {
 
-        if (!node.hasOwnProperty('active'))
-            node.active = true;
+        if (!node.hasOwnProperty('disabled'))
+            node.disabled = false;
 
-        node.active = !node.active;
+        node.disabled = !node.disabled;
 
     }
 

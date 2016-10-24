@@ -20,9 +20,11 @@ export class SiteMapList implements OnInit {
 
     ngOnInit() {
 
-        this.service.get('https://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/navigation/editor/site-maps')
+        this.service.get('/navigation/sitemaps')
             .subscribe(
-            data => this.siteMapsList = data,
+            data => this.siteMapsList = data.sort((a, b) => {
+                return a.title.localeCompare(b.title);
+            }),
             error => this.errorMessage = <any>error
             );
 

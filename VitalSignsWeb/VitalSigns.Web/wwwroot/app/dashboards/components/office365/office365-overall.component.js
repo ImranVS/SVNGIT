@@ -313,7 +313,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                 };
                 Office365Overall = __decorate([
                     core_1.Component({
-                        templateUrl: '/app/dashboards/components/office365-overall.component.html',
+                        templateUrl: '/app/dashboards/components/office365/office365-overall.component.html',
                         providers: [widgets_1.WidgetService]
                     }), 
                     __metadata('design:paramtypes', [core_1.ComponentFactoryResolver, widgets_1.WidgetService])

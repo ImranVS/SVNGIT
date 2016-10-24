@@ -1,14 +1,14 @@
 ﻿import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {HttpModule}    from '@angular/http';
-import {ActivatedRoute} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {DragulaService} from 'ng2-dragula/ng2-dragula';
 
 import {RESTService} from '../../../core/services/rest.service';
 import {SiteMapTreeService} from '../services/sitemap-tree.service';
 
 const FORM_HEIGHTS: any = {
-    EXPANDED: '300px',
+    EXPANDED: '330px',
     COLLAPSED: '70px'
 }
 
@@ -44,6 +44,7 @@ export class SiteMapEditor implements OnInit {
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
+        private router: Router,
         private route: ActivatedRoute,
         private dragulaService: DragulaService,
         private siteMapTreeService: SiteMapTreeService
@@ -72,7 +73,8 @@ export class SiteMapEditor implements OnInit {
 
         this.selectedNodeForm = this.formBuilder.group({
             'title': ['', Validators.required],
-            'url': ['']
+            'url': [''],
+            'icon': ['']
         });
 
     }
@@ -83,9 +85,30 @@ export class SiteMapEditor implements OnInit {
 
             this.siteMapId = params['sitemap'];
 
-            this.dataProvider.get(`https://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/navigation/editor/site-maps/${this.siteMapId}`)
+            this.dataProvider.get(`/navigation/sitemaps/${this.siteMapId}`)
                 .subscribe(
-                data => this.siteMap = data,
+                data => {
+
+                    this.siteMap = data;
+                    this.siteMap.id = this.siteMapId;
+
+                    if (!this.siteMap.nodes || !Array.isArray(this.siteMap.nodes)) {
+
+                        let newNode = {
+                            title: 'New item',
+                            url: '',
+                            icon: ''
+                        };
+
+                        this.siteMap.nodes = [];
+                        this.siteMap.nodes.push(newNode);
+                        this.selectNode(newNode);
+
+                        this.editSelectedNode();
+
+                    }
+
+                }                        ,
                 error => this.errorMessage = <any>error
                 );
 
@@ -144,7 +167,8 @@ export class SiteMapEditor implements OnInit {
 
             this.selectedNodeForm.setValue({
                 title: '',
-                url: ''
+                url: '',
+                icon: ''
             });
 
             if (this.formExpanded)
@@ -158,7 +182,8 @@ export class SiteMapEditor implements OnInit {
 
             this.selectedNodeForm.setValue({
                 title: node.title,
-                url: node.url
+                url: node.url,
+                icon: node.icon
             });
 
         }
@@ -231,7 +256,8 @@ export class SiteMapEditor implements OnInit {
 
         this.selectedNodeForm.setValue({
             title: '',
-            url: ''
+            url: '',
+            icon: ''
         });
 
         if (this.formExpanded)
@@ -243,6 +269,7 @@ export class SiteMapEditor implements OnInit {
 
         this.selectedNode.title = node.title;
         this.selectedNode.url = node.url;
+        this.selectedNode.icon = node.icon;
 
         this.collapseForm();
 
@@ -294,7 +321,8 @@ export class SiteMapEditor implements OnInit {
 
             let newNode = {
                 title: 'New item',
-                url: ''
+                url: '',
+                icon: ''
             };
 
             selecteNodeParent.nodes.push(newNode);
@@ -312,7 +340,8 @@ export class SiteMapEditor implements OnInit {
 
         let newNode = {
             title: 'New item',
-            url: ''
+            url: '',
+            icon: ''
         };
 
         this.selectedNode.nodes.push(newNode);
@@ -409,9 +438,11 @@ export class SiteMapEditor implements OnInit {
     }
 
     private saveSiteMap() {
-
-        // TODO: To be implemented
-        console.log(this.siteMap);
+    
+        this.dataProvider.putAndCallback(
+            `/navigation/sitemaps`,
+            this.siteMap,
+            () => this.router.navigate(['sitemaps']));
 
     }
 

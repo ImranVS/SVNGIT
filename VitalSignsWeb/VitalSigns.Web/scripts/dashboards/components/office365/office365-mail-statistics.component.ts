@@ -7,7 +7,7 @@ declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 @Component({
-    templateUrl: '/app/dashboards/components/office365-mail-statistics.component.html',
+    templateUrl: '/app/dashboards/components/office365/office365-mail-statistics.component.html',
     providers: [WidgetService]
 })
 export class OfficeMailStatistics extends WidgetController implements OnInit {

@@ -7,7 +7,7 @@ declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 @Component({
-    templateUrl: '/app/dashboards/components/office365-overall.component.html',
+    templateUrl: '/app/dashboards/components/office365/office365-overall.component.html',
     providers: [WidgetService]
 })
 export class Office365Overall extends WidgetController implements OnInit {

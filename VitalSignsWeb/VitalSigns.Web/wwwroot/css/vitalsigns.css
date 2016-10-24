@@ -546,7 +546,7 @@
     transition: height 0.5s ease;
     border-top: 5px solid #dcdbdb;
     background-color: #f2f2f2;
-    padding: 25px 35px 25px 35px;
+    padding: 25px 100px 25px 35px;
 }
 
 .siteMapEditor .form .overlay {
@@ -674,6 +674,11 @@
 
 .vsToggle.checked span {
     left: 14px;
+}
+
+.list-group-item.selected {
+    font-weight: bold;
+    background-color: rgba(95, 190, 127, 0.05);
 }
 
 /* Portrait phones and smaller */

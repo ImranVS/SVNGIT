@@ -7,7 +7,7 @@ declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 @Component({
-    templateUrl: '/app/dashboards/components/office365-password-settings.component.html',
+    templateUrl: '/app/dashboards/components/office365/office365-password-settings.component.html',
     providers: [WidgetService]
 })
 export class Office365PasswordSettings extends WidgetController implements OnInit {
