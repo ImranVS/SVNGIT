@@ -126,9 +126,9 @@ namespace VitalSigns.API.Controllers
                                          LastUpdated = x.LastUpdated,
                                          Description = x.Description,
                                          Status = x.StatusCode,// Holds the formated status code for displaying colors in UI
-                                         StatusCode = x.StatusCode,//Holds actual server code data
+                                         StatusCode=x.StatusCode,//Holds actual server code data
                                          DeviceId = x.DeviceId,
-                                         Location = x.Location
+                                         Location=x.Location
 
                                      }).ToList();
                 foreach (ServerStatus item in result)
@@ -181,41 +181,41 @@ namespace VitalSigns.API.Controllers
             {
                 if (!string.IsNullOrEmpty(device_id))
                 {
-                    Expression<Func<Status, bool>> expression = (p => p.DeviceId == device_id);
-                    var result = (statusRepository.Find(expression)
-                                         .Select(x => new ServerStatus
-                                         {
-                                             Id = x.Id,
-                                             Type = x.DeviceType,
-                                             Country = x.Location,
-                                             Name = x.DeviceName,
-                                             Version = x.SoftwareVersion,
-                                             LastUpdated = x.LastUpdated,
-                                             Description = x.Description,
-                                             Status = x.StatusCode,
-                                             DeviceId = x.DeviceId,
-                                             SecondaryRole = x.SecondaryRole
+                Expression<Func<Status, bool>> expression = (p => p.DeviceId == device_id);
+                var result = (statusRepository.Find(expression)
+                                     .Select(x => new ServerStatus
+                                     {
+                                         Id = x.Id,
+                                         Type = x.DeviceType,
+                                         Country = x.Location,
+                                         Name = x.DeviceName,
+                                         Version = x.SoftwareVersion,
+                                         LastUpdated = x.LastUpdated,
+                                         Description = x.Description,
+                                         Status = x.StatusCode,
+                                         DeviceId = x.DeviceId,
+                                         SecondaryRole = x.SecondaryRole
 
 
-                                         })).FirstOrDefault();
-                    var serviceIcons = Common.GetServerTypeIcons();
-                    Models.ServerType serverType = Common.GetServerTypeTabs(result.Type);
+                                     })).FirstOrDefault();
+                var serviceIcons = Common.GetServerTypeIcons();
+                Models.ServerType serverType = Common.GetServerTypeTabs(result.Type);
 
-                    if (string.IsNullOrEmpty(result.SecondaryRole))
-                        result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
-                    else
-                    {
+                if (string.IsNullOrEmpty(result.SecondaryRole))
+                    result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
+                else
+                {
                         var secondaryRoles = result.SecondaryRole.Split(';').Select(x => x.Trim());
-                        result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
-                    }
-
-
-                    result.Description = "Last Updated: " + result.LastUpdated.Value.ToShortDateString();
-                    result.Icon = serverType.Icon;
-                    if (!string.IsNullOrEmpty(result.Status))
-                        result.Status = result.Status.ToLower().Replace(" ", "");
-                    Response = Common.CreateResponse(result);
+                    result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
                 }
+
+
+                result.Description = "Last Updated: " + result.LastUpdated.Value.ToShortDateString();
+                result.Icon = serverType.Icon;
+                if (!string.IsNullOrEmpty(result.Status))
+                    result.Status = result.Status.ToLower().Replace(" ", "");
+                Response = Common.CreateResponse(result);
+            }
                 else
                 {
                     if (!string.IsNullOrEmpty(deviceType))
@@ -481,16 +481,16 @@ namespace VitalSigns.API.Controllers
                     Expression<Func<DailyStatistics, bool>> expression = (p => statNames.Contains(p.StatName));
                     if (string.IsNullOrEmpty(operation))
                     {
-                        var result = dailyRepository.Find(expression).Select(x => new StatsData
-                        {
-                            DeviceId = x.DeviceId,
-                            StatName = x.StatName,
-                            StatValue = x.StatValue
+                    var result = dailyRepository.Find(expression).Select(x => new StatsData
+                    {
+                        DeviceId = x.DeviceId,
+                        StatName = x.StatName,
+                        StatValue = x.StatValue
 
-                        }).OrderBy(x => x.StatName).ToList();
+                    }).OrderBy(x => x.StatName).ToList();
 
 
-                        Response = Common.CreateResponse(result);
+                    Response = Common.CreateResponse(result);
                     }
                     else
                     {
@@ -537,15 +537,15 @@ namespace VitalSigns.API.Controllers
                                         });
                                     }
 
-                                    serie = new Serie();
-                                    serie.Title = "test";
-                                    serie.Segments = segments;
-                                    series.Add(serie);
+                                serie = new Serie();
+                                serie.Title = "test";
+                                serie.Segments = segments;
+                                series.Add(serie);
 
-                                    chart = new Chart();
-                                    chart.Title = "";
-                                    chart.Series = series;
-                                    Response = Common.CreateResponse(chart);
+                                chart = new Chart();
+                                chart.Title = "";
+                                chart.Series = series;
+                                Response = Common.CreateResponse(chart);
                                 }
                                 else
                                 {
@@ -622,8 +622,8 @@ namespace VitalSigns.API.Controllers
                                                 serie.Segments = segments;
                                             }
                                         }
-                                        else
-                                        {
+                else
+                {
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
                                             serie.Title = name;
                                             serie.Segments = segments;
@@ -833,7 +833,7 @@ namespace VitalSigns.API.Controllers
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
                 startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
-
+                
             if (endDate == "")
                 endDate = DateTime.Today.ToString(DateFormat);
 
@@ -869,7 +869,7 @@ namespace VitalSigns.API.Controllers
                                                      summaryRepository.Filter.Eq(p => p.DeviceId, deviceId));
 
                     }
-
+                    
                     var result = summaryRepository.Find(filterDefTemp).Select(x => new StatsData
                     {
                         //DeviceId = x.DeviceId,
@@ -880,8 +880,14 @@ namespace VitalSigns.API.Controllers
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
-                        filterDefTemp = filterDef &
+                        filterDefTemp = filterDef & 
                             summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
+
+                        if (!string.IsNullOrEmpty(deviceId))
+                        {
+                            filterDefTemp = filterDefTemp & summaryRepository.Filter.Eq(p => p.DeviceId, deviceId);
+                        }
+
 
                         result.AddRange(
                             summaryRepository.Find(filterDefTemp).Select(x => new StatsData
@@ -925,7 +931,7 @@ namespace VitalSigns.API.Controllers
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
-                        filterDefTemp = filterDef &
+                        filterDefTemp = filterDef & 
                             summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
 
                         result.AddRange(
@@ -935,7 +941,7 @@ namespace VitalSigns.API.Controllers
                                 row.CreatedOn.Date,
                                 row.StatName
                             })
-                            .Select(row => new
+                            .Select(row => new 
                             {
                                 Date = row.Key.Date,
                                 Value = Math.Round(row.Average(x => x.StatValue), 2),
@@ -965,7 +971,7 @@ namespace VitalSigns.API.Controllers
                         serie.Segments = segments;
 
                         series.Add(serie);
-
+                        
                     }
                     else
                     {
@@ -1178,7 +1184,7 @@ namespace VitalSigns.API.Controllers
                         result.Add(segment);
                     }
                 }
-
+                
 
                 result.RemoveAll(item => item.Label == null);
                 result.RemoveAll(item => item.Label == "");
@@ -1191,7 +1197,7 @@ namespace VitalSigns.API.Controllers
                 series.Add(serie);
 
                 Chart chart = new Chart();
-
+                
                 chart.Title = docfield;
                 chart.Series = series;
 
@@ -1220,23 +1226,23 @@ namespace VitalSigns.API.Controllers
                 List<Serie> diskserie = new List<Serie>();
                 result.Disks.RemoveAll(item => item.DiskFree == null || item.DiskFree == 0.0);
                 result.Disks.RemoveAll(item => item.DiskSize - item.DiskFree == null || item.DiskFree == 0.0);
-
+                
                 var data = result.Disks.Select(x => new
                 {
-                    Name = x.DiskName,
-                    Free = x.DiskFree,
-                    Used = x.DiskSize - x.DiskFree
-                });
-                if (result.Disks.Count > 1)
+                       Name=x.DiskName,
+                       Free=x.DiskFree,
+                       Used= x.DiskSize - x.DiskFree
+                    });
+                if (result.Disks.Count>1)
                 {
 
                     Serie diskFreeSerie = new Serie();
                     diskFreeSerie.Title = "Available";
-                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value, Color = "rgba(95, 190, 127, 1)" }).ToList();
+                    diskFreeSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Free.Value,Color= "rgba(95, 190, 127, 1)" }).ToList();
                     diskserie.Add(diskFreeSerie);
                     Serie diskUsedSerie = new Serie();
                     diskUsedSerie.Title = "Used";
-                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value, Color = "rgba(239, 58, 36, 1)" }).ToList();
+                    diskUsedSerie.Segments = data.Select(x => new Segment { Label = x.Name, Value = x.Used.Value,Color= "rgba(239, 58, 36, 1)" }).ToList();
                     diskserie.Add(diskUsedSerie);
 
                 }
@@ -1246,17 +1252,17 @@ namespace VitalSigns.API.Controllers
                     {
                         List<Segment> segments = new List<Segment>();
                         segments.Add(new Segment { Label = "Available", Value = Math.Round(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0, 2) });
-                        segments.Add(new Segment { Label = "Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree), 2) });
+                        segments.Add(new Segment { Label ="Used", Value = Math.Round((double)(drive.DiskSize - drive.DiskFree ), 2) });
 
                         Serie serie = new Serie();
                         serie.Segments = segments;
-                        serie.Title = drive.DiskName;
+                        serie.Title = drive.DiskName;                        
                         diskserie.Add(serie);
 
                     }
-                }
+                }                             
                 Chart chart = new Chart();
-
+               
                 chart.Title = "Disk Space";
                 chart.Series = diskserie;
                 Response = Common.CreateResponse(chart);
@@ -1272,7 +1278,7 @@ namespace VitalSigns.API.Controllers
 
         }
 
-
+        
         [HttpGet("server_list_selectlist_data")]
         public APIResponse GetDeviceListDropDownData()
         {
@@ -1280,14 +1286,14 @@ namespace VitalSigns.API.Controllers
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-                var deviceTypeData = statusRepository.All().Where(x => x.DeviceType != null).Select(x => x.DeviceType).Distinct().OrderBy(x => x).ToList();
+                var deviceTypeData = statusRepository.All().Where(x=>x.DeviceType!=null).Select(x => x.DeviceType).Distinct().OrderBy(x=>x).ToList();
                 var deviceStatusData = statusRepository.All().Where(x => x.StatusCode != null).Select(x => x.StatusCode).Distinct().OrderBy(x => x).ToList();
                 var deviceLocationData = statusRepository.All().Where(x => x.Location != null).Select(x => x.Location).Distinct().OrderBy(x => x).ToList();
                 deviceTypeData.Insert(0, "-All-");
                 deviceStatusData.Insert(0, "-All-");
                 deviceLocationData.Insert(0, "-All-");
 
-                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData, deviceLocationData = deviceLocationData });
+                Response = Common.CreateResponse(new { deviceTypeData = deviceTypeData, deviceStatusData = deviceStatusData , deviceLocationData = deviceLocationData });
                 return Response;
             }
             catch (Exception exception)
@@ -1310,7 +1316,7 @@ namespace VitalSigns.API.Controllers
                     var result = nameValueRepository.All().ToList();
                     Response = Common.CreateResponse(result);
 
-                }
+    }
                 else if (!string.IsNullOrEmpty(category))
                 {
                     Expression<Func<NameValue, bool>> expression = (p => p.Category == category);
@@ -1319,7 +1325,7 @@ namespace VitalSigns.API.Controllers
 
                         { Name = x.Name, Id = x.Id, Category = x.Category, Value = x.Value }).ToList();
                     Response = Common.CreateResponse(result);
-                }
+}
                 else if (!string.IsNullOrEmpty(name))
                 {
                     var names = name.Replace("[", "").Replace("]", "").Split(',');
@@ -1331,7 +1337,7 @@ namespace VitalSigns.API.Controllers
 
                 }
 
-
+               
 
 
             }
@@ -1346,13 +1352,13 @@ namespace VitalSigns.API.Controllers
         }
 
 
-     
 
-     
-    }
 
-}
 
-   
+        }
+
+            }
+
+
 
 
