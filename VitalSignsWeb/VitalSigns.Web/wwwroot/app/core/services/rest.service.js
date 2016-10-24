@@ -25,8 +25,12 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Observable'], function(
             }],
         execute: function() {
             RESTService = (function () {
+                //serverUrl = 'http://localhost:5000';
                 function RESTService(http) {
                     this.http = http;
+                    // serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
+                    // serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
+                    //serverUrl ='http://dev2.vsplus.jnitinc.com:5000';
                     this.serverUrl = 'http://localhost:1234';
                 }
                 RESTService.prototype.get = function (path) {

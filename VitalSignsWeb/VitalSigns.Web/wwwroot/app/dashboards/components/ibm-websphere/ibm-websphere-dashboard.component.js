@@ -47,7 +47,7 @@ System.register(['@angular/core', 'rxjs/Rx', '../../../core/widgets'], function(
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                             settings: {
-                                url: '/services/status_count?type=WebSphere&docfield=status_code',
+                                url: '/services/status_count?type=[WebSphereCell,WebSphereNode,WebSphere]&docfield=status_code',
                                 chart: {
                                     chart: {
                                         renderTo: 'serverStatus',
@@ -91,7 +91,7 @@ System.register(['@angular/core', 'rxjs/Rx', '../../../core/widgets'], function(
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                             settings: {
-                                url: '/services/statistics?statName=ActiveThreadCount&operation=AVG',
+                                url: '/services/statistics?statName=ActiveThreadCount&operation=AVG&isChart=true',
                                 chart: {
                                     chart: {
                                         renderTo: 'activeThreads',
@@ -133,7 +133,7 @@ System.register(['@angular/core', 'rxjs/Rx', '../../../core/widgets'], function(
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                             settings: {
-                                url: '/services/statistics?statName=CurrentHungThreadCount&operation=AVG',
+                                url: '/services/statistics?statName=CurrentHungThreadCount&operation=AVG&isChart=true',
                                 chart: {
                                     chart: {
                                         renderTo: 'hungThreads',
@@ -167,6 +167,9 @@ System.register(['@angular/core', 'rxjs/Rx', '../../../core/widgets'], function(
                 IBMWebsphereDashboard.prototype.ngOnInit = function () {
                     injectSVG();
                     bootstrapNavigator();
+                };
+                IBMWebsphereDashboard.prototype.onSelect = function (serviceId) {
+                    this.serviceId = serviceId;
                 };
                 IBMWebsphereDashboard = __decorate([
                     core_1.Component({

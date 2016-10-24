@@ -94,7 +94,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                             settings: {
-                                url: "/dashboard/connections/top_communities",
+                                url: "/dashboard/connections/top_communities?deviceid=" + this.serviceId,
                                 chart: {
                                     chart: {
                                         renderTo: 'top5Communities',
@@ -133,7 +133,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                             name: 'ChartComponent',
                             css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                             settings: {
-                                url: "/dashboard/connections/top_communities?count=1",
+                                url: "/dashboard/connections/top_communities?deviceid=" + this.serviceId + "&count=1",
                                 chart: {
                                     chart: {
                                         renderTo: 'mostActiveCommunity',
@@ -176,6 +176,21 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                         }
                     ];
                     injectSVG();
+                    //console.log(this.widgetService.findWidget('mostActiveCommunity').component.settings);
+                    //var chart = <Chart>this.widgetService.findWidget('mostActiveCommunity').component.settings;
+                    //chart.setTitle('test');
+                };
+                IBMConnectionsCommunitiesTab.prototype.onPropertyChanged = function (key, value) {
+                    if (key === 'serviceId') {
+                        this.serviceId = value;
+                        var displayDate = (new Date()).toISOString().slice(0, 10);
+                        this.widgetService.refreshWidget('communitiesByType', "/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=" + this.serviceId + "&startDate=" + displayDate + "&endDate=" + displayDate)
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('top5Communities', "/dashboard/connections/top_communities?deviceid=" + this.serviceId)
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('mostActiveCommunity', "/dashboard/connections/top_communities?deviceid=" + this.serviceId + "&count=1")
+                            .catch(function (error) { return console.log(error); });
+                    }
                 };
                 IBMConnectionsCommunitiesTab = __decorate([
                     core_1.Component({

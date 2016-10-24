@@ -54,14 +54,19 @@ System.register(['@angular/core', '@angular/router', '@angular/http', '../../cor
                 };
                 ServiceDetails.prototype.ngOnInit = function () {
                     var _this = this;
-                    this.route.params.subscribe(function (params) {
+                    console.log(this.router.routerState);
+                    var parentActivatedRoute = this.router.routerState.root.children[0].params;
+                    parentActivatedRoute.subscribe(function (params) {
                         _this.module = params['module'];
+                    });
+                    this.route.params.subscribe(function (params) {
                         _this.deviceId = params['service'];
                         // Get tabs associated with selected service
                         _this.dataProvider.get("/services/device_details?device_id=" + _this.deviceId + "&destination=" + _this.module)
                             .subscribe(function (response) {
                             _this.service = response.data;
                             _this.selectTab(_this.service.tabs[0]);
+                            console.log(_this.service.tabs);
                         }, function (error) { return _this.errorMessage = error; });
                     });
                 };

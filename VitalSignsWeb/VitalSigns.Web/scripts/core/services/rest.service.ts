@@ -8,8 +8,8 @@ export class RESTService {
   // serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
    // serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
     //serverUrl ='http://dev2.vsplus.jnitinc.com:5000';
-    //serverUrl = 'http://localhost:1234';
-    serverUrl = 'http://localhost:5000';
+    serverUrl = 'http://localhost:1234';
+    //serverUrl = 'http://localhost:5000';
     constructor(protected http: Http) { }
 
     get(path: string) {
@@ -30,14 +30,15 @@ export class RESTService {
 
     }
 
-    //put(path: string, body: any, callback: () => void) {
+    putAndCallback(path: string, body: any, callback: () => void) {
 
-    //    let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
+        let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
 
-    //    this.http.put(serviceUrl, body)
-    //        .subscribe(res => { callback(); });
+        this.http.put(serviceUrl, body)
+            .subscribe(res => { callback(); });
 
-    //}
+    }
+
     put(path: string, body: any) {
 
         let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;

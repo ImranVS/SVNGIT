@@ -125,6 +125,15 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                     ];
                     injectSVG();
                 };
+                IBMConnectionsOverviewTab.prototype.onPropertyChanged = function (key, value) {
+                    if (key === 'serviceId') {
+                        this.serviceId = value;
+                        this.widgetService.refreshWidget('dailyActivities', "/services/summarystats?statName=*_CREATED_LAST_DAY&deviceid=" + this.serviceId)
+                            .catch(function (error) { return console.log(error); });
+                        this.widgetService.refreshWidget('top5Tags', "/dashboard/connections/top_tags?deviceid=" + this.serviceId + "&type=Bookmark&count=5")
+                            .catch(function (error) { return console.log(error); });
+                    }
+                };
                 IBMConnectionsOverviewTab = __decorate([
                     core_1.Component({
                         selector: 'tab-overall',
