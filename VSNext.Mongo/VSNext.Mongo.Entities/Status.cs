@@ -1404,7 +1404,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("threshold")]
-        public int? Threshold { get; set; }
+        public double? Threshold { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]
