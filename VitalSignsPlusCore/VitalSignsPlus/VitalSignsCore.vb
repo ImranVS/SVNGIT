@@ -1038,7 +1038,7 @@ Public Class VitalSignsPlusCore
                 dt.Rows(i)("ProductVersion") = fversion
                 build = System.IO.File.GetLastWriteTime((FilePath + dt.Rows(i)("AssemblyName").ToString))
                 Try
-                    strSQL = "Update VS_AssemblyVersionInfo set AssemblyVersion='" & sVer.ToString & "', ProductVersion='" & fversion & "',BuildDate='" & build & _
+                    strSQL = "Update VS_AssemblyVersionInfo set AssemblyVersion='" & sVer.ToString & "', ProductVersion='" & fversion & "',BuildDate='" & build &
                     "' where  AssemblyName='" & dt.Rows(i)("AssemblyName").ToString & "'"
 
                     myAdapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
@@ -5601,7 +5601,7 @@ CleanUp:
             GetFileStats(myServer)
             GetWikiStats(myServer)
             GetForumStats(myServer)
-
+            GetLibraryStats(myServer)
 
             'This should be last
             GetHomepageStats(myServer)
@@ -5636,14 +5636,14 @@ CleanUp:
 
     Public Sub GetActivityStats(ByRef myServer As MonitoredItems.IBMConnect)
 
-        Dim sql As String = "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END), 0) LOGINS_LAST_MONTH,COALESCE( SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGINS_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGINS_LAST_DAY FROM ACTIVITIES.OA_MEMBERPROFILE;" & _
-         "SELECT COUNT(*) NUM_OF_ACTIVITIES FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity';" & _
-         "SELECT COUNT(distinct ACTIVITIES.OA_NODEMEMBER.MEMBERID) NUM_OF_USERS_FOLLOWING_ACTIVITY FROM ACTIVITIES.OA_NODEMEMBER INNER JOIN ACTIVITIES.OA_MEMBERPROFILE ON ACTIVITIES.OA_NODEMEMBER.MEMBERID = ACTIVITIES.OA_MEMBERPROFILE.MEMBERID;" & _
-         "SELECT COUNT(distinct ACTIVITIES.OA_NODE.CREATEDBY) NUM_OF_ACTIVITY_OWNERS FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity';" & _
-         "SELECT COUNT(*) NUM_OF_ACTIVITIES_CREATED_YESTERDAY FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity' AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" & _
-         "SELECT COUNT(*) NUM_OF_ACTIVITIES_FOLLOWED_YESTERDAY FROM ACTIVITIES.OA_NODEMEMBER WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY;" & _
-         "SELECT node.Name, 'Activity' as Type, node.CREATED, node.LASTMOD, mp.EXID, node.ACTIVITYUUID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = node.CREATEDBY WHERE node.ISDELETED = 0;" & _
-         "SELECT NODEUUID, NAME FROM ACTIVITIES.OA_TAG;" & _
+        Dim sql As String = "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END), 0) LOGINS_LAST_MONTH,COALESCE( SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGINS_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGINS_LAST_DAY FROM ACTIVITIES.OA_MEMBERPROFILE;" &
+         "SELECT COUNT(*) NUM_OF_ACTIVITIES FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity';" &
+         "SELECT COUNT(distinct ACTIVITIES.OA_NODEMEMBER.MEMBERID) NUM_OF_USERS_FOLLOWING_ACTIVITY FROM ACTIVITIES.OA_NODEMEMBER INNER JOIN ACTIVITIES.OA_MEMBERPROFILE ON ACTIVITIES.OA_NODEMEMBER.MEMBERID = ACTIVITIES.OA_MEMBERPROFILE.MEMBERID;" &
+         "SELECT COUNT(distinct ACTIVITIES.OA_NODE.CREATEDBY) NUM_OF_ACTIVITY_OWNERS FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity';" &
+         "SELECT COUNT(*) NUM_OF_ACTIVITIES_CREATED_YESTERDAY FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity' AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
+         "SELECT COUNT(*) NUM_OF_ACTIVITIES_FOLLOWED_YESTERDAY FROM ACTIVITIES.OA_NODEMEMBER WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
+         "SELECT node.Name, 'Activity' as Type, node.CREATED, node.LASTMOD, mp.EXID, node.ACTIVITYUUID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = node.CREATEDBY WHERE node.ISDELETED = 0;" &
+         "SELECT NODEUUID, NAME FROM ACTIVITIES.OA_TAG;" &
          "SELECT nm.NODEUUID, mp.EXID FROM ACTIVITIES.OA_NODEMEMBER nm INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = nm.MEMBERID;"
 
 
@@ -5750,7 +5750,7 @@ CleanUp:
                     Dim filterdefIbmConnectionsUsers As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.DeviceName.Equals(myServerName) And j.GUID.Equals(row("EXID").ToString()) And j.Type.Equals("Users"))
                     Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
                     'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).ToList()
-                    Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).FirstOrDefault()
+                    Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
                     'For Each s As VSNext.Mongo.Entities.IbmConnectionsUsers In serverList
                     Dim connectionsUserId As String = IbmConnectionsUsers.Id
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "parsing Activity Stats. UserId : " & connectionsUserId)
@@ -5806,15 +5806,21 @@ CleanUp:
 
                     Dim users As New List(Of String)
                     For Each userRow As DataRow In ds.Tables(8).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
-                        Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.GUID.Equals(userRow("EXID").ToString()) And j.DeviceId.Equals(myServerId) And j.Type.Equals("Users"))
-                        Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
-                        'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                        Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).FirstOrDefault()
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "parsing Activity Stats. objIbmConnectionsUsers.Name : " & objIbmConnectionsUsers.Id.ToString())
-                        If Not users.Contains(objIbmConnectionsUsers.Id) Then
-                            users.Add(objIbmConnectionsUsers.Id)
-                        End If
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "parsing Activity Stats. objIbmConnectionsUsers.Name---2 : " & objIbmConnectionsUsers.Id.ToString())
+                        Try
+
+
+                            Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.GUID.Equals(userRow("EXID").ToString()) And j.DeviceId.Equals(myServerId) And j.Type.Equals("Users"))
+                            Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
+                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                            Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).FirstOrDefault()
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "parsing Activity Stats. objIbmConnectionsUsers.Name : " & objIbmConnectionsUsers.Id.ToString())
+                            If Not users.Contains(objIbmConnectionsUsers.Id) Then
+                                users.Add(objIbmConnectionsUsers.Id)
+                            End If
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "parsing Activity Stats. objIbmConnectionsUsers.Name---2 : " & objIbmConnectionsUsers.Id.ToString())
+                        Catch ex As Exception
+
+                        End Try
                         'cmd = New SqlClient.SqlCommand()
                         'cmd.Connection = sqlConn
                         'cmd.CommandText = "INSERT INTO IbmConnectionsObjectUsers (ObjectId, UserId) VALUES((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @NodeGUID AND " & _
@@ -5854,26 +5860,26 @@ CleanUp:
 
     Public Sub GetBlogStats(ByRef myServer As MonitoredItems.IBMConnect)
 
-        Dim sql As String = "select count(*) Num_Of_Published_Blogs from BLOGS.WEBSITE;" & _
-         "select count(distinct WEBSITEID) Num_Of_Blogs_More_Than_One_Author from (select USERID, WEBSITEID FROM BLOGS.WEBLOGENTRY GROUP BY WEBSITEID,USERID) group by WEBSITEID having count(*) > 1;" & _
-         "select COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LOGINS_LAST_MONTH, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGINS_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGINS_LAST_DAY from BLOGS.ROLLERUSER;" & _
-         "select count(distinct USERID) Num_Of_Bloggers FROM BLOGS.WEBLOGENTRY;" & _
-         "select count(*) Num_Of_Comments FROM BLOGS.ROLLER_COMMENT;" & _
-         "select count(distinct NAME) Num_Of_Distinct_Blog_Tags FROM BLOGS.ROLLER_WEBSITETAG;" & _
-         "SELECT COUNT(DISTINCT NAME) Num_Of_Distinct_Entry_Tags FROM BLOGS.ROLLER_WEBLOGENTRYTAG;" & _
-         "SELECT COUNT(*) Num_Of_Notifications_Sent FROM BLOGS.ROLLER_NOTIFICATION ;" & _
-         "SELECT COUNT(*) Num_Of_Active_Blogs FROM (SELECT distinct WEBSITEID FROM BLOGS.WEBLOGENTRY WHERE (UPDATETIME > (CURRENT_TIMESTAMP - 3 MONTH)) GROUP BY WEBSITEID HAVING COUNT(*) >= 10);" & _
-         "SELECT COALESCE(SUM(CASE WHEN DATECREATED > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) Blogs_Created_LAST_MONTH, COALESCE(SUM(CASE WHEN DATECREATED > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) Blogs_Created_LAST_WEEK, COALESCE(SUM(CASE WHEN DATECREATED > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) Blogs_Created_LAST_DAY FROM BLOGS.WEBSITE WHERE DATECREATED > CURRENT_TIMESTAMP - 1 MONTH;" & _
-         "SELECT COALESCE(SUM(CASE WHEN PUBTIME > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) Entry_Created_LAST_MONTH, COALESCE(SUM(CASE WHEN PUBTIME > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) Entry_Created_LAST_WEEK, COALESCE(SUM(CASE WHEN PUBTIME > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) Entry_Created_LAST_DAY FROM BLOGS.WEBLOGENTRY WHERE PUBTIME > CURRENT_TIMESTAMP - 1 MONTH;" & _
-         "SELECT COALESCE(SUM(CASE WHEN POSTTIME > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) Comment_Created_LAST_MONTH, COALESCE(SUM(CASE WHEN POSTTIME > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) Comment_Created_LAST_WEEK, COALESCE(SUM(CASE WHEN POSTTIME > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) Comment_Created_LAST_DAY FROM BLOGS.ROLLER_COMMENT WHERE POSTTIME > CURRENT_TIMESTAMP - 1 MONTH;" & _
-         "select Name, count(*) Num_Of_Blog_Tags FROM BLOGS.ROLLER_WEBSITETAG group by Name order by count(*) desc fetch first 20 rows only;" & _
-         "SELECT Name, count(*) Num_Of_Entry_Tags FROM BLOGS.ROLLER_WEBLOGENTRYTAG group by Name order by count(*) desc fetch first 20 rows only;" & _
-         "SELECT COUNT(*) NUM_OF_BLOGS_CREATED_YESTERDAY FROM BLOGS.WEBSITE WHERE DATE(DATECREATED) = CURRENT_DATE - 1 DAY;" & _
-         "SELECT COUNT(*) NUM_OF_ENTRIES_CREATED_YESTERDAY FROM BLOGS.WEBLOGENTRY WHERE DATE(PUBTIME) = CURRENT_DATE - 1 DAY;" & _
-         "SELECT COUNT(*) NUM_OF_COMMENTS_CREATED_YESTERDAY FROM BLOGS.ROLLER_COMMENT WHERE DATE(POSTTIME) = CURRENT_DATE - 1 DAY;" & _
-         "SELECT COUNT(*) NUM_OF_NOTIFICATIONS_CREATED_YESTERDAY FROM BLOGS.ROLLER_NOTIFICATION WHERE DATE(TIME) = CURRENT_DATE - 1 DAY;" & _
-         "SELECT blog.ID, blog.NAME, 'Blog' as TYPE, blog.DATECREATED, blog.LASTMODIFIED, users.EXTID FROM BLOGS.WEBSITE blog INNER JOIN BLOGS.ROLLERUSER users ON blog.USERID = users.ID;" & _
-         "SELECT NAME, WEBSITEID FROM BLOGS.ROLLER_WEBSITETAG;" & _
+        Dim sql As String = "select count(*) Num_Of_Published_Blogs from BLOGS.WEBSITE;" &
+         "select count(distinct WEBSITEID) Num_Of_Blogs_More_Than_One_Author from (select USERID, WEBSITEID FROM BLOGS.WEBLOGENTRY GROUP BY WEBSITEID,USERID) group by WEBSITEID having count(*) > 1;" &
+         "select COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LOGINS_LAST_MONTH, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGINS_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGINS_LAST_DAY from BLOGS.ROLLERUSER;" &
+         "select count(distinct USERID) Num_Of_Bloggers FROM BLOGS.WEBLOGENTRY;" &
+         "select count(*) Num_Of_Comments FROM BLOGS.ROLLER_COMMENT;" &
+         "select count(distinct NAME) Num_Of_Distinct_Blog_Tags FROM BLOGS.ROLLER_WEBSITETAG;" &
+         "SELECT COUNT(DISTINCT NAME) Num_Of_Distinct_Entry_Tags FROM BLOGS.ROLLER_WEBLOGENTRYTAG;" &
+         "SELECT COUNT(*) Num_Of_Notifications_Sent FROM BLOGS.ROLLER_NOTIFICATION ;" &
+         "SELECT COUNT(*) Num_Of_Active_Blogs FROM (SELECT distinct WEBSITEID FROM BLOGS.WEBLOGENTRY WHERE (UPDATETIME > (CURRENT_TIMESTAMP - 3 MONTH)) GROUP BY WEBSITEID HAVING COUNT(*) >= 10);" &
+         "SELECT COALESCE(SUM(CASE WHEN DATECREATED > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) Blogs_Created_LAST_MONTH, COALESCE(SUM(CASE WHEN DATECREATED > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) Blogs_Created_LAST_WEEK, COALESCE(SUM(CASE WHEN DATECREATED > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) Blogs_Created_LAST_DAY FROM BLOGS.WEBSITE WHERE DATECREATED > CURRENT_TIMESTAMP - 1 MONTH;" &
+         "SELECT COALESCE(SUM(CASE WHEN PUBTIME > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) Entry_Created_LAST_MONTH, COALESCE(SUM(CASE WHEN PUBTIME > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) Entry_Created_LAST_WEEK, COALESCE(SUM(CASE WHEN PUBTIME > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) Entry_Created_LAST_DAY FROM BLOGS.WEBLOGENTRY WHERE PUBTIME > CURRENT_TIMESTAMP - 1 MONTH;" &
+         "SELECT COALESCE(SUM(CASE WHEN POSTTIME > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) Comment_Created_LAST_MONTH, COALESCE(SUM(CASE WHEN POSTTIME > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) Comment_Created_LAST_WEEK, COALESCE(SUM(CASE WHEN POSTTIME > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) Comment_Created_LAST_DAY FROM BLOGS.ROLLER_COMMENT WHERE POSTTIME > CURRENT_TIMESTAMP - 1 MONTH;" &
+         "select Name, count(*) Num_Of_Blog_Tags FROM BLOGS.ROLLER_WEBSITETAG group by Name order by count(*) desc fetch first 20 rows only;" &
+         "SELECT Name, count(*) Num_Of_Entry_Tags FROM BLOGS.ROLLER_WEBLOGENTRYTAG group by Name order by count(*) desc fetch first 20 rows only;" &
+         "SELECT COUNT(*) NUM_OF_BLOGS_CREATED_YESTERDAY FROM BLOGS.WEBSITE WHERE DATE(DATECREATED) = CURRENT_DATE - 1 DAY;" &
+         "SELECT COUNT(*) NUM_OF_ENTRIES_CREATED_YESTERDAY FROM BLOGS.WEBLOGENTRY WHERE DATE(PUBTIME) = CURRENT_DATE - 1 DAY;" &
+         "SELECT COUNT(*) NUM_OF_COMMENTS_CREATED_YESTERDAY FROM BLOGS.ROLLER_COMMENT WHERE DATE(POSTTIME) = CURRENT_DATE - 1 DAY;" &
+         "SELECT COUNT(*) NUM_OF_NOTIFICATIONS_CREATED_YESTERDAY FROM BLOGS.ROLLER_NOTIFICATION WHERE DATE(TIME) = CURRENT_DATE - 1 DAY;" &
+         "SELECT blog.ID, blog.NAME, 'Blog' as TYPE, blog.DATECREATED, blog.LASTMODIFIED, users.EXTID FROM BLOGS.WEBSITE blog INNER JOIN BLOGS.ROLLERUSER users ON blog.USERID = users.ID;" &
+         "SELECT NAME, WEBSITEID FROM BLOGS.ROLLER_WEBSITETAG;" &
          "SELECT entry.ID, entry.Title, 'Blog Entry' as TYPE, entry.PUBTIME, entry.UPDATETIME, users.EXTID, entry.WEBSITEID FROM BLOGS.WEBLOGENTRY entry INNER JOIN BLOGS.ROLLERUSER users ON entry.USERID = users.ID;"
 
 
@@ -5890,7 +5896,6 @@ CleanUp:
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
                 adapter.Fill(ds)
-
 
 
             Catch ex As Exception
@@ -5913,7 +5918,11 @@ CleanUp:
 
                 dict.Add("Num_Of_Published_Blogs", ds.Tables(0).Rows(0)("Num_Of_Published_Blogs"))
 
-                dict.Add("Num_Of_Blogs_More_Than_One_Author", ds.Tables(1).Rows(0)("Num_Of_Blogs_More_Than_One_Author"))
+                If ds.Tables(1).Rows.Count() > 0 Then
+                    dict.Add("Num_Of_Blogs_More_Than_One_Author", ds.Tables(1).Rows(0)("Num_Of_Blogs_More_Than_One_Author"))
+                Else
+                    dict.Add("Num_Of_Blogs_More_Than_One_Author", 0)
+                End If
 
                 dict.Add("BLOG_LOGINS_LAST_MONTH", ds.Tables(2).Rows(0)("LOGINS_LAST_MONTH"))
                 dict.Add("BLOG_LOGINS_LAST_WEEK", ds.Tables(2).Rows(0)("LOGINS_LAST_WEEK"))
@@ -6209,14 +6218,14 @@ CleanUp:
     End Sub
     Public Sub GetCommunityStats(ByRef myServer As MonitoredItems.IBMConnect)
 
-        Dim sql As String = "SELECT COMMUNITY_TYPE, COUNT(*) Num_Of_Communities FROM SNCOMM.COMMUNITY WHERE DELETE_STATE = 0 GROUP BY COMMUNITY_TYPE;" & _
-         "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_MONTH, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_DAY FROM SNCOMM.MEMBERPROFILE WHERE LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH;" & _
-         "SELECT COUNT(*) NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH FROM SNCOMM.COMMUNITY WHERE CREATED > CURRENT_TIMESTAMP - 1 MONTH AND DELETE_STATE = 0;" & _
-         "SELECT COUNT(*) TAG_COUNT, COUNT(DISTINCT NAME) DISTINCT_TAG_COUNT FROM SNCOMM.TAG;" & _
-         "SELECT COUNT(*) TOP_TAG_COUNT, NAME FROM SNCOMM.TAG GROUP BY NAME ORDER BY TOP_TAG_COUNT DESC FETCH FIRST 20 ROWS ONLY;" & _
-         "SELECT COUNT(*) NUM_OF_COMMUNITIES_CREATED_YESTERDAY FROM SNCOMM.COMMUNITY WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY AND DELETE_STATE = 0;" & _
-         "select c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY WHERE c.DELETE_STATE = 0;" & _
-         "Select mp.Display, mp.DIRECTORY_UUID, c.Name, (CASE WHEN m.Role = 1 THEN 'Owner' ELSE 'Member' END) MemberType from sncomm.community c inner join sncomm.member m on c.community_uuid = m.community_uuid and c.delete_state = 0 inner join sncomm.memberprofile mp on mp.member_uuid = m.member_uuid;" & _
+        Dim sql As String = "SELECT COMMUNITY_TYPE, COUNT(*) Num_Of_Communities FROM SNCOMM.COMMUNITY WHERE DELETE_STATE = 0 GROUP BY COMMUNITY_TYPE;" &
+         "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_MONTH, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_DAY FROM SNCOMM.MEMBERPROFILE WHERE LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH;" &
+         "SELECT COUNT(*) NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH FROM SNCOMM.COMMUNITY WHERE CREATED > CURRENT_TIMESTAMP - 1 MONTH AND DELETE_STATE = 0;" &
+         "SELECT COUNT(*) TAG_COUNT, COUNT(DISTINCT NAME) DISTINCT_TAG_COUNT FROM SNCOMM.TAG;" &
+         "SELECT COUNT(*) TOP_TAG_COUNT, NAME FROM SNCOMM.TAG GROUP BY NAME ORDER BY TOP_TAG_COUNT DESC FETCH FIRST 20 ROWS ONLY;" &
+         "SELECT COUNT(*) NUM_OF_COMMUNITIES_CREATED_YESTERDAY FROM SNCOMM.COMMUNITY WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY AND DELETE_STATE = 0;" &
+         "select c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY WHERE c.DELETE_STATE = 0;" &
+         "Select mp.Display, mp.DIRECTORY_UUID, c.Name, (CASE WHEN m.Role = 1 THEN 'Owner' ELSE 'Member' END) MemberType from sncomm.community c inner join sncomm.member m on c.community_uuid = m.community_uuid and c.delete_state = 0 inner join sncomm.memberprofile mp on mp.member_uuid = m.member_uuid;" &
          "SELECT r.REF_UUID, r.COMMUNITY_UUID, r.NAME, 'Bookmark' as Type,  r.CREATED, r.LASTMOD, mp.DIRECTORY_UUID FROM SNCOMM.REF r INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = r.CREATED_BY;"
 
 
@@ -6372,7 +6381,7 @@ CleanUp:
                     Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
                     Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
                     'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                    Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).FirstOrDefault()
+                    Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
                     Dim userId2 As String = sxs.Id
 
                     Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
@@ -6427,14 +6436,14 @@ CleanUp:
                         Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
                         Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
                         'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                        Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).FirstOrDefault()
+                        Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
                         Dim userId3 As String = sxs3.Id
 
 
                         Dim filterdefIbmConnectionsObjects3 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
                         Dim projectDefIbmConnectionsObjects3 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
                         'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                        Dim sxs4 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).FirstOrDefault()
+                        Dim sxs4 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
                         Dim id3 As String = sxs4.Id
 
                         Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
@@ -6497,7 +6506,7 @@ CleanUp:
                     End Try
 
 
-                    Dim commUsers As List(Of String) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).FirstOrDefault().users
+                    Dim commUsers As List(Of String) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First().users
                     If commUsers Is Nothing Then
                         commUsers = New List(Of String)
                     End If
@@ -6551,21 +6560,21 @@ CleanUp:
 
     Public Sub GetFileStats(ByRef myServer As MonitoredItems.IBMConnect)
 
-        Dim sql As String = "SELECT COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LOGIN_LAST_MONTH, COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGIN_LAST_WEEK, COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGIN_LAST_DAY FROM FILES.USER WHERE LAST_VISIT > CURRENT_TIMESTAMP - 1 MONTH;" & _
-         "SELECT COUNT(*) TOTAL_NUM_OF_FILES, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024 AND FILE_SIZE < 1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_KB, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024*1024 AND FILE_SIZE < 1024*1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_MB, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024*1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_GB FROM FILES.MEDIA;" & _
-         "select COUNT(*) NUM_OF_USERS_WITH_NO_FILES FROM FILES.USER WHERE ID NOT IN (SELECT OWNER_USER_ID FROM FILES.MEDIA);" & _
-         "SELECT FILES.USER.NAME, SUM(FILES.MEDIA.FILE_SIZE) FILE_SIZE FROM FILES.MEDIA INNER JOIN FILES.USER ON FILES.USER.ID = FILES.MEDIA.OWNER_USER_ID GROUP BY FILES.USER.NAME;" & _
-         "SELECT COUNT(*) NUM_OF_FILES_IN_TRASH FROM FILES.R_MEDIA;" & _
-         "SELECT COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_MONTH, COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_WEEK, COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_DAY FROM FILES.MEDIA WHERE LAST_UPDATE > CURRENT_TIMESTAMP - 1 MONTH;" & _
-         "SELECT CASE VISIBILITY_COMPUTED WHEN '1' THEN 'Everyone' WHEN '2' THEN 'OnlyMe' WHEN '3' THEN 'Shared' END SHAREDWITH , COUNT(*) COUNT  FROM FILES.MEDIA GROUP BY VISIBILITY_COMPUTED;" & _
-         "SELECT COUNT(*) NUM_OF_FILES_WITH_A_REVISION FROM (SELECT MEDIA_ID FROM FILES.MEDIA_REVISION GROUP BY MEDIA_ID HAVING COUNT(*) > 1);" & _
-         "SELECT COUNT(DISTINCT MEDIA_ID) FILES_WITH_COMMENTS FROM FILES.MEDIA_COMMENT;" & _
-         "SELECT COUNT(DISTINCT MEDIA_ID) FILES_WITH_SHARES FROM FILES.MEDIA_SHARE;" & _
-         "SELECT COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_MONTH, COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_WEEK, COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_DAY FROM FILES.MEDIA_DOWNLOAD WHERE DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 MONTH;" & _
-         "SELECT COUNT(*) TOTAL_NUM_OF_TAGS FROM FILES.MEDIA_TO_TAG;" & _
-         "SELECT COUNT(*) NUM_OF_FILES_CREATED_YESTERDAY FROM FILES.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" & _
-         "SELECT COUNT(*) NUM_OF_FILES_UPDATED_YESTERDAY FROM FILES.MEDIA WHERE DATE(LAST_UPDATE) = CURRENT_DATE - 1 DAY;" & _
-         "SELECT COUNT(*) NUM_OF_FILES_DOWNLOADED_YESTERDAY FROM FILES.MEDIA_DOWNLOAD WHERE DATE(DOWNLOADED_AT) = CURRENT_DATE - 1 DAY;" & _
+        Dim sql As String = "SELECT COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LOGIN_LAST_MONTH, COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGIN_LAST_WEEK, COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGIN_LAST_DAY FROM FILES.USER WHERE LAST_VISIT > CURRENT_TIMESTAMP - 1 MONTH;" &
+         "SELECT COUNT(*) TOTAL_NUM_OF_FILES, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024 AND FILE_SIZE < 1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_KB, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024*1024 AND FILE_SIZE < 1024*1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_MB, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024*1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_GB FROM FILES.MEDIA;" &
+         "select COUNT(*) NUM_OF_USERS_WITH_NO_FILES FROM FILES.USER WHERE ID NOT IN (SELECT OWNER_USER_ID FROM FILES.MEDIA);" &
+         "SELECT FILES.USER.NAME, SUM(FILES.MEDIA.FILE_SIZE) FILE_SIZE FROM FILES.MEDIA INNER JOIN FILES.USER ON FILES.USER.ID = FILES.MEDIA.OWNER_USER_ID GROUP BY FILES.USER.NAME;" &
+         "SELECT COUNT(*) NUM_OF_FILES_IN_TRASH FROM FILES.R_MEDIA;" &
+         "SELECT COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_MONTH, COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_WEEK, COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_DAY FROM FILES.MEDIA WHERE LAST_UPDATE > CURRENT_TIMESTAMP - 1 MONTH;" &
+         "SELECT CASE VISIBILITY_COMPUTED WHEN '1' THEN 'Everyone' WHEN '2' THEN 'OnlyMe' WHEN '3' THEN 'Shared' END SHAREDWITH , COUNT(*) COUNT  FROM FILES.MEDIA GROUP BY VISIBILITY_COMPUTED;" &
+         "SELECT COUNT(*) NUM_OF_FILES_WITH_A_REVISION FROM (SELECT MEDIA_ID FROM FILES.MEDIA_REVISION GROUP BY MEDIA_ID HAVING COUNT(*) > 1);" &
+         "SELECT COUNT(DISTINCT MEDIA_ID) FILES_WITH_COMMENTS FROM FILES.MEDIA_COMMENT;" &
+         "SELECT COUNT(DISTINCT MEDIA_ID) FILES_WITH_SHARES FROM FILES.MEDIA_SHARE;" &
+         "SELECT COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_MONTH, COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_WEEK, COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_DAY FROM FILES.MEDIA_DOWNLOAD WHERE DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 MONTH;" &
+         "SELECT COUNT(*) TOTAL_NUM_OF_TAGS FROM FILES.MEDIA_TO_TAG;" &
+         "SELECT COUNT(*) NUM_OF_FILES_CREATED_YESTERDAY FROM FILES.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
+         "SELECT COUNT(*) NUM_OF_FILES_UPDATED_YESTERDAY FROM FILES.MEDIA WHERE DATE(LAST_UPDATE) = CURRENT_DATE - 1 DAY;" &
+         "SELECT COUNT(*) NUM_OF_FILES_DOWNLOADED_YESTERDAY FROM FILES.MEDIA_DOWNLOAD WHERE DATE(DOWNLOADED_AT) = CURRENT_DATE - 1 DAY;" &
          "SELECT COUNT(*) NUM_OF_FILES_REVISIONED_YESTERDAY FROM FILES.MEDIA_REVISION WHERE DATE(LAST_UPDATE) = CURRENT_DATE - 1 DAY;"
 
 
@@ -6690,10 +6699,10 @@ CleanUp:
 
     Public Sub GetBookmarksStats(ByRef myServer As MonitoredItems.IBMConnect)
 
-        Dim sql As String = "SELECT COUNT(*) NUM_OF_BOOKMARKS_BOOKMARKS FROM DOGEAR.LINK WHERE DELETED = 0;" & _
-            "SELECT COUNT(*) NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY FROM DOGEAR.LINK WHERE DELETED = 0 AND DATE(DATE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(DISTINCT URL) NUM_OF_DISTINCT_BOOKMARK_URLS FROM DOGEAR.URL WHERE LINKCOUNT > 0;" & _
-            "SELECT url.LINK_ID, url.TITLE, 'Bookmark' as TYPE, url.DATE, url.MODIFIED, users.MEMBER_ID FROM DOGEAR.LINK url INNER JOIN DOGEAR.PERSON users ON users.PERSON_ID = url.PERSON WHERE url.DELETED = 0;" & _
+        Dim sql As String = "SELECT COUNT(*) NUM_OF_BOOKMARKS_BOOKMARKS FROM DOGEAR.LINK WHERE DELETED = 0;" &
+            "SELECT COUNT(*) NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY FROM DOGEAR.LINK WHERE DELETED = 0 AND DATE(DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(DISTINCT URL) NUM_OF_DISTINCT_BOOKMARK_URLS FROM DOGEAR.URL WHERE LINKCOUNT > 0;" &
+            "SELECT url.LINK_ID, url.TITLE, 'Bookmark' as TYPE, url.DATE, url.MODIFIED, users.MEMBER_ID FROM DOGEAR.LINK url INNER JOIN DOGEAR.PERSON users ON users.PERSON_ID = url.PERSON WHERE url.DELETED = 0;" &
             "SELECT TAG, LINK_ID FROM DOGEAR.TAGS WHERE LINK_ID IN ( SELECT LINK_ID FROM DOGEAR.LINK WHERE DELETED = 0 );"
 
         Dim Category As String = "Bookmark"
@@ -6837,11 +6846,11 @@ CleanUp:
 
     Public Sub GetForumStats(ByRef myServer As MonitoredItems.IBMConnect)
 
-        Dim sql As String = "SELECT COUNT(*) NUM_OF_FORUMS_FORUMS FROM FORUM.DF_NODE WHERE NODETYPE = 'application/forum' AND NODEALIAS <> 'community' AND STATE = 0;" & _
-            "SELECT COUNT(*) NUM_OF_FORUMS_TOPICS FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/topic' AND NODEALIAS <> 'community' AND STATE = 0;" & _
-            "SELECT COUNT(*) NUM_OF_FORUMS_REPLIES FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/reply' AND NODEALIAS <> 'community' AND STATE = 0;" & _
-            "SELECT COUNT(*) NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'application/forum' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(*) NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/topic' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" & _
+        Dim sql As String = "SELECT COUNT(*) NUM_OF_FORUMS_FORUMS FROM FORUM.DF_NODE WHERE NODETYPE = 'application/forum' AND NODEALIAS <> 'community' AND STATE = 0;" &
+            "SELECT COUNT(*) NUM_OF_FORUMS_TOPICS FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/topic' AND NODEALIAS <> 'community' AND STATE = 0;" &
+            "SELECT COUNT(*) NUM_OF_FORUMS_REPLIES FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/reply' AND NODEALIAS <> 'community' AND STATE = 0;" &
+            "SELECT COUNT(*) NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'application/forum' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/topic' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/reply' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;"
 
         Try
@@ -7088,14 +7097,14 @@ CleanUp:
 
     Public Sub GetWikiStats(ByRef myServer As MonitoredItems.IBMConnect)
 
-        Dim sql As String = "SELECT COUNT(*) NUM_OF_WIKIS_WIKIS FROM WIKIS.LIBRARY;" & _
-            "SELECT COUNT(*) NUM_OF_WIKIS_WIKIS_CREATED_YESTERDAY FROM WIKIS.LIBRARY WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(*) NUM_OF_WIKIS_PAGES FROM WIKIS.MEDIA;" & _
-            "SELECT COUNT(*) NUM_OF_WIKIS_PAGES_CREATED_YESTERDAY FROM WIKIS.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS FROM WIKIS.MEDIA_REVISION;" & _
-            "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY FROM WIKIS.MEDIA_REVISION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID;" & _
-            "SELECT HEX(lib.LIBRARY_ID) as LIBRARY_ID, tag.TAG FROM WIKIS.LIBRARY_TO_TAG lib INNER JOIN WIKIS.TAG tag ON tag.ID = lib.TAG_ID;" & _
+        Dim sql As String = "SELECT COUNT(*) NUM_OF_WIKIS_WIKIS FROM WIKIS.LIBRARY;" &
+            "SELECT COUNT(*) NUM_OF_WIKIS_WIKIS_CREATED_YESTERDAY FROM WIKIS.LIBRARY WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) NUM_OF_WIKIS_PAGES FROM WIKIS.MEDIA;" &
+            "SELECT COUNT(*) NUM_OF_WIKIS_PAGES_CREATED_YESTERDAY FROM WIKIS.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS FROM WIKIS.MEDIA_REVISION;" &
+            "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY FROM WIKIS.MEDIA_REVISION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID;" &
+            "SELECT HEX(lib.LIBRARY_ID) as LIBRARY_ID, tag.TAG FROM WIKIS.LIBRARY_TO_TAG lib INNER JOIN WIKIS.TAG tag ON tag.ID = lib.TAG_ID;" &
             "SELECT HEX(media.ID) as ID, media.LABEL, 'Wiki Entry' as TYPE, media.CREATE_DATE, media.LAST_UPDATE, user.DIRECTORY_ID, HEX(media.LIBRARY_ID) as LIBRARY_ID FROM WIKIS.MEDIA media INNER JOIN WIKIS.USER user ON user.ID = media.OWNER_USER_ID;"
 
 
@@ -7206,14 +7215,14 @@ CleanUp:
                     Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(HexToGUID(tagRow("LIBRARY_ID").ToString())) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Wiki"))
                     Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
                     Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.tags)
-                    Dim IbmConnectionsObjects As VSNext.Mongo.Entities.IbmConnectionsObjects = repo.Find(filterdef, projectDef).FirstOrDefault()
+                    Dim IbmConnectionsObjects As VSNext.Mongo.Entities.IbmConnectionsObjects = repo.Find(filterdef, projectDef).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
                     Dim tags As List(Of String) = IbmConnectionsObjects.tags
                     'tags = IbmConnectionsObjects.tags
                     If tags Is Nothing Then
                         tags = New List(Of String)
                     End If
 
-                   If Not tags.Contains(tagRow("TAG").ToString()) Then
+                    If Not tags.Contains(tagRow("TAG").ToString()) Then
                         tags.Add(tagRow("TAG").ToString())
                     End If
 
@@ -7289,20 +7298,20 @@ CleanUp:
 
     Public Sub GetProfileStats(ByRef myServer As MonitoredItems.IBMConnect)
 
-        Dim sql As String = "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY NOT IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_NOT_RECENTLY_UPDATED FROM EMPINST.EMPLOYEE WHERE PROF_LAST_UPDATE > CURRENT_DATE - 90 DAYS;" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_PRONUNCIATION FROM EMPINST.EMPLOYEE WHERE PROF_KEY NOT IN (SELECT PROF_KEY FROM EMPINST.PRONUNCIATION); " & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_MANAGERS FROM EMPINST.EMPLOYEE WHERE PROF_UID IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE);" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID NOT IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE) OR PROF_MANAGER_UID IS NULL;" & _
-            "SELECT COUNT(DISTINCT PROF_UID) NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY FROM (SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NULL AND PROF_UID NOT IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NOT NULL));" & _
-            "SELECT COUNT(DISTINCT PROF_UID) NUM_OF_PROFILES_WITH_JOB_HIERARCHY FROM (SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NOT NULL UNION SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_UID IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE));" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_JOB_TITLE FROM EMPINST.EMPLOYEE WHERE PROF_JOB_RESPONSIBILITIES IS NULL;" & _
-            "SELECT AVG(DAYS(CURRENT_DATE) - DAYS(PROF_LAST_UPDATE)) PROFILES_AVERAGE_DAYS_SINCE_EDIT FROM EMPINST.EMPLOYEE;" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_EDITED_YESTERDAY FROM EMPINST.EMPLOYEE WHERE DATE(PROF_LAST_UPDATE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE FROM EMPINST.EMPLOYEE;" & _
-            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" & _
+        Dim sql As String = "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY NOT IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_NOT_RECENTLY_UPDATED FROM EMPINST.EMPLOYEE WHERE PROF_LAST_UPDATE > CURRENT_DATE - 90 DAYS;" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_PRONUNCIATION FROM EMPINST.EMPLOYEE WHERE PROF_KEY NOT IN (SELECT PROF_KEY FROM EMPINST.PRONUNCIATION); " &
+            "SELECT COUNT(*) NUM_OF_PROFILES_MANAGERS FROM EMPINST.EMPLOYEE WHERE PROF_UID IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE);" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID NOT IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE) OR PROF_MANAGER_UID IS NULL;" &
+            "SELECT COUNT(DISTINCT PROF_UID) NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY FROM (SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NULL AND PROF_UID NOT IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NOT NULL));" &
+            "SELECT COUNT(DISTINCT PROF_UID) NUM_OF_PROFILES_WITH_JOB_HIERARCHY FROM (SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IS NOT NULL UNION SELECT PROF_UID FROM EMPINST.EMPLOYEE WHERE PROF_UID IN (SELECT PROF_MANAGER_UID FROM EMPINST.EMPLOYEE));" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_JOB_TITLE FROM EMPINST.EMPLOYEE WHERE PROF_JOB_RESPONSIBILITIES IS NULL;" &
+            "SELECT AVG(DAYS(CURRENT_DATE) - DAYS(PROF_LAST_UPDATE)) PROFILES_AVERAGE_DAYS_SINCE_EDIT FROM EMPINST.EMPLOYEE;" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_EDITED_YESTERDAY FROM EMPINST.EMPLOYEE WHERE DATE(PROF_LAST_UPDATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" &
+            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE FROM EMPINST.EMPLOYEE;" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" &
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);"
 
 
@@ -7445,6 +7454,111 @@ CleanUp:
         End Try
 
     End Sub
+
+    Public Sub GetLibraryStats(ByRef myServer As MonitoredItems.IBMConnect)
+
+        Dim sql As String = "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_FILES, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024 AND CONTENT_SIZE < 1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_KB, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024*1024 AND CONTENT_SIZE < 1024*1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_MB, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024*1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_GB FROM DOCVERSION WHERE RECOVERY_ITEM_ID IS NULL AND IS_CURRENT = 1;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_IN_TRASH FROM RECOVERYITEM;" &
+            "SELECT COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH, COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK, COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY FROM DOCVERSION WHERE MODIFY_DATE > CURRENT_TIMESTAMP - 1 MONTH AND RECOVERY_ITEM_ID IS NULL AND IS_CURRENT = 1;" &
+            "SELECT COUNT(DISTINCT VERSION_SERIES_ID) LIBRARIES_NUM_OF_FILES_WITH_A_REVISION FROM DOCVERSION WHERE RECOVERY_ITEM_ID IS NULL GROUP BY VERSION_SERIES_ID HAVING COUNT(VERSION_SERIES_ID) > 1;" &
+            "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_TAGS FROM UT_CLBTAG;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY FROM DOCVERSION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY AND MAJOR_VERSION_NUMBER = 1;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY FROM DOCVERSION a INNER JOIN (SELECT VERSION_SERIES_ID, MAX(MAJOR_VERSION_NUMBER) MAJOR_NUMBER FROM DOCVERSION GROUP BY VERSION_SERIES_ID) AS b ON a.VERSION_SERIES_ID = b.VERSION_SERIES_ID AND b.MAJOR_NUMBER = a.MAJOR_VERSION_NUMBER WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY FROM UT_CLBDOWNLOADRECORD WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY FROM DOCVERSION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY AND MAJOR_VERSION_NUMBER != 1;" &
+            "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_LIBRARIES FROM CONTAINER;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY FROM CONTAINER WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY FROM CONTAINER WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;"
+
+
+        Dim Category As String = "Library"
+
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+
+                con = New IBM.Data.DB2.DB2Connection("Database=FNOS;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & "")
+                con.Open()
+
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                adapter.Fill(ds)
+
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Library Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+
+
+            Dim dict As New Dictionary(Of String, String)
+            Try
+                Dim adapter As New VSAdaptor()
+
+                dict.Add("LIBRARIES_TOTAL_NUM_OF_FILES", ds.Tables(0).Rows(0)("LIBRARIES_TOTAL_NUM_OF_FILES"))
+                dict.Add("LIBRARIES_FILES_OVER_KB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_KB"))
+                dict.Add("LIBRARIES_FILES_OVER_MB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_MB"))
+                dict.Add("LIBRARIES_FILES_OVER_GB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_GB"))
+
+                dict.Add("LIBRARIES_NUM_OF_FILES_IN_TRASH", ds.Tables(1).Rows(0)("LIBRARIES_NUM_OF_FILES_IN_TRASH"))
+
+                dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH"))
+                dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK"))
+                dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY"))
+
+                dict.Add("LIBRARIES_NUM_OF_FILES_WITH_A_REVISION", ds.Tables(3).Rows(0)("LIBRARIES_NUM_OF_FILES_WITH_A_REVISION"))
+
+                dict.Add("LIBRARIES_TOTAL_NUM_OF_TAGS", ds.Tables(4).Rows(0)("LIBRARIES_TOTAL_NUM_OF_TAGS"))
+
+                dict.Add("LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY"))
+
+                dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY", ds.Tables(6).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY"))
+
+                dict.Add("LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY", ds.Tables(7).Rows(0)("LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY"))
+
+                dict.Add("LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY", ds.Tables(8).Rows(0)("LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY"))
+
+                dict.Add("LIBRARIES_TOTAL_NUM_OF_LIBRARIES", ds.Tables(9).Rows(0)("LIBRARIES_TOTAL_NUM_OF_LIBRARIES"))
+
+                dict.Add("LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY", ds.Tables(10).Rows(0)("LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY"))
+
+                dict.Add("LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY", ds.Tables(11).Rows(0)("LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY"))
+
+                For Each key In dict.Keys
+                    Dim Name As String = key
+                    Dim Val As String = dict(key)
+
+                    If String.Equals(myServer.IPAddress, "https://connections-as.jnittech.com:9444", StringComparison.CurrentCultureIgnoreCase) Then
+                        If key = "NUM_OF_BLOGS_BLOGS_CREATED_YESTERDAY" Or key = "NUM_OF_BLOGS_ENTRIES_CREATED_YESTERDAY" Or key = "NUM_OF_BLOGS_COMMENTS_CREATED_YESTERDAY" Or key = "NUM_OF_BLOGS_NOTIFICATIONS_CREATED_YESTERDAY" Then
+                            Val = Int(20 * Rnd()) + 1
+                        End If
+                    End If
+                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                Next
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Library Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetLibraryStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+
     Private Function getObjectId(serverName As String) As String
         Dim id As String = ""
         Try

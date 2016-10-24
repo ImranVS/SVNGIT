@@ -2931,7 +2931,8 @@ Partial Public Class VitalSignsPlusCore
                                                                                  .Set(Function(x) x.JvmMonitoredCount, listOfServers.Where(Function(x) x.IsEnabled).Count)
 
             filterDef = repository.Filter.Eq(Function(x) x.DeviceName, MyWebSphereServer.NodeName) _
-                And repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription())
+                And repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription()) _
+                And repository.Filter.Eq(Function(x) x.DeviceId, MyWebSphereServer.NodeID)
 
             repository.Upsert(filterDef, updateDef)
 
@@ -3013,8 +3014,9 @@ Partial Public Class VitalSignsPlusCore
                                                                                  .Set(Function(x) x.JvmCount, listOfStatus.Sum(Function(x) x.JvmCount)) _
                                                                                  .Set(Function(x) x.JvmMonitoredCount, listOfStatus.Sum(Function(x) x.JvmMonitoredCount))
 
-            filterDef = repository.Filter.Eq(Function(x) x.DeviceName, MyWebSphereServer.NodeName) _
-                And repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription())
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceName, MyWebSphereServer.CellName) _
+                And repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription()) _
+                And repository.Filter.Eq(Function(x) x.DeviceId, MyWebSphereServer.CellID)
 
             repository.Upsert(filterDef, updateDef)
 

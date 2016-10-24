@@ -2784,7 +2784,7 @@ Partial Public Class VitalSignsPlusCore
                         End Try
 
                         Try
-                            cell = listOfNodes.Where(Function(x) x.Id.Equals(entity.CellId)).ToList()(0)
+                            cell = listOfCells.Where(Function(x) x.Id.Equals(entity.CellId)).ToList()(0)
                         Catch ex As Exception
 
                         End Try
