@@ -1,134 +1,103 @@
-﻿import {Component, OnInit, AfterViewInit, ViewChild,Output, EventEmitter} from '@angular/core';
+﻿import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
-import {Router, ActivatedRoute} from '@angular/router';
-import {HttpModule}    from '@angular/http';
-import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
-import {DiskSttingsValue} from '../../models/server-disk-settings';
-
+import {Router, ActivatedRoute} from '@angular/router';
 @Component({
     selector: 'servder-form',
-    templateUrl: '/app/configurator/components/server/server-advanced-settings.component.html',
-    providers: [
-        HttpModule,
-        RESTService
-    ]
+    templateUrl: '/app/configurator/components/server/server-advanced-settings.component.html'
+
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
-export class  ServerAdvancedSettings  implements OnInit {
-    
-    data: wijmo.collections.CollectionView;
-    errorMessage: any;
-    deviceLocationData: any;
+export class ServerAdvancedSettings implements OnInit{
+    advancedSettingsForm: FormGroup;
+    errorMessage: string;
+    deviceId: any;
     deviceCredentialData: any;
-    devicebusinessHourData: any;
-    diskSettingsForm: FormGroup;
-    selectedDiskSetting: any;
-    selectedDiskSettingValue: any;
-    devices: string;
-    diskByPercentage: string;
-    diskByGB: string;
-    selectedDisks: string;
-    noDiskAlerts: string;
-    postData: any;
-    diskValues: any;
-    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
-
-    constructor(    
+   // selectedCredential: string;
+    selectedTpe: string;
+    deviceType: any;
+    selectedIbmDb2Credential: string;
+    selectedCredential: string;
+    constructor(
+        private formBuilder: FormBuilder,
         private dataProvider: RESTService,
-        private formBuilder: FormBuilder) {
-       
-        this.dataProvider.get('/Configurator/get_disk_names')
-            .subscribe(
-            response => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                this.data.pageSize = 10;
+        private route: ActivatedRoute
+    ) {
 
-            }); 
-      
-        this.diskSettingsForm = this.formBuilder.group({
-            'setting': [''],
-            'value': [''],
-            'devices': ['']
-
+        this.advancedSettingsForm = this.formBuilder.group({
+            'memory_threshold':  [''],
+            'cpu_threshold': [''],
+            'server_days_alert': [''],
+            'cluster_replication_delay_threshold': [''],
+            'proxy_server_type': [''],
+            'proxy_server_protocol': [''],
+            'dbms_host_name': [''],
+            'dbms_name': [''],
+            'dbms_port':[''],
+            'collect_extended_statistics': [''],
+            'collect_meeting_statistics': [''],
+            'extended_statistics_port': [''],
+            'meeting_port': [''],
+            'meeting_host_name': [''],
+            'meeting_require_ssl': [''],
+            'conference_host_name': [''],
+            'conference_port': [''],
+            'conference_require_ssl': [''],
+            'database_settings_host_name': [''],
+            'database_settings_credentials_id': [''],
+            'database_settings_port': [''],
+            'device_type': ['']
 
         });
-   }
+
+      
+    }
 
     ngOnInit() {
-        alert("hi");
+
+        this.route.params.subscribe(params => {
+            this.deviceId = params['service'];
+
+        });
+        this.dataProvider.get('/Configurator/get_advanced_settings/' + this.deviceId)
+            .subscribe(
+            (response) => {
+                console.log(response.data);
+
+                this.advancedSettingsForm.setValue(response.data); 
+                this.deviceType = response.data.device_type;
+                console.log(this.deviceType);
+            },
+            
+            (error) => this.errorMessage = <any>error
+
+            );
+       // this.selectedTpe = this.advancedSettingsForm.memory_threshold;
+
+        this.dataProvider.get('/Configurator/get_server_credentials_businesshours')
+            .subscribe(
+            (response) => {
+
+                this.deviceCredentialData = response.data.credentialsData;
+
+            },
+            (error) => this.errorMessage = <any>error
+            );
+       // alert(this.deviceId);
     }
-    
-    applySetting(nameValue: any): void{
-       // alert(this.flex);
-       
-        if (this.selectedDiskSetting == "allDisksBypercentage")
-        {
-          //  alert(this.diskByPercentage);
-            this.selectedDiskSettingValue = this.diskByPercentage;
-        }
-        else if (this.selectedDiskSetting == "allDisksByGB")
-            this.selectedDiskSettingValue = this.diskByGB;
-        else if (this.selectedDiskSetting == "selectedDisks")
-        {
-            this.selectedDiskSettingValue = this.selectedDisks;
-            var slectedDiskSettingValues: DiskSttingsValue[] = [];
-            for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
 
-                var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+    onSubmit(advancedSettings: any): void {
 
-                if (item.is_selected) {
-
-                    var dominoserverObject = new DiskSttingsValue();
-                    dominoserverObject.is_selected = item.is_selected;
-                    dominoserverObject.disk_name = item.disk_name;
-                    dominoserverObject.freespace_threshold = item.freespace_threshold;
-                    dominoserverObject.threshold_type = item.threshold_type;
-
-                    slectedDiskSettingValues.push(dominoserverObject);
-                }
-
-            }
-            this.diskValues = slectedDiskSettingValues;
-        }
-        else if (this.selectedDiskSetting == "noDiskAlerts")
-            this.selectedDiskSettingValue = this.noDiskAlerts;  
-        if (this.selectedDiskSetting == "selectedDisks")
-        {
-
-            this.postData = {
-                "setting": this.selectedDiskSetting,
-                "value": this.diskValues,
-                "devices": this.devices
-            };
-        }
-        else {
-            this.postData = {
-                "setting": this.selectedDiskSetting,
-                "value": this.selectedDiskSettingValue,
-                "devices": this.devices
-            };
-        }
-      
-        this.diskSettingsForm.setValue(this.postData);
-        this.dataProvider.put('/Configurator/save_disk_settings', this.postData)
+        this.dataProvider.put('/Configurator/save_advanced_settings/' + this.deviceId, advancedSettings)
             .subscribe(
             response => {
 
             });
+
+
+
     }
-    changeInDevices(server: string) {
-        this.devices = server;
-    }
-    get pageSize(): number {
-        return this.data.pageSize;
-    }
-    set pageSize(value: number) {
-        if (this.data.pageSize != value) {
-            this.data.pageSize = value;
-            if (this.flex) {
-                (<wijmo.collections.IPagedCollectionView>this.flex.collectionView).pageSize = value;
-            }
-        }
-    }
+
+  
+   
 }
