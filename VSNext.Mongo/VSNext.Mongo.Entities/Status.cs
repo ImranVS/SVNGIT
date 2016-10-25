@@ -256,7 +256,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("disks")]
         [BsonIgnoreIfNull]
-        public List<Disk> Disks { get; set; }
+        public List<DiskStatus> Disks { get; set; }
 
         [DataMember]
         [BsonElement("domino_version")]
@@ -1360,9 +1360,9 @@ namespace VSNext.Mongo.Entities
 
 
 
-    public class Disk
+    public class DiskStatus
     {
-        public Disk()
+        public DiskStatus()
         {
             System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
             foreach (var property in props)
@@ -1395,11 +1395,6 @@ namespace VSNext.Mongo.Entities
         [BsonElement("average_queue_length")]
         [BsonIgnoreIfNullAttribute]
         public double? AverageQueueLength { get; set; }
-
-        [DataMember]
-        [BsonElement("disk_threshold")]
-        [BsonIgnoreIfNullAttribute]
-        public double? DiskThreshold { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]

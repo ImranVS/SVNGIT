@@ -128,10 +128,10 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string CredentialsId { get; set; }
 
-        //[DataMember]
-        //[BsonElement("disk_info")]
-        //[BsonIgnoreIfNull]
-        //public List<Disk> DiskInfo { get; set; }
+        [DataMember]
+        [BsonElement("disk_info")]
+        [BsonIgnoreIfNull]
+        public List<DiskSetting> DiskInfo { get; set; }
 
         [DataMember]
         [BsonElement("server_roles")]
@@ -1230,6 +1230,33 @@ namespace VSNext.Mongo.Entities
         public string Name { get; set; }
         public string Value { get; set; }
 
+    }
+
+    public class DiskSetting
+    {
+        public DiskSetting()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("disk_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string DiskName { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("threshold")]
+        public double? Threshold { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("threshold_type")]
+        public string ThresholdType { get; set; }
     }
 
 }

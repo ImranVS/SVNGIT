@@ -4210,13 +4210,13 @@ SkipTask:
         'End If
 
         'First, figure out which disks the user wants to monitor
-        Dim listOfDisks As List(Of VSNext.Mongo.Entities.Disk)
+        Dim listOfDisks As List(Of VSNext.Mongo.Entities.DiskSetting)
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
             Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.ObjectId, MongoDB.Bson.ObjectId.Parse(MyDominoServer.ServerObjectID))
             listOfDisks = repository.Find(filterDef)(0).DiskInfo
         Catch ex As Exception
-            listOfDisks = New List(Of VSNext.Mongo.Entities.Disk)()
+            listOfDisks = New List(Of VSNext.Mongo.Entities.DiskSetting)()
         End Try
 
         Dim boolAllDrives As Boolean = False
@@ -4235,7 +4235,7 @@ SkipTask:
         End Try
 
         Try
-            For Each disk As VSNext.Mongo.Entities.Disk In listOfDisks
+            For Each disk As VSNext.Mongo.Entities.DiskSetting In listOfDisks
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Set to monitor " & disk.DiskName & " for " & disk.Threshold & " " & disk.ThresholdType)
                 If disk.DiskName = "AllDisks" Then
                     boolAllDrives = True
@@ -4646,7 +4646,7 @@ skipdrive:
 
                 'Check to see if this drive has a specific threshold set for it
                 Try
-                    For Each disk As VSNext.Mongo.Entities.Disk In listOfDisks
+                    For Each disk As VSNext.Mongo.Entities.DiskSetting In listOfDisks
                         Dim myThreshold As Integer = disk.Threshold
                         If myDiskDrive.DiskName = disk.DiskName And boolNoAlerts = False And boolAllDrives = False And disk.Threshold <> 0 Then
                             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Set to monitor " & disk.DiskName & " with a threshold of " & disk.Threshold & " " & disk.ThresholdType)
@@ -4798,7 +4798,7 @@ skipdrive2:
 
 
         If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " ********* Disk space summary   **************")
-        listOfDisks = New List(Of VSNext.Mongo.Entities.Disk)()
+        Dim listOfDiskStatus As New List(Of VSNext.Mongo.Entities.DiskStatus)()
         For Each myDiskDrive In MyDominoServer.DiskDrives
 
             If MyLogLevel = LogLevel.Verbose And Trim(myDiskDrive.DiskName) <> "" Then
@@ -4828,18 +4828,19 @@ skipdrive2:
             Dim objVSAdaptor As New VSAdaptor
             Try
                 If myDiskDrive.DiskSize <> 0 And myDiskDrive.DiskName.Trim <> "" Then
-                    listOfDisks.Add(New VSNext.Mongo.Entities.Disk() With {
+                    listOfDiskStatus.Add(New VSNext.Mongo.Entities.DiskStatus() With {
                                     .DiskFree = myDiskDrive.DiskFree,
                                     .DiskName = myDiskDrive.DiskName,
                                     .DiskSize = myDiskDrive.DiskSize,
                                     .PercentFree = myDiskDrive.PercentFree,
                                     .AverageQueueLength = myDiskDrive.DiskAverageQueueLength,
-                                    .DiskThreshold = MyDominoServer.DiskThreshold
+                                    .Threshold = MyDominoServer.DiskThreshold,
+                                    .ThresholdType = myDiskDrive.ThresholdType
                                     })
 
                 Else
 
-                    listOfDisks.Add(New VSNext.Mongo.Entities.Disk() With {
+                    listOfDiskStatus.Add(New VSNext.Mongo.Entities.DiskStatus() With {
                                     .DiskName = myDiskDrive.DiskName,
                                     .PercentFree = myDiskDrive.PercentFree,
                                     .AverageQueueLength = myDiskDrive.DiskAverageQueueLength
@@ -4856,7 +4857,7 @@ skipdrive2:
             Dim MyDominoServer2 As MonitoredItems.DominoServer = MyDominoServer
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
             Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceType, MyDominoServer2.ServerType) And repository.Filter.Eq(Function(x) x.DeviceName, MyDominoServer2.Name)
-            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.Disks, listOfDisks)
+            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.Disks, listOfDiskStatus)
             repository.Update(filterDef, updateDef)
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error in Domino disk space inserting disk info into status document. Error : " & ex.Message, LogLevel.Normal)

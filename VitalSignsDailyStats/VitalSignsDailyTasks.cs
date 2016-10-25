@@ -544,7 +544,7 @@ namespace VitalSignsDailyStats
         public void BuildDominoDriveList()
         {
             var disks = statusRepository.All().Select(x => x.Disks).ToList();
-            foreach (List<Disk> item in disks)
+            foreach (List<DiskStatus> item in disks)
             {  if(item!=null)
                 { 
                 var diskNamesList = item.Select(x => x.DiskName).ToList();

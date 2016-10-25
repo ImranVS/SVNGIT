@@ -373,7 +373,7 @@ namespace VitalSignsMicrosoftClasses
             String getall="";
             string ThresholdValue = "";
 
-            List<VSNext.Mongo.Entities.Disk> listOfDisks = new List<VSNext.Mongo.Entities.Disk>();
+            List<VSNext.Mongo.Entities.DiskStatus> listOfDisks = new List<VSNext.Mongo.Entities.DiskStatus>();
 
             try
             {
@@ -427,7 +427,7 @@ namespace VitalSignsMicrosoftClasses
                         try
                         {
                             
-                            listOfDisks.Add(new VSNext.Mongo.Entities.Disk()
+                            listOfDisks.Add(new VSNext.Mongo.Entities.DiskStatus()
                             {
                                 DiskName = ps.Properties["DeviceID"].Value.ToString(),
                                 DiskFree = Math.Round(Double.Parse(ps.Properties["FreeSpace"].Value.ToString()), 2),
