@@ -23,7 +23,7 @@ namespace VitalSigns.API.Models
         public int? ClusterReplicationDelayThreshold { get; set; }
 
 
-        
+
         [JsonProperty("proxy_server_type")]
         public string ProxyServerType { get; set; }
 
@@ -32,7 +32,7 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("dbms_host_name")]
         public string DbmsHostName { get; set; }
-        
+
 
         [JsonProperty("dbms_name")]
         public string DbmsName { get; set; }
@@ -42,39 +42,42 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("collect_extended_statistics")]
         public Boolean? CollectExtendedStatistics { get; set; }
-        
-      
-        public Boolean? collect_meeting_statistics { get; set; }
-       
+
+        [JsonProperty("collect_meeting_statistics")]
+        public Boolean? CollectMeetingStatistics { get; set; }
+
         [JsonProperty("extended_statistics_port")]
         public int? ExtendedStatisticsPort { get; set; }
-        
+
         [JsonProperty("meeting_host_name")]
         public string MeetingHostName { get; set; }
-        
+
         [JsonProperty("meeting_port")]
         public int? MeetingPort { get; set; }
-      
+
         [JsonProperty("meeting_require_ssl")]
         public Boolean? MeetingRequireSSL { get; set; }
-        
+
         [JsonProperty("conference_host_name")]
         public string ConferenceHostName { get; set; }
 
         [JsonProperty("conference_port")]
         public int? ConferencePort { get; set; }
-        
+
         [JsonProperty("conference_require_ssl")]
         public Boolean? ConferenceRequireSSL { get; set; }
-        
 
-         [JsonProperty("database_settings_host_name")]
+
+        [JsonProperty("database_settings_host_name")]
         public string DatabaseSettingsHostName { get; set; }
-        
+
         [JsonProperty("database_settings_credentials_id")]
         public string DatabaseSettingsCredentialsId { get; set; }
-        
-       [JsonProperty("database_settings_port")]
+
+        [JsonProperty("database_settings_port")]
         public int? DatabaseSettingsPort { get; set; }
+
+        [JsonProperty("device_type")]
+        public string DeviceType { get; set; }
     }
 }
