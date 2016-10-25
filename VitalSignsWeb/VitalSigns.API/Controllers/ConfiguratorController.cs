@@ -1247,6 +1247,155 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+        #region Advanced Settings
+        /// <summary>
+        /// Get Advanced  Settings
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("get_advanced_settings/{id}")]
+        public APIResponse GetAdvancedSettings(string id)
+        {
+
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == id);
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+                var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
+                            .Select(x => new AdvancedSettingsModel
+                            {
+                                MemoryThreshold = x.MemoryThreshold,
+                                CpuThreshold = x.CpuThreshold,
+                                ServerDaysAlert = x.ServerDaysAlert,
+                                ClusterReplicationDelayThreshold = x.ClusterReplicationDelayThreshold,
+                                ProxyServerType = x.ProxyServerType,
+                                ProxyServerprotocol = x.ProxyServerprotocol,
+                                DbmsHostName = x.DbmsHostName,
+                                DbmsName = x.DbmsName,
+                                DbmsPort = x.DbmsPort,
+                                CollectExtendedStatistics = x.CollectExtendedStatistics,
+                                CollectMeetingStatistics = x.CollectExtendedStatistics,
+                                ExtendedStatisticsPort = x.ExtendedStatisticsPort,
+                                MeetingHostName = x.MeetingHostName,
+                                MeetingPort = x.MeetingPort,
+                                MeetingRequireSSL = x.MeetingRequireSSL,
+                                ConferenceHostName = x.ConferenceHostName,
+                                ConferencePort = x.ConferencePort,
+                                ConferenceRequireSSL = x.ConferenceRequireSSL,
+                                DatabaseSettingsHostName = x.DatabaseSettingsHostName,
+                                DatabaseSettingsCredentialsId = x.DatabaseSettingsCredentialsId,
+                                DatabaseSettingsPort=x.DatabaseSettingsPort,
+                                DeviceType = x.DeviceType,
+                                
+                                
+
+                            }).FirstOrDefault();
+                
+                //if(results.DeviceType== "IBM Connections")
+                //{ 
+                //var ibmCredentialname = credentialsRepository.All().Where(x => x.Id == results.DatabaseSettingsCredentialsId).Select(x => new Credentials
+                //{
+                //    Alias = x.Alias
+
+                    
+                //}).FirstOrDefault();
+                //results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
+                //}
+                Response = Common.CreateResponse(results);
+            }
+            catch (Exception ex)
+            {
+
+                Response = Common.CreateResponse(null, "Error", "Error in getting disk names");
+            }
+
+
+
+            return Response;
+        }
+        /// <summary>
+        /// Updates Advanced  Settings
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("save_advanced_settings/{id}")]
+        public APIResponse UpdateAdvancedSettings([FromBody]AdvancedSettingsModel advancedSettings,string id)
+        {
+            try
+            {
+                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
+                serversRepository = new Repository<Server>(ConnectionString);
+               
+                try
+                {
+                   if(advancedSettings.DeviceType=="Domino")
+                    {
+                       
+                        var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold)
+                                                                 .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold)
+                                                                 .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
+                                                                 .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold);
+                        var result = serversRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result);
+                    }
+                   else if(advancedSettings.DeviceType == "Sametime")
+                    {
+                        var updateDefination = serversRepository.Updater.Set(p => p.ProxyServerType, advancedSettings.ProxyServerType)
+                                                              .Set(p => p.ProxyServerprotocol, advancedSettings.ProxyServerprotocol)
+                                                              .Set(p => p.DbmsHostName, advancedSettings.DbmsHostName)
+                                                              .Set(p => p.DbmsName, advancedSettings.DbmsName)
+                                                               .Set(p => p.DbmsPort, advancedSettings.DbmsPort)
+                                                              .Set(p => p.CollectExtendedStatistics, advancedSettings.CollectExtendedStatistics)
+                                                              .Set(p => p.CollectMeetingStatistics, advancedSettings.CollectMeetingStatistics)
+                                                               .Set(p => p.ExtendedStatisticsPort, advancedSettings.ExtendedStatisticsPort)
+                                                              .Set(p => p.DbmsHostName, advancedSettings.DbmsHostName)
+                                                              .Set(p => p.MeetingHostName, advancedSettings.MeetingHostName)
+                                                              .Set(p => p.MeetingPort, advancedSettings.MeetingPort)
+                                                               .Set(p => p.MeetingRequireSSL, advancedSettings.MeetingRequireSSL)
+                                                              .Set(p => p.ConferenceHostName, advancedSettings.ConferenceHostName)
+                                                              .Set(p => p.ConferencePort, advancedSettings.ConferencePort)
+                                                               .Set(p => p.ConferenceRequireSSL, advancedSettings.ConferenceRequireSSL);
+
+                        var result = serversRepository.Update(filterDefination, updateDefination);
+                       
+                        Response = Common.CreateResponse(result);
+
+                    }
+
+                   else if (advancedSettings.DeviceType == "IBM Connections")
+                    {
+                        var updateDefination = serversRepository.Updater.Set(p => p.DatabaseSettingsHostName, advancedSettings.DatabaseSettingsHostName)
+                                                             .Set(p => p.DatabaseSettingsPort, advancedSettings.DatabaseSettingsPort)
+                                                             .Set(p=>p.DatabaseSettingsCredentialsId,advancedSettings.DatabaseSettingsCredentialsId);
+                                                            
+
+                        var result = serversRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result);
+
+                    }
+                  
+                   
+                }
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                }
+
+                return Response;
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        #endregion
         #endregion
 
 
