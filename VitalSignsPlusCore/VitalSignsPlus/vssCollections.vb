@@ -1635,10 +1635,10 @@ Partial Public Class VitalSignsPlusCore
                         Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.User2CredentialsId)
                         Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
 
-                        userTwo = entity.Username
+                        userTwo = entityCredentials.UserId
                         WriteAuditEntry(Now.ToString & " Sametime User two is " & userTwo)
                         WriteAuditEntry(Now.ToString & " Sametime User One is " & entity.Password)
-                        strEncryptedPassword = entity.Password  'sametime password as encrypted byte stream
+                        strEncryptedPassword = entityCredentials.Password  'sametime password as encrypted byte stream
                         Try
                             Dim str1() As String
                             str1 = strEncryptedPassword.Split(",")
