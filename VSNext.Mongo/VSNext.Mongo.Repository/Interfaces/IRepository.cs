@@ -28,6 +28,7 @@ namespace VSNext.Mongo.Repository
         bool Update(FilterDefinition<T> filter, UpdateDefinition<T> update);
         bool Update<TField>(T entity, Expression<Func<T, TField>> field, TField value);
         bool Update<TField>(FilterDefinition<T> filter, Expression<Func<T, TField>> field, TField value);
+        bool Update(FilterDefinition<T> filter, UpdateDefinition<T> update, UpdateOptions updateOptions = null);
         void Delete(string id);
         void Delete(T entity);
         void Delete();
