@@ -1248,7 +1248,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    foreach (Disk drive in result.Disks)
+                    foreach (DiskStatus drive in result.Disks)
                     {
                         List<Segment> segments = new List<Segment>();
                         segments.Add(new Segment { Label = "Available", Value = Math.Round(drive.DiskFree.HasValue ? (double)drive.DiskFree : 0, 2) });

@@ -1006,7 +1006,7 @@ namespace VitalSigns.API.Controllers
 
 
                 List<string> diskNames = new List<string>();
-                foreach (List<Disk> drive in disks)
+                foreach (List<DiskStatus> drive in disks)
                 {
                     if (drive != null)
                         diskNames.AddRange(drive.Select(x => x.DiskName));
@@ -1175,7 +1175,7 @@ namespace VitalSigns.API.Controllers
 
                 SelectedDiksModel serverDiskStatus = new SelectedDiksModel();
                 List<SelectedDiksModel> drives = new List<SelectedDiksModel>();
-                foreach (Disk drive in result)
+                foreach (DiskStatus drive in result)
                 {
                     drives.Add(new SelectedDiksModel
                     {
