@@ -978,11 +978,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
-        /// <summary>
-        /// API's for getting,saving Disk settings data.
-        /// <author>Durga</author>
-        /// </summary>
-        /// <returns></returns>
+    
         #region Disk Settings
         /// <summary>
         /// Returns Disk Names
@@ -1045,18 +1041,52 @@ namespace VitalSigns.API.Controllers
             serversRepository = new Repository<Server>(ConnectionString);
             try
             {
+               
                 string setting = Convert.ToString(deviceSettings.Setting);
                 string settingValue = Convert.ToString(deviceSettings.Value);
-                string devices = Convert.ToString(deviceSettings.Devices);
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
                 UpdateDefinition<Server> updateDefinition = null;
-                if (!string.IsNullOrEmpty(devices))
-                {
+                if (devicesList.Count() > 0 && !string.IsNullOrEmpty(setting) && !string.IsNullOrEmpty(settingValue))
+                {                
+
+                    foreach (string id in devicesList)
+                    {
+                        var server = serversRepository.Get(id);
+                        List<DiskSetting> diskSettings = new List<DiskSetting>();
+
+                        if (setting.Equals("percentage"))
+                            diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "Percent" });
+                        else if (setting.Equals("gb"))
+                            diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "GB" });                      
+                        else if (setting.Equals("noAlerts"))
+                            diskSettings.Add(new DiskSetting { DiskName = "NoAlerts", Threshold = null, ThresholdType = null });
+                        else if (setting.Equals("selectedDisks"))
+                        {
+                            List<SelectedDiksModel> selectedDisks = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<SelectedDiksModel>>();
+                            foreach (var item in selectedDisks)
+                            {
+                                if (item.IsSelected)
+                                {
+                                    diskSettings.Add(new DiskSetting { DiskName = item.DiskName, Threshold = Convert.ToDouble(item.FreespaceThreshold), ThresholdType = item.ThresholdType });
+                                }
+                            }
+                        }
+                        if (diskSettings.Count > 0)
+                        {
+                            updateDefinition = serversRepository.Updater.Set(p => p.DiskInfo, diskSettings);
+                            var result = serversRepository.Update(server, updateDefinition);
+                        }                      
+                   
+                    }
+                    Response = Common.CreateResponse(null, "OK", "Settings are not selected");
+
 
                 }
                 else
                 {
                     Response = Common.CreateResponse(null, "Error", "Devices were not selected");
                 }
+
             }
 
             catch (Exception exception)
