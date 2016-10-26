@@ -1625,14 +1625,6 @@ namespace VitalSigns.API.Controllers
 
 
 
-
-
-
-
-
-
-
-
         [HttpGet("servers_list")]
         public APIResponse GetAllServersList()
         {
@@ -1703,13 +1695,6 @@ namespace VitalSigns.API.Controllers
         //    }
         //    return Response;
         //}
-
-
-      
-
-       
-
-      
 
 
        
@@ -1802,25 +1787,6 @@ namespace VitalSigns.API.Controllers
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         [HttpGet("{device_id}/get_maintenance_windows")]
         public APIResponse GetMaintenanceWindows(string device_id)
         {
@@ -1850,6 +1816,96 @@ namespace VitalSigns.API.Controllers
         }
 
 
+        [HttpPut("save_simulationtests")]
+        public APIResponse SaveSimulation([FromBody]SimulationModel ibmsimulations)
+        {
+            List<NameValuePair> nameValuePairs = new List<NameValuePair>();
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                if (ibmsimulations.CreateActivity)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create Activity Threshold", Value = Convert.ToString(ibmsimulations.CreateActivityThreshold) });
+                if (ibmsimulations.CreateBlog)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create Blog Threshold", Value = Convert.ToString(ibmsimulations.CreateBlogThreshold) });
+                if (ibmsimulations.CreateBookmark)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create Bookmark Threshold", Value = Convert.ToString(ibmsimulations.CreateBookmarkThreshold) });
+                if (ibmsimulations.CreateCommunity)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create Community Threshold", Value = Convert.ToString(ibmsimulations.CreateCommunityThreshold) });
+                if (ibmsimulations.CreateFile)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create File Threshold", Value = Convert.ToString(ibmsimulations.CreateFileThreshold) });
+                if (ibmsimulations.CreateWiki)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create Wiki Threshold", Value = Convert.ToString(ibmsimulations.CreateWikiThreshold) });
+                if (ibmsimulations.SearchProfile)
+                    nameValuePairs.Add(new NameValuePair { Name = "Search Profile Threshold", Value = Convert.ToString(ibmsimulations.SearchProfileThreshold) });
+                Server server = serversRepository.Get(ibmsimulations.Id);
+                var updateDefination = serversRepository.Updater.Set(p => p.SimulationTests, nameValuePairs);
+                var result = serversRepository.Update(server, updateDefination);
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save simulationtests falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+        [HttpGet("{device_id}/get_simulationtests")]
+        public APIResponse GetSimulation(string device_id)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                var simulationSettings = new List<string> { "Create Activity Threshold", "Create Activity", "Create Blog Threshold", "Create Blog", "Create Bookmark Threshold", "Create Bookmark", "Create Community Threshold", "Create Community", "Create File Threshold", "Create File", "Create Wiki Threshold", "Create Wiki", "Search Profile Threshold", "Search Profile" };
+                SimulationModel ibmsimulations = new SimulationModel();
+                ibmsimulations.Id = device_id;
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.Id == device_id).FirstOrDefault();
+                if (result.SimulationTests != null)
+                {
+                    if (result.SimulationTests.Where(x => x.Name == "Create Activity Threshold").Count() > 0)
+                    {
+                        ibmsimulations.CreateActivity = true;
+                        ibmsimulations.CreateActivityThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Activity Threshold").Value);
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Create Blog Threshold").Count() > 0)
+                    {
+                        ibmsimulations.CreateBlog = true;
+                        ibmsimulations.CreateBlogThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Blog Threshold").Value);
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Create Bookmark Threshold").Count() > 0)
+                    {
+                        ibmsimulations.CreateBookmark = true;
+                        ibmsimulations.CreateBookmarkThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Bookmark Threshold").Value);
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Create Community Threshold").Count() > 0)
+                    {
+                        ibmsimulations.CreateCommunity = true;
+                        ibmsimulations.CreateCommunityThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Community Threshold").Value);
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Create File Threshold").Count() > 0)
+                    {
+                        ibmsimulations.CreateFile = true;
+                        ibmsimulations.CreateFileThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create File Threshold").Value);
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Create Wiki Threshold").Count() > 0)
+                    {
+                        ibmsimulations.CreateWiki = true;
+                        ibmsimulations.CreateWikiThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Wiki Threshold").Value);
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Search Profile Threshold").Count() > 0)
+                    {
+                        ibmsimulations.SearchProfile = true;
+                        ibmsimulations.SearchProfileThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Search Profile Threshold").Value);
+                    }
+                }
+                Response = Common.CreateResponse(ibmsimulations);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", " simulationtest falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
 
 
 
