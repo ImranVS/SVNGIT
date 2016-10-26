@@ -46,7 +46,10 @@ export class ServerAdvancedSettings implements OnInit{
             'database_settings_host_name': [''],
             'database_settings_credentials_id': [''],
             'database_settings_port': [''],
-            'device_type': ['']
+            'device_type': [''],
+            'cluster_replication_queue_threshold': [''],
+            'db2_settings_credentials_id': [''],
+            'collect_conference_statistics': ['']
 
         });
 

@@ -58,6 +58,9 @@
                                 <label for="clusterReplicationDelaysAlert">Alert if Cluster Replication Queue time exceeds:</label>
                                 <input type="text" class="form-control" name="clusterReplicationDelaysAlert" formControlName="cluster_replication_delay_threshold">
                                 <label for="clusterReplicationDelaysAlert">seconds</label>
+                                <label for="clusterReplicationQueueAlert">Load another Cluster Replicator instance if cluster replication queue exceeds</label>
+                                <input type="text" class="form-control" name="clusterReplicationQueueAlert" formControlName="cluster_replication_queue_threshold">
+                                <label for="clusterReplicationQueueAlert">seconds</label>
                             </div>
                         </div>
                     </div>
@@ -106,10 +109,10 @@
 
                             </div>
                             <div class="form-group">
-                                <label for="db2Credentials">DB2 Credentials</label>
+                                <label for="db2_credentials">DB2 Credentials</label>
 
-                                <wj-combo-box name="credential" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                              placeholder="Select Credential">
+                                <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                              placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_credentials">
                                 </wj-combo-box>
 
                             </div>
@@ -157,7 +160,14 @@
                                     Require SSL
                                 </label>
                             </div>
+                            <br/>
+                            <div class="checkbox-inline">
+                                <input type="checkbox" name="collectConferenceStatistics" formControlName="collect_conference_statistics">
+                                <label for="collectConferenceStatistics">
+                                    Collect Conference Server Statistics
 
+                                </label>
+                            </div>
                             <div class="form-group">
                                 <label for="conferenceHostName"> Conference Host Name</label>
 
@@ -194,10 +204,10 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="db2Credentials">DB2 Credentials</label>
+                                <label for="database_credentials">DB2 Credentials</label>
 
                                 <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                              placeholder="Select Credential" formControlName="database_settings_credentials_id">
+                                              placeholder="Select Credential" formControlName="database_settings_credentials_id" name="database_credentials">
 
                                 </wj-combo-box>
 
