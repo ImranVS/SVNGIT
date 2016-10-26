@@ -24,6 +24,9 @@ namespace VitalSigns.API.Models
 
 
 
+        [JsonProperty("cluster_replication_queue_threshold")]
+        public int? ClusterReplicationQueueThreshold { get; set; }
+
         [JsonProperty("proxy_server_type")]
         public string ProxyServerType { get; set; }
 
@@ -40,11 +43,17 @@ namespace VitalSigns.API.Models
         [JsonProperty("dbms_port")]
         public int? DbmsPort { get; set; }
 
+        [JsonProperty("db2_settings_credentials_id")]
+        public string Db2SettingsCredentialsId { get; set; }
+
         [JsonProperty("collect_extended_statistics")]
         public Boolean? CollectExtendedStatistics { get; set; }
 
         [JsonProperty("collect_meeting_statistics")]
         public Boolean? CollectMeetingStatistics { get; set; }
+
+        [JsonProperty("collect_conference_statistics")]
+        public Boolean? CollectConferenceStatistics { get; set; }
 
         [JsonProperty("extended_statistics_port")]
         public int? ExtendedStatisticsPort { get; set; }
