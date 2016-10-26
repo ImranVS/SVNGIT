@@ -32,7 +32,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Maintenance> maintenanceRepository;
 
         private IRepository<NameValue> nameValueRepository;
-
+       
 
         private IRepository<Server> serversRepository;
 
@@ -227,7 +227,7 @@ namespace VitalSigns.API.Controllers
 
         #region Locations
         /// <summary>
-        /// 
+        /// Get Locations Collection
         /// </summary>
         /// <author>Swathi </author>
         /// <param name="country"></param>
@@ -864,6 +864,7 @@ namespace VitalSigns.API.Controllers
         /// <returns>List of device attributes data</returns>
         [HttpGet("get_device_attributes")]
         public APIResponse GetDeviceAttributes()
+
         {
             try
             {
@@ -1039,7 +1040,7 @@ namespace VitalSigns.API.Controllers
                 windowsservicesRepository = new Repository<WindowsService>(ConnectionString);
                 var result = windowsservicesRepository.All().Select(x => new WindowsServiceModel
                 {
-                    Id = x.Id,
+                   // Id = x.Id,
                     ServiceName = x.ServiceName,
                     IsSelected = false
                     // Id = x.Id
@@ -1058,6 +1059,7 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+
         #endregion
     
         #region Disk Settings
@@ -1271,6 +1273,49 @@ namespace VitalSigns.API.Controllers
 
 
         #region Servers
+
+
+        [HttpGet("{id}/servers_attributes")]
+        public APIResponse GetAllServersAttributes(string id)
+        {
+            try
+            {
+                Repository repository = new Repository("mongodb://localhost:27017", "vitalsigns_dev", "server");
+                serversRepository = new Repository<Server>(ConnectionString);
+                deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+               Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
+                var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+                var result = repository.Collection.Find(filter).FirstOrDefault();
+                var newresult = serversRepository.Find(attributeexpression).AsQueryable().FirstOrDefault();
+                Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == newresult.DeviceType);            
+                List<DeviceAttributes> attri = new List<DeviceAttributes>();
+              
+                var attributes =  deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x=>x.Category);
+                var newattr = attributes.Select(x => x.FieldName).ToList();             
+               // var fields =  attributes ;
+                
+                foreach(string field in newattr)
+                {
+                    string value = string.Empty;                 
+                    try
+                    {
+                        value = Convert.ToString(result[field]);
+                    }
+                    catch
+                    { }
+
+                    attri.Add(new DeviceAttributes { DefaultValue = value, FieldName = field });
+                }
+
+                Response = Common.CreateResponse(attributes);
+                
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Fetching Server Atributes failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
 
         #region Disk Settings
         [HttpGet("get_server_disk_info/{id}")]
@@ -1697,7 +1742,6 @@ namespace VitalSigns.API.Controllers
         //}
 
 
-       
         [HttpGet("device_list")]
         public APIResponse GetAllServersWithLocation()
         {

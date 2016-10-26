@@ -27,6 +27,12 @@ namespace VitalSigns.API.Models
         [JsonProperty("unit_of_measurement")]       
         public string Unitofmeasurement { get; set; }
 
+        [JsonProperty("catogory")]
+        public string Category { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
         [JsonProperty("is_selected")]
         public bool IsSelected { get; set; }
     }
