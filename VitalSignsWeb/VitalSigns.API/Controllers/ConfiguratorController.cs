@@ -926,9 +926,58 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                var settingValue = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Value).ToObject<List<DominoServerTasksValue>>();
+                string setting = Convert.ToString(dominoserversettings.Setting);
+                var selectedServerTasks = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Value).ToObject<List<DominoServerTasksValue>>();
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Devices).ToObject<string[]>();
-                //Response = Common.CreateResponse(result);
+                UpdateDefinition<Server> updateDefinition = null;
+                if (devicesList.Count() > 0 && selectedServerTasks.Count()>0 && !string.IsNullOrEmpty(setting.Trim()))
+                {
+
+                    foreach (string id in devicesList)
+                    {
+                        var server = serversRepository.Get(id);
+                        List<DominoServerTask> dominoServerTasks = new List<DominoServerTask>();
+                        dominoServerTasks.AddRange(server.ServerTasks);
+
+                        foreach (var serverTask in selectedServerTasks)
+                        {
+                            if (setting.Equals("add"))
+                            {
+                                DominoServerTask dominoServerTask = new DominoServerTask();
+                                dominoServerTask.Id = serverTask.Id;
+                                dominoServerTask.TaskName = serverTask.TaskName;
+                                dominoServerTask.SendLoadCmd = serverTask.IsLoad;
+                                dominoServerTask.Monitored = true;
+                                dominoServerTask.SendRestartCmd = serverTask.IsResartLater;
+                                dominoServerTask.SendRestartCmdOffhours = serverTask.IsRestartASAP;
+                                dominoServerTask.SendExitCmd = serverTask.IsDisallow;
+                                dominoServerTasks.Add(dominoServerTask);
+                            }
+                            else if (setting.Equals("remove"))
+                            {
+                                var dominoServerTaskRemove = dominoServerTasks.Where(x => x.TaskId == serverTask.Id).ToList();
+                                foreach(var item in dominoServerTaskRemove)
+                                dominoServerTasks.Remove(item);
+                            }
+
+                        }
+                       
+
+                        if (dominoServerTasks.Count > 0)
+                        {
+                            updateDefinition = serversRepository.Updater.Set(p => p.ServerTasks, dominoServerTasks);
+                            var result = serversRepository.Update(server, updateDefinition);
+                        }
+
+                    }
+                    Response = Common.CreateResponse(null, "OK", "Settings are not selected");
+
+
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
+                }
             }
 
             catch (Exception exception)
@@ -1036,7 +1085,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPut("save_disk_settings")]
-        public APIResponse UpdateDiskSettings([FromBody]DeviceSettings deviceSettings)
+        public APIResponse SaveDiskSettings([FromBody]DeviceSettings deviceSettings)
         {
             serversRepository = new Repository<Server>(ConnectionString);
             try
@@ -1566,9 +1615,43 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                var settingValue = ((Newtonsoft.Json.Linq.JArray)windowsservicesettings.Value).ToObject<List<WindowsServicesValue>>();
+                var windowsServiceValues = ((Newtonsoft.Json.Linq.JArray)windowsservicesettings.Value).ToObject<List<WindowsServicesValue>>();
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)windowsservicesettings.Devices).ToObject<string[]>();
-                //Response = Common.CreateResponse(result);
+                UpdateDefinition<Server> updateDefinition = null;
+                //if (devicesList.Count() > 0 && windowsServiceValues.Count() > 0)
+                //{
+
+                //    foreach (string id in devicesList)
+                //    {
+                //        var server = serversRepository.Get(id);
+                //        List<WindowsService> windowsServices = new List<WindowsService>();
+
+
+                //        foreach (var serverTask in windowsServiceValues)
+                //        {
+                //            WindowsService windowsService = new WindowsService();
+                //            windowsService.ServiceName = serverTask.TaskName;
+                           
+                //            windowsServices.Add(windowsService);
+                //        }
+                //        windowsServices.AddRange(server.ServerTasks);
+
+                //        if (windowsServices.Count > 0)
+                //        {
+                //            updateDefinition = serversRepository.Updater.Set(p => p.ServerTasks, windowsServices);
+                //            var result = serversRepository.Update(server, updateDefinition);
+                //        }
+
+                //    }
+                //    Response = Common.CreateResponse(null, "OK", "Settings are not selected");
+
+
+                //}
+                //else
+                //{
+                //    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
+                //}
+
             }
 
             catch (Exception exception)
