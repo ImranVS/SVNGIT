@@ -129,6 +129,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
                     url: `/dashboard/connections/top_communities?deviceid=${this.serviceId}&count=1`,
+                    callback: (chart) => this.widgets[2].title = chart.series[0].name,
                     chart: {
                         chart: {
                             renderTo: 'mostActiveCommunity',
