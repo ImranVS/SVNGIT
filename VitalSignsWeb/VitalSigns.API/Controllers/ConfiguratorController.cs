@@ -62,7 +62,7 @@ namespace VitalSigns.API.Controllers
         /// <author>Sowmya</author>
         /// <param name="userpreference"></param>
         /// <returns>It returns id value</returns>
-        
+
         [HttpPut("save_preferences")]
         public APIResponse SavePreferences([FromBody]PreferencesModel userpreference)
         {
@@ -567,6 +567,37 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, "Error", "Delete Maintenancedata falied .\n Error Message :" + exception.Message);
             }
         }
+
+        [HttpGet("get_server_maintenancedata/{id}")]
+        public APIResponse GetServerMaintenanceData(string id)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+            List<MaintenanceModel> maintenanceWindows = new List<MaintenanceModel>();
+            try
+            {
+
+                Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
+
+                var result = serversRepository.Find(attributeexpression).Select(x => x.MaintenanceWindows).FirstOrDefault();
+                var results = maintenanceRepository.Collection.AsQueryable().Where(s=> result.Contains(s.Id))
+                                                              .Select(m => new
+                                                              {
+                                                                  id = m.Id,
+                                                                  Name = m.Name,
+                                                                  StartDate = m.StartDate,
+                                                                  StartTime = m.StartTime
+                                                              }).ToList();
+                //var Maintenance = results.Where(s=>s.id.Equals(result));
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
+
         #endregion
 
         #region Users
@@ -575,7 +606,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowmya</author>
         /// <returns></returns>
-        
+
         [HttpGet("get_maintain_users")]
         public APIResponse GetAllMaintainUsers()
         {
@@ -924,6 +955,7 @@ namespace VitalSigns.API.Controllers
         [HttpPut("save_domino_server_tasks")]
         public APIResponse SaveDominoServerTasks([FromBody]DeviceSettings dominoserversettings)
         {
+            serversRepository = new Repository<Server>(ConnectionString);
             try
             {
                 string setting = Convert.ToString(dominoserversettings.Setting);
@@ -944,7 +976,8 @@ namespace VitalSigns.API.Controllers
                             if (setting.Equals("add"))
                             {
                                 DominoServerTask dominoServerTask = new DominoServerTask();
-                                dominoServerTask.Id = serverTask.Id;
+                               dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                                dominoServerTask.TaskId = serverTask.Id;
                                 dominoServerTask.TaskName = serverTask.TaskName;
                                 dominoServerTask.SendLoadCmd = serverTask.IsLoad;
                                 dominoServerTask.Monitored = true;
@@ -963,11 +996,10 @@ namespace VitalSigns.API.Controllers
                         }
                        
 
-                        if (dominoServerTasks.Count > 0)
-                        {
+                     
                             updateDefinition = serversRepository.Updater.Set(p => p.ServerTasks, dominoServerTasks);
                             var result = serversRepository.Update(server, updateDefinition);
-                        }
+                        
 
                     }
                     Response = Common.CreateResponse(null, "OK", "Settings are not selected");
@@ -1290,40 +1322,148 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                statusRepository = new Repository<Status>(ConnectionString);
-                Expression<Func<Status, bool>> expression = (p => p.DeviceId == id);
-                var result = statusRepository.Find(expression).Select(x => x.DominoServerTasks).FirstOrDefault();
-
-                //SelectedDiksModel serverDiskStatus = new SelectedDiksModel();
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == id);
+                var result = serversRepository.Find(expression).Select(x => x.ServerTasks).FirstOrDefault();
                 List<DominoServerTasksModel> servertasks = new List<DominoServerTasksModel>();
                 foreach (DominoServerTask task in result)
                 {
                     servertasks.Add(new DominoServerTasksModel
                     {
+                        Id = task.Id,
                         IsLoad = task.SendLoadCmd,
-                      IsResartLater = task.SendRestartCmd,
-                      IsRestartASAP =task.SendRestartCmdOffhours,
-                      IsDisallow =  task.SendExitCmd,
-                       TaskName = task.TaskName,
-                       IsSelected = task.Monitored
+                        IsResartLater = task.SendRestartCmd,
+                        IsRestartASAP = task.SendRestartCmdOffhours,
+                        IsDisallow = task.SendExitCmd,
+                        TaskName = task.TaskName,
+                        IsSelected = task.Monitored,
+                        DeviceId = id
 
-                      
                     });
 
                 }
 
                 Response = Common.CreateResponse(servertasks);
             }
+
+
             catch (Exception ex)
             {
 
-                Response = Common.CreateResponse(null, "Error", "Error in getting disk names");
+                Response = Common.CreateResponse(null, "Error", "Error in getting  server tasks  data ");
             }
 
 
 
             return Response;
         }
+
+        [HttpGet("get_tasks_names")]
+        public APIResponse GetTaskNames(string id)
+
+        {
+
+            try
+            {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
+                Response = Common.CreateResponse(new { TaskNames = result1});
+               
+            }
+            catch (Exception ex)
+            {
+
+                Response = Common.CreateResponse(null, "Error", "Error in getting task names");
+            }
+
+
+
+            return Response;
+        }
+
+        /// <summary>
+        ///saves the server tasks data
+        /// </summary>
+        /// <author>Sowjanya</author>
+
+        [HttpPut("save_server_tasks")]
+        public APIResponse UpdateServerTasks([FromBody]DominoServerTasksModel servertasks)
+        {
+          
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
+                var server = serversRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == servertasks.DeviceId);
+                DominoServerTask dominoServerTask = new DominoServerTask();
+                //dominoServerTask.Id = servertasks.Id;
+                dominoServerTask.TaskName = servertasks.TaskName;
+                dominoServerTask.SendLoadCmd = servertasks.IsLoad;
+                dominoServerTask.Monitored = servertasks.IsSelected;
+                dominoServerTask.SendRestartCmd = servertasks.IsResartLater;
+                dominoServerTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
+                dominoServerTask.SendExitCmd = servertasks.IsDisallow;
+                //if (!string.IsNullOrEmpty(servertasks.Id))
+                //{
+                //    dominoServerTask.Id = servertasks.Id;
+                //    var filterDefinations = Builders<Status>.Filter.Where(p => p.DominoServerTasks[0].Id == servertasks.Id);
+                //                var updateDefinitaions = statusRepository.Updater.Set(p => p.DominoServerTasks, dominoServerTasks);
+                //              var finalResult = statusRepository.Update(filterDefinations, updateDefinitaions);
+                //}
+
+                if (server.ServerTasks != null)
+                    ServerTasks = server.ServerTasks;
+                ServerTasks.Add(dominoServerTask);
+                var updateDefinitaion = serversRepository.Updater.Set(p => p.ServerTasks, ServerTasks);
+                var filterDefination = Builders<Server>.Filter.Where(p => p.Id== servertasks.DeviceId);
+
+                serversRepository.Update(filterDefination, updateDefinitaion, new UpdateOptions { IsUpsert = true });
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Domino Server Tasks  falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        /// <summary>
+        ///delete the  server tasks data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        [HttpDelete("delete_server_tasks/{id}")]
+        public void DeleteServerTasks(string id, [FromBody]DominoServerTasksModel servertasks)
+        {
+            statusRepository = new Repository<Status>(ConnectionString);
+            try
+            {
+                Expression<Func<Status, bool>> expression = (p => p.DeviceId == servertasks.DeviceId);
+                //var status = statusRepository.Collection.AsQueryable().FirstOrDefault(p => p.DeviceId == servertasks.DeviceId);
+                var result = statusRepository.Find(expression).Select(x => x.DominoServerTasks).FirstOrDefault();
+                foreach (DominoServerTask task in result)
+                {
+                   if( task.Id == id)
+                    statusRepository.Delete(task.Id);
+                    //statusRepository = new Repository<Status>(ConnectionString);
+                    //Expression<Func<Status, bool>> expressions = (p => p.tas == id);
+                    //statusRepository.Delete(expressions);
+                }
+               
+
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Tasks falied .\n Error Message :" + exception.Message);
+            }
+
+
+
+        }
+
         #endregion
 
         #region Advanced Settings
