@@ -35,5 +35,13 @@ namespace VSNext.Mongo.Entities
         [BsonElement("field_name")]
         public string FieldName { get; set; }
 
+        [DataMember]
+        [BsonElement("category")]
+        public string Category { get; set; }
+
+        [DataMember]
+        [BsonElement("type")]
+        public string Type { get; set; }
+
     }
 }
