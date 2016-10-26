@@ -34,6 +34,9 @@ namespace VitalSigns.API.Models
 
     public class DominoServerTasksValue
     {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
         [JsonProperty("task_name")]
         public string TaskName { get; set; }
 
