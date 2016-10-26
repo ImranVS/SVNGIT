@@ -40,11 +40,23 @@ export class DominoServerTasks extends GridBase  {
     }
 
     applySetting() {
-      var   slectedDominoServerValues: DominoServerTasksValue[] = [];
+        this.buildPostData("add");
+
+    }
+
+    removeSetting() {
+      
+        this.buildPostData("remove");
+       
+    }
+
+    buildPostData(setting: string) {
+        var slectedDominoServerValues: DominoServerTasksValue[] = [];
         for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
             var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
             if (item.is_selected) {
                 var dominoserverObject = new DominoServerTasksValue();
+                dominoserverObject.id = item.id;
                 dominoserverObject.is_load = item.is_load;
                 dominoserverObject.is_restart_asap = item.is_restart_asap;
                 dominoserverObject.is_resart_later = item.is_resart_later;
@@ -55,7 +67,7 @@ export class DominoServerTasks extends GridBase  {
 
         }
         var postData = {
-            "setting": "",
+            "setting": setting,
             "value": slectedDominoServerValues,
             "devices": this.devices
         };
