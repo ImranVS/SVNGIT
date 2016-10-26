@@ -17,6 +17,7 @@ using RPRWyatt.VitalSigns.Services;
 using System.Linq.Expressions;
 using MongoDB.Driver;
 using LogUtilities;
+using System.Data;
 
 
 namespace VitalSignsDailyStats
@@ -36,6 +37,9 @@ namespace VitalSignsDailyStats
         IRepository<TravelerStats> travelerStatsRepository;
         IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
         IRepository<StatusDetails> statusDeatilsRepository;
+        IRepository<NameValue> nameValueRepository;
+       
+        IRepository<ValidLocation> validLocationsRepository;
         List<string> diskNames = new List<string>();
         VSAdaptor objVsAdaptor = new VSAdaptor();
         string culture = "en-US";
@@ -94,15 +98,17 @@ namespace VitalSignsDailyStats
                 travelerStatsRepository = _unitOfWork.Repository<TravelerStats>();
                 travelerSummaryStatsRepository = _unitOfWork.Repository<TravelerStatusSummary>();
                 statusDeatilsRepository = _unitOfWork.Repository<StatusDetails>();
-
-              
+                nameValueRepository = _unitOfWork.Repository<NameValue>();
+             
+                validLocationsRepository = _unitOfWork.Repository<ValidLocation>();
+               // UpdateLocalTables();
                 if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
                     culture = ConfigurationManager.AppSettings[cultureName];
 
                 RegistryHandler myRegistry = new RegistryHandler();
              
-                logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
-              //  logLevel = LogUtils.LogLevel.Verbose;
+               logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
+               //logLevel = LogUtils.LogLevel.Verbose;
 
                 appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                 appPath = string.IsNullOrEmpty(appPath) ? @"c:\" : appPath;
@@ -120,16 +126,18 @@ namespace VitalSignsDailyStats
                     File.Move(logDest, appPath + @"\Log_Files\Daily_Tasks_Log_Bak.txt");
                     File.Delete(logDest);
                 }
-                myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-                myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
-               productName = Convert.ToString(myRegistry.ReadFromRegistry("ProductName"));
-                if (string.IsNullOrEmpty(productName))
-                    productName = "VitalSigns";
+               // myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+               // myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
+
+                //productName = Convert.ToString(myRegistry.ReadFromRegistry("ProductName"));
+
+                //if (string.IsNullOrEmpty(productName))
+                //    productName = "VitalSigns";
 
                 WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks service is starting up.");
                 WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks Build Number: " + builddNumber);
                 WriteAuditEntry(DateTime.Now.ToString() + " Copyright " + companyName + "  " + DateTime.Now.Year + " - All rights reserved." + "\r\n" + "\r\n");
-                DailyBackup();
+             //   DailyBackup();
                 bool isPrimaryNode = true;
                 string sql = null;
                 try
@@ -167,23 +175,15 @@ namespace VitalSignsDailyStats
 
                 try
                 {
-                    WriteAuditEntry("Building a list of all unique Domino disk drives, if any. ");
-                   BuildDominoDriveList();
+                    WriteAuditEntry("Building a list of all disk drives, if any. ");
+                   BuildDriveList();
                 }
                 catch (Exception ex)
                 {
                     WriteAuditEntry("Exception building Domino drives list ...." + ex.ToString());
                 }
 
-                try
-                {
-                    WriteAuditEntry("Building a list of all unique Microsoft server disk drives, if any. ");
-                    //BuildMicrosoftDriveList();
-                }
-                catch (Exception ex)
-                {
-                    WriteAuditEntry("Exception building Microsoft server disk drives list ...." + ex.ToString());
-                }
+              
                 try
                 {
                     ConsolidateStatistics();
@@ -191,12 +191,12 @@ namespace VitalSignsDailyStats
 
                 catch (Exception ex)
                 {
-                    WriteAuditEntry("Exception building Microsoft server disk drives list ...." + ex.ToString());
+                    WriteAuditEntry("Exception in ConsolidateStatistics ...." + ex.ToString());
                 }
                
                try
                 {
-                   CleanUpObsoleteData();
+                  CleanUpObsoleteData();
                 }
                 catch (Exception ex)
                 {
@@ -209,21 +209,37 @@ namespace VitalSignsDailyStats
                     {
                         VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
                         bool cleanupNow = false;
-                       sql = "SELECT CASE WHEN DATEADD(Day,7,CONVERT(DateTime, ISNULL(svalue,DATEADD(Day,-7,GETDATE())), 120)) < GETDATE() " + "THEN 'true' ELSE 'false' END AS CleanupNow FROM Settings WHERE sname='CleanUpTablesDate'";
+                       //sql = "SELECT CASE WHEN DATEADD(Day,7,CONVERT(DateTime, ISNULL(svalue,DATEADD(Day,-7,GETDATE())), 120)) < GETDATE() " + "THEN 'true' ELSE 'false' END AS CleanupNow FROM Settings WHERE sname='CleanUpTablesDate'";
 
-                        DataTable dt = objVsAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sql);
-                        if ((dt.Rows.Count > 0))
-                        {
-                            cleanupNow = Convert.ToBoolean(dt.Rows[0][0].ToString());
-                        }
-                        if (cleanupNow)
-                        {
+                       // DataTable dt = objVsAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sql);
+                        Expression<Func<NameValue, bool>> expression = (p => p.Name == "CleanUpTablesDate");
+
+                        var result = nameValueRepository.Find(expression).FirstOrDefault();
+                        var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7):Convert.ToDateTime(result.Value);
+                        
+                            //if ((dt.Rows.Count > 0))
+                            //{
+                            //    cleanupNow = Convert.ToBoolean(dt.Rows[0][0].ToString());
+                            //}
+                            //if (cleanupNow)
+                            if (svalue.AddDays(7) < DateTime.Now)
+                            {
                             WriteAuditEntry(DateTime.Now.ToString() + " Starting weekly cleanup.");
-                         //   CleanupAnyTableWeekly();
+                            //   CleanupAnyTableWeekly();
                             //Kiran Dadireddy VSPLUS-2684
-                          //  ShrinkDBLogOnWeeklyBasis();
-                         //   sql = "UPDATE Settings SET svalue=GETDATE() WHERE sname='CleanUpTablesDate'";
-                         //   objVsAdaptor.ExecuteNonQueryAny("vitalsigns", "vitalsigns", sql);
+                            //  ShrinkDBLogOnWeeklyBasis();
+
+                            try
+                            {
+                                var cleanUpTablesDate= new List<NameValue> { new NameValue { Name = "CleanUpTablesDate", Value =DateTime.Now.ToString()  } };
+
+                                var  results= SaveNameValues(cleanUpTablesDate);
+                               
+                            }
+                            catch(Exception ex)
+                            {
+                                WriteAuditEntry("Error in updating CleanUpTablesDate in name_value collection...." + ex.ToString());
+                            }
                             WriteAuditEntry(DateTime.Now.ToString() + " Updated the Settings table CleanUpTablesDate column.");
                         }
                     }
@@ -246,7 +262,7 @@ namespace VitalSignsDailyStats
                     try
                     {
                         WriteAuditEntry("Starting update of local tables");
-                        //UpdateLocalTables();
+                        UpdateLocalTables();
                        
                       
                     }
@@ -275,10 +291,36 @@ namespace VitalSignsDailyStats
             }
             catch (Exception ex)
             {
+                WriteAuditEntry("OOPS, error in processing TravelerSummaryStats" + ex.ToString());
             }
         }
+        public  bool SaveNameValues(List<VSNext.Mongo.Entities.NameValue> nameValues)
+        {
+            bool result = true;
+            try
+            {
+                nameValueRepository = _unitOfWork.Repository<NameValue>();
+                foreach (var setting in nameValues)
+                {
+                    if (nameValueRepository.Collection.AsQueryable().Where(x => x.Name.Equals(setting.Name)).Count() > 0)
+                    {
+                        var filterDefination = Builders<VSNext.Mongo.Entities.NameValue>.Filter.Where(p => p.Name == setting.Name);
+                        var updateDefinitaion = nameValueRepository.Updater.Set(p => p.Value, setting.Value);
+                        var results = nameValueRepository.Update(filterDefination, updateDefinitaion);
+                    }
+                    else
+                    {
+                        nameValueRepository.Insert(setting);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
 
-       
         private void WriteAuditEntry(string message, LogUtils.LogLevel logLevel=LogUtils.LogLevel.Normal)
         {
             //base.WriteAuditEntry(message, "Daily_Tasks_Log.txt", logLevel);
@@ -541,7 +583,7 @@ namespace VitalSignsDailyStats
             myRegistry.WriteToRegistry("Log Level", LogUtils.LogLevel.Normal);
             myRegistry.WriteToRegistry("Log Level VSAdapter", LogUtils.LogLevel.Normal);
         }
-        public void BuildDominoDriveList()
+        public void BuildDriveList()
         {
             var disks = statusRepository.All().Select(x => x.Disks).ToList();
             foreach (List<DiskStatus> item in disks)
@@ -675,22 +717,7 @@ namespace VitalSignsDailyStats
             }
 
 
-            try
-            {
-               
-                WriteAuditEntry(DateTime.Now.ToString() + " Consolidating Traveler Stats");
-                ProcessStoredProcedures("OpenTimesDelta");
-                ProcessStoredProcedures("CumulativeTimesMin");
-                ProcessStoredProcedures("CumulativeTimesMax");
-            }
-            catch (Exception ex)
-            {
-                WriteAuditEntry("  Error calling stored procedure: " + ex.ToString());
-            }
-
-
-            WriteAuditEntry("\r\n" + "\r\n" + "***********************************************" + "\r\n" + "Finished!");
-
+           
 
         }
 
@@ -832,6 +859,7 @@ namespace VitalSignsDailyStats
             }
             catch (Exception ex)
             {
+                WriteAuditEntry("Exception in getting data from  ConsolidationResults" + ex.Message);
             }
 
             try
@@ -841,16 +869,10 @@ namespace VitalSignsDailyStats
             }
             catch (Exception ex)
             {
+                WriteAuditEntry("Exception in Processing ConsolidateDominoDiskStats"+ex.Message);
             }
 
-            try
-            {
-                //ConsolidateServerDiskStats(SearchDate);
-
-            }
-            catch (Exception ex)
-            {
-            }
+           
             try
             {
                 List<DailyTasks> dailyTasks = dailyTasksRepository.All().ToList();
@@ -903,7 +925,7 @@ namespace VitalSignsDailyStats
                            .Project(x => new SummaryStatistics
                            {
                                DeviceId = x.key.DeviceId,
-                               StatName = dailyTask.StatName,
+                              StatName=x.key.StatName,
                                StatValue = x.value,
                                DeviceName = x.key.DeviceName
                            }).ToList();
@@ -1656,27 +1678,45 @@ namespace VitalSignsDailyStats
         public void UpdateLocalTables()
         {
            //TO DO
-            string timeToUpdate = "true1";
-            string sql = "select case when DATEADD(day,7,convert(datetime, Svalue, 120)) < getdate() then 'true' else 'false' end as UpdateTables from Settings where Sname = 'LastTableUpdate'";
+            string timeToUpdate = "false";
+            //string sql = "select case when DATEADD(day,7,convert(datetime, Svalue, 120)) < getdate() then 'true' else 'false' end as UpdateTables from Settings where Sname = 'LastTableUpdate'";
 
-            DataSet ds = new DataSet();
-            try
-            {
-                objVsAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", sql, ref ds, "Settings");
-                timeToUpdate = ds.Tables["Settings"].Rows[0][0].ToString();
-                WriteAuditEntry(DateTime.Now.ToString() + " " + timeToUpdate);
-            }
-            catch (Exception ex)
+            //DataSet ds = new DataSet();
+            //try
+            //{
+            //    objVsAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", sql, ref ds, "Settings");
+            //    timeToUpdate = ds.Tables["Settings"].Rows[0][0].ToString();
+            //    WriteAuditEntry(DateTime.Now.ToString() + " " + timeToUpdate);
+            //}
+            //catch (Exception ex)
+            //{
+            //    timeToUpdate = "true";
+            //}
+
+            //if ((timeToUpdate.ToLower() == "false"))
+            //{
+            //    WriteAuditEntry(DateTime.Now.ToString() + " It is not time to update the local tables.");
+            //    return;
+            //}
+
+            Expression<Func<NameValue, bool>> expression = (p => p.Name == "LastTableUpdate");
+
+            var result = nameValueRepository.Find(expression).FirstOrDefault();
+            if(result!=null)
+            { 
+            var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7) : Convert.ToDateTime(result.Value);
+            if (svalue.AddDays(7) < DateTime.Now)
             {
                 timeToUpdate = "true";
             }
-
-            if ((timeToUpdate.ToLower() == "false"))
+            else
             {
                 WriteAuditEntry(DateTime.Now.ToString() + " It is not time to update the local tables.");
                 return;
             }
 
+
+            }
             WriteAuditEntry(DateTime.Now.ToString() + " Updating local tables with new values from RPR's servers");
 
             System.Net.WebClient Web = new System.Net.WebClient();
@@ -1695,8 +1735,7 @@ namespace VitalSignsDailyStats
             ms.Close();
             ms.Dispose();
 
-           
-
+          
             if ((root.Location.Length > 0))
             {
                 DataTable dt = new DataTable();
@@ -1714,18 +1753,69 @@ namespace VitalSignsDailyStats
                
                 try
                 {
-                    objVsAdaptor.ExecuteNonQueryAny("VitalSigns", "", "DELETE FROM ValidLocations");
-                    SqlConnection con = objVsAdaptor.StartConnectionSQL("VitalSigns");
 
-                    SqlBulkCopy blk = new SqlBulkCopy(con);
-                    blk.DestinationTableName = "ValidLocations";
-                    blk.WriteToServer(dt);
+                    List<ValidLocation> validLocaions = new List<ValidLocation>();
+                    string currentCounry = string.Empty;
+                    List<string> states = null;
+                    ValidLocation validLocation = null;
+                    foreach (DataRow row in dt.Rows)
+                    {
 
-                    blk.Close();
-                    objVsAdaptor.StopConnectionSQL(con);
+                        string country = Convert.ToString(row["Country"]);
+                        string state = Convert.ToString(row["State"]);
+                        if (country.Equals(currentCounry))
+                        {
+                            states.Add(state);
+                        }
+                        else
+                        {
+                            if (validLocation != null)
+                            {
+                                validLocation.States = states;
+                                validLocaions.Add(validLocation);
+                            }
+
+                            validLocation = new ValidLocation();
+                            validLocation.Country = country;
+                            validLocation.States = new List<string>();
+                            states = new List<string>();
+                            states.Add(state);
+                            currentCounry = country;
+                        }
+                    }
+                    validLocation.States = states;
+                    validLocaions.Add(validLocation);
+                    validLocationsRepository.Insert(validLocaions);
 
 
-                    
+                    //objVsAdaptor.ExecuteNonQueryAny("VitalSigns", "", "DELETE FROM ValidLocations");
+                    //SqlConnection con = objVsAdaptor.StartConnectionSQL("VitalSigns");
+
+                    //SqlBulkCopy blk = new SqlBulkCopy(con);
+                    //blk.DestinationTableName = "ValidLocations";
+                    //blk.WriteToServer(dt);
+
+                    //blk.Close();
+                    //objVsAdaptor.StopConnectionSQL(con);
+
+                    //var locations = dt.AsEnumerable().Select(row => new ValidLocation
+                    //{
+                    //    Country = row.Field<string>("Country"),
+                    //    States = row.Field<List<string>>("State"),
+
+                    //});
+                    //ValidLocation locationDetails = new ValidLocation();
+                    //locationDetails = <ValidLocation>(dt);
+                    //validLocationsRepository.Insert(locationDetails);
+                    //ValidLocation locationDetails = new ValidLocation();
+                    //locationDetails = (from DataRow dr in dt.Rows
+                    //               select new ValidLocation()
+                    //               {
+                    //                   Country = dr["Country"].ToString()
+                    //                  // States = dr["State"].ToString(),
+
+                    //               }).ToList();
+
                 }
                 catch (Exception ex)
                 {
@@ -1809,21 +1899,33 @@ namespace VitalSignsDailyStats
 
 
 
-            sql = "IF NOT EXISTS(SELECT * FROM Settings WHERE Sname = 'LastTableUpdate') ";
-            sql += " INSERT INTO Settings (SName, SValue, SType) VALUES ('LastTableUpdate', getDate(),'System.String') ";
-            sql += " ELSE UPDATE Settings SET SValue=getDate() WHERE SName='LastTableUpdate'";
+            //sql = "IF NOT EXISTS(SELECT * FROM Settings WHERE Sname = 'LastTableUpdate') ";
+            //sql += " INSERT INTO Settings (SName, SValue, SType) VALUES ('LastTableUpdate', getDate(),'System.String') ";
+            //sql += " ELSE UPDATE Settings SET SValue=getDate() WHERE SName='LastTableUpdate'";
+            //try
+            //{
+            //    objVsAdaptor.ExecuteNonQueryAny("VitalSigns", "", sql);
+            //}
+            //catch (Exception ex)
+            //{
+            //    WriteAuditEntry(DateTime.Now.ToString() + " Error executing SQL command " + ex.ToString());
+            //}
+
             try
             {
-                objVsAdaptor.ExecuteNonQueryAny("VitalSigns", "", sql);
+                var cleanUpTablesDate = new List<NameValue> { new NameValue { Name = "LastTableUpdate", Value = DateTime.Now.ToString() } };
+
+                var results = SaveNameValues(cleanUpTablesDate);
+
             }
             catch (Exception ex)
             {
-                WriteAuditEntry(DateTime.Now.ToString() + " Error executing SQL command " + ex.ToString());
+                WriteAuditEntry("Error in updating LastTableUpdate in name_value collection...." + ex.ToString());
             }
 
 
         }
-
+    
         private int GetWeekNumber(DateTime dt)
         {
             int year = dt.Year;
@@ -2353,7 +2455,7 @@ namespace VitalSignsDailyStats
               //Cleaning Up Status Details
                 statusDeatilsRepository.Delete();
                 //Cleaning Up Status Table
-                statusRepository.Delete();
+             //   statusRepository.Delete();
                 //Cleaning Up TravelerStats Table
 
                 Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated < DateTime.Now);
