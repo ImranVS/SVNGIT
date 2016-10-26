@@ -386,11 +386,11 @@
             "path": "/app/configurator/components/server/server-simulation-tests.compoment"
           },
           {
+            "component": "ServerAdvancedSettings",
+            "path": "/app/configurator/components/server/server-advanced-settings.component",
             "tab_id": 3,
             "title": "Advanced Settings",
-            "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/configurator/components/server/server-maintenance-windows.compoment"
+            "type": "Configurator"
           },
           {
             "tab_id": 4,
@@ -473,8 +473,10 @@
             "tab_id": 2,
             "title": "Advanced Settings",
             "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServerAdvancedSettings",
+            "path": "/app/configurator/components/server/server-advanced-settings.component"
+
+
           },
           {
             "tab_id": 3,
