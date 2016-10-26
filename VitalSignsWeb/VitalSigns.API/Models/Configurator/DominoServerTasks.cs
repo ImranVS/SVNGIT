@@ -30,13 +30,18 @@ namespace VitalSigns.API.Models
         public bool? IsDisallow { get; set; }
 
 
+        [JsonProperty("device_id")]
+        public string DeviceId { get; set; }
+
+
     }
 
     public class DominoServerTasksValue
     {
+
         [JsonProperty("id")]
         public string Id { get; set; }
-
+        
         [JsonProperty("task_name")]
         public string TaskName { get; set; }
 
