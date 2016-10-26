@@ -85,6 +85,9 @@ export class ChartComponent implements WidgetComponent, OnInit {
                 
                 this.chart = new Highcharts.Chart(this.settings.chart);
 
+                if (this.settings.callback)
+                    this.settings.callback(this.settings.chart);
+
             },
             error => this.errorMessage = <any>error);
 
