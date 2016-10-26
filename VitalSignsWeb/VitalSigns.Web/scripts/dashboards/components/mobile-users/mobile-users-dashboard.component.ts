@@ -15,6 +15,9 @@ declare var bootstrapNavigator: any;
 })
 export class MobileUsersDashboard extends WidgetController implements OnInit {
 
+    dashboardTitle: string = 'IBM Mobile Users';
+    dashboardSubtitle: string = 'IBM Mobile Users dashboard';
+
     widgets: WidgetContract[] = [
         {
             id: 'mobileUsersKeyUserGrid',
@@ -210,12 +213,46 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
     ]
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
+
         super(resolver, widgetService);
+
     }
 
     ngOnInit() {
+
         injectSVG();
         bootstrapNavigator();
+
+    }
+
+    printReport() {
+
+        var doc = new wijmo.PrintDocument({
+            title: this.dashboardTitle
+        });
+
+        doc.append(`<h1>${this.dashboardSubtitle}</h1>`);
+
+        this.widgets.forEach(widget => {
+
+            if (widget.name == 'ChartComponent') {
+
+                doc.append(`<h2>${widget.title}</h2>`);
+
+                var view = <HTMLElement>document.querySelector(`#${widget.id}`);
+                
+                for (var i = 0; i < view.children.length; i++) {
+
+                    doc.append(view.children[i]);
+
+                }
+
+            }
+
+        });
+        
+        doc.print();
+
     }
 
 }
