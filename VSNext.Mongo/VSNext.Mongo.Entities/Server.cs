@@ -187,6 +187,11 @@ namespace VSNext.Mongo.Entities
         public int? ClusterReplicationDelayThreshold { get; set; }
 
         [DataMember]
+        [BsonElement("cluster_replication_queue_threshold")]
+        [BsonIgnoreIfNull]
+        public int? ClusterReplicationQueueThreshold { get; set; }
+
+        [DataMember]
         [BsonElement("server_days_alert")]
         [BsonIgnoreIfNull]
         public int? ServerDaysAlert { get; set; }
@@ -425,6 +430,12 @@ namespace VSNext.Mongo.Entities
         public int? DbmsPort { get; set; }
 
         [DataMember]
+        [BsonElement("db2_settings_credentials_id")]
+        [BsonIgnoreIfNull]
+        public string Db2SettingsCredentialsId { get; set; }
+
+
+        [DataMember]
         [BsonElement("collect_extended_statistics")]
         [BsonIgnoreIfNull]
         public Boolean? CollectExtendedStatistics { get; set; }
@@ -438,6 +449,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("collect_meeting_statistics")]
         [BsonIgnoreIfNull]
         public Boolean? CollectMeetingStatistics { get; set; }
+
+        [DataMember]
+        [BsonElement("collect_conference_statistics")]
+        [BsonIgnoreIfNull]
+        public Boolean? CollectConferenceStatistics { get; set; }
 
         [DataMember]
         [BsonElement("meeting_host_name")]
@@ -454,10 +470,10 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public Boolean? MeetingRequireSSL { get; set; }
 
-        [DataMember]
-        [BsonElement("collect_conference_statistics")]
-        [BsonIgnoreIfNull]
-        public Boolean? CollectConferenceStatistics { get; set; }
+        //[DataMember]
+        //[BsonElement("collect_conference_statistics")]
+        //[BsonIgnoreIfNull]
+        //public Boolean? CollectConferenceStatistics { get; set; }
 
         [DataMember]
         [BsonElement("conference_host_name")]
