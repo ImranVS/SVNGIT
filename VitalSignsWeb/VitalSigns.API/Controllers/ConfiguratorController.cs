@@ -1287,6 +1287,9 @@ namespace VitalSigns.API.Controllers
                                 DatabaseSettingsCredentialsId = x.DatabaseSettingsCredentialsId,
                                 DatabaseSettingsPort=x.DatabaseSettingsPort,
                                 DeviceType = x.DeviceType,
+                                CollectConferenceStatistics=x.CollectConferenceStatistics,
+                                ClusterReplicationQueueThreshold=x.ClusterReplicationQueueThreshold,
+                                Db2SettingsCredentialsId=x.Db2SettingsCredentialsId
                                 
                                 
 
@@ -1335,7 +1338,8 @@ namespace VitalSigns.API.Controllers
                         var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold)
                                                                  .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold)
                                                                  .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
-                                                                 .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold);
+                                                                 .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold)
+                                                                 .Set(p=> p.ClusterReplicationQueueThreshold,advancedSettings.ClusterReplicationQueueThreshold);
                         var result = serversRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result);
                     }
@@ -1355,7 +1359,9 @@ namespace VitalSigns.API.Controllers
                                                                .Set(p => p.MeetingRequireSSL, advancedSettings.MeetingRequireSSL)
                                                               .Set(p => p.ConferenceHostName, advancedSettings.ConferenceHostName)
                                                               .Set(p => p.ConferencePort, advancedSettings.ConferencePort)
-                                                               .Set(p => p.ConferenceRequireSSL, advancedSettings.ConferenceRequireSSL);
+                                                               .Set(p => p.ConferenceRequireSSL, advancedSettings.ConferenceRequireSSL)
+                                                               .Set(p=>p.CollectConferenceStatistics,advancedSettings.CollectConferenceStatistics)
+                                                               .Set(p=>p.Db2SettingsCredentialsId,advancedSettings.Db2SettingsCredentialsId);
 
                         var result = serversRepository.Update(filterDefination, updateDefination);
                        
