@@ -1424,6 +1424,11 @@ namespace VSNext.Mongo.Entities
         public string TaskName { get; set; }
 
         [DataMember]
+        [BsonElement("task_id")]
+        [BsonIgnoreIfNullAttribute]
+        public string TaskId { get; set; }
+
+        [DataMember]
         [BsonElement("monitored")]
         [BsonIgnoreIfNullAttribute]
         public Boolean? Monitored { get; set; }
