@@ -3,7 +3,7 @@
     <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Enabled'" [binding]="'is_selected'" [width]="100"> </wj-flex-grid-column>
-       <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="100" is-read-only="true"> </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="100" is-read-only="true"> </wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Load'" [binding]="'is_load'" [width]="100"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Restart ASAP'" [binding]="'is_restart_asap'" [width]="100"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Resart Later'" [binding]="'is_resart_later'" [width]="100"></wj-flex-grid-column>
@@ -68,8 +68,8 @@ data.pageIndex + 1 | number
             </h4>
             <div class="modal-body" *ngIf="currentEditItem">
                 <div class="form-group">
-                    <label for="is_selected">Enabled</label>
                     <input type="checkbox" class="checkbox-inline" id="is_selected" required name="is_selected" [(ngModel)]="currentEditItem.is_selected">
+                    <label for="is_selected">Enabled</label>
                 </div>
 
                 <div class="form-group">
@@ -80,22 +80,21 @@ data.pageIndex + 1 | number
                     </wj-combo-box>
                 </div>
 
-                
                 <div class="form-group" *ngIf="currentEditItem">
-                    <label for="is_load">Load</label>
                     <input type="checkbox" class="checkbox-inline" id="is_load" required name="is_load" [(ngModel)]="currentEditItem.is_load">
+                    <label for="is_load">Load</label>
                 </div>
-                <div class="form-group"  *ngIf="currentEditItem">
-                    <label for="is_restart_asap">Restart ASAP</label>
+                <div class="form-group" *ngIf="currentEditItem">
                     <input type="checkbox" class="checkbox-inline" id="is_restart_asap" required name="is_restart_asap" [(ngModel)]="currentEditItem.is_restart_asap">
+                    <label for="is_restart_asap">Restart ASAP</label>
                 </div>
-                <div class="form-group"  *ngIf="currentEditItem">
+                <div class="form-group" *ngIf="currentEditItem">
+                    <input type="checkbox" class="checkbox-inline" id="is_resart_later" required name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
                     <label for="is_resart_later">Resart Later</label>
-                    <input type="checkbox"class="checkbox-inline" id="is_resart_later" required name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
                 </div>
-                <div class="form-group"  *ngIf="currentEditItem">
-                    <label for="is_disallow">Disallow</label>
+                <div class="form-group" *ngIf="currentEditItem">
                     <input type="checkbox" class="checkbox-inline" id="is_disallow" required name="is_disallow" [(ngModel)]="currentEditItem.is_disallow">
+                    <label for="is_disallow">Disallow</label>
                 </div>
 
             </div>
@@ -105,10 +104,6 @@ data.pageIndex + 1 | number
         </form>
     </wj-popup>
 
-
-
-    
-         
 
 </div>
 
