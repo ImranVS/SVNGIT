@@ -1060,8 +1060,10 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+
         #endregion
-    
+
         #region Disk Settings
         /// <summary>
         /// Returns Disk Names
@@ -1280,7 +1282,8 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                Repository repository = new Repository("mongodb://localhost:27017", "vitalsigns_dev", "server");
+          
+                Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                 serversRepository = new Repository<Server>(ConnectionString);
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
                Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
