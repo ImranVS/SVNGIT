@@ -568,6 +568,11 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+
+        /// <summary>
+        ///get the maintenance data for configurator
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpGet("get_server_maintenancedata/{id}")]
         public APIResponse GetServerMaintenanceData(string id)
         {
@@ -586,9 +591,13 @@ namespace VitalSigns.API.Controllers
                                                                   id = m.Id,
                                                                   Name = m.Name,
                                                                   StartDate = m.StartDate,
-                                                                  StartTime = m.StartTime
+                                                                  StartTime = m.StartTime,
+                                                                  EndDate = m.EndDate,
+                                                                  Duration = m.Duration,
+                                                                  // MaintainType = pending
+                                                                  MaintenanceFrequency = m.MaintenanceFrequency
                                                               }).ToList();
-                //var Maintenance = results.Where(s=>s.id.Equals(result));
+                Response = Common.CreateResponse(results);
             }
             catch (Exception exception)
             {
