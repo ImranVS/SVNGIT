@@ -1131,7 +1131,7 @@ namespace VitalSigns.API.Controllers
                 string settingValue = Convert.ToString(deviceSettings.Value);
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
                 UpdateDefinition<Server> updateDefinition = null;
-                if (devicesList.Count() > 0 && !string.IsNullOrEmpty(setting) && !string.IsNullOrEmpty(settingValue))
+                if (devicesList.Count() > 0 && !string.IsNullOrEmpty(setting))
                 {                
 
                     foreach (string id in devicesList)
@@ -1139,11 +1139,11 @@ namespace VitalSigns.API.Controllers
                         var server = serversRepository.Get(id);
                         List<DiskSetting> diskSettings = new List<DiskSetting>();
 
-                        if (setting.Equals("percentage"))
+                        if (setting.Equals("allDisksBypercentage"))
                             diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "Percent" });
-                        else if (setting.Equals("gb"))
+                        else if (setting.Equals("allDisksByGB"))
                             diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "GB" });                      
-                        else if (setting.Equals("noAlerts"))
+                        else if (setting.Equals("noDiskAlerts"))
                             diskSettings.Add(new DiskSetting { DiskName = "NoAlerts", Threshold = null, ThresholdType = null });
                         else if (setting.Equals("selectedDisks"))
                         {
@@ -1561,17 +1561,17 @@ namespace VitalSigns.API.Controllers
                                 
 
                             }).FirstOrDefault();
-                
-                //if(results.DeviceType== "IBM Connections")
-                //{ 
-                //var ibmCredentialname = credentialsRepository.All().Where(x => x.Id == results.DatabaseSettingsCredentialsId).Select(x => new Credentials
-                //{
-                //    Alias = x.Alias
 
-                    
-                //}).FirstOrDefault();
-                //results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
-                //}
+                if (results.DeviceType == "IBM Connections")
+                {
+                    var ibmCredentialname = credentialsRepository.All().Where(x => x.Id == results.DatabaseSettingsCredentialsId).Select(x => new Credentials
+                    {
+                        Alias = x.Alias
+
+
+                    }).FirstOrDefault();
+                    results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
+                }
                 Response = Common.CreateResponse(results);
             }
             catch (Exception ex)
