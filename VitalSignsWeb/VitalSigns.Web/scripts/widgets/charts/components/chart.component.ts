@@ -26,7 +26,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
     refresh(serviceUrl?: string) {
 
         this.loadData(serviceUrl);
-
+        
     }
     
     ngOnInit() {
@@ -46,6 +46,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
                 }
 
                 let chart = <Chart>data.data;
+                
                 let first = true;
                 
                 chart.series.map(serie => {
@@ -56,12 +57,14 @@ export class ChartComponent implements WidgetComponent, OnInit {
                     });
 
                     this.settings.chart.series[length - 1].name = serie.title;
-
+                    //NS added the line below this.settings.chart.xAxis.categories = []; - the categories array needs 
+                    //to be cleared every time, otherwise, the chart does not redraw x axis values if the data is updated
+                    this.settings.chart.xAxis.categories = [];
                     serie.segments.map(segment => {
 
-                        if (first && this.settings.chart.xAxis)
+                        if (first && this.settings.chart.xAxis) {
                             this.settings.chart.xAxis.categories.push(segment.label);
-
+                        }
                         this.settings.chart.series[length - 1].data.push({
                             name: segment.label,
                             y: segment.value,
@@ -78,11 +81,11 @@ export class ChartComponent implements WidgetComponent, OnInit {
                         else if (serie.title.startsWith("Disk")) {
                            
                             this.settings.chart.chart.type = 'pie';
-                        }
-                    
-                    first = false;
+                    }
+
+                        first = false;
                 });
-                
+
                 this.chart = new Highcharts.Chart(this.settings.chart);
 
                 if (this.settings.callback)

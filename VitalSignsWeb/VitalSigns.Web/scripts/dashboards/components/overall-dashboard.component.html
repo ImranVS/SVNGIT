@@ -33,104 +33,54 @@
     </div>
     <div class="clearfix"></div>
 </div>
-<div id="zeusContent" class="container-fluid">
 
-    <div class="row">
+<div class="col-lg-12">
+    
+    <div id="zeusContent" class="container-fluid">
+        <div class="row">
 
-        <div class="col-lg-8">
+            <div class="col-lg-8">
 
 
-            <div class="row">
+                <div class="row">
 
-                <my-widget [contract]="widgetStatusSummary">loading...</my-widget>
+                    <my-widget [contract]="widgetStatusSummary">loading...</my-widget>
 
+                    <!--Usersessions, Downtimes, AverageResponse, Pending, Dead and Held Mails widget-->
+                    <my-widget [contract]="widgetUsersSessions">loading...</my-widget>
+                </div>
+
+                
             </div>
 
 
-            <div class="row">
+            <div class="col-lg-4">
+                <div class="row">
 
-                <div class="col-lg-3 col-md-12">
+                    <!-- On premises applications -->
+                    <div class="{{widgetOnPremisesApps.css}}">
+                        <div class="widgetWrapper " data-widget-type="widgetOnPremisesApps">
 
-                    <div class="row">
-
-
-
-                        <!-- Network quality -->
-                        <div class="col-lg-12 col-md-6 col-sm-6 zeusColorReact-success">
-                            <div class="widgetWrapper h-xs-110 h-sm-362 h-lg-110 zeusColorReactBg" data-widget-type="widgetImageText">
-                                <img class="svgInject" src="img/dashboard/NetworkQuality.svg" title="Network Quality" alt="Network Quality" />
-                                <div>
-                                    <div class="widgetImageText-head">Good</div>
-                                    <div class="widgetImageText-text">Network quality</div>
-                                </div>
+                            <div class="widgetTitle">
+                                {{widgetOnPremisesApps.title}}
                             </div>
-                        </div>
 
-                    </div>
+                            <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
 
-                </div>
+                            <div class="widgetContent">
 
-                <div class="col-md-6 col-lg-3">
+                                <my-widget [contract]="widgetOnPremisesApps">loading...</my-widget>
 
-                    <my-widget [contract]="widgetAppsStatus[0]">loading...</my-widget>
-
-                    <my-widget [contract]="widgetAppsStatus[1]">loading...</my-widget>
-
-                </div>
-                <div class="col-md-6 col-lg-3">
-
-                    <my-widget [contract]="widgetAppsStatus[2]">loading...</my-widget>
-
-                    <my-widget [contract]="widgetAppsStatus[3]">loading...</my-widget>
-
-                </div>
-
-                <div class="col-lg-3 col-md-12">
-                    <div class="row">
-
-                        <!--Usersessions, Downtimes, AverageResponse, Pending, Dead and Held Mails widget-->
-
-                        <div class="row">
-
-                            <my-widget [contract]="widgetUsersSessions">loading...</my-widget>
-
+                            </div>
 
                         </div>
-
                     </div>
+
+
                 </div>
             </div>
 
+
         </div>
-
-
-        <div class="col-lg-4">
-            <div class="row">
-
-                <!-- On premises applications -->
-                <div class="{{widgetOnPremisesApps.css}}">
-                    <div class="widgetWrapper h-xs-880" data-widget-type="widgetOnPremisesApps">
-
-                        <div class="widgetTitle">
-                            {{widgetOnPremisesApps.title}}
-                        </div>
-
-                        <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
-
-                        <div class="widgetContent">
-
-                            <my-widget [contract]="widgetOnPremisesApps">loading...</my-widget>
-
-                        </div>
-
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
-
-
     </div>
-
 </div>

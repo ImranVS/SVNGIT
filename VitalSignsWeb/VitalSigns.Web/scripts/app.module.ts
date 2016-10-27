@@ -76,6 +76,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         dashboards.Office365Dashboard,
         dashboards.KeyMetricsDashboard,
         dashboards.OverallDatabaseDashboard,
+        dashboards.UsersDashboard,
         dashboards.CloudServicesDashboard,
         dashboards.FinancialDashboard,
         dashboards.StatusMapDashboard,

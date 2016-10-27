@@ -10,6 +10,7 @@ import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm
 
 import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component'; 
 import {OverallDatabaseDashboard} from './dashboards/components/overall-database-dashboard.component'; 
+import {UsersDashboard} from './dashboards/components/users-dashboard.component'; 
 
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -51,6 +52,7 @@ export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.com
 
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
 export * from './dashboards/components/overall-database-dashboard.component'
+export * from './dashboards/components/users-dashboard.component'
 
 export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -147,6 +149,10 @@ const appRoutes: Routes = [
     {
         path: 'dashboard/dominodatabases',
         component: OverallDatabaseDashboard
+    },
+    {
+        path: 'dashboard/users',
+        component: UsersDashboard
     },
     {
         path: 'dashboard/financial',

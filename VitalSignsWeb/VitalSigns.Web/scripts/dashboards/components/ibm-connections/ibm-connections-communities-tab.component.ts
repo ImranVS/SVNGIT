@@ -129,7 +129,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
                     url: `/dashboard/connections/top_communities?deviceid=${this.serviceId}&count=1`,
-                    callback: (chart) => this.widgets[2].title = chart.series[0].name,
+                    callback: (chart) => this.widgets[2].title = 'Most Active Community is "' + chart.series[0].name + '"',
                     chart: {
                         chart: {
                             renderTo: 'mostActiveCommunity',
@@ -172,9 +172,6 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
             }
         ];
         injectSVG();
-        //console.log(this.widgetService.findWidget('mostActiveCommunity').component.settings);
-        //var chart = <Chart>this.widgetService.findWidget('mostActiveCommunity').component.settings;
-        //chart.setTitle('test');
     }
 
     onPropertyChanged(key: string, value: any) {
@@ -193,8 +190,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
 
             this.widgetService.refreshWidget('mostActiveCommunity', `/dashboard/connections/top_communities?deviceid=${this.serviceId}&count=1`)
                 .catch(error => console.log(error));
-            //console.log(`/dashboard/connections/top_communities?deviceid=${this.serviceId}&count=1`);
-            //console.log(this.widgetService.findWidget('mostActiveCommunity').component.settings);
+            
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 
 import 'rxjs/Rx';
 
@@ -15,36 +16,7 @@ declare var bootstrapNavigator: any;
 })
 export class OverallDashboard extends WidgetController implements OnInit {
 
-    widgetAppsStatus: WidgetContract[] = [
-        {
-            id: 'widgetOnPremisesApps1',
-            name: 'AppStatus',
-            settings: {
-                serviceId: 1
-            }
-        },
-        {
-            id: 'widgetOnPremisesApps2',
-            name: 'AppStatus',
-            settings: {
-                serviceId: 2
-            }
-        },
-        {
-            id: 'widgetOnPremisesApps3',
-            name: 'AppStatus',
-            settings: {
-                serviceId: 3
-            }
-        },
-        {
-            id: 'widgetOnPremisesApps4',
-            name: 'AppStatus',
-            settings: {
-                serviceId: 4
-            }
-        }
-    ]
+    status: string;
 
     widgetOnPremisesApps: WidgetContract = {
         id: 'widgetOnPremisesApps',
@@ -67,14 +39,14 @@ export class OverallDashboard extends WidgetController implements OnInit {
         settings: {}
     }
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
 
         super(resolver, widgetService);
 
     }
 
     ngOnInit() {
-
+        
         injectSVG();
         bootstrapNavigator();
 
