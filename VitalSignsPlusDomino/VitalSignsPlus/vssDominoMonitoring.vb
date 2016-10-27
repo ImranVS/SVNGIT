@@ -4833,7 +4833,6 @@ skipdrive2:
                                     .DiskName = myDiskDrive.DiskName,
                                     .DiskSize = myDiskDrive.DiskSize,
                                     .PercentFree = myDiskDrive.PercentFree,
-                                    .AverageQueueLength = myDiskDrive.DiskAverageQueueLength,
                                     .Threshold = MyDominoServer.DiskThreshold,
                                     .ThresholdType = myDiskDrive.ThresholdType
                                     })
@@ -4842,8 +4841,7 @@ skipdrive2:
 
                     listOfDiskStatus.Add(New VSNext.Mongo.Entities.DiskStatus() With {
                                     .DiskName = myDiskDrive.DiskName,
-                                    .PercentFree = myDiskDrive.PercentFree,
-                                    .AverageQueueLength = myDiskDrive.DiskAverageQueueLength
+                                    .PercentFree = myDiskDrive.PercentFree
                                     })
                 End If
 
