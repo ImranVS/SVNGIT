@@ -65,7 +65,7 @@ export class ServerTasks extends GridBase {
     saveServerTasks(dlg: wijmo.input.Popup) {
         //this.buildPostData("add", dlg);
         this.selectedSettingValue = this.selectedName;
-        alert(this.selectedSettingValue);
+       // alert(this.selectedSettingValue);
 
         this.saveGridRow1('/configurator/save_server_tasks', dlg);
     }
