@@ -15,8 +15,8 @@ import {DiskSttingsValue} from '../../models/server-disk-settings';
     ]
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
-export class ServerDiskSettings  {
-    
+export class ServerDiskSettings implements OnInit {
+    @ViewChild('flexDisks') flexDisks: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     errorMessage: any;
     deviceLocationData: any;
@@ -32,7 +32,7 @@ export class ServerDiskSettings  {
     noDiskAlerts: string;
     postData: any;
     diskValues: any;
-    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+   
 
     constructor(    
         private dataProvider: RESTService,
@@ -53,9 +53,31 @@ export class ServerDiskSettings  {
 
 
         });
-   }
+    }
+    ngOnInit() {
+        console.log(this.flexDisks);
+    }
 
-   
+    itemsSourceChangedHandler() {
+        var flex = this.flexDisks;
+        console.log(flex);
+        if (flex) {
+            var colThresholdType = flex.columns.getColumn('threshold_type');
+
+            if (colThresholdType) {
+
+                colThresholdType.showDropDown = true; // or colors (just to show how)
+                var unitsData = [{ unit: "Percent", code: "Percent" }, { unit: "GB", code: "GB" }];
+                console.log(unitsData);
+                var unitsDataMap = new wijmo.grid.DataMap(unitsData, 'unit', 'code');
+                console.log(unitsDataMap);
+                colThresholdType.dataMap = unitsDataMap;
+            }
+            else {
+                colThresholdType.dataMap = null;
+            }
+        }
+    }
     
     applySetting(nameValue: any): void{
        // alert(this.flex);
@@ -71,9 +93,9 @@ export class ServerDiskSettings  {
         {
             this.selectedDiskSettingValue = this.selectedDisks;
             var slectedDiskSettingValues: DiskSttingsValue[] = [];
-            for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            for (var _i = 0; _i < this.flexDisks.collectionView.sourceCollection.length; _i++) {
 
-                var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+                var item = (<wijmo.collections.CollectionView>this.flexDisks.collectionView.sourceCollection)[_i];
 
                 if (item.is_selected) {
 
@@ -124,8 +146,8 @@ export class ServerDiskSettings  {
     set pageSize(value: number) {
         if (this.data.pageSize != value) {
             this.data.pageSize = value;
-            if (this.flex) {
-                (<wijmo.collections.IPagedCollectionView>this.flex.collectionView).pageSize = value;
+            if (this.flexDisks) {
+                (<wijmo.collections.IPagedCollectionView>this.flexDisks.collectionView).pageSize = value;
             }
         }
     }

@@ -2,98 +2,53 @@
 <div class="container">
 
     <div class="panel panel-default">
-       
+
         <div class="panel-body">
 
-            <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting"> 
+            <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting">
             <label for="selectionType">	All Disks - By Percentage</label>
-            <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting" >
+            <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting">
             <label for="selectionType">All Disks - By GB</label>
             <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting">
             <label for="selectionType">	Selected Disks</label>
             <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting">
             <label for="selectionType">No Disk Alerts</label>
-      
-    </div>
+
         </div>
+    </div>
     <div class="form-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
         <label for="currentThresholdByPercentage">Current threshold:</label>
 
-        <input type="text" class="form-control"  name="currentThresholdByPercentage" [(ngModel)]="diskByPercentage" >
+        <input type="text" class="form-control" name="currentThresholdByPercentage" [(ngModel)]="diskByPercentage">
         <label for="currentThresholdByPercentage">% free space</label>
-    </div> 
+    </div>
     <div class="form-group" *ngIf="selectedDiskSetting=='allDisksByGB'">
         <label for="currentThresholdByGB">Current threshold:</label>
 
         <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskByGB">
         <label for="currentThresholdByGB">GB free space</label>
     </div>
-    <div class="form-group"  *ngIf="selectedDiskSetting=='selectedDisks'">
+    <div class="form-group" *ngIf="selectedDiskSetting=='selectedDisks'">
         <!--<label >Current disk:</label>-->
-        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility ="Column">
-          
-           <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
+        <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column"  (itemsSourceChanged)="itemsSourceChangedHandler()" #flexDisks>
 
-           </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Disk Name'" [binding]="'disk_name'"  is-read-only="true">
-                 
+            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
+
             </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'"  [width]="150">
-                
+            <wj-flex-grid-column [header]="'Disk Name'" [binding]="'disk_name'" is-read-only="true">
+
             </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'threshold_type'">
-               
-                <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                    <select name="threshold_type" class="form-control" >
-                        <option value="gb">GB</option>
-                        <option value="percent">Percent</option>
-                    </select>
-                    
-                </template>
-                
-                
+            <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'" [width]="150">
+
             </wj-flex-grid-column>
-           
+            <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'threshold_type'" ></wj-flex-grid-column>
+
 
         </wj-flex-grid>
-        <div class="btn-group" *ngIf="data != null">
-            <button type="button" class="btn btn-default"
-                    (click)="data.moveToFirstPage()"
-                    [disabled]="data.pageIndex <= 0">
-                <span class="glyphicon glyphicon-fast-backward"></span>
-            </button>
-            <button type="button" class="btn btn-default"
-                    (click)="data.moveToPreviousPage()"
-                    [disabled]="data.pageIndex <= 0">
-                <span class="glyphicon glyphicon-step-backward">
-                </span>
-            </button>
-            <button type="button" class="btn btn-default" disabled style="width:100px">
-                {{
-data.pageIndex + 1 | number
-                }} / {{data.pageCount | number}}
-            </button>
-            <button type="button" class="btn btn-default"
-                    (click)="data.moveToNextPage()"
-                    [disabled]="data.pageIndex >= data.pageCount - 1">
-                <span class="glyphicon glyphicon-step-forward"></span>
-            </button>
-            <button type="button" class="btn btn-default"
-                    (click)="data.moveToLastPage()"
-                    [disabled]="data.pageIndex >= data.pageCount - 1">
-                <span class="glyphicon glyphicon-fast-forward"></span>
-            </button>
-        </div>
-        <div class="pull-right" *ngIf="data != null">
-            <wj-menu [(value)]="pageSize" [header]="'Page size'">
-                <wj-menu-item [value]="10">10</wj-menu-item>
-                <wj-menu-item [value]="20">20</wj-menu-item>
-                <wj-menu-item [value]="50">50</wj-menu-item>
-            </wj-menu>
-        </div>
+     
     </div>
-        <div class="form-group" *ngIf="selectedDiskSetting">
-            <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
-            <button type="button" class="btn btn-success" (click)="applySetting(diskSettingsForm.value)">Apply Settings</button>
-        </div>
+    <div class="form-group" *ngIf="selectedDiskSetting">
+        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+        <button type="button" class="btn btn-success" (click)="applySetting(diskSettingsForm.value)">Apply Settings</button>
     </div>
+</div>
