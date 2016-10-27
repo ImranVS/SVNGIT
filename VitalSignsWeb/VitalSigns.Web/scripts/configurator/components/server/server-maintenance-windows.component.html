@@ -4,16 +4,16 @@
     
     <div class="form-group">
         <label >Maintenance Windows are times when you do not want the server monitored. You can define maintenance windows using the Hours & Maintenance\Maintenance menu option. Use the Actions column to modify maintenance windows information</label>
-        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true">
+        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row"  headersVisibility ="Column" [frozenColumns]="2" [isReadOnly]="true">
 
             <wj-flex-grid-filter></wj-flex-grid-filter>
-            <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"> </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Start Date'" [binding]="'start_date'" [width]="150"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="150"></wj-flex-grid-column>
-
-            <wj-flex-grid-column [header]="'End Date'" [binding]="'end_date'" [width]="150"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="160"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Maintenance Frequency'" [binding]="'maintenance_frequency'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Name'" [binding]="'Name'" [width]="200"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Start Date'" [binding]="'StartDate'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Start Time'" [binding]="'StartTime'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'End Date'" [binding]="'EndDate'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Duration'" [binding]="'Duration'" [width]="160"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Maintain Type'" [binding]="'MaintainType'" [width]="160"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Maintenance Frequency'" [binding]="'MaintenanceFrequency'" [width]="200"></wj-flex-grid-column>
 
 
         </wj-flex-grid>

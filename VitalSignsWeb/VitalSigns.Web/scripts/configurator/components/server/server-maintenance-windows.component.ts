@@ -6,6 +6,7 @@ import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
 import {DiskSttingsValue} from '../../models/server-disk-settings';
 
+
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/server/server-maintenance-windows.component.html',
@@ -16,29 +17,20 @@ import {DiskSttingsValue} from '../../models/server-disk-settings';
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
 export class MaintenanceWindows implements OnInit {
-
+    deviceId: any;
     data: wijmo.collections.CollectionView;
-    errorMessage: any;
-    deviceLocationData: any;
-    deviceCredentialData: any;
-    devicebusinessHourData: any;
-    diskSettingsForm: FormGroup;
-    selectedDiskSetting: any;
-    selectedDiskSettingValue: any;
-    devices: string;
-    diskByPercentage: string;
-    diskByGB: string;
-    selectedDisks: string;
-    noDiskAlerts: string;
-    postData: any;
-    diskValues: any;
-    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    errorMessage: string;
+     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
 
     constructor(
         private dataProvider: RESTService,
-        private formBuilder: FormBuilder) {
+        private formBuilder: FormBuilder, private route: ActivatedRoute) {
 
-        this.dataProvider.get('/Configurator/get_disk_names')
+        this.route.params.subscribe(params => {
+            this.deviceId = params['service'];
+
+        });
+        this.dataProvider.get('/Configurator/get_server_maintenancedata/' + this.deviceId +'')
             .subscribe(
             response => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
@@ -49,18 +41,11 @@ export class MaintenanceWindows implements OnInit {
        
     }
 
-
-
-    ngOnInit() {
-        alert("hi");
+ ngOnInit() {
+       
     }
 
-   
-    changeInDevices(server: string) {
-        this.devices = server;
-    }
-
-    get pageSize(): number {
+   get pageSize(): number {
         return this.data.pageSize;
     }
 
