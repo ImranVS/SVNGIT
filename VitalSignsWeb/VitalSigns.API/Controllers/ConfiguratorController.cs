@@ -1292,15 +1292,28 @@ namespace VitalSigns.API.Controllers
             try
             {
 
+
+
                 Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                 serversRepository = new Repository<Server>(ConnectionString);
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
                 Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
                 var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
                 var result = repository.Collection.Find(filter).FirstOrDefault();
-                var newresult = serversRepository.Find(attributeexpression).AsQueryable().FirstOrDefault();
-                Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == newresult.DeviceType);
-                List<DeviceAttributesModel> attri = new List<DeviceAttributesModel>();
+              
+                var serverresult = serversRepository.Find(attributeexpression).AsQueryable().Select(s=> new DeviceAttributesDataModel
+                {
+                    DeviceName=s.DeviceName,
+                    Description=s.Description,
+                    IPAddress=s.IPAddress,
+                    Category=s.Category,
+                    //IsEnabled=s.IsEnabled,
+                    LocationId=s.LocationId,
+                    Devicetype=s.DeviceType
+                }).FirstOrDefault();
+              
+                Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == serverresult.Devicetype);
+                List<DeviceAttributesModel> deviceAttributes = new List<DeviceAttributesModel>();
 
                 var attributes = deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x => x.Category).Select(x => new DeviceAttributesModel
                 {
@@ -1314,27 +1327,9 @@ namespace VitalSigns.API.Controllers
 
 
                 });
-                var newattr = attributes.Select(x => x.FieldName).ToList();
-                // var fields =  attributes ;
+                serverresult.DeviceAttributes = attributes.ToList();
 
-                foreach (string field in newattr)
-                {
-                    string value = string.Empty;
-                    if (!string.IsNullOrEmpty(field))
-                    {
-                        try
-                        {
-                            value = Convert.ToString(result[field]);
-                        }
-                        catch
-                        {
-                        }
-
-                        attri.Add(new DeviceAttributesModel { DefaultValue = value, FieldName = field });
-                    }
-                }
-                Response = Common.CreateResponse(attributes);
-                
+                Response = Common.CreateResponse(serverresult);
             }
             catch (Exception exception)
             {
