@@ -1291,18 +1291,29 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-          
+
                 Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                 serversRepository = new Repository<Server>(ConnectionString);
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-               Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
+                Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
                 var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
                 var result = repository.Collection.Find(filter).FirstOrDefault();
                 var newresult = serversRepository.Find(attributeexpression).AsQueryable().FirstOrDefault();
-                Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == newresult.DeviceType);            
-                List<DeviceAttributes> attri = new List<DeviceAttributes>();
-              
-                var attributes =  deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x=>x.Category);
+                Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == newresult.DeviceType);
+                List<DeviceAttributesModel> attri = new List<DeviceAttributesModel>();
+
+                var attributes = deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x => x.Category).Select(x => new DeviceAttributesModel
+                {
+                    AttributeName=x.AttributeName,
+                    Category=x.Category,
+                    Type=x.Type,
+                    Unitofmeasurement=x.Unitofmeasurement,
+                    FieldName=x.FieldName,
+                    DefaultValue=x.DefaultValue,
+                    DeviceType=x.DeviceType
+
+
+                });
                 var newattr = attributes.Select(x => x.FieldName).ToList();
                 // var fields =  attributes ;
 
@@ -1319,7 +1330,7 @@ namespace VitalSigns.API.Controllers
                         {
                         }
 
-                        attri.Add(new DeviceAttributes { DefaultValue = value, FieldName = field });
+                        attri.Add(new DeviceAttributesModel { DefaultValue = value, FieldName = field });
                     }
                 }
                 Response = Common.CreateResponse(attributes);
