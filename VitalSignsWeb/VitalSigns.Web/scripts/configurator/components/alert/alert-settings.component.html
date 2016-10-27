@@ -1,0 +1,315 @@
+﻿<div class="container">
+
+    <form [formGroup]="alertSettings" (ngSubmit)="onSubmit(alertSettings.value)">
+        <div class="row">
+            <h3>Alert Settings</h3>
+            <div class="col-xs-12 col-md-6 col-sm-12 col-lg-6">
+                <h4>Alerting Options</h4>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Advanced Alerting</div>
+                    <div class="panel-body">
+                        <p>By default, an alert is sent at the time of an exception and when it is closed. Enabling persistent alerting will allow you to receive notifications repeatedly until an exception is cleared or for the duration in hours specified below.</p>
+                        <div class="input-group">
+                            <input type="checkbox" class="checkbox-inline" id="enable_persitent_alerting" formControlName="enable_persitent_alerting" name="enable_persitent_alerting" />
+                            <label for="enable_persitent_alerting">Enable Persitent Alerting</label>
+                        </div>
+                        <div class="form-inline">
+                            <label for="alert_interval">Alert Interval:</label>
+                            <input type="text" class="form-control" id="alert_interval" name="alert_interval" formControlName="alert_interval" />
+                        </div>
+                        <div class="form-inline">
+                            <label for="alert_duration">Alert Duration:</label>
+                            <input type="text" class="form-control" id="alert_duration" name="alert_duration" formControlName="alert_duration" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-sm-12 col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Emergency Alerting</div>
+                    <div class="panel-body">
+                        <p>Enter emergency contact email address(es) below.</p>
+                        <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+                        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
+                            <wj-flex-grid-filter></wj-flex-grid-filter>
+                            <wj-flex-grid-column [header]="'E-Mail'" [binding]="'e_mail'" [width]="180"></wj-flex-grid-column>
+                        </wj-flex-grid>
+                        <div class="btn-group" *ngIf="data != null">
+                            <button type="button" class="btn btn-default"
+                                    (click)="data.moveToFirstPage()"
+                                    [disabled]="data.pageIndex <= 0">
+                                <span class="glyphicon glyphicon-fast-backward"></span>
+                            </button>
+                            <button type="button" class="btn btn-default"
+                                    (click)="data.moveToPreviousPage()"
+                                    [disabled]="data.pageIndex <= 0">
+                                <span class="glyphicon glyphicon-step-backward">
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-default" disabled style="width:100px">
+                                {{
+data.pageIndex + 1 | number
+                                }} / {{data.pageCount | number}}
+                            </button>
+                            <button type="button" class="btn btn-default"
+                                    (click)="data.moveToNextPage()"
+                                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                                <span class="glyphicon glyphicon-step-forward"></span>
+                            </button>
+                            <button type="button" class="btn btn-default"
+                                    (click)="data.moveToLastPage()"
+                                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                                <span class="glyphicon glyphicon-fast-forward"></span>
+                            </button>
+                        </div>
+                        <div class="pull-right" *ngIf="data != null">
+                            <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                                <wj-menu-item [value]="10">10</wj-menu-item>
+                                <wj-menu-item [value]="20">20</wj-menu-item>
+                                <wj-menu-item [value]="50">50</wj-menu-item>
+                            </wj-menu>
+                        </div>
+                        <div class="well grid-sort-group">
+                            <button class="btn btn-default" (click)="editGridRow1(frmDialog)">
+                                Edit
+                            </button>
+                            <button class="btn btn-default" (click)="addGridRow1(frmDialog)">
+                                Add
+                            </button>
+                            <button class="btn btn-default" (click)="delteAlertSettings();">
+                                Delete
+                            </button>
+                        </div>
+                        <wj-popup class="col-md-6 modal-content" #frmDialog>
+                            <form (ngSubmit)="saveAlertSettings(frmDialog)" #frmAlert="ngForm">
+                                <h4 class="modal-header">
+                                    {{formTitle}}
+                                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                                </h4>
+                                <div class="modal-body" *ngIf="currentEditItem">
+                                    <div class="form-group">
+                                        <label for="e_mail">E-Mail</label>
+                                        <input type="text" class="form-control" id="e_mail" required name="e_mail" [(ngModel)]="currentEditItem.e_mail">
+                                    </div>
+
+                                </div>
+                            </form>
+                        </wj-popup>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-sm-12 col-lg-6 ">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Alert Limits</div>
+                    <div class="panel-body">
+                        <p>When alert limits are enabled, a value of '0' in each of the alert limit text boxes should be interpreted as 'none'. I.e., if total maximum alerts per definition is set to 0 and total maximum alerts per day is set to 50, there will be no more than 50 alerts generated in a given day.</p>
+                        <div class="input-group">
+                            <input type="checkbox" class="checkbox-inline" id="enable_alert_limits" formControlName="enable_alert_limits" name="enable_alert_limits" />
+                            <label for="enable_alert_limits">Enable Alert Limits</label>
+                        </div>
+                        <div class="form-inline">
+                            <label for="total_maximum_alerts_per_definition">Total Maximum Alerts per Definition:</label>
+                            <input type="text" class="form-control" id="total_maximum_alerts_per_definition" name="total_maximum_alerts_per_definition" formControlName="total_maximum_alerts_per_definition" />
+                        </div>
+                        <div class="form-inline">
+                            <label for="total_maximum_alerts_per_day">Total Maximum Alerts per Day:</label>
+                            <input type="text" class="form-control" id="total_maximum_alerts_per_day" name="total_maximum_alerts_per_day" formControlName="total_maximum_alerts_per_day" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-sm-12 col-lg-6 ">
+                <div class="panel panel-default">
+                    <div class="panel-heading">SNMP Listener</div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <input type="checkbox" class="checkbox-inline" id="enable_SNMP_traps" formControlName="enable_SNMP_traps" name="enable_SNMP_traps" />
+                            <label for="enable_SNMP_traps">Enable SNMP traps</label>
+                        </div>
+                        <div class="form-inline">
+                            <label for="host_name">Host Name:</label>
+                            <input type="text" class="form-control" id="host_name" name="host_name" formControlName="host_name" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <h4>E-mail Alerting</h4>
+            <div class="panel panel-default">
+                <div class="panel-heading">Primary SMTP Server</div>
+                <div class="panel-body">
+                    <div class="form-inline">
+                        <label for="host_name">Host Name:</label>
+                        <input type="text" class="form-control" id="host_name" name="host_name" formControlName="host_name" />
+                        <label for="port">Port:</label>
+                        <input type="text" class="form-control" id="port" name="port" formControlName="port" />
+                        <button type="submit" class="btn btn-success">Test Connection</button>
+                        <button #licence type="button" class="btn btn-primary">
+                            Test Message
+                        </button>
+                        <wj-popup #frmDialog class="popover" [owner]="message" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                            <h3 class="popover-title">
+                                Test Message
+                                <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                            </h3>
+                            <div class="popover-content">
+                                <div class="input-group">
+                                    <label for="testmessage">Enter Email</label>
+                                    <input #licencekey class="form-control" name="testmessage" type="text" required />
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-primary" name="save" (click)="saveMessage(frmDialog);">OK</button>
+                                </div>
+                            </div>
+                        </wj-popup>
+                    </div>
+                    <div class="form-inline">
+                        <label for="from">From:</label>
+                        <input type="text" class="form-control" id="from" name="from" formControlName="from" />
+                        <input type="checkbox" class="checkbox-inline" id="requires_authentication" formControlName="requires_authentication" name="requires_authentication" />
+                        <label for="requires_authentication">Requires Authentication</label>
+                    </div>
+                    <div class="form-inline">
+                        <label for="user_id">User ID:</label>
+                        <input type="text" class="form-control" id="user_id" name="user_id" formControlName="user_id" />
+                        <input type="checkbox" class="checkbox-inline" id="requires_ssl" formControlName="requires_ssl" name="requires_ssl" />
+                        <label for="requires_ssl">Requires SSL</label>
+                    </div>
+                    <div class="form-inline">
+                        <label for="password">Password:</label>
+                        <button #licence type="button" class="btn btn-primary">
+                            Enter SMTP Password
+                        </button>
+                        <wj-popup #frmDialog class="popover" [owner]="message" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                            <h3 class="popover-title">
+                                Enter a Password
+                                <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                            </h3>
+                            <div class="popover-content">
+                                <div class="input-group">
+                                    <label for="password">Enter Email</label>
+                                    <input #password class="form-control" name="password" type="text" required />
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-primary" name="save" (click)="saveMessage(frmDialog);">OK</button>
+                                </div>
+                            </div>
+                        </wj-popup>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Secondary SMTP Server</div>
+                <div class="panel-body">
+                    <div class="form-inline">
+                        <label for="host_name">Host Name:</label>
+                        <input type="text" class="form-control" id="host_name" name="host_name" formControlName="host_name" />
+                        <label for="port">Port:</label>
+                        <input type="text" class="form-control" id="port" name="port" formControlName="port" />
+                        <button type="submit" class="btn btn-success">Test Connection</button>
+                        <button #licence type="button" class="btn btn-primary">
+                            Test Message
+                        </button>
+                        <wj-popup #frmDialog class="popover" [owner]="message" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                            <h3 class="popover-title">
+                                Test Message
+                                <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                            </h3>
+                            <div class="popover-content">
+                                <div class="input-group">
+                                    <label for="testmessage">Enter Email</label>
+                                    <input #licencekey class="form-control" name="testmessage" type="text" required />
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-primary" name="save" (click)="saveMessage(frmDialog);">OK</button>
+                                </div>
+                            </div>
+                        </wj-popup>
+                    </div>
+                    <div class="form-inline">
+                        <label for="from">From:</label>
+                        <input type="text" class="form-control" id="from" name="from" formControlName="from" />
+                        <input type="checkbox" class="checkbox-inline" id="requires_authentication" formControlName="requires_authentication" name="requires_authentication" />
+                        <label for="requires_authentication">Requires Authentication</label>
+                    </div>
+                    <div class="form-inline">
+                        <label for="user_id">User ID:</label>
+                        <input type="text" class="form-control" id="user_id" name="user_id" formControlName="user_id" />
+                        <input type="checkbox" class="checkbox-inline" id="requires_ssl" formControlName="requires_ssl" name="requires_ssl" />
+                        <label for="requires_ssl">Requires SSL</label>
+                    </div>
+                    <div class="form-inline">
+                        <label for="password">Password:</label>
+                        <button #licence type="button" class="btn btn-primary">
+                            Enter SMTP Password
+                        </button>
+                        <wj-popup #frmDialog class="popover" [owner]="message" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                            <h3 class="popover-title">
+                                Enter a Password
+                                <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                            </h3>
+                            <div class="popover-content">
+                                <div class="input-group">
+                                    <label for="password">Enter Email</label>
+                                    <input #password class="form-control" name="password" type="text" required />
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-primary" name="save" (click)="saveMessage(frmDialog);">OK</button>
+                                </div>
+                            </div>
+                        </wj-popup>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <h4>SMS/Text Alerting</h4>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <p>In order to utilize the SMS capability within VitalSigns, please sign up for an account with Twilio at https://www.twilio.com/sms . Once you have established an active account, fill out the fields below and configure your individual Alert Definitions to receive SMS as needed. The Phone Number From field will contain a telephone number issued by Twilio that will appear on your SMS as a sender.</p>
+                    </div>
+                    <div class="form-inline">
+                        <label for="account_sid">Account Sid:</label>
+                        <input type="text" class="form-control" id="account_sid" name="account_sid" formControlName="account_sid" />
+                    </div>
+                    <div class="form-inline">
+                        <label for="auth_token">Auth Token:</label>
+                        <input type="text" class="form-control" id="auth_token" name="auth_token" formControlName="auth_token" />
+                    </div>
+                    <div class="form-inline">
+                        <label for="phone_number_from">Phone Number From:</label>
+                        <input type="text" class="form-control" id="phone_number_from" name="phone_number_from" formControlName="phone_number_from" />
+                    </div>
+                </div>
+                </div>
+        </div>
+
+        <div class="row">
+            <h4>Recurring Alert Options</h4>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <p>Enable the flag 'Alert about recurrences only' when you want to be notified of events that happen on a frequent basis and are not considered critical. The alerting service will issue a notification when the number of recurrences of an event reaches the value specified in the 'Number of recurrences field' within the last hour of the service run time.</p>
+                    </div>
+                    <div class="input-group">
+                        <input type="checkbox" class="checkbox-inline" id="alert_about_recurrences_only" formControlName="alert_about_recurrences_only" name="alert_about_recurrences_only" />
+                        <label for="alert_about_recurrences_only">Alert about recurrences only</label>
+                    </div>    
+                    <div class="form-inline">
+                        <label for="number_of_recurrences">Number of recurrences (per hour):</label>
+                        <input type="text" class="form-control" id="number_of_recurrences" name="number_of_recurrences" formControlName="number_of_recurrences" />
+                    </div>               
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</div>

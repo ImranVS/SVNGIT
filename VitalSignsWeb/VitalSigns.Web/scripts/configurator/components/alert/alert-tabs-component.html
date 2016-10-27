@@ -1,0 +1,27 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="img/menu/servers.svg" title="Alerts" alt="Alerts" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Alerts
+            </h2>
+            <p>Alert conditions can trigger notifications</p>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div id="zeusContent" class="noPadding">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of tabsData">
+            <a href="javascript:void(0);">{{tab.title}}</a>
+        </li>
+    </ul>
+</div>
+<div class="tab-content" style="padding: 20px 30px 20px 20px ;">
+
+    <div #tab></div>
+
+</div>
