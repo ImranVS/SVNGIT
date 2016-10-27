@@ -1294,22 +1294,25 @@ namespace VitalSigns.API.Controllers
                 List<DeviceAttributes> attri = new List<DeviceAttributes>();
               
                 var attributes =  deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x=>x.Category);
-                var newattr = attributes.Select(x => x.FieldName).ToList();             
-               // var fields =  attributes ;
-                
-                foreach(string field in newattr)
+                var newattr = attributes.Select(x => x.FieldName).ToList();
+                // var fields =  attributes ;
+
+                foreach (string field in newattr)
                 {
-                    string value = string.Empty;                 
-                    try
+                    string value = string.Empty;
+                    if (!string.IsNullOrEmpty(field))
                     {
-                        value = Convert.ToString(result[field]);
+                        try
+                        {
+                            value = Convert.ToString(result[field]);
+                        }
+                        catch
+                        {
+                        }
+
+                        attri.Add(new DeviceAttributes { DefaultValue = value, FieldName = field });
                     }
-                    catch
-                    { }
-
-                    attri.Add(new DeviceAttributes { DefaultValue = value, FieldName = field });
                 }
-
                 Response = Common.CreateResponse(attributes);
                 
             }
@@ -1319,6 +1322,28 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        /// <summary>
+        ///saves the Server device attributes data
+        /// </summary>
+        /// <author>Swathi</author>
+        [HttpPut("save_servers_attributes")]
+        public APIResponse SaveServerDeviceAttributes([FromBody]DeviceAttributesModel serverAttributes)
+        {
+            try
+            {
+              //  var settingValue = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<DeviceAttributeValue>>();
+               // var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
+                //Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Attributes falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
 
         #region Disk Settings
         [HttpGet("get_server_disk_info/{id}")]
