@@ -3117,14 +3117,14 @@ Alerts:
         Try
             If DominoServer.Traveler_Status = "Red" Then
                 '5/20/2016 NS modified for VSPLUS-2874
-                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status: Red", "The overall status of IBM Notes Traveler on " & DominoServer.Name & " is " & DominoServer.Traveler_Status & " due to: " & vbCrLf & strReasons, DominoServer.Location)
+                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status Red", "The overall status of IBM Notes Traveler on " & DominoServer.Name & " is " & DominoServer.Traveler_Status & " due to: " & vbCrLf & strReasons, DominoServer.Location)
             Else
                 'In some cases Traveler_Status was blank, and this was resetting the alert even though the server was still Red  - AF
                 If Trim(DominoServer.Traveler_Status) <> "" Then
                     Dim strDetails As String
                     strDetails = "The overall status of IBM Notes Traveler is " & DominoServer.Traveler_Status
                     '5/20/2016 NS modified for VSPLUS-2874
-                    myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status: Red", DominoServer.Location, strDetails, "Traveler")
+                    myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status Red", DominoServer.Location, strDetails, "Traveler")
                 End If
 
             End If
@@ -3138,13 +3138,13 @@ Alerts:
         Try
             If DominoServer.Traveler_Status = "Yellow" Then
                 '5/20/2016 NS modified for VSPLUS-2874
-                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status: Yellow", "The overall status of IBM Notes Traveler on " & DominoServer.Name & " is " & DominoServer.Traveler_Status & " due to: " & vbCrLf & strReasons, DominoServer.Location)
+                myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status Yellow", "The overall status of IBM Notes Traveler on " & DominoServer.Name & " is " & DominoServer.Traveler_Status & " due to: " & vbCrLf & strReasons, DominoServer.Location)
             Else
                 Dim strDetails As String
                 If DominoServer.Traveler_Status = "Green" Then
                     strDetails = "The overall status of IBM Notes Traveler is Green"
                     '5/20/2016 NS modified for VSPLUS-2874
-                    myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status: Yellow", DominoServer.Location, strDetails, "Traveler")
+                    myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Traveler Status Yellow", DominoServer.Location, strDetails, "Traveler")
                 End If
 
             End If
