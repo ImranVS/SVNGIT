@@ -6,6 +6,37 @@ using System.Threading.Tasks;
 
 namespace VitalSigns.API.Models
 {
+    public class DeviceAttributesDataModel
+    {
+        public DeviceAttributesDataModel()
+        {
+            DeviceAttributes = new List<DeviceAttributesModel>();
+        }
+
+        [JsonProperty("device_name")]
+        public string DeviceName { get; set; }
+
+        [JsonProperty("description")]
+        public string Description { get; set; }
+
+        [JsonProperty("location_id")]
+        public string LocationId { get; set; }
+
+       [JsonProperty("ip_address")]
+        public string IPAddress { get; set; }
+
+        [JsonProperty("category")]
+        public string Category { get; set; }
+
+        [JsonProperty("device_type")]
+        public string Devicetype { get; set; }
+
+
+        [JsonProperty("is_enabled")]
+        public bool IsEnabled { get; set; }
+
+       public List<DeviceAttributesModel> DeviceAttributes { get; set; }
+    }
     public class DeviceAttributesModel
     {
         [JsonProperty("id")]
