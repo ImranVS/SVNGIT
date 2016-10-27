@@ -2684,8 +2684,17 @@ WaitHere:
             If InStr(MyDominoServer.Statistics_Server, "Elapsed") > 0 Then
                 myElapsedString = ParseTextStatValue("Server.ElapsedTime", MyDominoServer.Statistics_Server)
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The server is reporting an elapsed time of: " & myElapsedString, LogUtilities.LogUtils.LogLevel.Verbose)
-                Dim dIndex = myElapsedString.IndexOf(" ")
-                ElapsedDays = myElapsedString.Substring(0, dIndex + 1)
+                Try
+                    Dim dIndex = myElapsedString.IndexOf(" ")
+                    If dIndex = -1 Then
+                        ElapsedDays = 0
+                    Else
+                        ElapsedDays = myElapsedString.Substring(0, dIndex + 1)
+                    End If
+                Catch ex As Exception
+                    ElapsedDays = 0
+                End Try
+
                 If MyDominoServer.ServerDaysAlert > 0 Then
                     If (ElapsedDays > MyDominoServer.ServerDaysAlert) Then
                         myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Reboot Overdue", "Server has been running for " & ElapsedDays & " Days and is longer than the threshold of " & MyDominoServer.ServerDaysAlert & " Days", MyDominoServer.Location, "Policy")
