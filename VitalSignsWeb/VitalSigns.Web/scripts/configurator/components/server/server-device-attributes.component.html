@@ -1,21 +1,35 @@
 ﻿<div class="container">
-    <form [formGroup]="ServerAttribute" (ngSubmit)="onSubmit(ServerAttribute.value)">
-        <div *ngFor="let Attribute of Attributes |filterDeviceAttributes:scanSettings">
-            {{Attribute.category}}
+    <div class="panel panel-default">
+        <div class="panel-heading">Scan Settings</div>
+        <div class="panel-body">
+            <div *ngIf="attributes" class="form-horizontal">
+                <div *ngFor="let attribute of attributes |filterDeviceAttributes:scanSettings">
 
-            <div>{{Attribute.AttributeName}}</div>
-            <div *ngIf="Attribute.Type=='TextBox'">
-                <input type="text" [(ngModel)]="Attribute.DefaultValue">
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-5">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value">
+                            </div>
+                            <div *ngIf="attribute.type=='CheckBox'">
+                                <input type="checkbox" [(ngModel)]="attribute.default_value">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            {{Attribute.unit_of_measurement}}
+                        </div>
+                    </div>
+
+
+                </div>
+
             </div>
-            <div *ngIf="Attribute.Type=='CheckBox'">
-                <input type="checkbox" [(ngModel)]="Attribute.DefaultValue">
-            </div>
-            <div>{{Attribute.Unitofmeasurement}}</div>
 
         </div>
-        <div>
+    </div>
 
-            <button type="button" class="btn btn-success">Save</button>
-        </div>
-        </form>
+    <div>
+        <button type="button" class="btn btn-success">Save</button>
+    </div>
 </div>
+

@@ -24,8 +24,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     category: string;
     type: string;
     defaultvalue: string;
-    FieldName: string;
-    Attributes: any[];
+    fieldName: string;
+    attributes: any[];
     scanSettings:string ="Scan Settings"
 
     constructor(
@@ -54,9 +54,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
         this.Attribute.get('/configurator/' + this.deviceId + '/servers_attributes')
             .subscribe(
-            response => {
-                console.log(response.data);
-                this.Attributes = response.data;
+            response => {               
+                this.attributes = response.data.device_attributes;
                
             },
             error => this.errorMessage = <any>error
