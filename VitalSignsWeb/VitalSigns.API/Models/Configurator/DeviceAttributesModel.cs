@@ -35,7 +35,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("is_enabled")]
         public bool IsEnabled { get; set; }
 
-       public List<DeviceAttributesModel> DeviceAttributes { get; set; }
+        [JsonProperty("device_attributes")]
+        public List<DeviceAttributesModel> DeviceAttributes { get; set; }
     }
     public class DeviceAttributesModel
     {
@@ -58,7 +59,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("unit_of_measurement")]       
         public string Unitofmeasurement { get; set; }
 
-        [JsonProperty("catogory")]
+        [JsonProperty("category")]
         public string Category { get; set; }
 
         [JsonProperty("type")]
@@ -69,7 +70,7 @@ namespace VitalSigns.API.Models
     }
 
     public class DeviceAttributeValue
-    {
+    {  
         [JsonProperty("field_name")]
         public string FieldName { get; set; }
 

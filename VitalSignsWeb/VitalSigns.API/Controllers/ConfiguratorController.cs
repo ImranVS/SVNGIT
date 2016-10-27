@@ -906,11 +906,31 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                var settingValue = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<DeviceAttributeValue>>();
+                var deviceAttributes = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<DeviceAttributeValue>>();
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
-                //Response = Common.CreateResponse(result);
-            }
+                Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
+                UpdateDefinition<BsonDocument> updateDefinition = null;
+                if (devicesList.Count() > 0 && deviceAttributes.Count()>0)
+                {
 
+                    foreach (string id in devicesList)
+                    {
+                        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+                        foreach (var attribute in deviceAttributes)
+                        {
+                            if (!string.IsNullOrEmpty(attribute.FieldName))
+                            {
+                                updateDefinition = Builders<BsonDocument>.Update
+                                   .Set(attribute.FieldName, attribute.Value);
+                            }
+                        }
+                        var result = repository.Collection.UpdateMany(filter, updateDefinition);
+
+                    }
+                    Response = Common.CreateResponse(null, "OK", "Settings are not selected");                 
+
+                }
+}
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
