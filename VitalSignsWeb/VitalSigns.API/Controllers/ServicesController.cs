@@ -24,7 +24,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<NameValue> nameValueRepository;
-       // private IRepository<DominoSettingsModel> dominoSettingsRepository;
+        // private IRepository<DominoSettingsModel> dominoSettingsRepository;
 
         private string DateFormat = "yyyy-MM-dd";
 
@@ -518,7 +518,7 @@ namespace VitalSigns.API.Controllers
                             case "AVG":
 
                                 var statsAvg = dailyRepository.Find(expression);
-                                
+
                                 if (isChart)
                                 {
                                     var statsAvgData = statsAvg
@@ -591,7 +591,7 @@ namespace VitalSigns.API.Controllers
                                            StatName = row.Key.StatName
 
                                        }).ToList();
-                                
+
                                 foreach (var name in statNames)
                                 {
 
@@ -828,7 +828,7 @@ namespace VitalSigns.API.Controllers
         /// <param name="id"></param>
         /// <returns> summary stats data </returns>
         [HttpGet("summarystats")]
-        public APIResponse GetSummaryStat(string deviceId, string statName, string startDate = "", string endDate = "", string isChart = "")
+        public APIResponse GetSummaryStat(string deviceId, string statName, string fieldName = "", string startDate = "", string endDate = "", bool isChart = true)
         {
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
@@ -836,9 +836,6 @@ namespace VitalSigns.API.Controllers
                 
             if (endDate == "")
                 endDate = DateTime.Today.ToString(DateFormat);
-
-            if (isChart == "")
-                isChart = "True";
 
             //1 day is added to the end so we include that days data
             DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
@@ -855,24 +852,27 @@ namespace VitalSigns.API.Controllers
                 FilterDefinition<SummaryStatistics> filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
                     summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
 
-                if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName) || !string.IsNullOrEmpty(deviceId) && Convert.ToBoolean(isChart) == false)
+                if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName) || !string.IsNullOrEmpty(deviceId) && isChart == false)
                 {
                     if (string.IsNullOrEmpty(deviceId))
                     {
                         filterDefTemp = filterDef &
-                        summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*"))));
+                        summaryRepository.Filter.And(summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*")))),
+                                                     summaryRepository.Filter.Ne(p => p.DeviceName, null));
                     }
                     else
                     {
                         filterDefTemp = filterDef &
                         summaryRepository.Filter.And(summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*")))),
+                                                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                                                      summaryRepository.Filter.Eq(p => p.DeviceId, deviceId));
 
                     }
-                    
+
                     var result = summaryRepository.Find(filterDefTemp).Select(x => new StatsData
                     {
-                        //DeviceId = x.DeviceId,
+                        DeviceId = x.DeviceId,
+                        DeviceName = x.DeviceName,
                         StatName = x.StatName,
                         StatValue = x.StatValue
 
@@ -880,7 +880,7 @@ namespace VitalSigns.API.Controllers
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
-                        filterDefTemp = filterDef & 
+                        filterDefTemp = filterDef &
                             summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
 
                         if (!string.IsNullOrEmpty(deviceId))
@@ -892,12 +892,14 @@ namespace VitalSigns.API.Controllers
                         result.AddRange(
                             summaryRepository.Find(filterDefTemp).Select(x => new StatsData
                             {
-                                //DeviceId = x.DeviceId,
+                                DeviceId = x.DeviceId,
+                                DeviceName = x.DeviceName,
                                 StatName = x.StatName,
                                 StatValue = x.StatValue
 
                             }).Take(500).ToList()
                         );
+
                     }
                     Response = Common.CreateResponse(result);
 
@@ -1083,17 +1085,20 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("status_list")]
-        public APIResponse GetStatusList(string type)
+        public APIResponse GetStatusList(string type, string docfield = "", string sortby = "", bool isChart = false)
         {
             statusRepository = new Repository<Status>(ConnectionString);
+            List<Status> statslist = null;
+            Expression<Func<Status, bool>> expression;
+            List<dynamic> result = new List<dynamic>();
+            List<Segment> segments = new List<Segment>();
+            Segment segment = new Segment();
 
             try
             {
                 if (string.IsNullOrEmpty(type))
                 {
                     var list = statusRepository.Collection.AsQueryable().OrderBy(x => x.DeviceName).ToList();
-
-                    List<dynamic> result = new List<dynamic>();
 
                     foreach (Status status in list)
                     {
@@ -1108,22 +1113,78 @@ namespace VitalSigns.API.Controllers
                 }
                 else if (!string.IsNullOrEmpty(type))
                 {
-
-                    Expression<Func<Status, bool>> expression = (p => p.DeviceType == type);
-                    var list = statusRepository.Find(expression).AsQueryable().OrderBy(x => x.DeviceName).ToList();
-
-                    List<dynamic> result = new List<dynamic>();
-
-                    foreach (Status status in list)
+                    if (string.IsNullOrEmpty(docfield))
                     {
-                        var x = new ExpandoObject() as IDictionary<string, Object>;
-                        foreach (var field in status.ToBsonDocument())
+                        expression = (p => p.DeviceType == type);
+
+                        var list = statusRepository.Find(expression).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+
+                        foreach (Status status in list)
                         {
-                            x.Add(field.Name, field.Value.ToString());
+                            var x = new ExpandoObject() as IDictionary<string, Object>;
+                            foreach (var field in status.ToBsonDocument())
+                            {
+                                x.Add(field.Name, field.Value.ToString());
+                            }
+                            result.Add(x);
                         }
-                        result.Add(x);
+                        Response = Common.CreateResponse(result);
                     }
-                    Response = Common.CreateResponse(result);
+                    else
+                    {
+                        FilterDefinition<Status> filterdefStatus = statusRepository.Filter.Eq(x => x.DeviceType, type);
+                        statslist = statusRepository.Collection.Find(filterdefStatus).ToList();
+                        if (!string.IsNullOrEmpty(sortby))
+                        {
+                            var propertyInfo = typeof(Status).GetProperty(sortby);
+                            statslist = statslist.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                        }
+                        else
+                        {
+                            var propertyInfo = typeof(Status).GetProperty("DeviceName");
+                            statslist = statslist.OrderBy(x => propertyInfo.GetValue(x, null)).ToList();
+                        }
+                        foreach (Status status in statslist)
+                        {
+                            var x = new ExpandoObject() as IDictionary<string, Object>;
+                            var bson2 = status.ToBsonDocument();
+
+                            if (bson2.Contains(docfield) && bson2.Contains("device_name"))
+                            {
+                                var statname = bson2["device_name"].ToString();
+                                var statvalue = bson2[docfield].ToString();
+
+                                if (!isChart)
+                                {
+                                    x.Add(statname, statvalue);
+                                    result.Add(x);
+                                }
+                                else
+                                {
+                                    segment = new Segment();
+                                    segment.Label = bson2["device_name"].ToString();
+                                    segment.Value = bson2[docfield].ToDouble();
+                                    segments.Add(segment);
+                                }
+                            }
+                        }
+                        if (!isChart)
+                        {
+                            Response = Common.CreateResponse(result);
+                        }
+                        else
+                        {
+                            Serie serie = new Serie();
+                            serie.Title = "";
+                            serie.Segments = segments;
+                            List<Serie> series = new List<Serie>();
+                            series.Add(serie);
+                            Chart chart = new Chart();
+                            chart.Series = series;
+                            chart.Title = "";
+                            Response = Common.CreateResponse(chart);
+                        }
+                    }
                 }
                 return Response;
             }
@@ -1135,7 +1196,7 @@ namespace VitalSigns.API.Controllers
             }
         }
 
-        [HttpGet("status_count")]
+    [HttpGet("status_count")]
         public APIResponse GetStatusCount(string type, string docfield)
         {
 
@@ -1155,29 +1216,27 @@ namespace VitalSigns.API.Controllers
                 {
                     if (!doc["_id"].IsBsonNull)
                     {
-                        if (doc["_id"].AsString == "Not Responding")
+                        if (doc["_id"].ToString() == "Not Responding")
                         {
                             color = "rgba(239, 58, 36, 1)";
                         }
-                        else if (doc["_id"].AsString == "OK")
+                        else if (doc["_id"].ToString() == "OK")
                         {
                             color = "rgba(95, 190, 127, 1)";
                         }
-                        else if (doc["_id"].AsString == "Issue")
+                        else if (doc["_id"].ToString() == "Issue")
                         {
                             //color = "rgba(255, 195, 0, 1)";
                             color = "rgba(249, 156, 28, 1)";
                         }
-                        else if (doc["_id"].AsString == "Maintenance")
+                        else if (doc["_id"].ToString() == "Maintenance")
                         {
                             color = "rgba(119 , 119, 119, 1)";
                         }
                         Segment segment = new Segment()
                         {
                             //Might have to add additional types for support.  Format is IfThis ? DoThis : Else
-                            Label = doc["_id"].IsString ? doc["_id"].AsString :
-                            (doc["_id"].IsInt32 ? Convert.ToString(doc["_id"].AsInt32) :
-                            (doc["_id"].IsBoolean ? Convert.ToString(doc["_id"].AsBoolean) : Convert.ToString(doc["_id"].AsBsonValue))),
+                            Label = doc["_id"].ToString(),
                             Value = doc["count"].AsInt32,
                             Color = color
                         };

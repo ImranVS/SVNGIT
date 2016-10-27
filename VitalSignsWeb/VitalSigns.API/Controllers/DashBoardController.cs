@@ -36,7 +36,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
 
-
+        private string DateFormat = "yyyy-MM-dd";
         /// <summary>
         /// 
         /// </summary>
@@ -374,7 +374,7 @@ namespace VitalSigns.API.Controllers
                     DeviceId = x.DeviceId,
                     Type = x.Type,
                     Category = x.category,
-                    LastScan =Convert.ToString( x.LastUpdate.Value),
+                    LastScan = Convert.ToString(x.LastUpdate.Value),
                     TestName = x.TestName,
                     Result = x.Result,
                     Details = x.Details
@@ -399,7 +399,7 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
                 var result = statusRepository.Find(expression).Select(x => new TravelerHealth
                 {
-                    DeviceId= x.DeviceId,
+                    DeviceId = x.DeviceId,
                     ResourceConstraint = x.ResourceConstraint,
                     TravelerDetails = x.TravelerDetails,
                     TravelerHeartBeat = x.TravelerHeartBeat,
@@ -510,7 +510,7 @@ namespace VitalSigns.API.Controllers
                                 Categories = x.Categories,
                                 PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
                             }).ToList();
-                        }  
+                        }
                         // order_by is specified - sorting resulting data by th field specified in order_by in order specified by order_type (asc/desc)
                         if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
                         {
@@ -661,7 +661,7 @@ namespace VitalSigns.API.Controllers
                         }
                     }
                 }
-                    
+
                 // If a call was made without the group_by parameter, return data set as is,
                 // otherwise, return data as a chart
                 if (!string.IsNullOrEmpty(get_chart.ToString()))
@@ -750,7 +750,7 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceId = x.DeviceId,
                     DeviceName = x.DeviceName,
-                    DateTimeDown =Convert.ToString( x.DateTimeDown),
+                    DateTimeDown = Convert.ToString(x.DateTimeDown),
                     DateTimeUp = Convert.ToString(x.DateTimeUp),
                 }).ToList();
                 Response = Common.CreateResponse(result);
@@ -770,15 +770,15 @@ namespace VitalSigns.API.Controllers
             statusRepository = new Repository<Status>(ConnectionString);
             try
             {
-                                        
+
                 Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
                 var result = statusRepository.Find(expression).FirstOrDefault();
 
-               List< MonitoredTasks> monitoredTasks = new List<MonitoredTasks>();
-               // dominoservertaskStatus.Id = result.DeviceId;
+                List<MonitoredTasks> monitoredTasks = new List<MonitoredTasks>();
+                // dominoservertaskStatus.Id = result.DeviceId;
                 foreach (DominoServerTask monitored in result.DominoServerTasks)
                 {
-                    
+
                     monitoredTasks.Add(new MonitoredTasks
                     {
                         // DeviceId = monitored.
@@ -787,10 +787,10 @@ namespace VitalSigns.API.Controllers
                         PrimaryStatus = monitored.PrimaryStatus,
                         SecondaryStatus = monitored.SecondaryStatus,
                         StatusSummary = monitored.StatusSummary,
-                        LastUpdated =Convert.ToString( monitored.LastUpdated)
+                        LastUpdated = Convert.ToString(monitored.LastUpdated)
 
                     });
-                    
+
                 }
 
                 var monitoredData = monitoredTasks.Where(x => x.Monitored == is_monitored);
@@ -909,7 +909,7 @@ namespace VitalSigns.API.Controllers
 
                 var dailyStats = dailyStatisticsRepository.Find(filterDef).ToList();
                 List<Object> result = new List<object>();
-                foreach(string deviceName in dailyStats.Select(i => i.DeviceName).Distinct())
+                foreach (string deviceName in dailyStats.Select(i => i.DeviceName).Distinct())
                 {
                     var dailyStatsTemp = dailyStats.Where(i => i.DeviceName == deviceName).ToList();
                     result.Add(new
@@ -950,7 +950,7 @@ namespace VitalSigns.API.Controllers
 
                 var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community" && i.DeviceId == deviceid).ToList();
 
-                var filterDef = connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(i => i.Id).ToList()) & 
+                var filterDef = connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(i => i.Id).ToList()) &
                     connectionsObjectsRepository.Filter.Eq(i => i.DeviceId, deviceid);
 
 
@@ -1014,12 +1014,13 @@ namespace VitalSigns.API.Controllers
 
                     }
                 }
-                Chart chart = new Chart() {
+                Chart chart = new Chart()
+                {
                     Series = listOfSeries,
                     Title = "Top " + count + " Communities"
                 };
 
-                
+
                 Response = Common.CreateResponse(chart);
                 return Response;
             }
@@ -1154,6 +1155,130 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("users/cost_per_user")]
+        public APIResponse GetCostPerUser(string deviceId, string sortby, string startDate = "", string endDate = "", bool isChart = false)
+        {
+            Repository<Server> serverRepository = new Repository<Server>(ConnectionString);
+            Repository<SummaryStatistics> summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+            List<dynamic> result = new List<dynamic>();
+            List<Server> serverlist = null;
+            string fieldName = "monthly_operating_cost";
+
+            if (startDate == "")
+                startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
+
+            if (endDate == "")
+                endDate = DateTime.Today.ToString(DateFormat);
+
+
+            //1 day is added to the end so we include that days data
+            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
+
+            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+            dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+            try
+            {
+                FilterDefinition<SummaryStatistics> filterDefTemp;
+                FilterDefinition<SummaryStatistics> filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
+                if (string.IsNullOrEmpty(deviceId))
+                {
+                    filterDefTemp = filterDef &
+                    summaryRepository.Filter.And(summaryRepository.Filter.Ne(p => p.DeviceName, null),
+                                                summaryRepository.Filter.Eq(p => p.StatName, "Server.Users"));
+                }
+                else
+                {
+                    filterDefTemp = filterDef &
+                    summaryRepository.Filter.And(summaryRepository.Filter.Ne(p => p.DeviceName, null),
+                                                summaryRepository.Filter.Eq(p => p.StatName, "Server.Users"),
+                                                 summaryRepository.Filter.Eq(p => p.DeviceId, deviceId));
+
+                }
+                var summarytemp = summaryRepository.Find(filterDefTemp).OrderBy(p => p.DeviceName);
+                var summarylist = summarytemp.GroupBy(row => new
+                {
+                    row.DeviceId,
+                    row.DeviceName
+                })
+                    .Select(grp => new
+                    {
+                        Id = grp.Key.DeviceId,
+                        Label = grp.Key.DeviceName,
+                        Value = grp.Average(x => x.StatValue)
+                    }).ToList(); ;
+                serverlist = serverRepository.Find(p => p.DeviceType == "Domino").ToList();
+                foreach (var stats in summarylist)
+                {
+                    var x = new ExpandoObject() as IDictionary<string, Object>;
+                    x.Add("device_name", stats.Label);
+                    foreach (Server server in serverlist)
+                    {
+                        if (stats.Id == server.Id)
+                        {
+                            var bson2 = server.ToBsonDocument();
+                            var fieldvalue = bson2[fieldName].ToDouble();
+                            if (stats.Value != 0)
+                            {
+                                x.Add("cost_per_user", Math.Round(fieldvalue / stats.Value,2));
+                            }
+                            else
+                            {
+                                x.Add("cost_per_user", 0);
+                            }
+                        }
+                    }
+                    result.Add(x);
+                }
+                if (isChart)
+                {
+                    List<Segment> segmentList = new List<Segment>();
+                    if (string.IsNullOrEmpty(sortby))
+                    {
+                        result = result.OrderBy(x => x.device_name).ToList();
+                    }
+                    else
+                    {
+                        result = result.OrderByDescending(x => x.cost_per_user).ToList();
+                    }
+                    foreach (var doc in result)
+                    {
+                        Segment segment = new Segment()
+                        {
+                            Label = doc.device_name,
+                            Value = Convert.ToDouble(doc.cost_per_user)
+                        };
+                        segmentList.Add(segment);
+                    }
+
+                    Serie serie = new Serie();
+                    serie.Title = "";
+                    serie.Segments = segmentList;
+
+
+                    List<Serie> series = new List<Serie>();
+                    series.Add(serie);
+
+                    Chart chart = new Chart();
+
+                    chart.Title = "";
+                    chart.Series = series;
+
+                    Response = Common.CreateResponse(chart);
+                }
+                else
+                {
+                    Response = Common.CreateResponse(result);
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
     }
 }
 
