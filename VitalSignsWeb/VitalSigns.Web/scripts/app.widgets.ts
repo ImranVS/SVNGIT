@@ -30,6 +30,7 @@ export * from './configurator/components/serverSettings/server-settings-domino-s
 export * from './configurator/components/applicationSettings/application-settings-preferences.componenet'
 
 
+
 export * from './services/components/service-clusterhealth-grid.component';
 export * from './services/components/service-database-grid.component';
 export * from './services/components/service-mainhealth-grid.component';
@@ -56,5 +57,9 @@ export * from './configurator/components/server/server-advanced-settings.compone
 
 export * from './configurator/components/server/server-domino-server-tasks.component'
 
+//alerts
+
+export * from './configurator/components/alert/alerts-allalert-history.component'
+export *from './configurator/components/alert/alert-settings.component'
 
 
