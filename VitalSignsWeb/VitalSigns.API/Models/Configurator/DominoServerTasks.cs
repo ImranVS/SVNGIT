@@ -14,6 +14,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("id")]
         public string Id { get; set; }
 
+        [JsonProperty("task_id")]
+        public string TaskId { get; set; }
+
         [JsonProperty("task_name")]       
         public string TaskName { get; set; }
 

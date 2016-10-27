@@ -1428,6 +1428,12 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Server Tasks
+
+
+        /// <summary>
+        ///get the server tasks data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpGet("get_server_tasks_info/{id}")]
         public APIResponse GetServerTasksInformation(string id)
 
@@ -1444,6 +1450,7 @@ namespace VitalSigns.API.Controllers
                     servertasks.Add(new DominoServerTasksModel
                     {
                         Id = task.Id,
+                        TaskId = task.TaskId,
                         IsLoad = task.SendLoadCmd,
                         IsResartLater = task.SendRestartCmd,
                         IsRestartASAP = task.SendRestartCmdOffhours,
@@ -1471,6 +1478,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+
+        /// <summary>
+        ///Get tasks names data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpGet("get_tasks_names")]
         public APIResponse GetTaskNames(string id)
 
@@ -1500,30 +1513,24 @@ namespace VitalSigns.API.Controllers
         /// <author>Sowjanya</author>
 
         [HttpPut("save_server_tasks")]
-        public APIResponse UpdateServerTasks([FromBody]DominoServerTasksModel servertasks)
+        public APIResponse SaveServerTasksData([FromBody]DominoServerTasksModel servertasks)
         {
-          
+           
             serversRepository = new Repository<Server>(ConnectionString);
             try
             {
                 List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
                 var server = serversRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == servertasks.DeviceId);
                 DominoServerTask dominoServerTask = new DominoServerTask();
-                //dominoServerTask.Id = servertasks.Id;
+                dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                dominoServerTask.TaskId = servertasks.TaskId;
                 dominoServerTask.TaskName = servertasks.TaskName;
                 dominoServerTask.SendLoadCmd = servertasks.IsLoad;
                 dominoServerTask.Monitored = servertasks.IsSelected;
                 dominoServerTask.SendRestartCmd = servertasks.IsResartLater;
                 dominoServerTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
                 dominoServerTask.SendExitCmd = servertasks.IsDisallow;
-                //if (!string.IsNullOrEmpty(servertasks.Id))
-                //{
-                //    dominoServerTask.Id = servertasks.Id;
-                //    var filterDefinations = Builders<Status>.Filter.Where(p => p.DominoServerTasks[0].Id == servertasks.Id);
-                //                var updateDefinitaions = statusRepository.Updater.Set(p => p.DominoServerTasks, dominoServerTasks);
-                //              var finalResult = statusRepository.Update(filterDefinations, updateDefinitaions);
-                //}
-
+              
                 if (server.ServerTasks != null)
                     ServerTasks = server.ServerTasks;
                 ServerTasks.Add(dominoServerTask);
@@ -1547,24 +1554,24 @@ namespace VitalSigns.API.Controllers
         ///delete the  server tasks data
         /// </summary>
         /// <author>Sowjanya</author>
-        [HttpDelete("delete_server_tasks/{id}")]
-        public void DeleteServerTasks(string id, [FromBody]DominoServerTasksModel servertasks)
+        [HttpDelete("delete_server_tasks/{deviceId}/{id}")]
+        public void DeleteServerTasks(string deviceId, string id)
         {
-            statusRepository = new Repository<Status>(ConnectionString);
+            serversRepository = new Repository<Server>(ConnectionString);
             try
             {
-                Expression<Func<Status, bool>> expression = (p => p.DeviceId == servertasks.DeviceId);
-                //var status = statusRepository.Collection.AsQueryable().FirstOrDefault(p => p.DeviceId == servertasks.DeviceId);
-                var result = statusRepository.Find(expression).Select(x => x.DominoServerTasks).FirstOrDefault();
-                foreach (DominoServerTask task in result)
+                
+                var server = serversRepository.Get(deviceId);
+                var dominoServerTasks = server.ServerTasks;
+
+                var serverTaskDelete = dominoServerTasks.FirstOrDefault(x => x.Id == id);
+                if (serverTaskDelete != null)
                 {
-                   if( task.Id == id)
-                    statusRepository.Delete(task.Id);
-                    //statusRepository = new Repository<Status>(ConnectionString);
-                    //Expression<Func<Status, bool>> expressions = (p => p.tas == id);
-                    //statusRepository.Delete(expressions);
+                    dominoServerTasks.Remove(serverTaskDelete);
+                    var updateDefinition = serversRepository.Updater.Set(p => p.ServerTasks, dominoServerTasks);
+                    var result = serversRepository.Update(server, updateDefinition);
                 }
-               
+
 
             }
 
