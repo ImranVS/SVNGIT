@@ -19,14 +19,14 @@
     <div class="form-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
         <label for="currentThresholdByPercentage">Current threshold:</label>
 
-        <input type="text" class="form-control"  name="currentThresholdByPercentage" [(ngModel)]="diskByPercentage" >
+        <input type="text" class="form-control"  name="currentThresholdByPercentage" [(ngModel)]="diskThreshold" >
         <label for="currentThresholdByPercentage"> Disk Space alerts will trigger if any of the drives on the Domino server fall below the threshold set.
 </label>
     </div> 
     <div class="form-group" *ngIf="selectedDiskSetting=='allDisksByGB'">
         <label for="currentThresholdByGB">Current threshold:</label>
 
-        <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskByGB">
+        <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskThreshold">
         <label for="currentThresholdByGB">GB free space</label>
         <br/>
         <label for="currentThresholdByGB">

@@ -33,7 +33,9 @@ export class DominoServerDiskSettings  implements OnInit {
     postData: any;
     diskValues: any;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
-
+    diskSettingsDataForm: FormGroup;
+    disktype: any;
+    diskThreshold: any;
     constructor(    
         private dataProvider: RESTService,
         private formBuilder: FormBuilder,
@@ -49,13 +51,24 @@ export class DominoServerDiskSettings  implements OnInit {
 
 
         });
+
+        //this.diskSettingsDataForm = this.formBuilder.group({
+        //    'disk_name': [''],
+        //    'freespace_threshold': [''],
+        //    'threshold_type': [''],
+        //    'is_selected': [''],
+        //     'percent_free': [''],
+        //    'disk_size': [''],
+        //    'disk_free': [''],
+
+        //});
    }
 
     ngOnInit() {
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
 
-        });
+        }); 
         this.dataProvider.get('/Configurator/get_server_disk_info/' + this.deviceId)
             .subscribe(
             response => {
@@ -63,6 +76,28 @@ export class DominoServerDiskSettings  implements OnInit {
                 this.data.pageSize = 10;
 
             }); 
+     
+        //this.dataProvider.get('/Configurator/get_server_disk_settings_data/' + this.deviceId)
+        //    .subscribe(
+        //    (data) => this.diskSettingsDataForm.setValue(data.data),
+        //    (error) => this.errorMessage = <any>error
+
+        //    );
+        this.dataProvider.get('/Configurator/get_server_disk_settings_data/' + this.deviceId)
+            .subscribe(
+            (response) => {
+            
+               
+                this.selectedDiskSetting = response.data.disk_name;
+                this.diskThreshold = response.data.freespace_threshold;
+               // console.log(this.selectedDiskSetting);
+            },
+
+            (error) => this.errorMessage = <any>error
+
+            );
+       
+   
     }
     itemsSourceChangedHandler() {
 
@@ -91,10 +126,10 @@ export class DominoServerDiskSettings  implements OnInit {
       
         if (this.selectedDiskSetting == "allDisksBypercentage") {
           
-            this.selectedDiskSettingValue = this.diskByPercentage;
+            this.selectedDiskSettingValue = this.diskThreshold;
         }
         else if (this.selectedDiskSetting == "allDisksByGB")
-            this.selectedDiskSettingValue = this.diskByGB;
+            this.selectedDiskSettingValue = this.diskThreshold;
         else if (this.selectedDiskSetting == "selectedDisks") 
         {
             this.selectedDiskSettingValue = this.selectedDisks;
@@ -121,7 +156,7 @@ export class DominoServerDiskSettings  implements OnInit {
         }
           
         else if (this.selectedDiskSetting == "noDiskAlerts")
-            this.selectedDiskSettingValue = this.noDiskAlerts;
+            this.selectedDiskSettingValue = this.diskThreshold;
        
 
      
