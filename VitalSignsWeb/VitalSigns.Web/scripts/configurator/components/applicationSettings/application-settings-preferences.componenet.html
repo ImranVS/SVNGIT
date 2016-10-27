@@ -1,28 +1,32 @@
 ﻿<div class="container">
     <div class="row">
-        <div class="col-xs-12 col-md-3 col-sm-12 col-lg-3">
-            <h4>License Information</h4>
-            <div class="form-inline">
-                <label for="subscription_version">Subscription version Expires on</label>
-                <button #licence type="button" class="btn btn-primary">
-                    Enter License Key
-                </button>
-                <wj-popup #frmDialog class="popover" [owner]="licence" [showTrigger]="'Click'" [hideTrigger]="'None'">
-                    <h3 class="popover-title">
-                        License Key
-                        <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
-                    </h3>
-                    <div class="popover-content">
-                        <div class="input-group">
-                            <label for="licencekey">Please Enter your licence key</label>
-                            <input #licencekey class="form-control" name="licencekey" type="text" required />
+        <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">License Information</div>
+                <div class="panel-body">
+                    <label for="subscription_version">Subscription version Expires on</label>
+                    <button #licence type="button" class="btn btn-primary">
+                        Enter License Key
+                    </button>
+                    <wj-popup #frmDialog class="popover" [owner]="licence" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                        <h3 class="popover-title">
+                            License Key
+                            <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                        </h3>
+                        <div class="popover-content">
+                            <div class="input-group">
+                                <label for="licencekey">Please Enter your licence key</label>
+                                <input #licencekey class="form-control" name="licencekey" type="text" required />
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" name="save" (click)="saveLicence(frmDialog);">OK</button>
+                            </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-primary" name="save" (click)="saveLicence(frmDialog);">OK</button>
-                        </div>
-                    </div>
-                </wj-popup>
+                    </wj-popup>
+                </div>
             </div>
+
             <div class="panel panel-default">
                 <div class="panel-heading">Features</div>
                 <div class="panel-body">
@@ -73,37 +77,61 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-md-1 col-sm-12 col-lg-1">
-        </div>
+
         <div class="col-xs-12 col-md-8 col-sm-12 col-lg-8">
-            <form [formGroup]="preferencesForm" (ngSubmit)="onSubmit(preferencesForm.value)" #frmPreferences="ngForm">
-                <div class="form-group">
-                    <label for="company_name">Company Name</label>
-                    <input type="text" class="form-control" id="company_name" name="company_name" formControlName="company_name">
-                </div>
-                <div class="form-group">
-                    <label for="currency_symbol">Currency Symbol</label>
-                    <input type="text" class="form-control" name="currency_symbol" id="currency_symbol" formControlName="currency_symbol">
-                </div>
-                <div class="form-group">
-                    <label for="monitoring_delay">Monitoring Delay</label>
-                    <input type="text" class="form-control" id="monitoring_delay" name="monitoring_delay" formControlName="monitoring_delay">
-                </div>
-                <div class="form-group">
-                    <label for="threshold_show">% of threshold to show on yellow</label>
-                    <input type="text" class="form-control" id="threshold_show" name="threshold_show" formControlName="threshold_show">
-                </div>
-                <div class="form-group">
-                    <input type="checkbox" class="checkbox-inline" id="dashboardonly_exec_summary_buttons" name="dashboardonly_exec_summary_buttons" formControlName="dashboardonly_exec_summary_buttons">
-                    <label for="dashboardonly_exec_summary_buttons">Dashboard only/Exec Summary Buttons</label><br />
+            <form [formGroup]="preferencesForm" (ngSubmit)="onSubmit(preferencesForm.value)" #frmPreferences="ngForm" class="form-horizontal">
+                <div class="panel panel-default">
+                    <div class="panel-heading">General Settings</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label for="company_name" class="control-label col-sm-5">Company Name</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="company_name" name="company_name" formControlName="company_name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency_symbol"  class="control-label col-sm-5">Currency Symbol</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="currency_symbol" id="currency_symbol" formControlName="currency_symbol">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="monitoring_delay" class="control-label col-sm-5">Monitoring Delay</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="monitoring_delay" name="monitoring_delay" formControlName="monitoring_delay">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold_show" class="control-label col-sm-5">% of threshold to show on yellow</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="threshold_show" name="threshold_show" formControlName="threshold_show">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-5 col-sm-7">
+                                <label for="dashboardonly_exec_summary_buttons">
+                                    <input type="checkbox" class="checkbox-inline" id="dashboardonly_exec_summary_buttons" name="dashboardonly_exec_summary_buttons" formControlName="dashboardonly_exec_summary_buttons">
+                                    Dashboard only/Exec Summary Buttons
+                                </label><br />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bing_key" class="control-label col-sm-5">Bing Key</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="bing_key" formControlName="bing_key"><br />
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-5 col-sm-7">
+                                    <button type="submit" class="btn btn-primary" name="submit" [disabled]="!frmPreferences.form.valid">Submit</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="form-group">
-                    <label for="bing_key">Bing Key</label>
-                    <input type="text" class="form-control" name="bing_key" formControlName="bing_key"><br />
-
-                    <button type="submit" class="btn btn-primary" name="submit" [disabled]="!frmPreferences.form.valid">Submit</button>
-                </div>
             </form>
         </div>
     </div>
