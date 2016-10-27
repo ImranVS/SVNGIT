@@ -1385,6 +1385,53 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+        [HttpGet("get_server_disk_settings_data/{id}")]
+        public APIResponse GetServerDiskSettingsData(string id)
+
+        {
+
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == id);
+                var result = serversRepository.Find(expression).Select(x => x.DiskInfo).FirstOrDefault();
+                if (result.Count == 1)
+                {
+                   var results=result.Select(s=>new SelectedDiksModel {DiskName =(s.DiskName == "AllDisks" && s.ThresholdType == "GB" ? "allDisksByGB" :
+                                                                      s.DiskName == "AllDisks" && s.ThresholdType == "Percent" ? "allDisksBypercentage" :
+                                                                      s.DiskName == "NoAlerts" ? "noDiskAlerts" :
+                                                                       s.DiskName),
+                                                                      ThresholdType = s.ThresholdType,
+                                                                      FreespaceThreshold = s.Threshold.ToString()
+
+                }).FirstOrDefault();
+                    Response = Common.CreateResponse(results);
+                }
+                else
+                {
+                    var results = result.Select(s => new SelectedDiksModel
+                    {
+                        DiskName = (s.DiskName = "selectedDisks"),
+                        
+
+                    }).FirstOrDefault();
+                    Response = Common.CreateResponse(results);
+                }
+
+
+               
+
+               
+
+            }
+
+            
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
 
         /// <summary>
         /// Updates Disk Settings
