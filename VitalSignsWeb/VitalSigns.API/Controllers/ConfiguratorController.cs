@@ -1360,6 +1360,71 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+
+        /// <summary>
+        /// Updates Disk Settings
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("save_server_disk_settings")]
+        public APIResponse SaveServerDiskSettings([FromBody]DeviceSettings deviceSettings)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+
+                string setting = Convert.ToString(deviceSettings.Setting);
+                string settingValue = Convert.ToString(deviceSettings.Value);
+
+                UpdateDefinition<Server> updateDefinition = null;
+                if (!string.IsNullOrEmpty(setting))
+                {
+
+                 
+                    var server = serversRepository.Get(deviceSettings.Devices.ToString());
+                    List<DiskSetting> diskSettings = new List<DiskSetting>();
+
+                    if (setting.Equals("allDisksBypercentage"))
+                        diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "Percent" });
+                    else if (setting.Equals("allDisksByGB"))
+                        diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "GB" });
+                    else if (setting.Equals("noDiskAlerts"))
+                        diskSettings.Add(new DiskSetting { DiskName = "NoAlerts", Threshold = null, ThresholdType = null });
+                    else if (setting.Equals("selectedDisks"))
+                    {
+                        List<SelectedDiksModel> selectedDisks = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<SelectedDiksModel>>();
+                        foreach (var item in selectedDisks)
+                        {
+                            if (item.IsSelected)
+                            {
+                                diskSettings.Add(new DiskSetting { DiskName = item.DiskName, Threshold = Convert.ToDouble(item.FreespaceThreshold), ThresholdType = item.ThresholdType });
+                            }
+                        }
+                    }
+                    if (diskSettings.Count > 0)
+                    {
+                        updateDefinition = serversRepository.Updater.Set(p => p.DiskInfo, diskSettings);
+                        var result = serversRepository.Update(server, updateDefinition);
+                    }
+
+            
+                Response = Common.CreateResponse(null, "OK", "Settings are not selected");
+
+            }
+              
+                else
+                {
+                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
+                }
+
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
         #endregion
 
         #region Server Tasks
