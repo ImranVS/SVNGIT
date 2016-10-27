@@ -39,7 +39,11 @@ export * from '../configurator/components/server/server-simulation-tests.compome
 export * from '../configurator/components/server/server-maintenance-windows.component'
 export * from '../configurator/components/server/server-disk-settings.component'
 export * from '../configurator/components/server/server-advanced-settings.component'
+
+export * from '../configurator/components/server/server-device-attributes.component'
+
 export * from '../configurator/components/server/server-domino-server-tasks.component'
+
 
 
 

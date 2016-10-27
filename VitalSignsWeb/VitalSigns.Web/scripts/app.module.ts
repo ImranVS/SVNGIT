@@ -30,6 +30,8 @@ import {SearchServerList} from './services/components/search-server-list.compone
 import {ServersLocation} from './configurator/components/server-list-location.component';
 
 import {SearchDeviceListPipe} from './services/components/search-server-list.pipe';
+import {FilterDeviceAttributesPipe} from './configurator/components/server/filter-device-attributes.pipe';
+
 
 import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
@@ -61,6 +63,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         ServersLocation,
         SearchDeviceListPipe,
         FilterByDeviceTypePipe,
+        FilterDeviceAttributesPipe,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -133,6 +136,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.ServiceNMServerTasksGrid,
         widgets.ServiceEventsGrid,
         widgets.SimulationTests,
+        widgets.ServerAttribute,
         widgets.MaintenanceWindows,
         widgets.DominoServerDiskSettings,
         widgets.ServerAdvancedSettings,
@@ -222,6 +226,7 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         widgets.ServiceTravelerMailServersGrid,
         widgets.ServiceNMServerTasksGrid,
         widgets.ServiceEventsGrid,
+        widgets.ServerAttribute,
         widgets.SimulationTests,
         widgets.MaintenanceWindows,
         widgets.DominoServerDiskSettings,
