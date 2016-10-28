@@ -47,8 +47,8 @@ export class Maintenance extends GridBase  {
       
 
     }
-    saveMaintenance() {
-        this.saveGridRow('/Configurator/save_maintenancedata');  
+    saveMaintenance(dlg: wijmo.input.Popup) {
+        this.saveGridRow1('/Configurator/save_maintenancedata',dlg);  
     }
     deleteMaintenance() {      
         this.delteGridRow('/Configurator/delete_maintenancedata/');  
