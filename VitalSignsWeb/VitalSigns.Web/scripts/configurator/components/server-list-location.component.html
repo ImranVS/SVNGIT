@@ -1,5 +1,5 @@
-﻿<div class="container">
-    <wj-flex-grid #flex [itemsSource]="data" selectionMode="ListBox" [frozenColumns]="1">
+﻿<div class="container col-xs-12 col-md-12 col-sm-12 col-lg-12">
+    <wj-flex-grid #flex [itemsSource]="data" selectionMode="ListBox" [frozenColumns]="1" headersVisibility ="Column">
         <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true"> 
             <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                 <input type="checkbox" (change)="serverCheck(cell.item.id,$event)" /> 
