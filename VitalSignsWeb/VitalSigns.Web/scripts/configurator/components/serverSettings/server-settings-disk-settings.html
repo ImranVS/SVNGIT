@@ -59,7 +59,7 @@
         <div class="form-group" *ngIf="selectedDiskSetting">
             <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
             <br />
-            <button type="button" class="btn btn-success" (click)="applySetting(diskSettingsForm.value)">Apply Settings</button>
+            <button type="button" class="btn btn-primary" (click)="applySetting(diskSettingsForm.value)">Apply Settings</button>
         </div>
         </div>
     
