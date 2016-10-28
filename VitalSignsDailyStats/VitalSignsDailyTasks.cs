@@ -18,13 +18,15 @@ using System.Linq.Expressions;
 using MongoDB.Driver;
 using LogUtilities;
 using System.Data;
+using System.ServiceProcess;
 
 
 namespace VitalSignsDailyStats
 {
 
-    public partial class VitalSignsDailyTasks : VSServices
-    { 
+    public partial class VitalSignsDailyTasks :VSServices
+        //: VSServices
+    {
         private static UnitOfWork _unitOfWork;
 
 
@@ -38,7 +40,7 @@ namespace VitalSignsDailyStats
         IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
         IRepository<StatusDetails> statusDeatilsRepository;
         IRepository<NameValue> nameValueRepository;
-       
+
         IRepository<ValidLocation> validLocationsRepository;
         List<string> diskNames = new List<string>();
         VSAdaptor objVsAdaptor = new VSAdaptor();
@@ -46,7 +48,7 @@ namespace VitalSignsDailyStats
         string cultureName = "CultureString";
         LogUtils.LogLevel logLevel = LogUtils.LogLevel.Normal;
         string logDest, appPath, auditText, htmlPath, statisticsPath, serversMdPath,
-            dateFormat, productName ;
+            dateFormat, productName;
         string companyName = "JNIT Inc. dba RPR Wyatt";
         LogUtils.LogLevel myLogLevel;
         int builddNumber;
@@ -54,16 +56,16 @@ namespace VitalSignsDailyStats
         DateUtils.DateUtils objDateUtils = new DateUtils.DateUtils();
         string[] MicrosoftDiskNames = new string[101];
         bool timeToStop = false;
-      
+
         public VitalSignsDailyTasks()
         {
             string connetionString = System.Configuration.ConfigurationManager.AppSettings["MongoConnectionString"];
             int? tenantId = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["TenantId"]);
             _unitOfWork = new UnitOfWork(connetionString, tenantId);
             InitializeComponent();
-          
+
         }
-       
+
 
         protected override void OnStop()
         {
@@ -86,12 +88,12 @@ namespace VitalSignsDailyStats
         {
             ServiceOnStart();
         }
-        protected override void ServiceOnStart(string[] args=null)
+        protected override void ServiceOnStart(string[] args = null)
         {
             try
             {
-               dailyStatasticsRepository = _unitOfWork.Repository<DailyStatistics>();
-              summaryStatasticsRepository = _unitOfWork.Repository<SummaryStatistics>();
+                dailyStatasticsRepository = _unitOfWork.Repository<DailyStatistics>();
+                summaryStatasticsRepository = _unitOfWork.Repository<SummaryStatistics>();
                 dailyTasksRepository = _unitOfWork.Repository<DailyTasks>();
                 statusRepository = _unitOfWork.Repository<Status>();
                 nodesRepository = _unitOfWork.Repository<Nodes>();
@@ -99,16 +101,16 @@ namespace VitalSignsDailyStats
                 travelerSummaryStatsRepository = _unitOfWork.Repository<TravelerStatusSummary>();
                 statusDeatilsRepository = _unitOfWork.Repository<StatusDetails>();
                 nameValueRepository = _unitOfWork.Repository<NameValue>();
-             
+
                 validLocationsRepository = _unitOfWork.Repository<ValidLocation>();
-               // UpdateLocalTables();
+                // UpdateLocalTables();
                 if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
                     culture = ConfigurationManager.AppSettings[cultureName];
 
                 RegistryHandler myRegistry = new RegistryHandler();
-             
-               logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
-               //logLevel = LogUtils.LogLevel.Verbose;
+
+                logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
+                //logLevel = LogUtils.LogLevel.Verbose;
 
                 appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                 appPath = string.IsNullOrEmpty(appPath) ? @"c:\" : appPath;
@@ -126,8 +128,8 @@ namespace VitalSignsDailyStats
                     File.Move(logDest, appPath + @"\Log_Files\Daily_Tasks_Log_Bak.txt");
                     File.Delete(logDest);
                 }
-               // myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-               // myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
+                // myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+                // myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
 
                 //productName = Convert.ToString(myRegistry.ReadFromRegistry("ProductName"));
 
@@ -137,7 +139,7 @@ namespace VitalSignsDailyStats
                 WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks service is starting up.");
                 WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks Build Number: " + builddNumber);
                 WriteAuditEntry(DateTime.Now.ToString() + " Copyright " + companyName + "  " + DateTime.Now.Year + " - All rights reserved." + "\r\n" + "\r\n");
-             //   DailyBackup();
+                //   DailyBackup();
                 bool isPrimaryNode = true;
                 string sql = null;
                 try
@@ -150,10 +152,10 @@ namespace VitalSignsDailyStats
                         string nodeName = System.Configuration.ConfigurationManager.AppSettings["VSNodeName"].ToString();
                         Expression<Func<Nodes, bool>> expression = (p => p.Name == nodeName);
                         var result = nodesRepository.Find(expression).FirstOrDefault();
-                      //  sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" + nodeName + "'";
+                        //  sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" + nodeName + "'";
 
-                       // DataTable dt = objVsAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"),sql);
-                        if (result!=null)
+                        // DataTable dt = objVsAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"),sql);
+                        if (result != null)
                         {
                             isPrimaryNode = result.IsPrimary;
                         }
@@ -176,14 +178,14 @@ namespace VitalSignsDailyStats
                 try
                 {
                     WriteAuditEntry("Building a list of all disk drives, if any. ");
-                   BuildDriveList();
+                    BuildDriveList();
                 }
                 catch (Exception ex)
                 {
                     WriteAuditEntry("Exception building Domino drives list ...." + ex.ToString());
                 }
 
-              
+
                 try
                 {
                     ConsolidateStatistics();
@@ -193,10 +195,10 @@ namespace VitalSignsDailyStats
                 {
                     WriteAuditEntry("Exception in ConsolidateStatistics ...." + ex.ToString());
                 }
-               
-               try
+
+                try
                 {
-                  CleanUpObsoleteData();
+                    CleanUpObsoleteData();
                 }
                 catch (Exception ex)
                 {
@@ -209,21 +211,21 @@ namespace VitalSignsDailyStats
                     {
                         VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
                         bool cleanupNow = false;
-                       //sql = "SELECT CASE WHEN DATEADD(Day,7,CONVERT(DateTime, ISNULL(svalue,DATEADD(Day,-7,GETDATE())), 120)) < GETDATE() " + "THEN 'true' ELSE 'false' END AS CleanupNow FROM Settings WHERE sname='CleanUpTablesDate'";
+                        //sql = "SELECT CASE WHEN DATEADD(Day,7,CONVERT(DateTime, ISNULL(svalue,DATEADD(Day,-7,GETDATE())), 120)) < GETDATE() " + "THEN 'true' ELSE 'false' END AS CleanupNow FROM Settings WHERE sname='CleanUpTablesDate'";
 
-                       // DataTable dt = objVsAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sql);
+                        // DataTable dt = objVsAdaptor.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sql);
                         Expression<Func<NameValue, bool>> expression = (p => p.Name == "CleanUpTablesDate");
 
                         var result = nameValueRepository.Find(expression).FirstOrDefault();
-                        var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7):Convert.ToDateTime(result.Value);
-                        
-                            //if ((dt.Rows.Count > 0))
-                            //{
-                            //    cleanupNow = Convert.ToBoolean(dt.Rows[0][0].ToString());
-                            //}
-                            //if (cleanupNow)
-                            if (svalue.AddDays(7) < DateTime.Now)
-                            {
+                        var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7) : Convert.ToDateTime(result.Value);
+
+                        //if ((dt.Rows.Count > 0))
+                        //{
+                        //    cleanupNow = Convert.ToBoolean(dt.Rows[0][0].ToString());
+                        //}
+                        //if (cleanupNow)
+                        if (svalue.AddDays(7) < DateTime.Now)
+                        {
                             WriteAuditEntry(DateTime.Now.ToString() + " Starting weekly cleanup.");
                             //   CleanupAnyTableWeekly();
                             //Kiran Dadireddy VSPLUS-2684
@@ -231,12 +233,12 @@ namespace VitalSignsDailyStats
 
                             try
                             {
-                                var cleanUpTablesDate= new List<NameValue> { new NameValue { Name = "CleanUpTablesDate", Value =DateTime.Now.ToString()  } };
+                                var cleanUpTablesDate = new List<NameValue> { new NameValue { Name = "CleanUpTablesDate", Value = DateTime.Now.ToString() } };
 
-                                var  results= SaveNameValues(cleanUpTablesDate);
-                               
+                                var results = SaveNameValues(cleanUpTablesDate);
+
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 WriteAuditEntry("Error in updating CleanUpTablesDate in name_value collection...." + ex.ToString());
                             }
@@ -251,7 +253,7 @@ namespace VitalSignsDailyStats
                     try
                     {
                         WriteAuditEntry("Starting the Log Statistics");
-                       // LogTableStatistics("Vitalsigns");
+                        // LogTableStatistics("Vitalsigns");
                         //LogTableStatistics("VSS_Statistics");
 
                     }
@@ -263,8 +265,8 @@ namespace VitalSignsDailyStats
                     {
                         WriteAuditEntry("Starting update of local tables");
                         UpdateLocalTables();
-                       
-                      
+
+
                     }
                     catch (Exception ex)
                     {
@@ -283,9 +285,9 @@ namespace VitalSignsDailyStats
                     WriteAuditEntry("Daily Task is finished....");
 
 
-                  
+
                     this.Stop();
-                   
+
                 }
 
             }
@@ -294,7 +296,7 @@ namespace VitalSignsDailyStats
                 WriteAuditEntry("OOPS, error in processing TravelerSummaryStats" + ex.ToString());
             }
         }
-        public  bool SaveNameValues(List<VSNext.Mongo.Entities.NameValue> nameValues)
+        public bool SaveNameValues(List<VSNext.Mongo.Entities.NameValue> nameValues)
         {
             bool result = true;
             try
@@ -321,10 +323,10 @@ namespace VitalSignsDailyStats
             return result;
         }
 
-        private void WriteAuditEntry(string message, LogUtils.LogLevel logLevel=LogUtils.LogLevel.Normal)
+        private void WriteAuditEntry(string message, LogUtils.LogLevel logLevel = LogUtils.LogLevel.Normal)
         {
             //base.WriteAuditEntry(message, "Daily_Tasks_Log.txt", logLevel);
-           // base.wr
+            // base.wr
             WriteAuditEntry(message, "Daily_Tasks_Log.txt", logLevel);
         }
 
@@ -368,7 +370,7 @@ namespace VitalSignsDailyStats
                         //if (fi.IsReadOnly)
                         //    fi.IsReadOnly = false;
                         //fi.Delete();
-                       File.Delete(myFile);
+                        File.Delete(myFile);
                         WriteAuditEntry(DateTime.Now.ToString() + " Deleting " + myFile);
                     }
                     fileArray = null;
@@ -380,7 +382,7 @@ namespace VitalSignsDailyStats
                         myFolder = myFolder_loopVariable;
 
                         //Directory.Delete(myFolder,Directory.Delete());
-                        Directory.Delete(myFolder,true);
+                        Directory.Delete(myFolder, true);
                         WriteAuditEntry(DateTime.Now.ToString() + " Deleting " + myFolder);
                     }
                     ExchangeFolders = null;
@@ -445,10 +447,10 @@ namespace VitalSignsDailyStats
                         //}
                         WriteAuditEntry(DateTime.Now.ToString() + " Moving folder " + folder + " to " + destFolder);
                         // Directory.Move(folder, destFolder);
-                      
+
 
                     }
-                    
+
                     ExchangeFolders = null;
 
                 }
@@ -541,7 +543,7 @@ namespace VitalSignsDailyStats
                         myFolder = myFolder_loopVariable;
                         WriteAuditEntry(DateTime.Now.ToString() + " Deleting " + myFolder + "...");
                         //this.Computer.FileSystem.DeleteDirectory(myFolder, Microsoft.VisualBasic.FileIO.DeleteDirectoryOption.DeleteAllContents);
-                        Directory.Delete(myFolder,true);
+                        Directory.Delete(myFolder, true);
                     }
                     ExchangeFolders = null;
 
@@ -587,15 +589,16 @@ namespace VitalSignsDailyStats
         {
             var disks = statusRepository.All().Select(x => x.Disks).ToList();
             foreach (List<DiskStatus> item in disks)
-            {  if(item!=null)
-                { 
-                var diskNamesList = item.Select(x => x.DiskName).ToList();
-                foreach (string diskName in diskNamesList)
+            {
+                if (item != null)
                 {
-                    if (!diskNames.Contains(diskName))
-                      diskNames.Add(diskName);
-                   
-                }
+                    var diskNamesList = item.Select(x => x.DiskName).ToList();
+                    foreach (string diskName in diskNamesList)
+                    {
+                        if (!diskNames.Contains(diskName))
+                            diskNames.Add(diskName);
+
+                    }
 
                 }
 
@@ -657,12 +660,12 @@ namespace VitalSignsDailyStats
 
         //    try
         //    {
-                
+
         //        objVsAdaptor.FillDatasetAny("VitalSigns", "statistics", strSQL,ref myDataSet, "MyTable");
         //        WriteAuditEntry(DateTime.Now.ToString() + " Filled the dataset ");
         //        myDriveCount = myDataSet.Tables["MyTable"].Rows.Count;
         //        WriteAuditEntry(DateTime.Now.ToString() + " The dataset has " + myDriveCount + " unique drive names.");
-              
+
 
         //    }
         //    catch (Exception ex)
@@ -697,19 +700,19 @@ namespace VitalSignsDailyStats
         {
 
             int GoBackDays = 2;
-           
+
             int n = 0;
             for (n = GoBackDays; n >= 1; n += -1)
             {
                 WriteAuditEntry("\r\n" + "\r\n" + "*************************************  ---> Processing " + DateTime.Today.AddDays(-n).ToString());
-              
+
                 ProcessSpecificDate(DateTime.Today.AddDays(-n), "DATEADD(dd,-" + n.ToString() + ",GETDATE())");
             }
 
             try
             {
-                
-               CleanUpTravelerSummaryData();
+
+                CleanUpTravelerSummaryData();
 
             }
             catch (Exception ex)
@@ -717,7 +720,7 @@ namespace VitalSignsDailyStats
             }
 
 
-           
+
 
         }
 
@@ -729,16 +732,16 @@ namespace VitalSignsDailyStats
                 List<TravelerStatusSummary> summaryList = new List<TravelerStatusSummary>();
 
                 var result = travelerStatsRepository.Collection.Aggregate().Group(x => x.DeviceId, g => new { deviceId = g.Key }).ToList();
-               // var result = travelerStatsRepository.All().GroupBy(x=>new {x.DeviceId }).Select(x => new TravelerStats { DeviceId=x.Key.DeviceId}).ToList();
+                // var result = travelerStatsRepository.All().GroupBy(x=>new {x.DeviceId }).Select(x => new TravelerStats { DeviceId=x.Key.DeviceId}).ToList();
                 foreach (var item in result)
                 {
-                    Expression<Func<TravelerStats, bool>> Expression = (p => p.MailServerName != "" && p.DateUpdated <DateTime.Now && p.DeviceId == item.deviceId);
+                    Expression<Func<TravelerStats, bool>> Expression = (p => p.MailServerName != "" && p.DateUpdated < DateTime.Now && p.DeviceId == item.deviceId);
                     var travelerStatData = travelerStatsRepository.Find(Expression).ToList();
                     summaryList.Add(new TravelerStatusSummary
                     {
                         StatName = "OpenTimesDelta",
                         MailServerName = travelerStatData.FirstOrDefault().MailServerName,
-                        DateUpdated=travelerStatData.FirstOrDefault().DateUpdated,
+                        DateUpdated = travelerStatData.FirstOrDefault().DateUpdated,
                         DeviceId = item.deviceId,
                         c_000_001 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "000-001")).Average(s => s.Delta)),
                         c_001_002 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "001-002")).Average(s => s.Delta)),
@@ -751,58 +754,58 @@ namespace VitalSignsDailyStats
 
                     });
                     var min = travelerStatsRepository.All().Where(x => x.DateUpdated < DateTime.Now).Min(x => x.DateUpdated).ToString();
-                   
-                    Expression<Func<TravelerStats, bool>> minExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(min) && p.DeviceId==item.deviceId);
-                    var travelerStatDataforMin = travelerStatsRepository.Find(minExpression).ToList();
-                    if(travelerStatDataforMin.Count>0)
-                    { 
-                    summaryList.Add(new TravelerStatusSummary
-                    {
-                        StatName = "CumulativeTimesMin",
-                        DeviceId = item.deviceId,
-                        MailServerName = travelerStatDataforMin.FirstOrDefault().MailServerName,
-                        DateUpdated= travelerStatDataforMin.FirstOrDefault().DateUpdated,
-                        c_000_001 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "000-001")).Sum(s => s.OpenTimes)),
-                        c_001_002 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "001-002")).Sum(s => s.OpenTimes)),
-                        c_002_005 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "002-005")).Sum(s => s.OpenTimes)),
-                        c_005_010 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "005-010")).Sum(s => s.OpenTimes)),
-                        c_010_030 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "010-030")).Sum(s => s.OpenTimes)),
-                        c_030_060 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "030-060")).Sum(s => s.OpenTimes)),
-                        c_060_120 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "060-120")).Sum(s => s.OpenTimes)),
-                        c_120_INF = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "120-INF")).Sum(s => s.OpenTimes)),
 
-                    });
+                    Expression<Func<TravelerStats, bool>> minExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(min) && p.DeviceId == item.deviceId);
+                    var travelerStatDataforMin = travelerStatsRepository.Find(minExpression).ToList();
+                    if (travelerStatDataforMin.Count > 0)
+                    {
+                        summaryList.Add(new TravelerStatusSummary
+                        {
+                            StatName = "CumulativeTimesMin",
+                            DeviceId = item.deviceId,
+                            MailServerName = travelerStatDataforMin.FirstOrDefault().MailServerName,
+                            DateUpdated = travelerStatDataforMin.FirstOrDefault().DateUpdated,
+                            c_000_001 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "000-001")).Sum(s => s.OpenTimes)),
+                            c_001_002 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "001-002")).Sum(s => s.OpenTimes)),
+                            c_002_005 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "002-005")).Sum(s => s.OpenTimes)),
+                            c_005_010 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "005-010")).Sum(s => s.OpenTimes)),
+                            c_010_030 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "010-030")).Sum(s => s.OpenTimes)),
+                            c_030_060 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "030-060")).Sum(s => s.OpenTimes)),
+                            c_060_120 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "060-120")).Sum(s => s.OpenTimes)),
+                            c_120_INF = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "120-INF")).Sum(s => s.OpenTimes)),
+
+                        });
                     }
                     var max = travelerStatsRepository.All().Where(x => x.DateUpdated < DateTime.Now).Max(x => x.DateUpdated).ToString();
 
                     Expression<Func<TravelerStats, bool>> maxExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(max) && p.DeviceId == item.deviceId);
                     var travelerStatDataforMax = travelerStatsRepository.Find(maxExpression).ToList();
-                    if(travelerStatDataforMax.Count>0)
+                    if (travelerStatDataforMax.Count > 0)
                     {
-                    summaryList.Add(new TravelerStatusSummary
-                    {
-                        StatName = "CumulativeTimesMax",
-                        MailServerName = travelerStatDataforMax.FirstOrDefault().MailServerName,
-                        DateUpdated = travelerStatDataforMax.FirstOrDefault().DateUpdated,
-                        DeviceId=item.deviceId,
-                        c_000_001 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "000-001")).Sum(s => s.OpenTimes)),
-                        c_001_002 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "001-002")).Sum(s => s.OpenTimes)),
-                        c_002_005 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "002-005")).Sum(s => s.OpenTimes)),
-                        c_005_010 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "005-010")).Sum(s => s.OpenTimes)),
-                        c_010_030 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "010-030")).Sum(s => s.OpenTimes)),
-                        c_030_060 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "030-060")).Sum(s => s.OpenTimes)),
-                        c_060_120 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "060-120")).Sum(s => s.OpenTimes)),
-                        c_120_INF = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "120-INF")).Sum(s => s.OpenTimes)),
+                        summaryList.Add(new TravelerStatusSummary
+                        {
+                            StatName = "CumulativeTimesMax",
+                            MailServerName = travelerStatDataforMax.FirstOrDefault().MailServerName,
+                            DateUpdated = travelerStatDataforMax.FirstOrDefault().DateUpdated,
+                            DeviceId = item.deviceId,
+                            c_000_001 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "000-001")).Sum(s => s.OpenTimes)),
+                            c_001_002 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "001-002")).Sum(s => s.OpenTimes)),
+                            c_002_005 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "002-005")).Sum(s => s.OpenTimes)),
+                            c_005_010 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "005-010")).Sum(s => s.OpenTimes)),
+                            c_010_030 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "010-030")).Sum(s => s.OpenTimes)),
+                            c_030_060 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "030-060")).Sum(s => s.OpenTimes)),
+                            c_060_120 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "060-120")).Sum(s => s.OpenTimes)),
+                            c_120_INF = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "120-INF")).Sum(s => s.OpenTimes)),
 
-                    });
+                        });
                     }
                 }
 
-              
+
                 var travelersummary = summaryList.ToList();
-                if(travelersummary.Count>0)
+                if (travelersummary.Count > 0)
                 {
-                travelerSummaryStatsRepository.Insert(travelersummary);
+                    travelerSummaryStatsRepository.Insert(travelersummary);
                 }
 
             }
@@ -821,7 +824,7 @@ namespace VitalSignsDailyStats
             WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks service is consolidating statistics for " + SearchDate, LogUtilities.LogUtils.LogLevel.Normal);
 
             VSAdaptor objVSAdaptor = new VSAdaptor();
-           
+
             string strSQL = "";
             System.Data.DataSet myDataSet = new System.Data.DataSet();
             System.Data.DataTable myTable = new System.Data.DataTable();
@@ -829,38 +832,38 @@ namespace VitalSignsDailyStats
             myDataSet.Tables.Add(myTable);
 
 
-            string AlreadyProcessed = "";
-           
-            try
-            {
-                strSQL = "Select Result FROM ConsolidationResults WHERE CONVERT (DATE, ScanDate) = '" + FixDate(SearchDate) + "' ";
-                WriteAuditEntry(DateTime.Now.ToString() + " --> " + strSQL);
-                AlreadyProcessed =Convert.ToString( objVSAdaptor.ExecuteScalarAny("VSS_Statistics", "Stats", strSQL));
-            }
-            catch (Exception ex)
-            {
-                AlreadyProcessed = "False";
-            }
+            //string AlreadyProcessed = "";
+
+            //try
+            //{
+            //    strSQL = "Select Result FROM ConsolidationResults WHERE CONVERT (DATE, ScanDate) = '" + FixDate(SearchDate) + "' ";
+            //    WriteAuditEntry(DateTime.Now.ToString() + " --> " + strSQL);
+            //    AlreadyProcessed =Convert.ToString( objVSAdaptor.ExecuteScalarAny("VSS_Statistics", "Stats", strSQL));
+            //}
+            //catch (Exception ex)
+            //{
+            //    AlreadyProcessed = "False";
+            //}
 
 
-            try
-            {
-                if (AlreadyProcessed == "Success")
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " " + FixDate(SearchDate) + " has already been processed", LogUtilities.LogUtils.LogLevel.Normal);
-                    //return;
-                }
-                else
-                {
-                    WriteAuditEntry(DateTime.Now.ToString() + " " + FixDate(SearchDate) + " has NOT already been processed", LogUtilities.LogUtils.LogLevel.Normal);
-                    objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "Stats", "Insert INTO ConsolidationResults (ScanDate, Result) VALUES ('" + FixDate(SearchDate) + "', 'Success')");
-                }
+            //try
+            //{
+            //    if (AlreadyProcessed == "Success")
+            //    {
+            //        WriteAuditEntry(DateTime.Now.ToString() + " " + FixDate(SearchDate) + " has already been processed", LogUtilities.LogUtils.LogLevel.Normal);
+            //        //return;
+            //    }
+            //    else
+            //    {
+            //        WriteAuditEntry(DateTime.Now.ToString() + " " + FixDate(SearchDate) + " has NOT already been processed", LogUtilities.LogUtils.LogLevel.Normal);
+            //        objVSAdaptor.ExecuteNonQueryAny("VSS_Statistics", "Stats", "Insert INTO ConsolidationResults (ScanDate, Result) VALUES ('" + FixDate(SearchDate) + "', 'Success')");
+            //    }
 
-            }
-            catch (Exception ex)
-            {
-                WriteAuditEntry("Exception in getting data from  ConsolidationResults" + ex.Message);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    WriteAuditEntry("Exception in getting data from  ConsolidationResults" + ex.Message);
+            //}
 
             try
             {
@@ -869,33 +872,33 @@ namespace VitalSignsDailyStats
             }
             catch (Exception ex)
             {
-                WriteAuditEntry("Exception in Processing ConsolidateDominoDiskStats"+ex.Message);
+                WriteAuditEntry("Exception in Processing ConsolidateDominoDiskStats" + ex.Message);
             }
 
-           
+
             try
             {
                 List<DailyTasks> dailyTasks = dailyTasksRepository.All().ToList();
 
-            List<SummaryStatistics> summaryStatistics = new List<SummaryStatistics>();
-            foreach(DailyTasks dailyTask in dailyTasks)
-            {
-                    string name = dailyTask.StatName;
-                SummaryStatistics summaryStatistic = new SummaryStatistics();
-                switch(dailyTask.AggregationType.ToUpper())
+                List<SummaryStatistics> summaryStatistics = new List<SummaryStatistics>();
+                foreach (DailyTasks dailyTask in dailyTasks)
                 {
-                        
+                    string name = dailyTask.StatName;
+                    SummaryStatistics summaryStatistic = new SummaryStatistics();
+                    switch (dailyTask.AggregationType.ToUpper())
+                    {
+
                         case "AVG":
                             var avgResult = dailyStatasticsRepository.Collection.Aggregate()
                            .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
-                               .Group(g =>new { g.DeviceId ,g.StatName,g.DeviceName}, g => new { key = g.Key, value = g.Average(s => s.StatValue) })
+                               .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Average(s => s.StatValue) })
 
                                .Project(x => new SummaryStatistics
                                {
                                    DeviceId = x.key.DeviceId,
                                    StatName = x.key.StatName,
                                    StatValue = x.value,
-                                   DeviceName=x.key.DeviceName
+                                   DeviceName = x.key.DeviceName
 
 
                                }).ToList();
@@ -904,39 +907,39 @@ namespace VitalSignsDailyStats
 
                             break;
                         case "SUM":
-                        var sumResult = dailyStatasticsRepository.Collection.Aggregate()
-                          .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
-                           .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
-                           .Project(x => new SummaryStatistics
-                           {
-                               DeviceId = x.key.DeviceId,
-                               StatName = x.key.StatName,
-                               StatValue = x.value,
-                               DeviceName = x.key.DeviceName
-                           }).ToList();
+                            var sumResult = dailyStatasticsRepository.Collection.Aggregate()
+                              .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
+                               .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
+                               .Project(x => new SummaryStatistics
+                               {
+                                   DeviceId = x.key.DeviceId,
+                                   StatName = x.key.StatName,
+                                   StatValue = x.value,
+                                   DeviceName = x.key.DeviceName
+                               }).ToList();
                             if (sumResult.Count > 0)
                                 summaryStatasticsRepository.Insert(sumResult);
 
-                        break;
-                    case "MAX":
-                        var maxResult = dailyStatasticsRepository.Collection.Aggregate()
-                            .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
-                           .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
-                           .Project(x => new SummaryStatistics
-                           {
-                               DeviceId = x.key.DeviceId,
-                              StatName=x.key.StatName,
-                               StatValue = x.value,
-                               DeviceName = x.key.DeviceName
-                           }).ToList();
+                            break;
+                        case "MAX":
+                            var maxResult = dailyStatasticsRepository.Collection.Aggregate()
+                                .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
+                               .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
+                               .Project(x => new SummaryStatistics
+                               {
+                                   DeviceId = x.key.DeviceId,
+                                   StatName = x.key.StatName,
+                                   StatValue = x.value,
+                                   DeviceName = x.key.DeviceName
+                               }).ToList();
                             if (maxResult.Count > 0)
                                 summaryStatasticsRepository.Insert(maxResult);
 
-                        break;
-                }
+                            break;
+                    }
 
-                
-            }
+
+                }
 
             }
             catch (Exception ex)
@@ -1064,9 +1067,9 @@ namespace VitalSignsDailyStats
             List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
 
             string sql = "";
-          
+
             int rowCounter = 1;
-           
+
             SqlCommand sqlcmd = new SqlCommand();
             IFormatProvider USprovider = CultureInfo.CreateSpecificCulture(culture);
             IFormatProvider Europrovider = CultureInfo.CreateSpecificCulture("fr-FR");
@@ -1078,13 +1081,13 @@ namespace VitalSignsDailyStats
                 sql = "SELECT DeviceType, ServerName, WeekNumber, MonthNumber, YearNumber, DayNumber," + operation + "(StatValue) AS value FROM " + "\r\n";
                 sql = sql + "" + srcTable + " WHERE StatName = '" + srcStat + "' AND date >= DATEADD(day,DATEDIFF(day,0," + objVsAdaptor.DateFormat(FixDate(SearchDate)) + "),0)" + " ";
                 sql = sql + "AND date < DATEADD(day,DATEDIFF(day,0," + objVsAdaptor.DateFormat(FixDate(SearchDate.AddDays(1))) + "),0) GROUP BY DeviceType, ServerName, WeekNumber, MonthNumber, YearNumber, DayNumber" + " ";
-                
+
                 WriteAuditEntry(sql, LogUtils.LogLevel.Verbose);
 
 
                 try
                 {
-                    objVsAdaptor.FillDatasetAny("VSS_Statistics", "statistics", sql,ref  myDataSet, "SummaryData");
+                    objVsAdaptor.FillDatasetAny("VSS_Statistics", "statistics", sql, ref myDataSet, "SummaryData");
                 }
                 catch (Exception ex)
                 {
@@ -1115,8 +1118,8 @@ namespace VitalSignsDailyStats
                             SummaryStatistics summaryStats = new SummaryStatistics();
                             try
                             {
-                               // summaryStats.DeviceType = Convert.ToString(summaryDrv["deviceType"]);
-                              //  summaryStats.ServerName = Convert.ToString(summaryDrv["ServerName"]);
+                                // summaryStats.DeviceType = Convert.ToString(summaryDrv["deviceType"]);
+                                //  summaryStats.ServerName = Convert.ToString(summaryDrv["ServerName"]);
                                 summaryStats.StatName = destStat;
                                 summaryStats.StatValue = Convert.ToDouble(summaryDrv["value"]);
 
@@ -1128,7 +1131,7 @@ namespace VitalSignsDailyStats
 
                             if ((QueryType == "3"))
                             {
-                               
+
                                 try
                                 {
                                     summaryStataStics.Add(summaryStats);
@@ -1141,7 +1144,7 @@ namespace VitalSignsDailyStats
                                     WriteAuditEntry(DateTime.Now.ToString() + " Exception creating INSERT statement: " + ex.ToString());
                                 }
                             }
-                           
+
                         }
                         if (summaryStataStics.Count > 0)
                             summaryStatasticsRepository.Insert(summaryStataStics);
@@ -1158,7 +1161,7 @@ namespace VitalSignsDailyStats
 
                 try
                 {
-                    
+
                     myDataSet.Tables["SummaryData"].Clear();
                 }
                 catch (Exception ex)
@@ -1186,9 +1189,9 @@ namespace VitalSignsDailyStats
             myDataSet.Tables.Add(myTable);
             List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
             string strSQLSelect = "";
-          
+
             int rowCounter = 1;
-          
+
             SqlCommand sqlcmd = new SqlCommand();
             IFormatProvider USprovider = CultureInfo.CreateSpecificCulture(culture);
             IFormatProvider Europrovider = CultureInfo.CreateSpecificCulture("fr-FR");
@@ -1196,7 +1199,7 @@ namespace VitalSignsDailyStats
 
             try
             {
-             
+
                 if (srcTable == "MicrosoftDailyStats")
                 {
                     strSQLSelect = "SELECT ServerName, ServerTypeId, WeekNumber, MonthNumber, YearNumber, DayNumber," + operation + "(StatValue) AS value FROM " + " ";
@@ -1209,7 +1212,7 @@ namespace VitalSignsDailyStats
                     strSQLSelect = "SELECT ServerName, WeekNumber, MonthNumber, YearNumber, DayNumber," + operation + "(StatValue) AS value FROM " + "\r\n";
                     strSQLSelect = strSQLSelect + "" + srcTable + " WHERE StatName = '" + srcStat + "' AND date >= DATEADD(day,DATEDIFF(day,0," + objVsAdaptor.DateFormat(FixDate(SearchDate)) + "),0)" + " ";
                     strSQLSelect = strSQLSelect + "AND date < DATEADD(day,DATEDIFF(day,0," + objVsAdaptor.DateFormat(FixDate(SearchDate.AddDays(1))) + "),0) GROUP BY ServerName, WeekNumber, MonthNumber, YearNumber, DayNumber" + " ";
-                  
+
                 }
                 WriteAuditEntry(strSQLSelect, LogUtils.LogLevel.Verbose);
 
@@ -1246,11 +1249,11 @@ namespace VitalSignsDailyStats
 
                             try
                             {
-                               // summaryStats.DeviceType = Convert.ToString(summaryDrv["ServerTypeId"]);
-                               // summaryStats.ServerName = Convert.ToString(summaryDrv["ServerName"]);
+                                // summaryStats.DeviceType = Convert.ToString(summaryDrv["ServerTypeId"]);
+                                // summaryStats.ServerName = Convert.ToString(summaryDrv["ServerName"]);
                                 summaryStats.StatName = destStat;
                                 summaryStats.StatValue = Convert.ToDouble(summaryDrv["value"]);
-                               
+
                             }
                             catch (Exception ex)
                             {
@@ -1259,9 +1262,9 @@ namespace VitalSignsDailyStats
 
                             if ((QueryType == "1"))
                             {
-                              
 
-                            
+
+
 
                                 if (srcTable == "MicrosoftDailyStats")
                                 {
@@ -1273,7 +1276,7 @@ namespace VitalSignsDailyStats
                                 }
                                 WriteAuditEntry(DateTime.Now.ToString() + " SQL command statement is " + queryToLog, LogUtils.LogLevel.Verbose);
                             }
-                          
+
                         }
                         if (summaryStataStics.Count > 0)
                             summaryStatasticsRepository.Insert(summaryStataStics);
@@ -1290,7 +1293,7 @@ namespace VitalSignsDailyStats
 
                 try
                 {
-                 
+
                     myDataSet.Tables["SummaryData"].Clear();
                 }
                 catch (Exception ex)
@@ -1310,7 +1313,7 @@ namespace VitalSignsDailyStats
 
         public void RunQueryType2(System.DateTime SearchDate, string srcStat, string srcTable, string operation, string destTable, string destStat, string QueryType)
         {
-          
+
             System.Data.DataSet myDataSet = new System.Data.DataSet();
             System.Data.DataTable myTable = new System.Data.DataTable();
             myTable.TableName = "DailyTasks";
@@ -1318,25 +1321,25 @@ namespace VitalSignsDailyStats
             List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
 
             string strSQLSelect = "";
-          
+
             //11/19/2015 NS added for VSPLUS-2383
             SqlCommand sqlcmd = new SqlCommand();
-          
+
             IFormatProvider USprovider = CultureInfo.CreateSpecificCulture(culture);
             IFormatProvider Europrovider = CultureInfo.CreateSpecificCulture("fr-FR");
             WriteAuditEntry(DateTime.Now.ToString() + " USprovider sCultureString is " + culture, LogUtils.LogLevel.Verbose);
             try
             {
-               
+
                 strSQLSelect = "SELECT DeviceType, DeviceName, WeekNumber, MonthNumber, YearNumber, DayNumber," + operation + "(StatValue) AS value FROM " + "\r\n";
                 strSQLSelect = strSQLSelect + "" + srcTable + " WHERE StatName = '" + srcStat + "' AND date >= DATEADD(day,DATEDIFF(day,0," + objVsAdaptor.DateFormat(FixDate(SearchDate)) + "),0)" + "\r\n";
                 strSQLSelect = strSQLSelect + "AND date < DATEADD(day,DATEDIFF(day,0," + objVsAdaptor.DateFormat(FixDate(SearchDate.AddDays(1))) + "),0) GROUP BY DeviceType, DeviceName, WeekNumber, MonthNumber, YearNumber, DayNumber" + "\r\n";
-               
+
                 WriteAuditEntry(strSQLSelect, LogUtils.LogLevel.Verbose);
 
                 try
                 {
-                    objVsAdaptor.FillDatasetAny("VSS_Statistics", "statistics", strSQLSelect,ref myDataSet, "SummaryData");
+                    objVsAdaptor.FillDatasetAny("VSS_Statistics", "statistics", strSQLSelect, ref myDataSet, "SummaryData");
                 }
                 catch (Exception ex)
                 {
@@ -1347,7 +1350,7 @@ namespace VitalSignsDailyStats
                 DataRowView summaryDrv = null;
 
                 string strSQLInsert = "";
-                
+
                 string deviceName = "";
                 string deviceType = "";
                 int weekNumber = 0;
@@ -1369,8 +1372,8 @@ namespace VitalSignsDailyStats
 
                             try
                             {
-                               // summaryStats.DeviceType = Convert.ToString(summaryDrv["deviceType"]);
-                               // summaryStats.ServerName = Convert.ToString(summaryDrv["ServerName"]);
+                                // summaryStats.DeviceType = Convert.ToString(summaryDrv["deviceType"]);
+                                // summaryStats.ServerName = Convert.ToString(summaryDrv["ServerName"]);
                                 summaryStats.StatName = destStat;
                                 summaryStats.StatValue = Convert.ToDouble(summaryDrv["value"]);
 
@@ -1396,7 +1399,7 @@ namespace VitalSignsDailyStats
                                 }
                             }
 
-                           
+
                         }
                         if (summaryStataStics.Count > 0)
                             summaryStatasticsRepository.Insert(summaryStataStics);
@@ -1413,7 +1416,7 @@ namespace VitalSignsDailyStats
 
                 try
                 {
-                   
+
                     myDataSet.Tables["SummaryData"].Clear();
                 }
                 catch (Exception ex)
@@ -1421,7 +1424,7 @@ namespace VitalSignsDailyStats
                     WriteAuditEntry("Could not Remove the table as no data in it.", LogUtils.LogLevel.Verbose);
                 }
 
-                WriteAuditEntry("Skipping this row as not all the required parameters were provided.",LogUtils.LogLevel.Verbose);
+                WriteAuditEntry("Skipping this row as not all the required parameters were provided.", LogUtils.LogLevel.Verbose);
             }
             catch (Exception ex)
             {
@@ -1455,7 +1458,7 @@ namespace VitalSignsDailyStats
             public string TranslatedValue { get; set; }
             public string OSName { get; set; }
         }
-          //Kiran Dadireddy VSPLUS-2684
+        //Kiran Dadireddy VSPLUS-2684
         private void ShrinkLog(string connection)
         {
 
@@ -1490,7 +1493,7 @@ namespace VitalSignsDailyStats
                 WriteAuditEntry(DateTime.Now.ToString() + " Exception while Shrinking " + connection + " Log . \\n Exception :" + ex.Message);
             }
         }
-         //Kiran Dadireddy VSPLUS-2684
+        //Kiran Dadireddy VSPLUS-2684
         private void ShrinkDBLogOnWeeklyBasis()
         {
             WriteAuditEntry(DateTime.Now.ToString() + " Starting Shrinking VitalSigns Log ");
@@ -1500,7 +1503,7 @@ namespace VitalSignsDailyStats
             ShrinkLog("VSS_Statistics");
         }
 
-        private void ConsolidateExchangeMailboxData(DateTime curDate , String searchDateStr = "")
+        private void ConsolidateExchangeMailboxData(DateTime curDate, String searchDateStr = "")
         {
 
             Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("Mailbox."));
@@ -1510,9 +1513,9 @@ namespace VitalSignsDailyStats
 
                          .Select(x => new SummaryStatistics
                          {
-                                //DeviceName=g.value
-                                //StatName=x.StatName,
-                                StatValue = x.Sum(s => s.StatValue),
+                             //DeviceName=g.value
+                             //StatName=x.StatName,
+                             StatValue = x.Sum(s => s.StatValue),
                              DeviceName = x.Key.DeviceName,
                              StatName = x.Key.StatName,
                              DeviceId = x.Key.DeviceId
@@ -1524,7 +1527,7 @@ namespace VitalSignsDailyStats
 
             if (result.Count > 0)
                 summaryStatasticsRepository.Insert(result);
-           // summaryStatasticsRepository.Insert(summaryStataStics);
+            // summaryStatasticsRepository.Insert(summaryStataStics);
 
             //    SqlCommand sqlcmd = new SqlCommand();
             //    DataSet myDataSet = new DataSet();
@@ -1586,7 +1589,7 @@ namespace VitalSignsDailyStats
 
         }
 
-        private void ConsolidateExchangeDatabases(DateTime curDate, String searchDateStr )
+        private void ConsolidateExchangeDatabases(DateTime curDate, String searchDateStr)
         {
 
             Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("ExDatabaseSizeMb"));
@@ -1596,9 +1599,9 @@ namespace VitalSignsDailyStats
 
                          .Select(x => new SummaryStatistics
                          {
-                                //DeviceName=g.value
-                                //StatName=x.StatName,
-                                StatValue = x.Average(s => s.StatValue),
+                             //DeviceName=g.value
+                             //StatName=x.StatName,
+                             StatValue = x.Average(s => s.StatValue),
                              DeviceName = x.Key.DeviceName,
                              StatName = x.Key.StatName,
                              DeviceId = x.Key.DeviceId
@@ -1608,76 +1611,76 @@ namespace VitalSignsDailyStats
 
 
 
-          
+
             if (result.Count > 0)
                 summaryStatasticsRepository.Insert(result);
-            
+
 
 
 
 
             //11/20/2015 NS added for VSPLUS-2383
-       //     SqlCommand sqlcmd = new SqlCommand();
-       //     DataSet myDataSet = new DataSet();
-       //     string sql;
-       //     List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
-       //     sql = "SELECT ServerName, StatName, AVG(StatValue) StatValue FROM MicrosoftDailyStats where StatName like 'ExDatabaseSizeMb.%' " +
-       //"and DateAdd(day, DateDiff(day, 0, Date),0) = DateAdd(day, DateDiff(day, 0, " + searchDateStr + "),0) " +
-       //"GROUP BY StatName, ServerName";
-       //     WriteAuditEntry("\r\n" + sql + "\r\n");
-       //     try
-       //     {
-                
-       //         objVsAdaptor.FillDatasetAny("VSS_Statistics", "vitalsigns", sql, ref myDataSet, "MyTable");
-             
-       //     }
-       //     catch (Exception ex)
-       //     {
-       //         WriteAuditEntry(DateTime.Now.ToString() + " Error creating Exchange DB collection " + ex.Message + "-- The failed command was " + sql);
-       //     }
-       //     System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
-            
+            //     SqlCommand sqlcmd = new SqlCommand();
+            //     DataSet myDataSet = new DataSet();
+            //     string sql;
+            //     List<SummaryStatistics> summaryStataStics = new List<SummaryStatistics>();
+            //     sql = "SELECT ServerName, StatName, AVG(StatValue) StatValue FROM MicrosoftDailyStats where StatName like 'ExDatabaseSizeMb.%' " +
+            //"and DateAdd(day, DateDiff(day, 0, Date),0) = DateAdd(day, DateDiff(day, 0, " + searchDateStr + "),0) " +
+            //"GROUP BY StatName, ServerName";
+            //     WriteAuditEntry("\r\n" + sql + "\r\n");
+            //     try
+            //     {
 
-       //     string sqlInsert = "";
-       //     string serverName=string.Empty;
-       //     string statName;
-       //     string statValue;
-       //     int myWeekNumber = 0;
-       //     string queryToLog = string.Empty;
-       //   //  DataRowView drv;
-       //     foreach (DataRowView drv in myView)
-       //     {
-              
-       //         try
-       //         {
-       //             SummaryStatistics summaryStats = new SummaryStatistics();
-       //             summaryStats.StatName  =drv["StatName"].ToString();
-       //             summaryStats.StatValue  =Convert.ToDouble(drv["StatValue"].ToString());
-       //             //summaryStats.DeviceId=
+            //         objVsAdaptor.FillDatasetAny("VSS_Statistics", "vitalsigns", sql, ref myDataSet, "MyTable");
+
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //         WriteAuditEntry(DateTime.Now.ToString() + " Error creating Exchange DB collection " + ex.Message + "-- The failed command was " + sql);
+            //     }
+            //     System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["MyTable"]);
 
 
-       //             summaryStataStics.Add(summaryStats);
+            //     string sqlInsert = "";
+            //     string serverName=string.Empty;
+            //     string statName;
+            //     string statValue;
+            //     int myWeekNumber = 0;
+            //     string queryToLog = string.Empty;
+            //   //  DataRowView drv;
+            //     foreach (DataRowView drv in myView)
+            //     {
+
+            //         try
+            //         {
+            //             SummaryStatistics summaryStats = new SummaryStatistics();
+            //             summaryStats.StatName  =drv["StatName"].ToString();
+            //             summaryStats.StatValue  =Convert.ToDouble(drv["StatValue"].ToString());
+            //             //summaryStats.DeviceId=
 
 
-                   
+            //             summaryStataStics.Add(summaryStats);
 
-       //         }
-       //         catch (Exception ex)
-       //         {
-       //             WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
-       //         }
 
-               
-       //     }
 
-       //     if (summaryStataStics.Count > 0)
-       //         summaryStatasticsRepository.Insert(summaryStataStics);
+
+            //         }
+            //         catch (Exception ex)
+            //         {
+            //             WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
+            //         }
+
+
+            //     }
+
+            //     if (summaryStataStics.Count > 0)
+            //         summaryStatasticsRepository.Insert(summaryStataStics);
 
 
         }
         public void UpdateLocalTables()
         {
-           //TO DO
+            //TO DO
             string timeToUpdate = "false";
             //string sql = "select case when DATEADD(day,7,convert(datetime, Svalue, 120)) < getdate() then 'true' else 'false' end as UpdateTables from Settings where Sname = 'LastTableUpdate'";
 
@@ -1702,18 +1705,18 @@ namespace VitalSignsDailyStats
             Expression<Func<NameValue, bool>> expression = (p => p.Name == "LastTableUpdate");
 
             var result = nameValueRepository.Find(expression).FirstOrDefault();
-            if(result!=null)
-            { 
-            var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7) : Convert.ToDateTime(result.Value);
-            if (svalue.AddDays(7) < DateTime.Now)
+            if (result != null)
             {
-                timeToUpdate = "true";
-            }
-            else
-            {
-                WriteAuditEntry(DateTime.Now.ToString() + " It is not time to update the local tables.");
-                return;
-            }
+                var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7) : Convert.ToDateTime(result.Value);
+                if (svalue.AddDays(7) < DateTime.Now)
+                {
+                    timeToUpdate = "true";
+                }
+                else
+                {
+                    WriteAuditEntry(DateTime.Now.ToString() + " It is not time to update the local tables.");
+                    return;
+                }
 
 
             }
@@ -1735,7 +1738,7 @@ namespace VitalSignsDailyStats
             ms.Close();
             ms.Dispose();
 
-          
+
             if ((root.Location.Length > 0))
             {
                 DataTable dt = new DataTable();
@@ -1750,7 +1753,7 @@ namespace VitalSignsDailyStats
                     dt.Rows.Add(row);
                 }
 
-               
+
                 try
                 {
 
@@ -1840,7 +1843,7 @@ namespace VitalSignsDailyStats
                     dt.Rows.Add(row);
                 }
 
-                
+
                 try
                 {
                     objVsAdaptor.ExecuteNonQueryAny("VitalSigns", "", "DELETE FROM DeviceTypeTranslation");
@@ -1878,7 +1881,7 @@ namespace VitalSignsDailyStats
                     row["OSName"] = item.OSName.ToString();
                     dt.Rows.Add(row);
                 }
-               
+
                 try
                 {
                     objVsAdaptor.ExecuteNonQueryAny("VitalSigns", "", "DELETE FROM OSTypeTranslation");
@@ -1925,13 +1928,13 @@ namespace VitalSignsDailyStats
 
 
         }
-    
+
         private int GetWeekNumber(DateTime dt)
         {
             int year = dt.Year;
             DateTime Dec29 = new DateTime(year, 12, 29);
             DateTime week1 = new DateTime();
-          
+
             if ((dt >= new DateTime(year, 12, 29)))
             {
                 week1 = GetWeekOneDate(year + 1);
@@ -1950,10 +1953,10 @@ namespace VitalSignsDailyStats
 
         private DateTime GetWeekOneDate(int Year)
         {
-            
+
             DateTime MyDate = new DateTime(Year, 1, 4);
 
-            int DayNum =Convert.ToInt32(MyDate.DayOfWeek);
+            int DayNum = Convert.ToInt32(MyDate.DayOfWeek);
 
 
             if (DayNum == 0)
@@ -1961,7 +1964,7 @@ namespace VitalSignsDailyStats
                 DayNum = 7;
             }
 
-           
+
             return MyDate.AddDays(1 - DayNum);
 
         }
@@ -2034,7 +2037,7 @@ namespace VitalSignsDailyStats
         //}
 
 
-        
+
 
         public void DeleteDominoDailyStats()
         {
@@ -2102,23 +2105,23 @@ namespace VitalSignsDailyStats
 
 
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName);
-                var dailyStsts= dailyStatasticsRepository.Find(expression);
+                var dailyStsts = dailyStatasticsRepository.Find(expression);
 
-                var result = dailyStsts.GroupBy(g=>new {g.DeviceName,g.StatName,g.DeviceId })
-                            
-                             .Select(x => new SummaryStatistics 
+                var result = dailyStsts.GroupBy(g => new { g.DeviceName, g.StatName, g.DeviceId })
+
+                             .Select(x => new SummaryStatistics
                              {
                                  //DeviceName=g.value
                                  //StatName=x.StatName,
-                                 StatValue=x.Average(s=>s.StatValue),
-                                 DeviceName=x.Key.DeviceName,
-                                 StatName=x.Key.StatName,
-                                 DeviceId=x.Key.DeviceId
-                              
+                                 StatValue = x.Average(s => s.StatValue),
+                                 DeviceName = x.Key.DeviceName,
+                                 StatName = x.Key.StatName,
+                                 DeviceId = x.Key.DeviceId
+
 
                              }).ToList();
 
-                     
+
 
 
                 if (result.Count > 0)
@@ -2129,7 +2132,7 @@ namespace VitalSignsDailyStats
 
                 throw ex;
             }
-          
+
 
 
 
@@ -2142,7 +2145,7 @@ namespace VitalSignsDailyStats
             //System.Data.DataTable myTable = new System.Data.DataTable();
             //myDataSet.Tables.Add(myTable);
 
-          
+
             //sql = "SELECT ServerName ,StatName,  JustDate , " + operation + "(StatValue)  AS Average " + "\r\n";
             //sql += "FROM (SELECT ServerName,  CONVERT(DATE, [Date]) AS JustDate , StatValue, StatName " + "\r\n";
             //sql += "FROM DominoDailyStats WHERE StatName = '" + SrcStatName + "' " +"\r\n";
@@ -2156,9 +2159,9 @@ namespace VitalSignsDailyStats
 
             //try
             //{
-                
+
             //    objVsAdaptor.FillDatasetAny("VSS_Statistics", "statistics", sql, ref myDataSet, "MyTable");
-              
+
             //}
             //catch (Exception ex)
             //{
@@ -2181,10 +2184,10 @@ namespace VitalSignsDailyStats
             //    try
             //    {
             //        ServerName =Convert.ToString(drv["ServerName"]);
-               
+
             //        myNumber =Convert.ToDouble(drv["Average"]);
             //        myNumberString = myNumber.ToString("F2");
-                 
+
             //        MyWeekNumber = GetWeekNumber(StatDate);
 
             //        SummaryStatistics summaryStats = new SummaryStatistics();
@@ -2195,7 +2198,7 @@ namespace VitalSignsDailyStats
             //        summaryStataStics.Add(summaryStats);
 
 
-                  
+
 
             //    }
             //    catch (Exception ex)
@@ -2203,11 +2206,11 @@ namespace VitalSignsDailyStats
             //        WriteAuditEntry(DateTime.Now.ToString() + " Exception creating Mongo: " + ex.ToString());
             //    }
 
-                
+
             //}
 
-         
-          //  sql = "DELETE FROM DominoDailyStats WHERE  Date<" + objVsAdaptor.DateFormat(FixDate(StatDate.AddDays(-2))) + " AND StatName='" + SrcStatName + "'";
+
+            //  sql = "DELETE FROM DominoDailyStats WHERE  Date<" + objVsAdaptor.DateFormat(FixDate(StatDate.AddDays(-2))) + " AND StatName='" + SrcStatName + "'";
 
             try
             {
@@ -2223,7 +2226,7 @@ namespace VitalSignsDailyStats
         }
         public void ConsolidateDominoDiskStats(System.DateTime SearchDate)
         {
-            
+
             string myDiskFree = "";
             //for (int n = 0; n <= dominoDiskNames.GetUpperBound(0); n++)
             //{
@@ -2233,14 +2236,14 @@ namespace VitalSignsDailyStats
 
             foreach (string diskname in diskNames)
             {
-                myDiskFree=diskname + ".Free";
+                myDiskFree = diskname + ".Free";
                 GenerateSummaryforAllDomino(SearchDate, myDiskFree, "AVG");
             }
         }
 
         private string FixDate(DateTime dt)
         {
-           
+
             return objDateUtils.FixDate(dt, dateFormat);
         }
         private void CleanupAnyTableWeekly()
@@ -2248,7 +2251,7 @@ namespace VitalSignsDailyStats
             System.Data.DataSet myDataSet = new System.Data.DataSet();
             DataTable dt = null;
             string sql = "";
-          
+
             string cleanup = "";
             string whereClause = "";
             VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
@@ -2349,15 +2352,15 @@ namespace VitalSignsDailyStats
             WriteAuditEntry(DateTime.Now.ToString() + " Cleaning up TravelerStats for today in case the query has been run today already. ");
 
             DateTime SearchDate = default(DateTime);
-            SearchDate =Convert.ToDateTime(FixDate(DateTime.Today.AddDays(-30)));
+            SearchDate = Convert.ToDateTime(FixDate(DateTime.Today.AddDays(-30)));
             string sql = "";
 
 
 
             try
             {
-                Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated<=DateTime.Now);
-            travelerStatsRepository.Delete(expression);
+                Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated <= DateTime.Now);
+                travelerStatsRepository.Delete(expression);
             }
             catch (Exception ex)
             {
@@ -2395,12 +2398,12 @@ namespace VitalSignsDailyStats
             WriteAuditEntry(DateTime.Now.ToString() + " Finished cleaning up TravelerStats ");
 
         }
-         
+
         public void LogTableStatistics(string dataBase)
         {
             WriteAuditEntry("Print Log table Statistics... ");
             VSAdaptor objVSAdaptor = new VSAdaptor();
-          
+
             string sql = "";
             System.Data.DataSet myDataSet = new System.Data.DataSet();
             System.Data.DataTable myTable = new System.Data.DataTable();
@@ -2424,7 +2427,7 @@ namespace VitalSignsDailyStats
             System.Data.DataView myView = new System.Data.DataView(myDataSet.Tables["TableData"]);
             DataRowView drv = null;
 
-           
+
             string tableName = null;
             string rowCount = null;
 
@@ -2452,10 +2455,10 @@ namespace VitalSignsDailyStats
 
             try
             {
-              //Cleaning Up Status Details
+                //Cleaning Up Status Details
                 statusDeatilsRepository.Delete();
                 //Cleaning Up Status Table
-             //   statusRepository.Delete();
+                //   statusRepository.Delete();
                 //Cleaning Up TravelerStats Table
 
                 Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated < DateTime.Now);
@@ -2467,7 +2470,7 @@ namespace VitalSignsDailyStats
             catch (Exception ex)
             {
                 WriteAuditEntry("Error in Clean up VS Tables" + ex.ToString());
-              
+
             }
 
 
@@ -2496,11 +2499,11 @@ namespace VitalSignsDailyStats
             //    }
             //}
         }
-       
+
         public void CleanUpObsoleteData()
         {
             WriteAuditEntry("Cleaning up obsolete and processed data....");
-            VSAdaptor objVSAdaptor = new VSAdaptor();  
+            VSAdaptor objVSAdaptor = new VSAdaptor();
             try
             {
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.CreatedOn <= DateTime.Now.AddDays(-2));
@@ -2509,9 +2512,9 @@ namespace VitalSignsDailyStats
             catch (Exception ex)
             {
                 WriteAuditEntry("Exception = " + ex.ToString());
-               // WriteAuditEntry(DateTime.Now.ToString() + " Error Accessing the DailyTasks Table " + ex.Message + sql);
-            }        
-         //To do
+                // WriteAuditEntry(DateTime.Now.ToString() + " Error Accessing the DailyTasks Table " + ex.Message + sql);
+            }
+            //To do
             System.Threading.Tasks.Task taskVSStatsCleanUp = Task.Factory.StartNew(() => CleanUpVSTables());
             taskVSStatsCleanUp.Wait();
 
@@ -2549,7 +2552,7 @@ namespace VitalSignsDailyStats
 
 
         }
-     
+
 
     }
 }
