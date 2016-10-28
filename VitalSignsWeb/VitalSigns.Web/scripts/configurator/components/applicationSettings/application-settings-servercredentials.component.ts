@@ -18,7 +18,7 @@ import {GridBase} from '../../../core/gridBase';
         RESTService
     ]
 })
-export class ServerCredentials extends GridBase implements OnInit {  
+export class ServerCredentials extends GridBase {  
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
@@ -41,22 +41,18 @@ export class ServerCredentials extends GridBase implements OnInit {
 
                 this.deviceTypes.splice(0, 1);
 
-
             },
             (error) => this.errorMessage = <any>error
             );
-        //alert(this.deviceTypes);
+      
     } 
   
 
-    saveServerCredential() {
-        this.saveGridRow('/Configurator/save_credentials');
+    saveServerCredential(dlg: wijmo.input.Popup) {
+        this.saveGridRow1('/Configurator/save_credentials',dlg);
     }
 
-    ngOnInit() {
-        
-
-    }
+   
 
    
 
