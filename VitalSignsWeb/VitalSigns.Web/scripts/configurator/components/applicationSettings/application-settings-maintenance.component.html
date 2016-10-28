@@ -47,20 +47,7 @@ data.pageIndex + 1 | number
             <wj-menu-item [value]="50">50</wj-menu-item>
         </wj-menu>
     </div>
-    <!--<div class="modal fade" id="dlgDetail">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button"
-                            class="close"
-                            data-dismiss="modal"
-                            (itemsSourceChanged)="itemsSourceChangedHandler()"
-                            (click)="cancelEditAdd()"
-                            aria-hidden="true">
-                        &times;
-                    </button>
-                    <h4 class="modal-title">{{formTitle}}</h4>
-                </div>-->
+   
 
 
     <div class="well grid-sort-group">
@@ -99,15 +86,15 @@ data.pageIndex + 1 | number
                 </div>
                 <div class="form-group">
                     <label for="end_date">End Date</label>
-                    <input type="text" class="form-control" id="end_date" [(ngModel)]="currentEditItem.end_date">
+                    <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
                 </div>
                 <div class="form-group">
                     <label for="duration">Duration</label>
-                    <input type="text" class="form-control" id="duration" [(ngModel)]="currentEditItem.duration">
+                    <input type="text" class="form-control" id="duration"  name="duration" [(ngModel)]="currentEditItem.duration">
                 </div>
                 <div class="form-group">
                     <label for="maintenance_frequency">Maintenance Frequency</label>
-                    <input type="text" class="form-control" id="maintenance_frequency" [(ngModel)]="currentEditItem.maintenance_frequency">
+                    <input type="text" class="form-control" id="maintenance_frequency"  name="maintenance_frequency" [(ngModel)]="currentEditItem.maintenance_frequency">
                 </div>
 
                 <div class="form-group">
@@ -128,7 +115,7 @@ data.pageIndex + 1 | number
 
                     <div class="form-group">
                         <label for="repeattxtbx">Repeat every:</label>
-                        <input type="text" class="form-control" id="repeattxtbx" [(ngModel)]="currentEditItem.repeat">
+                        <input type="text" class="form-control" id="repeattxtbx" name="repeattxtbx"  [(ngModel)]="currentEditItem.repeat">
                         <label for="repeattxtbx">weeks on</label>
                     </div>
 
@@ -277,7 +264,7 @@ data.pageIndex + 1 | number
 
             <div class="modal-footer">
                 <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                <button class="btn btn-primary" type="cancel" name="cancel" [disabled]="!frmUser.form.valid">Cancel</button>
+                <button class="btn btn-primary" type="cancel" name="cancel" >Cancel</button>
             </div>
 
           
