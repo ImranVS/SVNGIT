@@ -59,8 +59,8 @@ export class Location extends GridBase implements OnInit  {
     }
 
 
-    savelocations() {
-        this.saveGridRow('/Configurator/save_locations');
+    savelocations(dlg: wijmo.input.Popup) {
+        this.saveGridRow1('/Configurator/save_locations',dlg);
     }
 
     ngOnInit() {
