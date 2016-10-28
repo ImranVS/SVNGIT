@@ -389,27 +389,49 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpGet("{deviceid}/traveler-health")]
-        public APIResponse GetTravelerHealth(string deviceid)
+        [HttpGet("traveler-health")]
+        public APIResponse GetTravelerHealth(string deviceid = "")
         {
+            List<TravelerHealth> result = null;
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-
-                Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
-                var result = statusRepository.Find(expression).Select(x => new TravelerHealth
+                if (string.IsNullOrEmpty(deviceid))
                 {
-                    DeviceId = x.DeviceId,
-                    ResourceConstraint = x.ResourceConstraint,
-                    TravelerDetails = x.TravelerDetails,
-                    TravelerHeartBeat = x.TravelerHeartBeat,
-                    TravelerServlet = x.TravelerServlet,
-                    TravelerUsers = x.TravelerUsers,
-                    TravelerHA = x.TravelerHA,
-                    TravelerIncrementalSyncs = x.TravelerIncrementalSyncs,
-                    HttpStatus = x.HttpStatus,
-                    TravelerDevicesAPIStatus = x.TravelerDevicesAPIStatus,
-                });
+                    FilterDefinition<Status> filterDef = statusRepository.Filter.Exists(p => p.TravelerStatus);
+                    result = statusRepository.Find(filterDef).Select(x => new TravelerHealth
+                    {
+                        DeviceId = x.DeviceId,
+                        DeviceName = x.DeviceName,
+                        TravelerStatus = x.TravelerStatus,
+                        ResourceConstraint = x.ResourceConstraint,
+                        TravelerDetails = x.TravelerDetails,
+                        TravelerHeartBeat = x.TravelerHeartBeat,
+                        TravelerServlet = x.TravelerServlet,
+                        TravelerUsers = x.TravelerUsers,
+                        TravelerHA = x.TravelerHA,
+                        TravelerIncrementalSyncs = x.TravelerIncrementalSyncs,
+                        HttpStatus = x.HttpStatus,
+                        TravelerDevicesAPIStatus = x.TravelerDevicesAPIStatus,
+                    }).ToList();
+                }
+                else
+                {
+                    Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceid);
+                    result = statusRepository.Find(expression).Select(x => new TravelerHealth
+                    {
+                        DeviceId = x.DeviceId,
+                        ResourceConstraint = x.ResourceConstraint,
+                        TravelerDetails = x.TravelerDetails,
+                        TravelerHeartBeat = x.TravelerHeartBeat,
+                        TravelerServlet = x.TravelerServlet,
+                        TravelerUsers = x.TravelerUsers,
+                        TravelerHA = x.TravelerHA,
+                        TravelerIncrementalSyncs = x.TravelerIncrementalSyncs,
+                        HttpStatus = x.HttpStatus,
+                        TravelerDevicesAPIStatus = x.TravelerDevicesAPIStatus,
+                    }).ToList();
+                }
                 Response = Common.CreateResponse(result);
                 return Response;
             }

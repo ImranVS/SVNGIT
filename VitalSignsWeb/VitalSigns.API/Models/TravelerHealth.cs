@@ -12,6 +12,12 @@ namespace VitalSigns.API.Models
         [JsonProperty("device_id")]
         public string DeviceId { get; set; }
 
+        [JsonProperty("device_name")]
+        public string DeviceName { get; set; }
+
+        [JsonProperty("traveler_status")]
+        public string TravelerStatus { get; set; }
+
         [JsonProperty("resource_constraint")]
         public string ResourceConstraint { get; set; }
 
