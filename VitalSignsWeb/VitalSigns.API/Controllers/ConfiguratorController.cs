@@ -1362,14 +1362,51 @@ namespace VitalSigns.API.Controllers
         ///saves the Server device attributes data
         /// </summary>
         /// <author>Swathi</author>
-        [HttpPut("save_servers_attributes")]
-        public APIResponse SaveServerDeviceAttributes([FromBody]DeviceAttributesModel serverAttributes)
+        [HttpPut("save_servers_attributes/{id}")]
+        public APIResponse SaveServerDeviceAttributes([FromBody]DeviceSettings serverAttributes,string id)
         {
             try
             {
-              //  var settingValue = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<DeviceAttributeValue>>();
-               // var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
-                //Response = Common.CreateResponse(result);
+                serversRepository = new Repository<Server>(ConnectionString);
+                Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
+                var deviceAttributes = ((Newtonsoft.Json.Linq.JObject)serverAttributes.Value).ToObject<DeviceAttributesDataModel>();
+                var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+                var filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
+              
+                //   UpdateDefinition<BsonDocument> updateserverDefinition = Builders<BsonDocument>.Update.Set(devicename=devicename,, category, ipaddress, isenabled, location, description);
+                //  var serverresult = repository.Collection.UpdateMany(filter, updateserverDefinition);
+                var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, deviceAttributes.DeviceName)
+                                                                  .Set(p => p.Category, deviceAttributes.Category)
+                                                                  .Set(p => p.IPAddress, deviceAttributes.IPAddress)
+                                                                  .Set(p => p.LocationId, deviceAttributes.LocationId)
+                                                                  .Set(p => p.Description, deviceAttributes.Description)
+                                                                  .Set(p => p.IsEnabled, deviceAttributes.IsEnabled);
+                var serverresult = serversRepository.Update(filterDefination, updateDefination);
+
+                if (deviceAttributes.DeviceAttributes.Count() > 0)
+                {
+                    foreach (var attribute in deviceAttributes.DeviceAttributes)
+                    {
+                        if (!string.IsNullOrEmpty(attribute.FieldName))
+                        {
+                            string field = attribute.FieldName;
+                            string value = attribute.DefaultValue;
+                            UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                    .Set(field, value);
+                            var result = repository.Collection.UpdateMany(filter, updateDefinition);
+
+                        }                       
+
+                    }
+                   
+                  //  Response = Common.CreateResponse(result);
+
+                    //var update = Builders<BsonDocument>.Update
+                    //    .Set(field, value)
+                    //    .CurrentDate("lastModified");
+                    // var result = repository.Collection.UpdateMany(filter, update);
+                    // Response = Common.CreateResponse(result);
+                }
             }
 
             catch (Exception exception)
