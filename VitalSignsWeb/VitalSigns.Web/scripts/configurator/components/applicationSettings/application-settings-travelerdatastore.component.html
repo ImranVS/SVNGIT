@@ -41,110 +41,93 @@ data.pageIndex + 1 | number
             <wj-menu-item [value]="50">50</wj-menu-item>
         </wj-menu>
     </div>
-    <div class="modal fade" id="dlgDetail">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button"
-                            class="close"
-                            data-dismiss="modal"
-                            (itemsSourceChanged)="itemsSourceChangedHandler()"
-                            (click)="cancelEditAdd()"
-                            aria-hidden="true">
-                        &times;
-                    </button>
-                    <h4 class="modal-title">{{formTitle}}</h4>
-                </div>
-                <div class="modal-body" *ngIf="currentEditItem">
-                    <div class="form-group">
-                        <label for="traveler_service_pool_name">Traveler Service Pool Name</label>
-                        <input type="text" class="form-control" id="traveler_service_pool_name" required name="traveler_service_pool_name" [(ngModel)]="currentEditItem.traveler_service_pool_name">
-                    </div>
-                    <div class="form-group">
-                        <label for="device_name">Server Name</label>
-                        <input type="text" class="form-control" id="device_name" required name="device_name" [(ngModel)]="currentEditItem.device_name">
-                    </div>
-                    <div class="form-group">
-                        <label for="data_store">Data Store</label>
-                        <select name="data_store" class="form-control" [(ngModel)]="currentEditItem.data_store">
-                            <option value="DB">DB2</option>
-                            <option value="Sql">SQL Server</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="database_name">Database</label>
-                        <input type="text" class="form-control" id="database_name" required name="database_name" [(ngModel)]="currentEditItem.database_name">
-                    </div>
-                    <div class="form-group">
-                        <label for="port">Port</label>
-                        <input type="text" class="form-control" id="port" required name="port" [(ngModel)]="currentEditItem.port">
-                    </div>
-                    <div class="form-group">
-                        <label for="user_name">User Name</label>
-                        <input type="text" class="form-control" id="user_name" required name="user_name" [(ngModel)]="currentEditItem.user_name">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" required name="password" [(ngModel)]="currentEditItem.password">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="integrated_security">Authentication Type</label>
-                        <select name="integrated_security" class="form-control" [(ngModel)]="currentEditItem.integrated_security">
-                            <option value="SQL Server">SQL Server</option>
-                            <option value="Windows">Windows</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="test_scan_server">Test when scanning Traveler Server</label>
-                        <select name="test_scan_server" class="form-control" [(ngModel)]="currentEditItem.test_scan_server">
-                            <option value=""></option>
-                            <option value=""></option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="used_by_servers">Used by Servers</label>
-                        <select name="used_by_servers" class="form-control" [(ngModel)]="currentEditItem.used_by_servers">
-                            <option value=""></option>
-                            <option value=""></option>
-                        </select>
-                    </div>
 
 
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" (click)="saveTravelerDataStore()">
-                        <span class="glyphicon glyphicon-ok"></span>
-                        Save
-                    </button>
-                    <button type="button" class="btn btn-warning" data-dismiss="modal"
-                            (click)="cancelEditAdd()">
-                        <span class="glyphicon glyphicon-ban-circle"></span>
-                        Close
-                    </button>
-                </div>
-            </div><!-- modal-content -->l
-        </div><!-- modal-dialog -->
-    </div><!-- modal -->
     <div class="well grid-sort-group">
 
         <!-- edit details in a popup -->
-        <button class="btn btn-default"
-                data-toggle="modal"
-                data-backdrop="static"
-                data-keyboard="false"
-                data-target="#dlgDetail" (click)="editGridRow()">
+        <button class="btn btn-default" (click)="editGridRow1(frmDialog)">
             Edit
         </button>
-        <button class="btn btn-default"
-                data-toggle="modal"
-                data-backdrop="static"
-                data-keyboard="false"
-                data-target="#dlgDetail" (click)="addGridRow()">
+        <button class="btn btn-default" (click)="addGridRow1(frmDialog)">
             Add
         </button>
         <button class="btn btn-default" (click)="delteTravelerDataStore();">
             Delete
         </button>
     </div>
+
+    <wj-popup class="col-md-6 modal-content" #frmDialog>
+
+        <form (ngSubmit)="saveTravelerDataStore(frmDialog)" #frmUser="ngForm">
+            <h4 class="modal-header">
+                {{formTitle}}
+                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+            </h4>
+          
+ <div class="modal-body" *ngIf="currentEditItem">
+                <div class="form-group">
+                    <label for="traveler_service_pool_name">Traveler Service Pool Name</label>
+                    <input type="text" class="form-control" id="traveler_service_pool_name" required name="traveler_service_pool_name" [(ngModel)]="currentEditItem.traveler_service_pool_name">
+                </div>
+                <div class="form-group">
+                    <label for="device_name">Server Name</label>
+                    <input type="text" class="form-control" id="device_name" required name="device_name" [(ngModel)]="currentEditItem.device_name">
+                </div>
+                <div class="form-group">
+                    <label for="data_store">Data Store</label>
+                    <select name="data_store" class="form-control" [(ngModel)]="currentEditItem.data_store">
+                        <option value="DB">DB2</option>
+                        <option value="Sql">SQL Server</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="database_name">Database</label>
+                    <input type="text" class="form-control" id="database_name" required name="database_name" [(ngModel)]="currentEditItem.database_name">
+                </div>
+                <div class="form-group">
+                    <label for="port">Port</label>
+                    <input type="text" class="form-control" id="port" required name="port" [(ngModel)]="currentEditItem.port">
+                </div>
+                <div class="form-group">
+                    <label for="user_name">User Name</label>
+                    <input type="text" class="form-control" id="user_name" required name="user_name" [(ngModel)]="currentEditItem.user_name">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" required name="password" [(ngModel)]="currentEditItem.password">
+                </div>
+
+                <div class="form-group">
+                    <label for="integrated_security">Authentication Type</label>
+                    <select name="integrated_security" class="form-control" [(ngModel)]="currentEditItem.integrated_security">
+                        <option value="SQL Server">SQL Server</option>
+                        <option value="Windows">Windows</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="test_scan_server">Test when scanning Traveler Server</label>
+                    <select name="test_scan_server" class="form-control" [(ngModel)]="currentEditItem.test_scan_server">
+                        <option value=""></option>
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="used_by_servers">Used by Servers</label>
+                    <select name="used_by_servers" class="form-control" [(ngModel)]="currentEditItem.used_by_servers">
+                        <option value=""></option>
+                        <option value=""></option>
+                    </select>
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+            </div>
+        </form>
+    </wj-popup>
+
+    
 </div>

@@ -25,8 +25,8 @@ export class TravelerDataStore extends GridBase {
         super(service, '/configurator/get_travelerdatastore');
         this.formName = "Traveler Data Store";
     }
-    saveTravelerDataStore() {
-        this.saveGridRow('/configurator/save_traveler_data_store');
+    saveTravelerDataStore(dlg: wijmo.input.Popup) {
+        this.saveGridRow1('/configurator/save_traveler_data_store', dlg);
     }
     delteTravelerDataStore() {
         this.delteGridRow('/configurator/delete_traveler_data_store/');
