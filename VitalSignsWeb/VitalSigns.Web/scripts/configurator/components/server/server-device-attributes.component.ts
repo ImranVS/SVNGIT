@@ -5,6 +5,7 @@ import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 declare var injectSVG: any;
+import {DeviceAttributeValue} from '../../models/device-attribute';
 
 
 @Component({
@@ -17,25 +18,32 @@ declare var injectSVG: any;
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
 export class ServerAttribute implements OnInit, AfterViewChecked {
-  
+    devices: string;
     deviceId: any;
-    ServerAttribute: FormGroup;
+    ServerAttributeForm: FormGroup;
     errorMessage: any;
     category: string;
     type: string;
     defaultvalue: string;
     fieldName: string;
+    serverAttributes: any[];
     attributes: any[];
-    scanSettings:string ="Scan Settings"
+    scanSettings: string = "Scan Settings"
+    mailSettings: string = "Mail Settings"
+    travelerSettings: string = "Traveler Settings"
+    optionalSettings: string ="Optional Settings"
+
 
     constructor(
         private formBuilder: FormBuilder,
         private Attribute: RESTService,
         private router: Router,
         private route: ActivatedRoute) {
-        this.ServerAttribute = this.formBuilder.group({
-            'id': [],
-            'DefaultValue':[]
+        this.ServerAttributeForm = this.formBuilder.group({
+            
+            'setting': [''],
+            'value': [''],
+            'devices': ['']
 
         });
 
@@ -54,9 +62,10 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
         this.Attribute.get('/configurator/' + this.deviceId + '/servers_attributes')
             .subscribe(
-            response => {               
-                this.attributes = response.data.device_attributes;
-               
+            response => {
+                this.serverAttributes = response.data;             
+                //this.attributes = response.data.device_attributes;
+              
             },
             error => this.errorMessage = <any>error
 
@@ -65,17 +74,25 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
 
     }
-    onSubmit(serverattributes: any): void {
-
-        this.Attribute.put('/Configurator/save_servers_attributes', serverattributes)
+   
+    applySetting() {
+  
+        var postData = {
+            "setting": "",
+            "value": this.serverAttributes,
+            "devices": ""
+        };
+       
+        this.ServerAttributeForm.setValue(postData);
+        console.log(postData);
+        this.Attribute.put('/configurator/save_servers_attributes/' + this.deviceId, postData)
             .subscribe(
             response => {
 
             });
-
-
-
     }
+
+
     ngAfterViewChecked() {
        // injectSVG();
     }
