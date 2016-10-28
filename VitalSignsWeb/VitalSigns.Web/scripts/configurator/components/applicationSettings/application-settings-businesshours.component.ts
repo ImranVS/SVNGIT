@@ -25,8 +25,8 @@ export class BusinessHours extends GridBase  {
         super(service, '/Configurator/get_business_hours');
         this.formName = "Business Hours";
     }   
-    saveBusinessHour() {        
-        this.saveGridRow('/Configurator/save_business_hours');  
+    saveBusinessHour(dlg: wijmo.input.Popup) {        
+        this.saveGridRow1('/Configurator/save_business_hours',dlg);  
 
     }
     
