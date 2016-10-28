@@ -90,7 +90,7 @@ export class DominoServerDiskSettings  implements OnInit {
                
                 this.selectedDiskSetting = response.data.disk_name;
                 this.diskThreshold = response.data.freespace_threshold;
-               // console.log(this.selectedDiskSetting);
+                console.log(this.selectedDiskSetting);
             },
 
             (error) => this.errorMessage = <any>error
@@ -190,6 +190,11 @@ export class DominoServerDiskSettings  implements OnInit {
             response => {
 
             });
+    }
+    handleClick(index :any)
+    {
+       
+    this.diskThreshold = "";
     }
    
     get pageSize(): number {

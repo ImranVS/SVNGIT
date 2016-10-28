@@ -5,13 +5,13 @@
        
         <div class="panel-body">
 
-            <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting"> 
+            <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting"  (click)="handleClick(this);"> 
             <label for="selectionType">	All Disks - By Percentage</label>
-            <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting" >
+            <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting"  (click)="handleClick(this);" >
             <label for="selectionType">All Disks - By GB</label>
-            <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting">
+            <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting"  >
             <label for="selectionType">	Selected Disks</label>
-            <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting">
+            <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting" >
             <label for="selectionType">No Disk Alerts</label>
       
     </div>
