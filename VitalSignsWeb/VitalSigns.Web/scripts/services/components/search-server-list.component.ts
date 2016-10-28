@@ -1,4 +1,6 @@
 ﻿import {Component, Output, EventEmitter, OnInit}  from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+
 import {RESTService} from '../../core/services';
 @Component({
     selector: 'search-server-list',
@@ -17,9 +19,8 @@ export class SearchServerList implements OnInit  {
     deviceLocationData: any;
     errorMessage: any;
 
-    constructor(private service: RESTService) { }
-
-
+    constructor(private service: RESTService, private route: ActivatedRoute) { }
+    
     deviceName: string = "";
     deviceType: string = "-All-";
     deviceLocation: string = "-All-";
@@ -49,9 +50,12 @@ export class SearchServerList implements OnInit  {
         this.location.emit(this.deviceLocation);
     }
     ngOnInit() {
+        let paramstatus = null;
+        //Get a query parameter if the page is called from the main dashboard via a link in a status component
+        this.route.queryParams.subscribe(params => paramstatus = params['status'] || '-All-');
         this.name.emit('');
         this.type.emit('-All-');
-        this.status.emit('-All-');
+        this.status.emit(paramstatus);
         this.location.emit('-All-');
         this.service.get('/services/server_list_selectlist_data')
             .subscribe(
@@ -61,6 +65,8 @@ export class SearchServerList implements OnInit  {
                 this.deviceLocationData = response.data.deviceLocationData;                
             },
             (error) => this.errorMessage = <any>error
-            );
+        );
+        //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
+        this.deviceStatus = paramstatus;
     }
 }

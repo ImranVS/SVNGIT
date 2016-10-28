@@ -23,6 +23,7 @@ export class ServicesView implements OnInit, AfterViewChecked {
 
     errorMessage: string;
     module: string;
+    status: string;
     services: any[];
 
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute) { }
@@ -47,9 +48,10 @@ export class ServicesView implements OnInit, AfterViewChecked {
     ngOnInit() {
        
         this.route.params.subscribe(params => {
-            this.module = params['module']; 
+            this.module = params['module'];
             this.loadData(); 
         });
+        
     }
 
     ngAfterViewChecked() {

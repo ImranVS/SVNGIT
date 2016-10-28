@@ -58,7 +58,6 @@ export class ServiceDetails implements OnInit {
             this.dataProvider.get(`/services/device_details?device_id=${this.deviceId}&destination=${this.module}`)
                 .subscribe(
                 response => {
-                   
                     this.service = response.data;
                     this.selectTab(this.service.tabs[0]);
                     console.log(this.service.tabs);

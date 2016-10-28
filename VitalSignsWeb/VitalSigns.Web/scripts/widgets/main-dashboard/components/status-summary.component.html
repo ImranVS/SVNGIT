@@ -7,7 +7,7 @@
             <div class="widgetStatusNumber-text zeusColorReactText">servers are <strong>not responding</strong></div>
         </div>
 
-        <a href="javascript:void(0);" class="widgetFooter zeusColorReactBg">
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Not Responding'}" class="widgetFooter zeusColorReactBg">
             <span aria-hidden="true" class="glyphicon glyphicon-arrow-right"></span> Show me the list
         </a>
 
@@ -23,7 +23,7 @@
             <div class="widgetStatusNumber-text zeusColorReactText">servers <strong>without issue</strong></div>
         </div>
 
-        <a href="javascript:void(0);" class="widgetFooter zeusColorReactBg">
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'OK'}" class="widgetFooter zeusColorReactBg">
             <span aria-hidden="true" class="glyphicon glyphicon-arrow-right"></span> Show me the list
         </a>
 
@@ -39,7 +39,7 @@
             <div class="widgetStatusNumber-text zeusColorReactText">servers <strong>have issues</strong></div>
         </div>
 
-        <a href="javascript:void(0);" class="widgetFooter zeusColorReactBg">
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Issue'}" class="widgetFooter zeusColorReactBg">
             <span aria-hidden="true" class="glyphicon glyphicon-arrow-right"></span> Show me the list
         </a>
 
@@ -55,7 +55,7 @@
             <div class="widgetStatusNumber-text zeusColorReactText">servers <strong>are in maintenance</strong></div>
         </div>
 
-        <a href="javascript:void(0);" class="widgetFooter zeusColorReactBg">
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Maintenance'}" class="widgetFooter zeusColorReactBg">
             <span aria-hidden="true" class="glyphicon glyphicon-arrow-right"></span> Show me the list
         </a>
 
