@@ -1,7 +1,7 @@
 ﻿<div class="container">
 
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility ="Column" >
+    <wj-flex-grid #flex [itemsSource]="data" headersVisibility ="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility ="Column" >
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Login Name'" [binding]="'login_name'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Full Name'" [binding]="'full_name'" [width]="200"></wj-flex-grid-column>

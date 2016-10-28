@@ -1,7 +1,7 @@
 ﻿<div class="container">
 
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+    <wj-flex-grid #flex [itemsSource]="data"  headersVisibility ="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Traveler Service Pool Name'" [binding]="'traveler_service_pool_name'" [width]="300"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="300"></wj-flex-grid-column>

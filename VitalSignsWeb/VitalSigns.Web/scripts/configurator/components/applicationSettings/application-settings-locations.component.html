@@ -1,7 +1,7 @@
 ﻿<div class="container">
 
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" #flex id="servergrid">
+    <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility ="Column"  [frozenColumns]="1" [isReadOnly]="true" #flex id="servergrid">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Location Name'" [binding]="'location_name'" [width]="200"> </wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Country'" [binding]="'country'" [width]="100"></wj-flex-grid-column>
