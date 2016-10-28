@@ -70,7 +70,7 @@ export class ApplicationSettings implements OnInit {
                 "active": false
             },
             {
-                "title": "Traveller Data Store",
+                "title": "Traveler Data Store",
                 "component": "TravelerDataStore",
                 "path": "/app/configurator/components/applicationSettings/application-settings-travelerdatastore.component",
                 "active": false
