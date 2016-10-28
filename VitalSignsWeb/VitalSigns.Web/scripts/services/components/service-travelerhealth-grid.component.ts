@@ -48,7 +48,7 @@ export class ServiceTravelerHealthGrid implements OnInit {
             this.deviceId = params['service'];
 
         });
-        this.service.get('/DashBoard/' + this.deviceId + '/traveler-health')
+        this.service.get(`/dashboard/traveler-health?deviceid=${this.deviceId}`)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
@@ -56,21 +56,6 @@ export class ServiceTravelerHealthGrid implements OnInit {
             },
             (error) => this.errorMessage = <any>error
         );
-
-        //this.route.params.subscribe(params => {
-        //    this.deviceId = params['service'];
-
-        //});
-
-        //this.service.get('/DashBoard/' + this.deviceId + '/traveler_mailstats')
-        //    .subscribe(
-        //    (response) => {
-        //        this.maildata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.maildata));
-        //        this.maildata.pageSize = 10;
-        //    },
-        //    (error) => this.errorMessage = <any>error
-        //    );
-
     }
 
     getAccessColor(access: string) {

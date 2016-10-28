@@ -7,6 +7,7 @@ import { IBMConnectionsDashboard } from './dashboards/components/ibm-connections
 import { IBMSametimeDashboard } from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.component';
 import { MobileUsersDashboard } from './dashboards/components/mobile-users/mobile-users-dashboard.component';
 import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
+import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 
 import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component'; 
 import {OverallDatabaseDashboard} from './dashboards/components/overall-database-dashboard.component'; 
@@ -49,6 +50,7 @@ export * from './dashboards/components/ibm-connections/ibm-connections-dashboard
 export * from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.component';
 export * from './dashboards/components/mobile-users/mobile-users-dashboard.component';
 export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
+export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
 export * from './dashboards/components/overall-database-dashboard.component'
@@ -107,6 +109,10 @@ const appRoutes: Routes = [
     {
         path: 'dashboard/ibm/websphere',
         component: IBMWebsphereDashboard
+    },
+    {
+        path: 'dashboard/ibm/traveler',
+        component: IBMTravelerDashboard
     },
     {
         path: 'dashboard/microsoft/active-directory',

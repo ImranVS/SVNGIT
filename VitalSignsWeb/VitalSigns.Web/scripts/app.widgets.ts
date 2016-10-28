@@ -7,6 +7,8 @@ export * from './dashboards/components/mobile-users/mobile-users-key-user-grid.c
 export * from './dashboards/components/ibm-websphere/ibm-websphere-grid.component';
 export * from './dashboards/components/ibm-websphere/ibm-websphere-node-grid.component';
 export * from './dashboards/components/ibm-websphere/ibm-websphere-server-grid.component';
+export * from './dashboards/components/ibm-traveler/ibm-traveler-grid.component';
+
 export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.component';
 export * from './dashboards/components/overall-database-grid.component';
 export * from './not-yet-implemented.component';

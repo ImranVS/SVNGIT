@@ -9,82 +9,31 @@ declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 @Component({
-    selector: 'sample-dashboard',
-    templateUrl: '/app/dashboards/components/ibm-domino/ibm-domino-dashboard.component.html',
+    selector: 'ibm-traveler-dashboard',
+    templateUrl: '/app/dashboards/components/ibm-traveler/ibm-traveler-dashboard.component.html',
     providers: [WidgetService]
 })
-export class IBMDominoDashboard extends WidgetController implements OnInit {
+export class IBMTravelerDashboard extends WidgetController implements OnInit {
     widgets: WidgetContract[] = [
         {
-            id: 'dominoGrid',
-            title: 'Domino Info',
-            name: 'IBMDominoGrid',
-            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
+            id: 'travelerGrid',
+            title: 'Traveler Info',
+            name: 'IBMTravelerGrid',
+            css: 'col-xs-12 col-sm-12  col-md-12 col-lg-11',
             settings: {
                 
             }
         },
         {
-            id: 'serverRoles',
-            title: 'Roles',
-            name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
-            settings: {
-                url: '/services/status_count?type=Domino&docfield=secondary_role',
-                chart: {
-                    chart: {
-                        renderTo: 'serverRoles',
-                        type: 'pie',
-                        height: 240
-                    },
-                    title: { text: '' },
-                    subtitle: { text: '' },
-                    xAxis: {
-                        categories: []
-                    },
-                    yAxis: {
-                        min: 0,
-                        endOnTick: false,
-                        allowDecimals: false,
-                        title: {
-                            enabled: false
-                        }
-                    },
-                    plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: false
-                            },
-                            groupPadding: 0.1,
-                            borderWidth: 0
-                        },
-                        series: {
-                            pointPadding: 0
-                        }
-                    },
-                    legend: {
-                        enabled: false
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    exporting: {
-                        enabled: false
-                    },
-                    series: []
-                }
-            }
-        },
-        {
-            id: 'serverStatus',
+            id: 'travelerStatus',
             title: 'Status',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
             settings: {
-                url: '/services/status_count?type=Domino&docfield=status_code',
+                url: '/services/status_count?type=Domino&docfield=traveler_status',
                 chart: {
                     chart: {
-                        renderTo: 'serverStatus',
+                        renderTo: 'travelerStatus',
                         type: 'pie',
                         height: 240
                     },
@@ -127,15 +76,15 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             }
         },
         {
-            id: 'serverOs',
-            title: 'Operating Systems',
+            id: 'travelerVersion',
+            title: 'Versions',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
             settings: {
-                url: '/services/status_count?type=Domino&docfield=operating_system',
+                url: '/services/status_count?type=Domino&docfield=traveler_version',
                 chart: {
                     chart: {
-                        renderTo: 'serverOs',
+                        renderTo: 'travelerVersion',
                         type: 'pie',
                         height: 240
                     },
