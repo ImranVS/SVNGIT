@@ -1389,12 +1389,13 @@ namespace VitalSigns.API.Controllers
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-                Expression<Func<Status, bool>> expression = (p => p.DeviceId == id);
-                var result = statusRepository.Find(expression).Select(x=>x.Disks).FirstOrDefault();
+                Expression<Func<Status, bool>> statusExpression = (p => p.DeviceId == id);
+                var statusResult = statusRepository.Find(statusExpression).Select(x => x.Disks).FirstOrDefault();
+
 
                 SelectedDiksModel serverDiskStatus = new SelectedDiksModel();
                 List<SelectedDiksModel> drives = new List<SelectedDiksModel>();
-                foreach (DiskStatus drive in result)
+                foreach (DiskStatus drive in statusResult)
                 {
                     drives.Add(new SelectedDiksModel
                     {
@@ -1404,10 +1405,27 @@ namespace VitalSigns.API.Controllers
                         DiskSize = drive.DiskSize,
 
                         PercentFree = drive.PercentFree,
+                      
                     });
 
                 }
+                serversRepository = new Repository<Server>(ConnectionString);
 
+                var serversDiskInfo = serversRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == id);
+                if (serversDiskInfo.DiskInfo != null)
+                {
+                    foreach (var item in serversDiskInfo.DiskInfo)
+                    {
+                        if (drives.FirstOrDefault(x => x.DiskName == item.DiskName) != null)
+                        {
+                            drives.FirstOrDefault(x => x.DiskName == item.DiskName).FreespaceThreshold = item.Threshold.ToString();
+
+                            drives.FirstOrDefault(x => x.DiskName == item.DiskName).ThresholdType = item.ThresholdType.ToString();
+                            drives.FirstOrDefault(x => x.DiskName == item.DiskName).IsSelected = true;
+
+                        }
+                    }
+                }
                 Response = Common.CreateResponse(drives);
             }
             catch (Exception ex)
@@ -1435,24 +1453,14 @@ namespace VitalSigns.API.Controllers
                    var results=result.Select(s=>new SelectedDiksModel {DiskName =(s.DiskName == "AllDisks" && s.ThresholdType == "GB" ? "allDisksByGB" :
                                                                       s.DiskName == "AllDisks" && s.ThresholdType == "Percent" ? "allDisksBypercentage" :
                                                                       s.DiskName == "NoAlerts" ? "noDiskAlerts" :
-                                                                       s.DiskName),
+                                                                      "selectedDisks"),
                                                                       ThresholdType = s.ThresholdType,
                                                                       FreespaceThreshold = s.Threshold.ToString()
 
                 }).FirstOrDefault();
                     Response = Common.CreateResponse(results);
                 }
-                else
-                {
-                    var results = result.Select(s => new SelectedDiksModel
-                    {
-                        DiskName = (s.DiskName = "selectedDisks"),
-                        
-
-                    }).FirstOrDefault();
-                    Response = Common.CreateResponse(results);
-                }
-
+             
 
                
 
