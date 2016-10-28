@@ -55,12 +55,13 @@ export class ServerDiskSettings implements OnInit {
         });
     }
     ngOnInit() {
-        console.log(this.flexDisks);
+        
     }
 
     itemsSourceChangedHandler() {
+      
         var flex = this.flexDisks;
-        console.log(flex);
+      
         if (flex) {
             var colThresholdType = flex.columns.getColumn('threshold_type');
 
@@ -68,9 +69,9 @@ export class ServerDiskSettings implements OnInit {
 
                 colThresholdType.showDropDown = true; // or colors (just to show how)
                 var unitsData = [{ unit: "Percent", code: "Percent" }, { unit: "GB", code: "GB" }];
-                console.log(unitsData);
+              
                 var unitsDataMap = new wijmo.grid.DataMap(unitsData, 'unit', 'code');
-                console.log(unitsDataMap);
+             
                 colThresholdType.dataMap = unitsDataMap;
             }
             else {
@@ -119,6 +120,14 @@ export class ServerDiskSettings implements OnInit {
             this.postData = {
                 "setting": this.selectedDiskSetting,
                 "value": this.diskValues,
+                "devices": this.devices
+            };
+        }
+        else if (this.selectedDiskSetting == "noDiskAlerts")
+        {
+            this.postData = {
+                "setting": this.selectedDiskSetting,
+                "value":null,
                 "devices": this.devices
             };
         }
