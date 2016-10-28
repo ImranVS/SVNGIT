@@ -52,7 +52,7 @@ export class ApplicationSettings implements OnInit {
                 "active": false
             },
             {
-                "title": "Maintainance",
+                "title": "Maintenance",
                 "component": "Maintenance",
                 "path": "/app/configurator/components/applicationSettings/application-settings-maintenance.component",
                 "active": false
