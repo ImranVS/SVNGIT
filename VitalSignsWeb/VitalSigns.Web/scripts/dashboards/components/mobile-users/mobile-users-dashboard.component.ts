@@ -20,16 +20,16 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
 
     widgets: WidgetContract[] = [
         {
-            id: 'mobileUsersKeyUserGrid',
-            title: 'Key Mobile Users',
-            name: 'MobileUsersKeyUserGrid',
+            id: 'mobileUsersGrid',
+            title: 'All Mobile Users',
+            name: 'MobileUsersGrid',
             css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
             settings: {}
         },
         {
-            id: 'mobileUsersGrid',
-            title: 'All Mobile Users',
-            name: 'MobileUsersGrid',
+            id: 'mobileUsersKeyUserGrid',
+            title: 'Key Mobile Users',
+            name: 'MobileUsersKeyUserGrid',
             css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
             settings: {}
         },

@@ -35,7 +35,7 @@ import {FilterDeviceAttributesPipe} from './configurator/components/server/filte
 
 import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
-import {OverallDatabaseDetails} from './dashboards/components/overall-database-details.component';
+import {OverallDatabaseDetails} from './dashboards/components/key-metrics/overall-database-details.component';
 import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
 
 @NgModule({

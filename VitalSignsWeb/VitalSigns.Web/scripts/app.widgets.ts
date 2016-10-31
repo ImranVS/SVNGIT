@@ -10,7 +10,8 @@ export * from './dashboards/components/ibm-websphere/ibm-websphere-server-grid.c
 export * from './dashboards/components/ibm-traveler/ibm-traveler-grid.component';
 
 export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.component';
-export * from './dashboards/components/overall-database-grid.component';
+export * from './dashboards/components/key-metrics/overall-database-grid.component';
+
 export * from './not-yet-implemented.component';
 export * from './widgets/charts/components/chart.component';
 export * from './widgets/grid/components/dynamic-grid.component';

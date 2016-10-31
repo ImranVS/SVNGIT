@@ -10,8 +10,8 @@ import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm
 import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 
 import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component'; 
-import {OverallDatabaseDashboard} from './dashboards/components/overall-database-dashboard.component'; 
-import {UsersDashboard} from './dashboards/components/users-dashboard.component'; 
+import {OverallDatabaseDashboard} from './dashboards/components/key-metrics/overall-database-dashboard.component'; 
+import {UsersDashboard} from './dashboards/components/key-metrics/users-dashboard.component'; 
 
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -53,8 +53,8 @@ export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.com
 export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
-export * from './dashboards/components/overall-database-dashboard.component'
-export * from './dashboards/components/users-dashboard.component'
+export * from './dashboards/components/key-metrics/overall-database-dashboard.component'
+export * from './dashboards/components/key-metrics/users-dashboard.component'
 
 export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';

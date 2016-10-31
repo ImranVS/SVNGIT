@@ -1,21 +1,23 @@
 ﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex headersVisibility ="Column">
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
-
-    <wj-flex-grid-column [header]="'Category'" [binding]="'category'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Test Name'" [binding]="'test_name'" [width]="250"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Result'" [binding]="'result'" [width]="100" align="center">
+    <wj-flex-grid-column [header]="'Title'" [binding]="'title'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-            <div [ngSwitch]="cell.item.result">
-                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.result}}</span>
-                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.result}}</span>     
-                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.result}}</span>
+            <div [ngSwitch]="cell.item.status">
+                <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Exception'" class="label label-pill label-danger">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Login Failure'" class="label label-pill label-danger">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Maintenance'" class="label label-pill label-info">{{cell.item.status}}</span>
+                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.status}}</span>
             </div>
         </template>
-  </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="250"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Last Update'" [binding]="'last_scan'" [width]="250"></wj-flex-grid-column>
-
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'File Name'" [binding]="'file_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Template'" [binding]="'design_template_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'File Size'" [binding]="'file_size'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="280"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"

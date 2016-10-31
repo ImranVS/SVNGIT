@@ -37,7 +37,7 @@ export class MobileUsersKeyUserGrid implements WidgetComponent, OnInit {
 
     ngOnInit() {
 
-        this.service.get('/dashboard/mobile_user_devices')
+        this.service.get('/dashboard/mobile_user_devices?isKey=true')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
