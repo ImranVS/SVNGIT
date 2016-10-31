@@ -1,7 +1,7 @@
 ﻿<div class="container">
 
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid #flex [itemsSource]="data" headersVisibility ="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility ="Column" >
+    <wj-flex-grid #flex [itemsSource]="data" headersVisibility ="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Login Name'" [binding]="'login_name'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Full Name'" [binding]="'full_name'" [width]="200"></wj-flex-grid-column>
@@ -60,57 +60,79 @@ data.pageIndex + 1 | number
                 Delete
             </button>
         </div>
-    <wj-popup class="col-md-6 modal-content" #frmDialog>       
-   
-        <form (ngSubmit)="saveMaintainUser(frmDialog)" #frmUser="ngForm">
-            <h4 class="modal-header">
-               {{formTitle}}
+    <wj-popup class="modal-content col-sm-10" #frmDialog>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b> {{formTitle}}</b>
+
                 <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-            </h4>
-            <div class="modal-body" *ngIf="currentEditItem">
-                <div class="form-group">
-                    <label for="login_name">Login Name</label>
-                    <input type="text" class="form-control" id="login_name" required name="login_name" [(ngModel)]="currentEditItem.login_name">
-                </div>
-                <div class="form-group">
-                    <label for="full_name">Full Name</label>
-                    <input type="text" class="form-control" id="full_name" required name="full_name" [(ngModel)]="currentEditItem.full_name">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="text" class="form-control" id="email" required name="email" [(ngModel)]="currentEditItem.email">
-                </div>
-                <div class="form-group">
-                    <label for="status">Status</label>
-                    <select name="status" class="form-control" [(ngModel)]="currentEditItem.status" id="status">
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="super_admin">Super Admin</label>
-                    <select name="super_admin" class="form-control" [(ngModel)]="currentEditItem.super_admin" id="super_admin">
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="configurator_access">Configurator Access</label>
-                    <input type="checkbox" class="checkbox-inline" id="configurator_access" [(ngModel)]="currentEditItem.configurator_access" name="configurator_access">
-                </div>
-                <div class="form-group">
-                    <label for="console_command_access">Console Command Access</label>
-                    <input type="checkbox" class="checkbox-inline" id="console_command_access" [(ngModel)]="currentEditItem.console_command_access" name="console_command_access">
-                </div>
-
-
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-            </div>
-        </form>
-      </wj-popup>
-   
+            <form (ngSubmit)="saveMaintainUser(frmDialog)" #frmUser="ngForm" class="form-horizontal">
 
-
+                <div class="panel-body" *ngIf="currentEditItem">
+                    <div class="row">
+                        <div class="form-group col-sm-6">
+                            <label for="login_name" class="control-label col-sm-5">Login Name</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="login_name" required name="login_name" [(ngModel)]="currentEditItem.login_name">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label for="full_name" class="control-label col-sm-5">Full Name</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="full_name" required name="full_name" [(ngModel)]="currentEditItem.full_name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-6">
+                            <label for="email" class="control-label col-sm-5">Email</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="email" required name="email" [(ngModel)]="currentEditItem.email">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label for="status" class="control-label col-sm-5">Status</label>
+                            <div class="col-sm-7">
+                                <select name="status" class="form-control" [(ngModel)]="currentEditItem.status" id="status">
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-6">
+                            <label for="super_admin" class="control-label col-sm-5">Super Admin</label>
+                            <div class="col-sm-7">
+                                <select name="super_admin" class="form-control" [(ngModel)]="currentEditItem.super_admin" id="super_admin">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label for="configurator_access" class="control-label col-sm-5">Configurator Access</label>
+                            <div class="col-sm-7">
+                                <input type="checkbox" class="checkbox-inline" id="configurator_access" [(ngModel)]="currentEditItem.configurator_access" name="configurator_access">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-6">
+                            <label for="console_command_access" class="control-label col-sm-5">Console Command Access</label>
+                            <div class="col-sm-7">
+                                <input type="checkbox" class="checkbox-inline" id="console_command_access" [(ngModel)]="currentEditItem.console_command_access" name="console_command_access">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                    <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </wj-popup>
         </div>
