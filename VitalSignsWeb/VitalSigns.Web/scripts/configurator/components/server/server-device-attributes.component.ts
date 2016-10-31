@@ -31,7 +31,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     scanSettings: string = "Scan Settings"
     mailSettings: string = "Mail Settings"
     travelerSettings: string = "Traveler Settings"
-    optionalSettings: string ="Optional Settings"
+    optionalSettings: string = "Optional Settings"
+    webSphereSettings: string ="WebSphere Settings"
 
 
     constructor(
