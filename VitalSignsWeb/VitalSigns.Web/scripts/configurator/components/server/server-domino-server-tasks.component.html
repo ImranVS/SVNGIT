@@ -1,6 +1,6 @@
 ﻿<div class="container">
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1"  headersVisibility ="Column"  [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Enabled'" [binding]="'is_selected'" [width]="100"> </wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="100" is-read-only="true"> </wj-flex-grid-column>
@@ -61,48 +61,61 @@ data.pageIndex + 1 | number
     </div>
     <wj-popup class="col-md-6 modal-content" #frmDialog>
 
-        <form (ngSubmit)="saveServerTasks(frmDialog)" #frmUser="ngForm">
-            <h4 class="modal-header">
-                {{formTitle}}
-                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-            </h4>
-            <div class="modal-body" *ngIf="currentEditItem">
-                <div class="form-group">
-                    <input type="checkbox" class="checkbox-inline" id="is_selected" required name="is_selected" [(ngModel)]="currentEditItem.is_selected">
-                    <label for="is_selected">Enabled</label>
-                </div>
+        <div class="panel panel-default">
 
-                <div class="form-group">
-                    <label for="task_name">Task Name</label>
-                    <br />
-                    <wj-combo-box name="task_name" [itemsSource]="TaskNames" [(text)]="currentEditItem.task_name"
-                                  [(ngModel)]="currentEditItem.task_name">
-                    </wj-combo-box>
-                </div>
 
-                <div class="form-group" *ngIf="currentEditItem">
-                    <input type="checkbox" class="checkbox-inline" id="is_load" required name="is_load" [(ngModel)]="currentEditItem.is_load">
-                    <label for="is_load">Load</label>
-                </div>
-                <div class="form-group" *ngIf="currentEditItem">
-                    <input type="checkbox" class="checkbox-inline" id="is_restart_asap" required name="is_restart_asap" [(ngModel)]="currentEditItem.is_restart_asap">
-                    <label for="is_restart_asap">Restart ASAP</label>
-                </div>
-                <div class="form-group" *ngIf="currentEditItem">
-                    <input type="checkbox" class="checkbox-inline" id="is_resart_later" required name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
-                    <label for="is_resart_later">Resart Later</label>
-                </div>
-                <div class="form-group" *ngIf="currentEditItem">
-                    <input type="checkbox" class="checkbox-inline" id="is_disallow" required name="is_disallow" [(ngModel)]="currentEditItem.is_disallow">
-                    <label for="is_disallow">Disallow</label>
-                </div>
-
+            <div class="panel-heading">
+                <b>
+                    {{formTitle}}
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </b>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+            <form (ngSubmit)="saveServerTasks(frmDialog)" #frmUser="ngForm"  class="form-horizontal">
+              
+              
+                <div class="panel-body" *ngIf="currentEditItem">
+                    <div class="form-group col-sm-12">
+
+                        <input type="checkbox" class="checkbox-inline" id="is_selected" required name="is_selected" [(ngModel)]="currentEditItem.is_selected">
+
+                        <label for="is_selected" class="control-label ">Enabled</label>
+
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <label for="task_name">Task Name</label>
+                        <br />
+
+                        <wj-combo-box name="task_name" [itemsSource]="TaskNames" [(text)]="currentEditItem.task_name"
+                                      [(ngModel)]="currentEditItem.task_name">
+                        </wj-combo-box>
+
+                    </div>
+
+                    <div class="form-group col-sm-12" *ngIf="currentEditItem">
+                        <input type="checkbox" class="checkbox-inline" id="is_load" required name="is_load" [(ngModel)]="currentEditItem.is_load">
+                        <label for="is_load">Load</label>
+                    </div>
+                    <div class="form-group col-sm-12" *ngIf="currentEditItem">
+                        <input type="checkbox" class="checkbox-inline" id="is_restart_asap" required name="is_restart_asap" [(ngModel)]="currentEditItem.is_restart_asap">
+                        <label for="is_restart_asap">Restart ASAP</label>
+                    </div>
+                    <div class="form-group col-sm-12" *ngIf="currentEditItem">
+                        <input type="checkbox" class="checkbox-inline" id="is_resart_later" required name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
+                        <label for="is_resart_later">Resart Later</label>
+                    </div>
+                    <div class="form-group col-sm-12" *ngIf="currentEditItem">
+                        <input type="checkbox" class="checkbox-inline" id="is_disallow" required name="is_disallow" [(ngModel)]="currentEditItem.is_disallow">
+                        <label for="is_disallow">Disallow</label>
+                    </div>
+
+                </div>
+                <div class="panel-footer">
+                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                </div>
+            </form>
             </div>
-        </form>
-    </wj-popup>
+</wj-popup>
 
 
 </div>
