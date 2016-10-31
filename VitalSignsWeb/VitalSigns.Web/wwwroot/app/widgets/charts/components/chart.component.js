@@ -73,6 +73,8 @@ System.register(['@angular/core', '@angular/http', '../../../core/widgets', '../
                             first = false;
                         });
                         _this.chart = new Highcharts.Chart(_this.settings.chart);
+                        if (_this.settings.callback)
+                            _this.settings.callback(_this.settings.chart);
                     }, function (error) { return _this.errorMessage = error; });
                 };
                 __decorate([

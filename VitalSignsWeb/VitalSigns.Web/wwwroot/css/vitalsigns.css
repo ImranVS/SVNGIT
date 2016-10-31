@@ -40,9 +40,6 @@
 	background-color: #EF3A24;
 }
 
-#mobileUsersTable {
-	min-height: 902px;
-}
 #mobileUsersTable table {
 	margin-bottom:0;
 	margin-top: 10px;
@@ -679,6 +676,34 @@
 .list-group-item.selected {
     font-weight: bold;
     background-color: rgba(95, 190, 127, 0.05);
+}
+
+.reportsBrowser {
+    background: rgb(204,204,204);
+    padding: 1cm;
+    height: 100%;
+    overflow: auto;
+}
+
+.reportsPage {
+    background: white;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 0.5cm;
+    box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+    width: 21cm;
+    min-height: 29.7cm;
+    padding: 1cm 1.5cm 2.5cm 1.5cm;
+}
+
+.reportsPage h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    padding-bottom: 25px;
+}
+
+.reportsPage h3 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
 }
 
 /* Portrait phones and smaller */

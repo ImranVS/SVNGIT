@@ -32,11 +32,14 @@ import {ServersLocation} from './configurator/components/server-list-location.co
 import {SearchDeviceListPipe} from './services/components/search-server-list.pipe';
 import {FilterDeviceAttributesPipe} from './configurator/components/server/filter-device-attributes.pipe';
 
-
 import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
 import {OverallDatabaseDetails} from './dashboards/components/key-metrics/overall-database-details.component';
 import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
+
+import {ReportsBrowser} from './reports/components/reports-browser.component';
+import {NoSelectedReport} from './reports/components/no-selected-report.component';
+import {SampleReport} from './reports/components/sample-report.component';
 
 @NgModule({
     imports: [
@@ -64,6 +67,9 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
         SearchDeviceListPipe,
         FilterByDeviceTypePipe,
         FilterDeviceAttributesPipe,
+        ReportsBrowser,
+        NoSelectedReport,
+        SampleReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,

@@ -18,14 +18,14 @@ export class MobileUsers implements WidgetComponent, OnInit {
 
     errorMessage: string;
 
-    mobileUsers: MobileUser;
+    mobileUsers: any;
 
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/mobile_user_devices')
+        this.service.get('/dashboard/mobile_user_devices')
             .subscribe(
-            data => this.mobileUsers = <MobileUser>data,
+            data => this.mobileUsers = data.data,
             error => this.errorMessage = <any>error
             );
     }

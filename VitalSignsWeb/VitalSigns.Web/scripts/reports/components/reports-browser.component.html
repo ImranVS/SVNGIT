@@ -1,0 +1,10 @@
+﻿<div class="container">
+    <h1>Reports</h1>
+    <a [routerLink]="['/reports']">(empy)</a>
+    <a [routerLink]="['/reports/sample']">Sample</a>
+    <a [routerLink]="['/reports/sample']" [queryParams]="{from:'a',to:'b'}">Period</a>
+    <button (click)="printReport()">Print</button>
+    <div class="reportsBrowser" id="reportContainer">
+        <router-outlet></router-outlet>
+    </div>
+</div>

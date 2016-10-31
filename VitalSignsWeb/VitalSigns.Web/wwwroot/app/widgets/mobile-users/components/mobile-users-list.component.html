@@ -1,50 +1,20 @@
-<div class="zeusFilterWrapper">
-    <div class="aZeusFilterHeader">
-        <span aria-hidden="true" class="glyphicon glyphicon-filter"></span><strong>Filters</strong>
-    </div>
-    <div class="aZeusFilter">
-        <span class="aZeusFilterName">Username : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
-    </div>
-    <div class="aZeusFilter">
-        <span class="aZeusFilterName">Device Name : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
-    </div>
-    <div class="aZeusFilter">
-        <span class="aZeusFilterName">Notification : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
-    </div>
-    <div class="aZeusFilter">
-        <span class="aZeusFilterName">Last sync times : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
-    </div>
-    <div class="aZeusFilter">
-        <span class="aZeusFilterName">Access : </span><span class="aZeusFilterValue">All</span> <span class="caret aZeusFilterOpen"></span>
-    </div>
-</div>
 <table class="table table-condensed small table-striped">
     <thead>
         <tr>
             <th>Username</th>
             <th>Device Name</th>
-            <th class="hidden-xs text-center">Notification</th>
             <th>OS</th>
-            <th class="hidden-xs">Last sync times <span class="caret"></span></th>
-            <th>Access</th>
-            <th class="hidden-xs">Device ID</th>
+            <th>Last sync times</th>
+            <th>Device ID</th>
         </tr>
     </thead>
     <tbody *ngIf="mobileUsers">
         <tr *ngFor="let mobileUser of mobileUsers">
-            <td>{{mobileUser.username}}</td>
+            <td>{{mobileUser.user_name}}</td>
             <td>{{mobileUser.device}}</td>
-            <td class="text-center">
-                <span class="glyphicon glyphicon-bell notificationIcon" aria-hidden="true"
-                      [class.active]="mobileUser.notification"></span>
-            </td>
             <td>{{mobileUser.os}}</td>
-            <td class="hidden-xs">{{mobileUser.lastsynctime}}</td>
-            <td class="hidden-xs">
-                <span class="label label-pill"
-                      [ngClass]="{'label-success': mobileUser.access, 'label-danger': !mobileUser.access}">{{mobileUser.access ? "Allowed" : "Rejected"}}</span>
-            </td>
-            <td class="hidden-xs">{{mobileUser.deviceid}}</td>
+            <td>{{mobileUser.last_sync_time}}</td>
+            <td>{{mobileUser.deviceId}}</td>
         </tr>
     </tbody>
 </table>

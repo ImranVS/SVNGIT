@@ -34,6 +34,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                     this.widgetService = widgetService;
                 }
                 IBMConnectionsCommunitiesTab.prototype.ngOnInit = function () {
+                    var _this = this;
                     this.serviceId = this.widgetService.getProperty('serviceId');
                     var displayDate = (new Date()).toISOString().slice(0, 10);
                     this.widgets = [
@@ -134,6 +135,7 @@ System.register(['@angular/core', '../../../core/widgets'], function(exports_1, 
                             css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                             settings: {
                                 url: "/dashboard/connections/top_communities?deviceid=" + this.serviceId + "&count=1",
+                                callback: function (chart) { return _this.widgets[2].title = chart.series[0].name; },
                                 chart: {
                                     chart: {
                                         renderTo: 'mostActiveCommunity',

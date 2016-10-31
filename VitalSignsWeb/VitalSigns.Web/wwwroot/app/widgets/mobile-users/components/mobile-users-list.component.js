@@ -30,8 +30,8 @@ System.register(['@angular/core', '@angular/http', '../../../core/services'], fu
                 }
                 MobileUsers.prototype.loadData = function () {
                     var _this = this;
-                    this.service.get('/mobile_user_devices')
-                        .subscribe(function (data) { return _this.mobileUsers = data; }, function (error) { return _this.errorMessage = error; });
+                    this.service.get('/dashboard/mobile_user_devices')
+                        .subscribe(function (data) { return _this.mobileUsers = data.data; }, function (error) { return _this.errorMessage = error; });
                 };
                 MobileUsers.prototype.ngOnInit = function () {
                     this.loadData();

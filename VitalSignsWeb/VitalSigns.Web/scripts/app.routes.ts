@@ -38,6 +38,10 @@ import { NoSelectedService } from './services/components/no-selected-service.com
 import { ProfilesList } from './profiles/components/profiles-list.component';
 import { ProfilesForm } from './profiles/components/profiles-form.component';
 
+import { ReportsBrowser } from './reports/components/reports-browser.component';
+import { NoSelectedReport } from './reports/components/no-selected-report.component';
+import {SampleReport} from './reports/components/sample-report.component';
+
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
 import { ServerSettings } from './configurator/components/serverSettings/server-settings-tabs.component';
@@ -184,7 +188,17 @@ const appRoutes: Routes = [
     },
     {
         path: 'reports',
-        component: NotYetImplemented
+        component: ReportsBrowser,
+        children: [
+            {
+                path: '',
+                component: NoSelectedReport
+            },
+            {
+                path: 'sample',
+                component: SampleReport
+            }
+        ]
     },
     {
         path: 'profiles',
