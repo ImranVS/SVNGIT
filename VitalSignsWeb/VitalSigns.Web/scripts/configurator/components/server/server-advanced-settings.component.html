@@ -6,14 +6,15 @@
                 <div class="panel-heading">Memory Usage Alert</div>
                 <div class="panel-body">
                     <div class="form-group">
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="memoryUsageAlert" formControlName="memory_threshold">
+                            </div>
+                            <label for="memoryUsageAlert">
+                                Memory Utilization alerts will trigger if the percentage of memory in use on the server exceeds this threshold.
 
-                        <input type="text" class="form-control" name="memoryUsageAlert" formControlName="memory_threshold">
-                        <label for="memoryUsageAlert">
-                            Memory Utilization alerts will trigger if the percentage of memory in use on the server exceeds this threshold.
-
-                            If you don't want to get memory alerts, set the threshold to zero.
-                        </label>
-                    </div>
+                                If you don't want to get memory alerts, set the threshold to zero.
+                            </label>
+                        </div>
                 </div>
             </div>
                     <div class="panel panel-default">
@@ -21,15 +22,16 @@
 
                         <div class="panel-body">
                             <div class="form-group">
-                              
+                                <div class="col-sm-5">
 
-                                <input type="text" class="form-control" name="cpuUtilization" formControlName="cpu_threshold">
-                                <label for="cpuUtilization">
-                                    CPU Utilization alerts will trigger if the CPU utilization rate exceeds this threshold.
+                                    <input type="text" class="form-control" name="cpuUtilization" formControlName="cpu_threshold">
+                                    </div>
+                                    <label for="cpuUtilization">
+                                        CPU Utilization alerts will trigger if the CPU utilization rate exceeds this threshold.
 
-                                    If you don't want to get CPU alerts, set the threshold to zero.
-                                </label>
-                            </div>
+                                        If you don't want to get CPU alerts, set the threshold to zero.
+                                    </label>
+                                </div>
                         </div>
                     </div>
 
@@ -40,10 +42,13 @@
                             <div class="form-group">
                               
                                 <label for="serverRunningDaysAlert">Some companies have a practice to reboot Domino servers after a set number of days. Enter a value here if you would like to be notified if a server is running beyond this limit.</label>
-                                <label for="serverRunningDaysAlert">Alert if total elapsed running time exceeds:</label>
-                                <input type="text" class="form-control" name="serverRunningDaysAlert" formControlName="server_days_alert">
-                                <label for="serverRunningDaysAlert">consecutive days</label>
-                            </div>
+                              
+                                  <label for="serverRunningDaysAlert" class="control-label col-sm-4">Alert if total elapsed running time exceeds:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="serverRunningDaysAlert" formControlName="server_days_alert">
+                                    </div>
+                                    <label for="serverRunningDaysAlert" class="control-label col-sm-4">consecutive days</label>
+                                </div>
 
                         </div>
                     </div>
@@ -55,13 +60,22 @@
                             <div class="form-group">
 
                                 <label for="clusterReplicationDelaysAlert">Cluster Replication Delay alerts will trigger if the amount of time (in seconds) that it takes for a document created on this server to be pushed to other servers in the cluster rate exceeds this threshold. If you don't want to get Cluster Replication Delay alerts, set the threshold to zero.</label>
-                                <label for="clusterReplicationDelaysAlert">Alert if Cluster Replication Queue time exceeds:</label>
-                                <input type="text" class="form-control" name="clusterReplicationDelaysAlert" formControlName="cluster_replication_delay_threshold">
-                                <label for="clusterReplicationDelaysAlert">seconds</label>
-                                <label for="clusterReplicationQueueAlert">Load another Cluster Replicator instance if cluster replication queue exceeds</label>
-                                <input type="text" class="form-control" name="clusterReplicationQueueAlert" formControlName="cluster_replication_queue_threshold">
-                                <label for="clusterReplicationQueueAlert">seconds</label>
-                            </div>
+                                <div class="row">
+                                    <label for="clusterReplicationDelaysAlert" class="control-label col-sm-4">Alert if Cluster Replication Queue time exceeds:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" name="clusterReplicationDelaysAlert" formControlName="cluster_replication_delay_threshold">
+                                    </div>
+                                    <label for="clusterReplicationDelaysAlert" class="control-label col-sm-4">seconds</label>
+                                    </div>
+                                <br />
+                                <div class="row">
+                                    <label for="clusterReplicationQueueAlert"  class="control-label col-sm-6">Load another Cluster Replicator instance if cluster replication queue exceeds</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" name="clusterReplicationQueueAlert" formControlName="cluster_replication_queue_threshold">
+                                    </div>
+                                    <label for="clusterReplicationQueueAlert"  class="control-label col-sm-2">seconds</label>
+                                    </div>
+                                </div>
                         </div>
                     </div>
                 
@@ -71,53 +85,63 @@
                         <div class="panel-heading"> Proxy Server Settings</div>
 
                         <div class="panel-body">
-                            <div class="form-group">
-                                <label for="proxyServerType">Proxy Server Type</label>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="proxyServerType" class="control-label col-sm-1">Type:</label>
+                                    <div class="col-sm-3">
+                                        <input type="text" class="form-control" name="proxyServerType" formControlName="proxy_server_type">
+                                    </div>
 
-                                <input type="text" class="form-control" name="proxyServerType" formControlName="proxy_server_type">
-
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="proxyServerProtocol"> Proxy Server Protocol</label>
-
-                                <input type="text" class="form-control" name="proxyServerProtocol" formControlName="proxy_server_protocol">
-
+                            <br />
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="proxyServerProtocol" class="control-label col-sm-1">Protocol:</label>
+                                    <div class="col-sm-3">
+                                        <input type="text" class="form-control" name="proxyServerProtocol" formControlName="proxy_server_protocol">
+                                    </div>
+                                </div>
+                                </div>
                             </div>
-
-                        </div>
                     </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">DB2 Settings</div>
 
                         <div class="panel-body">
-                            <div class="form-group">
-                                <label for="dbms_host_name">DB2 Host Name</label>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label for="dbms_host_name" class="control-label col-sm-3" >DB2 Host Name</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="dbms_host_name" formControlName="dbms_host_name">
+                                    </div>
+                                </div>
 
-                                <input type="text" class="form-control" name="dbms_host_name" formControlName="dbms_host_name">
 
+                                <div class="form-group col-sm-6">
+                                    <label for="db2DatabaseName" class="control-label col-sm-5">DB2 Database Name</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="db2DatabaseName" formControlName="dbms_name">
+                                        </div>
+                                    </div>
                             </div>
-                            <div class="form-group">
-                                <label for="db2DatabaseName">DB2 Database Name</label>
-
-                                <input type="text" class="form-control" name="db2DatabaseName" formControlName="dbms_name">
-
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label for="db2Port" class="control-label col-sm-3">DB2 Port</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="db2Port" formControlName="dbms_port">
+                                        </div>
+                                    </div>
+                                <div class="form-group col-sm-6">
+                                    <label for="db2_credentials" class="control-label col-sm-5">DB2 Credentials</label>
+                                    <div class="col-sm-7">
+                                        <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                                      placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_credentials">
+                                        </wj-combo-box>
+                                        </div>
+                                    </div>
                             </div>
-                            <div class="form-group">
-                                <label for="db2Port">DB2 Port</label>
-
-                                <input type="text" class="form-control" name="db2Port" formControlName="dbms_port">
-
                             </div>
-                            <div class="form-group">
-                                <label for="db2_credentials">DB2 Credentials</label>
-
-                                <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                              placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_credentials">
-                                </wj-combo-box>
-
-                            </div>
-
-                        </div>
                     </div>
 
                     <div class="panel panel-default">
@@ -191,41 +215,49 @@
                         </div>
                     </div>
                 </div>
-                <div *ngIf="deviceType=='IBM Connections'">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">DB2 Settings</div>
-                        <div class="panel-body">
+        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+            <div *ngIf="deviceType=='IBM Connections'">
+                <div class="panel panel-default">
+                    <div class="panel-heading">DB2 Settings</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="form-group col-sm-6">
 
-                            <div class="form-group">
-                                <label for="hostName">Host Name</label>
-
-                                <input type="text" class="form-control" name="hostName" formControlName="database_settings_host_name">
-
-                            </div>
-
-                            <div class="form-group">
-                                <label for="database_credentials">DB2 Credentials</label>
-
-                                <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                              placeholder="Select Credential" formControlName="database_settings_credentials_id" name="database_credentials">
-
-                                </wj-combo-box>
-
+                                <label for="hostName" class="control-label col-sm-2">Host Name</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" name="hostName" formControlName="database_settings_host_name">
+                                </div>
 
                             </div>
+                            <div class="form-group col-sm-6">
+                                <label for="database_credentials" class="control-label col-sm-3">DB2 Credentials</label>
+                                <div class="col-sm-5">
+                                    <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                                  placeholder="Select Credential" formControlName="database_settings_credentials_id" name="database_credentials">
+                                    </wj-combo-box>
+                                </div>
 
-                            <div class="form-group">
-                                <label for="port">Port</label>
 
-                                <input type="text" class="form-control" name="port" formControlName="database_settings_port">
+
 
                             </div>
+                        </div>
+                       
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="port" class="control-label col-sm-2">Port</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" name="port" formControlName="database_settings_port">
+                                </div>
+
+                            </div>
+                        </div>
 
                         </div>
-                    </div>
-
                 </div>
 
-                <button type="submit" class="btn btn-success">Submit</button>
+            </div>
+            </div>
+            <button type="submit" class="btn btn-success">Submit</button>
 </form>
 </div>
