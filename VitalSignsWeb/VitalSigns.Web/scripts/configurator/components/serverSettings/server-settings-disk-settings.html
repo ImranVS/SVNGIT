@@ -25,42 +25,50 @@
         </div>
         </div>
     <div class="col-xs-12 col-md-8 col-sm-12 col-lg-8">
-        <div class="form-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
-            <label for="currentThresholdByPercentage">Current threshold:</label>
+        <div class="row">
+            <div class="form-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
+                <label for="currentThresholdByPercentage" >Current threshold:</label>
+               
+                    <input type="text" class="form-control" name="currentThresholdByPercentage" [(ngModel)]="diskByPercentage">
+                    <label for="currentThresholdByPercentage">% free space</label>
+           
+            </div>
+            </div>
+        <div class="row">
+            <div class="form-group" *ngIf="selectedDiskSetting=='allDisksByGB'">
+                <label for="currentThresholdByGB">Current threshold:</label>
 
-            <input type="text" class="form-control" name="currentThresholdByPercentage" [(ngModel)]="diskByPercentage">
-            <label for="currentThresholdByPercentage">% free space</label>
+                <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskByGB">
+                <label for="currentThresholdByGB">GB free space</label>
+            </div>
         </div>
-        <div class="form-group" *ngIf="selectedDiskSetting=='allDisksByGB'">
-            <label for="currentThresholdByGB">Current threshold:</label>
+        <div class="row">
+            <div class="form-group" *ngIf="selectedDiskSetting=='selectedDisks'">
+                <!--<label >Current disk:</label>-->
+                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" (itemsSourceChanged)="itemsSourceChangedHandler()" #flexDisks>
 
-            <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskByGB">
-            <label for="currentThresholdByGB">GB free space</label>
+                    <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
+
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Disk Name'" [binding]="'disk_name'" is-read-only="true">
+
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'" [width]="150">
+
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'threshold_type'"></wj-flex-grid-column>
+
+
+                </wj-flex-grid>
+
+            </div>
         </div>
-        <div class="form-group" *ngIf="selectedDiskSetting=='selectedDisks'">
-            <!--<label >Current disk:</label>-->
-            <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" (itemsSourceChanged)="itemsSourceChangedHandler()" #flexDisks>
-
-                <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
-
-                </wj-flex-grid-column>
-                <wj-flex-grid-column [header]="'Disk Name'" [binding]="'disk_name'" is-read-only="true">
-
-                </wj-flex-grid-column>
-                <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'" [width]="150">
-
-                </wj-flex-grid-column>
-                <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'threshold_type'"></wj-flex-grid-column>
-
-
-            </wj-flex-grid>
-
-        </div>
-        <div class="form-group" *ngIf="selectedDiskSetting">
-            <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
-            <br />
-            <button type="button" class="btn btn-primary" (click)="applySetting(diskSettingsForm.value)">Apply Settings</button>
-        </div>
+            <div class="form-group" *ngIf="selectedDiskSetting">
+                <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+                <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12 panel-footer" style="padding-right:15px">
+                    <button type="button" class="btn btn-primary" (click)="applySetting(diskSettingsForm.value)">Apply Settings</button>
+                </div>
+            </div>
         </div>
     
     </div>
