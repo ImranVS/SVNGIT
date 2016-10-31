@@ -153,5 +153,49 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public DateTime? LastUpdated { get; set; }
 
+        [DataMember]
+        [BsonElement("threshold_sync_time")]
+        [BsonIgnoreIfNullAttribute]
+        public int? ThresholdSyncTime { get; set; }
+
+    }
+
+
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("mobile_device_translations")]
+
+    public class MobileDeviceTranslations : Entity
+    {
+        public MobileDeviceTranslations()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("original_value")]
+        [BsonIgnoreIfNullAttribute]
+        public string OriginalValue { get; set; }
+
+        [DataMember]
+        [BsonElement("translated_value")]
+        [BsonIgnoreIfNullAttribute]
+        public string TranslatedValue { get; set; }
+
+        [DataMember]
+        [BsonElement("os_type")]
+        [BsonIgnoreIfNullAttribute]
+        public string OSType { get; set; }
+
+        [DataMember]
+        [BsonElement("type")]
+        [BsonIgnoreIfNullAttribute]
+        public string Type { get; set; }
+        
     }
 }
