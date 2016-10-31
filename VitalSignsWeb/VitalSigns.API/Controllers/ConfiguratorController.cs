@@ -1343,7 +1343,8 @@ namespace VitalSigns.API.Controllers
                     Unitofmeasurement=x.Unitofmeasurement,
                     FieldName=x.FieldName,
                     DefaultValue=x.DefaultValue,
-                    DeviceType=x.DeviceType
+                    DeviceType=x.DeviceType,
+                    DataType=x.DataType
 
 
                 });
@@ -1391,9 +1392,37 @@ namespace VitalSigns.API.Controllers
                         {
                             string field = attribute.FieldName;
                             string value = attribute.DefaultValue;
-                            UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                            string datatype = attribute.DataType;
+                            if(datatype=="int")
+                            {
+                                int outputvalue = Convert.ToInt32(value);
+                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                     .Set(field, outputvalue);
+                                var result = repository.Collection.UpdateMany(filter, updateDefinition);                                                                  
+                            }
+                            if (datatype == "bool")
+                            {
+                                bool booloutput;
+                               if (value=="0")
+                                {
+                                    booloutput = false;
+                                }
+                               else
+                                {
+                                    booloutput = true;
+                                }
+                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                    .Set(field, booloutput);
+                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                            }
+
+                           
+                           if(datatype=="string")
+                            {
+                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                                                                                     .Set(field, value);
-                            var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                            }
 
                         }                       
 
