@@ -151,10 +151,13 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns> </returns>
         [HttpGet("mobile_user_devices")]
-        public APIResponse GetAllMobileUserDevices()
+        public APIResponse GetAllMobileUserDevices(bool isKey = false)
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
-            var result = mobileDevicesRepository.Collection
+            List<MobileUserDevice> result = null;
+            if (!isKey)
+            {
+                result = mobileDevicesRepository.Collection
                                  .AsQueryable()
                                  .Select(x => new MobileUserDevice
                                  {
@@ -165,8 +168,24 @@ namespace VitalSigns.API.Controllers
                                      LastSyncTime = x.LastSyncTime,
                                      Access = x.Access,
                                      DeviceId = x.DeviceID
-                                 });
-            Response = Common.CreateResponse(result.ToList().OrderBy(x => x.UserName));
+                                 }).ToList();
+            }
+            else
+            {
+                FilterDefinition<MobileDevices> filterDef = mobileDevicesRepository.Filter.Exists(x => x.ThresholdSyncTime, true);
+                result = mobileDevicesRepository.Find(filterDef)
+                                 .Select(x => new MobileUserDevice
+                                 {
+                                     UserName = x.UserName,
+                                     Device = x.DeviceName,
+                                     Notification = x.NotificationType,
+                                     OperatingSystem = x.OSType,
+                                     LastSyncTime = x.LastSyncTime,
+                                     Access = x.Access,
+                                     DeviceId = x.DeviceID
+                                 }).ToList();
+            }
+            Response = Common.CreateResponse(result.OrderBy(x => x.UserName));
             return Response;
         }
 
