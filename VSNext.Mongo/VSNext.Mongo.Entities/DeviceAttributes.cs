@@ -43,5 +43,9 @@ namespace VSNext.Mongo.Entities
         [BsonElement("type")]
         public string Type { get; set; }
 
+        [DataMember]
+        [BsonElement("datatype")]
+        public string DataType { get; set; }
+
     }
 }
