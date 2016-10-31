@@ -375,8 +375,8 @@
             "tab_id": 1,
             "title": "Device Attributes",
             "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServerAttribute",
+            "path": "/app/configurator/components/server/server-device-attributes.component"
           },
           {
             "tab_id": 2,
@@ -466,8 +466,8 @@
             "tab_id": 1,
             "title": "Device Attributes",
             "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServerAttribute",
+            "path": "/app/configurator/components/server/server-device-attributes.component"
           },
           {
             "tab_id": 2,
