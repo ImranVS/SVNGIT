@@ -88,7 +88,7 @@
                             <div class="row">
                                 <div class="form-group">
                                     <label for="proxyServerType" class="control-label col-sm-1">Type:</label>
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-2">
                                         <input type="text" class="form-control" name="proxyServerType" formControlName="proxy_server_type">
                                     </div>
 
@@ -98,7 +98,7 @@
                             <div class="row">
                                 <div class="form-group">
                                     <label for="proxyServerProtocol" class="control-label col-sm-1">Protocol:</label>
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-2">
                                         <input type="text" class="form-control" name="proxyServerProtocol" formControlName="proxy_server_protocol">
                                     </div>
                                 </div>
@@ -112,7 +112,7 @@
                             <div class="row">
                                 <div class="form-group col-sm-6">
                                     <label for="dbms_host_name" class="control-label col-sm-3" >DB2 Host Name</label>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <input type="text" class="form-control" name="dbms_host_name" formControlName="dbms_host_name">
                                     </div>
                                 </div>
@@ -120,7 +120,7 @@
 
                                 <div class="form-group col-sm-6">
                                     <label for="db2DatabaseName" class="control-label col-sm-5">DB2 Database Name</label>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <input type="text" class="form-control" name="db2DatabaseName" formControlName="dbms_name">
                                         </div>
                                     </div>
@@ -128,7 +128,7 @@
                             <div class="row">
                                 <div class="form-group col-sm-6">
                                     <label for="db2Port" class="control-label col-sm-3">DB2 Port</label>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <input type="text" class="form-control" name="db2Port" formControlName="dbms_port">
                                         </div>
                                     </div>
@@ -148,6 +148,8 @@
                         <div class="panel-heading">Usage Statistics</div>
 
                         <div class="panel-body">
+                            <div class="row">
+                            <div class="form-group col-sm-4">
                             <div class="checkbox-inline">
                                 <input type="checkbox" name="collectExtendSametimeStatistics" formControlName="collect_extended_statistics">
                                 <label for="collectExtendSametimeStatistics">
@@ -155,36 +157,42 @@
                                 </label>
                             </div>
                             <div class="form-group">
-                                <label for="portNo">Port No</label>
-
-                                <input type="text" class="form-control" name="portNo" formControlName="extended_statistics_port">
+                                <label for="portNo" class="control-label col-sm-3">Port No</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="portNo" formControlName="extended_statistics_port">
+                                </div>
+                                </div>
                             </div>
-                            <div class="checkbox-inline">
-                                <input type="checkbox" name="collectMeetingStatistics" formControlName="collect_meeting_statistics">
-                                <label for="collectMeetingStatistics">
-                                    Collect Meeting Server Statistics
-                                </label>
+                            <div class="form-group col-sm-4">
+                                <div class="checkbox-inline">
+                                    <input type="checkbox" name="collectMeetingStatistics" formControlName="collect_meeting_statistics">
+                                    <label for="collectMeetingStatistics">
+                                        Collect Meeting Server Statistics
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="meetingHostName" class="control-label col-sm-6">Meeting Host Name</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="meetingHostName" formControlName="meeting_host_name">
+                                   </div>
+                                    </div>
+                                <br/>
+                                <div class="form-group">
+                                    <label for="meetingPort" class="control-label col-sm-6">Meeting Port</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="meetingPort" formControlName="meeting_port">
+                                    </div>
+                                    </div>
+
+                                <div class="checkbox-inline">
+                                    <input type="checkbox" name="meetingRequireSSL" formControlName="meeting_require_ssl">
+                                    <label for="meetingRequireSSL">
+                                        Require SSL
+                                    </label>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="meetingHostName">Meeting Host Name</label>
-
-                                <input type="text" class="form-control" name="meetingHostName" formControlName="meeting_host_name">
-
-                            </div>
-                            <div class="form-group">
-                                <label for="meetingPort">Meeting Port</label>
-
-                                <input type="text" class="form-control" name="meetingPort" formControlName="meeting_port">
-
-                            </div>
-
-                            <div class="checkbox-inline">
-                                <input type="checkbox" name="meetingRequireSSL" formControlName="meeting_require_ssl">
-                                <label for="meetingRequireSSL">
-                                    Require SSL
-                                </label>
-                            </div>
-                            <br/>
+                           
+                            <div class="form-group col-sm-4">
                             <div class="checkbox-inline">
                                 <input type="checkbox" name="collectConferenceStatistics" formControlName="collect_conference_statistics">
                                 <label for="collectConferenceStatistics">
@@ -193,17 +201,18 @@
                                 </label>
                             </div>
                             <div class="form-group">
-                                <label for="conferenceHostName"> Conference Host Name</label>
-
-                                <input type="text" class="form-control" name="conferenceHostName" formControlName="conference_host_name">
-
-                            </div>
+                                <label for="conferenceHostName"  class="control-label col-sm-6"> Conference Host Name</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="conferenceHostName" formControlName="conference_host_name">
+                                    </div>
+                                </div>
+                                <br />
                             <div class="form-group">
-                                <label for="conferencePort">Conference Port</label>
-
-                                <input type="text" class="form-control" name="conferencePort" formControlName="conference_port">
-
-                            </div>
+                                <label for="conferencePort"   class="control-label col-sm-6" >Conference Port</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="conferencePort" formControlName="conference_port">
+                             </div>
+                                </div>
 
                             <div class="checkbox-inline">
                                 <input type="checkbox" name="conferenceRequireSSL" formControlName="conference_require_ssl">
@@ -211,7 +220,8 @@
                                     Require SSL
                                 </label>
                             </div>
-
+                            </div>
+                            </div>
                         </div>
                     </div>
                 </div>
