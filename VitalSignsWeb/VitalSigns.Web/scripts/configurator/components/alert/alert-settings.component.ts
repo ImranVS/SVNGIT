@@ -27,25 +27,53 @@ export class AlertSettings implements OnInit {
         private route: ActivatedRoute) { 
 
         this.alertSettings = this.formBuilder.group({
-            'enable_persitent_alerting': [false],
+            'primary_host_name': [''],
+            'primary_from': [''],
+            'primary_user_id': [''], 
+            'primary_port': [''],
+            'primary_auth': [''],
+            'primary_ssl': [''], 
+            'primary_pwd': [''], 
+            'secondary_host_name': [''],
+            'secondary_from': [''],
+            'secondary_user_id': [''], 
+            'secondary_pwd': [''],
+            'secondary_port': [''],
+            'secondary_auth': [''], 
+            'secondary_ssl': [''],
+            'sms_account_sid': [''],
+            'sms_auth_token': [''], 
+            'sms_from': [''],
+            'enable_persitent_alerting': [''],
             'alert_interval': [''],
-            'alert_duration': [''], 
+            'alert_duration': [''],
+            //'e_mail': [''],
+            //'enable_alert_limits': [''],
+            //'total_maximum_alerts_per_definition': [''],
+            //'total_maximum_alerts_per_day': [''],
+            //'enable_SNMP_traps': [''],
+            //'host_name': [''],
+            'alert_about_recurrences_only': [''],
+            'number_of_recurrences': ['']
         });
     }
     ngOnInit() {
 
-        //    this.dataProvider.get('/Configurator/get_alertsettings')
-        //        .subscribe(
-        //        response => {
-        //            console.log(response.data);
-        //            this.preferencesForm.setValue(response.data);
-        //        },
-        //        (error) => this.errorMessage = <any>error
-
-        //        );
+        this.route.params.subscribe(params => {
 
 
-        //});
+
+           
+            this.dataProvider.get('/Configurator/get_alertsettings')
+                .subscribe(
+                (data) => this.alertSettings.setValue(data.data),
+                (error) => this.errorMessage = <any>error
+
+                );
+
+
+        });
+
 
     }
 

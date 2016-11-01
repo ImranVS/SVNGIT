@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <div class="col-xs-12 col-md-6 col-sm-12 col-lg-6">
+            <!--<div class="col-xs-12 col-md-6 col-sm-12 col-lg-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">Emergency Alerting</div>
                     <div class="panel-body">
@@ -135,7 +135,7 @@ data.pageIndex + 1 | number
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
         </div>
 
         <div class="row">
@@ -198,27 +198,9 @@ data.pageIndex + 1 | number
                     <div class="row">
                         <div class="form-group col-sm-4">
                             <label for="password" class="control-label col-sm-4">Password:</label>
-                            <!--<div class="col-sm-3">-->
-                                <!--<button #licence type="button" class="btn btn-primary">
-                                    Enter SMTP Password
-                                </button>-->
-                                <button type="submit" class="btn btn-primary"> Enter SMTP Password</button>
-                            <!--</div>-->
-                                <wj-popup #frmDialog class="popover" [owner]="message" [showTrigger]="'Click'" [hideTrigger]="'None'">
-                                    <h3 class="popover-title">
-                                        Enter a Password
-                                        <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
-                                    </h3>
-                                    <div class="popover-content">
-                                        <div class="input-group">
-                                            <label for="password">Enter Email</label>
-                                            <input #password class="form-control" name="password" type="text" required />
-                                        </div>
-                                        <div class="form-actions">
-                                            <button type="button" class="btn btn-primary" name="save" (click)="saveMessage(frmDialog);">OK</button>
-                                        </div>
-                                    </div>
-                                </wj-popup>
+                            <div class="col-sm-5">
+                                <input type="password" class="form-control" id="primary_pwd" name="primary_pwd" formControlName="primary_pwd" />
+                                </div>
                             </div>
                         </div>
                 </div>
@@ -281,33 +263,14 @@ data.pageIndex + 1 | number
                     <div class="row">
                         <div class="form-group col-sm-4">
                             <label for="password" class="control-label col-sm-4">Password:</label>
-                            <!--<div class="col-sm-3">-->
-                            <!--<button #licence type="button" class="btn btn-primary">
-                Enter SMTP Password
-            </button>-->
-                            <button type="submit" class="btn btn-primary"> Enter SMTP Password</button>
-                            <!--</div>-->
-                            <wj-popup #frmDialog class="popover" [owner]="message" [showTrigger]="'Click'" [hideTrigger]="'None'">
-                                <h3 class="popover-title">
-                                    Enter a Password
-                                    <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
-                                </h3>
-                                <div class="popover-content">
-                                    <div class="input-group">
-                                        <label for="password">Enter Email</label>
-                                        <input #password class="form-control" name="password" type="text" required />
-                                    </div>
-                                    <div class="form-actions">
-                                        <button type="button" class="btn btn-primary" name="save" (click)="saveMessage(frmDialog);">OK</button>
-                                    </div>
-                                </div>
-                            </wj-popup>
+                            <div class="col-sm-5">
+                                <input type="password" class="form-control" id="secondary_pwd" name="secondary_pwd" formControlName="secondary_pwd" />
+                            </div>
+                       </div>
                         </div>
-                    </div>
-                </div>
-            </div>
         </div>
-
+       </div>
+            </div>
         <div class="row">
             <h4>SMS/Text Alerting</h4>
             <div class="panel panel-default">
