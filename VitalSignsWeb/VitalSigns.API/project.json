@@ -24,6 +24,7 @@
   "frameworks": {
     "dnx451": {
       "dependencies": {
+        "VitalSignsLicensing": "1.0.0-*",
         "VSNext.Mongo.Entities": "1.0.0-*",
         "VSNext.Mongo.Repository": "1.0.0-*"
       },

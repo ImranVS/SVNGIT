@@ -1593,9 +1593,20 @@
           "lib/net45/_._": {}
         }
       },
+      "VitalSignsLicensing/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
       "VSNext.Mongo.Entities/1.0.0": {
         "type": "project",
-        "framework": "DNX,Version=v4.5.1"
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
       },
       "VSNext.Mongo.Repository/1.0.0": {
         "type": "project",
@@ -3196,9 +3207,20 @@
           "lib/net45/_._": {}
         }
       },
+      "VitalSignsLicensing/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
       "VSNext.Mongo.Entities/1.0.0": {
         "type": "project",
-        "framework": "DNX,Version=v4.5.1"
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
       },
       "VSNext.Mongo.Repository/1.0.0": {
         "type": "project",
@@ -4799,9 +4821,20 @@
           "lib/net45/_._": {}
         }
       },
+      "VitalSignsLicensing/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
       "VSNext.Mongo.Entities/1.0.0": {
         "type": "project",
-        "framework": "DNX,Version=v4.5.1"
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
       },
       "VSNext.Mongo.Repository/1.0.0": {
         "type": "project",
@@ -4810,6 +4843,10 @@
     }
   },
   "libraries": {
+    "VitalSignsLicensing/1.0.0": {
+      "type": "project",
+      "path": "../wrap/VitalSignsLicensing/project.json"
+    },
     "VSNext.Mongo.Entities/1.0.0": {
       "type": "project",
       "path": "../wrap/VSNext.Mongo.Entities/project.json"
@@ -6710,6 +6747,7 @@
       "MongoDB.Driver >= 2.2.3"
     ],
     "DNX,Version=v4.5.1": [
+      "VitalSignsLicensing >= 1.0.0-*",
       "VSNext.Mongo.Entities >= 1.0.0-*",
       "VSNext.Mongo.Repository >= 1.0.0-*",
       "fx/System.Runtime.Serialization >= 4.0.0"
