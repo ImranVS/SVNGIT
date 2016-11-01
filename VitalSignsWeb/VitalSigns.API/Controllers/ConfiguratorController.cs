@@ -1317,12 +1317,15 @@ namespace VitalSigns.API.Controllers
                 Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                 serversRepository = new Repository<Server>(ConnectionString);
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+                locationRepository = new Repository<Location>(ConnectionString);
                 Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
                 var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
                 var result = repository.Collection.Find(filter).FirstOrDefault();
               
                 var serverresult = serversRepository.Find(attributeexpression).AsQueryable().Select(s=> new DeviceAttributesDataModel
                 {
+                    CellName=s.CellName,
+                    NodeName=s.NodeName,
                     DeviceName=s.DeviceName,
                     Description=s.Description,
                     IPAddress=s.IPAddress,
@@ -1331,7 +1334,13 @@ namespace VitalSigns.API.Controllers
                     LocationId=s.LocationId,
                     Devicetype=s.DeviceType
                 }).FirstOrDefault();
-              
+                var locationname = locationRepository.All().Where(x => x.Id == serverresult.LocationId).Select(x => new Location
+                {
+                    LocationName = x.LocationName
+
+
+                }).FirstOrDefault();
+                serverresult.LocationId = locationname.LocationName;
                 Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == serverresult.Devicetype);
                 List<DeviceAttributesModel> deviceAttributes = new List<DeviceAttributesModel>();
 
@@ -1369,11 +1378,18 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
+                locationRepository = new Repository<Location>(ConnectionString);
                 Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                 var deviceAttributes = ((Newtonsoft.Json.Linq.JObject)serverAttributes.Value).ToObject<DeviceAttributesDataModel>();
                 var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
                 var filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
-              
+                var locationname = locationRepository.All().Where(x => x.LocationName == deviceAttributes.LocationId).Select(x => new Location
+                {
+                    Id = x.Id
+
+
+                }).FirstOrDefault();
+                deviceAttributes.LocationId = locationname.Id;
                 //   UpdateDefinition<BsonDocument> updateserverDefinition = Builders<BsonDocument>.Update.Set(devicename=devicename,, category, ipaddress, isenabled, location, description);
                 //  var serverresult = repository.Collection.UpdateMany(filter, updateserverDefinition);
                 var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, deviceAttributes.DeviceName)
@@ -1399,6 +1415,13 @@ namespace VitalSigns.API.Controllers
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                      .Set(field, outputvalue);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);                                                                  
+                            }
+                            if (datatype == "double")
+                            {
+                                double outputvalue = Convert.ToDouble(value);
+                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                     .Set(field, outputvalue);
+                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
                             if (datatype == "bool")
                             {

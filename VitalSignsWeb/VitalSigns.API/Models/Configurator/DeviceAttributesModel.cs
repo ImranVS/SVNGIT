@@ -13,6 +13,12 @@ namespace VitalSigns.API.Models
             DeviceAttributes = new List<DeviceAttributesModel>();
         }
 
+        [JsonProperty("cell_name")]
+        public string CellName { get; set; }
+
+        [JsonProperty("node_name")]
+        public string NodeName { get; set; }
+
         [JsonProperty("device_name")]
         public string DeviceName { get; set; }
 

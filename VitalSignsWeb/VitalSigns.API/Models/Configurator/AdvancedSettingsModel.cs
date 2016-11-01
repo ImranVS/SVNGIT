@@ -11,10 +11,10 @@ namespace VitalSigns.API.Models
 
 
         [JsonProperty("memory_threshold")]
-        public int? MemoryThreshold { get; set; }
+        public double? MemoryThreshold { get; set; }
 
         [JsonProperty("cpu_threshold")]
-        public int? CpuThreshold { get; set; }
+        public double? CpuThreshold { get; set; }
 
         [JsonProperty("server_days_alert")]
         public int? ServerDaysAlert { get; set; }
