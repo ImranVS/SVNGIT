@@ -61,5 +61,60 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("details")]
         public string Details { get; set; }
+
+        [JsonProperty("primary_host_name")]
+        public string PrimaryHostName { get; set; }
+
+        [JsonProperty("primary_from")]
+        public string PrimaryForm{ get; set; }
+
+        [JsonProperty("primary_user_id")]
+        public string PrimaryUserId { get; set; }
+
+        [JsonProperty("primary_port")]
+        public string PrimaryPort { get; set; }
+
+        [JsonProperty("primary_auth")]
+        public string PrimaryAuth { get; set; }
+
+        [JsonProperty("primary_ssl")]
+        public string PrimarySSL { get; set; }
+
+        [JsonProperty("secondary_host_name")]
+        public string SecondaryHostName { get; set; }
+
+        [JsonProperty("secondary_from")]
+        public string SecondaryForm { get; set; }
+
+        [JsonProperty("secondary_user_id")]
+        public string SecondaryUserId { get; set; }
+
+        [JsonProperty("secondary_pwd")]
+        public string SecondaryPwd { get; set; }
+
+        [JsonProperty("secondary_port")]
+        public string SecondaryPort { get; set; }
+
+        [JsonProperty("secondary_auth")]
+        public string SecondaryAuth { get; set; }
+
+        [JsonProperty("secondary_auth")]
+        public string secondarySSL { get; set; }
+
+        [JsonProperty("sms_account_sid")]
+        public string SmsAccountSid { get; set; }
+
+        [JsonProperty("sms_auth_token")]
+        public string SmsAuthToken { get; set; }
+
+        [JsonProperty("sms_from")]
+        public string SmsForm { get; set; }
+
+
+
+
+
+
+
     }
 }
