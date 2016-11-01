@@ -100,12 +100,12 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("cpu_threshold")]
         [BsonIgnoreIfNull]
-        public int? CpuThreshold { get; set; }
+        public double? CpuThreshold { get; set; }
 
         [DataMember]
         [BsonElement("memory_threshold")]
         [BsonIgnoreIfNull]
-        public int? MemoryThreshold { get; set; }
+        public double? MemoryThreshold { get; set; }
 
         [DataMember]
         [BsonElement("response_time")]
@@ -864,6 +864,7 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string NodeId { get; set; }
 
+        
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("node_name")]
@@ -873,6 +874,42 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         [BsonElement("cell_name")]
         public String CellName { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("average_thread_pool")]
+        public int? AverageThreadPool { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("heap_current")]
+        public int? HeapCurrent { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("up_current")]
+        public int? UPCurrent { get; set; }
+
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("dump_generator")]
+        public int? DumpGenerator { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("active_thread_count")]
+        public int? ActiveThreadCount { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("maximum_heap")]
+        public int? MaximumHeap { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("hung_thread_count")]
+        public int? HungThreadCount { get; set; }
 
         #endregion
 
