@@ -19,6 +19,9 @@ namespace VitalSigns.API.Models
     }
     public class DiskDriveStatus
     {
+        [JsonProperty("device_name")]
+        public string DeviceName { get; set; }
+
         [JsonProperty("disk_name")]
         public string DiskName { get; set; }
 

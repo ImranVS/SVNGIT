@@ -481,7 +481,6 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("database")]
-
         public APIResponse GetDatabase(string filter_by, string filter_value, string order_by, string order_type, string group_by, string top_x, bool get_chart, string exceptions)
         {
             List<ServerDatabase> data = null;
@@ -804,7 +803,6 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("{deviceid}/monitoredtasks")]
-
         public APIResponse GetMonitoredTasks(string deviceid, bool is_monitored)
         {
 
@@ -846,9 +844,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-
         [HttpGet("{deviceid}/traveler_mailstats")]
-
         public APIResponse Travelerstats(string deviceid)
         {
             travelerStatsRepository = new Repository<TravelerStatusSummary>(ConnectionString);
@@ -928,7 +924,6 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-
 
         [HttpGet("mail_health")]
         public APIResponse GetMailHealth(string month)
@@ -1312,6 +1307,130 @@ namespace VitalSigns.API.Controllers
                 {
                     Response = Common.CreateResponse(result);
                 }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
+
+        [HttpGet("cpu_memory_health")]
+        public APIResponse GetCPUMemory()
+        {
+            List<dynamic> result = new List<dynamic>();
+            
+            try
+            {
+                dailyStatisticsRepository = new Repository<DailyStatistics>(ConnectionString);
+                FilterDefinition<DailyStatistics> filterDef = dailyStatisticsRepository.Filter.Eq(x => x.StatName, "Mem.PercentUsed");
+                var dailyStatsMem = dailyStatisticsRepository.Find(filterDef);
+                var result1 = dailyStatsMem
+                    .GroupBy(row => new
+                    {
+                        row.DeviceName,
+                        row.StatName
+                    })
+                    .Select(row => new
+                    {
+                        DeviceName = row.Key.DeviceName,
+                        AvgMem = Math.Round(row.Average(x => x.StatValue), 2),
+                        MaxMem = row.Max(x => x.StatValue)
+                    }).OrderBy(x => x.DeviceName).ToList();
+                filterDef = dailyStatisticsRepository.Filter.Eq(x => x.StatName, "Platform.System.PctCombinedCpuUtil");
+                var dailyStatsCPU = dailyStatisticsRepository.Find(filterDef);
+                var result2 = dailyStatsCPU
+                    .GroupBy(row => new
+                    {
+                        row.DeviceName,
+                        row.StatName
+                    })
+                    .Select(row => new
+                    {
+                        DeviceName = row.Key.DeviceName,
+                        AvgCPU = Math.Round(row.Average(x => x.StatValue), 2),
+                        MaxCPU = row.Max(x => x.StatValue)
+                    }).ToList();
+                statusRepository = new Repository<Status>(ConnectionString);
+                FilterDefinition<Status> filterDefStatus = statusRepository.Filter.And(statusRepository.Filter.In(i => i.DeviceName, result1.Select(i => i.DeviceName).ToList()),
+                    statusRepository.Filter.Exists(i => i.Memory, true), statusRepository.Filter.Exists(i => i.CPU, true));
+                var result3 = statusRepository.Find(filterDefStatus).ToList();
+
+                foreach (var stat1 in result1)
+                {
+                    var x = new ExpandoObject() as IDictionary<string, Object>;
+                    foreach (var field in stat1.ToBsonDocument())
+                    {
+                        x.Add(field.Name, field.Value.ToString());
+                    }
+                    foreach (var stat2 in result2)
+                    {
+                        if (stat1.DeviceName == stat2.DeviceName)
+                        {
+                            foreach (var field in stat2.ToBsonDocument())
+                            {
+                                if (field.Name != "DeviceName")
+                                {
+                                    x.Add(field.Name, field.Value.ToString());
+                                }
+                            }
+                        }
+                    }
+                    foreach (var stat3 in result3)
+                    {
+                        if (stat1.DeviceName == stat3.DeviceName)
+                        {
+                            var doc = stat3.ToBsonDocument();
+                            x.Add("Memory", Math.Round(Convert.ToDouble(doc["memory"].ToString()),2).ToString());
+                            x.Add("CPU", Math.Round(Convert.ToDouble(doc["cpu"].ToString()), 2).ToString());
+                            //x.Add("MemoryThreshold", doc["memory_threshold"].ToString());
+                            //x.Add("CPUThreshold", doc["cpu_threshold"].ToString());
+                        }
+                    }
+                    result.Add(x);
+                }
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
+
+        [HttpGet("disk_health")]
+        public APIResponse GetDisk()
+        {
+            List<dynamic> result = new List<dynamic>();
+            List<DiskStatus> disks = new List<DiskStatus>();
+            try
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+                FilterDefinition<Status> filterDefStatus = statusRepository.Filter.Exists(x => x.Disks,true);
+                List<Status> result1 = statusRepository.Find(filterDefStatus).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                foreach (Status status in result1)
+                {
+                    disks = status.Disks;
+                    foreach (DiskStatus drive in disks)
+                    {
+                        result.Add(new DiskDriveStatus
+                        {
+                            DeviceName = status.DeviceName,
+                            DiskFree = drive.DiskFree == null ? 0 : drive.DiskFree,
+                            DiskSize = drive.DiskSize == null ? 0 : drive.DiskSize,
+                            DiskName = drive.DiskName,
+                            DiskUsed = drive.DiskFree == null || drive.DiskSize == null ? 0 : drive.DiskSize - drive.DiskFree,
+                            PercentFree = drive.PercentFree == null ? 0 : drive.PercentFree,
+                            Threshold = drive.Threshold == null ? 0 : drive.Threshold,
+                            Unit = drive.ThresholdType,
+                            LastUpdated = status.LastUpdated
+                        });
+
+                    }
+                }
+                Response = Common.CreateResponse(result);
             }
             catch (Exception exception)
             {
