@@ -2082,7 +2082,7 @@ Partial Public Class VitalSignsPlusDomino
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DominoCluster.ToDescription()) _
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabaseReplica.ToDescription()) _
                  And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
@@ -2210,7 +2210,7 @@ Partial Public Class VitalSignsPlusDomino
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error adding new empty database collection to " & myDominoCluster.Name)
                     End Try
-                    myDominoCluster.ServerType = VSNext.Mongo.Entities.Enums.ServerType.DominoCluster.ToDescription()
+                    myDominoCluster.ServerType = VSNext.Mongo.Entities.Enums.ServerType.NotesDatabaseReplica.ToDescription()
                 Else
                     WriteAuditEntry(Now.ToString & " " & myDominoCluster.Name & " is already in the collection, updating settings.")
                 End If

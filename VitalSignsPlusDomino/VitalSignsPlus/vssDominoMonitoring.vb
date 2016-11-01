@@ -132,7 +132,7 @@ Partial Public Class VitalSignsPlusDomino
 			End Try
 
 			Try
-                If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.DominoCluster, NodeName) Then
+                If UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType.NotesDatabaseReplica, NodeName) Then
                     Try
                         WriteAuditEntry(Now.ToString & " Refreshing configuration of Domino clusters, on requst.", LogLevel.Verbose)
                         CreateDominoClusterCollection()

@@ -63,8 +63,8 @@ namespace VSNext.Mongo.Entities
             WebSphere,
             [Description("Network Latency")]
             NetworkLatency,
-            [Description("Domino Cluster")]
-            DominoCluster,
+            [Description("Notes Database Replica")]
+            NotesDatabaseReplica,
             [Description("ExchangeMail Probe")]
             ExchangeMailProbe,
             [Description("IBM Connections")]
