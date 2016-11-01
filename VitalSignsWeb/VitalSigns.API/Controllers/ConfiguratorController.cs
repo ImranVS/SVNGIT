@@ -2207,7 +2207,146 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpPut("save_alertsettings")]
+        public APIResponse UpdateIbmAlertSettings([FromBody]AlertSettingsModel alertSettings)
+        {
+            try
+            {
+                FilterDefinition<NameValue> filterDefination;
 
+                try
+                {
+                    var alertData = new List<NameValue> { new NameValue { Name = "PrimaryHostName", Value = alertSettings.PrimaryHostName },
+                                                                new NameValue { Name = "PrimaryFrom", Value = alertSettings.PrimaryForm },
+                                                                new NameValue { Name = "PrimaryUserId", Value = alertSettings.PrimaryUserId},
+                                                                new NameValue { Name = "Primarypwd", Value = alertSettings.PrimaryPwd},
+                                                                new NameValue { Name = "PrimaryPort", Value =Convert.ToString(alertSettings.PrimaryPort)},
+                                                                new NameValue { Name = "SmsForm", Value =  alertSettings.SmsForm},
+                                                                 new NameValue { Name = "PrimaryAuth", Value =Convert.ToString(alertSettings.PrimaryAuth)},
+                                                                  new NameValue { Name = "PrimarySSL", Value = Convert.ToString(alertSettings.PrimarySSL)},
+                                                                   new NameValue { Name = "SecondaryHostName", Value =  Convert.ToString(alertSettings.SecondaryHostName)},
+                                                                 new NameValue { Name = "SecondaryFrom", Value = alertSettings.SecondaryForm},
+                                                                  new NameValue { Name = "SecondaryUserId", Value = alertSettings.SecondaryUserId},
+                                                                   new NameValue { Name = "SecondaryPwd", Value =  Convert.ToString(alertSettings.SecondaryPwd)},
+                                                                 new NameValue { Name = "SecondaryPort", Value = alertSettings.SecondaryPort},
+                                                                  new NameValue { Name = "SecondaryAuth", Value = Convert.ToString(alertSettings.SecondaryAuth)},
+                                                                   new NameValue { Name = "SecondarySSL", Value =  Convert.ToString(alertSettings.SecondarySSL)},
+                                                                 new NameValue { Name = "SmsAccountSid", Value = alertSettings.SmsAccountSid},
+                                                                  new NameValue { Name = "SmsAuthToken", Value = alertSettings.SmsAuthToken},
+                                                                  new NameValue { Name = "EnablePersitentAlerting", Value=alertSettings.EnablePersitentAlerting?"True":"False"},
+                                                                new NameValue { Name = "AlertInterval", Value =Convert.ToString(alertSettings.AlertInterval)},
+                                                                new NameValue { Name = "AlertDuration", Value = Convert.ToString(alertSettings.AlertDuration)},
+                                                                //new NameValue { Name = "Email", Value =Convert.ToString(alertSettings.EMail)},
+                                                                //new NameValue { Name = "EnableAlertLimits", Value = (alertSettings.EnableAlertLimits?"True":"False")},
+                                                                //new NameValue { Name = "TotalMaximumAlertsPerDefinition", Value = Convert.ToString(alertSettings.TotalMaximumAlertsPerDefinition)},
+                                                                //new NameValue {Name = "TotalMaximumAlertsPerDay", Value=Convert.ToString(alertSettings.TotalMaximumAlertsPerDay)},
+                                                                //new NameValue { Name = "EnableSNMPTraps",Value=(alertSettings.EnableSNMPTraps?"True":"False")},
+                                                                //new NameValue {Name = "HostName", Value= alertSettings.HostName},
+                                                                  new NameValue { Name = "AlertAboutRecurrencesOnly",Value=Convert.ToString(alertSettings.AlertAboutRecurrencesOnly)},
+                                                                new NameValue {Name = "NumberOfRecurrences", Value= alertSettings.NumberOfRecurrences.ToString()}
+                                                             };
+                    var result = Common.SaveNameValues(alertData);
+                    Response = Common.CreateResponse(true);
+                }
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                }
+
+                return Response;
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpGet("get_alertsettings")]
+        public APIResponse GetAlertSettings()
+        {
+
+
+
+            nameValueRepository = new Repository<NameValue>(ConnectionString);
+            var result = nameValueRepository.All()
+                                          .Select(x => new
+                                          {
+                                              Name = x.Name,
+                                              Value = x.Value
+                                          }).ToList();
+
+            var primaryHostName = result.Where(x => x.Name == "PrimaryHostName").Select(x => x.Value).FirstOrDefault();
+            var primaryForm = result.Where(x => x.Name == "PrimaryFrom").Select(x => x.Value).FirstOrDefault();
+            var primaryUserId = result.Where(x => x.Name == "PrimaryUserId").Select(x => x.Value).FirstOrDefault();
+            var primaryPwd = result.Where(x => x.Name == "Primarypwd").Select(x => x.Value).FirstOrDefault();
+            var primaryPort = result.Where(x => x.Name == "PrimaryPort").Select(x => x.Value).FirstOrDefault();
+           
+            var primaryAuth = result.Where(x => x.Name == "PrimaryAuth").Select(x => x.Value).FirstOrDefault();
+            var primarySSL = result.Where(x => x.Name == "PrimarySSL").Select(x => x.Value).FirstOrDefault();
+           // var primaryPwd = result.Where(x => x.Name == "PrimaryPwd").Select(x => x.Value).FirstOrDefault();
+            var secondaryHostName = result.Where(x => x.Name == "SecondaryHostName").Select(x => x.Value).FirstOrDefault();
+            var secondaryForm = result.Where(x => x.Name == "SecondaryFrom").Select(x => x.Value).FirstOrDefault();
+
+            var secondaryUserId = result.Where(x => x.Name == "SecondaryUserId").Select(x => x.Value).FirstOrDefault();
+            var secondaryPwd = result.Where(x => x.Name == "SecondaryPwd").Select(x => x.Value).FirstOrDefault();
+            var secondaryPort = result.Where(x => x.Name == "SecondaryPort").Select(x => x.Value).FirstOrDefault();
+            var secondaryAuth = result.Where(x => x.Name == "SecondaryAuth").Select(x => x.Value).FirstOrDefault();
+            var secondarySSL = result.Where(x => x.Name == "SecondarySSL").Select(x => x.Value).FirstOrDefault();
+            var smsAccountSid = result.Where(x => x.Name == "SmsAccountSid").Select(x => x.Value).FirstOrDefault();
+            var smsAuthToken = result.Where(x => x.Name == "SmsAuthToken").Select(x => x.Value).FirstOrDefault();
+            var smsForm = result.Where(x => x.Name == "SmsForm").Select(x => x.Value).FirstOrDefault();
+            var enablePersitentAlerting = result.Where(x => x.Name == "EnablePersitentAlerting").Select(x => x.Value).FirstOrDefault();
+            var alertInterval = result.Where(x => x.Name == "AlertInterval").Select(x => x.Value).FirstOrDefault();
+            var alertDuration = result.Where(x => x.Name == "AlertDuration").Select(x => x.Value).FirstOrDefault();
+            var email = result.Where(x => x.Name == "Email").Select(x => x.Value).FirstOrDefault();
+            var enableAlertLimits = result.Where(x => x.Name == "EnableAlertLimits").Select(x => x.Value).FirstOrDefault();
+            var totalMaximumAlertsPerDefinition = result.Where(x => x.Name == "TotalMaximumAlertsPerDefinition").Select(x => x.Value).FirstOrDefault();
+            var totalMaximumAlertsPerDay = result.Where(x => x.Name == "TotalMaximumAlertsPerDay").Select(x => x.Value).FirstOrDefault();
+            var enableSNMPTraps = result.Where(x => x.Name == "EnableSNMPTraps").Select(x => x.Value).FirstOrDefault();
+            var hostName = result.Where(x => x.Name == "HostName").Select(x => x.Value).FirstOrDefault();
+            var alertAboutRecurrencesOnly = result.Where(x => x.Name == "AlertAboutRecurrencesOnly").Select(x => x.Value).FirstOrDefault();
+            var numberOfRecurrences = result.Where(x => x.Name == "NumberOfRecurrences").Select(x => x.Value).FirstOrDefault();
+            return Common.CreateResponse(new AlertSettingsModel
+            {
+                PrimaryHostName = primaryHostName,
+                PrimaryForm = primaryForm,
+                PrimaryUserId = primaryUserId,
+                PrimaryPort = Convert.ToInt32(primaryPort),
+                PrimaryAuth = Convert.ToBoolean(primaryAuth),
+                PrimarySSL = Convert.ToBoolean(primarySSL),
+                PrimaryPwd = primaryPwd,
+                SecondaryHostName = secondaryHostName,
+                SecondaryForm = secondaryForm,
+
+                SecondaryUserId = secondaryUserId,
+                SecondaryPwd = secondaryPwd,
+                SecondaryPort = secondaryPort,
+                SecondaryAuth = Convert.ToBoolean(secondaryAuth),
+                SecondarySSL = Convert.ToBoolean(secondarySSL),
+                SmsAccountSid = smsAccountSid,
+                SmsAuthToken = smsAuthToken,
+                SmsForm = smsForm,
+
+                EnablePersitentAlerting = Convert.ToBoolean(enablePersitentAlerting),
+                AlertInterval = Convert.ToInt32(alertInterval),
+                AlertDuration = Convert.ToInt32(alertDuration),
+                //EMail = email,
+                //EnableAlertLimits = Convert.ToBoolean(enableAlertLimits),
+                //TotalMaximumAlertsPerDay = Convert.ToInt32(totalMaximumAlertsPerDay),
+                //TotalMaximumAlertsPerDefinition = Convert.ToInt32(totalMaximumAlertsPerDefinition),
+                //EnableSNMPTraps = Convert.ToBoolean(enableSNMPTraps),
+
+                // HostName = hostName,
+                AlertAboutRecurrencesOnly = Convert.ToBoolean(alertAboutRecurrencesOnly),
+                NumberOfRecurrences = Convert.ToInt32(numberOfRecurrences)
+
+            });
+        }
 
     }
 }
