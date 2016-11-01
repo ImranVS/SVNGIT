@@ -2237,11 +2237,11 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue { Name = "AlertInterval", Value =Convert.ToString(alertSettings.AlertInterval)},
                                                                 new NameValue { Name = "AlertDuration", Value = Convert.ToString(alertSettings.AlertDuration)},
                                                                 //new NameValue { Name = "Email", Value =Convert.ToString(alertSettings.EMail)},
-                                                                //new NameValue { Name = "EnableAlertLimits", Value = (alertSettings.EnableAlertLimits?"True":"False")},
-                                                                //new NameValue { Name = "TotalMaximumAlertsPerDefinition", Value = Convert.ToString(alertSettings.TotalMaximumAlertsPerDefinition)},
-                                                                //new NameValue {Name = "TotalMaximumAlertsPerDay", Value=Convert.ToString(alertSettings.TotalMaximumAlertsPerDay)},
-                                                                //new NameValue { Name = "EnableSNMPTraps",Value=(alertSettings.EnableSNMPTraps?"True":"False")},
-                                                                //new NameValue {Name = "HostName", Value= alertSettings.HostName},
+                                                                new NameValue { Name = "EnableAlertLimits", Value = (alertSettings.EnableAlertLimits?"True":"False")},
+                                                                new NameValue { Name = "TotalMaximumAlertsPerDefinition", Value = Convert.ToString(alertSettings.TotalMaximumAlertsPerDefinition)},
+                                                                new NameValue {Name = "TotalMaximumAlertsPerDay", Value=Convert.ToString(alertSettings.TotalMaximumAlertsPerDay)},
+                                                                new NameValue { Name = "EnableSNMPTraps",Value=(alertSettings.EnableSNMPTraps?"True":"False")},
+                                                                new NameValue {Name = "HostName", Value= alertSettings.HostName},
                                                                   new NameValue { Name = "AlertAboutRecurrencesOnly",Value=Convert.ToString(alertSettings.AlertAboutRecurrencesOnly)},
                                                                 new NameValue {Name = "NumberOfRecurrences", Value= alertSettings.NumberOfRecurrences.ToString()}
                                                              };
@@ -2336,12 +2336,12 @@ namespace VitalSigns.API.Controllers
                 AlertInterval = Convert.ToInt32(alertInterval),
                 AlertDuration = Convert.ToInt32(alertDuration),
                 //EMail = email,
-                //EnableAlertLimits = Convert.ToBoolean(enableAlertLimits),
-                //TotalMaximumAlertsPerDay = Convert.ToInt32(totalMaximumAlertsPerDay),
-                //TotalMaximumAlertsPerDefinition = Convert.ToInt32(totalMaximumAlertsPerDefinition),
-                //EnableSNMPTraps = Convert.ToBoolean(enableSNMPTraps),
+                EnableAlertLimits = Convert.ToBoolean(enableAlertLimits),
+                TotalMaximumAlertsPerDay = Convert.ToInt32(totalMaximumAlertsPerDay),
+                TotalMaximumAlertsPerDefinition = Convert.ToInt32(totalMaximumAlertsPerDefinition),
+                EnableSNMPTraps = Convert.ToBoolean(enableSNMPTraps),
 
-                // HostName = hostName,
+                HostName = hostName,
                 AlertAboutRecurrencesOnly = Convert.ToBoolean(alertAboutRecurrencesOnly),
                 NumberOfRecurrences = Convert.ToInt32(numberOfRecurrences)
 
