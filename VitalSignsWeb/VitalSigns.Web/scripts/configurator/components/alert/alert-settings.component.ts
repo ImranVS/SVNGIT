@@ -48,11 +48,11 @@ export class AlertSettings implements OnInit {
             'alert_interval': [''],
             'alert_duration': [''],
             //'e_mail': [''],
-            //'enable_alert_limits': [''],
-            //'total_maximum_alerts_per_definition': [''],
-            //'total_maximum_alerts_per_day': [''],
-            //'enable_SNMP_traps': [''],
-            //'host_name': [''],
+            'enable_alert_limits': [''],
+            'total_maximum_alerts_per_definition': [''],
+            'total_maximum_alerts_per_day': [''],
+            'enable_SNMP_traps': [''],
+            'host_name': [''],
             'alert_about_recurrences_only': [''],
             'number_of_recurrences': ['']
         });
