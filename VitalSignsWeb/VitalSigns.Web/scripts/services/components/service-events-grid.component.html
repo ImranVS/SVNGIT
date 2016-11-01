@@ -2,8 +2,16 @@
 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Event'" [binding]="'event_type'" [width]="250"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Event Detected'" [binding]="'event_detected'" [width]="200"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Event Dismissed'" [binding]="'event_dismissed'" [width]="200"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Event Detected'" [binding]="'event_detected'" [width]="200">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            {{cell.item.event_detected | date: 'MM/dd/yyyy hh:mm:ss'}}
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Event Dismissed'" [binding]="'event_dismissed'" [width]="200">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            {{cell.item.event_dismissed | date: 'MM/dd/yyyy hh:mm:ss'}}
+        </template>
+    </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="350"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
