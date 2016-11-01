@@ -73,20 +73,20 @@ namespace VitalSigns.API.Models
         //[JsonProperty("e_mail")]
         //public string EMail { get; set; }
 
-        //[JsonProperty("enable_alert_limits")]
-        //public bool EnableAlertLimits { get; set; }
+        [JsonProperty("enable_alert_limits")]
+        public bool EnableAlertLimits { get; set; }
 
-        //[JsonProperty("total_maximum_alerts_per_definition")]
-        //public int TotalMaximumAlertsPerDefinition { get; set; }
+        [JsonProperty("total_maximum_alerts_per_definition")]
+        public int TotalMaximumAlertsPerDefinition { get; set; }
 
-        //[JsonProperty("total_maximum_alerts_per_day")]
-        //public int TotalMaximumAlertsPerDay { get; set; }
+        [JsonProperty("total_maximum_alerts_per_day")]
+        public int TotalMaximumAlertsPerDay { get; set; }
 
-        //[JsonProperty("enable_SNMP_traps")]
-        //public bool EnableSNMPTraps { get; set; }
+        [JsonProperty("enable_SNMP_traps")]
+        public bool EnableSNMPTraps { get; set; }
 
-        //[JsonProperty("host_name")]
-        //public string HostName { get; set; }
+        [JsonProperty("host_name")]
+        public string HostName { get; set; }
 
         [JsonProperty("alert_about_recurrences_only")]
         public bool AlertAboutRecurrencesOnly { get; set; }
