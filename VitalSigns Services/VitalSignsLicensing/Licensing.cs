@@ -513,6 +513,20 @@ namespace VitalSignsLicensing
             repoLicense.Upsert(filterdef, updatedef);
 
         }
+        public License getLicenseInfo(string key)
+        {
+            VSNext.Mongo.Repository.Repository<License> repoLicense = new VSNext.Mongo.Repository.Repository<License>(cs);
+            License l = new License();
+            List<License> nodesList = repoLicense.Find(i => i.LicenseKey == key).ToList();
+            foreach (License s in nodesList)
+            {
+                l.InstallType = s.InstallType;
+                l.ExpirationDate = s.ExpirationDate;
+                l.units = s.units;
+            }
+            return l;
+           
+        }
         private void createDeviceTypeLicense()
         {
             //update the last ping time in the appropriate node
