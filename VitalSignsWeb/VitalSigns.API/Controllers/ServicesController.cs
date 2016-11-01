@@ -210,7 +210,7 @@ namespace VitalSigns.API.Controllers
                 }
 
 
-                result.Description = "Last Updated: " + result.LastUpdated.Value.ToShortDateString();
+                result.Description = "Last Updated: " + result.LastUpdated.Value;
                 result.Icon = serverType.Icon;
                 if (!string.IsNullOrEmpty(result.Status))
                     result.Status = result.Status.ToLower().Replace(" ", "");
