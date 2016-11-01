@@ -1,41 +1,66 @@
 ﻿<div class="container">
 
-    <div class="panel panel-default">
+   
         <div *ngIf="serverAttributes" class="form-horizontal">
-            <div class="panel-heading">Server Attributes</div>
-            <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading">Server Attributes</div>
+                <div class="panel-body">
 
-                <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime'">
-                    <div class="form-inline">
-                        <label>Server Name</label>
+                    <div *ngIf="serverAttributes.device_type=='WebSphere'">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Cell Name</label>
+                            <div class="col-sm-10">
+                                <input type="text" [(ngModel)]="serverAttributes.cell_name">
 
-                        <input type="text" [(ngModel)]="serverAttributes.device_name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Node Name</label>
+                            <div class="col-sm-10">
+                                <input type="text" [(ngModel)]="serverAttributes.node_name">
 
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-inline">
-                        <label>Description</label>
-                        <input type="text" [(ngModel)]="serverAttributes.description">
+                    <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime'">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Server Name</label>
+                            <div class="col-sm-10">
+                                <input type="text" [(ngModel)]="serverAttributes.device_name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Description</label>
+                            <div class="col-sm-10">
+                                <input type="text" [(ngModel)]="serverAttributes.description">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Location</label>
+                            <div class="col-sm-10">
+                                <input type="text" [(ngModel)]="serverAttributes.location_id">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Category</label>
+                            <div class="col-sm-10">
+                                <input type="text" [(ngModel)]="serverAttributes.category">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Enable For Scanning</label>
+                            <div class="col-sm-10">
+                                <input type="checkbox" [(ngModel)]="serverAttributes.is_enabled">
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-inline">
-                        <label>Location</label>
-                        <input type="text" [(ngModel)]="serverAttributes.location_id">
-                    </div>
-                    <div class="form-inline">
 
-                        <label>Category</label>
-                        <input type="text" [(ngModel)]="serverAttributes.category">
-                    </div>
-                    <div class="form-inline">
-                        <label>Enable For Scanning</label>
-                        <input type="checkbox" [(ngModel)]="serverAttributes.is_enabled">
-
-                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
 
-    </div>
+   
 
     <div *ngIf="serverAttributes" class="form-horizontal">
         <div class="panel panel-default">
@@ -137,7 +162,7 @@
             </div>
 
         </div>
-        </div>
+    </div>
 
     <div *ngIf="serverAttributes" class="form-horizontal">
         <div *ngIf="serverAttributes.device_type=='Domino'">
@@ -177,8 +202,42 @@
 
         </div>
     </div>
-        <div>
-            <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
-        </div>
 
+
+    <div *ngIf="serverAttributes" class="form-horizontal">
+        <div *ngIf="serverAttributes.device_type=='WebSphere'">
+            <div class="panel panel-default">
+
+
+                <div class="panel-heading">WebSphere Settings</div>
+                <div class="panel-body">
+                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:webSphereSettings">
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                            <div class="col-sm-5">
+                                <div *ngIf="attribute.type=='TextBox'">
+                                    <input type="text" [(ngModel)]="attribute.default_value">
+                                </div>
+                                <div *ngIf="attribute.type=='CheckBox'">
+                                    <input type="checkbox" [(ngModel)]="attribute.default_value">
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                {{attribute.unit_of_measurement}}
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
     </div>
+    <div>
+        <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
+    </div>
+
+</div>
