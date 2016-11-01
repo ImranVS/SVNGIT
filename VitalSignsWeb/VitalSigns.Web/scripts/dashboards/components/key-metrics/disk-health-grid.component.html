@@ -1,15 +1,16 @@
 ﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshChart($event)" #flex>
+<wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
-    <wj-flex-grid-column [header]="'Device Name'" [binding]="'DeviceName'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Total Routed'" [binding]="'TotalRouted'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Delivered'" [binding]="'Delivered'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Transfer Failures'" [binding]="'TransferFailures'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Total Pending'" [binding]="'TotalPending'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Avg Delivery Time (sec)'" [binding]="'AvgDeliveryTimeInSeconds'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Avg Server Hops'" [binding]="'AvgServerHops'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Avg Size Delivered'" [binding]="'AvgSizeDelivered'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'SMTP Messages Processed'" [binding]="'SmtpMessagesProcessed'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" [width]="280" [visible]="false"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Disk Name'" [binding]="'disk_name'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Disk Size (GB)'" [binding]="'disk_size'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Disk Free (GB)'" [binding]="'disk_free'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Percent Free'" [binding]="'percent_free'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="180">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            {{cell.item.last_updated | date: 'MM/dd/yyyy hh:mm:ss'}}
+        </template>
+    </wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"

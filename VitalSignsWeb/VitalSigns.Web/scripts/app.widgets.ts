@@ -11,6 +11,8 @@ export * from './dashboards/components/ibm-traveler/ibm-traveler-grid.component'
 
 export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.component';
 export * from './dashboards/components/key-metrics/overall-database-grid.component';
+export * from './dashboards/components/key-metrics/hardware-stats-grid.component';
+export * from './dashboards/components/key-metrics/disk-health-grid.component';
 
 export * from './not-yet-implemented.component';
 export * from './widgets/charts/components/chart.component';

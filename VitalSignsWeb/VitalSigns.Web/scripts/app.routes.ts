@@ -11,6 +11,7 @@ import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-t
 
 import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component'; 
 import {OverallDatabaseDashboard} from './dashboards/components/key-metrics/overall-database-dashboard.component'; 
+import {HardwareStatsDashboard} from './dashboards/components/key-metrics/hardware-stats-dashboard.component'; 
 import {UsersDashboard} from './dashboards/components/key-metrics/users-dashboard.component'; 
 
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
@@ -58,6 +59,7 @@ export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.compo
 
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
 export * from './dashboards/components/key-metrics/overall-database-dashboard.component'
+export * from './dashboards/components/key-metrics/hardware-stats-dashboard.component'; 
 export * from './dashboards/components/key-metrics/users-dashboard.component'
 
 export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
@@ -159,6 +161,10 @@ const appRoutes: Routes = [
     {
         path: 'dashboard/dominodatabases',
         component: OverallDatabaseDashboard
+    },
+    {
+        path: 'dashboard/hardwarestats',
+        component: HardwareStatsDashboard
     },
     {
         path: 'dashboard/users',

@@ -1,15 +1,20 @@
-﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshChart($event)" #flex>
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'DeviceName'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Total Routed'" [binding]="'TotalRouted'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Delivered'" [binding]="'Delivered'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Transfer Failures'" [binding]="'TransferFailures'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Total Pending'" [binding]="'TotalPending'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Avg Delivery Time (sec)'" [binding]="'AvgDeliveryTimeInSeconds'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Avg Server Hops'" [binding]="'AvgServerHops'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Avg Size Delivered'" [binding]="'AvgSizeDelivered'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'SMTP Messages Processed'" [binding]="'SmtpMessagesProcessed'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Memory Utilization'" [binding]="'Memory'" align="right">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            {{cell.item.Memory*100}}
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Average Memory'" [binding]="'AvgMem'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Peak Memory'" [binding]="'MaxMem'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'CPU Utilization'" [binding]="'CPU'" align="right">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            {{cell.item.CPU*100}}
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Average CPU'" [binding]="'AvgCPU'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Peak CPU'" [binding]="'MaxCPU'" align="right"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
