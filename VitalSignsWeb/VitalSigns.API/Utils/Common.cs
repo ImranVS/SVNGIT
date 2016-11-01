@@ -5,7 +5,6 @@ using System.IO;
 using VitalSigns.API.Models;
 using System.Linq;
 using VSNext.Mongo.Repository;
-using VSNext.Mongo.Entities;
 using MongoDB.Driver;
 using System;
 
@@ -84,7 +83,7 @@ namespace VitalSigns.API
             
         }
 
-        public License getLicenseInfo(string key)
+        public VSNext.Mongo.Entities.License getLicenseInfo(string key)
         {
             VitalSignsLicensing.Licensing l = new VitalSignsLicensing.Licensing();
             return l.getLicenseInfo(key);
