@@ -19,6 +19,12 @@ namespace VitalSigns.API.Models
         [JsonProperty("node_name")]
         public string NodeName { get; set; }
 
+        [JsonProperty("cell_id")]
+        public string CellId { get; set; }
+
+        [JsonProperty("node_id")]
+        public string NodeId { get; set; }
+
         [JsonProperty("device_name")]
         public string DeviceName { get; set; }
 
@@ -28,7 +34,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("location_id")]
         public string LocationId { get; set; }
 
-       [JsonProperty("ip_address")]
+        [JsonProperty("ip_address")]
         public string IPAddress { get; set; }
 
         [JsonProperty("category")]
@@ -36,6 +42,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("device_type")]
         public string Devicetype { get; set; }
+
+        [JsonProperty("credentials_id")]
+        public string CredentialsId { get; set; }
 
 
         [JsonProperty("is_enabled")]
@@ -49,20 +58,20 @@ namespace VitalSigns.API.Models
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonProperty("attribute_name")]       
+        [JsonProperty("attribute_name")]
         public string AttributeName { get; set; }
 
-        [JsonProperty("default_value")]       
+        [JsonProperty("default_value")]
         public string DefaultValue { get; set; }
 
         [JsonProperty("device_type")]
         public string DeviceType { get; set; }
 
 
-        [JsonProperty("field_name")]       
+        [JsonProperty("field_name")]
         public string FieldName { get; set; }
 
-        [JsonProperty("unit_of_measurement")]       
+        [JsonProperty("unit_of_measurement")]
         public string Unitofmeasurement { get; set; }
 
         [JsonProperty("category")]
@@ -79,12 +88,12 @@ namespace VitalSigns.API.Models
     }
 
     public class DeviceAttributeValue
-    {  
+    {
         [JsonProperty("field_name")]
         public string FieldName { get; set; }
 
         [JsonProperty("value")]
         public string Value { get; set; }
-      
+
     }
 }
