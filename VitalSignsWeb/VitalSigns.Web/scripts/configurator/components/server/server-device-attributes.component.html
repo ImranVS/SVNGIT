@@ -80,7 +80,7 @@
 
                         <div class="form-group">
                             <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-5">
+                            <div class="col-sm-2">
                                 <div *ngIf="attribute.type=='TextBox'">
                                     <input type="text" [(ngModel)]="attribute.default_value">
                                 </div>
@@ -88,7 +88,7 @@
                                     <input type="checkbox" [(ngModel)]="attribute.default_value">
                                 </div>
                             </div>
-                            <div class="col-sm-5">
+                            <div class="col-sm-2">
                                 {{attribute.unit_of_measurement}}
                             </div>
                         </div>
