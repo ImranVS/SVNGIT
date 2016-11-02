@@ -52,6 +52,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("status")]
         public string Status { get; set; }
 
-        
+        [JsonProperty("location")]
+        public string Location { get; set; }
     }
 }

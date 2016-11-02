@@ -1425,7 +1425,8 @@ namespace VitalSigns.API.Controllers
                             PercentFree = drive.PercentFree == null ? 0 : drive.PercentFree,
                             Threshold = drive.Threshold == null ? 0 : drive.Threshold,
                             Unit = drive.ThresholdType,
-                            LastUpdated = status.LastUpdated
+                            LastUpdated = status.LastUpdated,
+                            Location = status.Location
                         });
 
                     }
