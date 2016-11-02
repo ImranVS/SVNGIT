@@ -27,12 +27,16 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     defaultvalue: string;
     fieldName: string;
     serverAttributes: any[];
+    selectedIbmDb2Credential: string;
+    selectedCredential: string;
+    deviceCredentialData: any;
     attributes: any[];
     scanSettings: string = "Scan Settings"
     mailSettings: string = "Mail Settings"
     travelerSettings: string = "Traveler Settings"
     optionalSettings: string = "Optional Settings"
-    webSphereSettings: string ="WebSphere Settings"
+    webSphereSettings: string = "WebSphere Settings"
+    chatSettings: string = "Chat Settings"
 
 
     constructor(
@@ -41,7 +45,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
         private router: Router,
         private route: ActivatedRoute) {
         this.ServerAttributeForm = this.formBuilder.group({
-            
+
             'setting': [''],
             'value': [''],
             'devices': ['']
@@ -51,7 +55,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     }
 
     ngOnInit() {
-       
+
 
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
@@ -64,9 +68,10 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
         this.Attribute.get('/configurator/' + this.deviceId + '/servers_attributes')
             .subscribe(
             response => {
-                this.serverAttributes = response.data;             
+                this.serverAttributes = response.data.serverresult;
+                this.deviceCredentialData = response.data.credentialsData;
                 //this.attributes = response.data.device_attributes;
-              
+
             },
             error => this.errorMessage = <any>error
 
@@ -75,15 +80,15 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
 
     }
-   
+
     applySetting() {
-  
+
         var postData = {
             "setting": "",
             "value": this.serverAttributes,
             "devices": ""
         };
-       
+
         this.ServerAttributeForm.setValue(postData);
         console.log(postData);
         this.Attribute.put('/configurator/save_servers_attributes/' + this.deviceId, postData)
@@ -95,7 +100,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
 
     ngAfterViewChecked() {
-       // injectSVG();
+        // injectSVG();
     }
 
 
