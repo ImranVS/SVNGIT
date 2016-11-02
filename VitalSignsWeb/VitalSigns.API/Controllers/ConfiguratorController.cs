@@ -1697,6 +1697,8 @@ namespace VitalSigns.API.Controllers
             {
                 dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
                 var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
+               // var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => new ComboBoxListItem { DisplayText = x.TaskName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+                //var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.DeviceName }).ToList().OrderBy(x => x.DisplayText);
                 Response = Common.CreateResponse(new { TaskNames = result1});
                
             }
@@ -2379,7 +2381,7 @@ namespace VitalSigns.API.Controllers
 
                 serversRepository = new Repository<Server>(ConnectionString);
                 
-                var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+                var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.DeviceName }).ToList().OrderBy(x => x.DisplayText);
                
                 Response = Common.CreateResponse(new { serversData = serversData });
                 return Response;
@@ -2431,7 +2433,7 @@ namespace VitalSigns.API.Controllers
                 {
                     Id = x.Id,
                     DeviceName = x.DeviceName,
-                    Enabled = x.IsEnabled,
+                    IsEnabled = x.IsEnabled,
                     ScanInterval = x.ScanInterval,
                     OffHoursScanInterval = x.OffHoursScanInterval,
                     RetryInterval = x.RetryInterval,
@@ -2475,7 +2477,7 @@ namespace VitalSigns.API.Controllers
                         ScanInterval = notesDatabase.ScanInterval,
                         OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
                         Category = notesDatabase.Category,
-                        IsEnabled = notesDatabase.Enabled,
+                        IsEnabled = notesDatabase.IsEnabled,
                         RetryInterval = notesDatabase.RetryInterval
                     };
 
@@ -2493,7 +2495,7 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
                                                              .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
                                                              .Set(p => p.Category, notesDatabase.Category)
-                                                             .Set(p => p.IsEnabled, notesDatabase.Enabled)
+                                                             .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
                                                              .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
 
                     var result = serversRepository.Update(filterDefination, updateDefination);
