@@ -2527,6 +2527,78 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
             }
         }
+        [HttpPut("save_notes_database_replica")]
+        public APIResponse UpdateNotesDatabaseReplica([FromBody]NotesDatabaseReplicaModel notesDatabaseReplica)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+
+
+
+                if (string.IsNullOrEmpty(notesDatabaseReplica.Id))
+                {
+                    Server notesDatabase = new Server
+                    {
+                        DominoServerA = notesDatabaseReplica.DominoServerA,
+                        DominoServerAFileMask = notesDatabaseReplica.DominoServerAFileMask,
+                        DominoServerAExcludeFolders = notesDatabaseReplica.DominoServerAExcludeFolders,
+                        DominoServerB = notesDatabaseReplica.DominoServerB,
+                        DominoServerBFileMask = notesDatabaseReplica.DominoServerBFileMask,
+                        DominoServerBExcludeFolders = notesDatabaseReplica.DominoServerBExcludeFolders,
+                        DominoServerC = notesDatabaseReplica.DominoServerC,
+                        DominoServerCFileMask = notesDatabaseReplica.DominoServerCFileMask,
+                        DominoServerCExcludeFolders = notesDatabaseReplica.DominoServerCExcludeFolders,
+                        DifferenceThreshold = notesDatabaseReplica.DifferenceThreshold,
+                        DeviceType = "Notes Database Replica"
+                    };
+
+
+                    string id = serversRepository.Insert(notesDatabase);
+                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == notesDatabaseReplica.Id);
+                    var updateDefination = serversRepository.Updater.Set(p => p.DominoServerA, notesDatabaseReplica.DominoServerA)
+                                                             .Set(p => p.DominoServerAFileMask, notesDatabaseReplica.DominoServerAFileMask)
+                                                             .Set(p => p.DominoServerAExcludeFolders, notesDatabaseReplica.DominoServerAExcludeFolders)
+                                                             .Set(p => p.DominoServerB, notesDatabaseReplica.DominoServerB)
+                                                              .Set(p => p.DominoServerBFileMask, notesDatabaseReplica.DominoServerBFileMask)
+                                                               .Set(p => p.DominoServerBExcludeFolders, notesDatabaseReplica.DominoServerBExcludeFolders)
+                                                               .Set(p => p.DominoServerC, notesDatabaseReplica.DominoServerC)
+                                                              .Set(p => p.DominoServerCFileMask, notesDatabaseReplica.DominoServerCFileMask)
+                                                               .Set(p => p.DominoServerCExcludeFolders, notesDatabaseReplica.DominoServerCExcludeFolders)
+                                                             ;
+                    var result = serversRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpDelete("notes_database_replica/{Id}")]
+        public void DeleteNotesDatabaseReplica(string Id)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
+                serversRepository.Delete(expression);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+        }
 
         #endregion
     }
