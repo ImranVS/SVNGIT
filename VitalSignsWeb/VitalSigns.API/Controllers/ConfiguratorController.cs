@@ -1808,8 +1808,8 @@ namespace VitalSigns.API.Controllers
                 var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
                             .Select(x => new AdvancedSettingsModel
                             {
-                                MemoryThreshold = x.MemoryThreshold,
-                                CpuThreshold = x.CpuThreshold,
+                                MemoryThreshold = Convert.ToInt32(x.MemoryThreshold),
+                                CpuThreshold = Convert.ToInt32(x.CpuThreshold),
                                 ServerDaysAlert = x.ServerDaysAlert,
                                 ClusterReplicationDelayThreshold = x.ClusterReplicationDelayThreshold,
                                 ProxyServerType = x.ProxyServerType,
@@ -2370,6 +2370,27 @@ namespace VitalSigns.API.Controllers
 
             });
         }
+        #region Notes Database Replicas
+        [HttpGet("get_domino_servers")]
+        public APIResponse GetDominoServerNames()
+        {
+            try
+            {
 
+                serversRepository = new Repository<Server>(ConnectionString);
+                
+                var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+               
+                Response = Common.CreateResponse(new { serversData = serversData });
+                return Response;
+               
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
     }
 }
