@@ -1318,21 +1318,28 @@ namespace VitalSigns.API.Controllers
                 serversRepository = new Repository<Server>(ConnectionString);
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
                 locationRepository = new Repository<Location>(ConnectionString);
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
                 Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
                 var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
                 var result = repository.Collection.Find(filter).FirstOrDefault();
-              
-                var serverresult = serversRepository.Find(attributeexpression).AsQueryable().Select(s=> new DeviceAttributesDataModel
+
+                var serverresult = serversRepository.Find(attributeexpression).AsQueryable().Select(s => new DeviceAttributesDataModel
                 {
-                    CellName=s.CellName,
-                    NodeName=s.NodeName,
-                    DeviceName=s.DeviceName,
-                    Description=s.Description,
-                    IPAddress=s.IPAddress,
-                    Category=s.Category,
+                    //CellName=s.CellName,
+                    //NodeName=s.NodeName,
+                    DeviceName = s.DeviceName,
+                    Description = s.Description,
+                    IPAddress = s.IPAddress,
+                    Category = s.Category,
                     //IsEnabled=s.IsEnabled,
-                    LocationId=s.LocationId,
-                    Devicetype=s.DeviceType
+                    LocationId = s.LocationId,
+                    Devicetype = s.DeviceType,
+                    CellId = s.CellId,
+                    NodeId = s.NodeId
+
+                    // CellName = serversRepository.Collection.Find(filter).AsQueryable().Select(x => x.NodeId).FirstOrDefault(),
+                    //   NodeName = serversRepository.Collection.AsQueryable().Select(x => x.NodeIds).FirstOrDefault()
+
                 }).FirstOrDefault();
                 var locationname = locationRepository.All().Where(x => x.Id == serverresult.LocationId).Select(x => new Location
                 {
@@ -1340,26 +1347,47 @@ namespace VitalSigns.API.Controllers
 
 
                 }).FirstOrDefault();
+                if (serverresult.Devicetype == "WebSphere")
+                {
+                    var cellname = serversRepository.Collection.AsQueryable().Where(x => x.Id == serverresult.CellId).Select(x => new DeviceAttributesDataModel
+                    {
+                        CellName = x.DeviceName
+
+
+                    }).FirstOrDefault();
+                    serverresult.CellName = cellname.CellName;
+                    var nodename = serversRepository.Collection.AsQueryable().Where(x => x.Id == serverresult.NodeId).Select(x => new DeviceAttributesDataModel
+                    {
+                        NodeName = x.DeviceName
+
+
+                    }).FirstOrDefault();
+                    serverresult.NodeName = nodename.NodeName;
+                }
+                var credentialsData = credentialsRepository.All().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
                 serverresult.LocationId = locationname.LocationName;
+
+
                 Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == serverresult.Devicetype);
                 List<DeviceAttributesModel> deviceAttributes = new List<DeviceAttributesModel>();
 
                 var attributes = deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x => x.Category).Select(x => new DeviceAttributesModel
                 {
-                    AttributeName=x.AttributeName,
-                    Category=x.Category,
-                    Type=x.Type,
-                    Unitofmeasurement=x.Unitofmeasurement,
-                    FieldName=x.FieldName,
-                    DefaultValue=x.DefaultValue,
-                    DeviceType=x.DeviceType,
-                    DataType=x.DataType
+                    AttributeName = x.AttributeName,
+                    Category = x.Category,
+                    Type = x.Type,
+                    Unitofmeasurement = x.Unitofmeasurement,
+                    FieldName = x.FieldName,
+                    DefaultValue = x.DefaultValue,
+                    DeviceType = x.DeviceType,
+                    DataType = x.DataType
 
 
                 });
                 serverresult.DeviceAttributes = attributes.ToList();
 
-                Response = Common.CreateResponse(serverresult);
+                //Response = Common.CreateResponse(serverresult);
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult });
             }
             catch (Exception exception)
             {
