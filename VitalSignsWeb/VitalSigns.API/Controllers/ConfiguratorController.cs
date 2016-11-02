@@ -2421,7 +2421,39 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-      
+        [HttpGet("get_notes_databases")]
+        public APIResponse GetAllNotesDatabases()
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Notes Database").Select(x => new NotesDatabaseModel
+                {
+                    DeviceName = x.DeviceName,
+                    Enabled = x.IsEnabled,
+                    ScanInterval = x.ScanInterval,
+                    OffHoursScanInterval = x.OffHoursScanInterval,
+                    RetryInterval = x.RetryInterval,
+                    DominoServerName = x.DominoServerName,
+                    DatabaseFileName = x.DatabaseFileName,
+                    TriggerType = x.TriggerType,
+                    Category = x.Category
+
+
+                }).ToList().OrderBy(x => x.DeviceName);
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+
         #endregion
     }
 }
