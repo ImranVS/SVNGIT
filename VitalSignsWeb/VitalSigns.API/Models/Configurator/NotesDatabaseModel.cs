@@ -9,7 +9,7 @@ namespace VitalSigns.API.Models
     public class NotesDatabaseModel
     {
         [JsonProperty("Id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("device_name")]
         public string DeviceName { get; set; }
@@ -22,7 +22,7 @@ namespace VitalSigns.API.Models
         
 
          [JsonProperty("is_enabled")]
-        public bool? Enabled { get; set; }
+        public Boolean? IsEnabled { get; set; }
 
 
         [JsonProperty("scan_interval")]
