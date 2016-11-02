@@ -1,0 +1,192 @@
+﻿<div class="container">
+
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Enabled'" [binding]="'is_enabled'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Scan Interval'" [binding]="'scan_interval'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Off-Hours Scan Interval'" [binding]="'off_hours_scan_interval'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server A'" [binding]="'domino_server_a'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server B'" [binding]="'domino_server_b'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server C'" [binding]="'domino_server_c'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="250"></wj-flex-grid-column>
+
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default" (click)="editGridRow1(frmDialog)">
+            Edit
+        </button>
+        <button class="btn btn-default" (click)="addGridRow1(frmDialog)">
+            Add
+        </button>
+        <button class="btn btn-default" (click)="delteNotesDatabaseReplica();">
+            Delete
+        </button>
+    </div>
+    <wj-popup class="modal-content col-sm-10" #frmDialog>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b> {{formTitle}}</b>
+
+                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+            </div>
+            <form (ngSubmit)="saveNotesDatabaseReplica(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+
+                <div class="panel-body" *ngIf="currentEditItem">
+
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Server A</div>
+                                <div class="panel-body">
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5"> Domino Server:</label>
+                                        <div class="col-sm-7">
+                                            <wj-combo-box name="device_name" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_a">
+
+                                            </wj-combo-box>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5">File Mask:</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" #name d="alias" name="alias" [(ngModel)]="currentEditItem.domino_server_a_file_mask">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5">Exclude Folder(s)</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" #name d="alias" name="alias" [(ngModel)]="currentEditItem.domino_server_a_exclude_folders">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Server B</div>
+                                <div class="panel-body">
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5"> Domino Server:</label>
+                                        <div class="col-sm-7">
+                                            <wj-combo-box name="device_name" [itemsSource]="sererNames" displayMemberPath="text" [(ngModel)]="currentEditItem.domino_server_b" selectedValuePath="value">
+
+                                            </wj-combo-box>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5">File Mask:</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" #name d="alias" name="alias" [(ngModel)]="currentEditItem.domino_server_b_file_mask">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5">Exclude Folder(s)</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" #name d="alias" name="alias" [(ngModel)]="currentEditItem.domino_server_b_exclude_folders">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Server C</div>
+                                <div class="panel-body">
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5"> Domino Server:</label>
+                                        <div class="col-sm-7">
+                                            <wj-combo-box name="device_name" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_c">
+
+                                            </wj-combo-box>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5">File Mask:</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" #name d="alias" name="alias" [(ngModel)]="currentEditItem.domino_server_c_file_mask">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-5">Exclude Folder(s)</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" #name d="alias" name="alias" [(ngModel)]="currentEditItem.domino_server_c_exclude_folders">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Alert Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type">The Difference Threshold is the percentage difference in document count between two replicas on different servers. In other words, if a database on server A has 100 documents, but the same database on server B has only 80 documents, an alert will go out if the threshold is set to 20%.</label>
+
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label for="device_type" class="control-label col-sm-2">Difference Threshold(%):</label>
+                                        <div class="col-sm-5">
+                                            <input type="text" class="form-control" #name d="alias" name="alias" [(ngModel)]="currentEditItem.alias">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </wj-popup>
+</div>
