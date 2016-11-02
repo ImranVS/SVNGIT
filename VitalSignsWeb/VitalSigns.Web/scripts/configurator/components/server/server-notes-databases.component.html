@@ -1,0 +1,173 @@
+﻿<div class="container">
+
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Enable'" [binding]="'is_enabled'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Scaninterval'" [binding]="'scan_interval'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Off-HoursScaninterval'" [binding]="'off_hours_scan_interval'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Threshold'" [binding]="'threshold'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server Name	'" [binding]="'domino_server_name'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Retry Interval'" [binding]="'retry_interval'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Trigger Type'" [binding]="'trigger_type'" [width]="200"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default" (click)="editGridRow1(frmDialog)">
+            Edit
+        </button>
+        <button class="btn btn-default" (click)="addGridRow1(frmDialog)">
+            Add
+        </button>
+        <button class="btn btn-default" (click)="deleteNotesDatabase();">
+            Delete
+        </button>
+    </div>
+    <wj-popup class="modal-content col-sm-10" #frmDialog>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b> {{formTitle}}</b>
+
+                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+            </div>
+            <form (ngSubmit)="saveNotesDatabase(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Notes Database Properties</div>
+
+
+                    <div class="panel-body" *ngIf="currentEditItem">
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="device_name" class="control-label col-sm-5">Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="device_name" required name="device_name" [(ngModel)]="currentEditItem.device_name">
+                                </div>
+                            </div>
+
+                            <div>
+                                <button class="btn btn-primary" type="submit" name="submit" >Browse</button>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="is_enabled" class="control-label col-sm-5">Enable for scanning</label>
+                                <div class="col-sm-7">
+                                    <input type="checkbox" class="checkbox-inline" id="is_enabled" [(ngModel)]="currentEditItem.is_enabled" name="is_enabled">
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="row">
+
+                            <div class="form-group col-sm-6">
+                                <label for="status" class="control-label col-sm-5">Domino Server</label>
+                                <div class="col-sm-7">
+                                    <wj-combo-box name="domino_server_name" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_name" >
+
+                                    </wj-combo-box>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="database_file_name" class="control-label col-sm-5">Database File Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="database_file_name" required name="database_file_name" [(ngModel)]="currentEditItem.database_file_name">
+                                </div>
+                               
+                            </div>
+                        </div>
+
+                    </div>
+
+                
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Type</div>
+
+            <div class="panel-body" *ngIf="currentEditItem">
+
+                <div>
+                    Selecting <b>'Refresh All Views'</b>  will detect many types of database corruption.
+                </div>
+
+                <div class="row">
+
+                    <div class="form-group col-sm-6">
+                        <label for="trigger_type" class="control-label col-sm-5">Type</label>
+                        <div class="col-sm-7">
+                            <select name="trigger_type" class="form-control" [(ngModel)]="currentEditItem.trigger_type" id="trigger_type">
+                                <option value="Document Count">Document Count</option>
+                                <option value="Database Size">Database Size</option>
+                                <option value="Replication">Replication</option>
+                                <option value="Refresh All Views">Refresh All Views</option>
+                                <option value="Database Response Time">Database Response Time</option>
+                                <option value="Database Disappearance">Database Disappearance</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!--<div class="row">
+                    <div class="form-group col-sm-6">
+                        <div>
+                            <input type="text" class="form-control" id="trigger_value" required name="trigger_value" [(ngModel)]="currentEditItem.trigger_value">
+                        </div>
+                    </div>
+
+            </div>-->
+</div>
+        
+</div>
+
+<div class="panel-footer">
+    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+    <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+</div>
+            </form>
+        </div>
+    </wj-popup>
+        </div>
