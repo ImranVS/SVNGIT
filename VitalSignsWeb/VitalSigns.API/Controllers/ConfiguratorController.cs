@@ -2429,6 +2429,7 @@ namespace VitalSigns.API.Controllers
                 serversRepository = new Repository<Server>(ConnectionString);
                 var result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Notes Database").Select(x => new NotesDatabaseModel
                 {
+                    Id = x.Id,
                     DeviceName = x.DeviceName,
                     Enabled = x.IsEnabled,
                     ScanInterval = x.ScanInterval,
@@ -2453,6 +2454,60 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpPut("save_notes_databases")]
+        public APIResponse UpdateNotesDatabase([FromBody]NotesDatabaseModel notesDatabase)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+
+
+
+                if (string.IsNullOrEmpty(notesDatabase.Id))
+                {
+                    Server notesDatabases = new Server
+                    {
+                        DeviceName = notesDatabase.DeviceName,
+                        DominoServerName = notesDatabase.DominoServerName,
+                        DatabaseFileName = notesDatabase.DatabaseFileName,
+                        DeviceType = "Notes Database", 
+                        TriggerType = notesDatabase.TriggerType,
+                        ScanInterval = notesDatabase.ScanInterval,
+                        OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
+                        Category = notesDatabase.Category,
+                        IsEnabled = notesDatabase.Enabled,
+                        RetryInterval = notesDatabase.RetryInterval
+                    };
+
+
+                    string id = serversRepository.Insert(notesDatabases);
+                    Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == notesDatabase.Id);
+                    var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, notesDatabase.DeviceName)
+                                                             .Set(p => p.DominoServerName, notesDatabase.DominoServerName)
+                                                             .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
+                                                             .Set(p => p.TriggerType, notesDatabase.TriggerType)
+                                                             .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
+                                                             .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
+                                                             .Set(p => p.Category, notesDatabase.Category)
+                                                             .Set(p => p.IsEnabled, notesDatabase.Enabled)
+                                                             .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
+
+                    var result = serversRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Notes Database falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
 
         #endregion
     }
