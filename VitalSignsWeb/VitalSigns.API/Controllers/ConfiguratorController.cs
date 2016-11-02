@@ -2509,6 +2509,23 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        [HttpDelete("delete_notes_database/{Id}")]
+        public void DeleteNotesDatabase(string Id)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
+                serversRepository.Delete(expression);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
+            }
+        }
+
         #endregion
     }
 }
