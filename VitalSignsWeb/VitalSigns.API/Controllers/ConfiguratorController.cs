@@ -2400,6 +2400,7 @@ namespace VitalSigns.API.Controllers
 
             });
         }
+
         #region Notes Database Replicas
         [HttpGet("get_domino_servers")]
         public APIResponse GetDominoServerNames()
@@ -2451,110 +2452,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpGet("get_notes_databases")]
-        public APIResponse GetAllNotesDatabases()
-        {
-            try
-            {
-                serversRepository = new Repository<Server>(ConnectionString);
-                var result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Notes Database").Select(x => new NotesDatabaseModel
-                {
-                    Id = x.Id,
-                    DeviceName = x.DeviceName,
-                    IsEnabled = x.IsEnabled,
-                    ScanInterval = x.ScanInterval,
-                    OffHoursScanInterval = x.OffHoursScanInterval,
-                    RetryInterval = x.RetryInterval,
-                    DominoServerName = x.DominoServerName,
-                    DatabaseFileName = x.DatabaseFileName,
-                    TriggerType = x.TriggerType,
-                    Category = x.Category
-
-
-                }).ToList().OrderBy(x => x.DeviceName);
-
-
-                Response = Common.CreateResponse(result);
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
-
-        [HttpPut("save_notes_databases")]
-        public APIResponse UpdateNotesDatabase([FromBody]NotesDatabaseModel notesDatabase)
-        {
-            try
-            {
-                serversRepository = new Repository<Server>(ConnectionString);
-
-
-
-                if (string.IsNullOrEmpty(notesDatabase.Id))
-                {
-                    Server notesDatabases = new Server
-                    {
-                        DeviceName = notesDatabase.DeviceName,
-                        DominoServerName = notesDatabase.DominoServerName,
-                        DatabaseFileName = notesDatabase.DatabaseFileName,
-                        DeviceType = "Notes Database", 
-                        TriggerType = notesDatabase.TriggerType,
-                        ScanInterval = notesDatabase.ScanInterval,
-                        OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
-                        Category = notesDatabase.Category,
-                        IsEnabled = notesDatabase.IsEnabled,
-                        RetryInterval = notesDatabase.RetryInterval
-                    };
-
-
-                    string id = serversRepository.Insert(notesDatabases);
-                    Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
-                }
-                else
-                {
-                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == notesDatabase.Id);
-                    var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, notesDatabase.DeviceName)
-                                                             .Set(p => p.DominoServerName, notesDatabase.DominoServerName)
-                                                             .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
-                                                             .Set(p => p.TriggerType, notesDatabase.TriggerType)
-                                                             .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
-                                                             .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
-                                                             .Set(p => p.Category, notesDatabase.Category)
-                                                             .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
-                                                             .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
-
-                    var result = serversRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
-                }
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Notes Database falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-
-        }
-
-        [HttpDelete("delete_notes_database/{Id}")]
-        public void DeleteNotesDatabase(string Id)
-        {
-            try
-            {
-                serversRepository = new Repository<Server>(ConnectionString);
-                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
-                serversRepository.Delete(expression);
-
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
-            }
-        }
+       
         [HttpPut("save_notes_database_replica")]
         public APIResponse UpdateNotesDatabaseReplica([FromBody]NotesDatabaseReplicaModel notesDatabaseReplica)
         {
@@ -2626,6 +2524,191 @@ namespace VitalSigns.API.Controllers
             {
                 Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
             }
+        }
+
+        #endregion
+
+        #region Notes Databases
+
+        [HttpGet("get_notes_databases")]
+        public APIResponse GetAllNotesDatabases()
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Notes Database").Select(x => new NotesDatabaseModel
+                {
+                    Id = x.Id,
+                    DeviceName = x.DeviceName,
+                    IsEnabled = x.IsEnabled,
+                    ScanInterval = x.ScanInterval,
+                    OffHoursScanInterval = x.OffHoursScanInterval,
+                    RetryInterval = x.RetryInterval,
+                    DominoServerName = x.DominoServerName,
+                    DatabaseFileName = x.DatabaseFileName,
+                    TriggerType = x.TriggerType,
+                    Category = x.Category
+
+
+                }).ToList().OrderBy(x => x.DeviceName);
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_notes_databases")]
+        public APIResponse UpdateNotesDatabase([FromBody]NotesDatabaseModel notesDatabase)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+
+
+
+                if (string.IsNullOrEmpty(notesDatabase.Id))
+                {
+                    Server notesDatabases = new Server
+                    {
+                        DeviceName = notesDatabase.DeviceName,
+                        DominoServerName = notesDatabase.DominoServerName,
+                        DatabaseFileName = notesDatabase.DatabaseFileName,
+                        DeviceType = "Notes Database",
+                        TriggerType = notesDatabase.TriggerType,
+                        ScanInterval = notesDatabase.ScanInterval,
+                        OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
+                        Category = notesDatabase.Category,
+                        IsEnabled = notesDatabase.IsEnabled,
+                        RetryInterval = notesDatabase.RetryInterval
+                    };
+
+
+                    string id = serversRepository.Insert(notesDatabases);
+                    Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == notesDatabase.Id);
+                    var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, notesDatabase.DeviceName)
+                                                             .Set(p => p.DominoServerName, notesDatabase.DominoServerName)
+                                                             .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
+                                                             .Set(p => p.TriggerType, notesDatabase.TriggerType)
+                                                             .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
+                                                             .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
+                                                             .Set(p => p.Category, notesDatabase.Category)
+                                                             .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
+                                                             .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
+
+                    var result = serversRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Notes Database falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpDelete("delete_notes_database/{Id}")]
+        public void DeleteNotesDatabase(string Id)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
+                serversRepository.Delete(expression);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
+            }
+        }
+
+
+        #endregion
+
+        #region IBM Domino Server Tasks
+
+        [HttpGet("get_server_task_definiton")]
+        public APIResponse GetServerTask()
+        {
+            try
+            {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                var result = dominoservertasksRepository.All().Select(x => new ServerTaskDefinitionModel
+                {
+                    Id = x.Id,
+                    TaskName = x.TaskName,
+                    LoadString = x.LoadString,
+                    ConsoleString = x.ConsoleString,
+                    FreezeDetect = x.FreezeDetect,
+                    IdleString = x.IdleString,
+                    MaxBusyTime = x.MaxBusyTime,
+                    RetryCount = x.RetryCount
+
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get domino server task falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_server_task_definition")]
+        public APIResponse UpdateServerTaskDefinition([FromBody]ServerTaskDefinitionModel servertask)
+        {
+            try
+            {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                if (string.IsNullOrEmpty(servertask.Id))
+                {
+                    DominoServerTasks servertaskDef = new DominoServerTasks { TaskName = servertask.TaskName, LoadString = servertask.LoadString, ConsoleString = servertask.ConsoleString, FreezeDetect = servertask.FreezeDetect, IdleString = servertask.IdleString, MaxBusyTime = servertask.MaxBusyTime, RetryCount = servertask.RetryCount };
+                    dominoservertasksRepository.Insert(servertaskDef);
+                    Response = Common.CreateResponse(true, "OK", "Maintain Users inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<DominoServerTasks> filterDefination = Builders<DominoServerTasks>.Filter.Where(p => p.Id == servertask.Id);
+                    var updateDefination = dominoservertasksRepository.Updater.Set(p => p.TaskName, servertask.TaskName)
+                                                             .Set(p => p.LoadString, servertask.LoadString)
+                                                             .Set(p => p.ConsoleString, servertask.ConsoleString)
+                                                             .Set(p => p.FreezeDetect, servertask.FreezeDetect)
+                                                             .Set(p => p.IdleString, servertask.IdleString)
+                                                             .Set(p => p.MaxBusyTime, servertask.MaxBusyTime)
+                                                             .Set(p => p.RetryCount, servertask.RetryCount);
+
+                    var result = dominoservertasksRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Domino server task definition updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Domino Server Task falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+        [HttpDelete("delete_server_task_definition/{id}")]
+        public void DeleteServerTaskDefinition(string id)
+        {
+            dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+            Expression<Func<DominoServerTasks, bool>> expression = (p => p.Id == id);
+            dominoservertasksRepository.Delete(expression);
         }
 
         #endregion
