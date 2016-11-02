@@ -41,7 +41,11 @@ import { ProfilesForm } from './profiles/components/profiles-form.component';
 
 import { ReportsBrowser } from './reports/components/reports-browser.component';
 import { NoSelectedReport } from './reports/components/no-selected-report.component';
-import {SampleReport} from './reports/components/sample-report.component';
+import { SampleReport } from './reports/components/sample-report.component';
+import { DiskHealthReport } from './reports/components/disk-health.component';
+import { MailFileStatisticsReport } from './reports/components/mail-file-statistics.component';
+import { DiskAvailabilityTrendReport } from './reports/components/disk-availability-trend.component';
+import { ServerUtilizationReport } from './reports/components/server-utilization.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -203,6 +207,22 @@ const appRoutes: Routes = [
             {
                 path: 'sample',
                 component: SampleReport
+            },
+            {
+                path: 'diskhealth',
+                component: DiskHealthReport
+            },
+            {
+                path: 'mailfilestats',
+                component: MailFileStatisticsReport
+            },
+            {
+                path: 'diskavailabilitytrend',
+                component: DiskAvailabilityTrendReport
+            },
+            {
+                path: 'serverutilization',
+                component: ServerUtilizationReport
             }
         ]
     },

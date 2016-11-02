@@ -40,6 +40,10 @@ import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/d
 import {ReportsBrowser} from './reports/components/reports-browser.component';
 import {NoSelectedReport} from './reports/components/no-selected-report.component';
 import {SampleReport} from './reports/components/sample-report.component';
+import {DiskHealthReport} from './reports/components/disk-health.component';
+import {MailFileStatisticsReport} from './reports/components/mail-file-statistics.component';
+import {DiskAvailabilityTrendReport} from './reports/components/disk-availability-trend.component';
+import {ServerUtilizationReport} from './reports/components/server-utilization.component';
 
 @NgModule({
     imports: [
@@ -70,6 +74,10 @@ import {SampleReport} from './reports/components/sample-report.component';
         ReportsBrowser,
         NoSelectedReport,
         SampleReport,
+        DiskHealthReport,
+        MailFileStatisticsReport,
+        DiskAvailabilityTrendReport,
+        ServerUtilizationReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -119,6 +127,7 @@ import {SampleReport} from './reports/components/sample-report.component';
         widgets.MobileUsers,
         widgets.MobileUsersGrid,
         widgets.MobileUsersKeyUserGrid,
+        widgets.MailFileStatisticsList,
         widgets.NotYetImplemented,
         widgets.OnPremisesApps,
         widgets.UserSessions,
@@ -215,6 +224,7 @@ import {SampleReport} from './reports/components/sample-report.component';
         widgets.MobileUsers,
         widgets.MobileUsersGrid,
         widgets.MobileUsersKeyUserGrid,
+        widgets.MailFileStatisticsList,
         widgets.NotYetImplemented,
         widgets.OnPremisesApps,
         widgets.UserSessions,

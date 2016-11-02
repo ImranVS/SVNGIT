@@ -9,13 +9,13 @@ declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/sample-report.component.html',
+    templateUrl: '/app/reports/components/server-utilization.component.html',
     providers: [
         WidgetService,
         RESTService
     ]
 })
-export class SampleReport extends WidgetController {
+export class ServerUtilizationReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
@@ -35,16 +35,16 @@ export class SampleReport extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'mobileDevicesChart',
-                title: 'Mobile devices',
+                id: 'serverUtilChart',
+                title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: '/DashBoard/mobile_user_devices/count_by_type',
+                    url: `/reports/server_utilization?statName=Server.Users`,
                     chart: {
                         chart: {
-                            renderTo: 'mobileDevicesChart',
-                            type: 'pie',
-                            height: 300
+                            renderTo: 'serverUtilChart',
+                            type: 'bar',
+                            height: 540
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -56,7 +56,20 @@ export class SampleReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Percent'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
                             }
                         },
                         legend: {
@@ -71,50 +84,6 @@ export class SampleReport extends WidgetController {
                         series: []
                     }
                 }
-            },
-            {
-                id: 'mobileDevicesOSChart',
-                title: 'Mobile devices OS for all Servers',
-                name: 'ChartComponent',
-                settings: {
-                    url: '/DashBoard/mobile_user_devices/count_by_os',
-                    chart: {
-                        chart: {
-                            renderTo: 'mobileDevicesOSChart',
-                            type: 'pie',
-                            height: 300
-                        },
-                        title: { text: '' },
-                        subtitle: { text: '' },
-                        xAxis: {
-                            categories: []
-                        },
-                        yAxis: {
-                            min: 0,
-                            endOnTick: false,
-                            allowDecimals: false,
-                            title: {
-                                enabled: false
-                            }
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        },
-                        series: []
-                    }
-                }
-            },
-            {
-                id: 'mobileUsersTable',
-                title: 'Mobile users',
-                name: 'MobileUsers',
-                settings: {}
             }
         ];
         injectSVG();

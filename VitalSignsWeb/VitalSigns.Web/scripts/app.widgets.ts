@@ -23,6 +23,8 @@ export * from './widgets/main-dashboard/components/on-premises-apps.component';
 export * from './widgets/main-dashboard/components/status-summary.component';
 export * from './widgets/main-dashboard/components/user-sessions.component';
 export * from './widgets/mobile-users/components/mobile-users-list.component';
+export * from './widgets/reports/components/mail-file-statistics-list.component';
+
 export * from './widgets/sample/sample-widget.component';
 export * from './configurator/components/applicationSettings/application-settings-businesshours.component';
 export * from './configurator/components/applicationSettings/application-settings-servercredentials.component'

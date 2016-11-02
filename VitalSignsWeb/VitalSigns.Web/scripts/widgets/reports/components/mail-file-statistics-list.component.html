@@ -1,0 +1,18 @@
+﻿<table class="table table-condensed small table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>File Name</th>
+            <th align="right">File Size</th>
+            <th>File Server</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="mailFileStats">
+        <tr *ngFor="let mailFileStat of mailFileStats">
+            <td>{{mailFileStat.title}}</td>
+            <td>{{mailFileStat.file_name}}</td>
+            <td align="right">{{mailFileStat.file_size}}</td>
+            <td>{{mailFileStat.device_name}}</td>
+        </tr>
+    </tbody>
+</table>
