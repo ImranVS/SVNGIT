@@ -17,7 +17,6 @@ using RPRWyatt.VitalSigns.Services;
 using System.Linq.Expressions;
 using MongoDB.Driver;
 using LogUtilities;
-using System.Data;
 using System.ServiceProcess;
 
 
