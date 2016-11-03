@@ -80,16 +80,25 @@ data.pageIndex + 1 | number
                                     <input type="text" class="form-control" id="device_name" required name="device_name" [(ngModel)]="currentEditItem.device_name">
                                 </div>
                             </div>
-                            <div class="form-group col-sm-6">
-                                <div class="control-label col-sm-5">
+                            <div class="form-group col-sm-1">
+                                <div class="control-label col-sm-3">
                                     <button class="btn btn-primary" type="submit" name="submit">Browse</button>
                                 </div>
-                                <label for="is_enabled" class="control-label col-sm-5">Enable for scanning</label>
-                                <div class="col-sm-2">
-                                    <input type="checkbox" class="checkbox-inline" id="is_enabled" [(ngModel)]="currentEditItem.is_enabled" name="is_enabled">
-                                </div>
+                               
                             </div>
-                        </div>
+                            <div class="form-group col-sm-5">
+                                <div class="form-inline col-sm-6">
+                                    <div class="checkbox-inline">
+                                        <input type="checkbox" class="form-control" name="is_enabled" [(ngModel)]="currentEditItem.is_enabled">
+                                        <label for="is_enabled" class="control-label col-sm-12">Enabled for scanning</label>
+                                    </div>
+
+
+                                </div>
+                                </div>
+                             
+                              
+                            </div>
                         <div class="row">
                             <div class="form-group col-sm-6">
                                 <label for="status" class="control-label col-sm-5">Domino Server</label>
