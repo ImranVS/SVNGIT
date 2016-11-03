@@ -47,6 +47,11 @@ import {ServerUtilizationReport} from './reports/components/server-utilization.c
 import {AnyStatisticReport} from './reports/components/servers/any-statistic-report.component';
 import {AverageResponseTimeReport} from './reports/components/servers/average-response-time-report.component';
 import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
+import {ConsoleCommands} from './reports/components/consoleCommands-report.component';
+import {AvgCPUUtil} from './reports/components/domino/avg-cpu-util.component';
+import {DailyServerTrans} from './reports/components/domino/daily-server-trans.component';
+import {ClusterSecQueue} from './reports/components/domino/cluster-sec-queue.component';
+import {DominoResponseTimes} from './reports/components/domino/domino-response-times.component';
 
 @NgModule({
     imports: [
@@ -84,6 +89,11 @@ import {ResponseTimeReport} from './reports/components/servers/response-time-rep
         AnyStatisticReport,
         AverageResponseTimeReport,
         ResponseTimeReport,
+        ConsoleCommands,
+        AvgCPUUtil,
+        DailyServerTrans,
+        ClusterSecQueue,
+        DominoResponseTimes,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -132,6 +142,7 @@ import {ResponseTimeReport} from './reports/components/servers/response-time-rep
         widgets.HardwareStatisticsGrid,
         widgets.DiskHealthGrid,
         widgets.MobileUsers,
+        widgets.ConsoleCommands,
         widgets.MobileUsersGrid,
         widgets.MobileUsersKeyUserGrid,
         widgets.MailFileStatisticsList,
@@ -233,6 +244,7 @@ import {ResponseTimeReport} from './reports/components/servers/response-time-rep
         widgets.HardwareStatisticsGrid,
         widgets.DiskHealthGrid,
         widgets.MobileUsers,
+        widgets.ConsoleCommands,
         widgets.MobileUsersGrid,
         widgets.MobileUsersKeyUserGrid,
         widgets.MailFileStatisticsList,

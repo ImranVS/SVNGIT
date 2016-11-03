@@ -49,6 +49,11 @@ import { ServerUtilizationReport } from './reports/components/server-utilization
 import { AnyStatisticReport } from './reports/components/servers/any-statistic-report.component';
 import {AverageResponseTimeReport} from './reports/components/servers/average-response-time-report.component';
 import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
+import {ConsoleCommands} from './reports/components/consoleCommands-report.component';
+import {AvgCPUUtil} from './reports/components/domino/avg-cpu-util.component';
+import {DailyServerTrans} from './reports/components/domino/daily-server-trans.component';
+import {ClusterSecQueue} from './reports/components/domino/cluster-sec-queue.component';
+import {DominoResponseTimes} from './reports/components/domino/domino-response-times.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -241,7 +246,28 @@ const appRoutes: Routes = [
             {
                 path: 'responsetime',
                 component: ResponseTimeReport
+            },
+            {
+                path: 'consoleCommand',
+                component: ConsoleCommands
+            },
+            {
+                path: 'avgCPUUtil',
+                component: AvgCPUUtil
+            },
+            {
+                path: 'dailyServerTrans',
+                component: DailyServerTrans
+            },
+            {
+                path: 'clusterSecQueue',
+                component: ClusterSecQueue
+            },
+            {
+                path: 'dominoResponseTimes',
+                component: DominoResponseTimes
             }
+
         ]
     },
     {
