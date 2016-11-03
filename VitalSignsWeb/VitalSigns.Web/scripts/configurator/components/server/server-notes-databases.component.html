@@ -1,12 +1,12 @@
 ﻿<div class="container">
-
+    <h3>Notes Databases</h3>
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
     <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Enable'" [binding]="'is_enabled'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Scaninterval'" [binding]="'scan_interval'" [width]="250"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Off-HoursScaninterval'" [binding]="'off_hours_scan_interval'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Scan Interval'" [binding]="'scan_interval'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Off-Hours Scaninterval'" [binding]="'off_hours_scan_interval'" [width]="150"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Threshold'" [binding]="'threshold'" [width]="150"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Server Name	'" [binding]="'domino_server_name'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="200"></wj-flex-grid-column>
@@ -85,14 +85,16 @@ data.pageIndex + 1 | number
                                 </div>
                             </div>
 
-                            <div>
-                                <button class="btn btn-primary" type="submit" name="submit" >Browse</button>
-                            </div>
+                            
                             <div class="form-group col-sm-6">
+                                <div class="control-label col-sm-5">
+                                    <button class="btn btn-primary"  type="submit" name="submit">Browse</button>
+                                </div>
                                 <label for="is_enabled" class="control-label col-sm-5">Enable for scanning</label>
-                                <div class="col-sm-7">
+                                <div class="col-sm-2">
                                     <input type="checkbox" class="checkbox-inline" id="is_enabled" [(ngModel)]="currentEditItem.is_enabled" name="is_enabled">
                                 </div>
+                               
                             </div>
 
                         </div>
@@ -125,6 +127,48 @@ data.pageIndex + 1 | number
                 
         </div>
 
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Scan Settings</div>
+
+
+                    <div class="panel-body" *ngIf="currentEditItem">
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="scan_interval" required name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="row">
+
+                            <div class="form-group col-sm-6">
+                                <label for="retry_interval" class="control-label col-sm-5">Retry Interval</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="retry_interval" required name="retry_interval" [(ngModel)]="currentEditItem.retry_interval">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="off_hours_scan_interval" class="control-label col-sm-5">OffHours Scan Interval</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval">
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
         <div class="panel panel-default">
             <div class="panel-heading">Type</div>
 
@@ -151,14 +195,17 @@ data.pageIndex + 1 | number
                     </div>
                 </div>
 
-                <!--<div class="row">
+                <div class="row">
                     <div class="form-group col-sm-6">
                         <div>
+                            <label for="trigger_type" class="control-label col-sm-5">Trigger Value</label>
+                        </div>
+                        <div class="col-sm-7">
                             <input type="text" class="form-control" id="trigger_value" required name="trigger_value" [(ngModel)]="currentEditItem.trigger_value">
                         </div>
                     </div>
 
-            </div>-->
+            </div>
 </div>
         
 </div>
