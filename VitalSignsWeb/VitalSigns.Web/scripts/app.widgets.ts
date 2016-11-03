@@ -69,4 +69,7 @@ export * from './configurator/components/server/server-domino-server-tasks.compo
 export * from './configurator/components/alert/alerts-allalert-history.component'
 export *from './configurator/components/alert/alert-settings.component'
 
+//Ibm domino
+export * from './configurator/components/ibmDomino/Ibm-servertask-definition.component'
+
 

@@ -51,6 +51,7 @@ import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
 import { ServerSettings } from './configurator/components/serverSettings/server-settings-tabs.component';
 import { Alerts } from './configurator/components/alert/alert-tabs-component';
+import { IBMDomino } from './configurator/components/ibmDomino/ibmdomino-tabs-component';
 
 export * from './dashboards/components/overall-dashboard.component';
 
@@ -91,6 +92,8 @@ export * from './not-yet-implemented.component';
 export * from './configurator/components/applicationSettings/application-settings-tabs.component';
 export * from './configurator/components/serverSettings/server-settings-tabs.component';
 export *from './configurator/components/alert/alert-tabs-component';
+export * from './configurator/components/ibmDomino/ibmdomino-tabs-component';
+
 const appRoutes: Routes = [
     {
         path: '',
@@ -257,6 +260,10 @@ const appRoutes: Routes = [
     {
         path: 'sitemaps/:sitemap',
         component: SiteMapEditor
+    },
+    {
+        path: 'configurator/ibmDomino',
+        component: IBMDomino
     }
 ];
 
