@@ -46,6 +46,9 @@ import { DiskHealthReport } from './reports/components/disk-health.component';
 import { MailFileStatisticsReport } from './reports/components/mail-file-statistics.component';
 import { DiskAvailabilityTrendReport } from './reports/components/disk-availability-trend.component';
 import { ServerUtilizationReport } from './reports/components/server-utilization.component';
+import { AnyStatisticReport } from './reports/components/servers/any-statistic-report.component';
+import {AverageResponseTimeReport} from './reports/components/servers/average-response-time-report.component';
+import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -226,6 +229,18 @@ const appRoutes: Routes = [
             {
                 path: 'serverutilization',
                 component: ServerUtilizationReport
+            },
+            {
+                path: 'anystatistic',
+                component: AnyStatisticReport
+            },
+            {
+                path: 'averageresponsetime',
+                component: AverageResponseTimeReport
+            },
+            {
+                path: 'responsetime',
+                component: ResponseTimeReport
             }
         ]
     },

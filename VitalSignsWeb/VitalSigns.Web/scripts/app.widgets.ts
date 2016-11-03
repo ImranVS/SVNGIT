@@ -74,4 +74,5 @@ export * from './configurator/components/ibmDomino/Ibm-servertask-definition.com
 export * from './configurator/components/ibmDomino/Ibm-notes-database-replicas.component'
 export * from './configurator/components/ibmDomino/Ibm-notes-databases.component'
 
-
+//reports
+export * from './reports/components/servers/any-statistic-report-grid.component'

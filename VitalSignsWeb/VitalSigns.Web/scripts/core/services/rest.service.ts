@@ -7,7 +7,7 @@ export class RESTService {
 
   // serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
    // serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
-    //serverUrl ='http://dev2.vsplus.jnitinc.com:5000';
+    //serverUrl ='http://dev11.vsplus.jnitinc.com:5000';
     //serverUrl = 'http://localhost:1234';
     serverUrl = 'http://localhost:5000';
     constructor(protected http: Http) { }

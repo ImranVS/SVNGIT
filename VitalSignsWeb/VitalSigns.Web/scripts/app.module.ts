@@ -44,6 +44,9 @@ import {DiskHealthReport} from './reports/components/disk-health.component';
 import {MailFileStatisticsReport} from './reports/components/mail-file-statistics.component';
 import {DiskAvailabilityTrendReport} from './reports/components/disk-availability-trend.component';
 import {ServerUtilizationReport} from './reports/components/server-utilization.component';
+import {AnyStatisticReport} from './reports/components/servers/any-statistic-report.component';
+import {AverageResponseTimeReport} from './reports/components/servers/average-response-time-report.component';
+import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
 
 @NgModule({
     imports: [
@@ -78,6 +81,9 @@ import {ServerUtilizationReport} from './reports/components/server-utilization.c
         MailFileStatisticsReport,
         DiskAvailabilityTrendReport,
         ServerUtilizationReport,
+        AnyStatisticReport,
+        AverageResponseTimeReport,
+        ResponseTimeReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -168,6 +174,7 @@ import {ServerUtilizationReport} from './reports/components/server-utilization.c
         widgets.MaintenanceWindows,
         widgets.DominoServerDiskSettings,
         widgets.ServerAdvancedSettings,
+        widgets.AnyStatisticReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -268,7 +275,7 @@ import {ServerUtilizationReport} from './reports/components/server-utilization.c
         widgets.MaintenanceWindows,
         widgets.DominoServerDiskSettings,
         widgets.ServerAdvancedSettings,
-
+        widgets.AnyStatisticReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
