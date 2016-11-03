@@ -11,8 +11,6 @@ namespace VitalSigns.API.Models
         [JsonProperty ("id")]
         public string ID { get; set; }
 
-       
-
         [JsonProperty("device_name")]
         public string DeviceName { get; set; }
 
@@ -21,9 +19,6 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("alert_type")]
         public string AlertType { get; set; }
-
-        [JsonProperty("location")]
-        public string Location { get; set; }
 
         [JsonProperty("event_detected_sent")]
         public DateTime? EventDetectedSent { get; set; }
@@ -36,13 +31,5 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("details")]
         public string Details { get; set; }
-
-    
-
-
-
-
-
-
     }
 }
