@@ -51,8 +51,8 @@ export class IBMDomino implements OnInit {
             },
             {
                 "title": "Notes Databases",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "NotesDatabases",
+                "path": "/app/configurator/components/ibmDomino/Ibm-notes-databases.component",
                 "active": false
             },
             {
