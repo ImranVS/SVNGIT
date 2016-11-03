@@ -26,35 +26,32 @@ export class AlertHistory implements OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
 
-    constructor(private service: RESTService,  private route: ActivatedRoute) { }
+    constructor(private service: RESTService, private route: ActivatedRoute) { }
 
     get pageSize(): number {
         return this.data.pageSize;
     }
-
     set pageSize(value: number) {
         if (this.data.pageSize != value) {
             this.data.pageSize = value;
             this.data.refresh();
         }
     }
-
     ngOnInit() {
 
-        //this.route.params.subscribe(params => {
-        //    this.deviceId = params['service'];
-
-        //});
-        //this.service.get(`/dashboard/database?device_id=${this.deviceId}&is_alpha=true`)
-        //    .subscribe(
-        //    (response) => {
-        //        this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-        //        this.data.pageSize = 10;
-        //    },
-        //    (error) => this.errorMessage = <any>error
-        //    );
+        this.route.params.subscribe(params => {
+            this.deviceId = params['service'];
+        });
+        this.service.get('/configurator/viewalerts')
+            .subscribe(
+            (response) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data.pageSize = 10;
+            },
+            (error) => this.errorMessage = <any>error
+            );
     }
 }
 
-    
+
 
