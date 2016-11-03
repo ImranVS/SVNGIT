@@ -2443,7 +2443,8 @@ namespace VitalSigns.API.Controllers
                     DominoServerAExcludeFolders=x.DominoServerAExcludeFolders,
                     DominoServerBExcludeFolders=x.DominoServerBExcludeFolders,
                     DominoServerCExcludeFolders=x.DominoServerCExcludeFolders,
-                    Id =x.Id
+                    Id =x.Id,
+                    DifferenceThreshold=x.DifferenceThreshold
                     
 
                 }).ToList().OrderBy(x => x.DeviceName);
@@ -2483,7 +2484,12 @@ namespace VitalSigns.API.Controllers
                         DominoServerCFileMask = notesDatabaseReplica.DominoServerCFileMask,
                         DominoServerCExcludeFolders = notesDatabaseReplica.DominoServerCExcludeFolders,
                         DifferenceThreshold = notesDatabaseReplica.DifferenceThreshold,
-                        DeviceType = "Notes Database Replica"
+                        DeviceType = "Notes Database Replica",
+                        DeviceName=notesDatabaseReplica.DeviceName,
+                        IsEnabled=notesDatabaseReplica.IsEnabled,
+                        Category=notesDatabaseReplica.Category,
+                        ScanInterval=notesDatabaseReplica.ScanInterval,
+                        OffHoursScanInterval=notesDatabaseReplica.OffHoursScanInterval
                     };
 
 
@@ -2502,6 +2508,12 @@ namespace VitalSigns.API.Controllers
                                                                .Set(p => p.DominoServerC, notesDatabaseReplica.DominoServerC)
                                                               .Set(p => p.DominoServerCFileMask, notesDatabaseReplica.DominoServerCFileMask)
                                                                .Set(p => p.DominoServerCExcludeFolders, notesDatabaseReplica.DominoServerCExcludeFolders)
+                                                                .Set(p => p.DeviceName, notesDatabaseReplica.DeviceName)
+                                                                .Set(p => p.IsEnabled, notesDatabaseReplica.IsEnabled)
+                                                                .Set(p => p.Category, notesDatabaseReplica.Category)
+                                                                .Set(p => p.ScanInterval, notesDatabaseReplica.ScanInterval)
+                                                                .Set(p => p.OffHoursScanInterval, notesDatabaseReplica.OffHoursScanInterval)
+                                                              .Set(p => p.DifferenceThreshold, notesDatabaseReplica.DifferenceThreshold)
                                                              ;
                     var result = serversRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
