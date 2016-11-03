@@ -54,6 +54,9 @@ import {AvgCPUUtil} from './reports/components/domino/avg-cpu-util.component';
 import {DailyServerTrans} from './reports/components/domino/daily-server-trans.component';
 import {ClusterSecQueue} from './reports/components/domino/cluster-sec-queue.component';
 import {DominoResponseTimes} from './reports/components/domino/domino-response-times.component';
+import { CostPerUserChartReport } from './reports/components/cost-per-user-chart.component';
+import { CostPerUserGridReport } from './reports/components/cost-per-user-grid.component';
+import { TravelerAllocatedMemoryReport } from './reports/components/traveler-allocated-memory.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -266,6 +269,18 @@ const appRoutes: Routes = [
             {
                 path: 'dominoResponseTimes',
                 component: DominoResponseTimes
+            },
+            {
+                path: 'costperuserchart',
+                component: CostPerUserChartReport
+            },
+            {
+                path: 'costperusergrid',
+                component: CostPerUserGridReport
+            },
+            {
+                path: 'travelermemory',
+                component: TravelerAllocatedMemoryReport
             }
 
         ]

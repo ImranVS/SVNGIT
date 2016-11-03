@@ -14,6 +14,8 @@ export * from './dashboards/components/key-metrics/overall-database-grid.compone
 export * from './dashboards/components/key-metrics/hardware-stats-grid.component';
 export * from './dashboards/components/key-metrics/disk-health-grid.component';
 
+export * from './reports/components/cost-per-user-pivot-grid.component';
+
 export * from './not-yet-implemented.component';
 export * from './widgets/charts/components/chart.component';
 export * from './widgets/grid/components/dynamic-grid.component';
