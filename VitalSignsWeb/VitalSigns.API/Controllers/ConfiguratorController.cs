@@ -2442,7 +2442,7 @@ namespace VitalSigns.API.Controllers
                     DominoServerCFileMask=x.DominoServerCFileMask,
                     DominoServerAExcludeFolders=x.DominoServerAExcludeFolders,
                     DominoServerBExcludeFolders=x.DominoServerBExcludeFolders,
-                    DominoServerCExcludeFolders=x.DominoServerCExcludeFolders
+                    DominoServerCExcludeFolders=x.DominoServerCExcludeFolders,
                     Id =x.Id
                     
 
