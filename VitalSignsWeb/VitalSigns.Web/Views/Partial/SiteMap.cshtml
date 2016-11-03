@@ -10,7 +10,7 @@
     @foreach (var l1Node in Model.Nodes)
     {
         <li>
-            <a [routerLink]="getUrlPath('@l1Node.Url')" [queryParams]="getUrlQueryParams('@l1Node.Url')" class="menuIcon">
+            <a [routerLink]="this.urlHelpers.getUrlPath('@l1Node.Url')" [queryParams]="this.urlHelpers.getUrlQueryParams('@l1Node.Url')" class="menuIcon">
                 <img class="svgInject" src="@l1Node.Icon" title="@l1Node.Title" alt="@l1Node.Title" />
                 <span class="zeusMenuTitle">@l1Node.Title</span>
             </a>
@@ -22,7 +22,7 @@
 
                     @foreach (var l2Node in l1Node.Nodes)
                     {
-                        <li><a [routerLink]="getUrlPath('@l2Node.Url')" [queryParams]="getUrlQueryParams('@l2Node.Url')">@l2Node.Title</a></li>
+                        <li><a [routerLink]="this.urlHelpers.getUrlPath('@l2Node.Url')" [queryParams]="this.urlHelpers.getUrlQueryParams('@l2Node.Url')">@l2Node.Title</a></li>
                     }
 
                 }
