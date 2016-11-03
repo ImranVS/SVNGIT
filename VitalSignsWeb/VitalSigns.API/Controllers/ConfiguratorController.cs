@@ -1838,8 +1838,8 @@ namespace VitalSigns.API.Controllers
                 var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
                             .Select(x => new AdvancedSettingsModel
                             {
-                                MemoryThreshold = Convert.ToInt32(x.MemoryThreshold),
-                                CpuThreshold = Convert.ToInt32(x.CpuThreshold),
+                                MemoryThreshold =x.MemoryThreshold,
+                                CpuThreshold = x.CpuThreshold,
                                 ServerDaysAlert = x.ServerDaysAlert,
                                 ClusterReplicationDelayThreshold = x.ClusterReplicationDelayThreshold,
                                 ProxyServerType = x.ProxyServerType,
