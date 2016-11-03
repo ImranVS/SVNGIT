@@ -49,11 +49,11 @@ import { ServerUtilizationReport } from './reports/components/server-utilization
 import { AnyStatisticReport } from './reports/components/servers/any-statistic-report.component';
 import {AverageResponseTimeReport} from './reports/components/servers/average-response-time-report.component';
 import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
-import {ConsoleCommands} from './reports/components/consoleCommands-report.component';
-import {AvgCPUUtil} from './reports/components/domino/avg-cpu-util.component';
-import {DailyServerTrans} from './reports/components/domino/daily-server-trans.component';
-import {ClusterSecQueue} from './reports/components/domino/cluster-sec-queue.component';
-import {DominoResponseTimes} from './reports/components/domino/domino-response-times.component';
+import {ConsoleCommands} from './reports/components/ibm-domino/console-commands-report.component';
+import {AvgCPUUtil} from './reports/components/ibm-domino/avg-cpu-util.component';
+import {DailyServerTrans} from './reports/components/ibm-domino/daily-server-trans.component';
+import {ClusterSecQueue} from './reports/components/ibm-domino/cluster-sec-queue.component';
+import {DominoResponseTimes} from './reports/components/ibm-domino/domino-response-times.component';
 import { CostPerUserChartReport } from './reports/components/cost-per-user-chart.component';
 import { CostPerUserGridReport } from './reports/components/cost-per-user-grid.component';
 import { TravelerAllocatedMemoryReport } from './reports/components/traveler-allocated-memory.component';
@@ -251,23 +251,23 @@ const appRoutes: Routes = [
                 component: ResponseTimeReport
             },
             {
-                path: 'consoleCommand',
+                path: 'consolecommand',
                 component: ConsoleCommands
             },
             {
-                path: 'avgCPUUtil',
+                path: 'avgcpuutil',
                 component: AvgCPUUtil
             },
             {
-                path: 'dailyServerTrans',
+                path: 'dailyservertrans',
                 component: DailyServerTrans
             },
             {
-                path: 'clusterSecQueue',
+                path: 'clustersecqueue',
                 component: ClusterSecQueue
             },
             {
-                path: 'dominoResponseTimes',
+                path: 'dominoresponsetimes',
                 component: DominoResponseTimes
             },
             {
