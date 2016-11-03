@@ -41,7 +41,7 @@ namespace VitalSigns.API.Models
         public string TriggerType { get; set; }
 
         [JsonProperty("trigger_value")]
-        public string TriggerValue { get; set; }
+        public int? TriggerValue { get; set; }
         
         [JsonProperty("initiate_replication")]
         public int InitiateReplication { get; set; }
