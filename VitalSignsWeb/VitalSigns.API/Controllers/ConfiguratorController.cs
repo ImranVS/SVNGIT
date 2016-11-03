@@ -2554,8 +2554,8 @@ namespace VitalSigns.API.Controllers
                     DominoServerName = x.DominoServerName,
                     DatabaseFileName = x.DatabaseFileName,
                     TriggerType = x.TriggerType,
-                    Category = x.Category
-
+                    Category = x.Category,
+                    TriggerValue = x.TriggerValue
 
                 }).ToList().OrderBy(x => x.DeviceName);
 
@@ -2592,7 +2592,8 @@ namespace VitalSigns.API.Controllers
                         OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
                         Category = notesDatabase.Category,
                         IsEnabled = notesDatabase.IsEnabled,
-                        RetryInterval = notesDatabase.RetryInterval
+                        RetryInterval = notesDatabase.RetryInterval,
+                        TriggerValue = notesDatabase.TriggerValue
                     };
 
 
@@ -2610,6 +2611,7 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
                                                              .Set(p => p.Category, notesDatabase.Category)
                                                              .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
+                                                              .Set(p => p.TriggerValue, notesDatabase.TriggerValue)
                                                              .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
 
                     var result = serversRepository.Update(filterDefination, updateDefination);
