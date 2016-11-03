@@ -8,7 +8,7 @@ namespace VitalSigns.API.Models
 {
     public class NotesDatabaseModel
     {
-        [JsonProperty("Id")]
+        [JsonProperty("id")]
         public string Id { get; set; }
 
         [JsonProperty("device_name")]
