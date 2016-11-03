@@ -21,6 +21,7 @@ namespace VitalSigns.API.Controllers
     [Route("[controller]")]
     public class DashBoardController : BaseController
     {
+        private IRepository<ConsoleCommands> consoleCommandsRepository;
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<DiskHealth> diskHealthRepository;
         private IRepository<StatusDetails> statusdetailsRepository;
@@ -143,6 +144,28 @@ namespace VitalSigns.API.Controllers
             chart.Series = series;
 
             return chart;
+        }
+
+       
+        [HttpGet("console_command_list")]
+        public APIResponse GetAllConsoleCommands()
+        {
+            consoleCommandsRepository = new Repository<ConsoleCommands>(ConnectionString);
+            List<ConsoleCommandList> result = null;
+            
+                result = consoleCommandsRepository.Collection
+                                 .AsQueryable()
+                                 .Select(x => new ConsoleCommandList
+                                 {
+                                     DeviceName = x.DeviceName,
+                                     Command = x.Command,
+                                     Submitter = x.Submitter,
+                                     Result = x.Result,
+                                     Comment = x.Comments
+                                 }).ToList();
+            
+            Response = Common.CreateResponse(result.OrderBy(x => x.DeviceName ));
+            return Response;
         }
 
         ///<Author>Kiran Dadireddy</Author>
