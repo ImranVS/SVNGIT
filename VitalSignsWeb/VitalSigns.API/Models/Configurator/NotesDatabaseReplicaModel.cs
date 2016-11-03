@@ -71,7 +71,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("off_hours_scan_interval")]
         public int? OffHoursScanInterval { get; set; }
 
-        [JsonProperty("_id")]
+        [JsonProperty("id")]
         public string Id { get; set; }
 
         [JsonProperty("device_type")]
