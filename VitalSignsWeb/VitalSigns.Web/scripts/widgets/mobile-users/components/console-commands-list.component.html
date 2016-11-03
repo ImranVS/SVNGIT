@@ -1,0 +1,20 @@
+﻿<table class="table table-condensed small table-striped">
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>Command</th>
+            <th>Submitter</th>
+            <th>Result</th>
+            <th>Comment</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="consoleCommands">
+        <tr *ngFor="let consoleCommand of consoleCommands">
+            <td>{{consoleCommand.server_name}}</td>
+            <td>{{consoleCommand.command}}</td>
+            <td>{{consoleCommand.submitter}}</td>
+            <td>{{consoleCommand.result}}</td>
+            <td>{{consoleCommand.comment}}</td>
+        </tr>
+    </tbody>
+</table>
