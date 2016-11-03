@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+﻿import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -19,14 +19,17 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         RESTService
     ]
 })
-export class MaintainUser extends GridBase {
+export class MaintainUser extends GridBase implements OnInit {
     constructor(service: RESTService) {
-        super(service, '/configurator/get_maintain_users');
+        super(service);
         this.formName = "Maintain Users";
 
     }
+    ngOnInit() {
+        this.initialGridBind('/configurator/get_maintain_users');
+    }
     saveMaintainUser(dlg: wijmo.input.Popup) {      
-        this.saveGridRow1('/configurator/save_maintain_users', dlg);
+        this.saveGridRow('/configurator/save_maintain_users', dlg);
     }
     delteMaintainUsers() {
         this.delteGridRow('/configurator/delete_maintain_users/');

@@ -4,7 +4,7 @@
 //import { CORE_DIRECTIVES } from '@angular/common';
 //import { DataSvc } from '../../services/DataSvc';
 
-import { Component, EventEmitter, Inject, ViewChild, Input, AfterViewInit, NgModule } from '@angular/core';
+import { Component, EventEmitter, Inject, ViewChild, Input, AfterViewInit, NgModule,OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {RESTService} from './services';
 
@@ -14,7 +14,7 @@ import {RESTService} from './services';
     templateUrl: ''
 })
 
-export abstract class GridBase  {
+export abstract class GridBase {
  
     protected service: RESTService;
     data: wijmo.collections.CollectionView;
@@ -24,15 +24,15 @@ export abstract class GridBase  {
     formTitle: string;
     modal = true;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
-    constructor(service: RESTService, dataURI: string) {   
-        this.service = service;    
+    constructor(service: RESTService) {   
+    }
+    initialGridBind(dataURI: string) {
         this.service.get(dataURI)
             .subscribe(
             response => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
                 this.data.pageSize = 10;
             }); 
-
     }
        
     get pageSize(): number {
@@ -47,7 +47,7 @@ export abstract class GridBase  {
         }
     }
    
-    saveGridRow1(saveUrl: any, dlg?: wijmo.input.Popup) {
+    saveGridRow(saveUrl: any, dlg?: wijmo.input.Popup) {
         if (this.currentEditItem.id == "") {
             this.service.put(saveUrl, this.currentEditItem)
                 .subscribe(
@@ -67,48 +67,21 @@ export abstract class GridBase  {
         }
         dlg.hide();
     }
-    saveGridRow(saveUrl: any) {
-        if (this.currentEditItem.id == "") {
-            this.service.put(saveUrl, this.currentEditItem)
-                .subscribe(
-                response => {
-                    this.currentEditItem.id = response.data;
-                }); //, this.getResponse);
-            (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew()
-        }
-        else {
-            this.flex.collectionView.currentItem = this.currentEditItem;
-            this.service.put(
-                saveUrl,//'/Configurator/save_business_hours',
-                this.currentEditItem);
-            (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
-        }
-       
-    }
-    addGridRow1(dlg: wijmo.input.Popup) {
+  
+    addGridRow(dlg: wijmo.input.Popup) {
         this.formTitle = "Add " + this.formName;
         this.currentEditItem = (<wijmo.collections.CollectionView>this.flex.collectionView).addNew()
         this.currentEditItem.id = "";
         this.showDialog(dlg);
     }
-    editGridRow1(dlg: wijmo.input.Popup) {
+    editGridRow(dlg: wijmo.input.Popup) {
         this.formTitle = "Edit " + this.formName;
         (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
         this.currentEditItem = this.flex.collectionView.currentItem;
         console.log(this.currentEditItem);        
         this.showDialog(dlg);
     }
-    addGridRow() {
-        this.formTitle = "Add " + this.formName;
-        this.currentEditItem = (<wijmo.collections.CollectionView>this.flex.collectionView).addNew()
-        this.currentEditItem.id = "";      
-    }
-    editGridRow() {
-        this.formTitle = "Edit " + this.formName;
-        (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
-        this.currentEditItem = this.flex.collectionView.currentItem;
-        console.log(this.currentEditItem);       
-    }
+   
 
 
     delteGridRow(deleteUrl) {

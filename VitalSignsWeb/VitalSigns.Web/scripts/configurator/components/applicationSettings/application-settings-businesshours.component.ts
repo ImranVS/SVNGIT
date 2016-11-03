@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit,Input} from '@angular/core';
+﻿import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -19,14 +19,17 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         RESTService
     ]
 })
-export class BusinessHours extends GridBase  {  
+export class BusinessHours extends GridBase implements OnInit {  
      selectedServers:string;
     constructor(service: RESTService) {
-        super(service, '/Configurator/get_business_hours');
+        super(service);
         this.formName = "Business Hours";
-    }   
+     }  
+    ngOnInit() {
+        this.initialGridBind('/Configurator/get_business_hours');
+    } 
     saveBusinessHour(dlg: wijmo.input.Popup) {        
-        this.saveGridRow1('/Configurator/save_business_hours',dlg);  
+        this.saveGridRow('/Configurator/save_business_hours',dlg);  
 
     }
     

@@ -30,7 +30,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
     currentForm: FormGroup;
     constructor(service: RESTService,
         private formBuilder: FormBuilder) {
-        super(service, '/Configurator/get_device_attributes');
+        super(service);
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
@@ -39,7 +39,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
 
         });
     }  
-     
+  
     changeInDevices(devices: string) {
         this.devices = devices;
        
@@ -47,6 +47,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
 
     ngOnInit()
     {
+        this.initialGridBind('/Configurator/get_device_attributes');
         this.service.get('/configurator/get_Device_type__list')
             .subscribe(
             (response) => {

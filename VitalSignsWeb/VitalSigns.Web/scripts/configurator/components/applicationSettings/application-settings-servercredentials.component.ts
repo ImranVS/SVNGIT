@@ -1,14 +1,6 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
-
+﻿import {Component, OnInit } from '@angular/core';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
-import {AppNavigator} from '../../../navigation/app.navigator.component';
-import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
-import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
-import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
-import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 import {GridBase} from '../../../core/gridBase';
 
 @Component({
@@ -18,21 +10,16 @@ import {GridBase} from '../../../core/gridBase';
         RESTService
     ]
 })
-export class ServerCredentials extends GridBase {  
-    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
-    data: wijmo.collections.CollectionView;
+export class ServerCredentials extends GridBase implements OnInit {  
     errorMessage: string;
-    selectedDeviceType: string;
-    //Columns in grid
-  
+    selectedDeviceType: string;  
     ServerCredentialId: string;
     deviceTypes: any;
  
   
     constructor(service: RESTService) {
-        super(service, '/Configurator/get_credentials');
+        super(service);
         this.formName = "Server Credentials";
-
         this.service.get('/services/server_list_selectlist_data')
             .subscribe(
             (response) => {
@@ -47,15 +34,14 @@ export class ServerCredentials extends GridBase {
       
     } 
   
+    ngOnInit() {
+        this.initialGridBind('/Configurator/get_credentials');
 
-    saveServerCredential(dlg: wijmo.input.Popup) {
-        this.saveGridRow1('/Configurator/save_credentials',dlg);
     }
-
-   
-
-   
-
+    saveServerCredential(dlg: wijmo.input.Popup) {
+        this.saveGridRow('/Configurator/save_credentials',dlg);
+    }
+    
     delteServerCredential() {
        
         this.delteGridRow('/Configurator/delete_credential/');  

@@ -1,16 +1,7 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
+﻿import {Component, OnInit} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-import {ActivatedRoute} from '@angular/router';
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
-import {AppNavigator} from '../../../navigation/app.navigator.component';
-import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
-import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
-import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
-import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 
 @Component({
@@ -28,12 +19,13 @@ export class Maintenance extends GridBase  {
     selectedSettingValue: any;
 
     constructor(service: RESTService) {
-        super(service, '/Configurator/get_maintenance');
+        super(service);
         this.formName = "Maintenance";
       
     } 
 
     ngOnInit() {
+        this.initialGridBind('/Configurator/get_maintenance');
 
         this.service.get('/Dashboard/mobile_user_devices')
             .subscribe(
@@ -48,7 +40,7 @@ export class Maintenance extends GridBase  {
 
     }
     saveMaintenance(dlg: wijmo.input.Popup) {
-        this.saveGridRow1('/Configurator/save_maintenancedata',dlg);  
+        this.saveGridRow('/Configurator/save_maintenancedata',dlg);  
     }
     deleteMaintenance() {      
         this.delteGridRow('/Configurator/delete_maintenancedata/');  

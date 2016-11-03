@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit, Input} from '@angular/core';
+﻿import {Component, OnInit, ViewChild,Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -21,7 +21,7 @@ import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
         RESTService
     ]
 })
-export class ServerTasks extends GridBase {
+export class ServerTasks extends GridBase implements OnInit {
     selectedServers: string;
     deviceId: any;
     data: wijmo.collections.CollectionView;
@@ -31,16 +31,15 @@ export class ServerTasks extends GridBase {
     selectedSettingValue: any;
     selectedName: string;
 
-    constructor(service: RESTService, private formBuilder: FormBuilder, private route: ActivatedRoute) {
-        super(service, '/Configurator/get_server_tasks_info/57ace45abf46711cd4681e15');
-
+    constructor(service: RESTService, private formBuilder: FormBuilder, private route: ActivatedRoute) {      
+        super(service);
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': ['']
            
 
 
-        });
+        });      
 
         this.service.get('/Configurator/get_tasks_names')
             .subscribe(
@@ -55,10 +54,10 @@ export class ServerTasks extends GridBase {
     }
 
     ngOnInit() {
-       
+        this.initialGridBind('/Configurator/get_server_tasks_info/57ace45abf46711cd4681e15');
     }
     addServerTask(frmDialog: wijmo.input.Popup) {
-        this.addGridRow1(frmDialog);
+        this.addGridRow(frmDialog);
         this.currentEditItem.device_id = "57ace45abf46711cd4681e15";
 
     }
@@ -67,7 +66,7 @@ export class ServerTasks extends GridBase {
         this.selectedSettingValue = this.selectedName;
        // alert(this.selectedSettingValue);
 
-        this.saveGridRow1('/configurator/save_server_tasks', dlg);
+        this.saveGridRow('/configurator/save_server_tasks', dlg);
     }
 
     buildPostData(setting: string, dlg) {
@@ -78,7 +77,7 @@ export class ServerTasks extends GridBase {
 
         console.log(postData);
         this.currentForm.setValue(postData);
-        //this.saveGridRow1('/configurator/save_server_tasks', postData, dlg)
+        //this.saveGridRow('/configurator/save_server_tasks', postData, dlg)
         this.service.put('/Configurator/save_domino_server_tasks', postData)
             .subscribe(
             response => {

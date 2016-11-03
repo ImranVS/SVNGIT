@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+﻿import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -19,14 +19,17 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         RESTService
     ]
 })
-export class TravelerDataStore extends GridBase {
+export class TravelerDataStore extends GridBase implements OnInit {
 
     constructor(service: RESTService) {
-        super(service, '/configurator/get_travelerdatastore');
+        super(service);
         this.formName = "Traveler Data Store";
     }
+    ngOnInit() {
+        this.initialGridBind('/configurator/get_travelerdatastore');
+    }
     saveTravelerDataStore(dlg: wijmo.input.Popup) {
-        this.saveGridRow1('/configurator/save_traveler_data_store', dlg);
+        this.saveGridRow('/configurator/save_traveler_data_store', dlg);
     }
     delteTravelerDataStore() {
         this.delteGridRow('/configurator/delete_traveler_data_store/');

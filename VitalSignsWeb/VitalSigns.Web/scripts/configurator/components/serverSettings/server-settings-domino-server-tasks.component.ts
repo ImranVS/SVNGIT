@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+﻿import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -20,12 +20,12 @@ import {DominoServerTasksValue} from '../../models/domino-server-tasks';
         RESTService
     ]
 })
-export class DominoServerTasks extends GridBase  {  
+export class DominoServerTasks extends GridBase implements OnInit  {  
     devices: string;
    
     currentForm: FormGroup;
     constructor(service: RESTService, private formBuilder: FormBuilder) {
-        super(service, '/Configurator/get_domino_server_tasks');
+        super(service);
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
@@ -34,7 +34,10 @@ export class DominoServerTasks extends GridBase  {
 
         });
         this.formName = "DominoServerTasks";
-    }   
+    }  
+    ngOnInit() {
+        this.initialGridBind('/Configurator/get_domino_server_tasks');
+    } 
     changeInDevices(devices: string) {
         this.devices = devices;
     }
