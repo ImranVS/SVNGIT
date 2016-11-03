@@ -26,10 +26,17 @@ namespace VSNext.Mongo.Entities
         [BsonElement("device_name")]
         public string DeviceName { get; set; }
 
+
+        [DataMember]
+        [BsonElement("stat_date")]
+        public DateTime? StatDate { get; set; }
+
+
         [DataMember]
         [BsonElement("device_type")]
         [BsonIgnoreIfNull]
         public string DeviceType { get; set; }
+
 
     }
 }
