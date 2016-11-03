@@ -205,5 +205,167 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+
+        [HttpGet("summarystats_aggregation")]
+        public APIResponse GetSummaryStatAggregation(string type, string statName, string aggregationType, string startDate = "", string endDate = "")
+        {
+
+            try
+            {
+
+                if (startDate == "")
+                    startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
+
+                if (endDate == "")
+                    endDate = DateTime.Today.ToString(DateFormat);
+
+                //1 day is added to the end so we include that days data
+                DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
+                DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
+
+                dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+                dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+
+                summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+
+                var filterDef = summaryRepository.Filter.Eq(x => x.DeviceType, type) &
+                    summaryRepository.Filter.Eq(x => x.StatName, statName) &
+                    summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
+
+                var results = summaryRepository.Find(filterDef).ToList();
+
+                double aggregatedValue = 0;
+                string aggregationDisplay = "";
+
+                switch (aggregationType.ToLower())
+                {
+                    case "sum":
+                        aggregatedValue = results.Sum(x => x.StatValue);
+                        aggregationDisplay = "Total";
+                        break;
+                    case "avg":
+                        aggregatedValue = results.Average(x => x.StatValue);
+                        aggregationDisplay = "Average";
+                        break;
+                    case "max":
+                        aggregatedValue = results.Max(x => x.StatValue);
+                        aggregationDisplay = "Max";
+                        break;
+                    case "min":
+                        aggregatedValue = results.Min(x => x.StatValue);
+                        aggregationDisplay = "Min";
+                        break;
+                    default:
+                        throw new Exception("No matching aggregation type.");
+                }
+
+                
+                var expandoObj = new ExpandoObject() as IDictionary<string, Object>;
+                if (results.Count > 0)
+                {
+                    expandoObj.Add("Device Name", results[0].DeviceName);
+                    foreach (var entity in results)
+                    {
+                        expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
+                    }
+                    expandoObj.Add(aggregationDisplay, aggregatedValue);
+                }
+
+                var list = new List<IDictionary<string,object>>();
+                list.Add(expandoObj);
+
+                Response = Common.CreateResponse(list);
+                return Response;
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+
+        }
+
+        [HttpGet("summarystats_chart")]
+        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "")
+        {
+            FilterDefinition<SummaryStatistics> filterDef = null;
+            if (startDate == "")
+                startDate = DateTime.Now.AddDays(-28).ToString(DateFormat);
+
+            if (endDate == "")
+                endDate = DateTime.Today.ToString(DateFormat);
+
+            //1 day is added to the end so we include that days data
+            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
+
+            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+            dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+
+            System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
+            summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+
+            List<String> listOfDevices;
+
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                listOfDevices = new List<string>();
+            }
+            else
+            {
+                listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+            }
+
+            try
+            {
+                filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd) &
+                    summaryRepository.Filter.Eq(p => p.StatName, statName);
+
+                if (listOfDevices.Count > 0)
+                {
+                    filterDef = filterDef & summaryRepository.Filter.In(p => p.DeviceId, listOfDevices);
+                }
+                var result = summaryRepository.Find(filterDef).OrderBy(p => p.CreatedOn).ToList();
+
+                List<Serie> series = new List<Serie>();
+
+                foreach (var currDeviceId in result.Select(x => x.DeviceId).Distinct())
+                {
+                    var currList = result.Where(x => x.DeviceId == currDeviceId).ToList();
+                    Serie serie = new Serie();
+                    serie.Segments = new List<Segment>();
+                    serie.Title = currList[0].DeviceName;
+
+                    for (DateTime date = dtStart.Date; date.Date < dtEnd.Date; date = date.AddDays(1))
+                    {
+                        var item = currList.Where(x => x.CreatedOn.Date == date.Date).ToList();
+
+                        serie.Segments.Add(new Segment() { Label = date.Date.ToString(DateFormat), Value = item.Count > 0 ? (double?) item[0].StatValue : null });
+                        
+                        series.Add(serie);
+                    }
+                }
+
+                Chart chart = new Chart();
+                chart.Title = statName;
+                chart.Series = series;
+                Response = Common.CreateResponse(chart);
+
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
     }
 }

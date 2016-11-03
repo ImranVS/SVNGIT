@@ -235,7 +235,7 @@ namespace VitalSigns.API.Controllers
                                                     Label = x.label,
                                                     Value = x.value
                                                 }).ToList();
-            List<double> deviceCount = result.Select(x => x.Value).Distinct().ToList();
+            List<double?> deviceCount = result.Select(x => x.Value).Distinct().ToList();
             List<Segment> segments = new List<Segment>();
             foreach (double value in deviceCount)
             {

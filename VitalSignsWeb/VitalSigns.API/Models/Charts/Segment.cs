@@ -18,7 +18,7 @@ namespace VitalSigns.API.Models.Charts
 
         [JsonProperty("value")]
         [BsonElement("value")]
-        public double Value { get; set; }
+        public double? Value { get; set; }
 
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
         [BsonElement("color")]
