@@ -852,7 +852,7 @@ namespace VitalSigns.API.Controllers
                 FilterDefinition<SummaryStatistics> filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
                     summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
 
-                if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName) || !string.IsNullOrEmpty(deviceId) && isChart == false)
+                if (!string.IsNullOrEmpty(statName) && isChart == false)
                 {
                     if (string.IsNullOrEmpty(deviceId))
                     {
@@ -904,12 +904,13 @@ namespace VitalSigns.API.Controllers
                     Response = Common.CreateResponse(result);
 
                 }
-                else if (!string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
+                else if (!string.IsNullOrEmpty(statName))
                 {
-                    filterDef = filterDef &
+                    if (!string.IsNullOrEmpty(deviceId))
+                    {
+                        filterDef = filterDef &
                         summaryRepository.Filter.Eq(p => p.DeviceId, deviceId);
-
-
+                    }
                     filterDefTemp = filterDef &
                         summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("*"))));
 
@@ -920,14 +921,16 @@ namespace VitalSigns.API.Controllers
                                        .GroupBy(row => new
                                        {
                                            row.CreatedOn.Date,
-                                           row.StatName
+                                           row.StatName,
+                                           row.DeviceName
 
                                        })
                                        .Select(row => new
                                        {
                                            Date = row.Key.Date,
                                            Value = Math.Round(row.Average(x => x.StatValue), 2),
-                                           StatName = row.Key.StatName
+                                           StatName = row.Key.StatName,
+                                           DeviceName = row.Key.DeviceName
 
                                        }).ToList();
 
@@ -941,13 +944,15 @@ namespace VitalSigns.API.Controllers
                             .GroupBy(row => new
                             {
                                 row.CreatedOn.Date,
-                                row.StatName
+                                row.StatName,
+                                row.DeviceName
                             })
                             .Select(row => new 
                             {
                                 Date = row.Key.Date,
                                 Value = Math.Round(row.Average(x => x.StatValue), 2),
-                                StatName = row.Key.StatName
+                                StatName = row.Key.StatName,
+                                DeviceName = row.Key.DeviceName
 
                             }).Take(500).ToList()
                         );
@@ -982,19 +987,20 @@ namespace VitalSigns.API.Controllers
 
                             List<Segment> segments = new List<Segment>();
                             Serie serie = new Serie();
-
+                            var devicename = result.Where(x => x.StatName == name.ToString()).ToList();
 
                             //WS changed to just less then end date due to the end date being the next day to include all of the previous day values.
                             for (DateTime date = dtStart.Date; date.Date < dtEnd.Date; date = date.AddDays(1))
                             {
                                 var item = result.Where(x => x.Date == date && x.StatName == name.ToString()).FirstOrDefault();
                                 var output = result.Where(x => x.Date == date && x.StatName == name.ToString()).ToList();
-
+                                
                                 string statdate = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
                                 if (item != null && statNames.Length == 1)
                                 {
                                     segments.Add(new Segment { Label = statdate.ToString(), Value = item.Value });
-                                    serie.Title = name.ToString();
+                                    //serie.Title = name.ToString();
+                                    serie.Title = devicename[0].DeviceName;
                                     serie.Segments = segments;
                                 }
                                 else if (item != null && output != null && statNames.Length > 1)
@@ -1002,20 +1008,19 @@ namespace VitalSigns.API.Controllers
                                     foreach (var statvalue in output)
                                     {
                                         segments.Add(new Segment { Label = statdate, Value = statvalue.Value });
-                                        serie.Title = name.ToString();
+                                        //serie.Title = name.ToString();
+                                        serie.Title = statvalue.DeviceName;
                                         serie.Segments = segments;
                                     }
                                 }
                                 else
                                 {
                                     segments.Add(new Segment { Label = statdate.ToString(), Value = 0 });
-                                    serie.Title = name.ToString();
+                                    //serie.Title = name.ToString();
+                                    serie.Title = devicename[0].DeviceName;
                                     serie.Segments = segments;
-
                                 }
-
-
-
+                                
                             }
                             series.Add(serie);
 

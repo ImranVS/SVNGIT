@@ -367,5 +367,147 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+
+        [HttpGet("cost_per_user")]
+        public APIResponse GetCostPerUser(string deviceId = "", string statName = "", bool isChart = true)
+        {
+            List<Server> serverlist = null;
+            List<dynamic> result = new List<dynamic>();
+            FilterDefinition<SummaryStatistics> filterDef = null;
+
+            string startDate = DateTime.Now.AddDays(-30).ToString(DateFormat);
+            DateTime dtStart = DateTime.Parse(startDate);
+            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+
+            summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+            Repository<Server> serverRepository = new Repository<Server>(ConnectionString);
+
+            try
+            {
+                if (string.IsNullOrEmpty(deviceId))
+                {
+                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart),
+                    summaryRepository.Filter.Ne(p => p.DeviceName, null),
+                    summaryRepository.Filter.Eq(p => p.StatName, statName));
+                }
+                else
+                {
+                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart),
+                    summaryRepository.Filter.Ne(p => p.DeviceName, null),
+                    summaryRepository.Filter.Eq(p => p.DeviceId, deviceId),
+                    summaryRepository.Filter.Eq(p => p.StatName, statName));
+                }
+
+                if (isChart)
+                {
+                    var summarylist = summaryRepository.Find(filterDef).OrderBy(p => p.CreatedOn).ToList();
+                    serverlist = serverRepository.Collection.Aggregate().Match(_ => true).ToList();
+                    var result1 = summarylist
+                        .GroupBy(row => new
+                        {
+                            row.DeviceId,
+                            row.StatName,
+                            row.DeviceName
+                        })
+                        .Select(row => new
+                        {
+                            DeviceId = row.Key.DeviceId,
+                            Value = Math.Round(row.Average(x => x.StatValue), 2),
+                            StatName = row.Key.StatName,
+                            DeviceName = row.Key.DeviceName
+                        }).ToList();
+                    List<Serie> series = new List<Serie>();
+                    var segments = new List<Segment>();
+                    Serie serie = new Serie();
+
+                    foreach (var deviceid in result1.Select(i => i.DeviceId).Distinct())
+                    {
+                        var output = result1.Where(x => x.DeviceId == deviceid).ToList();
+                        var server = serverlist.Where(x => x.Id == deviceid).ToList();
+                        foreach (var item in output)
+                        {
+                            if (item.DeviceId == deviceid)
+                            {
+                                if (server[0].MonthlyOperatingCost == null || server[0].MonthlyOperatingCost == 0 || item.Value == 0)
+                                {
+                                    segments.Add(new Segment()
+                                    {
+                                        Label = item.DeviceName,
+                                        Value = 0
+                                    });
+                                }
+                                else
+                                {
+                                    var monthlycost = Convert.ToInt32(server[0].MonthlyOperatingCost);
+                                    segments.Add(new Segment()
+                                    {
+                                        Label = item.DeviceName,
+                                        Value = Math.Round(((monthlycost / item.Value) * 100), 2)
+                                    });
+                                }
+                            }
+                        }
+
+                    }
+                    serie.Title = "";
+                    serie.Segments = segments;
+                    series.Add(serie);
+
+                    Chart chart = new Chart();
+                    chart.Title = "";
+                    chart.Series = series;
+                    Response = Common.CreateResponse(chart);
+                }
+                else
+                {
+                    var summarytemp = summaryRepository.Find(filterDef).OrderBy(p => p.DeviceName).ToList();
+                    var summarylist = summarytemp.GroupBy(row => new
+                    {
+                        row.DeviceId,
+                        row.DeviceName,
+                        row.CreatedOn.Date
+                    })
+                    .Select(grp => new
+                    {
+                        DeviceId = grp.Key.DeviceId,
+                        DeviceName = grp.Key.DeviceName,
+                        Label = grp.Key.DeviceName,
+                        StatValue = grp.Average(x => x.StatValue),
+                        CreatedOn = grp.Key.Date
+                    }).ToList(); ;
+                    serverlist = serverRepository.Collection.Aggregate().Match(_ => true).ToList();
+                    foreach (var stats in summarylist)
+                    {
+                        var x = new ExpandoObject() as IDictionary<string, Object>;
+                        x.Add("device_name", stats.DeviceName);
+                        x.Add("user_count", stats.StatValue);
+                        x.Add("date", stats.CreatedOn);
+                        var server = serverlist.Where(p => p.Id == stats.DeviceId).ToList();
+                        var bson2 = server[0].ToBsonDocument();
+                        var fieldvalue = bson2["monthly_operating_cost"].ToDouble();
+                        if (stats.StatValue != 0)
+                        {
+                            x.Add("cost_per_user", Math.Round((fieldvalue * 12) / (365 * Math.Round(stats.StatValue, 0)), 2));
+                        }
+                        else
+                        {
+                            x.Add("cost_per_user", 0);
+                        }
+                        x.Add("cost_per_day", Math.Round((fieldvalue * 12) / 365, 2));
+                        x.Add("monthly_operating_cost", fieldvalue);
+                        result.Add(x);
+                    }
+                    Response = Common.CreateResponse(result);
+                }
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
     }
 }
