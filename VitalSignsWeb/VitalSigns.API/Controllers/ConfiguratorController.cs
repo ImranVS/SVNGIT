@@ -48,6 +48,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<WindowsService> windowsservicesRepository;
 
         private IRepository<DominoServerTasks> dominoservertasksRepository;
+        private IRepository<EventsDetected> eventsdetectedRepository;
 
         private IRepository<Status> statusRepository;
         #endregion
@@ -2399,6 +2400,32 @@ namespace VitalSigns.API.Controllers
                 NumberOfRecurrences = Convert.ToInt32(numberOfRecurrences)
 
             });
+        }
+
+        [HttpGet("viewalerts")]
+        public APIResponse GetViewalerts()
+        {
+            try
+            {
+                eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
+                var result = eventsdetectedRepository.Collection.AsQueryable()
+                .Select(s => new AlertsModel
+                {
+                    DeviceName = s.Device,
+                    DeviceType = s.DeviceType,
+                    AlertType = s.EventType,
+                    Details = s.Details,
+                    EventDetectedSent = (s.NotificationsSent[-1].EventDetectedSent.Value),
+                    EventDismissed = s.EventDismissed.Value,
+                    NotificationSentTo = s.NotificationsSent[-1].NotificationSentTo
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+            }
+            return Response;
         }
 
         #region Notes Database Replicas
