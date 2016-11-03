@@ -24,7 +24,8 @@ export abstract class GridBase {
     formTitle: string;
     modal = true;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
-    constructor(service: RESTService) {   
+    constructor(service: RESTService) {  
+        this.service = service; 
     }
     initialGridBind(dataURI: string) {
         this.service.get(dataURI)
