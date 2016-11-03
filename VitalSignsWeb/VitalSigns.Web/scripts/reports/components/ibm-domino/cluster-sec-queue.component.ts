@@ -9,13 +9,13 @@ declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/domino/daily-server-trans.component.html',
+    templateUrl: '/app/reports/components/ibm-domino/cluster-sec-queue.component.html',
     providers: [
         WidgetService,
         RESTService
     ]
 })
-export class DailyServerTrans extends WidgetController {
+export class ClusterSecQueue extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
@@ -39,8 +39,7 @@ export class DailyServerTrans extends WidgetController {
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    //deviceid=57ace45abf46711cd4681e15&
-                    url: '/reports/summarystats_chart?statName=Server.Trans.PerMinute',
+                    url: '/reports/summarystats_chart?statName=Replica.Cluster.SecondsOnQueue',
                     chart: {
                         chart: {
                             renderTo: 'mobileDevicesChart',

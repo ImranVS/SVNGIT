@@ -9,7 +9,7 @@ declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/domino/daily-server-trans.component.html',
+    templateUrl: '/app/reports/components/ibm-domino/domino-response-times.component.html',
     providers: [
         WidgetService,
         RESTService
@@ -35,14 +35,14 @@ export class DominoResponseTimes extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'diskTrendChart',
+                id: 'dailyservertranschart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=ResponseTime`,
+                    url: '/reports/summarystats_chart?statName=ResponseTime',
                     chart: {
                         chart: {
-                            renderTo: 'diskTrendChart',
+                            renderTo: 'dailyservertranschart',
                             type: 'spline',
                             height: 540
                         },

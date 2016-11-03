@@ -9,13 +9,13 @@ declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/domino/daily-server-trans.component.html',
+    templateUrl: '/app/reports/components/ibm-domino/avg-cpu-util.component.html',
     providers: [
         WidgetService,
         RESTService
     ]
 })
-export class ClusterSecQueue extends WidgetController {
+export class AvgCPUUtil extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
@@ -35,14 +35,14 @@ export class ClusterSecQueue extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'mobileDevicesChart',
+                id: 'avgcpuutilchart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: '/reports/summarystats_chart?statName=Replica.Cluster.SecondsOnQueue',
+                    url: '/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil',
                     chart: {
                         chart: {
-                            renderTo: 'mobileDevicesChart',
+                            renderTo: 'avgcpuutilchart',
                             type: 'spline',
                             height: 300
                         },

@@ -3,11 +3,6 @@
     <a [routerLink]="['/reports']">(empy)</a>
     <a [routerLink]="['/reports/sample']">Sample</a>
     <a [routerLink]="['/reports/sample']" [queryParams]="{from:'a',to:'b'}">Period</a>
-    <a [routerLink]="['/reports/consoleCommand']">Console Commands</a>
-    <a [routerLink]="['/reports/avgCPUUtil']">Avg CPU Util</a>
-    <a [routerLink]="['/reports/dailyServerTrans']">Daily Server Tran</a>
-    <a [routerLink]="['/reports/clusterSecQueue']">Cluster Sec Queue</a>
-    <a [routerLink]="['/reports/dominoResponseTimes']">Domino Response Time</a>
     <button (click)="printReport()">Print</button>
     <div class="reportsBrowser" id="reportContainer">
         <router-outlet></router-outlet>

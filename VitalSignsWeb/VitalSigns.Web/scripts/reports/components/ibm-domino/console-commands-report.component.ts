@@ -1,15 +1,15 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
-import {WidgetController, WidgetContract, WidgetService} from '../../core/widgets';
+import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
 
-import {RESTService} from '../../core/services/rest.service';
+import {RESTService} from '../../../core/services/rest.service';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/consoleCommands-report.component.html',
+    templateUrl: '/app/reports/components/ibm-domino/console-commands-report.component.html',
     providers: [
         WidgetService,
         RESTService

@@ -9,13 +9,13 @@ declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/domino/avg-cpu-util.component.html',
+    templateUrl: '/app/reports/components/domino/daily-server-trans.component.html',
     providers: [
         WidgetService,
         RESTService
     ]
 })
-export class AvgCPUUtil extends WidgetController {
+export class DailyServerTrans extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
@@ -35,14 +35,15 @@ export class AvgCPUUtil extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'mobileDevicesChart',
+                id: 'dailyservertranschart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: '/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil',
+                    //deviceid=57ace45abf46711cd4681e15&
+                    url: '/reports/summarystats_chart?statName=Server.Trans.PerMinute',
                     chart: {
                         chart: {
-                            renderTo: 'mobileDevicesChart',
+                            renderTo: 'dailyservertranschart',
                             type: 'spline',
                             height: 300
                         },
