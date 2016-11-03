@@ -72,5 +72,6 @@ export *from './configurator/components/alert/alert-settings.component'
 //Ibm domino
 export * from './configurator/components/ibmDomino/Ibm-servertask-definition.component'
 export * from './configurator/components/ibmDomino/Ibm-notes-database-replicas.component'
+export * from './configurator/components/ibmDomino/Ibm-notes-databases.component'
 
 
