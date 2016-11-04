@@ -2790,17 +2790,17 @@ namespace VitalSigns.API.Controllers
 
 
 
-                    string id = serversRepository.Insert(logfiles);
-                    Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
+                   // string id = serversRepository.Insert(logfiles);
+                  //  Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
                 }
                 else
                 {
-                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == eventlog.Id);
-                    var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, eventlog.DeviceName);
+                   // FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == eventlog.Id);
+                   // var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, eventlog.DeviceName);
 
 
-                    var result = serversRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
+                    //var result = serversRepository.Update(filterDefination, updateDefination);
+                   // Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
                 }
             }
             catch (Exception exception)
