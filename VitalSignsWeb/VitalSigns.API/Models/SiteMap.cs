@@ -19,7 +19,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("title")]
         [BsonElement("title")]
         public string Title { get; set; }
-        
+
         [JsonProperty("nodes")]
         [BsonElement("nodes"), BsonIgnoreIfNull, BsonIgnoreIfDefault]
         public List<SiteMapNode> Nodes { get; set; }

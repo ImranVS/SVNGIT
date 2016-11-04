@@ -828,7 +828,7 @@ namespace VitalSigns.API.Controllers
         /// <param name="id"></param>
         /// <returns> summary stats data </returns>
         [HttpGet("summarystats")]
-        public APIResponse GetSummaryStat(string deviceId, string statName, string fieldName = "", string startDate = "", string endDate = "", bool isChart = true)
+        public APIResponse GetSummaryStat(string deviceId, string statName, string seriesTitle = "", string startDate = "", string endDate = "", bool isChart = true)
         {
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
@@ -999,8 +999,14 @@ namespace VitalSigns.API.Controllers
                                 if (item != null && statNames.Length == 1)
                                 {
                                     segments.Add(new Segment { Label = statdate.ToString(), Value = item.Value });
-                                    //serie.Title = name.ToString();
-                                    serie.Title = devicename[0].DeviceName;
+                                    if (string.IsNullOrEmpty(seriesTitle))
+                                    {
+                                        serie.Title = name.ToString(); 
+                                    }
+                                    else
+                                    {
+                                        serie.Title = devicename[0].DeviceName;
+                                    }
                                     serie.Segments = segments;
                                 }
                                 else if (item != null && output != null && statNames.Length > 1)
@@ -1008,16 +1014,28 @@ namespace VitalSigns.API.Controllers
                                     foreach (var statvalue in output)
                                     {
                                         segments.Add(new Segment { Label = statdate, Value = statvalue.Value });
-                                        //serie.Title = name.ToString();
-                                        serie.Title = statvalue.DeviceName;
+                                        if (string.IsNullOrEmpty(seriesTitle))
+                                        {
+                                            serie.Title = name.ToString();
+                                        }
+                                        else
+                                        {
+                                            serie.Title = statvalue.DeviceName;
+                                        }
                                         serie.Segments = segments;
                                     }
                                 }
                                 else
                                 {
                                     segments.Add(new Segment { Label = statdate.ToString(), Value = 0 });
-                                    //serie.Title = name.ToString();
-                                    serie.Title = devicename[0].DeviceName;
+                                    if (string.IsNullOrEmpty(seriesTitle))
+                                    {
+                                        serie.Title = name.ToString();
+                                    }
+                                    else
+                                    {
+                                        serie.Title = devicename[0].DeviceName;
+                                    }
                                     serie.Segments = segments;
                                 }
                                 

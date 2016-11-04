@@ -522,5 +522,68 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+        [HttpGet("traveler_stats")]
+        public APIResponse GetTravelerStats(string travelername, string paramtype, string paramvalue)
+        {
+            Repository<TravelerStats> travelerRepository = new Repository<TravelerStats>(ConnectionString);
+            List<Serie> series = new List<Serie>();
+            
+            try
+            {
+                var builder = Builders<TravelerStats>.Filter;
+                var result = travelerRepository.Collection.Aggregate()
+                               .Match(builder.And(builder.Eq(paramtype, paramvalue), builder.Eq(x => x.TravelerServerName, travelername))).ToList();
+                
+                if (paramtype == "interval")
+                {
+                    foreach (var mailserver in result.Select(x => x.MailServerName).Distinct()) 
+                    {
+                        List<Segment> segments = new List<Segment>();
+                        Serie serie = new Serie();
+                        foreach (var record in result)
+                        {
+                            if (record.MailServerName == mailserver)
+                            {
+                                segments.Add(new Segment { Label = record.CreatedOn.TimeOfDay.ToString(), Value = Convert.ToDouble(record.OpenTimes) });
+                                serie.Title = mailserver;
+                            }
+                        }
+                        serie.Segments = segments;
+                        series.Add(serie);
+                    }
+                }
+                else
+                {
+                    foreach (var interval in result.Select(x => x.Interval).Distinct())
+                    {
+                        List<Segment> segments = new List<Segment>();
+                        Serie serie = new Serie();
+                        foreach (var record in result)
+                        {
+                            if (record.Interval == interval)
+                            {
+                                segments.Add(new Segment { Label = record.CreatedOn.TimeOfDay.ToString(), Value = Convert.ToDouble(record.OpenTimes) });
+                                serie.Title = interval;
+                            }
+                        }
+                        serie.Segments = segments;
+                        series.Add(serie);
+                    }
+                }
+                
+                Chart chart = new Chart();
+                chart.Title = "";
+                chart.Series = series;
+                Response = Common.CreateResponse(chart);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
     }
 }
