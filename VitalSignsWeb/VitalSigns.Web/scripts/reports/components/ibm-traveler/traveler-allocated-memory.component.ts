@@ -1,49 +1,58 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
 
-import {WidgetController, WidgetContract, WidgetService} from '../../core/widgets';
+import {RESTService} from '../../../core/services/rest.service';
 
-import {RESTService} from '../../core/services/rest.service';
+import * as helpers from '../../../core/services/helpers/helpers';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/server-utilization.component.html',
+    templateUrl: '/app/reports/components/ibm-traveler/traveler-allocated-memory.component.html',
     providers: [
         WidgetService,
-        RESTService
+        RESTService,
+        helpers.UrlHelperService
     ]
 })
-export class ServerUtilizationReport extends WidgetController {
+export class TravelerAllocatedMemoryReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
+    param: string;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
+        private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
 
     }
 
     ngOnInit() {
-
-        this.service.get('/navigation/sitemaps/domino_reports')
+        let paramtype = null;
+        this.route.queryParams.subscribe(params => paramtype = params['type']);
+        this.param = paramtype;
+        this.service.get('/navigation/sitemaps/traveler_reports')
             .subscribe
             (
-            data => this.contextMenuSiteMap = data,
+            data => this.contextMenuSiteMap = data ,
             error => console.log(error)
-            );
+        );
+
+        
         this.widgets = [
             {
-                id: 'serverUtilChart',
+                id: 'travelerMemoryChart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/server_utilization?statName=Server.Users`,
+                    url: `/services/summarystats?statName=Traveler.Memory.${this.param}.Current&seriesTitle=DeviceName`,
                     chart: {
                         chart: {
-                            renderTo: 'serverUtilChart',
-                            type: 'bar',
+                            renderTo: 'travelerMemoryChart',
+                            type: 'spline',
                             height: 540
                         },
                         title: { text: '' },
@@ -57,7 +66,7 @@ export class ServerUtilizationReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'Percent'
+                                text: 'Memory (MB)'
                             }
                         },
                         plotOptions: {
@@ -73,7 +82,7 @@ export class ServerUtilizationReport extends WidgetController {
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false

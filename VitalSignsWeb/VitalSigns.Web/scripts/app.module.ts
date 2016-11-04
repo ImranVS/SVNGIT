@@ -42,10 +42,10 @@ import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.
 import {ReportsBrowser} from './reports/components/reports-browser.component';
 import {NoSelectedReport} from './reports/components/no-selected-report.component';
 import {SampleReport} from './reports/components/sample-report.component';
-import {DiskHealthReport} from './reports/components/disk-health.component';
-import {MailFileStatisticsReport} from './reports/components/mail-file-statistics.component';
-import {DiskAvailabilityTrendReport} from './reports/components/disk-availability-trend.component';
-import {ServerUtilizationReport} from './reports/components/server-utilization.component';
+import {DiskHealthReport} from './reports/components/disk/disk-health.component';
+import {MailFileStatisticsReport} from './reports/components/mail/mail-file-statistics.component';
+import {DiskAvailabilityTrendReport} from './reports/components/disk/disk-availability-trend.component';
+import {ServerUtilizationReport} from './reports/components/financial/server-utilization.component';
 import {AnyStatisticReport} from './reports/components/servers/any-statistic-report.component';
 import {StatisticsReport} from './reports/components/statistics-report.component';
 import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
@@ -54,9 +54,10 @@ import {AvgCPUUtil} from './reports/components/ibm-domino/avg-cpu-util.component
 import {DailyServerTrans} from './reports/components/ibm-domino/daily-server-trans.component';
 import {ClusterSecQueue} from './reports/components/ibm-domino/cluster-sec-queue.component';
 import {DominoResponseTimes} from './reports/components/ibm-domino/domino-response-times.component';
-import {CostPerUserChartReport} from './reports/components/cost-per-user-chart.component';
-import {CostPerUserGridReport} from './reports/components/cost-per-user-grid.component';
-import {TravelerAllocatedMemoryReport} from './reports/components/traveler-allocated-memory.component';
+import {CostPerUserChartReport} from './reports/components/financial/cost-per-user-chart.component';
+import {CostPerUserGridReport} from './reports/components/financial/cost-per-user-grid.component';
+import {TravelerAllocatedMemoryReport} from './reports/components/ibm-traveler/traveler-allocated-memory.component';
+import { TravelerStatsReport } from './reports/components/ibm-traveler/traveler-stats.component';
 import {OverallStatusReport} from './reports/components/servers/overall-status-report.component';
 
 @NgModule({
@@ -105,6 +106,7 @@ import {OverallStatusReport} from './reports/components/servers/overall-status-r
         TravelerAllocatedMemoryReport,
         SampleFiltersBar,
         OverallStatusReport,
+        TravelerStatsReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,

@@ -1,36 +1,33 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {WidgetController, WidgetContract, WidgetService} from '../../core/widgets';
 
-import {RESTService} from '../../core/services/rest.service';
+import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
+
+import {RESTService} from '../../../core/services/rest.service';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/traveler-allocated-memory.component.html',
+    templateUrl: '/app/reports/components/disk/disk-availability-trend.component.html',
     providers: [
         WidgetService,
         RESTService
     ]
 })
-export class TravelerAllocatedMemoryReport extends WidgetController {
+export class DiskAvailabilityTrendReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-    param: string;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);
 
     }
 
     ngOnInit() {
-        let paramtype = null;
-        this.route.queryParams.subscribe(params => paramtype = params['type']);
-        this.param = paramtype;
-        this.service.get('/navigation/sitemaps/traveler_reports')
+
+        this.service.get('/navigation/sitemaps/disk_reports')
             .subscribe
             (
             data => this.contextMenuSiteMap = data,
@@ -38,14 +35,14 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'travelerMemoryChart',
+                id: 'diskTrendChart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/services/summarystats?statName=Traveler.Memory.${this.param}.Current`,
+                    url: `/reports/disk_availability_trend?year=2016`,
                     chart: {
                         chart: {
-                            renderTo: 'travelerMemoryChart',
+                            renderTo: 'diskTrendChart',
                             type: 'spline',
                             height: 540
                         },
@@ -59,8 +56,7 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: true,
-                                text: 'Memory (MB)'
+                                enabled: false
                             }
                         },
                         plotOptions: {
