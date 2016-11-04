@@ -33,9 +33,7 @@ export * from './configurator/components/applicationSettings/application-setting
 export * from './configurator/components/applicationSettings/application-settings-servercredentials.component'
 export * from './configurator/components/applicationSettings/application-settings-locations.component'
 export * from './configurator/components/applicationSettings/application-settings-maintainusers.component'
-export * from './configurator/components/applicationSettings/application-settings-ibm-domino-settings.component'
 export * from './configurator/components/applicationSettings/application-settings-maintenance.component'
-export * from './configurator/components/applicationSettings/application-settings-travelerdatastore.component'
 export * from './configurator/components/serverSettings/server-settings-domino-server-tasks.component'
 export * from './configurator/components/applicationSettings/application-settings-preferences.componenet'
 
@@ -76,6 +74,8 @@ export *from './configurator/components/alert/alert-settings.component'
 export * from './configurator/components/ibmDomino/Ibm-servertask-definition.component'
 export * from './configurator/components/ibmDomino/Ibm-notes-database-replicas.component'
 export * from './configurator/components/ibmDomino/Ibm-notes-databases.component'
+export * from './configurator/components/ibmDomino/Ibm-domino-settings.component'
+export * from './configurator/components/ibmDomino/Ibm-travelerdatastore.component'
 
 //reports
 export * from './reports/components/servers/any-statistic-report-grid.component'
