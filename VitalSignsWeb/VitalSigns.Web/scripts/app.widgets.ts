@@ -79,8 +79,12 @@ export * from './configurator/components/ibmDomino/Ibm-notes-database-replicas.c
 export * from './configurator/components/ibmDomino/Ibm-notes-databases.component'
 export * from './configurator/components/ibmDomino/Ibm-domino-settings.component'
 export * from './configurator/components/ibmDomino/Ibm-travelerdatastore.component'
+
+export * from './configurator/components/ibmDomino/Ibm-custom-statistics.component'
+
 export * from './configurator/components/ibmDomino/Ibm-domino-log-file-scanning.component'
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component'
+
 
 //reports
 export * from './reports/components/servers/any-statistic-report-grid.component'
