@@ -24,6 +24,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("end_date")]
         public DateTime EndDate { get; set; }
 
+        [JsonProperty("end_time")]
+        public DateTime EndTime { get; set; }
+
         [JsonProperty("duration")]
         public int Duration { get; set; }
 
@@ -33,8 +36,16 @@ namespace VitalSigns.API.Models
         [JsonProperty("maintenance_days_list")]
         public string MaintenanceDaysList { get; set; }
 
+        [JsonProperty("maintain_type")]
+        public int? MaintainType { get; set; }
+
         [JsonProperty("continue_forever")]
         public bool ContinueForever { get; set; }
 
+        [JsonProperty("device_list")]
+        public bool DeviceList { get; set; }
+
+        [JsonProperty("key_users")]
+        public bool KeyUsers { get; set; }
     }
 }
