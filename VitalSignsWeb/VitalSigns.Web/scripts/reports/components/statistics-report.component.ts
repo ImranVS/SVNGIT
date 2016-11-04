@@ -21,7 +21,7 @@ declare var bootstrapNavigator: any;
 export class StatisticsReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-    type: string;
+    statname: string;
     title: string;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute,
@@ -32,11 +32,12 @@ export class StatisticsReport extends WidgetController {
     }
 
     ngOnInit() {
-        let paramtype = null;
-        let paramtitle = null;
-        this.route.queryParams.subscribe(params => { paramtype = params['type']; paramtitle = params['title']; } );
-        this.type = paramtype;
-        this.title = paramtitle;
+
+        this.route.queryParams.subscribe(params => {
+            this.statname = params['statname'];
+            this.title = params['title'];
+        });
+
         this.service.get('/navigation/sitemaps/server_reports')
             .subscribe
             (
@@ -53,7 +54,7 @@ export class StatisticsReport extends WidgetController {
                 //title: `${this.title}`,
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=${this.type}`,
+                    url: `/reports/summarystats_chart?statName=${this.statname}`,
                     chart: {
                         chart: {
                             renderTo: 'report',
