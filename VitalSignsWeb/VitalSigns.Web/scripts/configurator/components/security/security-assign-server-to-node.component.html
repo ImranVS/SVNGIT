@@ -1,0 +1,159 @@
+﻿<div class="container">
+
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid #flex [itemsSource]="nodeNames" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshGrid($event)">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="200" ></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Primary Node'" [binding]="'is_primary'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Host Name'" [binding]="'host_name'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Load factor'" [binding]="'load_factor'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Configured Primary Node'" [binding]="'is_configured_primary'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Alive'" [binding]="'is_alive'" [width]="180" align="center">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.is_alive">
+                    <span *ngSwitchCase="'Yes'" class="label label-pill label-success">{{cell.item.is_alive}}</span>
+                    <span *ngSwitchCase="'No'" class="label label-pill label-danger">{{cell.item.is_alive}}</span>
+                    </div>                  
+            </template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Last Updated'" [binding]="'pulse'" [width]="200"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default" (click)="editGridRow1(frmDialog)">
+            Edit
+        </button>      
+        <button class="btn btn-default" (click)="deleteNodesHealth();">
+            Delete
+        </button>
+    </div>
+
+    <wj-flex-grid #flex [itemsSource]="services" headersVisibility="Row" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column   [binding]="'Name'"  [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column  [binding]="'State'" [width]="200"></wj-flex-grid-column>
+        
+       
+    </wj-flex-grid>
+    <div>
+        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+
+      <div><label for="service.Name" class="control-label col-sm-3">Nodes</label>
+
+<wj-combo-box name="service.Name" [itemsSource]="nodes" [(text)]="service.Name"
+              [(ngModel)]="service.Name">
+</wj-combo-box>  </div>
+                     
+            <button type="button" class="btn btn-success" (click)="applySetting()">Assign Nodes</button>
+
+
+        </div>
+
+    <wj-popup class="modal-content col-sm-10" #frmDialog>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b> {{formTitle}}</b>
+
+                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+            </div>
+            <form (ngSubmit)="saveNodesHealth(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Node Settings</div>
+
+
+                    <div class="panel-body" *ngIf="currentEditItem">
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="name" class="control-label col-sm-5">Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="host_name" class="control-label col-sm-5">Host Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="host_name" required name="host_name" [(ngModel)]="currentEditItem.host_name">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-6">
+                                <label for="load_factor" class="control-label col-sm-5">Load factor</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="load_factor" required name="load_factor" [(ngModel)]="currentEditItem.load_factor">
+                                </div>
+                            </div>
+                          
+                            <div class="form-group col-sm-6">
+                                <label for="is_primary" class="control-label col-sm-5">Primary Node</label>
+                                <div class="col-sm-7">
+                                    <input type="checkbox" class="checkbox-inline" id="is_primary" [(ngModel)]="currentEditItem.is_primary" name="is_primary">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-6">
+                                <label for="alive" class="control-label col-sm-5">Alive</label>
+                                <div class="col-sm-7">
+                                    <label class="control-label col-sm-2">{{currentEditItem.alive}}</label>                           
+                                </div>
+                            </div>
+
+                        </div>
+
+                      
+
+  
+
+                    </div>
+
+                
+        </div>
+       
+
+<div class="panel-footer">
+    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+    <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+</div>
+            </form>
+        </div>
+    </wj-popup>
+        </div>

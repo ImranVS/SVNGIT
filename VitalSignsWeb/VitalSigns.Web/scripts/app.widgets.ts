@@ -70,12 +70,18 @@ export * from './configurator/components/server/server-domino-server-tasks.compo
 export * from './configurator/components/alert/alerts-allalert-history.component'
 export *from './configurator/components/alert/alert-settings.component'
 
+
+export *from './configurator/components/security/security-assign-server-to-node.component'
+
 //Ibm domino
 export * from './configurator/components/ibmDomino/Ibm-servertask-definition.component'
 export * from './configurator/components/ibmDomino/Ibm-notes-database-replicas.component'
 export * from './configurator/components/ibmDomino/Ibm-notes-databases.component'
 export * from './configurator/components/ibmDomino/Ibm-domino-settings.component'
 export * from './configurator/components/ibmDomino/Ibm-travelerdatastore.component'
+export * from './configurator/components/ibmDomino/Ibm-domino-log-file-scanning.component'
+export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component'
 
 //reports
 export * from './reports/components/servers/any-statistic-report-grid.component'
+

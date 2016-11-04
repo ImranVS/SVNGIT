@@ -62,7 +62,13 @@ import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
 import { ServerSettings } from './configurator/components/serverSettings/server-settings-tabs.component';
 import { Alerts } from './configurator/components/alert/alert-tabs-component';
+
+
+import { Nodes } from './configurator/components/security/security-assign-server-to-node.component';
+
 import { IBMDomino } from './configurator/components/ibmDomino/ibmdomino-tabs-component';
+import { AddLogFile } from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
+
 
 export * from './dashboards/components/overall-dashboard.component';
 
@@ -103,7 +109,14 @@ export * from './not-yet-implemented.component';
 export * from './configurator/components/applicationSettings/application-settings-tabs.component';
 export * from './configurator/components/serverSettings/server-settings-tabs.component';
 export *from './configurator/components/alert/alert-tabs-component';
+
+
+export *from './configurator/components/security/security-assign-server-to-node.component';
+
+
 export * from './configurator/components/ibmDomino/ibmdomino-tabs-component';
+export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
+
 
 const appRoutes: Routes = [
     {
@@ -220,7 +233,7 @@ const appRoutes: Routes = [
             },
             {
                 path: 'sample',
-                component: SampleReport
+               component: SampleReport
             },
             {
                 path: 'diskhealth',
@@ -320,6 +333,20 @@ const appRoutes: Routes = [
     {
         path: 'configurator/ibmDomino',
         component: IBMDomino
+    }
+    ,
+    {
+        path: 'ibmDomino/add',
+        component: AddLogFile
+    },
+    {
+        path: 'ibmDomino/add/:id',
+        component: AddLogFile
+    },
+
+     {
+        path: 'configurator/nodes',
+        component: Nodes
     }
 ];
 

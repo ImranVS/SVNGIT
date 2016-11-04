@@ -39,8 +39,8 @@ export class IBMDomino implements OnInit {
             },
             {
                 "title": "Log File Scanning",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "DominoLogFiles",
+                "path": "/app/components/ibmDomino/Ibm-domino-log-file-scanning.component'",
                 "active": false
             },
             {
