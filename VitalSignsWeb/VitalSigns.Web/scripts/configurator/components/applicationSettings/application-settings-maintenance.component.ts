@@ -11,12 +11,14 @@ import {GridBase} from '../../../core/gridBase';
         RESTService
     ]
 })
-export class Maintenance extends GridBase  {  
+export class Maintenance extends GridBase implements OnInit  {  
     devices: string;
     errorMessage: string;
     dataMobileUsers: wijmo.collections.CollectionView;
-    selectedSetting: any;
+    selectedSetting: string="1";
+    durationSetting: any=null;
     selectedSettingValue: any;
+    selectedDaysList: any;
 
     constructor(service: RESTService) {
         super(service);
@@ -40,6 +42,17 @@ export class Maintenance extends GridBase  {
 
     }
     saveMaintenance(dlg: wijmo.input.Popup) {
+       // this.currentEditItem.
+        if (this.selectedSetting == "2"|| "3" ||"4") {
+            alert(this.durationSetting);
+            this.selectedSettingValue = this.durationSetting;
+        }
+       
+        if (this.selectedSetting ==  "3" || "4") {
+            alert(this.selectedDaysList);
+            this.selectedSettingValue = this.selectedDaysList;
+        }
+       
         this.saveGridRow('/Configurator/save_maintenancedata',dlg);  
     }
     deleteMaintenance() {      

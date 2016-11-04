@@ -1,7 +1,7 @@
 ﻿<div class="container">
 
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" headersVisibility="Column" class="visible"></wj-group-panel>
-    <wj-flex-grid #flex [itemsSource]="data"  headersVisibility ="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+    <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"> </wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Start Date'" [binding]="'start_date'" [width]="150"></wj-flex-grid-column>
@@ -47,7 +47,7 @@ data.pageIndex + 1 | number
             <wj-menu-item [value]="50">50</wj-menu-item>
         </wj-menu>
     </div>
-   
+
 
 
     <div class="well grid-sort-group">
@@ -63,155 +63,174 @@ data.pageIndex + 1 | number
             Delete
         </button>
     </div>
-    <wj-popup class="col-md-6 modal-content" #frmDialog>
+    <wj-popup class="col-md-10 modal-content" #frmDialog>
 
-        <form (ngSubmit)="saveMaintenance(frmDialog)" #frmUser="ngForm">
+        <form (ngSubmit)="saveMaintenance(frmDialog)" #frmUser="ngForm" class="form-horizontal">
             <h4 class="modal-header">
                 {{formTitle}}
                 <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
             </h4>
 
             <div class="modal-body" *ngIf="currentEditItem">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
-                </div>
-                <div class="form-group">
-                    <label for="start_date">Start Date</label>
-                    <input type="text" class="form-control" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
-                </div>
-                <div class="form-group">
-                    <label for="start_time">Start Time</label>
-                    <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
-                </div>
-                <div class="form-group">
-                    <label for="end_date">End Date</label>
-                    <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
-                </div>
-                <div class="form-group">
-                    <label for="duration">Duration</label>
-                    <input type="text" class="form-control" id="duration"  name="duration" [(ngModel)]="currentEditItem.duration">
-                </div>
-                <div class="form-group">
-                    <label for="maintenance_frequency">Maintenance Frequency</label>
-                    <input type="text" class="form-control" id="maintenance_frequency"  name="maintenance_frequency" [(ngModel)]="currentEditItem.maintenance_frequency">
-                </div>
-
-                <div class="form-group">
-
-                    <input type="radio" name="selectionType" value="onetime" [(ngModel)]="selectedSetting"> <label for="onetime">One time:</label>
-                    <input type="radio" name="selectionType" value="daily" [(ngModel)]="selectedSetting"><label for="daily">Daily:</label>
-                    <input type="radio" name="selectionType" value="weekly" [(ngModel)]="selectedSetting"> <label for="weekly">Weekly:</label>
-                    <input type="radio" name="selectionType" value="monthly" [(ngModel)]="selectedSetting"><label for="monthly">Monthly:</label>
-                </div>
-
-                <!--<div class="form-group" *ngIf="selectedSetting=='onetime'">
-
-
-
-                </div>-->
-
-                <div class="form-group" *ngIf="selectedSetting=='weekly'">
-
-                    <div class="form-group">
-                        <label for="repeattxtbx">Repeat every:</label>
-                        <input type="text" class="form-control" id="repeattxtbx" name="repeattxtbx"  [(ngModel)]="currentEditItem.repeat">
-                        <label for="repeattxtbx">weeks on</label>
+                <div class="row">
+                    <div class="form-group col-sm-4" style="padding-right:10px">
+                        <label for="name" class="col-sm-2">Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                        </div>
                     </div>
+                    <div class="form-group col-sm-8 " style="padding-left:20px">
+                        <div class="form-group ">
+                            <label for="selectionType" class="col-sm-2">
+                                <input type="radio" name="selectionType" value="1" [(ngModel)]="selectedSetting">
+                                One time
+                            </label>
 
-                    <div class="panel panel-default">
+                            <label for="selectionType" class="col-sm-2">
+                                <input type="radio" name="selectionType" value="2" [(ngModel)]="selectedSetting">
+                                Daily
+                            </label>
 
-                        <div class="panel-body">
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="sunday" formControlName="sunday">
-                                <label for="sunday">Sunday </label>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="monday" formControlName="monday">
-                                <label for="monday">Monday </label><br />
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="tuesday" formControlName="tuesday">
-                                <label for="tuesday">Tuesday</label>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="wednesday" formControlName="wednesday">
-                                <label for="wednesday">Wednesday</label>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="thursday" formControlName="thursday">
-                                <label for="thursday">Thursday</label>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="friday" formControlName="friday">
-                                <label for="friday">Friday</label>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="saturday" formControlName="saturday">
-                                <label for="saturday">Saturday</label>
-                            </div>
-
+                            <label for="selectionType" class="col-sm-2">
+                                <input type="radio" name="selectionType" value="3" [(ngModel)]="selectedSetting">
+                                Weekly
+                            </label>
+                            <label for="selectionType" class="col-sm-2">
+                                <input type="radio" name="selectionType" value="4" [(ngModel)]="selectedSetting">
+                                Monthly
+                            </label>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group" *ngIf="selectedSetting=='monthly'">
-                    <label for="monthly">Monthly</label>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="form-group col-sm-10" *ngIf="selectedSetting=='2' || selectedSetting=='3'||selectedSetting=='4'">
+                                <label for="duration_type">Duration Type : </label>
+                                <input type="radio" name="duration_type" value="1" [(ngModel)]="durationSetting"> <label for="continueuntil">Continue Until:</label>
+                                <input type="radio" name="duration_type" value="2" [(ngModel)]="durationSetting"><label for="forever">Forever:</label>
 
-                    <div class="form-group">
-                        <label for="month">Repeat every month on</label>
-
-                        <select name="month" class="form-control">
-                            <option value="first">First</option>
-                            <option value="second">Second</option>
-                            <option value="third">Third</option>
-                            <option value="last">Last</option>
-                            <option value="specific_day">Specific Day</option>
-
-                        </select>
-                    </div>
-
-                    <div class="panel panel-default">
-
-                        <div class="panel-body">
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="sunday" formControlName="sunday">
-                                <label for="sunday">Sunday </label>
                             </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="monday" formControlName="monday">
-                                <label for="monday">Monday </label><br />
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="start_date" class="col-sm-4">Start Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="tuesday" formControlName="tuesday">
-                                <label for="tuesday">Tuesday</label>
+                            <div class="form-group col-sm-6" *ngIf="durationSetting=='1'">
+                                <label for="end_date" class="col-sm-4">End Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="wednesday" formControlName="wednesday">
-                                <label for="wednesday">Wednesday</label>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="start_time" class="col-sm-4">Start Time</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="thursday" formControlName="thursday">
-                                <label for="thursday">Thursday</label>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="friday" formControlName="friday">
-                                <label for="friday">Friday</label>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" class="checkbox-inline" id="saturday" formControlName="saturday">
-                                <label for="saturday">Saturday</label>
+                            <div class="form-group col-sm-6" >
+                                <label for="end_date" class="col-sm-4">End Time</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="end_time" name="end_time" [(ngModel)]="currentEditItem.end_date">
+                                </div>
                             </div>
 
                         </div>
+
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="duration" class="col-sm-4">Duration</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="duration" name="duration" [(ngModel)]="currentEditItem.duration">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="maintenance_frequency" class="col-sm-4">Maintenance Frequency</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="maintenance_frequency" name="maintenance_frequency" [(ngModel)]="currentEditItem.maintenance_frequency">
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group col-sm-6">
+                            <div class="form-group" *ngIf="selectedSetting=='3'">
+
+                                <div class="form-group">
+                                    <label for="repeattxtbx">Repeat every:</label>
+                                    <input type="text" class="form-control" id="repeattxtbx" name="repeattxtbx" [(ngModel)]="currentEditItem.repeat">
+                                    <label for="repeattxtbx">weeks on</label>
+                                </div>
+                            </div>
+                            <div class="form-group" *ngIf="selectedSetting =='4'">
+                                <label for="monthly">Monthly</label>
+
+                                <div class="form-group">
+                                    <label for="month">Repeat every month on</label>
+
+                                    <select name="month" class="form-control">
+                                        <option value="first">First</option>
+                                        <option value="second">Second</option>
+                                        <option value="third">Third</option>
+                                        <option value="last">Last</option>
+                                        <option value="specific_day">Specific Day</option>
+
+                                    </select>
+                                </div>
+
+                            </div>
+
+                        </div><div class="form-group col-sm-6">
+                            <div class="panel panel-default" *ngIf="selectedSetting=='3'||selectedSetting=='4'">
+
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <input type="checkbox" class="checkbox-inline" id="sunday" formControlName="sunday" [(ngModel)]="selectedDaysList" >
+                                        <label for="sunday">Sunday </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="checkbox" class="checkbox-inline" id="monday" formControlName="monday" [(ngModel)]="selectedDaysList"  >
+                                        <label for="monday">Monday </label><br />
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="checkbox" class="checkbox-inline" id="tuesday" formControlName="tuesday" [(ngModel)]="selectedDaysList" >
+                                        <label for="tuesday">Tuesday</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="checkbox" class="checkbox-inline" id="wednesday" formControlName="wednesday" [(ngModel)]="selectedDaysList" >
+                                        <label for="wednesday">Wednesday</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="checkbox" class="checkbox-inline" id="thursday" formControlName="thursday" [(ngModel)]="selectedDaysList" >
+                                        <label for="thursday">Thursday</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="checkbox" class="checkbox-inline" id="friday" formControlName="friday" [(ngModel)]="selectedDaysList" >
+                                        <label for="friday">Friday</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="checkbox" class="checkbox-inline" id="saturday" formControlName="saturday" [(ngModel)]="selectedDaysList" >
+                                        <label for="saturday">Saturday</label>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
 
                 <div class="form-group" style="width:auto">
                     <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
                 </div>
-
-
                 <div class="form-group" style="width:auto">
                     <wj-group-panel [grid]="flex1" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
 
@@ -219,7 +238,7 @@ data.pageIndex + 1 | number
                         <wj-flex-grid-filter></wj-flex-grid-filter>
                         <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'"> </wj-flex-grid-column>
                         <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'"> </wj-flex-grid-column>
-                        <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'" ></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'"></wj-flex-grid-column>
                         <wj-flex-grid-column [header]="'Last Synchronous Time'" [binding]="'last_sync_time'"></wj-flex-grid-column>
                     </wj-flex-grid>
                 </div>
@@ -258,19 +277,17 @@ data.pageIndex + 1 | number
                         <wj-menu-item [value]="50">50</wj-menu-item>
                     </wj-menu>
                 </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                    <button class="btn btn-primary" type="cancel" name="cancel">Cancel</button>
+                </div>
+
 
 
             </div>
 
-            <div class="modal-footer">
-                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                <button class="btn btn-primary" type="cancel" name="cancel" >Cancel</button>
-            </div>
 
-          
-
-
- </form>
+        </form>
     </wj-popup>
 </div>
 
