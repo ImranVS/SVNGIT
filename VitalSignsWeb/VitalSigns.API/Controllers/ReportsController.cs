@@ -291,11 +291,11 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("summarystats_chart")]
-        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "")
+        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "", string type = "")
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
             if (startDate == "")
-                startDate = DateTime.Now.AddDays(-28).ToString(DateFormat);
+                startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
 
             if (endDate == "")
                 endDate = DateTime.Today.ToString(DateFormat);
@@ -311,6 +311,7 @@ namespace VitalSigns.API.Controllers
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
 
             List<String> listOfDevices;
+            List<String> listOfTypes;
 
             if (string.IsNullOrWhiteSpace(deviceId))
             {
@@ -319,6 +320,15 @@ namespace VitalSigns.API.Controllers
             else
             {
                 listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+            }
+
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                listOfTypes = new List<string>();
+            }
+            else
+            {
+                listOfTypes = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
             }
 
             try
@@ -330,6 +340,10 @@ namespace VitalSigns.API.Controllers
                 if (listOfDevices.Count > 0)
                 {
                     filterDef = filterDef & summaryRepository.Filter.In(p => p.DeviceId, listOfDevices);
+                }
+                else if (listOfTypes.Count > 0)
+                {
+                    filterDef = filterDef & summaryRepository.Filter.In(p => p.DeviceType, listOfTypes);
                 }
                 var result = summaryRepository.Find(filterDef).OrderBy(p => p.CreatedOn).ToList();
 
@@ -347,9 +361,8 @@ namespace VitalSigns.API.Controllers
                         var item = currList.Where(x => x.CreatedOn.Date == date.Date).ToList();
 
                         serie.Segments.Add(new Segment() { Label = date.Date.ToString(DateFormat), Value = item.Count > 0 ? (double?) item[0].StatValue : null });
-                        
-                        series.Add(serie);
                     }
+                    series.Add(serie);
                 }
 
                 Chart chart = new Chart();

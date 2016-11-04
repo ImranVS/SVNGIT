@@ -47,7 +47,7 @@ import { MailFileStatisticsReport } from './reports/components/mail-file-statist
 import { DiskAvailabilityTrendReport } from './reports/components/disk-availability-trend.component';
 import { ServerUtilizationReport } from './reports/components/server-utilization.component';
 import { AnyStatisticReport } from './reports/components/servers/any-statistic-report.component';
-import {AverageResponseTimeReport} from './reports/components/servers/average-response-time-report.component';
+import {StatisticsReport} from './reports/components/statistics-report.component';
 import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
 import {ConsoleCommands} from './reports/components/ibm-domino/console-commands-report.component';
 import {AvgCPUUtil} from './reports/components/ibm-domino/avg-cpu-util.component';
@@ -57,6 +57,7 @@ import {DominoResponseTimes} from './reports/components/ibm-domino/domino-respon
 import { CostPerUserChartReport } from './reports/components/cost-per-user-chart.component';
 import { CostPerUserGridReport } from './reports/components/cost-per-user-grid.component';
 import { TravelerAllocatedMemoryReport } from './reports/components/traveler-allocated-memory.component';
+import {OverallStatusReport} from './reports/components/servers/overall-status-report.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -256,8 +257,8 @@ const appRoutes: Routes = [
                 component: AnyStatisticReport
             },
             {
-                path: 'averageresponsetime',
-                component: AverageResponseTimeReport
+                path: 'statistics',
+                component: StatisticsReport
             },
             {
                 path: 'responsetime',
@@ -294,6 +295,10 @@ const appRoutes: Routes = [
             {
                 path: 'travelermemory',
                 component: TravelerAllocatedMemoryReport
+            },
+            {
+                path: 'overallstatus',
+                component: OverallStatusReport
             }
 
         ]
