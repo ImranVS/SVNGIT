@@ -33,8 +33,8 @@ export class IBMDomino implements OnInit {
         this.tabsData = [
             {
                 "title": "Custom Statistics",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "CustomStatistics",
+                "path": "/app/configurator/components/ibmDomino/Ibm-custom-statistics.component", 
                 "active": false
             },
             {
