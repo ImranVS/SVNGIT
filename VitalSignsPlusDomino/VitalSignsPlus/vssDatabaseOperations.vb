@@ -933,6 +933,7 @@ Partial Public Class VitalSignsPlusDomino
 
         End Try
 
+
         'Platform
         WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Updating Daily Statistics Table for Platform.")
 
@@ -1018,88 +1019,88 @@ Partial Public Class VitalSignsPlusDomino
             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Mail.TotalPending statistics: " & ex.Message)
         End Try
 
-        Try
+        'Try
 
-            If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.1.PctUtil") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.1.PctUtil", ParseNumericStatValue("Platform.LogicalDisk.1.PctUtil", DominoServer.Statistics_Platform))
-            End If
+        '    If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.1.PctUtil") > 0 Then
+        '        UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.1.PctUtil", ParseNumericStatValue("Platform.LogicalDisk.1.PctUtil", DominoServer.Statistics_Platform))
+        '    End If
 
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
-        End Try
+        'Catch ex As Exception
+        '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        'End Try
 
-        Try
+        'Try
 
-            If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.1.AvgQueueLen") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.1.AvgQueueLen", ParseNumericStatValue("Platform.LogicalDisk.1.AvgQueueLen", DominoServer.Statistics_Platform))
-            End If
+        '    If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.1.AvgQueueLen") > 0 Then
+        '        UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.1.AvgQueueLen", ParseNumericStatValue("Platform.LogicalDisk.1.AvgQueueLen", DominoServer.Statistics_Platform))
+        '    End If
 
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
-        End Try
+        'Catch ex As Exception
+        '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        'End Try
 
-        Try
+        'Try
 
-            If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.2.AvgQueueLen") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.2.AvgQueueLen", ParseNumericStatValue("Platform.LogicalDisk.2.AvgQueueLen", DominoServer.Statistics_Platform))
-            End If
+        '    If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.2.AvgQueueLen") > 0 Then
+        '        UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.2.AvgQueueLen", ParseNumericStatValue("Platform.LogicalDisk.2.AvgQueueLen", DominoServer.Statistics_Platform))
+        '    End If
 
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
-        End Try
-
-
-        Try
-
-            If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.2.PctUtil") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.2.PctUtil", ParseNumericStatValue("Platform.LogicalDisk.2.PctUtil", DominoServer.Statistics_Platform))
-            End If
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
-        End Try
-
-        Try
-
-            If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.3.PctUtil") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.3.PctUtil", ParseNumericStatValue("Platform.LogicalDisk.3.PctUtil", DominoServer.Statistics_Platform))
-            End If
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
-        End Try
+        'Catch ex As Exception
+        '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        'End Try
 
 
-        Try
+        'Try
 
-            If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.3.AvgQueueLen") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.3.AvgQueueLen", ParseNumericStatValue("Platform.LogicalDisk.3.AvgQueueLen", DominoServer.Statistics_Platform))
-            End If
+        '    If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.2.PctUtil") > 0 Then
+        '        UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.2.PctUtil", ParseNumericStatValue("Platform.LogicalDisk.2.PctUtil", DominoServer.Statistics_Platform))
+        '    End If
 
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
-        End Try
+        'Catch ex As Exception
+        '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        'End Try
 
-        Try
+        'Try
 
-            If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.4.PctUtil") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.4.PctUtil", ParseNumericStatValue("Platform.LogicalDisk.4.PctUtil", DominoServer.Statistics_Platform))
-            End If
+        '    If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.3.PctUtil") > 0 Then
+        '        UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.3.PctUtil", ParseNumericStatValue("Platform.LogicalDisk.3.PctUtil", DominoServer.Statistics_Platform))
+        '    End If
 
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
-        End Try
+        'Catch ex As Exception
+        '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        'End Try
 
 
-        Try
+        'Try
 
-            If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.4.AvgQueueLen") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.4.AvgQueueLen", ParseNumericStatValue("Platform.LogicalDisk.4.AvgQueueLen", DominoServer.Statistics_Platform))
-            End If
+        '    If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.3.AvgQueueLen") > 0 Then
+        '        UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.3.AvgQueueLen", ParseNumericStatValue("Platform.LogicalDisk.3.AvgQueueLen", DominoServer.Statistics_Platform))
+        '    End If
 
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
-        End Try
+        'Catch ex As Exception
+        '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        'End Try
+
+        'Try
+
+        '    If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.4.PctUtil") > 0 Then
+        '        UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.4.PctUtil", ParseNumericStatValue("Platform.LogicalDisk.4.PctUtil", DominoServer.Statistics_Platform))
+        '    End If
+
+        'Catch ex As Exception
+        '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        'End Try
+
+
+        'Try
+
+        '    If InStr(DominoServer.Statistics_Platform, "Platform.LogicalDisk.4.AvgQueueLen") > 0 Then
+        '        UpdateDominoDailyStatTable(DominoServer, "Platform.LogicalDisk.4.AvgQueueLen", ParseNumericStatValue("Platform.LogicalDisk.4.AvgQueueLen", DominoServer.Statistics_Platform))
+        '    End If
+
+        'Catch ex As Exception
+        '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        'End Try
 
 
         Try
@@ -1132,13 +1133,20 @@ Partial Public Class VitalSignsPlusDomino
         End Try
 
         Try
-            If InStr(DominoServer.Statistics_HTTP, "Http.Worker.Total.QuickPlace.Requests") > 0 Then
-                UpdateDominoDailyStatTable(DominoServer, "Http.Worker.Total.QuickPlace.Requests", ParseNumericStatValue("Http.Worker.Total.QuickPlace.Requests", DominoServer.Statistics_HTTP))
+            If InStr(DominoServer.Statistics_HTTP, "Http.PeakConnections") > 0 Then
+                UpdateDominoDailyStatTable(DominoServer, "Http.PeakConnections", ParseNumericStatValue("Http.PeakConnections", DominoServer.Statistics_HTTP))
             End If
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
         End Try
 
+        Try
+            If InStr(DominoServer.Statistics_HTTP, "Http.Workers") > 0 Then
+                UpdateDominoDailyStatTable(DominoServer, "Http.Workers", ParseNumericStatValue("Http.Workers", DominoServer.Statistics_HTTP))
+            End If
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error parsing Database statistics: " & ex.Message)
+        End Try
 
     End Sub
 

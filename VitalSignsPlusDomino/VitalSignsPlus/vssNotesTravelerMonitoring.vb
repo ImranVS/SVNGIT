@@ -499,7 +499,16 @@ Partial Public Class VitalSignsPlusDomino
                 WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Exception determining Traveler.Memory.C.Current:  " & ex.ToString)
             End Try
 
-			WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Finished monitoring Lotus Traveler")
+            Try
+                If InStr(myDominoServer.Statistics_Traveler, "Traveler.Push.Users.Total") > 0 Then
+                    UpdateDominoDailyStatTable(myDominoServer, "Traveler.Push.Users.Total", ParseNumericStatValue("Traveler.Push.Users.Total", myDominoServer.Statistics_Memory))
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Error parsing Traveler. statistics: " & ex.Message)
+            End Try
+
+
+            WriteDeviceHistoryEntry("Domino", myDominoServer.Name, Now.ToString & " Finished monitoring Lotus Traveler")
 
 			Exit Sub
 
