@@ -1,0 +1,142 @@
+﻿<div class="container">
+    <h3>IBM Domino Custom Statistics</h3>
+    <p>You can set an alert threshold on any Server Statistic that is maintained by Domino, such as servers, users or number of transactions per minute.</p>
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Server Name'" [binding]="'domino_servers'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Statistic'" [binding]="'stat_name'" [width]="220"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Threshold Value'" [binding]="'yellow_threshold'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Repeat Factor'" [binding]="'times_in_a_row'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Comparison'" [binding]="'greater_than_or_less_than'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Console Command'" [binding]="'console_command'" [width]="180"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+    <div class="well grid-sort-group">
+
+        <!-- edit details in a popup -->
+        <button class="btn btn-default" (click)="editGridRow(frmDialog)">
+            Edit
+        </button>
+        <button class="btn btn-default" (click)="addGridRow(frmDialog)">
+            Add
+        </button>
+        <button class="btn btn-default" (click)="delteCustomStatistics();">
+            Delete
+        </button>
+    </div>
+    <wj-popup class="modal-content col-sm-10" #frmDialog>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b> {{formTitle}}</b>
+                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+            </div>
+            <form (ngSubmit)="saveCustomStatistics(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+                <div class="panel-body" *ngIf="currentEditItem">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Alert Setting</div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="form-inline">
+                                    <label for="domino_servers" class="control-label">Domino Server:</label>
+                                        <wj-combo-box name="domino_servers" [itemsSource]="sererNames" [(text)]="currentEditItem.domino_servers"
+                                                      [(ngModel)]="currentEditItem.domino_servers">
+                                        </wj-combo-box>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label for="stat_name" class="control-label">Trigger an alert if this statistic</label>
+                                
+                                        <wj-combo-box name="stat_name" [itemsSource]="statName" [(text)]="currentEditItem.stat_name"
+                                                      [(ngModel)]="currentEditItem.stat_name">
+                                        </wj-combo-box>
+                                
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label>...has a value that is</label>
+                                    <label for="greater_than_or_less_than" class="control-label">Greater Than</label>
+                                    <input type="radio" value="greater_than_or_less_than" />
+                                    <label for="greater_than_or_less_than" class="control-label">Less Than</label>
+                                    <input type="radio" value="greater_than_or_less_than" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="yellow_threshold" class="control-label">...this value</label>
+                                    <input type="text" class="form-control" id="yellow_threshold" name="yellow_threshold" [(ngModel)]="currentEditItem.yellow_threshold" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="times_in_a_row" class="control-label">times in a row</label>
+                                    
+                                        <input type="text" class="form-control" id="times in a row" name="times in a row" [(ngModel)]="currentEditItem.yellow_threshold" />
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Current Value</div>
+                        <div class="panel-body">
+                            <p>Note: To find the current value of this statistic, click the button below to query the server.</p>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Current Value</button>
+                                    <input type="text" class="form-control">
+                                </div>
+                            </div>
+                        </div>           
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Action</div>
+                        <div class="panel-body">
+                                <p>Optional: If you provide a server command below, it will be sent to the server if the threshold is met. If you do not provide a console command, an alert will be sent instead.</p>
+                                <div class="form-group">
+                                    <label for="console_command" class="control-label">Console Command:</label>
+                                    <input type="text" class="form-control" id="console_command" required name="console_command" [(ngModel)]="currentEditItem.console_command">
+                                    <label>for example: Tell HTTP Restart</label>
+                                </div>                       
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                    <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </wj-popup>
+</div>
