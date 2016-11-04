@@ -140,10 +140,10 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("service_status")]
         [BsonIgnoreIfNull]
-        public List<ServiceStatus> ServiceStatus { get; set; }
+        public List<ServiceSStatus> ServiceStatus { get; set; }
     }
 
-    public class ServiceStatus
+    public class ServiceSStatus
     {
         [DataMember]
         [BsonElement("name")]
