@@ -2691,6 +2691,81 @@ namespace VitalSigns.API.Controllers
 
         #endregion
 
+        #region IBM Domino Server Tasks
+
+        [HttpGet("get_server_task_definiton")]
+        public APIResponse GetServerTask()
+        {
+            try
+            {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                var result = dominoservertasksRepository.All().Select(x => new ServerTaskDefinitionModel
+                {
+                    Id = x.Id,
+                    TaskName = x.TaskName,
+                    LoadString = x.LoadString,
+                    ConsoleString = x.ConsoleString,
+                    FreezeDetect = x.FreezeDetect,
+                    IdleString = x.IdleString,
+                    MaxBusyTime = x.MaxBusyTime,
+                    RetryCount = x.RetryCount
+
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get domino server task falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_server_task_definition")]
+        public APIResponse UpdateServerTaskDefinition([FromBody]ServerTaskDefinitionModel servertask)
+        {
+            try
+            {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                if (string.IsNullOrEmpty(servertask.Id))
+                {
+                    DominoServerTasks servertaskDef = new DominoServerTasks { TaskName = servertask.TaskName, LoadString = servertask.LoadString, ConsoleString = servertask.ConsoleString, FreezeDetect = servertask.FreezeDetect, IdleString = servertask.IdleString, MaxBusyTime = servertask.MaxBusyTime, RetryCount = servertask.RetryCount };
+                    dominoservertasksRepository.Insert(servertaskDef);
+                    Response = Common.CreateResponse(true, "OK", "Maintain Users inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<DominoServerTasks> filterDefination = Builders<DominoServerTasks>.Filter.Where(p => p.Id == servertask.Id);
+                    var updateDefination = dominoservertasksRepository.Updater.Set(p => p.TaskName, servertask.TaskName)
+                                                             .Set(p => p.LoadString, servertask.LoadString)
+                                                             .Set(p => p.ConsoleString, servertask.ConsoleString)
+                                                             .Set(p => p.FreezeDetect, servertask.FreezeDetect)
+                                                             .Set(p => p.IdleString, servertask.IdleString)
+                                                             .Set(p => p.MaxBusyTime, servertask.MaxBusyTime)
+                                                             .Set(p => p.RetryCount, servertask.RetryCount);
+
+                    var result = dominoservertasksRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Domino server task definition updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Domino Server Task falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+        [HttpDelete("delete_server_task_definition/{id}")]
+        public void DeleteServerTaskDefinition(string id)
+        {
+            dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+            Expression<Func<DominoServerTasks, bool>> expression = (p => p.Id == id);
+            dominoservertasksRepository.Delete(expression);
+        }
+
+        #endregion
+
         #region Log File Scanning
 
         [HttpGet("get_log_scaning")]
@@ -2971,5 +3046,11 @@ namespace VitalSigns.API.Controllers
 
 
         #endregion
+
+
+      
     }
 }
+
+    
+
