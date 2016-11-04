@@ -16,6 +16,7 @@ declare var bootstrapNavigator: any;
     ]
 })
 export class SampleReport extends WidgetController {
+
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
@@ -28,11 +29,11 @@ export class SampleReport extends WidgetController {
     ngOnInit() {
 
         this.service.get('/navigation/sitemaps/domino_reports')
-            .subscribe
-            (
+            .subscribe(
             data => this.contextMenuSiteMap = data,
             error => console.log(error)
             );
+
         this.widgets = [
             {
                 id: 'mobileDevicesChart',
@@ -117,7 +118,9 @@ export class SampleReport extends WidgetController {
                 settings: {}
             }
         ];
+
         injectSVG();
+
         bootstrapNavigator();
 
     }

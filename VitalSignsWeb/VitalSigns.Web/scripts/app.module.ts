@@ -37,6 +37,8 @@ import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-samet
 import {OverallDatabaseDetails} from './dashboards/components/key-metrics/overall-database-details.component';
 import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
 
+import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
+
 import {ReportsBrowser} from './reports/components/reports-browser.component';
 import {NoSelectedReport} from './reports/components/no-selected-report.component';
 import {SampleReport} from './reports/components/sample-report.component';
@@ -101,6 +103,7 @@ import {OverallStatusReport} from './reports/components/servers/overall-status-r
         CostPerUserChartReport,
         CostPerUserGridReport,
         TravelerAllocatedMemoryReport,
+        SampleFiltersBar,
         OverallStatusReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
@@ -239,7 +242,9 @@ import {OverallStatusReport} from './reports/components/servers/overall-status-r
         wjFlexInput.WjMenuItem,
         wjFlexInput.WjMenuItemTemplateDir,
         wjFlexInput.WjPopup,
-        wjFlexInput.WjComboBox
+        wjFlexInput.WjComboBox,
+        wjFlexInput.WjCalendar,
+        wjFlexInput.WjInputDate
     ],
     entryComponents: [
         widgets.AppStatus,

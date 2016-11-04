@@ -39,6 +39,8 @@ import { NoSelectedService } from './services/components/no-selected-service.com
 import { ProfilesList } from './profiles/components/profiles-list.component';
 import { ProfilesForm } from './profiles/components/profiles-form.component';
 
+import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
+
 import { ReportsBrowser } from './reports/components/reports-browser.component';
 import { NoSelectedReport } from './reports/components/no-selected-report.component';
 import { SampleReport } from './reports/components/sample-report.component';
@@ -234,7 +236,7 @@ const appRoutes: Routes = [
             },
             {
                 path: 'sample',
-               component: SampleReport
+                component: SampleReport
             },
             {
                 path: 'diskhealth',
