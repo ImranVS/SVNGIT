@@ -51,6 +51,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<EventsDetected> eventsdetectedRepository;
 
         private IRepository<Status> statusRepository;
+        private IRepository<Nodes> nodesRepository;
         #endregion
 
 
@@ -76,6 +77,8 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
                                                                 new NameValue { Name = "Bing Key", Value = userpreference.BingKey }
                                                              };
+
+
                 var result = Common.SaveNameValues(preferencesSettings);
                 Response = Common.CreateResponse(true);
             }
@@ -1333,6 +1336,7 @@ namespace VitalSigns.API.Controllers
                     IPAddress = s.IPAddress,
                     Category = s.Category,
                     //IsEnabled=s.IsEnabled,
+
                     LocationId = s.LocationId,
                     Devicetype = s.DeviceType,
                     CellId = s.CellId,
@@ -1340,6 +1344,7 @@ namespace VitalSigns.API.Controllers
 
                     // CellName = serversRepository.Collection.Find(filter).AsQueryable().Select(x => x.NodeId).FirstOrDefault(),
                     //   NodeName = serversRepository.Collection.AsQueryable().Select(x => x.NodeIds).FirstOrDefault()
+
 
                 }).FirstOrDefault();
                 var locationname = locationRepository.All().Where(x => x.Id == serverresult.LocationId).Select(x => new Location
@@ -2088,7 +2093,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-    
+
         [HttpPut("save_windows_services")]
         public APIResponse SaveWindowsServices([FromBody]DeviceSettings windowsservicesettings)
         {
@@ -2686,78 +2691,284 @@ namespace VitalSigns.API.Controllers
 
         #endregion
 
-        #region IBM Domino Server Tasks
+        #region Log File Scanning
 
-        [HttpGet("get_server_task_definiton")]
-        public APIResponse GetServerTask()
+        [HttpGet("get_log_scaning")]
+        public APIResponse GetAllLogFileScanning()
         {
             try
             {
-                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
-                var result = dominoservertasksRepository.All().Select(x => new ServerTaskDefinitionModel
+                serversRepository = new Repository<Server>(ConnectionString);
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino Log Scanning").Select(x => new LogFileScanning
                 {
                     Id = x.Id,
-                    TaskName = x.TaskName,
-                    LoadString = x.LoadString,
-                    ConsoleString = x.ConsoleString,
-                    FreezeDetect = x.FreezeDetect,
-                    IdleString = x.IdleString,
-                    MaxBusyTime = x.MaxBusyTime,
-                    RetryCount = x.RetryCount
+                    DeviceName = x.DeviceName,                 
 
-                }).ToList();
+
+                }).ToList().OrderBy(x => x.DeviceName);              
+
                 Response = Common.CreateResponse(result);
-            }
 
+            }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get domino server task falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Get Log File Scanning falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
 
-        [HttpPut("save_server_task_definition")]
-        public APIResponse UpdateServerTaskDefinition([FromBody]ServerTaskDefinitionModel servertask)
+        [HttpGet("get_event_log_scaning")]
+        public APIResponse GetEventLogScanning(string id)
         {
             try
             {
-                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
-                if (string.IsNullOrEmpty(servertask.Id))
+                serversRepository = new Repository<Server>(ConnectionString);
+                var devicename= serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.DeviceName).FirstOrDefault();
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.LogFileKeywords).FirstOrDefault();
+                var servers = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.LogFileServers).FirstOrDefault();
+                List<LogFile> service = new List<LogFile>();
+                foreach (LogFileKeyword task in result)
                 {
-                    DominoServerTasks servertaskDef = new DominoServerTasks { TaskName = servertask.TaskName, LoadString = servertask.LoadString, ConsoleString = servertask.ConsoleString, FreezeDetect = servertask.FreezeDetect, IdleString = servertask.IdleString, MaxBusyTime = servertask.MaxBusyTime, RetryCount = servertask.RetryCount };
-                    dominoservertasksRepository.Insert(servertaskDef);
-                    Response = Common.CreateResponse(true, "OK", "Maintain Users inserted successfully");
+                    service.Add(new LogFile
+                    {
+                        Keyword = task.Keyword,
+                        Exclude = task.Exclude,
+                        OneAlertPerDay=task.OneAlertPerDay,
+                        ScanLog=task.ScanLog,
+                        ScanAgentLog=task.ScanAgentLog
+
+
+                    });
+
+                }
+                Response = Common.CreateResponse(new { devicename = devicename, result = result,servers=servers });
+
+                // Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get Event Log File Scanning falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_log_file_scanning")]
+        public APIResponse UpdateLogFileScanning([FromBody]LogFile eventlog)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+
+                //  var devicesList = eventlog.LogFile.ToList();
+
+                //LogFileKeyword keywords = new LogFileKeyword
+                //{
+                //    Keyword =eventlog.Keyword ,
+                //    //  LogFileKeywords= eventlog.LogFile,
+                //    Exclude = eventlog.Exclude,
+                //    OneAlertPerDay = eventlog.OneAlertPerDay,
+                //    ScanLog = eventlog.ScanLog,
+                //    ScanAgentLog = eventlog.ScanAgentLog
+                //};
+                if (string.IsNullOrEmpty(eventlog.Keyword))
+                {
+                    LogFileKeyword logfiles = new LogFileKeyword
+                    {
+                        Keyword = eventlog.Keyword,
+                        //  LogFileKeywords= eventlog.LogFile,
+                        Exclude = eventlog.Exclude,
+                        OneAlertPerDay = eventlog.OneAlertPerDay,
+                        ScanLog = eventlog.ScanLog,
+                        ScanAgentLog = eventlog.ScanAgentLog
+
+                        //  LogFileKeywords = eventlog.LogFile.FirstOrDefault()
+
+
+
+                    };
+
+
+
+                    string id = serversRepository.Insert(logfiles);
+                    Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
                 }
                 else
                 {
-                    FilterDefinition<DominoServerTasks> filterDefination = Builders<DominoServerTasks>.Filter.Where(p => p.Id == servertask.Id);
-                    var updateDefination = dominoservertasksRepository.Updater.Set(p => p.TaskName, servertask.TaskName)
-                                                             .Set(p => p.LoadString, servertask.LoadString)
-                                                             .Set(p => p.ConsoleString, servertask.ConsoleString)
-                                                             .Set(p => p.FreezeDetect, servertask.FreezeDetect)
-                                                             .Set(p => p.IdleString, servertask.IdleString)
-                                                             .Set(p => p.MaxBusyTime, servertask.MaxBusyTime)
-                                                             .Set(p => p.RetryCount, servertask.RetryCount);
+                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == eventlog.Id);
+                    var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, eventlog.DeviceName);
 
-                    var result = dominoservertasksRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Domino server task definition updated successfully");
+
+                    var result = serversRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Domino Server Task falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Notes Database falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
+
         }
 
-        [HttpDelete("delete_server_task_definition/{id}")]
-        public void DeleteServerTaskDefinition(string id)
+        [HttpDelete("delete_log_file_scanning/{Id}")]
+        public void DeleteLogFileScanning(string Id)
         {
-            dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
-            Expression<Func<DominoServerTasks, bool>> expression = (p => p.Id == id);
-            dominoservertasksRepository.Delete(expression);
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
+                serversRepository.Delete(expression);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
+            }
         }
+
+        [HttpDelete("delete_event_log_file_scanning/{Id}")]
+        public void DeleteEventLogFileScanning(string Id)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
+                serversRepository.Delete(expression);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
+            }
+        }
+
+        #endregion
+
+
+        #region Node Health
+
+        [HttpGet("get_nodes_health")]
+        public APIResponse GetAllNodesHealth()
+        {
+            try
+            {
+                nodesRepository = new Repository<Nodes>(ConnectionString);
+                var result = nodesRepository.Collection.AsQueryable().Select(x => new NodesModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    HostName = x.HostName,
+                    Pulse = x.Pulse,
+                    IsAlive =x.IsAlive,
+                    Alive =x.IsAlive?"Yes":"No",
+                    LoadFactor = x.LoadFactor,
+                    IsConfiguredPrimary = x.IsConfiguredPrimary,
+                    IsPrimary = x.IsPrimary
+                    
+
+
+                }).ToList().OrderBy(x => x.Name);
+                // var servicesresult =  nodesRepository.Collection.AsQueryable().Select(x => x.ServiceStatus).ToList();
+               
+                var nodesData = nodesRepository.All().Select(x => x.Name).Distinct().OrderBy(x => x).ToList();
+
+                //  var serviceresult = nodesRepository.Collection.AsQueryable().Where(x => x.Id == result.id).Select(x => x.ServiceStatus).FirstOrDefault();
+
+
+
+                Response = Common.CreateResponse(new { nodesData = nodesData, result = result });
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "get Nodes Health falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("get_nodes_services")]
+        public APIResponse GetAllNodesServices(string id)
+        {
+            try
+            {
+                nodesRepository = new Repository<Nodes>(ConnectionString);              
+                Expression<Func<Nodes, bool>> expression = (p => p.Id == id);
+
+                var serviceresult = nodesRepository.Find(expression).Select(x => x.ServiceStatus).FirstOrDefault();
+                List<ServiceStatusModel> service = new List<ServiceStatusModel>();
+                foreach(ServiceSStatus task in serviceresult)
+                {
+                    service.Add(new ServiceStatusModel
+                    {
+                       Name=task.Name,
+                       State=task.State
+
+
+                    });
+
+                }
+                Response = Common.CreateResponse(serviceresult);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "get Nodes Health falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_nodes_health")]
+        public APIResponse UpdateNodesHealth([FromBody]NodesModel nodeshealth)
+        {
+            try
+            {
+                nodesRepository = new Repository<Nodes>(ConnectionString);
+
+
+                FilterDefinition<Nodes> filterDefination = Builders<Nodes>.Filter.Where(p => p.Id == nodeshealth.Id);
+                var updateDefination = nodesRepository.Updater.Set(p => p.Name, nodeshealth.Name)
+                                                         .Set(p => p.HostName, nodeshealth.HostName)
+                                                         .Set(p => p.Pulse, nodeshealth.Pulse)
+                                                         .Set(p => p.IsAlive, nodeshealth.IsAlive)
+                                                         .Set(p => p.LoadFactor, nodeshealth.LoadFactor)
+                                                         .Set(p => p.IsConfiguredPrimary, nodeshealth.IsConfiguredPrimary)
+                                                         .Set(p => p.IsPrimary, nodeshealth.IsPrimary);
+                                                       
+
+                var result = nodesRepository.Update(filterDefination, updateDefination);
+                Response = Common.CreateResponse(result, "OK", "Nodes Health updated successfully");
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Nodes Health falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpDelete("delete_nodes_health/{Id}")]
+        public void DeleteNodesHealth(string Id)
+        {
+            try
+            {
+                nodesRepository = new Repository<Nodes>(ConnectionString);
+                Expression<Func<Nodes, bool>> expression = (p => p.Id == Id);
+                nodesRepository.Delete(expression);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Nodes Health falied .\n Error Message :" + exception.Message);
+            }
+        }
+
 
         #endregion
     }
