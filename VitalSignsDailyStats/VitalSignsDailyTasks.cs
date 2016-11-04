@@ -816,8 +816,6 @@ namespace VitalSignsDailyStats
                                     summaryStatasticsRepository.Insert(avgResult);
 
 
-
-
                                 }
 
                                 break;
@@ -859,8 +857,9 @@ namespace VitalSignsDailyStats
                                     foreach (var item in maxResult)
                                     {
                                         item.StatDate = SearchDate;
-                                        summaryStatasticsRepository.Insert(maxResult);
+                                       
                                     }
+                                    summaryStatasticsRepository.Insert(maxResult);
                                 }
 
 
@@ -984,28 +983,37 @@ namespace VitalSignsDailyStats
 
         private void ConsolidateExchangeMailboxData(DateTime curDate, String searchDateStr = "")
         {
+            try
+            {
+                Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("Mailbox."));
+                var dailyStsts = dailyStatasticsRepository.Find(expression);
 
-            Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("Mailbox."));
-            var dailyStsts = dailyStatasticsRepository.Find(expression);
+                var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId })
 
-            var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId})
+                             .Select(x => new SummaryStatistics
+                             {
 
-                         .Select(x => new SummaryStatistics
-                         {
-                           
-                             StatValue = x.Sum(s => s.StatValue),
-                             DeviceName = x.Key.DeviceName,
-                             StatName = x.Key.StatName,
-                             DeviceId = x.Key.DeviceId,
-                             StatDate= curDate
-
-
-                         }).ToList();
+                                 StatValue = x.Sum(s => s.StatValue),
+                                 DeviceName = x.Key.DeviceName,
+                                 StatName = x.Key.StatName,
+                                 DeviceId = x.Key.DeviceId,
+                                 StatDate = curDate
 
 
+                             }).ToList();
 
-            if (result.Count > 0)
-                summaryStatasticsRepository.Insert(result);
+
+
+                if (result.Count > 0)
+                    summaryStatasticsRepository.Insert(result);
+
+            }
+            catch (Exception ex)
+            {
+                WriteAuditEntry(DateTime.Now.ToString() + "Error in processing ConsolidateExchangeMailboxData" + ex.Message);
+            }
+
+           
          
 
         }
