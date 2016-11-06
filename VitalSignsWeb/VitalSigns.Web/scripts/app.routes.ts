@@ -61,6 +61,13 @@ import { CostPerUserGridReport } from './reports/components/financial/cost-per-u
 import { TravelerAllocatedMemoryReport } from './reports/components/ibm-traveler/traveler-allocated-memory.component';
 import { TravelerStatsReport } from './reports/components/ibm-traveler/traveler-stats.component';
 import {OverallStatusReport} from './reports/components/servers/overall-status-report.component';
+import {DatabaseInventoryReport} from './reports/components/ibm-domino/database-inventory-report.component';
+import {LogFileReport} from './reports/components/ibm-domino/log-file-report.component';
+import {MailThresholdReport} from './reports/components/ibm-domino/mail-threshold-report.component';
+import {NotesDatabaseReport} from './reports/components/ibm-domino/notes-database-report.component';
+import {DominoServerTasksReport} from './reports/components/ibm-domino/domino-server-tasks-report.component';
+import {ServerAccessBrowserReport} from './reports/components/ibm-domino/server-access-browser-report.component';
+import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/server-availability-index-report.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -306,8 +313,36 @@ const appRoutes: Routes = [
             {
                 path: 'travelerstats',
                 component: TravelerStatsReport
+            },
+            {
+                path: 'databaseinventory',
+                component: DatabaseInventoryReport
+            },
+            {
+                path: 'logfile',
+                component: LogFileReport
+            },
+            {
+                path: 'dominomailthreshold',
+                component: MailThresholdReport
+            },
+            {
+                path: 'notesdatabase',
+                component: NotesDatabaseReport
+            },
+            {
+                path: 'dominoservertasks',
+                component: DominoServerTasksReport
+            },
+            {
+                path: 'serveraccessbrowser',
+                component: ServerAccessBrowserReport
+            },
+            {
+                path: 'serveravailabilityindex',
+                component: ServerAvailabilityIndexReport
             }
-
+            
         ]
     },
     {

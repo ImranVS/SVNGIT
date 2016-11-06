@@ -59,6 +59,13 @@ import {CostPerUserGridReport} from './reports/components/financial/cost-per-use
 import {TravelerAllocatedMemoryReport} from './reports/components/ibm-traveler/traveler-allocated-memory.component';
 import { TravelerStatsReport } from './reports/components/ibm-traveler/traveler-stats.component';
 import {OverallStatusReport} from './reports/components/servers/overall-status-report.component';
+import {DatabaseInventoryReport} from './reports/components/ibm-domino/database-inventory-report.component';
+import {LogFileReport} from './reports/components/ibm-domino/log-file-report.component';
+import {MailThresholdReport} from './reports/components/ibm-domino/mail-threshold-report.component';
+import {NotesDatabaseReport} from './reports/components/ibm-domino/notes-database-report.component';
+import {DominoServerTasksReport} from './reports/components/ibm-domino/domino-server-tasks-report.component';
+import {ServerAccessBrowserReport} from './reports/components/ibm-domino/server-access-browser-report.component';
+import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/server-availability-index-report.component';
 
 @NgModule({
     imports: [
@@ -107,6 +114,13 @@ import {OverallStatusReport} from './reports/components/servers/overall-status-r
         SampleFiltersBar,
         OverallStatusReport,
         TravelerStatsReport,
+        DatabaseInventoryReport,
+        LogFileReport,
+        MailThresholdReport,
+        NotesDatabaseReport,
+        DominoServerTasksReport,
+        ServerAccessBrowserReport,
+        ServerAvailabilityIndexReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -161,6 +175,7 @@ import {OverallStatusReport} from './reports/components/servers/overall-status-r
         widgets.MobileUsersGrid,
         widgets.MobileUsersKeyUserGrid,
         widgets.MailFileStatisticsList,
+        widgets.DatabaseInventoryList,
         widgets.CostPerUserPivotGrid,
         widgets.NotYetImplemented,
         widgets.OnPremisesApps,
@@ -206,6 +221,10 @@ import {OverallStatusReport} from './reports/components/servers/overall-status-r
         widgets.ServerAdvancedSettings,
         widgets.AnyStatisticReportGrid,
         widgets.OverallStatusReportGrid,
+        widgets.LogFileList,
+        widgets.MailThresholdList,
+        widgets.NotesDatabaseList,
+        widgets.DominoServerTasksList,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -270,6 +289,7 @@ import {OverallStatusReport} from './reports/components/servers/overall-status-r
         widgets.MobileUsersGrid,
         widgets.MobileUsersKeyUserGrid,
         widgets.MailFileStatisticsList,
+        widgets.DatabaseInventoryList,
         widgets.CostPerUserPivotGrid,
         widgets.NotYetImplemented,
         widgets.OnPremisesApps,
@@ -315,6 +335,10 @@ import {OverallStatusReport} from './reports/components/servers/overall-status-r
         widgets.ServerAdvancedSettings,
         widgets.AnyStatisticReportGrid,
         widgets.OverallStatusReportGrid,
+        widgets.LogFileList,
+        widgets.MailThresholdList,
+        widgets.NotesDatabaseList,
+        widgets.DominoServerTasksList,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,

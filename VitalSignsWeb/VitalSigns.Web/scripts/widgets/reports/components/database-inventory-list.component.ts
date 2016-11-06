@@ -4,28 +4,29 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
-import {ConsoleCommand} from '../models/console-command';
+import {DatabaseInventory} from '../models/database-inventory';
+
 
 @Component({
-    templateUrl: './app/widgets/mobile-users/components/console-commands-list.component.html',
+    templateUrl: './app/widgets/reports/components/database-inventory-list.component.html',
     providers: [
         HttpModule,
         RESTService
     ]
 })
-export class ConsoleCommands implements WidgetComponent, OnInit {
+export class DatabaseInventoryList implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     errorMessage: string;
 
-    consoleCommands: any;
+    databaseInventory: any;
 
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/reports/console_command_list')
+        this.service.get('/reports/database_inventory')
             .subscribe(
-            data => this.consoleCommands = data.data,
+            data => this.databaseInventory = data.data,
             error => this.errorMessage = <any>error
             );
     }

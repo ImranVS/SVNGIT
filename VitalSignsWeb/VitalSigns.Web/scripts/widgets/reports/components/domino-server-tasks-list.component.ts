@@ -4,28 +4,29 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
-import {ConsoleCommand} from '../models/console-command';
+import {DominoServerTasks} from '../models/domino-server-tasks.ts';
+
 
 @Component({
-    templateUrl: './app/widgets/mobile-users/components/console-commands-list.component.html',
+    templateUrl: './app/widgets/reports/components/domino-server-tasks-list.component.html',
     providers: [
         HttpModule,
         RESTService
     ]
 })
-export class ConsoleCommands implements WidgetComponent, OnInit {
+export class DominoServerTasksList implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     errorMessage: string;
 
-    consoleCommands: any;
+    dominoServerTasks: any;
 
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/reports/console_command_list')
+        this.service.get('/reports/domino_server_tasks')
             .subscribe(
-            data => this.consoleCommands = data.data,
+            data => this.dominoServerTasks = data.data,
             error => this.errorMessage = <any>error
             );
     }

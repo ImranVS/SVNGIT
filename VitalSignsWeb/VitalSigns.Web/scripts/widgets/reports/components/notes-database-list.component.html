@@ -1,0 +1,24 @@
+﻿<table class="table table-condensed small table-striped">
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>Database File Name</th>
+            <th>Category</th>
+            <th>Scan Interval</th>
+            <th>Offhours Scan Interval</th>
+            <th>Response Time</th>
+            <th>Retry Interval</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="notesDatabase">
+        <tr *ngFor="let notesDb of notesDatabase">
+            <td>{{notesDb.device_name}}</td>
+            <td>{{notesDb.database_file_name}}</td>
+            <td>{{notesDb.category}}</td>
+            <td>{{notesDb.scan_interval}}</td>
+            <td>{{notesDb.off_hours_scan_interval}}</td>
+            <td>{{notesDb.response_time}}</td>
+            <td>{{notesDb.retry_interval}}</td>
+        </tr>
+    </tbody>
+</table>

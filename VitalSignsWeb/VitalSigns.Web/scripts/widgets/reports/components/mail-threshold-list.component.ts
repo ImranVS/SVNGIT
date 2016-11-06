@@ -4,28 +4,29 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
-import {ConsoleCommand} from '../models/console-command';
+import {MailThreshold} from '../models/mail-threshold';
+
 
 @Component({
-    templateUrl: './app/widgets/mobile-users/components/console-commands-list.component.html',
+    templateUrl: './app/widgets/reports/components/mail-threshold-list.component.html',
     providers: [
         HttpModule,
         RESTService
     ]
 })
-export class ConsoleCommands implements WidgetComponent, OnInit {
+export class MailThresholdList implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     errorMessage: string;
 
-    consoleCommands: any;
+    mailThreshold: any;
 
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/reports/console_command_list')
+        this.service.get('/reports/domino_mail_threshold')
             .subscribe(
-            data => this.consoleCommands = data.data,
+            data => this.mailThreshold = data.data,
             error => this.errorMessage = <any>error
             );
     }
