@@ -1047,21 +1047,6 @@ WaitHere:
 
     Private Sub MonitorDomino(ByRef myServer As MonitoredItems.DominoServer)
         dll.W32_NotesInitThread()
-        '3/28/2016 NS added for VSPLUS-2669
-        'The default value of a server's time zone is set to 1000. We check it at the beginning to only set it once every cycle
-        If myServer.ServerTimeTZ = 1000 Then
-            Dim s As New Domino.NotesSession
-            Dim consolestr As String
-            Dim myPassword = GetNotesPassword()
-            Try
-                s.Initialize(myPassword)
-                consolestr = s.SendConsoleCommand(myServer.Name, "show time")
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
-                GetServerTimeZone(consolestr, myServer)
-            Catch ex As Exception
-                WriteDeviceHistoryEntry("Domino", myServer.Name, Now.ToString & " Error accessing server time : " & ex.ToString)
-            End Try
-        End If
 
         Try
             If InStr(myServer.Name, "RPRWyattTest") Then
@@ -1165,6 +1150,22 @@ WaitHere:
         Catch ex As Exception
 
         End Try
+
+        '3/28/2016 NS added for VSPLUS-2669  - AF 11/4/2016 moved this function below the maintenance check
+        'The default value of a server's time zone is set to 1000. We check it at the beginning to only set it once every cycle
+        If myServer.ServerTimeTZ = 1000 Then
+            Dim s As New Domino.NotesSession
+            Dim consolestr As String
+            Dim myPassword = GetNotesPassword()
+            Try
+                s.Initialize(myPassword)
+                consolestr = s.SendConsoleCommand(myServer.Name, "show time")
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
+                GetServerTimeZone(consolestr, myServer)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Domino", myServer.Name, Now.ToString & " Error accessing server time : " & ex.ToString)
+            End Try
+        End If
 
         'Try
         '    WriteDeviceHistoryEntry("Domino", myServer.Name, Now.ToString & " Attempting to update settings prior to a scan.")
