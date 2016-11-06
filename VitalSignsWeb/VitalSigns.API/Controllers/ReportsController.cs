@@ -19,8 +19,14 @@ namespace VitalSigns.API.Controllers
     [Route("[controller]")]
     public class ReportsController : BaseController
     {
+        private IRepository<ConsoleCommands> consoleCommandsRepository;
+        private IRepository<LogFile> logFileRepository;
         private IRepository<SummaryStatistics> summaryRepository;
+        private IRepository<Database> databaseRepository;
+        private IRepository<Server> serverRepository;
         private string DateFormat = "yyyy-MM-dd";
+        private IRepository<DominoServerTasks> doimoServerTasksRepository;
+
 
         [HttpGet("disk_availability_trend")]
         public APIResponse GetDiskAvailabilityTrend(string deviceId = "", int year = -1, bool isChart = true)
@@ -584,6 +590,165 @@ namespace VitalSigns.API.Controllers
 
                 return Response;
             }
+        }
+
+        [HttpGet("domino_summarystats_chart")]
+        public APIResponse GetDominoSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "")
+        {
+            try
+            {
+
+                if (deviceId == "")
+                {
+                    VSNext.Mongo.Repository.Repository<Server> repo = new VSNext.Mongo.Repository.Repository<Server>(ConnectionString);
+                    FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repo.Filter.Where(i => i.DeviceType == "Domino");
+                    ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDef = repo.Project.Include(i => i.Id);
+                    List<Server> serverList = repo.Find(filterdef, projectDef).ToList();
+                    foreach (Server s in serverList)
+                    {
+                        if (deviceId == "")
+                            deviceId = s.Id;
+                        else
+                            deviceId += "," + s.Id;
+                    }
+                }
+                return GetSumamryStatsChart(statName, deviceId, startDate, endDate);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("console_command_list")]
+        public APIResponse GetAllConsoleCommands()
+        {
+            consoleCommandsRepository = new Repository<ConsoleCommands>(ConnectionString);
+            List<ConsoleCommandList> result = null;
+
+            result = consoleCommandsRepository.Collection
+                             .AsQueryable()
+                             .Select(x => new ConsoleCommandList
+                             {
+                                 ServerName = x.DeviceName,
+                                 Command = x.Command,
+                                 Submitter = x.Submitter,
+                                 Result = x.Result,
+                                 Comment = x.Comments
+                             }).ToList();
+
+            Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
+            return Response;
+        }
+
+        [HttpGet("database_inventory")]
+        public APIResponse getDatabaseInventory()
+        {
+            databaseRepository = new Repository<Database>(ConnectionString);
+            List<DatabaseInventoryList> result = null;
+
+            result = databaseRepository.Collection
+                             .AsQueryable()
+                             .Select(x => new DatabaseInventoryList
+                             {
+                                 Folder = x.Folder,
+                                 FileNamePath = x.FileNamePath,
+                                 Server = x.DeviceName,
+                                 Title = x.Title,
+                                 Status = x.Status,
+                                 DesignTemplateName = x.DesignTemplateName,
+                                 IsMailFile = x.IsMailFile
+                             }).ToList();
+
+            Response = Common.CreateResponse(result.OrderBy(x => x.Server));
+            return Response;
+        }
+
+        [HttpGet("log_file")]
+        public APIResponse GetLogFileData()
+        {
+            logFileRepository = new Repository<LogFile>(ConnectionString);
+            List<LogFileList> result = null;
+
+            result = logFileRepository.Collection
+                             .AsQueryable()
+                             .Select(x => new LogFileList
+                             {
+                                 Keyword = x.KeyWord,
+                                 RepeatOnce = x.RepeateOnce
+                             }).ToList();
+
+            Response = Common.CreateResponse(result.OrderBy(x => x.Keyword));
+            return Response;
+        }
+
+        [HttpGet("domino_mail_threshold")]
+        public APIResponse GetMailThreshold()
+        {
+            serverRepository = new Repository<Server>(ConnectionString);
+            List<MailThresholdList> result = null;
+            FilterDefinition<Server> filterDef = serverRepository.Filter.Eq(x => x.DeviceType, "Domino");
+            result = serverRepository.Find(filterDef)
+                             .AsQueryable()
+                             .Select(x => new MailThresholdList
+                             {
+                                 ServerName = x.DeviceName,
+                                 DeadMailThreshold = x.DeadMailThreshold,
+                                 HeldMailThreshold=x.HeldMailThreshold,
+                                 PendingMailThreshold=x.PendingMailThreshold
+                             }).ToList();
+
+            Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
+            return Response;
+        }
+
+        [HttpGet("notes_database")]
+        public APIResponse GetNotesDatabase()
+        {
+            serverRepository = new Repository<Server>(ConnectionString);
+            List<NotesDatabaseList> result = null;
+            FilterDefinition<Server> filterDef = serverRepository.Filter.Eq(x => x.DeviceType, "Notes Database");
+            result = serverRepository.Find(filterDef)
+                             .AsQueryable()
+                             .Select(x => new NotesDatabaseList
+                             {
+                                 ServerName = x.DeviceName,
+                                 DatabaseFileName = x.DatabaseFileName,
+                                 Category = x.Category,
+                                 ScanInterval = x.ScanInterval,
+                                 OffHoursScanInterval = x.OffHoursScanInterval,
+                                 ResponseTime = x.ResponseTime,
+                                 RetryInterval = x.RetryInterval,
+                             }).ToList();
+
+            Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
+            return Response;
+        }
+
+        [HttpGet("domino_server_tasks")]
+        public APIResponse GetDominoServerTasks()
+        {
+            doimoServerTasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+            List<DominoServerTasksList> result = null;
+            result = doimoServerTasksRepository.Collection
+                             .AsQueryable()
+                             .Select(x => new DominoServerTasksList
+                             {
+                                 TaskName  = x.TaskName,
+                                 FreezeDetect = x.FreezeDetect,
+                                 IdleString = x.IdleString,
+                                 RetryCount = x.RetryCount,
+                                 LoadString = x.LoadString,
+                                 MaxBusyTime = x.MaxBusyTime,
+                                 SendExitCmd = x.ConsoleString,
+                             }).ToList();
+
+            Response = Common.CreateResponse(result.OrderBy(x => x.TaskName));
+            return Response;
         }
     }
 }

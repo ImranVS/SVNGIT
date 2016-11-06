@@ -2350,10 +2350,10 @@ namespace VitalSigns.API.Controllers
                 var devicename = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.DeviceName).FirstOrDefault();
                 var result = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.LogFileKeywords).FirstOrDefault();
                 var servers = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.LogFileServers).FirstOrDefault();
-                List<LogFile> service = new List<LogFile>();
+                List<VitalSigns.API.Models.Configurator.LogFile> service = new List<VitalSigns.API.Models.Configurator.LogFile>();
                 foreach (LogFileKeyword task in result)
                 {
-                    service.Add(new LogFile
+                    service.Add(new VitalSigns.API.Models.Configurator.LogFile
                     {
                         Keyword = task.Keyword,
                         Exclude = task.Exclude,
@@ -2376,9 +2376,9 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-
+        
         [HttpPut("save_log_file_scanning")]
-        public APIResponse UpdateLogFileScanning([FromBody]LogFile eventlog)
+        public APIResponse UpdateLogFileScanning([FromBody] VitalSigns.API.Models.Configurator.LogFile eventlog)
         {
             try
             {
@@ -2980,7 +2980,7 @@ namespace VitalSigns.API.Controllers
 
                 var serviceresult = nodesRepository.Find(expression).Select(x => x.ServiceStatus).FirstOrDefault();
                 List<ServiceStatusModel> service = new List<ServiceStatusModel>();
-                foreach(ServiceSStatus task in serviceresult)
+                foreach(VSNext.Mongo.Entities.ServiceStatus task in serviceresult)
                 {
                     service.Add(new ServiceStatusModel
                     {
