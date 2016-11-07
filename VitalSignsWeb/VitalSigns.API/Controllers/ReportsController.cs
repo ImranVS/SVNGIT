@@ -26,6 +26,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Server> serverRepository;
         private string DateFormat = "yyyy-MM-dd";
         private IRepository<DominoServerTasks> doimoServerTasksRepository;
+        private IRepository<IbmConnectionsObjects> connectionsRepository;
 
 
         [HttpGet("disk_availability_trend")]
@@ -750,5 +751,44 @@ namespace VitalSigns.API.Controllers
             Response = Common.CreateResponse(result.OrderBy(x => x.TaskName));
             return Response;
         }
+
+        [HttpGet("community_users")]
+        public APIResponse GetCommunityUsers()
+        {
+            connectionsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+            List<IBMConnCommunityUsersList> result = null;
+            FilterDefinition<IbmConnectionsObjects> filterDef = connectionsRepository.Filter.Eq(x => x.Type, "Community");
+            result = connectionsRepository.Find(filterDef)
+                             .AsQueryable()
+                             .Select(x => new IBMConnCommunityUsersList
+                             {
+                                 ServerName = x.DeviceName,
+                                 Name = x.Name,
+                                 users = x.users,
+                             }).ToList();
+
+            List<IBMConnCommunityUsersList> result2 = new List<IBMConnCommunityUsersList>(); ;
+            foreach (IBMConnCommunityUsersList l in result)
+            {
+                foreach (string s in l.users)
+                {
+                    IBMConnCommunityUsersList ibm2 = new IBMConnCommunityUsersList();
+                    ibm2.ServerName = l.ServerName;
+                    ibm2.Name = l.Name;
+                    FilterDefinition<IbmConnectionsObjects> filterDef2 = connectionsRepository.Filter.Eq(x => x.Type, "Users") & connectionsRepository.Filter.Eq(x => x.Id, s);
+                    List<string> us = connectionsRepository.Find(filterDef2)
+                                .AsQueryable()
+                                .Select(x => x.Name).ToList();
+                    foreach (string s1 in us)
+                        ibm2.user = s1;
+                    result2.Add(ibm2);
+                }
+
+
+            }
+            Response = Common.CreateResponse(result2.OrderBy(x => x.Name));
+            return Response;
+        }
+
     }
 }

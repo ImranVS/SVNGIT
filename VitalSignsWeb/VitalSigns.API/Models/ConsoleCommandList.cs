@@ -23,7 +23,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("comment")]
         public string Comment { get; set; }
 
-       
+
     }
 
     public class DatabaseInventoryList
@@ -69,7 +69,7 @@ namespace VitalSigns.API.Models
         public Boolean? AgentLog { get; set; }
 
         [JsonProperty("domino_event_log_id")]
-        public int  DominoEventLogId { get; set; }
+        public int DominoEventLogId { get; set; }
 
 
     }
@@ -116,7 +116,7 @@ namespace VitalSigns.API.Models
 
     }
 
-   
+
     public class DominoServerTasksList
     {
         [JsonProperty("task_name")]
@@ -156,5 +156,20 @@ namespace VitalSigns.API.Models
         public string IdleString { get; set; }
 
 
+    }
+
+    public class IBMConnCommunityUsersList
+    {
+        [JsonProperty("device_name")]
+        public string ServerName { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("user")]
+        public List<string> users { get; set; }
+
+        [JsonProperty("object_user")]
+        public string user { get; set; }
     }
 }
