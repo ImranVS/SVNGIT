@@ -5,12 +5,12 @@
     <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Enable'" [binding]="'is_enabled'" [width]="180"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Scan Interval'" [binding]="'scan_interval'" [width]="250"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Off-Hours Scaninterval'" [binding]="'off_hours_scan_interval'" [width]="150"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Threshold'" [binding]="'threshold'" [width]="150"></wj-flex-grid-column>
+        <!--<wj-flex-grid-column [header]="'Threshold'" [binding]="'threshold'" [width]="150"></wj-flex-grid-column>-->
         <wj-flex-grid-column [header]="'Server Name	'" [binding]="'domino_server_name'" [width]="180"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="200"></wj-flex-grid-column>
+        <!--<wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="200"></wj-flex-grid-column>-->
         <wj-flex-grid-column [header]="'Retry Interval'" [binding]="'retry_interval'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Trigger Type'" [binding]="'trigger_type'" [width]="200"></wj-flex-grid-column>
     </wj-flex-grid>
@@ -75,9 +75,9 @@ data.pageIndex + 1 | number
                     <div class="panel-body" *ngIf="currentEditItem">
                         <div class="row">
                             <div class="form-group col-sm-6">
-                                <label for="device_name" class="control-label col-sm-5">Name</label>
+                                <label for="name" class="control-label col-sm-5">Name</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="device_name" required name="device_name" [(ngModel)]="currentEditItem.device_name">
+                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
                                 </div>
                             </div>
                             <div class="form-group col-sm-1">
