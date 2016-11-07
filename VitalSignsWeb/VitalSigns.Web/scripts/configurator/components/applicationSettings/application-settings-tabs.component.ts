@@ -74,13 +74,8 @@ export class ApplicationSettings implements OnInit {
                 "component": "TravelerDataStore",
                 "path": "/app/configurator/components/applicationSettings/application-settings-travelerdatastore.component",
                 "active": false
-            },
-            {
-                "title": "IBM Domino Settings",
-                "component": "IbmDominoSettingsForm",
-                "path": "/app/configurator/components/applicationSettings/application-settings-ibm-domino-settings.component",
-                "active": false
             }
+            
 
         ];
               this.selectTab(this.tabsData[0]);
