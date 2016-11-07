@@ -30,8 +30,6 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public int? ScanInterval { get; set; }
 
-      
-
         [DataMember]
         [BsonElement("off_hours_scan_interval")]
         [BsonIgnoreIfNull]
@@ -88,12 +86,7 @@ namespace VSNext.Mongo.Entities
         public int? RetryInterval { get; set; }
 
 
-
-
-
-
         //Note replica      
-
 
         [DataMember]
         [BsonElement("category")]
@@ -157,7 +150,6 @@ namespace VSNext.Mongo.Entities
 
         //Custom stats
 
-
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("stat_name")]
@@ -186,7 +178,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("domino_servers")]
-        public List<String> DominoServers { get; set; }
+        public String DominoServers { get; set; }
 
         //Domino Log File Scanning
 
