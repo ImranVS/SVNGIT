@@ -2137,11 +2137,13 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                serversRepository = new Repository<Server>(ConnectionString);
-                var result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Notes Database").Select(x => new NotesDatabaseModel
+
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType == "Notes Database").Select(x => new NotesDatabaseModel
                 {
                     Id = x.Id,
-                    DeviceName = x.DeviceName,
+                    // DominoServerId = x.DominoServerId,
+                    Name = x.Name,
                     IsEnabled = x.IsEnabled,
                     ScanInterval = x.ScanInterval,
                     OffHoursScanInterval = x.OffHoursScanInterval,
@@ -2149,14 +2151,12 @@ namespace VitalSigns.API.Controllers
                     DominoServerName = x.DominoServerName,
                     DatabaseFileName = x.DatabaseFileName,
                     TriggerType = x.TriggerType,
-                    Category = x.Category,
+
                     TriggerValue = x.TriggerValue
 
-                }).ToList().OrderBy(x => x.DeviceName);
-
+                }).ToList().OrderBy(x => x.Name);
 
                 Response = Common.CreateResponse(result);
-
             }
             catch (Exception exception)
             {
@@ -2170,46 +2170,46 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                serversRepository = new Repository<Server>(ConnectionString);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
 
 
 
                 if (string.IsNullOrEmpty(notesDatabase.Id))
                 {
-                    Server notesDatabases = new Server
+                    ServerOther notesDatabases = new ServerOther
                     {
-                        DeviceName = notesDatabase.DeviceName,
+
                         DominoServerName = notesDatabase.DominoServerName,
+                        Name = notesDatabase.Name,
                         DatabaseFileName = notesDatabase.DatabaseFileName,
-                        DeviceType = "Notes Database",
+                        DominoType = "Notes Database",
                         TriggerType = notesDatabase.TriggerType,
                         ScanInterval = notesDatabase.ScanInterval,
                         OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
-                        Category = notesDatabase.Category,
                         IsEnabled = notesDatabase.IsEnabled,
                         RetryInterval = notesDatabase.RetryInterval,
-                        TriggerValue = notesDatabase.TriggerValue
+                        TriggerValue = notesDatabase.TriggerValue,
+                        //DominoServerId = notesDatabase.DominoServerId
                     };
 
 
-                    string id = serversRepository.Insert(notesDatabases);
+                    string id = serverOtherRepository.Insert(notesDatabases);
                     Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
                 }
                 else
                 {
-                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == notesDatabase.Id);
-                    var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, notesDatabase.DeviceName)
-                                                             .Set(p => p.DominoServerName, notesDatabase.DominoServerName)
-                                                             .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
+                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabase.Id);
+                    var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerName, notesDatabase.DominoServerName)
+                                                               .Set(p => p.Name, notesDatabase.Name)
+                                                              .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
                                                              .Set(p => p.TriggerType, notesDatabase.TriggerType)
                                                              .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
                                                              .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
-                                                             .Set(p => p.Category, notesDatabase.Category)
-                                                             .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
-                                                              .Set(p => p.TriggerValue, notesDatabase.TriggerValue)
+                                                            .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
+                                                            .Set(p => p.TriggerValue, notesDatabase.TriggerValue)
                                                              .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
 
-                    var result = serversRepository.Update(filterDefination, updateDefination);
+                    var result = serverOtherRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
                 }
             }
@@ -2227,9 +2227,9 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                serversRepository = new Repository<Server>(ConnectionString);
-                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
-                serversRepository.Delete(expression);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
+                serverOtherRepository.Delete(expression);
 
 
             }
