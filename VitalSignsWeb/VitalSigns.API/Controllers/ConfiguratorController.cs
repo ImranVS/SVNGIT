@@ -52,7 +52,9 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Status> statusRepository;
         private IRepository<Nodes> nodesRepository;
+
         private IRepository<ServerOther> serverOtherRepository;
+
         #endregion
 
         #region Application Settings
@@ -1983,20 +1985,107 @@ namespace VitalSigns.API.Controllers
 
         #region IBM Domino Settings
 
+        #region Custom Statistics
+        [HttpGet("get_custom_statistics")]
+        public APIResponse GetCustomStatistics()
+        {
+            try
+            {
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType == "Domino Custom Statistic").Select(x => new CustomStatisticsModel
+                {
+                    Id = x.Id,
+
+                    DominoServers = x.DominoServers,
+                    StatName = x.StatName,
+                    ThresholdValue = x.ThresholdValue,
+                    TimesInARow = x.TimesInARow,
+                    GreaterThanOrLessThan = x.GreaterThanOrLessThan,
+                    ConsoleCommand = x.ConsoleCommand
+
+                }).ToList();
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "custom statistics falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_custom_statistics")]
+        public APIResponse UpdateCustomStatistics([FromBody]CustomStatisticsModel customstat)
+        {
+            try
+            {
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                if (string.IsNullOrEmpty(customstat.Id))
+                {
+                    ServerOther customstatistic = new ServerOther
+                    {
+                        DominoType = "Domino Custom Statistic",
+                        DominoServers = customstat.DominoServers,
+                        StatName = customstat.StatName,
+                        ThresholdValue = customstat.ThresholdValue,
+                        TimesInARow  = customstat.TimesInARow,
+                        GreaterThanOrLessThan = customstat . GreaterThanOrLessThan,
+                        ConsoleCommand = customstat.ConsoleCommand
+                    
+                    };
+
+                    string id = serverOtherRepository.Insert(customstatistic);
+                    Response = Common.CreateResponse(id, "OK", "custom statistics inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == customstat.Id);
+                    var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServers, customstat.DominoServers)
+                                                             .Set(p => p.StatName, customstat.StatName)
+                                                             .Set(p => p.ThresholdValue, customstat.ThresholdValue)
+                                                             .Set(p => p.TimesInARow, customstat.TimesInARow)
+                                                              .Set(p => p.GreaterThanOrLessThan, customstat.GreaterThanOrLessThan)
+                                                               .Set(p => p.ConsoleCommand, customstat.ConsoleCommand);                                                            
+                    var result = serverOtherRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "custom statistics updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save custom statistics falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
+        [HttpDelete("delete_custom_statistics/{Id}")]
+        public void DeleteCustomStatistics(string Id)
+        {
+            try
+            {
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
+                serverOtherRepository.Delete(expression);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete custom statistics falied .\n Error Message :" + exception.Message);
+            }
+        }
+
+        #endregion
+
         #region Notes Database Replicas
         [HttpGet("get_domino_servers")]
         public APIResponse GetDominoServerNames()
         {
             try
             {
-
                 serversRepository = new Repository<Server>(ConnectionString);
-
                 var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.DeviceName }).ToList().OrderBy(x => x.DisplayText);
-
                 Response = Common.CreateResponse(new { serversData = serversData });
                 return Response;
-
             }
             catch (Exception exception)
             {
