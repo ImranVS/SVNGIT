@@ -11,8 +11,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonProperty("device_name")]
-        public string DeviceName { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
         [JsonProperty("domino_server_name")]
         public string DominoServerName { get; set; }
@@ -48,6 +48,13 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("replication_destination")]
         public List<string> ReplicationDestination { get; set; }
+
+       [JsonProperty("domino_type")]
+        public string DominoType { get; set; }
+
+
+        [JsonProperty("domino_server_id")]
+        public string DominoServerId { get; set; }
 
     }
 }
