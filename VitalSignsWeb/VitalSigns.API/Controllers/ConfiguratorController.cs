@@ -52,6 +52,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Status> statusRepository;
         private IRepository<Nodes> nodesRepository;
+        private IRepository<ServerOther> serverOtherRepository;
         #endregion
 
         #region Application Settings
@@ -2009,10 +2010,10 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                serversRepository = new Repository<Server>(ConnectionString);
-                var result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Notes Database Replica").Select(x => new NotesDatabaseReplicaModel
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType== "Notes Database Replica").Select(x => new NotesDatabaseReplicaModel
                 {
-                    DeviceName = x.DeviceName,
+                    DeviceName = x.ReplicaNmae,
                     IsEnabled = x.IsEnabled,
                     ScanInterval = x.ScanInterval,
                     OffHoursScanInterval = x.OffHoursScanInterval,
@@ -2048,13 +2049,13 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                serversRepository = new Repository<Server>(ConnectionString);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
 
 
 
                 if (string.IsNullOrEmpty(notesDatabaseReplica.Id))
                 {
-                    Server notesDatabase = new Server
+                    ServerOther notesDatabase = new ServerOther
                     {
                         DominoServerA = notesDatabaseReplica.DominoServerA,
                         DominoServerAFileMask = notesDatabaseReplica.DominoServerAFileMask,
@@ -2066,8 +2067,8 @@ namespace VitalSigns.API.Controllers
                         DominoServerCFileMask = notesDatabaseReplica.DominoServerCFileMask,
                         DominoServerCExcludeFolders = notesDatabaseReplica.DominoServerCExcludeFolders,
                         DifferenceThreshold = notesDatabaseReplica.DifferenceThreshold,
-                        DeviceType = "Notes Database Replica",
-                        DeviceName = notesDatabaseReplica.DeviceName,
+                        DominoType = "Notes Database Replica",
+                        ReplicaNmae = notesDatabaseReplica.DeviceName,
                         IsEnabled = notesDatabaseReplica.IsEnabled,
                         Category = notesDatabaseReplica.Category,
                         ScanInterval = notesDatabaseReplica.ScanInterval,
@@ -2075,13 +2076,13 @@ namespace VitalSigns.API.Controllers
                     };
 
 
-                    string id = serversRepository.Insert(notesDatabase);
+                    string id = serverOtherRepository.Insert(notesDatabase);
                     Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
                 }
                 else
                 {
-                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == notesDatabaseReplica.Id);
-                    var updateDefination = serversRepository.Updater.Set(p => p.DominoServerA, notesDatabaseReplica.DominoServerA)
+                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabaseReplica.Id);
+                    var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerA, notesDatabaseReplica.DominoServerA)
                                                              .Set(p => p.DominoServerAFileMask, notesDatabaseReplica.DominoServerAFileMask)
                                                              .Set(p => p.DominoServerAExcludeFolders, notesDatabaseReplica.DominoServerAExcludeFolders)
                                                              .Set(p => p.DominoServerB, notesDatabaseReplica.DominoServerB)
@@ -2090,14 +2091,14 @@ namespace VitalSigns.API.Controllers
                                                                .Set(p => p.DominoServerC, notesDatabaseReplica.DominoServerC)
                                                               .Set(p => p.DominoServerCFileMask, notesDatabaseReplica.DominoServerCFileMask)
                                                                .Set(p => p.DominoServerCExcludeFolders, notesDatabaseReplica.DominoServerCExcludeFolders)
-                                                                .Set(p => p.DeviceName, notesDatabaseReplica.DeviceName)
+                                                                .Set(p => p.ReplicaNmae, notesDatabaseReplica.DeviceName)
                                                                 .Set(p => p.IsEnabled, notesDatabaseReplica.IsEnabled)
                                                                 .Set(p => p.Category, notesDatabaseReplica.Category)
                                                                 .Set(p => p.ScanInterval, notesDatabaseReplica.ScanInterval)
                                                                 .Set(p => p.OffHoursScanInterval, notesDatabaseReplica.OffHoursScanInterval)
                                                               .Set(p => p.DifferenceThreshold, notesDatabaseReplica.DifferenceThreshold)
                                                              ;
-                    var result = serversRepository.Update(filterDefination, updateDefination);
+                    var result = serverOtherRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
                 }
             }
@@ -2115,9 +2116,9 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                serversRepository = new Repository<Server>(ConnectionString);
-                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
-                serversRepository.Delete(expression);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
+                serverOtherRepository.Delete(expression);
 
 
             }
