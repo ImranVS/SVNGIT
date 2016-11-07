@@ -1,26 +1,29 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
-import {RESTService} from '../../../core/services/rest.service';
+import {ActivatedRoute} from '@angular/router';
+import {WidgetController, WidgetContract, WidgetService} from '../../core/widgets';
+import {RESTService} from '../../core/services/rest.service';
 
-import * as helpers from '../../../core/services/helpers/helpers';
+import * as helpers from '../../core/services/helpers/helpers';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/servers/response-time-report.component.html',
+    templateUrl: '/app/reports/components/hourly-statistics-report.component.html',
     providers: [
         WidgetService,
         RESTService,
         helpers.UrlHelperService
     ]
 })
-export class ResponseTimeReport extends WidgetController {
+export class HourlyStatisticsReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
+    statname: string;
+    title: string;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute,
         protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
@@ -29,25 +32,34 @@ export class ResponseTimeReport extends WidgetController {
 
     ngOnInit() {
 
+        this.route.queryParams.subscribe(params => {
+            this.statname = params['statname'];
+            this.title = params['title'];
+        });
+        console.log(this.statname);
+
         this.service.get('/navigation/sitemaps/server_reports')
             .subscribe
             (
-            data => this.contextMenuSiteMap = data,
+            data => {
+                this.contextMenuSiteMap = data;
+                console.log(data)
+            }
+            ,
             error => console.log(error)
             );
         this.widgets = [
             {
-                id: 'blogs',
-                title: 'Response Times',
+                id: 'report',
+                //title: `${this.title}`,
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/status_list?type=Domino&docfield=response_time&isChart=true`,
+                    url: `/reports/dailystats_hourly_chart?statName=${this.statname}`,
                     chart: {
                         chart: {
-                            renderTo: 'blogs',
-                            type: 'bar',
-                            height: 240
+                            renderTo: 'report',
+                            type: 'spline',
+                            height: 540
                         },
                         title: { text: '' },
                         subtitle: { text: '' },

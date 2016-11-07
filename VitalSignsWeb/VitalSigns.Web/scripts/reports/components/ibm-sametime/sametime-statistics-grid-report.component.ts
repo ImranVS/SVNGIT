@@ -9,18 +9,18 @@ declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/servers/overall-status-report.component.html',
+    templateUrl: '/app/reports/components/ibm-sametime/sametime-statistics-grid-report.component.html',
     providers: [
         WidgetService,
         RESTService,
         helpers.UrlHelperService
     ]
 })
-export class OverallStatusReport extends WidgetController {
+export class SametimeStatisticsGridReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, 
         protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
@@ -29,17 +29,22 @@ export class OverallStatusReport extends WidgetController {
 
     ngOnInit() {
 
-        this.service.get('/navigation/sitemaps/server_reports')
+        this.service.get('/navigation/sitemaps/sametime_reports')
             .subscribe
             (
-            data => this.contextMenuSiteMap = data,
+            data => {
+                this.contextMenuSiteMap = data;
+                console.log(data)
+            }
+            ,
             error => console.log(error)
-            );
+        );
+
         this.widgets = [
             {
-                id: 'overallStatusGrid',
-                title: 'Overall Status',
-                name: 'OverallStatusReportGrid',
+                id: 'sametimeStatisticsGrid',
+                title: 'Sametime Statistics',
+                name: 'SametimeStatisticGridReportGrid',
                 settings: {}
             }
         ];

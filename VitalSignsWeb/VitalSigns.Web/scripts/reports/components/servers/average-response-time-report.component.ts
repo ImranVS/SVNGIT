@@ -1,8 +1,8 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-
 import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
-
 import {RESTService} from '../../../core/services/rest.service';
+
+import * as helpers from '../../../core/services/helpers/helpers';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
@@ -12,14 +12,16 @@ declare var bootstrapNavigator: any;
     templateUrl: '/app/reports/components/servers/average-response-time-report.component.html',
     providers: [
         WidgetService,
-        RESTService
+        RESTService,
+        helpers.UrlHelperService
     ]
 })
 export class AverageResponseTimeReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
+        protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
 

@@ -5,7 +5,6 @@
             <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
                 [routerLinkActive]="['selected']"
                 [routerLinkActiveOptions]="{exact: true}">
-                <!--<a [routerLink]="[node.url]">{{node.title}}</a>-->
                 <a [routerLink]="this.urlHelpers.getUrlPath(node.url)" [queryParams]="this.urlHelpers.getUrlQueryParams(node.url)">{{node.title}}</a>
             </li>
 

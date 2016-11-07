@@ -9,14 +9,14 @@ declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/servers/response-time-report.component.html',
+    templateUrl: '/app/reports/components/ibm-sametime/sametime-statistics-chart-report.component.html',
     providers: [
         WidgetService,
         RESTService,
         helpers.UrlHelperService
     ]
 })
-export class ResponseTimeReport extends WidgetController {
+export class SametimeStatisticsChartReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
@@ -29,25 +29,28 @@ export class ResponseTimeReport extends WidgetController {
 
     ngOnInit() {
 
-        this.service.get('/navigation/sitemaps/server_reports')
+        this.service.get('/navigation/sitemaps/sametime_reports')
             .subscribe
             (
-            data => this.contextMenuSiteMap = data,
+            data => {
+                this.contextMenuSiteMap = data;
+                console.log(data)
+            }
+            ,
             error => console.log(error)
             );
         this.widgets = [
             {
-                id: 'blogs',
-                title: 'Response Times',
+                id: 'report',
+                //title: `${this.title}`,
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/status_list?type=Domino&docfield=response_time&isChart=true`,
+                    url: `/reports/summarystats_chart?statName=TotalnWayChats`,
                     chart: {
                         chart: {
-                            renderTo: 'blogs',
+                            renderTo: 'report',
                             type: 'bar',
-                            height: 240
+                            height: 540
                         },
                         title: { text: '' },
                         subtitle: { text: '' },

@@ -24,9 +24,12 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<Server> serverRepository;
+        private IRepository<DailyStatistics> dailyRepository;
+
         private string DateFormat = "yyyy-MM-dd";
         private IRepository<DominoServerTasks> doimoServerTasksRepository;
         private IRepository<IbmConnectionsObjects> connectionsRepository;
+        private string DateFormatMonthYear = "yyyy-MM";
 
 
         [HttpGet("disk_availability_trend")]
@@ -367,7 +370,111 @@ namespace VitalSigns.API.Controllers
                     {
                         var item = currList.Where(x => x.CreatedOn.Date == date.Date).ToList();
 
-                        serie.Segments.Add(new Segment() { Label = date.Date.ToString(DateFormat), Value = item.Count > 0 ? (double?) item[0].StatValue : null });
+                        serie.Segments.Add(new Segment() { Label = date.Date.ToString(DateFormat), Value = item.Count > 0 ? (double?)item[0].StatValue : null });
+                    }
+                    series.Add(serie);
+                }
+               
+                Chart chart = new Chart();
+                chart.Title = statName;
+                chart.Series = series;
+                Response = Common.CreateResponse(chart);
+
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("dailystats_hourly_chart")]
+        public APIResponse GetDailyStatsChart(string statName, string deviceId = "", string date = "", string type = "")
+        {
+            FilterDefinition<DailyStatistics> filterDef = null;
+            if (date == "")
+                date = DateTime.Now.Date.ToString(DateFormat);
+
+
+            //1 day is added to the end so we include that days data
+            DateTime dtDate = DateTime.ParseExact(date, DateFormat, CultureInfo.InvariantCulture);
+
+            dtDate = DateTime.SpecifyKind(dtDate, DateTimeKind.Utc);
+
+            System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
+            dailyRepository = new Repository<DailyStatistics>(ConnectionString);
+
+            List<String> listOfDevices;
+            List<String> listOfTypes;
+
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                listOfDevices = new List<string>();
+            }
+            else
+            {
+                listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+            }
+
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                listOfTypes = new List<string>();
+            }
+            else
+            {
+                listOfTypes = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+            }
+
+            try
+            {
+                filterDef = dailyRepository.Filter.Gte(p => p.CreatedOn, dtDate) &
+                    dailyRepository.Filter.Lt(p => p.CreatedOn, dtDate.AddDays(1)) &
+                    dailyRepository.Filter.Eq(p => p.StatName, statName);
+
+                if (listOfDevices.Count > 0)
+                {
+                    filterDef = filterDef & dailyRepository.Filter.In(p => p.DeviceId, listOfDevices);
+                }
+                else if (listOfTypes.Count > 0)
+                {
+                    filterDef = filterDef & dailyRepository.Filter.In(p => p.DeviceType, listOfTypes);
+                }
+                //var result = dailyRepository.Find(filterDef).OrderBy(p => p.CreatedOn).ToList();
+                var result = dailyRepository.Collection.Aggregate().Match(filterDef)
+                    .Group(x => new
+                    {
+                        Hour = x.CreatedOn.Hour,
+                        DeviceId = x.DeviceId,
+                        DeviceName = x.DeviceName
+                    }, y => new
+                    {
+                        Key = y.Key,
+                        Average = y.Average(z => z.StatValue)
+                    })
+                    .Project(y => new
+                    {
+                        Hour = y.Key.Hour,
+                        StatValue = y.Average,
+                        DeviceName = y.Key.DeviceName,
+                        DeviceId = y.Key.DeviceId
+                    }).ToList();
+
+                List<Serie> series = new List<Serie>();
+
+                foreach (var currDeviceId in result.Select(x => x.DeviceId).Distinct())
+                {
+                    var currList = result.Where(x => x.DeviceId == currDeviceId).ToList();
+                    Serie serie = new Serie();
+                    serie.Segments = new List<Segment>();
+                    serie.Title = currList[0].DeviceName;
+
+                    for (var hour = 0; hour < 24; hour++)
+                    {
+                        var item = currList.Where(x => x.Hour == hour).ToList();
+
+                        serie.Segments.Add(new Segment() { Label = hour.ToString(), Value = item.Count > 0 ? (double?)item[0].StatValue : null });
                     }
                     series.Add(serie);
                 }
@@ -386,6 +493,136 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+        [HttpGet("server_availability")]
+        public APIResponse GetMonthlyServerDownTime(string statName, string deviceId = "", string month = "", string type = "", string minValue = "0", string reportType = "minutes")
+         {
+            try
+            {
+                //string statName = "HourlyDownTimeMinutes";
+                //string statName = "DeviceUpTimeStats";
+                if (month == "")
+                    month = DateTime.Now.Date.ToString(DateFormatMonthYear);
+
+                DateTime dtStart = DateTime.ParseExact(month, DateFormatMonthYear, CultureInfo.InvariantCulture);
+                DateTime dtEnd = DateTime.ParseExact(month, DateFormatMonthYear, CultureInfo.InvariantCulture).AddMonths(1).AddDays(-1);
+
+                //if (reportType == "minutes")
+                //{
+                //    Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
+                //    List<Serie> series = chart.Series.ToList();
+                //    List<Segment> segments = new List<Segment>();
+                //    foreach (Serie currSerie in series)
+                //    {
+
+                //        segments.Add(new Segment() { Label = currSerie.Title, Value = currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) });
+
+                //    }
+
+                //    Serie serie = new Serie();
+                //    serie.Title = "";
+                //    serie.Segments = segments;
+                //    chart.Series = new List<Serie>() { serie };
+
+                //    return Common.CreateResponse(chart);
+                //}
+                //else if(reportType == "percent")
+                //{
+                //    Chart chartUp = ((Chart)(GetSumamryStatsChart("DeviceUpTimeStats", deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
+                //    Chart chartDown = ((Chart)(GetSumamryStatsChart("HourlyDownTimeMinutes", deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
+
+                //    List <Segment> segments = new List<Segment>();
+                //    foreach (string deviceName in chartUp.Series.Select(x => x.Title).Union(chartDown.Series.Select(x => x.Title)).Distinct())
+                //    {
+                //        int up = chartUp.Series.Where(x => x.Title == deviceName).Count() > 0 ? Convert.ToInt32(chartUp.Series.Where(x => x.Title == deviceName).First().Segments.Sum(x => x.Value)) : 0;
+                //        int down = chartDown.Series.Where(x => x.Title == deviceName).Count() > 0 ? Convert.ToInt32(chartDown.Series.Where(x => x.Title == deviceName).First().Segments.Sum(x => x.Value)) : 0;
+                //        int percent = ()
+                //        segments.Add(new Segment() { Label = currSerie.Title, Value = currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) });
+
+                //    }
+
+                //}
+
+
+                Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
+                List<Serie> series = chart.Series.ToList();
+                List<Segment> segments = new List<Segment>();
+                foreach (Serie currSerie in series)
+                {
+                    if (reportType == "minutes")
+                    {
+                        segments.Add(new Segment() { Label = currSerie.Title, Value = currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) });
+                    }
+                    else if (reportType == "percent")
+                    {
+                        int minsInMonth;
+                        if (dtStart.Year == DateTime.Now.Year && dtStart.Month == DateTime.Now.Month)
+                        {
+                            minsInMonth = (int)((DateTime.Now - new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)).TotalMinutes);
+                        }
+                        else
+                        {
+                            minsInMonth = (int)((dtStart - dtStart.AddMonths(1)).TotalMinutes);
+                        }
+                        segments.Add(new Segment() { Label = currSerie.Title, Value = (int)(currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value)/minsInMonth) });
+                    }
+
+                }
+
+                Serie serie = new Serie();
+                serie.Title = "";
+                serie.Segments = segments;
+                chart.Series = new List<Serie>() { serie };
+
+                return Common.CreateResponse(chart);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+            
+        }
+
+        //[HttpGet("monthly_server_up_time")]
+        //public APIResponse GetMonthlyServerUpTime(string deviceId = "", string month = "", string type = "", string minValue = "0")
+        //{
+        //    try
+        //    {
+                
+        //        if (month == "")
+        //            month = DateTime.Now.Date.ToString(DateFormatMonthYear);
+
+        //        DateTime dtStart = DateTime.ParseExact(month, DateFormat, CultureInfo.InvariantCulture);
+        //        DateTime dtEnd = DateTime.ParseExact(month, DateFormat, CultureInfo.InvariantCulture).AddMonths(1).AddDays(-1);
+
+        //        Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
+        //        List<Serie> series = chart.Series.ToList();
+        //        List<Segment> segments = new List<Segment>();
+        //        foreach (Serie currSerie in series)
+        //        {
+
+        //            segments.Add(new Segment() { Label = currSerie.Title, Value = currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) });
+
+        //        }
+
+        //        Serie serie = new Serie();
+        //        serie.Title = "";
+        //        serie.Segments = segments;
+        //        chart.Series = new List<Serie>() { serie };
+
+        //        return Common.CreateResponse(chart);
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        Response = Common.CreateResponse(null, "Error", exception.Message);
+
+        //        return Response;
+        //    }
+
+        //}
 
 
         [HttpGet("cost_per_user")]
@@ -790,5 +1027,73 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        [HttpGet("sametime_stats_grid")]
+        public APIResponse GetSametimeStatisticsGrid(string startDate = "", string endDate = "")
+        {
+
+            try
+            {
+
+                List<String> StatNames = new List<string>() { "ResponseTime", "Total2WayChats", "PeakLogins" };
+                StatNames = new List<string>() { "Platform.System.PctCombinedCpuUtil", "ResponseTime", "Mem.PercentUsed" };
+                if (startDate == "")
+                    startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
+
+                if (endDate == "")
+                    endDate = DateTime.Today.ToString(DateFormat);
+
+                //1 day is added to the end so we include that days data
+                DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
+                DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
+
+                dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+                dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+
+                summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+
+                var filterDef = summaryRepository.Filter.In(x => x.StatName, StatNames) &
+                    summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
+
+                var results = summaryRepository.Find(filterDef).ToList();
+
+                var listOfObjs = new List<IDictionary<string, object>>();
+                
+                foreach(var deviceName in results.Select(x => x.DeviceName).Distinct().ToList())
+                {
+                    var currList = results.Where(x => x.DeviceName == deviceName).ToList();
+                    foreach (var statName in currList.Select(x => x.StatName).Distinct())
+                    {
+                        var workingList = currList.Where(x => x.StatName == statName).ToList();
+                        var expandoObj = new ExpandoObject() as IDictionary<string, Object>;
+
+                        expandoObj.Add("stat_name", workingList[0].StatName);
+                        expandoObj.Add("device_name", workingList[0].DeviceName);
+
+                        foreach (var entity in workingList)
+                        {
+                            if(expandoObj.Where(x => x.Key == entity.CreatedOn.ToString("MM/dd/yyyy")).Count() == 0)
+                                expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
+                        }
+                        
+                        listOfObjs.Add(expandoObj);
+                    }
+                    
+                }
+
+                Response = Common.CreateResponse(listOfObjs);
+                return Response;
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+
+        }
     }
 }

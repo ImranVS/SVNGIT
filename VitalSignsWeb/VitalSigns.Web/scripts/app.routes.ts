@@ -69,6 +69,10 @@ import {DominoServerTasksReport} from './reports/components/ibm-domino/domino-se
 import {ServerAccessBrowserReport} from './reports/components/ibm-domino/server-access-browser-report.component';
 import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/server-availability-index-report.component';
 import {CommunityUsersReport} from './reports/components/ibm-connections/community-users-report.component';
+import {HourlyStatisticsReport} from './reports/components/hourly-statistics-report.component';
+import {ServerAvailabilityReport} from './reports/components/servers/server-availability-report.component';
+import {SametimeStatisticsChartReport} from './reports/components/ibm-sametime/sametime-statistics-chart-report.component';
+import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sametime-statistics-grid-report.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -346,6 +350,22 @@ const appRoutes: Routes = [
             {
                 path: 'communityusers',
                 component: CommunityUsersReport
+            },
+            {
+                path: 'hourlystatistics',
+                component: HourlyStatisticsReport
+            },
+            {
+                path: 'serveravailability',
+                component: ServerAvailabilityReport
+            },
+            {
+                path: 'sametimestatisticschart',
+                component: SametimeStatisticsChartReport
+            },
+            {
+                path: 'sametimestatisticsgrid',
+                component: SametimeStatisticsGridReport
             }
             
         ]

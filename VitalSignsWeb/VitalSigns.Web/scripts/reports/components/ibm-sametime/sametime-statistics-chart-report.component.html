@@ -1,7 +1,7 @@
 ﻿<div>
     <div class="hidden-xs hidden-sm dashboard-menu" id="zeusContext">
         <ul class="list-group" *ngIf="contextMenuSiteMap">
-
+            
             <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
                 [routerLinkActive]="['selected']"
                 [routerLinkActiveOptions]="{exact: true}">
@@ -12,7 +12,7 @@
     </div>
     <div id="zeusContent" class="container-fluid">
         <div class="reportsPage">
-            <h1>Any Statistic</h1>
+            <h1>{{title}}</h1>
             <div *ngFor="let widget of widgets">
                 <h3>{{widget.title}}</h3>
                 <div id="{{widget.id}}">

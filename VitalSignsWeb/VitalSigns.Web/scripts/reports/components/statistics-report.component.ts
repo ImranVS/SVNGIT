@@ -9,7 +9,6 @@ declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 
-
 @Component({
     templateUrl: '/app/reports/components/statistics-report.component.html',
     providers: [

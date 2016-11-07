@@ -67,6 +67,10 @@ import {DominoServerTasksReport} from './reports/components/ibm-domino/domino-se
 import {ServerAccessBrowserReport} from './reports/components/ibm-domino/server-access-browser-report.component';
 import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/server-availability-index-report.component';
 import {CommunityUsersReport} from './reports/components/ibm-connections/community-users-report.component';
+import {HourlyStatisticsReport} from './reports/components/hourly-statistics-report.component';
+import {ServerAvailabilityReport} from './reports/components/servers/server-availability-report.component';
+import {SametimeStatisticsChartReport} from './reports/components/ibm-sametime/sametime-statistics-chart-report.component';
+import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sametime-statistics-grid-report.component';
 
 @NgModule({
     imports: [
@@ -123,6 +127,10 @@ import {CommunityUsersReport} from './reports/components/ibm-connections/communi
         ServerAccessBrowserReport,
         ServerAvailabilityIndexReport,
         CommunityUsersReport,
+        HourlyStatisticsReport,
+        ServerAvailabilityReport,
+        SametimeStatisticsChartReport,
+        SametimeStatisticsGridReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -228,6 +236,7 @@ import {CommunityUsersReport} from './reports/components/ibm-connections/communi
         widgets.NotesDatabaseList,
         widgets.DominoServerTasksList,
         widgets.CommunityUsersList,
+        widgets.SametimeStatisticGridReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -343,6 +352,7 @@ import {CommunityUsersReport} from './reports/components/ibm-connections/communi
         widgets.NotesDatabaseList,
         widgets.DominoServerTasksList,
         widgets.CommunityUsersList,
+        widgets.SametimeStatisticGridReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
