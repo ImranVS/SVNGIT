@@ -66,6 +66,7 @@ import {NotesDatabaseReport} from './reports/components/ibm-domino/notes-databas
 import {DominoServerTasksReport} from './reports/components/ibm-domino/domino-server-tasks-report.component';
 import {ServerAccessBrowserReport} from './reports/components/ibm-domino/server-access-browser-report.component';
 import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/server-availability-index-report.component';
+import {CommunityUsersReport} from './reports/components/ibm-connections/community-users-report.component';
 
 @NgModule({
     imports: [
@@ -121,6 +122,7 @@ import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/ser
         DominoServerTasksReport,
         ServerAccessBrowserReport,
         ServerAvailabilityIndexReport,
+        CommunityUsersReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -225,6 +227,7 @@ import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/ser
         widgets.MailThresholdList,
         widgets.NotesDatabaseList,
         widgets.DominoServerTasksList,
+        widgets.CommunityUsersList,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -339,6 +342,7 @@ import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/ser
         widgets.MailThresholdList,
         widgets.NotesDatabaseList,
         widgets.DominoServerTasksList,
+        widgets.CommunityUsersList,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,

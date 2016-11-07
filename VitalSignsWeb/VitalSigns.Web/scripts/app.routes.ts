@@ -68,6 +68,7 @@ import {NotesDatabaseReport} from './reports/components/ibm-domino/notes-databas
 import {DominoServerTasksReport} from './reports/components/ibm-domino/domino-server-tasks-report.component';
 import {ServerAccessBrowserReport} from './reports/components/ibm-domino/server-access-browser-report.component';
 import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/server-availability-index-report.component';
+import {CommunityUsersReport} from './reports/components/ibm-connections/community-users-report.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -341,6 +342,10 @@ const appRoutes: Routes = [
             {
                 path: 'serveravailabilityindex',
                 component: ServerAvailabilityIndexReport
+            },
+            {
+                path: 'communityusers',
+                component: CommunityUsersReport
             }
             
         ]
