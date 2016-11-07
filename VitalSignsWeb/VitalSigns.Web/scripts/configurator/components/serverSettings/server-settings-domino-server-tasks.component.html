@@ -1,15 +1,16 @@
 ﻿<div class="container">
+    <h3> Domino Server Tasks </h3>
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
 
     
         <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row"   headersVisibility ="Column"  [frozenColumns]="1">
             <wj-flex-grid-filter></wj-flex-grid-filter>
-            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="100"> </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="100" is-read-only="true"> </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Load'" [binding]="'is_load'" [width]="100"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Restart ASAP'" [binding]="'is_restart_asap'" [width]="100"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Resart Later'" [binding]="'is_resart_later'" [width]="100"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Disallow'" [binding]="'is_disallow'" [width]="100"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="200"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="200" is-read-only="true"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Load'" [binding]="'is_load'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Restart ASAP'" [binding]="'is_restart_asap'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Resart Later'" [binding]="'is_resart_later'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Disallow'" [binding]="'is_disallow'" [width]="150"></wj-flex-grid-column>
 
         </wj-flex-grid>
         <div class="btn-group" *ngIf="data != null">
@@ -50,8 +51,9 @@ data.pageIndex + 1 | number
 
 
         <div>
+            <h3>Server/Locations</h3>
             <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
-
+          
             <button type="button" class="btn btn-success" (click)="applySetting()">Add Tasks</button>
             <button type="button" class="btn btn-success" (click)="removeSetting()">Remove Tasks</button>
 
