@@ -16,13 +16,30 @@ namespace VSNext.Mongo.Entities
   public  class ServerOther : Entity
     {
 
-        //Note Database
-
         [DataMember]
         [BsonElement("domino_type")]
-        [BsonIgnoreIfNull]       
+        [BsonIgnoreIfNull]
         public string DominoType { get; set; }
 
+        [DataMember]
+        [BsonElement("scan_interval")]
+        [BsonIgnoreIfNull]
+        public int? ScanInterval { get; set; }
+
+      
+
+        [DataMember]
+        [BsonElement("off_hours_scan_interval")]
+        [BsonIgnoreIfNull]
+        public int? OffHoursScanInterval { get; set; }
+
+
+        [DataMember]
+        [BsonElement("is_enabled")]
+        [BsonIgnoreIfNull]
+        public Boolean? IsEnabled { get; set; }
+
+        //Note Database
         [DataMember]
         [BsonElement("domino_server_id")]
         [BsonIgnoreIfNull]
@@ -59,28 +76,83 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public List<String> ReplicationDestination { get; set; }
 
-
-
-        [DataMember]
-        [BsonElement("is_enabled")]
-        [BsonIgnoreIfNull]
-        public Boolean? IsEnabled { get; set; }
-
-
-        [DataMember]
-        [BsonElement("scan_interval")]
-        [BsonIgnoreIfNull]
-        public int? ScanInterval { get; set; }
-
         [DataMember]
         [BsonElement("retry_interval")]
         [BsonIgnoreIfNull]
         public int? RetryInterval { get; set; }
 
+
+
+
+
+
+        //Note replica
         [DataMember]
-        [BsonElement("off_hours_scan_interval")]
+        [BsonElement("replica_name")]
         [BsonIgnoreIfNull]
-        public int? OffHoursScanInterval { get; set; }
+        public string ReplicaNmae { get; set; }
+
+
+        [DataMember]
+        [BsonElement("category")]
+        [BsonIgnoreIfNull]
+        public string Category { get; set; }
+
+        [DataMember]
+        [BsonElement("difference_threshold")]
+        [BsonIgnoreIfNull]
+        public int? DifferenceThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_a")]
+        [BsonIgnoreIfNull]
+        public string DominoServerA { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_a_file_mask")]
+        [BsonIgnoreIfNull]
+        public string DominoServerAFileMask { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_a_exclude_folders")]
+        [BsonIgnoreIfNull]
+        public string DominoServerAExcludeFolders { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_b")]
+        [BsonIgnoreIfNull]
+        public string DominoServerB { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_b_file_mask")]
+        [BsonIgnoreIfNull]
+        public string DominoServerBFileMask { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_b_exclude_folders")]
+        [BsonIgnoreIfNull]
+        public string DominoServerBExcludeFolders { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_c")]
+        [BsonIgnoreIfNull]
+        public string DominoServerC { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_c_file_mask")]
+        [BsonIgnoreIfNull]
+        public string DominoServerCFileMask { get; set; }
+
+        [DataMember]
+        [BsonElement("domino_server_c_exclude_folders")]
+        [BsonIgnoreIfNull]
+        public string DominoServerCExcludeFolders { get; set; }
+
+        [DataMember]
+        [BsonElement("first_alert_threshold")]
+        [BsonIgnoreIfNull]
+        public int? FirstAlertThreshold { get; set; }
+
 
     }
 }
