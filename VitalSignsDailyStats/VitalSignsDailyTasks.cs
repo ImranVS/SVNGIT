@@ -694,6 +694,7 @@ namespace VitalSignsDailyStats
                         c_030_060 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "030-060")).Average(s => s.Delta)),
                         c_060_120 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "060-120")).Average(s => s.Delta)),
                         c_120_INF = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "120-INF")).Average(s => s.Delta)),
+                        TravelerServerName= travelerStatData.FirstOrDefault().TravelerServerName,
 
                     });
                     var min = travelerStatsRepository.All().Where(x => x.DateUpdated < DateTime.Now).Min(x => x.DateUpdated).ToString();
@@ -716,6 +717,7 @@ namespace VitalSignsDailyStats
                             c_030_060 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "030-060")).Sum(s => s.OpenTimes)),
                             c_060_120 = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "060-120")).Sum(s => s.OpenTimes)),
                             c_120_INF = Convert.ToInt32(travelerStatDataforMin.Where(x => (x.Interval == "120-INF")).Sum(s => s.OpenTimes)),
+                            TravelerServerName= travelerStatDataforMin.FirstOrDefault().TravelerServerName,
 
                         });
                     }
@@ -739,6 +741,7 @@ namespace VitalSignsDailyStats
                             c_030_060 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "030-060")).Sum(s => s.OpenTimes)),
                             c_060_120 = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "060-120")).Sum(s => s.OpenTimes)),
                             c_120_INF = Convert.ToInt32(travelerStatDataforMax.Where(x => (x.Interval == "120-INF")).Sum(s => s.OpenTimes)),
+                            TravelerServerName= travelerStatDataforMax.FirstOrDefault().TravelerServerName,
 
                         });
                     }
