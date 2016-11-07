@@ -19,9 +19,10 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         RESTService
     ]
 })
-export class CustomStatistics extends GridBase {
+export class CustomStatistics extends GridBase implements OnInit {
     sererNames: any;
     errorMessage: any;
+
     constructor(service: RESTService) {
         super(service);
         this.formName = "Domino Custom Statistics";
@@ -30,8 +31,6 @@ export class CustomStatistics extends GridBase {
             .subscribe(
             (response) => {
                 this.sererNames = response.data.serversData;
-
-
             },
             (error) => this.errorMessage = <any>error
             );
@@ -44,6 +43,16 @@ export class CustomStatistics extends GridBase {
     }
     delteCustomStatistics() {
         this.delteGridRow('/configurator/delete_custom_statistics/');
+    }
+    addCustomStat(dlg: wijmo.input.Popup) {
+        this.addGridRow(dlg);
+        this.currentEditItem.domino_servers = "";
+        this.currentEditItem.stat_name = "";
+        this.currentEditItem.yellow_threshold = "";
+        this.currentEditItem.greater_than_or_less_than = "";
+        this.currentEditItem.times_in_a_row = null;
+        this.currentEditItem.console_command = "";
+
     }
 }
 
