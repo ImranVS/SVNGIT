@@ -33,6 +33,7 @@ export class ServerTasks extends GridBase implements OnInit {
 
     constructor(service: RESTService, private formBuilder: FormBuilder, private route: ActivatedRoute) {      
         super(service);
+        this.formName = "Server Task";
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': ['']

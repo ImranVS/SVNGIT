@@ -76,7 +76,7 @@ data.pageIndex + 1 | number
                 <div class="panel-body" *ngIf="currentEditItem">
                     <div class="form-group col-sm-12">
 
-                        <input type="checkbox" class="checkbox-inline" id="is_selected" required name="is_selected" [(ngModel)]="currentEditItem.is_selected">
+                        <input type="checkbox" class="checkbox-inline" id="is_selected"  name="is_selected" [(ngModel)]="currentEditItem.is_selected">
 
                         <label for="is_selected" class="control-label ">Enabled</label>
 
@@ -93,19 +93,19 @@ data.pageIndex + 1 | number
                     </div>
 
                     <div class="form-group col-sm-12" *ngIf="currentEditItem">
-                        <input type="checkbox" class="checkbox-inline" id="is_load" required name="is_load" [(ngModel)]="currentEditItem.is_load">
+                        <input type="checkbox" class="checkbox-inline" id="is_load"  name="is_load" [(ngModel)]="currentEditItem.is_load">
                         <label for="is_load">Load</label>
                     </div>
                     <div class="form-group col-sm-12" *ngIf="currentEditItem">
-                        <input type="checkbox" class="checkbox-inline" id="is_restart_asap" required name="is_restart_asap" [(ngModel)]="currentEditItem.is_restart_asap">
+                        <input type="checkbox" class="checkbox-inline" id="is_restart_asap"  name="is_restart_asap" [(ngModel)]="currentEditItem.is_restart_asap">
                         <label for="is_restart_asap">Restart ASAP</label>
                     </div>
                     <div class="form-group col-sm-12" *ngIf="currentEditItem">
-                        <input type="checkbox" class="checkbox-inline" id="is_resart_later" required name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
+                        <input type="checkbox" class="checkbox-inline" id="is_resart_later"  name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
                         <label for="is_resart_later">Resart Later</label>
                     </div>
                     <div class="form-group col-sm-12" *ngIf="currentEditItem">
-                        <input type="checkbox" class="checkbox-inline" id="is_disallow" required name="is_disallow" [(ngModel)]="currentEditItem.is_disallow">
+                        <input type="checkbox" class="checkbox-inline" id="is_disallow"  name="is_disallow" [(ngModel)]="currentEditItem.is_disallow">
                         <label for="is_disallow">Disallow</label>
                     </div>
 
