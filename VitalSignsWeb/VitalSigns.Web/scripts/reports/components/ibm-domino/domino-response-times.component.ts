@@ -1,8 +1,9 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-
+import {ActivatedRoute} from '@angular/router';
 import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
-
 import {RESTService} from '../../../core/services/rest.service';
+
+import * as helpers from '../../../core/services/helpers/helpers';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
@@ -12,21 +13,26 @@ declare var bootstrapNavigator: any;
     templateUrl: '/app/reports/components/ibm-domino/domino-response-times.component.html',
     providers: [
         WidgetService,
-        RESTService
+        RESTService,
+        helpers.UrlHelperService
     ]
 })
 export class DominoResponseTimes extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
+    statname: string;
+    title: string;
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
 
     }
 
     ngOnInit() {
-
+        this.route.queryParams.subscribe(params => {
+            this.statname = params['statname'];
+            this.title = params['title'];
+        });
         this.service.get('/navigation/sitemaps/domino_reports')
             .subscribe
             (
@@ -39,7 +45,7 @@ export class DominoResponseTimes extends WidgetController {
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: '/reports/summarystats_chart?statName=ResponseTime',
+                    url: `/reports/summarystats_chart?statName=${this.statname}`,
                     chart: {
                         chart: {
                             renderTo: 'dailyservertranschart',

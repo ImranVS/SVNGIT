@@ -1,0 +1,16 @@
+﻿<table class="table table-condensed small table-striped">
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>Community Name</th>
+            <th>User</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="communityUsers">
+        <tr *ngFor="let notesDb of communityUsers">
+            <td>{{notesDb.device_name}}</td>
+            <td>{{notesDb.name}}</td>
+            <td>{{notesDb.object_user}}</td>
+        </tr>
+    </tbody>
+</table>

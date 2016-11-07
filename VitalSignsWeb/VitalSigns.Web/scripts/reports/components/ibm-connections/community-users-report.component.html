@@ -5,14 +5,14 @@
             <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
                 [routerLinkActive]="['selected']"
                 [routerLinkActiveOptions]="{exact: true}">
-                <a [routerLink]="this.urlHelpers.getUrlPath(node.url)" [queryParams]="this.urlHelpers.getUrlQueryParams(node.url)">{{node.title}}</a>
+                <a [routerLink]="[node.url]">{{node.title}}</a>
             </li>
 
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
         <div class="reportsPage">
-            <h1>Domino Response Times</h1>
+            <h1>Community Users Report</h1>
             <div *ngFor="let widget of widgets">
                 <h3>{{widget.title}}</h3>
                 <div id="{{widget.id}}">
