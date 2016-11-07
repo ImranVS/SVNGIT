@@ -15,6 +15,10 @@ namespace VSNext.Mongo.Entities
     [CollectionName("server_other")]
   public  class ServerOther : Entity
     {
+        [DataMember]
+        [BsonElement("name")]
+        [BsonIgnoreIfNull]
+        public string Name { get; set; }
 
         [DataMember]
         [BsonElement("domino_type")]
@@ -51,10 +55,7 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string DominoServerName { get; set; }
 
-        [DataMember]
-        [BsonElement("_name")]
-        [BsonIgnoreIfNull]
-        public string Name { get; set; }
+        
 
         [DataMember]
         [BsonElement("database_file_name")]
@@ -91,11 +92,7 @@ namespace VSNext.Mongo.Entities
 
 
 
-        //Note replica
-        [DataMember]
-        [BsonElement("replica_name")]
-        [BsonIgnoreIfNull]
-        public string ReplicaNmae { get; set; }
+        //Note replica      
 
 
         [DataMember]
@@ -158,6 +155,38 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public int? FirstAlertThreshold { get; set; }
 
+        //Custom stats
+
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("stat_name")]
+        public String StatName { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("yellow_threshold")]
+        public String ThresholdValue { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("greater_than_or_less_than")]
+        public String GreaterThanOrLessThan { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("times_in_a_row")]
+        public int? TimesInARow { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("console_command")]
+        public String ConsoleCommand { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("domino_servers")]
+        public List<String> DominoServers { get; set; }
 
     }
 }
