@@ -52,6 +52,11 @@ namespace VSNext.Mongo.Entities
         public string DominoServerName { get; set; }
 
         [DataMember]
+        [BsonElement("_name")]
+        [BsonIgnoreIfNull]
+        public string Name { get; set; }
+
+        [DataMember]
         [BsonElement("database_file_name")]
         [BsonIgnoreIfNull]
         public string DatabaseFileName { get; set; }
