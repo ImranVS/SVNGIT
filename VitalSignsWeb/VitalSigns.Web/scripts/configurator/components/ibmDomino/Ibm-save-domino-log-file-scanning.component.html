@@ -16,11 +16,11 @@
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
     <wj-flex-grid #flex [itemsSource]="results" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Keyword'" [binding]="'Keyword'" [width]="180"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Exclude'" [binding]="'Exclude'" [width]="200"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'One Alert Per Day'" [binding]="'OneAlertPerDay'" [width]="250"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Scan Log'" [binding]="'ScanLog'" [width]="150"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Scan Agent Log'" [binding]="'ScanAgentLog'" [width]="150"></wj-flex-grid-column>       
+        <wj-flex-grid-column [header]="'Keyword'" [binding]="'keyword'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Exclude'" [binding]="'exclude'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'One Alert Per Day'" [binding]="'one_alert_per_day'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Scan Log'" [binding]="'scan_log'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Scan Agent Log'" [binding]="'scan_agent_log'" [width]="150"></wj-flex-grid-column>       
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"
@@ -141,6 +141,7 @@ data.pageIndex + 1 | number
     </wj-popup>
     <div>
         <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
-        <button type="button" class="btn btn-success" (click)="applySetting()">Ok</button>
+        <button type="button" class="btn btn-primary" (click)="applySetting()">Ok</button>
+        <a class="btn btn-primary" [routerLink]="['/configurator/ibmDomino']" role="button">Cancel</a>
     </div>
 </div>

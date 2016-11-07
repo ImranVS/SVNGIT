@@ -51,11 +51,13 @@ export class AddLogFile extends GridBase implements OnInit {
 
     loadData() {
 
-        this.service.get('/configurator/get_event_log_scaning?id=' + this.id)
+        this.service.get('/configurator/get_event_log_scaning/' + this.id)
             .subscribe(
             response => {
                 this.sererNames = response.data.devicename;
                 this.results = response.data.result;
+
+                console.log(this.results);
                 //this.attributes = response.data.device_attributes;
 
             },
@@ -67,10 +69,12 @@ export class AddLogFile extends GridBase implements OnInit {
 
     }
     saveEventLog(dlg: wijmo.input.Popup) {      
-        this.saveGridRow('/configurator/save_log_file_scanning', dlg);
+        this.saveGridRow('/configurator/save_log_file_scanning/' + this.id, dlg);
     }
     deleteEventLog() {
-        this.delteGridRow('/configurator/delete_event_log_file_scanning/');
+        
+        this.delteGridRow('/configurator/delete_event_log_file_scanning/' + this.id + '/');
+
     }
   
 
