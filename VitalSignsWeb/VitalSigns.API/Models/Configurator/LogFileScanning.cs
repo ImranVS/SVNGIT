@@ -40,5 +40,9 @@ namespace VitalSigns.API.Models.Configurator
          
         [JsonProperty("scan_agent_log")]
         public Boolean? ScanAgentLog { get; set; }
+
+      
+        [JsonProperty("id")]
+        public string Id { get; set; }
     }
 }
