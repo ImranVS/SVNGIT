@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit, Output, EventEmitter} from '@angular/core';
+﻿import {Component, OnInit, ViewChild, AfterViewInit, Output, Input, EventEmitter} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../core/services';
@@ -20,9 +20,10 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         RESTService
     ]
 })
-export class ServersLocation implements OnInit, AfterViewInit {
+export class ServersLocation implements OnInit {
    
-    @Output() checkedDevices = new EventEmitter();   
+    @Output() checkedDevices = new EventEmitter();  
+    @Input() deviceList:any; 
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     devices: string[]=[];
@@ -38,20 +39,39 @@ export class ServersLocation implements OnInit, AfterViewInit {
         }
         this.checkedDevices.emit(this.devices);
     }
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+        }
+    }
+    onDeviceListChange() {
+        console.log(this.deviceList);
+    }
 
     ngOnInit() {       
+        console.log(this.deviceList);
         this.service.get("/Configurator/device_list")
             .subscribe(
             response => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                var resultData:any = [];
+                for (var item of response.data) {                  
+                    var value = this.deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);
+                    console.log(value.length);
+                    if (value.length > 0) {
+                        item.is_selected = true;
+                    }
+                    resultData.push(item);
+                }
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
-                this.data.pageSize = 10;
+                this.data.pageSize = 10;               
             });        
-    }
-    ngAfterViewInit() {
-      
-    }
-    
+    }  
 }
 
 
