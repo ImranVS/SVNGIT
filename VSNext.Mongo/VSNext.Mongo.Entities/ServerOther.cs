@@ -178,7 +178,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("domino_servers")]
-        public String DominoServers { get; set; }
+        public List<string> DominoServers { get; set; }
 
         //Domino Log File Scanning
 
