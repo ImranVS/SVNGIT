@@ -1441,6 +1441,34 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpGet("get_mail_delivery_status/{deviceType}")]
+        public APIResponse GetMailDeliveryStatusData(string deviceType)
+        {
+            try
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+                var result = statusRepository.Collection.AsQueryable().Where(x=>x.DeviceType==deviceType).Select(x => new MailDeliveryStatusModel
+                {
+                    DeviceName = x.DeviceName,
+                    Category = x.Category,
+                    LastUpdated =x.LastUpdated,
+                PendingMail = x.PendingMail,
+                    DeadMail = x.DeadMail,
+                    HeldMail = x.HeldMail,
+                    Location = x.Location,
+                    StatusCode=x.StatusCode
+
+                }).ToList();
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
     }
 }
 
