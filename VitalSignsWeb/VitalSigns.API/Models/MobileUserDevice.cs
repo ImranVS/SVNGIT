@@ -8,6 +8,9 @@ namespace VitalSigns.API.Models
 {
     public class MobileUserDevice
     {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
         [JsonProperty("user_name")]
         public string UserName { get; set; }
 
@@ -29,5 +32,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("deviceId")]
         public string DeviceId { get; set; }
+
+        [JsonProperty("is_selected")]
+        public bool IsSelected { get; set; }
     }
 }

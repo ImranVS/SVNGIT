@@ -526,7 +526,17 @@ namespace VitalSigns.API.Controllers
 
                 if (string.IsNullOrEmpty(maintenance.Id))
                 {
-                    Maintenance maintenancedata = new Maintenance { Name = maintenance.Name, StartDate = maintenance.StartDate, StartTime = maintenance.StartTime, Duration = maintenance.Duration, EndDate = maintenance.EndDate, MaintenanceDaysList = maintenance.MaintenanceDaysList };
+                    Maintenance maintenancedata = new Maintenance
+                    {
+                        Name = maintenance.Name,
+                        StartDate = maintenance.StartDate,
+                        StartTime = maintenance.StartTime,
+                        Duration = maintenance.Duration,
+                        EndDate = maintenance.EndDate,
+                        MaintenanceDaysList = maintenance.MaintenanceDaysList,
+                        MaintainType = maintenance.MaintainType,
+                        DurationType = maintenance.DurationType
+                    };
 
 
                     string id = maintenanceRepository.Insert(maintenancedata);
@@ -540,6 +550,8 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.StartTime, maintenance.StartTime)
                                                              .Set(p => p.Duration, maintenance.Duration)
                                                              .Set(p => p.EndDate, maintenance.EndDate)
+                                                              .Set(p => p.MaintainType, maintenance.MaintainType)
+                                                              .Set(p => p.DurationType, maintenance.DurationType)
                                                              .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
                     var result = maintenanceRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
