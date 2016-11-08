@@ -22,6 +22,7 @@ import {DominoServerTasksValue} from '../../models/domino-server-tasks';
 })
 export class DominoServerTasks extends GridBase implements OnInit  {  
     devices: string;
+    currentDeviceType:string="Domino"
    
     currentForm: FormGroup;
     constructor(service: RESTService, private formBuilder: FormBuilder) {
