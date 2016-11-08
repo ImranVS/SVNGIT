@@ -22,11 +22,12 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 export class CustomStatistics extends GridBase implements OnInit {
     sererNames: any;
     errorMessage: any;
+    devices: string;
+    deviceTypeData: any;
 
     constructor(service: RESTService) {
-        super(service);
+        super(service);    
         this.formName = "Domino Custom Statistics";
-
         this.service.get('/Configurator/get_domino_servers')
             .subscribe(
             (response) => {
@@ -35,10 +36,16 @@ export class CustomStatistics extends GridBase implements OnInit {
             (error) => this.errorMessage = <any>error
             );
     }
+    changeInDevices(devices: string) {
+        this.devices = devices;
+
+    }
+
     ngOnInit() {
         this.initialGridBind('/configurator/get_custom_statistics');
     }
     saveCustomStatistics(dlg: wijmo.input.Popup) {
+        this.currentEditItem.domino_servers = this.devices;
         this.saveGridRow('/configurator/save_custom_statistics', dlg);
     }
     delteCustomStatistics() {
