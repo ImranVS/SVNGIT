@@ -777,14 +777,15 @@ Public Class VSMaster
                 Catch ex As Exception
                     LastDate = Now.AddDays(-2).ToShortDateString
                 End Try
-
+                WriteAuditEntry(Now.ToString & " Daily Tasks are ready to start.")
                 If LastDate.Date <> FixDate(Now) Then
                     ' *** If time for the daily tasks.
                     WriteAuditEntry(Now.ToString & " Daily Tasks are due, starting them now.")
                     Try
+                        WriteAuditEntry(Now.ToString & "Starting  VitalSignsDailyService" + VitalSignsDailyService)
                         StartService(VitalSignsDailyService)
                     Catch ex As Exception
-
+                        WriteAuditEntry(Now.ToString & "Exception in VitalSignsDailyService" + VitalSignsDailyService)
                     End Try
                     Dim strdt As String
                     Dim strDateFormat As String
@@ -792,7 +793,7 @@ Public Class VSMaster
                     strdt = objDateUtils.FixDate(Date.Now, strDateFormat)
                     myRegistry.WriteToRegistry("Daily Tasks Date", strdt)
                 End If
-
+                WriteAuditEntry(Now.ToString & " Daily Tasks service was stop")
                 'FIND SERVERS NOT SCANNED COUNT AND MODIFY BELOW IF CONDITION WITH 'OR'
 
                 'VSPLUS-416,19Dec14
