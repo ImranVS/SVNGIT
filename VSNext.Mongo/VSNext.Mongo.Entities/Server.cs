@@ -1241,15 +1241,7 @@ namespace VSNext.Mongo.Entities
     public class LogFileKeyword
     {
 
-        public LogFileKeyword()
-        {
-            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
-            foreach (var property in props)
-            {
-                property.SetValue(this, null);
-            }
-
-        }
+      
 
         [DataMember]
         [BsonIgnoreIfNull]
@@ -1275,6 +1267,18 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         [BsonElement("scan_agent_log")]
         public Boolean? ScanAgentLog { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        //[DataMember]
+        //[BsonElement("key_id")]
+        //[BsonIgnoreIfNullAttribute]
+        //[BsonRepresentation(BsonType.ObjectId)]
+        //public string TaskId { get; set; }
 
     }
 
