@@ -1270,9 +1270,9 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonIgnoreIfNull]
-        [BsonElement("id")]
+        [BsonElement("event_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string EventId { get; set; }
 
         //[DataMember]
         //[BsonElement("key_id")]
