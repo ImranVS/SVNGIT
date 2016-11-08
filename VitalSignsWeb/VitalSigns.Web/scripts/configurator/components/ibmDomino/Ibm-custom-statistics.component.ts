@@ -25,6 +25,7 @@ export class CustomStatistics extends GridBase implements OnInit {
     devices: string;
     deviceTypeData: any;
     checkedDevices: any;
+    currentDeviceType: string = "Domino";
 
     constructor(service: RESTService) {
         super(service);    

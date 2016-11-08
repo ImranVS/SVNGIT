@@ -121,7 +121,7 @@ data.pageIndex + 1 | number
                         </div>
                     </div>
                     <div>
-                        <server-location-list (checkedDevices)="changeInDevices($event)"   [(deviceList)]="checkedDevices"></server-location-list>
+                        <server-location-list (checkedDevices)="changeInDevices($event)"   [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType"></server-location-list>
                     </div>
                 </div>
                 <div class="panel-footer">
