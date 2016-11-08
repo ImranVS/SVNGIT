@@ -681,7 +681,19 @@ Update:
             '	myURL.ResponseTime = 0
             '	Exit Sub
             'End If
-            If (r IsNot Nothing AndAlso (r.StatusCode > 399 And r.StatusCode < 600)) Then
+
+            If (r IsNot Nothing AndAlso (r.StatusCode > 399 And r.StatusCode < 500)) Then
+
+                myURL.ResponseDetails = "URL responded with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+                myURL.Status = "Issue"
+                myURL.Description = "URL responded with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+                done = Now.Ticks
+                elapsed = New TimeSpan(done - start)
+                myURL.ResponseTime = elapsed.TotalMilliseconds
+                Exit Sub
+            End If
+
+            If (r IsNot Nothing AndAlso (r.StatusCode >= 500 And r.StatusCode < 600)) Then
 
                 myURL.ResponseDetails = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
                 myURL.Status = "Not Responding"
