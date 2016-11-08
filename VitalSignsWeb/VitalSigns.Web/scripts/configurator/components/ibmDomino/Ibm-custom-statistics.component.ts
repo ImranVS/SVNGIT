@@ -24,6 +24,7 @@ export class CustomStatistics extends GridBase implements OnInit {
     errorMessage: any;
     devices: string;
     deviceTypeData: any;
+    checkedDevices: any;
 
     constructor(service: RESTService) {
         super(service);    
@@ -60,6 +61,11 @@ export class CustomStatistics extends GridBase implements OnInit {
         this.currentEditItem.times_in_a_row = null;
         this.currentEditItem.console_command = "";
 
+    }
+
+    editCustomStat(dlg: wijmo.input.Popup) {
+        this.editGridRow(dlg);        
+        this.checkedDevices = this.currentEditItem.domino_servers;
     }
 }
 

@@ -5,9 +5,9 @@
     <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Statistic'" [binding]="'stat_name'" [width]="220"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Threshold Value'" [binding]="'yellow_threshold'" [width]="180"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Repeat Factor'" [binding]="'times_in_a_row'" [width]="180"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Comparison'" [binding]="'greater_than_or_less_than'" [width]="190"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Threshold Value'" [binding]="'yellow_threshold'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Repeat Factor'" [binding]="'times_in_a_row'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Comparison'" [binding]="'greater_than_or_less_than'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Console Command'" [binding]="'console_command'" [width]="200"></wj-flex-grid-column>
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
@@ -48,7 +48,7 @@ data.pageIndex + 1 | number
     <div class="well grid-sort-group">
 
         <!-- edit details in a popup -->
-        <button class="btn btn-default" (click)="editGridRow(frmDialog)">
+        <button class="btn btn-default" (click)="editCustomStat(frmDialog)">
             Edit
         </button>
         <button class="btn btn-default" (click)="addCustomStat(frmDialog)">
@@ -121,7 +121,7 @@ data.pageIndex + 1 | number
                         </div>
                     </div>
                     <div>
-                        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+                        <server-location-list (checkedDevices)="changeInDevices($event)"   [(deviceList)]="checkedDevices"></server-location-list>
                     </div>
                 </div>
                 <div class="panel-footer">
