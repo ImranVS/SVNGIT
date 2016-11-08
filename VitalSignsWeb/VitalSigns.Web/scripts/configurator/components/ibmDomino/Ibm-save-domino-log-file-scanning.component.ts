@@ -17,6 +17,9 @@ export class AddLogFile extends GridBase implements OnInit {
     id: string;
     results: any;
     LogFileScan: FormGroup;
+    serverLog: FormGroup;
+    deviceservers: any[];
+    devices: string;
 
     constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder) {
         super(service);
@@ -25,6 +28,14 @@ export class AddLogFile extends GridBase implements OnInit {
             
             'log_file':['']
          
+
+        });
+
+        this.serverLog = this.formBuilder.group({
+            'setting': [''],
+            'value': [''],
+            'devices': ['']
+
 
         });
       
@@ -45,7 +56,12 @@ export class AddLogFile extends GridBase implements OnInit {
     ngOnInit() {
         this.route.params.subscribe(params => {
             this.id = params['id'];
+
+            if (!this.id)
+                this.id = "-1";
             this.loadData();
+           
+
         });
     }
 
@@ -56,6 +72,8 @@ export class AddLogFile extends GridBase implements OnInit {
             response => {
                 this.sererNames = response.data.devicename;
                 this.results = response.data.result;
+                this.deviceservers = response.data.servers;
+               
 
                 console.log(this.results);
                 //this.attributes = response.data.device_attributes;
@@ -69,12 +87,43 @@ export class AddLogFile extends GridBase implements OnInit {
 
     }
     saveEventLog(dlg: wijmo.input.Popup) {      
-        this.saveGridRow('/configurator/save_log_file_scanning/' + this.id, dlg);
+        this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
     }
     deleteEventLog() {
         
         this.delteGridRow('/configurator/delete_event_log_file_scanning/' + this.id + '/');
 
+    }
+    addlogScan(dlg: wijmo.input.Popup) {
+        
+        this.addGridRow(dlg);
+
+            this.currentEditItem.keyword = "";
+            this.currentEditItem.exclude = "";
+            this.currentEditItem.one_alert_per_day = false;
+            this.currentEditItem.scan_log = false;
+            this.currentEditItem.scan_agent_log = false;
+        
+
+    }
+    applySetting() {
+
+        var postData = {
+            "setting": this.results,
+            "value": this.sererNames,
+            "devices": this.devices,
+        };
+
+        this.serverLog.setValue(postData);
+        console.log(postData);
+        this.service.put('/configurator/save_log_file_servers/' + this.id, postData)
+            .subscribe(
+            response => {
+
+            });
+    }
+    changeInDevices(server: string) {
+        this.devices = server;
     }
   
 
