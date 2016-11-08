@@ -1448,12 +1448,13 @@ namespace VitalSigns.API.Controllers
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-                var result = statusRepository.Collection.AsQueryable().Where(x=>x.DeviceType==deviceType).Select(x => new MailDeliveryStatusModel
+                Expression<Func<Status, bool>> expression = (p => p.DeviceType == deviceType);
+                var result = statusRepository.Find(expression).Select(x => new MailDeliveryStatusModel
                 {
                     DeviceName = x.DeviceName,
                     Category = x.Category,
-                    LastUpdated =x.LastUpdated,
-                PendingMail = x.PendingMail,
+                    LastUpdated =Convert.ToString(x.LastUpdated),
+                    PendingMail = x.PendingMail,
                     DeadMail = x.DeadMail,
                     HeldMail = x.HeldMail,
                     Location = x.Location,
