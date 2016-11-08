@@ -17,6 +17,13 @@ namespace VSNext.Mongo.Entities
     [CollectionName("maintenance")]
    public  class Maintenance:Entity
     {
+
+        //[DataMember]
+        //[BsonElement("id")]
+        //[BsonIgnoreIfNullAttribute]
+        //public string ID { get; set; }
+
+
         [DataMember]
         [BsonElement("name")]
         [BsonIgnoreIfNullAttribute]
@@ -55,6 +62,13 @@ namespace VSNext.Mongo.Entities
         [BsonElement("continue_forever")]
         public bool ContinueForever { get; set; }
 
+        [DataMember]
+        [BsonElement("maintain_type")]
+        public int? MaintainType { get; set; }
+
+        [DataMember]
+        [BsonElement("duration_type")]
+        public int? DurationType { get; set; }
 
 
     }
