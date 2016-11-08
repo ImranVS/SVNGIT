@@ -2437,32 +2437,41 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-               
-                    var serverOther= serverOtherRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == id);
-                if (serverOther != null)
+                List<Models.Configurator.LogFile> service = new List<Models.Configurator.LogFile>();
+                if ( id!="-1")
                 {
-                    var devicename = serverOther.Name;
-                    var result = serverOther.LogFileKeywords;
-                    var servers = serverOther.LogFileServers;
-                    List<VitalSigns.API.Models.Configurator.LogFile> service = new List<VitalSigns.API.Models.Configurator.LogFile>();
-                    foreach (LogFileKeyword task in result)
+                    var serverOther = serverOtherRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == id);
+                    if (serverOther != null)
                     {
-                        service.Add(new VitalSigns.API.Models.Configurator.LogFile
+                        var devicename = serverOther.Name;
+                        var result = serverOther.LogFileKeywords;
+                        var servers = serverOther.LogFileServers;
+                        service = new List<Models.Configurator.LogFile>();
+                        foreach (LogFileKeyword task in result)
                         {
-                            Keyword = task.Keyword,
-                            Exclude = task.Exclude,
-                            OneAlertPerDay = task.OneAlertPerDay,
-                            ScanLog = task.ScanLog,
-                            ScanAgentLog = task.ScanAgentLog,
-                            Id = task.Id
+                            service.Add(new Models.Configurator.LogFile
+                            {
+                                Keyword = task.Keyword,
+                                Exclude = task.Exclude,
+                                OneAlertPerDay = task.OneAlertPerDay,
+                                ScanLog = task.ScanLog,
+                                ScanAgentLog = task.ScanAgentLog,
+                                EventId = task.EventId
 
 
-                        });
+                            });
 
+                        }
+
+                        Response = Common.CreateResponse(new { devicename = devicename, result = service, servers = servers });
                     }
-                    Response = Common.CreateResponse(new { devicename = devicename, result = service, servers = servers });
+
                 }
-                // Response = Common.CreateResponse(result);
+                else
+                {
+                       Response = Common.CreateResponse(new { devicename = string.Empty, result = service, servers = new List<string>() });
+                }
+            
 
             }
             catch (Exception exception)
@@ -2472,116 +2481,85 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         
-        [HttpPut("save_log_file_scanning/{id}")]
-        //public APIResponse UpdateLogFileScanning([FromBody] VitalSigns.API.Models.Configurator.LogFile eventlog,string id)
-        //{
-        //    try
-        //    {
-        //        serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-        //        var server = serverOtherRepository.Get(id);
-        //        UpdateDefinition<ServerOther> updateDefinition = null;
-        //        //  var devicesList = eventlog.LogFile.ToList();
+     
 
-        //        //LogFileKeyword keywords = new LogFileKeyword
-        //        //{
-        //        //    Keyword =eventlog.Keyword ,
-        //        //    //  LogFileKeywords= eventlog.LogFile,
-        //        //    Exclude = eventlog.Exclude,
-        //        //    OneAlertPerDay = eventlog.OneAlertPerDay,
-        //        //    ScanLog = eventlog.ScanLog,
-        //        //    ScanAgentLog = eventlog.ScanAgentLog
-        //        //};
-        //        if (string.IsNullOrEmpty(eventlog.Keyword))
-        //        {
-        //            LogFileKeyword logfiles = new LogFileKeyword
-        //            {
-        //                Keyword = eventlog.Keyword,
-        //                //  LogFileKeywords= eventlog.LogFile,
-        //                Exclude = eventlog.Exclude,
-        //                OneAlertPerDay = eventlog.OneAlertPerDay,
-        //                ScanLog = eventlog.ScanLog,
-        //                ScanAgentLog = eventlog.ScanAgentLog
-
-        //                //  LogFileKeywords = eventlog.LogFile.FirstOrDefault()
-
-
-
-        //            };
-
-
-
-        //            // string id = serversRepository.Insert(logfiles);
-        //            //  Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
-        //        }
-        //        else
-        //        {
-        //            // FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == eventlog.Id);
-        //            // var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, eventlog.DeviceName);
-        //            List<LogFileKeyword> diskSettings = new List<LogFileKeyword>();
-
-
-        //                    diskSettings.Add(new LogFileKeyword { Keyword = eventlog.Keyword, Exclude = eventlog.Exclude, OneAlertPerDay = eventlog.OneAlertPerDay,
-        //                                                         ScanLog=eventlog.ScanLog,ScanAgentLog=eventlog.ScanAgentLog});
-
-        //            updateDefinition = serverOtherRepository.Updater.Set(p => p.LogFileKeywords, diskSettings);
-        //            var result = serverOtherRepository.Update(server, updateDefinition);
-        //            //var result = serversRepository.Update(filterDefination, updateDefination);
-        //            // Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
-        //        }
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        Response = Common.CreateResponse(null, "Error", "Notes Database falied .\n Error Message :" + exception.Message);
-        //    }
-
-        //    return Response;
-
-        //}
-        public APIResponse UpdateLogFileScanning([FromBody] VitalSigns.API.Models.Configurator.LogFile eventlog, string id)
+        [HttpPut("save_log_file_servers/{id}")]
+        public APIResponse UpdateLogFileServers([FromBody] DeviceSettings devicesettings, [FromBody] VitalSigns.API.Models.Configurator.LogFile eventlog, string id)
         {
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-                List<LogFileKeyword> logFileKeyWords = new List<LogFileKeyword>();
-                var server = serverOtherRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == id);
-                LogFileKeyword logFileKeyWord = new LogFileKeyword();
-                if (string.IsNullOrEmpty(eventlog.Id))
-                {
-                    eventlog.Id = ObjectId.GenerateNewId().ToString();
-                    logFileKeyWord.Id = eventlog.Id;
-                }
-                else
-                {
-                    logFileKeyWord.Id = eventlog.Id;
 
-                }
-              
-                //  dominoServerTask.TaskId = servertasks.TaskId;
+                string settingValue = Convert.ToString(devicesettings.Value);
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
+                var logfiles = ((Newtonsoft.Json.Linq.JArray)devicesettings.Setting).ToObject<List<Models.Configurator.LogFile>>();
+              //  var server = serverOtherRepository.Get(id);
+                UpdateDefinition<ServerOther> updateDefinition = null;
+                List<LogFileKeyword> logscannings = new List<LogFileKeyword>();
+               
+                    foreach (var logfile in logfiles)
+                    {
+                    if (logfile.EventId != "-1")
+                    {
+                        logscannings.Add(new LogFileKeyword
+                        {
+                            EventId = logfile.EventId,
+                            Keyword = logfile.Keyword,
+                            Exclude = logfile.Exclude,
+                            OneAlertPerDay = logfile.OneAlertPerDay,
+                            ScanLog = logfile.ScanLog,
+                            ScanAgentLog = logfile.ScanAgentLog
+                        });
+                    }
+                    }
                 
-                logFileKeyWord.Keyword = eventlog.Keyword;
-                logFileKeyWord.Exclude = eventlog.Exclude;
-                logFileKeyWord.ScanLog = eventlog.ScanLog;
-                logFileKeyWord.ScanAgentLog = eventlog.ScanAgentLog;
-                logFileKeyWord.OneAlertPerDay = eventlog.OneAlertPerDay;
-             //   dominoServerTask.SendExitCmd = servertasks.IsDisallow;
+               
+                    foreach (var logfile in logfiles)
+                    {
+                   
+                        logscannings.Add(new LogFileKeyword
+                        {
+                            EventId = ObjectId.GenerateNewId().ToString(),
+                            Keyword = logfile.Keyword,
+                            Exclude = logfile.Exclude,
+                            OneAlertPerDay = logfile.OneAlertPerDay,
+                            ScanLog = logfile.ScanLog,
+                            ScanAgentLog = logfile.ScanAgentLog
+                        });
+                    }
+                
+                    ServerOther logscanserver = new ServerOther { Name = settingValue, LogFileKeywords = logscannings, LogFileServers = devicesList };
+                    string newid = serverOtherRepository.Insert(logscanserver);
+                    Response = Common.CreateResponse(newid, "OK", "Log Scan Servers  inserted successfully");
+                   
+                    if (!string.IsNullOrEmpty("-1"))
+                    {
+                        if (devicesList.Count() > 0)
+                        {
+                            if (!string.IsNullOrEmpty(settingValue))
+                            {
+                                FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
+                                var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
+                                                                         .Set(p => p.LogFileServers, devicesList)
+                                                                         .Set(p => p.LogFileKeywords, logscannings);
 
-                if (server.LogFileKeywords != null)
-                    logFileKeyWords = server.LogFileKeywords;
-                logFileKeyWords.Add(logFileKeyWord);
-                var updateDefinitaion = serverOtherRepository.Updater.Set(p => p.LogFileKeywords, logFileKeyWords);
-                var filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
+                                var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
 
-                serverOtherRepository.Update(filterDefination, updateDefinitaion, new UpdateOptions { IsUpsert = true });
+                            }
 
+                        }
+                    }
             }
+
+
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Notes Database falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Log Scan Servers falied .\n Error Message :" + exception.Message);
             }
-
             return Response;
 
         }
+
         [HttpDelete("delete_log_file_scanning/{Id}")]
         public void DeleteLogFileScanning(string Id)
         {
@@ -2609,7 +2587,7 @@ namespace VitalSigns.API.Controllers
                 var server = serverOtherRepository.Get(deviceId);
                 var dominoServerTasks = server.LogFileKeywords;
 
-                var serverTaskDelete = dominoServerTasks.FirstOrDefault(x => x.Id == id);
+                var serverTaskDelete = dominoServerTasks.FirstOrDefault(x => x.EventId == id);
                 if (serverTaskDelete != null)
                 {
                     dominoServerTasks.Remove(serverTaskDelete);
