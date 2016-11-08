@@ -12,7 +12,7 @@ namespace VitalSigns.API.Models.Configurator
         public string Id { get; set; }
 
         [JsonProperty("domino_servers")]
-        public string DominoServers { get; set; }
+        public List<string> DominoServers { get; set; }
 
         [JsonProperty ("stat_name")]
         public String StatName { get; set; }
