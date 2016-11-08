@@ -12,31 +12,49 @@ import {GridBase} from '../../../core/gridBase';
     ]
 })
 export class Maintenance extends GridBase implements OnInit  {  
-    devices: string;
+   devices: string;
     errorMessage: string;
     dataMobileUsers: wijmo.collections.CollectionView;
     selectedSetting: string="1";
     durationSetting: any;
     selectedSettingValue: any;
     selectedDays: any;
-    sunday: any;
-    monday: any;
-    tuesday: any;
-    wednesday: any;
-    thursday: any;
-    friday: any;
-    saturday: any;
+    weekDays: any;
     repeat: any;
     repeat_monthly: any;
     end_date: any;
+    day_of_the_month: any;
     i: any;
+    currentDeviceType: string = "Notes Database"
+    
+   
+  keyUsers: string[] = []; 
+    
 
 
     constructor(service: RESTService) {
         super(service);
         this.formName = "Maintenance";
+        this.weekDays = [
+            { weekday: "Sunday", dayNumber: "7", isChecked:false},
+            { weekday: "Monday", dayNumber: "1", isChecked: false },
+            { weekday: "Tuesday", dayNumber: "2", isChecked: false },
+            { weekday: "Wednesday", dayNumber: "3", isChecked: false },
+            { weekday: "Thursday", dayNumber: "4", isChecked: false },
+            { weekday: "Friday", dayNumber: "5", isChecked: false },
+            { weekday: "Saturday", dayNumber: "6", isChecked: false},
+        ];
       
     } 
+
+    keyUsersCheck(value, event) {
+
+        if (event.target.checked)
+            this.keyUsers.push(value);
+        else {
+            this.keyUsers.splice(this.keyUsers.indexOf(value), 1);
+        }
+    }
 
     ngOnInit() {
         this.initialGridBind('/Configurator/get_maintenance');
@@ -54,211 +72,112 @@ export class Maintenance extends GridBase implements OnInit  {
 
     }
     saveMaintenance(dlg: wijmo.input.Popup) {
-       
+        var selectedWeekDays = "";
 
+       
+       
+        //this.weekDays[0] == true
+        //alert(this.weekDays.weekday)
         this.currentEditItem.maintain_type = this.selectedSetting;
       
 
-        if (this.selectedSetting == "2" || "3" || "4") {
+        //if (this.selectedSetting == "2" || "3" || "4") {
 
-            if (this.durationSetting == "1")
-                this.currentEditItem.end_date = this.end_date;
-            else
-                this.currentEditItem.end_date = "";
+        //    if (this.durationSetting == "1")
+        //        this.currentEditItem.end_date = this.end_date;
+        //    else
+        //        this.currentEditItem.end_date = "";
            
-        }
+        //}
 
        
         if (this.selectedSetting == "3") {
-            //if (this.sunday == true)
-            //    this.sunday = "7";
-            //alert(this.sunday);
-            //this.currentEditItem.maintenance_days_list = this.sunday
-            //this.currentEditItem.maintenance_days_list += ":" + this.repeat;
-            //alert(this.currentEditItem.maintenance_days_list)
 
-            if (this.sunday == true || this.monday == true || this.tuesday == true || this.wednesday == true || this.thursday == true || this.friday == true) {
-
-                if (this.sunday == true)
+            for (var item of this.weekDays) {
+              
+                if (item.isChecked == true )
                 {
-                    this.sunday = "7";
-                    this.currentEditItem.maintenance_days_list = this.sunday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
+                    if (selectedWeekDays == "") {
+
+                        selectedWeekDays = item.dayNumber + ":" + this.repeat;
+
+                        console.log(selectedWeekDays)
+
+                    }
+
+                    else {
+
+                        selectedWeekDays += "," + item.dayNumber + ":" + this.repeat;
+                        console.log(selectedWeekDays)
+
+                    }
+                   
+                  
                 }
-
-                if (this.monday == true) {
-                    this.monday = "1";
-                    this.currentEditItem.maintenance_days_list = this.monday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                }
-
-                if (this.tuesday == true) {
-                    this.tuesday = "2";
-                    this.currentEditItem.maintenance_days_list = this.tuesday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                }
-
-                if (this.wednesday == true) {
-                    this.wednesday = "3";
-                    this.currentEditItem.maintenance_days_list = this.wednesday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                }
-
-                if (this.thursday == true) {
-                    this.thursday = "4";
-                    this.currentEditItem.maintenance_days_list = this.thursday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                }
-
-                if (this.friday == true) {
-                    this.friday = "5";
-                    this.currentEditItem.maintenance_days_list = this.friday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                }
-                if (this.saturday == true) {
-                    this.saturday = "6";
-                    this.currentEditItem.maintenance_days_list = this.saturday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                }
-
-                 if (this.sunday == true && this.monday == true) 
-                    this.sunday = "7";
-                    this.monday = "1";
-                    this.currentEditItem.maintenance_days_list = this.sunday + ":" + this.repeat;
-                    this.currentEditItem.maintenance_days_list += "," + this.monday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                
-                if (this.sunday == true && this.monday == true && this.tuesday == true) 
-                    this.sunday = "7";
-                    this.monday = "1";
-                    this.tuesday = "2";
-                    this.currentEditItem.maintenance_days_list = this.sunday + ":" + this.repeat;
-                    this.currentEditItem.maintenance_days_list += "," + this.monday + ":" + this.repeat;
-                    this.currentEditItem.maintenance_days_list += "," + this.tuesday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                
-                    if (this.sunday == true && this.monday == true && this.tuesday == true && this.wednesday == true) 
-                        this.sunday = "7";
-                    this.monday = "1";
-                    this.tuesday = "2";
-                    this.wednesday = "3";
-                    this.currentEditItem.maintenance_days_list = this.sunday + ":" + this.repeat;
-                    this.currentEditItem.maintenance_days_list += "," + this.monday + ":" + this.repeat;
-                    this.currentEditItem.maintenance_days_list += "," + this.tuesday + ":" + this.repeat;
-                   this.currentEditItem.maintenance_days_list += "," + this.wednesday + ":" + this.repeat;
-                 alert(this.currentEditItem.maintenance_days_list)
-                
-                 if (this.sunday == true && this.monday == true && this.tuesday == true && this.wednesday == true && this.thursday == true) 
-                     this.sunday = "7";
-                     this.monday = "1";
-                     this.tuesday = "2";
-                     this.wednesday = "3";
-                     this.thursday = "4";
-                     this.currentEditItem.maintenance_days_list = this.sunday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.monday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.tuesday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.wednesday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.thursday + ":" + this.repeat;
-                 alert(this.currentEditItem.maintenance_days_list)
-                
-                 if (this.sunday == true && this.monday == true && this.tuesday == true && this.wednesday == true && this.thursday == true && this.friday == true) 
-                     this.sunday = "7";
-                 this.monday = "1";
-                 this.tuesday = "2";
-                 this.wednesday = "3";
-                 this.thursday = "4";
-                 this.friday = "5";
-
-                 this.currentEditItem.maintenance_days_list = this.sunday + ":" + this.repeat;
-                 this.currentEditItem.maintenance_days_list += "," + this.monday + ":" + this.repeat;
-                 this.currentEditItem.maintenance_days_list += "," + this.tuesday + ":" + this.repeat;
-                 this.currentEditItem.maintenance_days_list += "," + this.wednesday + ":" + this.repeat;
-                 this.currentEditItem.maintenance_days_list += "," + this.thursday + ":" + this.repeat;
-                 this.currentEditItem.maintenance_days_list += "," + this.friday + ":" + this.repeat;
-                 alert(this.currentEditItem.maintenance_days_list)
-                
-                 if (this.sunday == true && this.monday == true && this.tuesday == true && this.wednesday == true && this.thursday == true && this.friday == true && this.saturday == true) 
-                     this.sunday = "7";
-                     this.monday = "1";
-                     this.tuesday = "2";
-                     this.wednesday = "3";
-                     this.thursday = "4";
-                     this.friday = "5";
-                     this.saturday = "6";
-                     this.currentEditItem.maintenance_days_list = this.sunday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.monday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.tuesday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.wednesday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.thursday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.friday + ":" + this.repeat;
-                     this.currentEditItem.maintenance_days_list += "," + this.saturday + ":" + this.repeat;
-                    alert(this.currentEditItem.maintenance_days_list)
-                
-
-               
+              
+            
             }
 
-           //if (this.sunday == true && this.monday == true && this.tuesday == true && this.wednesday == true && this.thursday == true && this.friday == true)
-            
-           //     alert("sowjiiiiii");
-           //     this.sunday = "7"
-           //     this.monday = "1";
-           //     this.tuesday = "2";
-           //     this.wednesday = "3";
-           //     this.thursday = "4";
-           //     this.friday = "5";
-           //     this.saturday = "6";
-
-           //     this.currentEditItem.maintenance_days_list += this.sunday + ":" + this.repeat;
-           //     this.currentEditItem.maintenance_days_list += "," + this.monday + ":" + this.repeat;
-           //     this.currentEditItem.maintenance_days_list += "," + this.tuesday + ":" + this.repeat;
-           //     this.currentEditItem.maintenance_days_list += "," + this.wednesday + ":" + this.repeat;
-           //     this.currentEditItem.maintenance_days_list += "," + this.thursday + ":" + this.repeat;
-           //     this.currentEditItem.maintenance_days_list += "," + this.friday + ":" + this.repeat;
-           //     this.currentEditItem.maintenance_days_list += "," + this.saturday + ":" + this.repeat;
-           //     alert(this.currentEditItem.maintenance_days_list)
-            
+       
 
         }
 
-        else
-        {
-            this.currentEditItem.maintenance_days_list = "";
-        }
-
-
+   
         if (this.selectedSetting == "4") {
-            if (this.sunday == true)
-                this.sunday = "7";
-            alert(this.sunday);
-            this.currentEditItem.maintenance_days_list = this.sunday
-            this.currentEditItem.maintenance_days_list += ":" + this.repeat_monthly;
-            alert(this.currentEditItem.maintenance_days_list)
 
-            if (this.sunday == true && this.monday == true && this.tuesday == true && this.wednesday == true && this.thursday == true && this.friday == true)
-                this.sunday = "7"
-            this.monday = "1";
-            this.tuesday = "2";
-            this.wednesday = "3";
-            this.thursday = "4";
-            this.friday = "5";
-            this.saturday = "6";
+            for (var item of this.weekDays) {
 
-            alert(this.monday);
-            this.currentEditItem.maintenance_days_list = this.sunday
-            this.currentEditItem.maintenance_days_list += ":" + this.repeat_monthly;
-            this.currentEditItem.maintenance_days_list += "," + this.monday + ":" + this.repeat_monthly;
-            this.currentEditItem.maintenance_days_list += "," + this.tuesday + ":" + this.repeat_monthly;
-            this.currentEditItem.maintenance_days_list += "," + this.wednesday + ":" + this.repeat_monthly;
-            this.currentEditItem.maintenance_days_list += "," + this.thursday + ":" + this.repeat_monthly;
-            this.currentEditItem.maintenance_days_list += "," + this.friday + ":" + this.repeat_monthly;
-            this.currentEditItem.maintenance_days_list += "," + this.saturday + ":" + this.repeat_monthly;
-            alert(this.currentEditItem.maintenance_days_list)
+                if (item.isChecked == true) {
+                    if (selectedWeekDays == "") {
+
+                        selectedWeekDays = item.dayNumber + ":" + this.repeat_monthly;
+
+                        console.log(selectedWeekDays)
+
+                    }
+
+                    else {
+
+                        selectedWeekDays += "," + item.dayNumber + ":" + this.repeat_monthly;
+                        console.log(selectedWeekDays)
+
+                    }
+
+
+                }
+
+
+            }
+
+
+            if (this.repeat_monthly == "specific_day") {
+
+                selectedWeekDays = this.day_of_the_month + ":" + "specific_day";
+                console.log(selectedWeekDays)
+            }
+
         }
 
        
       
-       
+        this.currentEditItem.maintenance_days_list = selectedWeekDays;
+        this.currentEditItem.maintain_type = this.selectedSetting;
+        this.currentEditItem.duration_type = this.durationSetting;
+        this.currentEditItem.key_users = this.keyUsers;
+        console.log(this.keyUsers)
+        
+
+        //if (this.durationSetting == 1) {
+
+        //    this.currentEditItem.end_date = this.end_date;
+
+        //}
+        //else {
+
+        //    this.currentEditItem.end_date = null;
+
+        //}
+
         this.saveGridRow('/Configurator/save_maintenancedata',dlg);  
     }
     deleteMaintenance() {      
