@@ -28,6 +28,7 @@ import { CloudServicesDashboard } from './dashboards/components/cloud-services-d
 import { FinancialDashboard } from './dashboards/components/financial-dashboard.component';
 
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
+import { MailDeliveryStatus } from './dashboards/components/mail-delivery-status/maildelivery-tabs-component';
 
 import {SiteMapList} from './navigation/editor/components/sitemap-list.component';
 import {SiteMapEditor} from './navigation/editor/components/sitemap-editor.component';
@@ -83,6 +84,7 @@ import { Alerts } from './configurator/components/alert/alert-tabs-component';
 import { Nodes } from './configurator/components/security/security-assign-server-to-node.component';
 
 import { IBMDomino } from './configurator/components/ibmDomino/ibmdomino-tabs-component';
+
 import { AddLogFile } from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
 
 
@@ -94,6 +96,7 @@ export * from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.compo
 export * from './dashboards/components/mobile-users/mobile-users-dashboard.component';
 export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
+export * from './dashboards/components/mail-delivery-status/maildelivery-tabs-component';
 
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
 export * from './dashboards/components/key-metrics/overall-database-dashboard.component'
@@ -220,6 +223,10 @@ const appRoutes: Routes = [
     {
         path: 'dashboard/financial',
         component: FinancialDashboard
+    },
+    {
+        path: 'dashboard/mail-delivery-status',
+        component: MailDeliveryStatus
     },
     //{
     //    path: 'dashboard/status-map',
