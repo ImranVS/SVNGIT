@@ -23,7 +23,8 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 export class ServersLocation implements OnInit {
    
     @Output() checkedDevices = new EventEmitter();  
-    @Input() deviceList:any; 
+    @Input() deviceList: any; 
+    @Input() deviceType: any; 
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     devices: string[]=[];
@@ -59,14 +60,19 @@ export class ServersLocation implements OnInit {
             .subscribe(
             response => {
                 var resultData:any = [];
-                for (var item of response.data) {                  
-                    var value = this.deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);
-                    console.log(value.length);
-                    if (value.length > 0) {
-                        item.is_selected = true;
-                    }
+                for (var item of response.data) {
+                    if (this.deviceList) {
+                        var value = this.deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);                       
+                        if (value.length > 0) {
+                            item.is_selected = true;
+                        }
+                    } 
                     resultData.push(item);
-                }
+                }                
+                if (this.deviceType) {
+                    resultData = resultData.filter((record) => record.device_type == this.deviceType);
+
+                }               
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
                 this.data.pageSize = 10;               
