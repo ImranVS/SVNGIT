@@ -28,7 +28,7 @@ namespace VitalSigns.API.Models
         public string Category { get; set; }
 
         [JsonProperty("last_updated")]
-        public DateTime? LastUpdated { get; set; }
+        public  string LastUpdated { get; set; }
      
         [JsonProperty("StatusCode")]
         public string StatusCode { get; set; }
