@@ -68,14 +68,7 @@ export class ApplicationSettings implements OnInit {
                 "component": "MaintainUser",
                 "path": "/app/configurator/components/applicationSettings/application-settings-maintainusers.component",
                 "active": false
-            },
-            {
-                "title": "Traveler Data Store",
-                "component": "TravelerDataStore",
-                "path": "/app/configurator/components/applicationSettings/application-settings-travelerdatastore.component",
-                "active": false
             }
-            
 
         ];
               this.selectTab(this.tabsData[0]);
