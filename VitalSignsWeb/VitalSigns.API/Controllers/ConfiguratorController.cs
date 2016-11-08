@@ -1994,9 +1994,8 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType == "Domino Custom Statistic").Select(x => new CustomStatisticsModel
                 {
-                    Id = x.Id,
-
-                    DominoServers = x.DominoServers,
+                    Id = x.Id,                   
+                   DominoServers = x.DominoServers,
                     StatName = x.StatName,
                     ThresholdValue = x.ThresholdValue,
                     TimesInARow = x.TimesInARow,
@@ -2019,14 +2018,15 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
+                var devicesList = customstat.DominoServers;
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 if (string.IsNullOrEmpty(customstat.Id))
                 {
                     ServerOther customstatistic = new ServerOther
                     {
                         DominoType = "Domino Custom Statistic",
-                        DominoServers = customstat.DominoServers,
-                        StatName = customstat.StatName,
+                        DominoServers = devicesList,
+                       StatName = customstat.StatName,
                         ThresholdValue = customstat.ThresholdValue,
                         TimesInARow  = customstat.TimesInARow,
                         GreaterThanOrLessThan = customstat . GreaterThanOrLessThan,
@@ -2039,8 +2039,8 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == customstat.Id);
-                    var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServers, customstat.DominoServers)
+                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == customstat.Id);                 
+                    var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServers, devicesList)
                                                              .Set(p => p.StatName, customstat.StatName)
                                                              .Set(p => p.ThresholdValue, customstat.ThresholdValue)
                                                              .Set(p => p.TimesInARow, customstat.TimesInARow)
@@ -2893,7 +2893,7 @@ namespace VitalSigns.API.Controllers
                         serverLocation.DeviceName = x.GetValue("device_name", BsonString.Create(string.Empty)).ToString();
                         serverLocation.DeviceType = x.GetValue("device_type", BsonString.Create(string.Empty)).ToString();
                         serverLocation.Description = x.GetValue("description", BsonString.Create(string.Empty)).ToString();
-                        if (!string.IsNullOrEmpty(x.GetValue("result", BsonValue.Create(string.Empty)).ToString()))
+                        if (x.GetValue("result", BsonValue.Create(string.Empty)).AsBsonArray.Values.Count() > 0)
                         {
                             serverLocation.LocationName = x.GetValue("result", BsonValue.Create(string.Empty))[0]["location_name"].ToString();
                         }
