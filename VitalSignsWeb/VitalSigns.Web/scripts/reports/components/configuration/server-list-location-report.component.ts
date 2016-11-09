@@ -29,7 +29,7 @@ export class ServerListLocationReport extends WidgetController {
 
     ngOnInit() {
 
-        this.service.get('/navigation/sitemaps/server_reports')
+        this.service.get('/navigation/sitemaps/configuration_reports')
             .subscribe
             (
             data => this.contextMenuSiteMap = data,
