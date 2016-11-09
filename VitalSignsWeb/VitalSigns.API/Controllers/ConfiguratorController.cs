@@ -36,7 +36,8 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Server> serversRepository;
 
-       private IRepository<MobileDevices> mobiledevicesRepository;
+
+        private IRepository<MobileDevices> mobiledevicesRepository;
 
         private IRepository<Users> maintainUsersRepository;
 
@@ -2959,31 +2960,31 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        //[HttpGet("mobileusers")]
-        //public APIResponse GetAllMobileUsersList()
-        //{
-        //    try
-        //    {
-        //        mobiledevicesRepository = new Repository<MobileDevices>(ConnectionString);
-        //        var result = mobiledevicesRepository.All().Select(x => new MobileUserDevice
-        //        {
-        //            UserName = x.UserName,
-        //            DeviceName = x.DeviceName,
-        //           LastSyncTime = x.LastSyncTime
+        [HttpGet("mobileusers")]
+        public APIResponse GetAllMobileUsersList()
+        {
+            try
+            {
+                mobiledevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                var result = mobiledevicesRepository.All().Select(x => new MobileUserDevice
+                {
+                    UserName = x.UserName,
+                    DeviceName = x.DeviceName,
+                    LastSyncTime = x.LastSyncTime
 
 
 
-        //        }).ToList();
+                }).ToList();
 
 
-        //        Response = Common.CreateResponse(result);
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
-        //    }
-        //    return Response;
-        //}
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
 
 
         [HttpGet("device_list")]
@@ -3391,6 +3392,34 @@ namespace VitalSigns.API.Controllers
 
             return Response;
 
+        }
+
+        [HttpGet("get_all_mobile_devices")]
+        public APIResponse GetALLMobileDevices()
+        {
+            try
+            {
+                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                var result = mobileDevicesRepository.All().Where(x => x.ThresholdSyncTime == null).Select(x => new MobileUserDevice
+                {
+                    UserName = x.UserName,
+                    DeviceName = x.DeviceName,
+                    DeviceId = x.DeviceID,
+                    OperatingSystem = x.OSType,
+                    Id = x.Id
+
+
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
         }
     }
 }
