@@ -36,7 +36,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Server> serversRepository;
 
-     //   private IRepository<MobileDevices> mobiledevicesRepository;
+       private IRepository<MobileDevices> mobiledevicesRepository;
 
         private IRepository<Users> maintainUsersRepository;
 
