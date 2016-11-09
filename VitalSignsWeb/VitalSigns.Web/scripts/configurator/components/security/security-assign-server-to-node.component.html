@@ -3,7 +3,7 @@
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
     <wj-flex-grid #flex [itemsSource]="nodeNames" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshGrid($event)">
         <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="200" ></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="200" style="display:none"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Primary Node'" [binding]="'is_primary'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Host Name'" [binding]="'host_name'" [width]="250"></wj-flex-grid-column>
@@ -66,10 +66,17 @@ data.pageIndex + 1 | number
         </button>
     </div>
 
-    <wj-flex-grid #flex [itemsSource]="services" headersVisibility="Row" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+    <wj-flex-grid #flex [itemsSource]="services"  headersVisibility="Row" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column   [binding]="'Name'"  [width]="200"></wj-flex-grid-column>
-        <wj-flex-grid-column  [binding]="'State'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column  [binding]="'State'" [width]="200">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.State">
+                    <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.State}}</span>
+                    <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.State}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
         
        
     </wj-flex-grid>

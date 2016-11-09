@@ -1,6 +1,8 @@
 ﻿import {Component, OnInit} from '@angular/core';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
+import {Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 
 
 @Component({
@@ -16,28 +18,28 @@ export class DominoLogFiles extends GridBase implements OnInit {
     constructor(service: RESTService) {
         super(service);
         this.formName = "Domino Log File Scanning";
-      
+
         this.service.get('/configurator/get_log_scaning')
             .subscribe(
-            response=> {               
-                
+            response => {
+
                 this.sererNames = response.data;
 
             },
             (error) => this.errorMessage = <any>error
             );
-       
+
     }
-  
-   
+
+
     ngOnInit() {
-        
+
         this.initialGridBind('/configurator/get_log_scaning');
-    }  
+    }
     deleteLogFileScanning() {
         this.delteGridRow('/configurator/delete_log_file_scanning/');
     }
-  
+
 
 }
 

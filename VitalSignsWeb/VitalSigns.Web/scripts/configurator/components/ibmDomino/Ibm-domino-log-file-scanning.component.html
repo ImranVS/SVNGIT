@@ -2,10 +2,10 @@
     <h3>Domino Event Definitions</h3>
     <p>The list of available Event Definitions is displayed below. In order to add new Event Definitions or configure existing alerts, please use the buttons in the 'Actions' column.</p>
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid #flex [itemsSource]="sererNames" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+    <wj-flex-grid #flex [itemsSource]="sererNames" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshChart($event)">
         <wj-flex-grid-filter></wj-flex-grid-filter>
        
-        <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>     
+        <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="200" ></wj-flex-grid-column>     
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"
@@ -48,10 +48,10 @@ data.pageIndex + 1 | number
             <tbody *ngIf="sererNames">
                 <tr *ngFor="let dominolog of sererNames">
                     <!--<th scope="row">{{dominolog.device_name}}</th>
-                   <td>{{dominolog.id}}</td>-->
+                    <td>{{dominolog.id}}</td>-->
                     <td>
                         <div class="table-cell-height">
-                           <a class="btn btn-default" [routerLink]="['/ibmDomino/add/'+dominolog.id]" role="button" (click)="selectService(dominolog.id)">Edit</a>
+                            <a class="btn btn-default" [routerLink]="['/ibmDomino/add/'+dominolog.id]" role="button" (click)="selectService(dominolog.id)">Edit</a>
                             <a class="btn btn-default" [routerLink]="['/ibmDomino/add']" role="button">Add</a>
                             <button class="btn btn-default" (click)="deleteLogFileScanning();">
                                 Delete
@@ -61,10 +61,10 @@ data.pageIndex + 1 | number
                 </tr>
             </tbody>
         </table>
-            <!-- edit details in a popup -->
-           
-           
-           
-</div>
+        <!-- edit details in a popup -->
+
+
+
+    </div>
     
 </div>
