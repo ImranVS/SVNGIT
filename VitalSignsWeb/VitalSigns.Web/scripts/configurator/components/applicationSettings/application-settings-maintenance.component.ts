@@ -25,7 +25,7 @@ export class Maintenance extends GridBase implements OnInit  {
     end_date: any;
     day_of_the_month: any;
     i: any;
-    currentDeviceType: string = "Notes Database"
+    //currentDeviceType: string = ""
     
    
   keyUsers: string[] = []; 
@@ -164,7 +164,8 @@ export class Maintenance extends GridBase implements OnInit  {
         this.currentEditItem.maintain_type = this.selectedSetting;
         this.currentEditItem.duration_type = this.durationSetting;
         this.currentEditItem.key_users = this.keyUsers;
-        console.log(this.keyUsers)
+        this.currentEditItem.device_list = this.devices;
+        console.log(this.devices)
         
 
         //if (this.durationSetting == 1) {

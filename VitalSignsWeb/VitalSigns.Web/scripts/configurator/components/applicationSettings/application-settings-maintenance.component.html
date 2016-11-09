@@ -117,13 +117,13 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="start_date" class="col-sm-4">Start Date</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
+                                    <input type="date" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" *ngIf="durationSetting=='1'">
                                 <label for="end_date" class="col-sm-4">End Date</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
+                                    <input type="date" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
                                 </div>
                             </div>
                         </div>
@@ -131,13 +131,13 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="start_time" class="col-sm-4">Start Time</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
+                                    <input type="time" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" >
                                 <label for="end_time" class="col-sm-4">End Time</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="end_time" name="end_time" [(ngModel)]="currentEditItem.end_time">
+                                    <input type="time" class="form-control" id="end_time" name="end_time" [(ngModel)]="currentEditItem.end_time">
                                 </div>
                             </div>
 
@@ -243,7 +243,7 @@ data.pageIndex + 1 | number
                         </div>
 
                         <div class="form-group" style="width:auto">
-                            <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceType)]="currentDeviceType" ></server-location-list>
+                            <server-location-list (checkedDevices)="changeInDevices($event)"  ></server-location-list>
                         </div>
                         <div class="form-group" style="width:auto">
                             <wj-group-panel [grid]="flex1" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
