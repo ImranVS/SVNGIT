@@ -24,6 +24,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<Server> serverRepository;
+        private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
 
         private string DateFormat = "yyyy-MM-dd";
@@ -1095,5 +1096,81 @@ namespace VitalSigns.API.Controllers
 
 
         }
+
+
+        [HttpGet("server_configuration")]
+        public APIResponse GetDominoServerConfiguration(string type)
+        {
+
+            try
+            {
+                
+                serverRepository = new Repository<Server>(ConnectionString);
+
+                var filterDef = serverRepository.Filter.Eq(x => x.DeviceType, type);
+
+                var results = serverRepository.Find(filterDef).ToList();
+                
+                Response = Common.CreateResponse(results);
+                return Response;
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+
+        }
+
+        [HttpGet("server_list")]
+        public APIResponse GetStatusList()
+        {
+
+            try
+            {
+                //DeviceName, IP, Type, Location, OS, Software
+                serverRepository = new Repository<Server>(ConnectionString);
+                statusRepository = new Repository<Status>(ConnectionString);
+
+                var filterDefServer = serverRepository.Filter.Where(x => true);
+                var filterDefStatus = statusRepository.Filter.Where(x => true);
+
+                var resultsServer = serverRepository.Find(filterDefServer).ToList();
+                var resultsStatus = statusRepository.Find(filterDefStatus).ToList();
+
+                var results = new List<Object>();
+
+                foreach(var server in resultsServer)
+                {
+                    var status = resultsStatus.Where(i => i.DeviceId == server.Id).DefaultIfEmpty(new Status() {  }).First();
+                    results.Add(new
+                    {
+                        DeviceName = server.DeviceName,
+                        IPAddress = server.IPAddress,
+                        DeviceType = server.DeviceType,
+                        Location = status.Location,
+                        OperatingSystem = status.OperatingSystem,
+                        SoftwareVersion = status.SoftwareVersion
+                    });
+                }
+
+                Response = Common.CreateResponse(results);
+                return Response;
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+
+        }
+
+
     }
 }

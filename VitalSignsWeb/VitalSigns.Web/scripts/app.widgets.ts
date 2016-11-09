@@ -103,3 +103,6 @@ export * from './reports/components/ibm-sametime/sametime-statistics-grid-report
 //Mobile users
 export * from './configurator/components/mobileusers/mobile-users.component'
 
+export * from './reports/components/configuration/domino-server-configuration-report-grid.component'
+export * from './reports/components/configuration/server-list-type-report-grid.component'
+export * from './reports/components/configuration/server-list-location-report-grid.component'

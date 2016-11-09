@@ -74,6 +74,9 @@ import {HourlyStatisticsReport} from './reports/components/hourly-statistics-rep
 import {ServerAvailabilityReport} from './reports/components/servers/server-availability-report.component';
 import {SametimeStatisticsChartReport} from './reports/components/ibm-sametime/sametime-statistics-chart-report.component';
 import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sametime-statistics-grid-report.component';
+import {DominoServerConfigurationReport} from './reports/components/configuration/domino-server-configuration-report.component';
+import {ServerListTypeReport} from './reports/components/configuration/server-list-type-report.component';
+import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -375,8 +378,19 @@ const appRoutes: Routes = [
             {
                 path: 'sametimestatisticsgrid',
                 component: SametimeStatisticsGridReport
-            }
-            
+            },
+            {
+                path: 'dominoserverconfiguration',
+                component: DominoServerConfigurationReport
+            },
+            {
+                path: 'serverlisttype',
+                component: ServerListTypeReport
+            },
+            {
+                path: 'serverlistlocation',
+                component: ServerListLocationReport
+            }            
         ]
     },
     {

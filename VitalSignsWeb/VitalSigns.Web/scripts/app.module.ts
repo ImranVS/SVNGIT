@@ -71,6 +71,9 @@ import {HourlyStatisticsReport} from './reports/components/hourly-statistics-rep
 import {ServerAvailabilityReport} from './reports/components/servers/server-availability-report.component';
 import {SametimeStatisticsChartReport} from './reports/components/ibm-sametime/sametime-statistics-chart-report.component';
 import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sametime-statistics-grid-report.component';
+import {DominoServerConfigurationReport} from './reports/components/configuration/domino-server-configuration-report.component';
+import {ServerListTypeReport} from './reports/components/configuration/server-list-type-report.component';
+import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
 
 @NgModule({
     imports: [
@@ -131,6 +134,9 @@ import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sa
         ServerAvailabilityReport,
         SametimeStatisticsChartReport,
         SametimeStatisticsGridReport,
+        DominoServerConfigurationReport,
+        ServerListTypeReport,
+        ServerListLocationReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -166,6 +172,8 @@ import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sa
         dashboards.MailDeliveryStatus,
         dashboards.ServerSettings,
         dashboards.MobileUser,
+        widgets.ServerListTypeReportGrid,
+        widgets.ServerListLocationReportGrid,
         widgets.AppStatus,
         widgets.ChartComponent,
         widgets.DynamicGrid,
@@ -241,6 +249,7 @@ import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sa
         widgets.DominoServerTasksList,
         widgets.CommunityUsersList,
         widgets.SametimeStatisticGridReportGrid,
+        widgets.DominoServerConfigurationReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -359,6 +368,9 @@ import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sa
         widgets.DominoServerTasksList,
         widgets.CommunityUsersList,
         widgets.SametimeStatisticGridReportGrid,
+        widgets.DominoServerConfigurationReportGrid,
+        widgets.ServerListTypeReportGrid,
+        widgets.ServerListLocationReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,

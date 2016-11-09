@@ -1,0 +1,52 @@
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" #flex >
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Server Name'" [binding]="'DeviceName'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Enabled'" [binding]="'IsEnabled'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Pending Threshold'" [binding]="'PendingMailThreshold'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Scan Interval'" [binding]="'ScanInterval'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Off-Hours Scan Interval'" [binding]="'OffHoursScanInterval'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Dead Mail Threshold'" [binding]="'DeadMailThreshold'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Retry Interval'" [binding]="'RetryInterval'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Response Threshold'" [binding]="'ResponseTime'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Failure Threshold'" [binding]="'ConsecutiveOverThresholdBeforeAlert'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Dead Mail Delete Threshold'" [binding]="'DeadMailDeleteThreshold'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Held Threshold'" [binding]="'HeldMailThreshold'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Scan DB Health'" [binding]="'ScanDBHealth'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Memory Threshold'" [binding]="'MemoryThreshold'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'CPU Threshold'" [binding]="'CpuThreshold'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Cluster Rep Delays Threshold'" [binding]="'ClusterReplicationDelayThreshold'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Server Days Alert'" [binding]="'ConsecutiveFailuresBeforeAlert'" [width]="280"></wj-flex-grid-column>
+</wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{data.pageIndex + 1 | number}} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>
