@@ -15,15 +15,16 @@ namespace VSNext.Mongo.Entities
     [CollectionName("server_other")]
   public  class ServerOther : Entity
     {
+
         [DataMember]
         [BsonElement("name")]
         [BsonIgnoreIfNull]
         public string Name { get; set; }
 
         [DataMember]
-        [BsonElement("domino_type")]
+        [BsonElement("type")]
         [BsonIgnoreIfNull]
-        public string DominoType { get; set; }
+        public string Type { get; set; }
 
         [DataMember]
         [BsonElement("scan_interval")]
@@ -41,7 +42,22 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public Boolean? IsEnabled { get; set; }
 
-        //Note Database
+        [DataMember]
+        [BsonElement("assigned_node")]
+        [BsonIgnoreIfNull]
+        public string AssignedNode { get; set; }
+
+        [DataMember]
+        [BsonElement("current_node")]
+        [BsonIgnoreIfNull]
+        public string CurrentNode { get; set; }
+
+        [DataMember]
+        [BsonElement("license_cost")]
+        [BsonIgnoreIfNull]
+        public double LicenseCost { get; set; }
+
+        //Notes Database
         [DataMember]
         [BsonElement("domino_server_id")]
         [BsonIgnoreIfNull]
@@ -53,7 +69,6 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string DominoServerName { get; set; }
 
-        
 
         [DataMember]
         [BsonElement("database_file_name")]

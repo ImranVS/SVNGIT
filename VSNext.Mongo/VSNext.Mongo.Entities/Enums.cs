@@ -86,7 +86,10 @@ namespace VSNext.Mongo.Entities
             TravelerHaDatastore,
             [BaseServerType("Domino")]
             [Description("EXJournal")]
-            EXJournal
+            EXJournal,
+            [BaseServerType("Domino")]
+            [Description("Domino Custom Statistic")]
+            DominoCustomStatistic
         }
 
     }
