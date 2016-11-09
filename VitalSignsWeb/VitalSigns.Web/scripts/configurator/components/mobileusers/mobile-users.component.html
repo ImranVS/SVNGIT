@@ -1,5 +1,5 @@
 ﻿<div class="container">
-  
+
     <div class="panel panel-default">
         <div class="panel-heading">Critical Devices</div>
         <div class="panel-body">
@@ -74,48 +74,51 @@ data.pageIndex + 1 | number
                 <div class="panel-body" *ngIf="currentEditItem" style="height:70%;overflow:auto">
                     <div class="row">
                         <div class="form-group col-sm-12">
-                           
+
                             <div class="row">
                                 <div class="form-group col-sm-6">
-                                    <label for="device_name" class="control-label col-sm-3">User Name: </label>
+                                    <label for="user_name" class="control-label col-sm-3">User Name: </label>
                                     <div class="col-sm-9">
 
                                         <label class="control-label col-sm-5" name="user_name">{{currentEditItem.user_name}} </label>
                                     </div>
 
                                 </div>
+
+                            </div>
+                            <div class="row">
                                 <div class="form-inline col-sm-6">
-                                    <label for="device_name" class="control-label col-sm-4">Device Name: </label>
-                                    <div class="col-sm-8">
+                                    <label for="device_name" class="control-label col-sm-3">Device Name: </label>
+                                    <div class="col-sm-9">
 
                                         <label class="control-label col-sm-5" name="device_name">{{currentEditItem.device_name}} </label>
                                     </div>
 
                                 </div>
-
                             </div>
-
                             <div class="row">
                                 <div class="form-inline col-sm-6">
-                                    <label for="device_name" class="control-label col-sm-3">Device ID: </label>
-                                    <div class="col-sm-8">
+                                    <label for="device_id" class="control-label col-sm-3">Device ID: </label>
+                                    <div class="col-sm-9">
 
-                                        <label class="control-label col-sm-4" name="device_id">{{currentEditItem.device_id}} </label>
+                                        <label class="control-label col-sm-5" name="device_id">{{currentEditItem.device_id}} </label>
                                     </div>
 
                                 </div>
+
+
+                            </div>
+                            <div class="row">
                                 <div class="form-inline col-sm-6">
-                                    <label for="domino_server_a_file_mask" class="control-label col-sm-5">Sync Duration (min)</label>
+                                    <label for="threshold_sync_time" class="control-label col-sm-3">Sync Duration (min)</label>
                                     <div class="col-sm-7">
                                         <input type="text" class="form-control" name="threshold_sync_time" [(ngModel)]="currentEditItem.threshold_sync_time">
                                     </div>
 
 
                                 </div>
-
                             </div>
 
-                         
                         </div>
 
                     </div>
