@@ -17,6 +17,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("device")]
         public string Device { get; set; }
 
+        [JsonProperty("device_name")]
+        public string DeviceName { get; set; }
+
         [JsonProperty("notification")]
         public string Notification { get; set; }
 
@@ -30,10 +33,13 @@ namespace VitalSigns.API.Models
         public string Access { get; set; }
 
 
-        [JsonProperty("deviceId")]
+        [JsonProperty("device_id")]
         public string DeviceId { get; set; }
 
         [JsonProperty("is_selected")]
         public bool IsSelected { get; set; }
+
+        [JsonProperty("threshold_sync_time")]
+        public int? ThresholdSyncTime { get; set; }
     }
 }
