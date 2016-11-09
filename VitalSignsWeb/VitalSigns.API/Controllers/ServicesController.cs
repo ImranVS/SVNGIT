@@ -1448,14 +1448,9 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+    }
 
-
-
-
-
-        }
-
-            }
+}
 
 
 

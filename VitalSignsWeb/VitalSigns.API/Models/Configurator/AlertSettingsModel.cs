@@ -61,8 +61,8 @@ namespace VitalSigns.API.Models
 
 
 
-        [JsonProperty("enable_persitent_alerting")]
-        public bool EnablePersitentAlerting { get; set; }
+        [JsonProperty("enable_persistent_alerting")]
+        public bool EnablePersistentAlerting { get; set; }
 
         [JsonProperty("alert_interval")]
         public int AlertInterval { get; set; }
@@ -93,7 +93,6 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("number_of_recurrences")]
         public int NumberOfRecurrences { get; set; }
-
 
     }
 }

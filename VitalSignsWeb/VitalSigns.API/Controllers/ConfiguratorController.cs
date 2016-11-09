@@ -54,6 +54,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Nodes> nodesRepository;
 
         private IRepository<ServerOther> serverOtherRepository;
+        private IRepository<EventsMaster> eventsMasterRepository;
 
         #endregion
 
@@ -2621,13 +2622,18 @@ namespace VitalSigns.API.Controllers
         #region Alerts
 
         #region Alert Settings
+        
         [HttpPut("save_alertsettings")]
-        public APIResponse UpdateIbmAlertSettings([FromBody]AlertSettingsModel alertSettings)
+        public APIResponse UpdateIbmAlertSettings([FromBody]RecurringEvents listAlertSettings)
         {
+            //Console.WriteLine("inside function");
             try
             {
-                FilterDefinition<NameValue> filterDefination;
-
+                FilterDefinition<EventsMaster> filterDef;
+                UpdateDefinition<EventsMaster> updateEvents;
+                AlertSettingsModel alertSettings = listAlertSettings.AlertSettings;
+                List<EventsModel> selectedEvents = listAlertSettings.SelectedEvents;
+                
                 try
                 {
                     var alertData = new List<NameValue> { new NameValue { Name = "PrimaryHostName", Value = alertSettings.PrimaryHostName },
@@ -2647,7 +2653,7 @@ namespace VitalSigns.API.Controllers
                                                                    new NameValue { Name = "SecondarySSL", Value =  Convert.ToString(alertSettings.SecondarySSL)},
                                                                  new NameValue { Name = "SmsAccountSid", Value = alertSettings.SmsAccountSid},
                                                                   new NameValue { Name = "SmsAuthToken", Value = alertSettings.SmsAuthToken},
-                                                                  new NameValue { Name = "EnablePersitentAlerting", Value=alertSettings.EnablePersitentAlerting?"True":"False"},
+                                                                  new NameValue { Name = "EnablePersitentAlerting", Value=alertSettings.EnablePersistentAlerting?"True":"False"},
                                                                 new NameValue { Name = "AlertInterval", Value =Convert.ToString(alertSettings.AlertInterval)},
                                                                 new NameValue { Name = "AlertDuration", Value = Convert.ToString(alertSettings.AlertDuration)},
                                                                 //new NameValue { Name = "Email", Value =Convert.ToString(alertSettings.EMail)},
@@ -2660,6 +2666,21 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue {Name = "NumberOfRecurrences", Value= alertSettings.NumberOfRecurrences.ToString()}
                                                              };
                     var result = Common.SaveNameValues(alertData);
+                    eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
+                    filterDef = eventsMasterRepository.Filter.Eq(x => x.NotificationOnRepeat, true);
+                    updateEvents = eventsMasterRepository.Updater.Set(x => x.NotificationOnRepeat, false);
+                    eventsMasterRepository.Update(filterDef, updateEvents);
+                    if (Convert.ToBoolean(alertSettings.AlertAboutRecurrencesOnly))
+                    {
+                        foreach (var selectedEvent in selectedEvents)
+                        {
+                            filterDef = eventsMasterRepository.Filter.And(eventsMasterRepository.Filter.Eq(x => x.DeviceType, selectedEvent.DeviceType),
+                                eventsMasterRepository.Filter.Eq(x => x.EventType, selectedEvent.EventType));
+                            updateEvents = eventsMasterRepository.Updater.Set(x => x.NotificationOnRepeat, true);
+                            eventsMasterRepository.Update(filterDef, updateEvents);
+                        }
+                    }
+
                     Response = Common.CreateResponse(true);
                 }
                 catch (Exception exception)
@@ -2714,7 +2735,7 @@ namespace VitalSigns.API.Controllers
             var smsAccountSid = result.Where(x => x.Name == "SmsAccountSid").Select(x => x.Value).FirstOrDefault();
             var smsAuthToken = result.Where(x => x.Name == "SmsAuthToken").Select(x => x.Value).FirstOrDefault();
             var smsForm = result.Where(x => x.Name == "SmsForm").Select(x => x.Value).FirstOrDefault();
-            var enablePersitentAlerting = result.Where(x => x.Name == "EnablePersitentAlerting").Select(x => x.Value).FirstOrDefault();
+            var enablePersistentAlerting = result.Where(x => x.Name == "EnablePersitentAlerting").Select(x => x.Value).FirstOrDefault();
             var alertInterval = result.Where(x => x.Name == "AlertInterval").Select(x => x.Value).FirstOrDefault();
             var alertDuration = result.Where(x => x.Name == "AlertDuration").Select(x => x.Value).FirstOrDefault();
             var email = result.Where(x => x.Name == "Email").Select(x => x.Value).FirstOrDefault();
@@ -2746,7 +2767,7 @@ namespace VitalSigns.API.Controllers
                 SmsAuthToken = smsAuthToken,
                 SmsForm = smsForm,
 
-                EnablePersitentAlerting = Convert.ToBoolean(enablePersitentAlerting),
+                EnablePersistentAlerting = Convert.ToBoolean(enablePersistentAlerting),
                 AlertInterval = Convert.ToInt32(alertInterval),
                 AlertDuration = Convert.ToInt32(alertDuration),
                 //EMail = email,
@@ -2761,6 +2782,26 @@ namespace VitalSigns.API.Controllers
 
             });
         }
+
+        [HttpGet("events_master_list")]
+        public APIResponse GetEventsMasterList()
+        {
+            try
+            {
+                eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
+                var result = eventsMasterRepository.All().OrderBy(x => x.EventType).ToList();
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+            return Response;
+        }
+
         #endregion
 
         #region View Alerts
