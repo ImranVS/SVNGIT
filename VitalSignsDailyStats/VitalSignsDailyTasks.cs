@@ -18,7 +18,7 @@ using System.Linq.Expressions;
 using MongoDB.Driver;
 using LogUtilities;
 using System.ServiceProcess;
-using System.Data.Objects;
+//using System.Data.Objects;
 
 
 namespace VitalSignsDailyStats

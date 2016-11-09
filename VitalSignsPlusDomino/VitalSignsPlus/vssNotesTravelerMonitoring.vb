@@ -2194,12 +2194,13 @@ Partial Public Class VitalSignsPlusDomino
     End Function
     Private Sub TrackKeyDevices()
         Do Until boolTimeToStop
-            Dim myConnectionString As New VSFramework.XMLOperation
-            Dim myAdapter As New VSFramework.VSAdaptor
             WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " Get Distinct Server Names first ", LogLevel.Verbose)
-            Dim sSQLServers As String = "select TD.DeviceID,MoreDetailsURL,ServerName,SyncTimeThreshold,DeviceName,UserName   from MobileUserThreshold MUT, Traveler_Devices TD where TD.DeviceID =MUT.DeviceId and MoreDetailsURL IS NOT NULL AND IsActive=1"
-            Dim dtServers As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sSQLServers)
-            WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " Distinct Server List Count: " & dtServers.Rows.Count & " Servers ")
+
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDevices)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repository.Filter.Exists(Function(x) x.ThresholdSyncTime, True)
+            Dim listOfDevices As List(Of VSNext.Mongo.Entities.MobileDevices) = repository.Find(filterDef).ToList()
+
+            WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " Distinct Server List Count: " & listOfDevices.Count & " Servers ")
             Dim MyDominoServer As MonitoredItems.DominoServer
             Dim href As String = ""
             Dim myMasterDevices As New devices
@@ -2208,12 +2209,12 @@ Partial Public Class VitalSignsPlusDomino
             Dim deviceId As String = ""
             Dim objVSAdaptor As New VSAdaptor
 
-            For Each drServers As DataRow In dtServers.Rows
+            For Each entity As VSNext.Mongo.Entities.MobileDevices In listOfDevices
                 Try
-                    MyDominoServer = MyDominoServers.Search(drServers("ServerName").ToString())
+                    MyDominoServer = MyDominoServers.Search(entity.ServerName.ToString())
                     WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " Searched for the server name: and the server is  " & MyDominoServer.Name, LogLevel.Verbose)
                 Catch ex As Exception
-                    WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " Exception locating server object for " & drServers("ServerName").ToString() & " " & ex.ToString)
+                    WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " Exception locating server object for " & entity.ServerName.ToString() & " " & ex.ToString)
                 End Try
                 Try
                     If MyDominoServer Is Nothing Then
@@ -2221,16 +2222,18 @@ Partial Public Class VitalSignsPlusDomino
                     End If
                 Catch ex As Exception
                 End Try
-                href = drServers("MoreDetailsURL").ToString()
-                Threshold_Minutes = Convert.ToInt32(drServers("SyncTimeThreshold").ToString())
-                deviceId = drServers("DeviceID").ToString()
+                href = entity.Href.ToString()
+                Threshold_Minutes = Convert.ToInt32(entity.ThresholdSyncTime.ToString())
+                deviceId = entity.DeviceID.ToString()
                 If href <> "" Then
                     Dim myDeviceMoreInfo As New devicesMoreInfo
 
                     htmlStream = getHTMLStream(href, MyDominoServer.HTTP_UserName, MyDominoServer.HTTP_Password)
+                    WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " myDeviceMoreInfo code " & href & vbCrLf)
                     If htmlStream <> "" Then
                         myDeviceMoreInfo = returnDevicesMoreInfoObject(htmlStream)
                         WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " myDeviceMoreInfo code " & myDeviceMoreInfo.code & vbCrLf, LogLevel.Verbose)
+                        WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " myDeviceMoreInfo code " & myDeviceMoreInfo.code & vbCrLf)
                         If myDeviceMoreInfo IsNot Nothing Then
                             WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " myDeviceMoreInfo is not nothing " & myDeviceMoreInfo.message & vbCrLf)
                             If myDeviceMoreInfo.data IsNot Nothing Then
@@ -2244,22 +2247,21 @@ Partial Public Class VitalSignsPlusDomino
                                         Span = timeNow - timeLastSync
                                         'update the record
 
-                                        Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDevices)(connectionString)
-                                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repository.Filter.Eq(Function(x) x.DeviceID, myDeviceMoreInfo.data.DeviceID) And repository.Filter.Eq(Function(x) x.IsActive, True)
+                                        filterDef = repository.Filter.Eq(Function(x) x.DeviceID, myDeviceMoreInfo.data.DeviceID) And repository.Filter.Eq(Function(x) x.ServerName, entity.ServerName) And repository.Filter.Eq(Function(x) x.IsActive, True)
                                         Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repository.Updater.Set(Function(x) x.LastSyncTime, Convert.ToDateTime(myDeviceMoreInfo.data.LastSyncTime))
                                         repository.Update(filterDef, updateDef)
 
                                         If Span.TotalMinutes >= Threshold_Minutes Then
                                             '12/7/2015 NS modified for VSPLUS-2227
-                                            If InMaintenance("Mobile Users", drServers("UserName").ToString() + "-" + deviceId) = False Then
+                                            If InMaintenance("Mobile Users", entity.UserName.ToString() + "-" + deviceId) = False Then
                                                 WriteDeviceHistoryEntry(MOBILE_ALERT, "All", Now.ToString & " Device with ID " & deviceId & " is overdue to sync.")
-                                                myAlert.QueueAlert(MOBILE_ALERT, drServers("UserName").ToString() + "-" + deviceId, "Overdue Device Sync", drServers("DeviceName").ToString() & " for " & drServers("UserName").ToString() & " last synced at " & myDeviceMoreInfo.data.LastSyncTime.ToString(), "Mobile")
+                                                myAlert.QueueAlert(MOBILE_ALERT, entity.UserName.ToString() + "-" + deviceId, "Overdue Device Sync", entity.DeviceName.ToString() & " for " & entity.UserName.ToString() & " last synced at " & myDeviceMoreInfo.data.LastSyncTime.ToString(), "Mobile")
                                             End If
                                         Else
                                             '12/7/2015 NS modified for VSPLUS-2227
-                                            If InMaintenance("Mobile Users", drServers("UserName").ToString() + "-" + deviceId) = False Then
+                                            If InMaintenance("Mobile Users", entity.UserName.ToString() + "-" + deviceId) = False Then
                                                 WriteDeviceHistoryEntry(MOBILE_ALERT, "All", Now.ToString & " Device with ID " & deviceId & " is current with syncing.")
-                                                myAlert.ResetAlert(MOBILE_ALERT, drServers("UserName").ToString() + "-" + deviceId, "Overdue Device Sync", "Mobile")
+                                                myAlert.ResetAlert(MOBILE_ALERT, entity.UserName.ToString() + "-" + deviceId, "Overdue Device Sync", "Mobile")
                                             End If
                                         End If
                                     End If

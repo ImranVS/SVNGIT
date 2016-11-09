@@ -1439,26 +1439,26 @@ Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        'RecordTimeAvailability("Domino", Server.Name, Server.UpPercentMinutes * 100)
+                        UpdateDominoDailyStatTable(Server, "HourlyUpTimePercent", Server.UpPercentMinutes * 100)
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording time availability: " & ex.Message)
                     End Try
 
                     Try
-                        'RecordDownTime("Domino", Server.Name, Server.DownMinutes)
+                        UpdateDominoDailyStatTable(Server, "HourlyDownTimeMinutes", Server.DownMinutes)
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording down minutes: " & ex.Message)
                     End Try
 
                     Try
-                        'RecordOnTargetAvailability("Domino", Server.Name, Server.OnTargetPercent * 100)
+                        'RecordOnTargetAvailability(Server, Server.OnTargetPercent * 100)
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording hourly uptime: " & ex.Message)
                     End Try
 
                     Try
                         If Server.BusinessHoursOnTargetPercent <> 0 Then
-                            'RecordBusinessHoursOnTargetAvailability("Domino", Server.Name, Server.BusinessHoursOnTargetPercent * 100)
+                            'RecordBusinessHoursOnTargetAvailability(Server, Server.BusinessHoursOnTargetPercent * 100)
                         End If
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error recording OnTarget hourly uptime: " & ex.Message)

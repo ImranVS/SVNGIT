@@ -44,6 +44,7 @@ Public Class DateUtils
     ''' <remarks></remarks>
     Public Function GetDateFormat() As String
         Dim strdateformat As String = "mdy"
+        Return strdateformat
         Dim myAdapter As New VSFramework.XMLOperation
 
         'CONNECTION STRING TO BE TAKEN FROM VSFRAMEWORK

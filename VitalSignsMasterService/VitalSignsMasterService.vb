@@ -2427,38 +2427,41 @@ Public Class VSMaster
     Public Sub SetBooleansOfServicesFromSelectedFeatures()
         'pulls the set of features that are enabled to be monitored
         Try
-            Dim strSQL As String = "SELECT f.Name FROM Features f INNER JOIN SelectedFeatures AS sf ON sf.FeatureID=f.ID"
-            Dim dt As New DataTable
-            Dim ds As New DataSet
-            dt.TableName = "SelectedFeatures"
-            ds.Tables.Add(dt)
+            '         Dim strSQL As String = "SELECT f.Name FROM Features f INNER JOIN SelectedFeatures AS sf ON sf.FeatureID=f.ID"
+            '         Dim dt As New DataTable
+            '         Dim ds As New DataSet
+            '         dt.TableName = "SelectedFeatures"
+            '         ds.Tables.Add(dt)
 
-            Try
-                vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "SelectedFeatures")
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " Error loading selected features. Error: " & ex.ToString)
-            End Try
+            '         Try
+            '             vsobj.FillDatasetAny("VitalSigns", "vitalsigns", strSQL, ds, "SelectedFeatures")
+            '         Catch ex As Exception
+            '             WriteAuditEntry(Now.ToString & " Error loading selected features. Error: " & ex.ToString)
+            '         End Try
 
-            Dim SelectedFeaturesDataView As New DataView(ds.Tables("SelectedFeatures"))
-            SelectedFeaturesDataView.Sort = "Name"
+            '         Dim SelectedFeaturesDataView As New DataView(ds.Tables("SelectedFeatures"))
+            '         SelectedFeaturesDataView.Sort = "Name"
 
-            If SelectedFeaturesDataView.Find("Domino") <> -1 Then
-                boolDominoService = True
-            Else
-                boolDominoService = False
-            End If
+            '         If SelectedFeaturesDataView.Find("Domino") <> -1 Then
+            '             boolDominoService = True
+            '         Else
+            '             boolDominoService = False
+            '         End If
 
-			If SelectedFeaturesDataView.Find("Exchange") <> -1 Or SelectedFeaturesDataView.Find("Skype for Business") <> -1 Or SelectedFeaturesDataView.Find("Active Directory") <> -1 Or SelectedFeaturesDataView.Find("SharePoint") <> -1 Or SelectedFeaturesDataView.Find("Windows") <> -1 Or SelectedFeaturesDataView.Find("Office 365") <> -1 Then
-                boolMicrosoftService = True
-            Else
-                boolMicrosoftService = False
-            End If
+            'If SelectedFeaturesDataView.Find("Exchange") <> -1 Or SelectedFeaturesDataView.Find("Skype for Business") <> -1 Or SelectedFeaturesDataView.Find("Active Directory") <> -1 Or SelectedFeaturesDataView.Find("SharePoint") <> -1 Or SelectedFeaturesDataView.Find("Windows") <> -1 Or SelectedFeaturesDataView.Find("Office 365") <> -1 Then
+            '             boolMicrosoftService = True
+            '         Else
+            '             boolMicrosoftService = False
+            '         End If
 
-            If SelectedFeaturesDataView.Find("Network Devices") <> -1 Then
-                boolCore64Service = True
-            Else
-                boolCore64Service = False
-            End If
+            '         If SelectedFeaturesDataView.Find("Network Devices") <> -1 Then
+            '             boolCore64Service = True
+            '         Else
+            '             boolCore64Service = False
+            '         End If
+            boolDominoService = True
+            boolMicrosoftService = False
+            boolCore64Service = True
 
             Try
 
