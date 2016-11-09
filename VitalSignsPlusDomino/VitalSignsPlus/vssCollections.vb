@@ -61,26 +61,22 @@ Partial Public Class VitalSignsPlusDomino
         'Connect to the data source
 
         WriteAuditEntry(vbCrLf & Now.ToString & " Creating a dataset in CreateNotesDatabaseCollection." & vbCrLf)
-        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.ServerOther)
         Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
         Try
 
-            'Removed AboveBelow...does not appear to be used anymore
-
-
-            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription()) _
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ServerOther)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription()) _
                  And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
-            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Project _
                 .Include(Function(x) x.Id) _
-                .Include(Function(x) x.DeviceName) _
-                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.Name) _
+                .Include(Function(x) x.Type) _
                 .Include(Function(x) x.Category) _
-                .Include(Function(x) x.LocationId) _
+                .Include(Function(x) x.DominoServerName) _
                 .Include(Function(x) x.ScanInterval) _
                 .Include(Function(x) x.IsEnabled) _
                 .Include(Function(x) x.OffHoursScanInterval) _
-                .Include(Function(x) x.ResponseTime) _
                 .Include(Function(x) x.RetryInterval) _
                 .Include(Function(x) x.DatabaseFileName) _
                 .Include(Function(x) x.TriggerType) _
@@ -115,8 +111,8 @@ Partial Public Class VitalSignsPlusDomino
         If MyNotesDatabases.Count > 0 Then
             WriteAuditEntry(Now.ToString & " Checking to see if any Notes databases should be deleted. ")
             'Get all the names of all the servers in the data table
-            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
-                MyServerNames += entity.DeviceName & "  "
+            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfServers
+                MyServerNames += entity.Name & "  "
             Next
         End If
 
@@ -160,10 +156,10 @@ Partial Public Class VitalSignsPlusDomino
 
         Try
             Dim myString As String = ""
-            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfServers
                 i += 1
                 Dim MyName As String
-                MyName = entity.DeviceName
+                MyName = entity.Name
 
                 If InStr(MyName, "'") > 0 Then
                     MyName = MyName.Replace("'", "")
@@ -229,44 +225,17 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-
-                        Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
-                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
-                        Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).LocationName.ToString()
-
-                        .Location = locationAlias
-                        WriteAuditEntry(Now.ToString & " The location for this Notes database is " & .Location)
-
-                    Catch ex As Exception
-                        .Location = "Unknown"
-                    End Try
-
-
-                    Try
-                        If entity.DeviceName Is Nothing Then
+                        If entity.Name Is Nothing Then
                             .ServerName = ""
                             WriteAuditEntry(Now.ToString & " Error: No Server Name specified for " & .Name)
                         Else
-                            .ServerName = entity.DeviceName
+                            .ServerName = entity.Name
                         End If
                     Catch ex As Exception
                         .ServerName = ""
                         .Enabled = False
                         WriteAuditEntry(Now.ToString & " Error:  No Server Name specified for " & .Name)
                     End Try
-
-                    'Commented out since it does not appear to be used
-                    'Try
-                    '    If dr.Item("AboveBelow") Is Nothing Then
-                    '        .AboveBelow = "Above"
-                    '        WriteAuditEntry(Now.ToString & " Note: Whether to alert above or below the threshold value not specified for " & .Name & ", 'above' assumed.")
-                    '    Else
-                    '        .AboveBelow = dr.Item("AboveBelow")
-                    '    End If
-                    'Catch ex As Exception
-                    '    .AboveBelow = "Above"
-                    '    'WriteAuditEntry(Now.ToString & " Error: Above or Below threshold value not specified for " & .Name & ", 'above' assumed.  Error: " & ex.ToString)
-                    'End Try
 
                     Try
                         If entity.TriggerType Is Nothing Then
@@ -409,17 +378,6 @@ Partial Public Class VitalSignsPlusDomino
                     End If
 
                     Try
-                        If entity.ResponseTime Is Nothing Then
-                            .ResponseThreshold = 100
-                        Else
-                            .ResponseThreshold = entity.ResponseTime
-                        End If
-                    Catch ex As Exception
-                        .ResponseThreshold = 100
-                    End Try
-
-
-                    Try
                         If entity.ScanInterval Is Nothing Then
                             .ScanInterval = 10
                         Else
@@ -464,10 +422,9 @@ Partial Public Class VitalSignsPlusDomino
                         .RetryInterval = 2
                     End Try
 
-                    If listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList().Count() > 0 Then
+                    If listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.Name) And x.DeviceType.Equals(entity.Type)).ToList().Count() > 0 Then
 
-                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList()(0)
-
+                        Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.Name) And x.DeviceType.Equals(entity.Type)).ToList()(0)
 
                         Try
                             If entityStatus.CurrentStatus Is Nothing Then
@@ -591,6 +548,7 @@ Partial Public Class VitalSignsPlusDomino
 
         Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
         Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
+        Dim listOfCustomStats As New List(Of VSNext.Mongo.Entities.ServerOther)
 
         Try
 
@@ -633,12 +591,12 @@ Partial Public Class VitalSignsPlusDomino
                 .Include(Function(x) x.SendRouterRestart) _
                 .Include(Function(x) x.AvailabilityIndexThreshold) _
                 .Include(Function(x) x.CredentialsId) _
-                .Include(Function(x) x.DominoCustomStats) _
                 .Include(Function(x) x.ServerTasks) _
                 .Include(Function(x) x.CurrentNode)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
+            'Make a collection of the possible status entries
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
             Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
@@ -650,7 +608,19 @@ Partial Public Class VitalSignsPlusDomino
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
-            '"ds.ServerID As [Key], st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID, "
+            'Make a collection of all the Domino custom stats
+            Dim repositoryServerOther As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ServerOther)(connectionString)
+            Dim filterDefServerOther As FilterDefinition(Of VSNext.Mongo.Entities.ServerOther) = repositoryServerOther.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.DominoCustomStatistic.ToDescription())
+            Dim projectionDefServerOther As ProjectionDefinition(Of VSNext.Mongo.Entities.ServerOther) = repositoryServerOther.Project _
+                .Include(Function(x) x.StatName) _
+                .Include(Function(x) x.ThresholdValue) _
+                .Include(Function(x) x.GreaterThanOrLessThan) _
+                .Include(Function(x) x.TimesInARow) _
+               .Include(Function(x) x.DominoServers) _
+                .Include(Function(x) x.ConsoleCommand)
+
+            listOfCustomStats = repositoryServerOther.Find(filterDefServerOther, projectionDefServerOther).ToList()
+
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateDominoServersCollection processing code. Exception: " & ex.Message)
             Exit Sub
@@ -658,7 +628,6 @@ Partial Public Class VitalSignsPlusDomino
 
         WriteAuditEntry(Now.ToString & " There are " & listOfServers.Count().ToString() & " Domino servers found in the database", LogLevel.Normal)
 
-        Dim myDataRow As System.Data.DataRow
         Dim MyServerNames As String = ""
         Try
             WriteAuditEntry(Now.ToString & " Checking to see if any Domino servers have been deleted. ", LogLevel.Verbose)
@@ -1352,12 +1321,13 @@ Partial Public Class VitalSignsPlusDomino
                     '****************************************************
 
                     Try
-                        If entity.DominoCustomStats Is Nothing OrElse entity.DominoCustomStats.Count = 0 Then
-                            WriteAuditEntry(Now.ToString & " No custom stats defined for " & .Name, LogLevel.Verbose)
-                            Exit Try
-                        End If
 
-                        For Each customStat As VSNext.Mongo.Entities.DominoCustomStat In entity.DominoCustomStats
+                        'Create a list of only those custom stats which are applicable to this server
+                        Dim listCurrentCustomStats As List(Of VSNext.Mongo.Entities.ServerOther) = listOfCustomStats.Where(Function(x) x.DominoServers.Contains(entity.Id))
+
+
+
+                        For Each customStat As VSNext.Mongo.Entities.ServerOther In listCurrentCustomStats
 
                             Dim MyCustomStatistic As MonitoredItems.DominoCustomStatistic
                             'Check to see if this stat  is already configured
@@ -1383,7 +1353,6 @@ Partial Public Class VitalSignsPlusDomino
                                         .ComparisonOperator = customStat.GreaterThanOrLessThan
                                         .RepeatThreshold = customStat.TimesInARow
                                         .ConsoleCommand = customStat.ConsoleCommand
-
                                     End With
 
                                     MyDominoServer.CustomStatisticsSettings.Add(MyNewCustomStatisticSetting)
