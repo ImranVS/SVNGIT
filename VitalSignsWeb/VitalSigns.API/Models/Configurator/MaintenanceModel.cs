@@ -43,10 +43,10 @@ namespace VitalSigns.API.Models
         public bool ContinueForever { get; set; }
 
         [JsonProperty("device_list")]
-        public List<string> DeviceList { get; set; }
+        public object DeviceList { get; set; }
 
         [JsonProperty("key_users")]
-        public List<string> KeyUsers { get; set; }
+        public object KeyUsers { get; set; }
 
         [JsonProperty("duration_type")]
         public int? DurationType { get; set; }

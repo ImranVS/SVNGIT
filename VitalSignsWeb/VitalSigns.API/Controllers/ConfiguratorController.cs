@@ -497,9 +497,15 @@ namespace VitalSigns.API.Controllers
                     StartTime = x.StartTime,
                     EndDate = x.EndDate,
                     Duration = x.Duration,
-                    MaintenanceFrequency = x.MaintenanceFrequency,
+
                     MaintenanceDaysList = x.MaintenanceDaysList,
-                    ContinueForever = x.ContinueForever
+                    ContinueForever = x.ContinueForever,
+                    //MaintainType = x.MaintainType == "1" ? "OneTime" :
+                    //               x.MaintainType == "2" ? "Daily" :
+                    //                x.MaintainType == "3" ? "Weekly" :
+                    //                 x.MaintainType == "4" ? "Monthly" : "-"
+
+                    MaintainType = x.MaintainType
 
                 }).ToList();
                 Response = Common.CreateResponse(result);
@@ -540,8 +546,10 @@ namespace VitalSigns.API.Controllers
                     };
 
 
-                    string id = maintenanceRepository.Insert(maintenancedata);
-                    Response = Common.CreateResponse(id, "OK", "Maintenancedata inserted successfully");
+                     maintenance.Id = maintenanceRepository.Insert(maintenancedata);
+                    Response = Common.CreateResponse(maintenance.Id, "OK", "Maintenancedata inserted successfully");
+
+
                 }
                 else
                 {
@@ -557,6 +565,74 @@ namespace VitalSigns.API.Controllers
                     var result = maintenanceRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
                 }
+
+
+               
+                    serversRepository = new Repository<Server>(ConnectionString);
+                    UpdateDefinition<Server> updateDefinition = null;
+                    var devicesList = ((Newtonsoft.Json.Linq.JArray)maintenance.DeviceList).ToObject<string[]>();
+                    foreach (string id in devicesList)
+                    {
+
+                        var server = serversRepository.Get(id);
+                        if (server.MaintenanceWindows != null)
+                        {
+                            if (!server.MaintenanceWindows.Contains(maintenance.Id))
+                            {
+                                server.MaintenanceWindows.Add(maintenance.Id);
+                                updateDefinition = serversRepository.Updater.Set(p => p.MaintenanceWindows, server.MaintenanceWindows);
+                                var result = serversRepository.Update(server, updateDefinition);
+
+                            }
+                        }
+                        else
+                        {
+                            List<string> maintainanceWindow = new List<string>();
+                            maintainanceWindow.Add(maintenance.Id);
+                            updateDefinition = serversRepository.Updater.Set(p => p.MaintenanceWindows, maintainanceWindow);
+                            var result = serversRepository.Update(server, updateDefinition);
+                        }
+                       
+
+                    }
+
+                mobiledevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                UpdateDefinition<MobileDevices> mupdateDefinition = null;
+
+
+                var keyusersList = ((Newtonsoft.Json.Linq.JArray)maintenance.KeyUsers).ToObject<string[]>();
+
+                foreach(string id in keyusersList)
+                {
+                   var keyUser = mobiledevicesRepository.Get(id);
+                    if (keyUser.MaintenanceWindows != null)
+                    {
+                        if (!keyUser.MaintenanceWindows.Contains(maintenance.Id))
+                        {
+                            keyUser.MaintenanceWindows.Add(maintenance.Id);
+                            mupdateDefinition = mobiledevicesRepository.Updater.Set(p => p.MaintenanceWindows, keyUser.MaintenanceWindows);
+                            var result = mobiledevicesRepository.Update(keyUser, mupdateDefinition);
+
+                        }
+
+                    }
+                    else
+                    {
+                        List<string> maintainanceWindow = new List<string>();
+                        maintainanceWindow.Add(maintenance.Id);
+                        mupdateDefinition = mobiledevicesRepository.Updater.Set(p => p.MaintenanceWindows, maintainanceWindow);
+                        var result = mobiledevicesRepository.Update(keyUser, mupdateDefinition);
+                    }
+
+                    
+
+                }
+
+
+
+
+
+
             }
             catch (Exception exception)
             {

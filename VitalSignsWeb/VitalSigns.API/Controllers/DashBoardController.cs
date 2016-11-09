@@ -162,13 +162,17 @@ namespace VitalSigns.API.Controllers
                                  .AsQueryable()
                                  .Select(x => new MobileUserDevice
                                  {
+                                     Id = x.Id,
                                      UserName = x.UserName,
                                      Device = x.DeviceName,
                                      Notification = x.NotificationType,
                                      OperatingSystem = x.OSType,
                                      LastSyncTime = x.LastSyncTime,
                                      Access = x.Access,
-                                     DeviceId = x.DeviceID
+                                     DeviceId = x.DeviceID,
+
+                                    
+                                     //IsSelected = false
                                  }).ToList();
             }
             else
