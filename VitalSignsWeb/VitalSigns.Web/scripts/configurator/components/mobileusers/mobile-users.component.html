@@ -1,0 +1,133 @@
+﻿<div class="container">
+  
+    <div class="panel panel-default">
+        <div class="panel-heading">Critical Devices</div>
+        <div class="panel-body">
+            <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                <wj-flex-grid-filter></wj-flex-grid-filter>
+                <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="250"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Device ID'" [binding]="'device_id'" [width]="180"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Sync Duration(min)'" [binding]="'threshold_sync_time'" [width]="180"></wj-flex-grid-column>
+
+            </wj-flex-grid>
+            <div class="btn-group" *ngIf="data != null">
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToFirstPage()"
+                        [disabled]="data.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-fast-backward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToPreviousPage()"
+                        [disabled]="data.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-step-backward">
+                    </span>
+                </button>
+                <button type="button" class="btn btn-default" disabled style="width:100px">
+                    {{
+data.pageIndex + 1 | number
+                    }} / {{data.pageCount | number}}
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToNextPage()"
+                        [disabled]="data.pageIndex >= data.pageCount - 1">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToLastPage()"
+                        [disabled]="data.pageIndex >= data.pageCount - 1">
+                    <span class="glyphicon glyphicon-fast-forward"></span>
+                </button>
+            </div>
+            <div class="pull-right" *ngIf="data != null">
+                <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                    <wj-menu-item [value]="10">10</wj-menu-item>
+                    <wj-menu-item [value]="20">20</wj-menu-item>
+                    <wj-menu-item [value]="50">50</wj-menu-item>
+                </wj-menu>
+            </div>
+
+            <div class="well grid-sort-group">
+
+                <!-- edit details in a popup -->
+                <button class="btn btn-default" (click)="editGridRow(frmDialog)">
+                    Edit
+                </button>
+
+                <button class="btn btn-default" (click)="delteMobileUsers();">
+                    Delete
+                </button>
+            </div>
+
+        </div>
+    </div>
+    <wj-popup class="modal-content col-sm-10" #frmDialog style="height:60%">
+
+        <div class="panel panel-default" style="height:60%;">
+            <div class="panel-heading">
+                <b> {{formTitle}}</b>
+
+                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+            </div>
+            <form (ngSubmit)="saveMobileUsers(frmDialog)" #frmMobileUser="ngForm" class="form-horizontal">
+
+                <div class="panel-body" *ngIf="currentEditItem" style="height:70%;overflow:auto">
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                           
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label for="device_name" class="control-label col-sm-3">User Name: </label>
+                                    <div class="col-sm-9">
+
+                                        <label class="control-label col-sm-5" name="user_name">{{currentEditItem.user_name}} </label>
+                                    </div>
+
+                                </div>
+                                <div class="form-inline col-sm-6">
+                                    <label for="device_name" class="control-label col-sm-4">Device Name: </label>
+                                    <div class="col-sm-8">
+
+                                        <label class="control-label col-sm-5" name="device_name">{{currentEditItem.device_name}} </label>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="form-inline col-sm-6">
+                                    <label for="device_name" class="control-label col-sm-3">Device ID: </label>
+                                    <div class="col-sm-8">
+
+                                        <label class="control-label col-sm-4" name="device_id">{{currentEditItem.device_id}} </label>
+                                    </div>
+
+                                </div>
+                                <div class="form-inline col-sm-6">
+                                    <label for="domino_server_a_file_mask" class="control-label col-sm-5">Sync Duration (min)</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" name="threshold_sync_time" [(ngModel)]="currentEditItem.threshold_sync_time">
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+                         
+                        </div>
+
+                    </div>
+
+                    <div class="panel-footer">
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmMobileUser.form.valid">Save</button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </wj-popup>
+
+
+</div>
