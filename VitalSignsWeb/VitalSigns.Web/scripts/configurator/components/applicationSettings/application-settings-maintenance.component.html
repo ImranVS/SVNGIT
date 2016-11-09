@@ -252,7 +252,7 @@ data.pageIndex + 1 | number
                                 <wj-flex-grid-filter></wj-flex-grid-filter>
                                 <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
                                     <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                                        <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="keyUsersCheck(cell.item.id,$event)" />
+                                        <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="keyUsersCheck(cell.item.id,$event)" name="is_selected" />
                                     </template> 
                                 </wj-flex-grid-column>
 
