@@ -36,7 +36,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Server> serversRepository;
 
-        private IRepository<MobileDevices> mobiledevicesRepository;
+     //   private IRepository<MobileDevices> mobiledevicesRepository;
 
         private IRepository<Users> maintainUsersRepository;
 
@@ -55,7 +55,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<ServerOther> serverOtherRepository;
         private IRepository<EventsMaster> eventsMasterRepository;
-
+        private IRepository<MobileDevices> mobileDevicesRepository;
         #endregion
 
         #region Application Settings
@@ -3238,8 +3238,80 @@ namespace VitalSigns.API.Controllers
 
         #endregion
 
+        // Mobile Users
 
-      
+        [HttpGet("get_mobile_users")]
+        public APIResponse GetMobileUsers()
+        {
+            try
+            {
+                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                var result = mobileDevicesRepository.All().Where(x=>x.ThresholdSyncTime!=null).Select(x => new MobileUserDevice
+                {
+                   UserName=x.UserName,
+                   DeviceName=x.DeviceName,
+                   DeviceId=x.DeviceID,
+                   ThresholdSyncTime=x.ThresholdSyncTime,
+                    Id = x.Id
+
+
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        [HttpDelete("delete_mobile_users/{Id}")]
+        public void DeleteMobileUser(string Id)
+        {
+            try
+            {
+                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+             
+                FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id ==Id);
+                var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, null);
+                var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
+                Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+        }
+
+        [HttpPut("save_mobileusers")]
+        public APIResponse UpdateServerCredentials([FromBody]MobileUserDevice mobileUser)
+        {
+            try
+            {
+                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+
+
+
+                if (!string.IsNullOrEmpty(mobileUser.Id))
+                {
+                  
+                    FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id == mobileUser.Id);
+                    var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, mobileUser.ThresholdSyncTime);
+                    var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
     }
 }
 
