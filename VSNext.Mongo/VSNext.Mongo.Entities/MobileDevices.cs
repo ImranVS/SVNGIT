@@ -158,6 +158,12 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public int? ThresholdSyncTime { get; set; }
 
+        [DataMember]
+        [BsonElement("maintenance_windows")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> MaintenanceWindows { get; set; }
+
     }
 
 
