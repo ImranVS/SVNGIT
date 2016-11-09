@@ -2580,57 +2580,61 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
 
                 string settingValue = Convert.ToString(devicesettings.Value);
+                
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
                 var logfiles = ((Newtonsoft.Json.Linq.JArray)devicesettings.Setting).ToObject<List<Models.Configurator.LogFile>>();
               //  var server = serverOtherRepository.Get(id);
                 UpdateDefinition<ServerOther> updateDefinition = null;
                 List<LogFileKeyword> logscannings = new List<LogFileKeyword>();
-               
+                if (id==("-1"))
+                {
                     foreach (var logfile in logfiles)
                     {
-                    if (logfile.EventId != "-1")
-                    {
-                        logscannings.Add(new LogFileKeyword
+                        if (logfile.EventId != "-1")
                         {
-                            EventId = logfile.EventId,
-                            Keyword = logfile.Keyword,
-                            Exclude = logfile.Exclude,
-                            OneAlertPerDay = logfile.OneAlertPerDay,
-                            ScanLog = logfile.ScanLog,
-                            ScanAgentLog = logfile.ScanAgentLog
-                        });
+                            logscannings.Add(new LogFileKeyword
+                            {
+                                EventId = logfile.EventId,
+                                Keyword = logfile.Keyword,
+                                Exclude = logfile.Exclude,
+                                OneAlertPerDay = logfile.OneAlertPerDay,
+                                ScanLog = logfile.ScanLog,
+                                ScanAgentLog = logfile.ScanAgentLog
+                            });
+                        }
                     }
-                    }
-                
-               
-                    foreach (var logfile in logfiles)
-                    {
-                   
-                        logscannings.Add(new LogFileKeyword
-                        {
-                            EventId = ObjectId.GenerateNewId().ToString(),
-                            Keyword = logfile.Keyword,
-                            Exclude = logfile.Exclude,
-                            OneAlertPerDay = logfile.OneAlertPerDay,
-                            ScanLog = logfile.ScanLog,
-                            ScanAgentLog = logfile.ScanAgentLog
-                        });
-                    }
-                
-                    ServerOther logscanserver = new ServerOther { Name = settingValue, LogFileKeywords = logscannings, LogFileServers = devicesList };
+
+
+
+                    ServerOther logscanserver = new ServerOther { Name = settingValue, DominoType = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
                     string newid = serverOtherRepository.Insert(logscanserver);
                     Response = Common.CreateResponse(newid, "OK", "Log Scan Servers  inserted successfully");
-                   
+                }
                     if (!string.IsNullOrEmpty("-1"))
                     {
                         if (devicesList.Count() > 0)
                         {
                             if (!string.IsNullOrEmpty(settingValue))
                             {
-                                FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
-                                var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
-                                                                         .Set(p => p.LogFileServers, devicesList)
-                                                                         .Set(p => p.LogFileKeywords, logscannings);
+
+                            foreach (var logfile in logfiles)
+                            {
+
+                                logscannings.Add(new LogFileKeyword
+                                {
+                                    EventId = ObjectId.GenerateNewId().ToString(),
+                                    Keyword = logfile.Keyword,
+                                    Exclude = logfile.Exclude,
+                                    OneAlertPerDay = logfile.OneAlertPerDay,
+                                    ScanLog = logfile.ScanLog,
+                                    ScanAgentLog = logfile.ScanAgentLog
+                                });
+                            }
+                            FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
+                            var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
+                                                                     .Set(p => p.LogFileServers, devicesList)
+                                                                     .Set(p => p.LogFileKeywords, logscannings)
+                                                                      .Set(p => p.DominoType, "Domino Log Scanning");
 
                                 var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
 
