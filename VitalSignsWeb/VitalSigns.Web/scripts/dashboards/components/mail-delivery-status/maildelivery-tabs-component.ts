@@ -38,13 +38,13 @@ export class MailDeliveryStatus implements OnInit {
                 "path": "/app/dashboards/components/mail-delivery-status/domino-mail-delivery-status.component'",
                 "active": false
             }
-            ,
-            {
-                "title": "Exchange",
-                "component": "ExchangeMailDeliveryStatus",
-                "path": "/app/dashboards/components/mail-delivery-status/exchange-mail-delivery-status.component'",
-                "active": false
-            }
+            //,
+            //{
+            //    "title": "Exchange",
+            //    "component": "ExchangeMailDeliveryStatus",
+            //    "path": "/app/dashboards/components/mail-delivery-status/exchange-mail-delivery-status.component'",
+            //    "active": false
+            //}
         ];
         this.selectTab(this.tabsData[0]);
     };
