@@ -3,13 +3,14 @@
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
     <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
         <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [width]="200"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Alert Type'" [binding]="'alert_type'" [width]="250"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Alerted Date'" [binding]="'event_detected_sent'" [width]="150"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Alert Cleared On'" [binding]="'event_dismissed'" [width]="180"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Notification Sent'" [binding]="'notification_sent_to'" [width]="180"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Overall Status'" [binding]="'StatusCode'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Submission Queue'" [binding]="'pending_mail'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Unreachable Queue'" [binding]="'dead_mail'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Poison Queue'" [binding]="'held_mail'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Location'" [binding]="'location'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="200"></wj-flex-grid-column>
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"

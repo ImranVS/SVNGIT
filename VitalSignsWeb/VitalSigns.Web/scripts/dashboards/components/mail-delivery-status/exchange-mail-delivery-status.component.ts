@@ -42,7 +42,8 @@ export class ExchangeMailDeliveryStatus implements OnInit {
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
         });
-        this.service.get('/configurator/viewalerts')
+
+        this.service.get('/DashBoard/get_mail_delivery_status/' + 'Exchange')
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
