@@ -1,9 +1,10 @@
-﻿import {Component, OnInit, AfterViewInit, ViewChildren} from '@angular/core';
+﻿import {Component, Input, OnInit, AfterViewInit, ViewChild, ViewChildren} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-
+import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
+import {EventsMaster} from '../../models/events-master';
 
 @Component({
     templateUrl: '/app/configurator/components/alert/alert-settings.component.html',
@@ -12,13 +13,19 @@ import {RESTService} from '../../../core/services';
         RESTService
     ]
 })
-export class AlertSettings implements OnInit {
+export class AlertSettings implements WidgetComponent, OnInit {
+    @Input() settings: any;
     @ViewChildren('name') inputName;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     insertMode: boolean = false;
     alertSettings: FormGroup;
     errorMessage: string;
     profileEmail: string;
     formTitle: string;
+    recurrencesChecked: boolean;
+    persistentChecked: boolean;
+    limitsChecked: boolean;
+    data: wijmo.collections.CollectionView;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -44,7 +51,7 @@ export class AlertSettings implements OnInit {
             'sms_account_sid': [''],
             'sms_auth_token': [''], 
             'sms_from': [''],
-            'enable_persitent_alerting': [''],
+            'enable_persistent_alerting': [''],
             'alert_interval': [''],
             'alert_duration': [''],
             //'e_mail': [''],
@@ -58,28 +65,58 @@ export class AlertSettings implements OnInit {
         });
     }
     ngOnInit() {
-
-        this.route.params.subscribe(params => {
-
-
-
-           
+        
+        this.route.params.subscribe(params => {        
             this.dataProvider.get('/Configurator/get_alertsettings')
                 .subscribe(
                 (data) => this.alertSettings.setValue(data.data),
                 (error) => this.errorMessage = <any>error
 
                 );
-
-
         });
+        this.alertSettings.valueChanges.subscribe(alertobject => {
+            this.recurrencesChecked = alertobject['alert_about_recurrences_only'];
+            this.persistentChecked = alertobject['enable_persistent_alerting'];
+            this.limitsChecked = alertobject['enable_alert_limits'];
+        });
+        this.dataProvider.get('/configurator/events_master_list')
+            .subscribe(
+            (data) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                this.data.pageSize = 10;
+                var groupDesc = new wijmo.collections.PropertyGroupDescription('DeviceType');
+                this.data.groupDescriptions.push(groupDesc);
+            },
+            (error) => this.errorMessage = <any>error
+            );
+    }
 
+    isChecked(ischecked: boolean) {
+        this.recurrencesChecked = ischecked;
+    }
 
+    isPAChecked(ischecked: boolean) {
+        this.persistentChecked = ischecked;
+    }
+
+    isLimitsChecked(ischecked: boolean) {
+        this.limitsChecked = ischecked;
     }
 
     onSubmit(nameValue: any): void {
+        var selected_events: EventsMaster[] = [];
+        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+            if (item.NotificationOnRepeat) {
+                var eventObject = new EventsMaster();
+                eventObject.device_type = item.DeviceType;
+                eventObject.event_type = item.EventType;
+                selected_events.push(eventObject);
+            }
+        }
+        var alert_settings = this.alertSettings.value;
 
-        this.dataProvider.put('/Configurator/save_alertsettings', nameValue)
+        this.dataProvider.put('/Configurator/save_alertsettings', { alert_settings, selected_events })
             .subscribe(
             response => {
 

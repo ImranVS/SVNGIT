@@ -1,17 +1,18 @@
 ﻿
 <!--Added by sowjanya on 9/21/2016-->
 <div class="col-lg-3 col-md-6 zeusColorReact-success">
-                         <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
-                             <img class="svgInject" src="img/dashboard/UsersSessions.svg" title="Users sessions" alt="Users sessions" style="width: 70px;" />
-                             <div>
-                                 <div class="widgetImageText-head"  *ngIf="usersessionsStatus">{{usersessionsStatus.user_count }}</div>
-                                 <div class="widgetImageText-text">User sessions</div>
-                             </div>
-                          
-                         </div>
+    <a [routerLink]="['/dashboard/users']">
+        <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
+            <img class="svgInject" src="img/dashboard/UsersSessions.svg" title="Users sessions" alt="Users sessions" style="width: 70px;" />
+            <div>
+                <div class="widgetImageText-head" *ngIf="usersessionsStatus">{{usersessionsStatus.user_count }}</div>
+                <div class="widgetImageText-text">User sessions</div>
+            </div>
 
-   
-                     </div>
+        </div>
+    </a>
+
+</div>
 
 <div class="col-lg-3 col-md-6 zeusColorReact-danger">
     <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">

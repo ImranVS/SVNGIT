@@ -1,10 +1,18 @@
 ﻿<template ngFor let-item="$implicit" [ngForOf]="onPremApps">
     <h3>{{item.type}}</h3>
     <div class="widgetOnPremisesApps-statusCountWrapper">
-
-        <div *ngIf="item.not_responding > 0" class="zeusColorReact-danger zeusColorReactBg" [style.-webkit-flex-grow]="item.not_responding" [style.flex-grow]="item.not_responding">{{item.not_responding}}</div>
-        <div *ngIf="item.ok > 0" class="zeusColorReact-success zeusColorReactBg" [style.-webkit-flex-grow]="item.ok" [style.flex-grow]="item.ok">{{item.ok}}</div>
-        <div *ngIf="item.issue > 0" class="zeusColorReact-warning zeusColorReactBg" [style.-webkit-flex-grow]="item.issue" [style.flex-grow]="item.issue">{{item.issue}}</div>
-        <div *ngIf="item.maintenance > 0" class="zeusColorReact-default zeusColorReactBg" [style.-webkit-flex-grow]="item.maintenance" [style.flex-grow]="item.maintenance">{{item.maintenance}}</div>
-    </div>
+        <a *ngIf="item.not_responding > 0" [style.-webkit-flex-grow]="item.not_responding" [style.flex-grow]="item.not_responding" [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Not Responding', type: item.type}">
+            <div *ngIf="item.not_responding > 0" class="zeusColorReact-danger zeusColorReactBg" [style.-webkit-flex-grow]="item.not_responding" [style.flex-grow]="item.not_responding">{{item.not_responding}}</div>
+        </a>
+        <a *ngIf="item.ok > 0" [style.-webkit-flex-grow]="item.ok" [style.flex-grow]="item.ok" [routerLink]="['/services/dashboard']" [queryParams]="{status: 'OK', type: item.type}">
+            <div *ngIf="item.ok > 0" class="zeusColorReact-success zeusColorReactBg" [style.-webkit-flex-grow]="item.ok" [style.flex-grow]="item.ok">{{item.ok}}</div>
+        </a>
+        <a *ngIf="item.issue > 0" [style.-webkit-flex-grow]="item.issue" [style.flex-grow]="item.issue" [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Issue', type: item.type}">
+            <div *ngIf="item.issue > 0" class="zeusColorReact-warning zeusColorReactBg" [style.-webkit-flex-grow]="item.issue" [style.flex-grow]="item.issue">{{item.issue}}</div>
+        </a>    
+        <a *ngIf="item.maintenance > 0" [style.-webkit-flex-grow]="item.maintenance" [style.flex-grow]="item.maintenance" [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Issue', type: item.type}">
+            <div *ngIf="item.maintenance > 0" class="zeusColorReact-default zeusColorReactBg" [style.-webkit-flex-grow]="item.maintenance" [style.flex-grow]="item.maintenance">{{item.maintenance}}</div>
+        </a>
+            
+</div>
 </template>
