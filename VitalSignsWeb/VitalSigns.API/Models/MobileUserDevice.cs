@@ -23,7 +23,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("notification")]
         public string Notification { get; set; }
 
-        [JsonProperty("os")]
+        [JsonProperty("os_type")]
         public string OperatingSystem { get; set; }
 
         [JsonProperty("last_sync_time")]
