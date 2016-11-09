@@ -165,6 +165,7 @@ import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sa
         dashboards.IBMDomino,
         dashboards.MailDeliveryStatus,
         dashboards.ServerSettings,
+        dashboards.MobileUser,
         widgets.AppStatus,
         widgets.ChartComponent,
         widgets.DynamicGrid,

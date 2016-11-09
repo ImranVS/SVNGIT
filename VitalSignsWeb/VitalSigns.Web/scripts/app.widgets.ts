@@ -99,3 +99,7 @@ export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scan
 export * from './reports/components/servers/any-statistic-report-grid.component'
 export * from './reports/components/servers/overall-status-report-grid.component'
 export * from './reports/components/ibm-sametime/sametime-statistics-grid-report-grid.component'
+
+//Mobile users
+export * from './configurator/components/mobileusers/mobile-users.component'
+

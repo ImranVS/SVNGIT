@@ -86,6 +86,7 @@ import { Nodes } from './configurator/components/security/security-assign-server
 import { IBMDomino } from './configurator/components/ibmDomino/ibmdomino-tabs-component';
 
 import { AddLogFile } from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
+import { MobileUser } from './configurator/components/mobileusers/mobile-users.component';
 
 
 export * from './dashboards/components/overall-dashboard.component';
@@ -135,6 +136,7 @@ export *from './configurator/components/security/security-assign-server-to-node.
 
 export * from './configurator/components/ibmDomino/ibmdomino-tabs-component';
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
+export * from './configurator/components/mobileusers/mobile-users.component';
 
 
 const appRoutes: Routes = [
@@ -427,6 +429,12 @@ const appRoutes: Routes = [
         path: 'configurator/nodes',
         component: Nodes
     }
+    ,
+
+     {
+         path: 'configurator/mobileusers',
+         component: MobileUser
+     }
 ];
 
 export const APP_ROUTES = RouterModule.forRoot(appRoutes);
