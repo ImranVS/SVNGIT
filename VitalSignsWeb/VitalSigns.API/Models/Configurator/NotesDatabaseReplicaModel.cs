@@ -56,8 +56,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("first_alert_threshold")]
         public int? FirstAlertThreshold { get; set; }
 
-        [JsonProperty("device_name")]
-        public string  DeviceName{ get; set; }
+        [JsonProperty("name")]
+        public string  Name{ get; set; }
         
        [JsonProperty("is_enabled")]
         public bool? IsEnabled { get; set; }
