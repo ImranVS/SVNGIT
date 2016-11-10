@@ -5,7 +5,7 @@
     <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Enabled'" [binding]="'is_enabled'" [width]="250"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Scan Interval'" [binding]="'scan_interval'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Off-Hours Scan Interval'" [binding]="'off_hours_scan_interval'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Server A'" [binding]="'domino_server_a'" [width]="180"></wj-flex-grid-column>
@@ -81,9 +81,9 @@ data.pageIndex + 1 | number
                                 <div class="panel-body">
                                   <div class="row">
                                       <div class="form-group col-sm-6">
-                                          <label for="device_name" class="control-label col-sm-4">Name:</label>
+                                          <label for="name" class="control-label col-sm-4">Name:</label>
                                           <div class="col-sm-8">
-                                              <input type="text" class="form-control" name="device_name" [(ngModel)]="currentEditItem.device_name">
+                                              <input type="text" class="form-control" name="name" [(ngModel)]="currentEditItem.name">
 
                                           </div>
 
