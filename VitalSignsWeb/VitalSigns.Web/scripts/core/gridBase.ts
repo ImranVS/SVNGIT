@@ -24,6 +24,8 @@ export abstract class GridBase {
     formTitle: string;
     modal = true;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    @ViewChild('mobileDeviceGrid') mobileDeviceGrid: wijmo.grid.FlexGrid;
+
     constructor(service: RESTService) {  
         this.service = service; 
     }
@@ -77,6 +79,7 @@ export abstract class GridBase {
     }
     editGridRow(dlg: wijmo.input.Popup) {
         this.formTitle = "Edit " + this.formName;
+       
         (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
         this.currentEditItem = this.flex.collectionView.currentItem;
         console.log(this.currentEditItem);        
