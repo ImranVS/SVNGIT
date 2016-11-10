@@ -36,8 +36,8 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Server> serversRepository;
 
+       private IRepository<MobileDevices> mobiledevicesRepository;
 
-        private IRepository<MobileDevices> mobiledevicesRepository;
 
         private IRepository<Users> maintainUsersRepository;
 
@@ -2503,13 +2503,13 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType == "Domino Log Scanning").Select(x => new LogFileScanning
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Domino Log Scanning").Select(x => new LogFileScanning
                 {
                     Id = x.Id,
-                    DeviceName = x.Name,
+                    Name = x.Name,
 
 
-                }).ToList().OrderBy(x => x.DeviceName);
+                }).ToList().OrderBy(x => x.Name);
 
                 Response = Common.CreateResponse(result);
 
@@ -2607,7 +2607,7 @@ namespace VitalSigns.API.Controllers
 
 
 
-                    ServerOther logscanserver = new ServerOther { Name = settingValue, DominoType = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
+                    ServerOther logscanserver = new ServerOther { Name = settingValue, Type = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
                     string newid = serverOtherRepository.Insert(logscanserver);
                     Response = Common.CreateResponse(newid, "OK", "Log Scan Servers  inserted successfully");
                 }
@@ -2635,7 +2635,7 @@ namespace VitalSigns.API.Controllers
                             var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
                                                                      .Set(p => p.LogFileServers, devicesList)
                                                                      .Set(p => p.LogFileKeywords, logscannings)
-                                                                      .Set(p => p.DominoType, "Domino Log Scanning");
+                                                                      .Set(p => p.Type, "Domino Log Scanning");
 
                                 var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
 

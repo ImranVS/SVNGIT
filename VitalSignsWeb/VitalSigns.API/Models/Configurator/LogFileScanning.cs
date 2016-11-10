@@ -11,8 +11,8 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonProperty("device_name")]
-        public string DeviceName { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
         [JsonProperty("log_file")]
         public List<LogFile> LogFile { get; set; }
