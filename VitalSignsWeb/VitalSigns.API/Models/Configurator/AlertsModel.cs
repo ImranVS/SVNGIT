@@ -11,7 +11,7 @@ namespace VitalSigns.API.Models
         [JsonProperty ("id")]
         public string ID { get; set; }
 
-        [JsonProperty("device_name")]
+        [JsonProperty("device")]
         public string DeviceName { get; set; }
 
         [JsonProperty ("device_type")]
@@ -31,5 +31,10 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("details")]
         public string Details { get; set; }
+
+        [JsonProperty("event_type")]
+        public string EventType { get; set; }
+
+       
     }
 }
