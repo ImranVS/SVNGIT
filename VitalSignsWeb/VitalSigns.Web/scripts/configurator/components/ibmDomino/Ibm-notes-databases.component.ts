@@ -27,6 +27,20 @@ export class NotesDatabases extends GridBase implements OnInit {
             );
 
     }
+
+    addNotesDatabase(dlg: wijmo.input.Popup) {
+        this.addGridRow(dlg);
+        this.currentEditItem.name = "";
+        this.currentEditItem.is_enabled = "";
+        this.currentEditItem.domino_server_name = "";
+        this.currentEditItem.database_file_name = "";
+        this.currentEditItem.scan_interval = "";
+        this.currentEditItem.retry_interval = "";
+        this.currentEditItem.off_hours_scan_interval = "";
+        this.currentEditItem.trigger_type = "";
+        this.currentEditItem.trigger_value = "";
+
+    }
     ngOnInit() {
         this.initialGridBind('/configurator/get_notes_databases');
     }
