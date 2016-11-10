@@ -74,6 +74,7 @@ import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sa
 import {DominoServerConfigurationReport} from './reports/components/configuration/domino-server-configuration-report.component';
 import {ServerListTypeReport} from './reports/components/configuration/server-list-type-report.component';
 import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
+import {ServerFilter} from './reports/filters/components/server-filter.component';
 
 @NgModule({
     imports: [
@@ -137,6 +138,7 @@ import {ServerListLocationReport} from './reports/components/configuration/serve
         DominoServerConfigurationReport,
         ServerListTypeReport,
         ServerListLocationReport,
+        ServerFilter,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -293,7 +295,9 @@ import {ServerListLocationReport} from './reports/components/configuration/serve
         wjFlexInput.WjPopup,
         wjFlexInput.WjComboBox,
         wjFlexInput.WjCalendar,
-        wjFlexInput.WjInputDate
+        wjFlexInput.WjInputDate,
+        wjFlexInput.WjListBox,
+        wjFlexInput.WjMultiSelect
     ],
     entryComponents: [
         widgets.AppStatus,

@@ -1,7 +1,7 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
 import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
-
+import {Router, ActivatedRoute} from '@angular/router';
 import {RESTService} from '../../../core/services/rest.service';
 
 declare var injectSVG: any;
@@ -18,15 +18,18 @@ declare var bootstrapNavigator: any;
 export class AvgCPUUtil extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
+    servers: string;
+    currentDeviceType: string = "Domino";
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private router: Router, private route: ActivatedRoute) {
 
         super(resolver, widgetService);
 
     }
 
     ngOnInit() {
-
+        this.route.queryParams.subscribe(params => {
+            this.servers = params['server-type'];
+        });
         this.service.get('/navigation/sitemaps/domino_reports')
             .subscribe
             (
@@ -34,12 +37,13 @@ export class AvgCPUUtil extends WidgetController {
             error => console.log(error)
             );
         this.widgets = [
+
             {
                 id: 'avgcpuutilchart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: '/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil',
+                    url: `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil`,
                     chart: {
                         chart: {
                             renderTo: 'avgcpuutilchart',

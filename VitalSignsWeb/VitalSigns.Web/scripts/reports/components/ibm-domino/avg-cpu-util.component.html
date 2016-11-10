@@ -11,6 +11,7 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
+        <server-filter [(deviceType)]="currentDeviceType"></server-filter>
         <div class="reportsPage">
             <h1>Avg CPU Utilization per day</h1>
             <div *ngFor="let widget of widgets">
