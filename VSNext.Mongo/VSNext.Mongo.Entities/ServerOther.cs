@@ -55,7 +55,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("license_cost")]
         [BsonIgnoreIfNull]
-        public double LicenseCost { get; set; }
+        public double? LicenseCost { get; set; }
 
         //Notes Database
         [DataMember]
