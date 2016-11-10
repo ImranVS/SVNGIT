@@ -2192,7 +2192,7 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType== "Notes Database Replica").Select(x => new NotesDatabaseReplicaModel
                 {
-                    DeviceName = x.Name,
+                    Name = x.Name,
                     IsEnabled = x.IsEnabled,
                     ScanInterval = x.ScanInterval,
                     OffHoursScanInterval = x.OffHoursScanInterval,
@@ -2210,7 +2210,7 @@ namespace VitalSigns.API.Controllers
                     DifferenceThreshold = x.DifferenceThreshold
 
 
-                }).ToList().OrderBy(x => x.DeviceName);
+                }).ToList().OrderBy(x => x.Name);
 
 
                 Response = Common.CreateResponse(result);
@@ -2246,8 +2246,8 @@ namespace VitalSigns.API.Controllers
                         DominoServerCFileMask = notesDatabaseReplica.DominoServerCFileMask,
                         DominoServerCExcludeFolders = notesDatabaseReplica.DominoServerCExcludeFolders,
                         DifferenceThreshold = notesDatabaseReplica.DifferenceThreshold,
-                        DominoType = "Notes Database Replica",
-                        Name = notesDatabaseReplica.DeviceName,
+                        Type = "Notes Database Replica",
+                        Name = notesDatabaseReplica.Name,
                         IsEnabled = notesDatabaseReplica.IsEnabled,
                         Category = notesDatabaseReplica.Category,
                         ScanInterval = notesDatabaseReplica.ScanInterval,
@@ -2270,7 +2270,7 @@ namespace VitalSigns.API.Controllers
                                                                .Set(p => p.DominoServerC, notesDatabaseReplica.DominoServerC)
                                                               .Set(p => p.DominoServerCFileMask, notesDatabaseReplica.DominoServerCFileMask)
                                                                .Set(p => p.DominoServerCExcludeFolders, notesDatabaseReplica.DominoServerCExcludeFolders)
-                                                                .Set(p => p.Name, notesDatabaseReplica.DeviceName)
+                                                                .Set(p => p.Name, notesDatabaseReplica.Name)
                                                                 .Set(p => p.IsEnabled, notesDatabaseReplica.IsEnabled)
                                                                 .Set(p => p.Category, notesDatabaseReplica.Category)
                                                                 .Set(p => p.ScanInterval, notesDatabaseReplica.ScanInterval)
