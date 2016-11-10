@@ -49,6 +49,8 @@ export class DominoMailDeliveryStatus implements OnInit {
             (error) => this.errorMessage = <any>error
             );
     }
+
+
 }
 
 

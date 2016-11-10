@@ -15,9 +15,64 @@
                 </div>
             </template>
         </wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Pending Mail'" [binding]="'pending_mail'" [width]="120"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Held Mail'" [binding]="'held_mail'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Dead Mail'" [binding]="'dead_mail'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Pending Mail'" [binding]="'pending_mail'" [width]="120" align="center">
+
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+              <div *ngIf="cell.item.pending_mail >= cell.item.pending_threshold && cell.item.pending_threshold!=0">
+                  <span  class="label label-pill label-danger">{{cell.item.pending_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.pending_threshold==0">
+                    
+                    <span>{{cell.item.pending_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.pending_mail <= (cell.item.pending_threshold*(0.8)) && cell.item.pending_threshold!=0 ">
+
+                    <span class="label label-pill label-success">{{cell.item.pending_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.pending_mail > (cell.item.pending_threshold*(0.8)) && cell.item.pending_mail < cell.item.pending_threshold && cell.item.pending_threshold!=0">
+
+                    <span class="label label-pill label-default">{{cell.item.pending_mail}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Held Mail'" [binding]="'held_mail'" [width]="100" align="center">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div *ngIf="cell.item.held_mail >= cell.item.held_threshold && cell.item.held_threshold!=0">
+                    <span class="label label-pill label-danger">{{cell.item.held_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.held_threshold==0">
+
+                    <span>{{cell.item.held_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.held_mail <= (cell.item.held_threshold*(0.8)) && cell.item.held_threshold!=0 ">
+
+                    <span class="label label-pill label-success">{{cell.item.held_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.held_mail > (cell.item.held_threshold*(0.8)) && cell.item.held_mail < cell.item.held_threshold && cell.item.held_threshold!=0">
+
+                    <span class="label label-pill label-default">{{cell.item.held_mail}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Dead Mail'" [binding]="'dead_mail'" [width]="100" align="center">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div *ngIf="cell.item.dead_mail >= cell.item.dead_threshold && cell.item.dead_threshold!=0">
+                    <span class="label label-pill label-danger">{{cell.item.dead_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.dead_threshold==0">
+
+                    <span>{{cell.item.dead_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.dead_mail <= (cell.item.dead_threshold*(0.8)) && cell.item.dead_threshold!=0 ">
+
+                    <span class="label label-pill label-success">{{cell.item.dead_mail}}</span>
+                </div>
+                <div *ngIf="cell.item.dead_mail > (cell.item.dead_threshold*(0.8)) && cell.item.dead_mail < cell.item.dead_threshold && cell.item.dead_threshold!=0">
+
+                    <span class="label label-pill label-default">{{cell.item.dead_mail}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Location'" [binding]="'location'" [width]="100"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="100"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="200"></wj-flex-grid-column>
