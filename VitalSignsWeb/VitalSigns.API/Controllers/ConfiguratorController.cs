@@ -2318,7 +2318,7 @@ namespace VitalSigns.API.Controllers
             {
 
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType == "Notes Database").Select(x => new NotesDatabaseModel
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Notes Database").Select(x => new NotesDatabaseModel
                 {
                     Id = x.Id,
                     // DominoServerId = x.DominoServerId,
@@ -2361,7 +2361,7 @@ namespace VitalSigns.API.Controllers
                         DominoServerName = notesDatabase.DominoServerName,
                         Name = notesDatabase.Name,
                         DatabaseFileName = notesDatabase.DatabaseFileName,
-                        DominoType = "Notes Database",
+                        Type = "Notes Database",
                         TriggerType = notesDatabase.TriggerType,
                         ScanInterval = notesDatabase.ScanInterval,
                         OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
