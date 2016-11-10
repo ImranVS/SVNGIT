@@ -25,6 +25,21 @@ export class BusinessHours extends GridBase implements OnInit {
         super(service);
         this.formName = "Business Hours";
      }  
+
+    addBusinessHours(dlg: wijmo.input.Popup) {
+        this.addGridRow(dlg);
+        this.currentEditItem.name = "";
+        this.currentEditItem.start_time = "";
+        this.currentEditItem.duration = "";
+        this.currentEditItem.sunday = "";
+        this.currentEditItem.monday = "";
+        this.currentEditItem.tuesday = "";
+        this.currentEditItem.wednesday = "";
+        this.currentEditItem.thursday = "";
+        this.currentEditItem.friday = "";
+        this.currentEditItem.saturday = "";
+
+    }
     ngOnInit() {
         this.initialGridBind('/Configurator/get_business_hours');
     } 
