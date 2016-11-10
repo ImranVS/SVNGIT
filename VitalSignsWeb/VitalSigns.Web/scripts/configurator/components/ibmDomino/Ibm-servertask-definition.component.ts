@@ -34,6 +34,16 @@ export class ServerTaskDefinition extends GridBase {
     delteServerTaskDefinition() {
         this.delteGridRow('/configurator/delete_server_task_definition/');
     }
+    addServerTask(dlg: wijmo.input.Popup) {
+        this.addGridRow(dlg);
+        this.currentEditItem.task_name = "";
+        this.currentEditItem.load_string = "";
+        this.currentEditItem.console_string = "";
+        this.currentEditItem.freeze_detect = "";
+        this.currentEditItem.idle_string = "";
+        this.currentEditItem.max_busy_time = "";
+        this.currentEditItem.retry_count = "";
+    }
 }
 
 
