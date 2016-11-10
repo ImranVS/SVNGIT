@@ -89,4 +89,12 @@ export class Location extends GridBase implements OnInit  {
         this.delteGridRow('/Configurator/delete_location/');
 
     }
+
+    addlocations(dlg: wijmo.input.Popup) {
+        this.addGridRow(dlg);
+        this.currentEditItem.location_name = "";
+        this.currentEditItem.country = "";
+        this.currentEditItem.region = "";
+        this.currentEditItem.city = "";
+    }
 }
