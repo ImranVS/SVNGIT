@@ -10,7 +10,7 @@
                 <div [ngSwitch]="cell.item.StatusCode">
                     <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.StatusCode}}</span>
                     <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.StatusCode}}</span>
-                    <span *ngSwitchCase="'Issue'" class="label label-pill label-default">{{cell.item.StatusCode}}</span>
+                    <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.StatusCode}}</span>
                     <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.StatusCode}}</span>
                 </div>
             </template>
@@ -31,7 +31,7 @@
                 </div>
                 <div *ngIf="cell.item.pending_mail > (cell.item.pending_threshold*(0.8)) && cell.item.pending_mail < cell.item.pending_threshold && cell.item.pending_threshold!=0">
 
-                    <span class="label label-pill label-default">{{cell.item.pending_mail}}</span>
+                    <span class="label label-pill label-warning">{{cell.item.pending_mail}}</span>
                 </div>
             </template>
         </wj-flex-grid-column>
@@ -50,7 +50,7 @@
                 </div>
                 <div *ngIf="cell.item.held_mail > (cell.item.held_threshold*(0.8)) && cell.item.held_mail < cell.item.held_threshold && cell.item.held_threshold!=0">
 
-                    <span class="label label-pill label-default">{{cell.item.held_mail}}</span>
+                    <span class="label label-pill label-warning">{{cell.item.held_mail}}</span>
                 </div>
             </template>
         </wj-flex-grid-column>
@@ -69,7 +69,7 @@
                 </div>
                 <div *ngIf="cell.item.dead_mail > (cell.item.dead_threshold*(0.8)) && cell.item.dead_mail < cell.item.dead_threshold && cell.item.dead_threshold!=0">
 
-                    <span class="label label-pill label-default">{{cell.item.dead_mail}}</span>
+                    <span class="label label-pill label-warning">{{cell.item.dead_mail}}</span>
                 </div>
             </template>
         </wj-flex-grid-column>
