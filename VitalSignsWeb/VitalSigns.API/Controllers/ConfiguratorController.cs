@@ -3421,6 +3421,35 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        #region Issues
+        [HttpGet("get_all_open_issues")]
+        public APIResponse GetALLOpenIssues()
+        {
+            try
+            {
+                eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
+                var result = eventsdetectedRepository.All().Where(x => x.EventDismissed == null).Select(x => new AlertsModel
+                {
+                    DeviceType=x.DeviceType,
+                    DeviceName = x.Device,
+                    EventType = x.EventType,
+                    Details = x.Details
+                  
+                }).ToList();
+
+
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
+
     }
 }
 
