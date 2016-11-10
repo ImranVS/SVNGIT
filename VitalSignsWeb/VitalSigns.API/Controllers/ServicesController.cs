@@ -20,6 +20,7 @@ namespace VitalSigns.API.Controllers
     public class ServicesController : BaseController
     {
 
+        private IRepository<Server> serverRepository;
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
@@ -1448,9 +1449,40 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+
+        [HttpGet("server_list_dropdown")]
+        public APIResponse GetServersDropDown(string type)
+        {
+
+            try
+            {
+               serverRepository = new Repository<Server>(ConnectionString);
+                var deviceNameData = serverRepository.All().Where(x => x.DeviceType == type).Select(x => x.DeviceName).Distinct().OrderBy(x => x).ToList();
+                var result = serverRepository.All().Where(x => x.DeviceType == type).Select(x => new NameValueModel
+
+                { Name = x.DeviceName, Id = x.Id }).ToList();
+                Response = Common.CreateResponse(result);
+
+                result.Insert(0, new NameValueModel { Name="", Id="" });
+
+                Response = Common.CreateResponse(new { deviceNameData = result });
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+
+
+
+
     }
 
-}
+            }
 
 
 
