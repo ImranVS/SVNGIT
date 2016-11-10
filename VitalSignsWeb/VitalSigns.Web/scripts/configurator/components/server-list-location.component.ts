@@ -65,6 +65,7 @@ export class ServersLocation implements OnInit {
                         var value = this.deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);                       
                         if (value.length > 0) {
                             item.is_selected = true;
+                            this.devices.push(item.id)
                         }
                     } 
                     resultData.push(item);
