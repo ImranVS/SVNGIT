@@ -2082,7 +2082,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType == "Domino Custom Statistic").Select(x => new CustomStatisticsModel
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Domino Custom Statistic").Select(x => new CustomStatisticsModel
                 {
                     Id = x.Id,                   
                    DominoServers = x.DominoServers,
@@ -2114,7 +2114,7 @@ namespace VitalSigns.API.Controllers
                 {
                     ServerOther customstatistic = new ServerOther
                     {
-                        DominoType = "Domino Custom Statistic",
+                        Type = "Domino Custom Statistic",
                         DominoServers = devicesList,
                        StatName = customstat.StatName,
                         ThresholdValue = customstat.ThresholdValue,
