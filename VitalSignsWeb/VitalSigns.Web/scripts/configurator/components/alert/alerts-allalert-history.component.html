@@ -3,7 +3,7 @@
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
     <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
         <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'" [width]="180"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Alert Type'" [binding]="'alert_type'" [width]="250"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Alerted Date'" [binding]="'event_detected_sent'" [width]="150"></wj-flex-grid-column>
