@@ -5,7 +5,7 @@
     <wj-flex-grid #flex [itemsSource]="sererNames" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshChart($event)">
         <wj-flex-grid-filter></wj-flex-grid-filter>
        
-        <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="200" ></wj-flex-grid-column>     
+        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200" ></wj-flex-grid-column>     
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"
