@@ -1462,8 +1462,11 @@ namespace VitalSigns.API.Controllers
                     DeadMail = x.DeadMail,
                     HeldMail = x.HeldMail,
                     Location = x.Location,
-                    StatusCode=x.StatusCode
-
+                    StatusCode=x.StatusCode,
+                  PendingThreshold=x.PendingThreshold,
+                  DeadThreshold=x.DeadThreshold,
+                  HeldThreshold=x.HeldThreshold
+                    
                 }).ToList();
                 Response = Common.CreateResponse(result);
             }
