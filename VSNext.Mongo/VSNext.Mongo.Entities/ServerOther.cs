@@ -191,7 +191,8 @@ namespace VSNext.Mongo.Entities
         public String ConsoleCommand { get; set; }
 
         [DataMember]
-        [BsonIgnoreIfNull]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
         [BsonElement("domino_servers")]
         public List<string> DominoServers { get; set; }
 
