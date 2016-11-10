@@ -1,26 +1,31 @@
-﻿<div class="container">
+﻿
+<div id="zeusContext">
+
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="img/menu/dashboard.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Issues
+                <app-navigator></app-navigator>
+            </h2>
+            <p>Issues list</p>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+</div>
+
+
+<div class="container">
 
     <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
         <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
-
-        <wj-flex-grid-column [header]="'Overall Status'" [binding]="'StatusCode'" [width]="200" align="center">
-
-            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                <div [ngSwitch]="cell.item.StatusCode">
-                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.StatusCode}}</span>
-                    <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.StatusCode}}</span>
-                    <span *ngSwitchCase="'Issue'" class="label label-pill label-default">{{cell.item.StatusCode}}</span>
-                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.StatusCode}}</span>
-                </div>
-            </template>
-        </wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Pending Mail'" [binding]="'pending_mail'" [width]="120"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Held Mail'" [binding]="'held_mail'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Dead Mail'" [binding]="'dead_mail'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Location'" [binding]="'location'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server Name'" [binding]="'device'" [width]="300"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server Type'" [binding]="'device_type'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Test Name'" [binding]="'event_type'" [width]="300"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="300"></wj-flex-grid-column>
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"

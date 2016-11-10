@@ -40,7 +40,7 @@ export class Issues implements OnInit {
     ngOnInit() {
 
 
-        this.service.get('/DashBoard/get_mail_delivery_status/' + 'Domino')
+        this.service.get('/Configurator/get_all_open_issues/')
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
