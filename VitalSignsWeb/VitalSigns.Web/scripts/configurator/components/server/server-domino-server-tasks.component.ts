@@ -59,22 +59,25 @@ export class ServerTasks extends GridBase implements OnInit {
     }
     addServerTask(frmDialog: wijmo.input.Popup) {
         this.addGridRow(frmDialog);
-        this.currentEditItem.device_id = "57ace45abf46711cd4681e15";
-
-    }
-    saveServerTasks(dlg: wijmo.input.Popup) {
-        //this.buildPostData("add", dlg);
-        this.selectedSettingValue = this.selectedName;
         this.currentEditItem.is_selected = "";
         this.currentEditItem.task_name = "";
         this.currentEditItem.is_load = "";
         this.currentEditItem.is_restart_asap = "";
         this.currentEditItem.is_resart_later = "";
         this.currentEditItem.is_disallow = "";
+        this.currentEditItem.device_id = "57ace45abf46711cd4681e15";
+
+    }
+    saveServerTasks(dlg: wijmo.input.Popup) {
+        //this.buildPostData("add", dlg);
+        this.selectedSettingValue = this.selectedName;
+       
        // alert(this.selectedSettingValue);
 
         this.saveGridRow('/configurator/save_server_tasks', dlg);
     }
+
+
 
     buildPostData(setting: string, dlg) {
         var postData = {
