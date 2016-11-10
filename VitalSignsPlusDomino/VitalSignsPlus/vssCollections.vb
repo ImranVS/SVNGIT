@@ -552,8 +552,6 @@ Partial Public Class VitalSignsPlusDomino
 
         Try
 
-            'Removed DominoServers.DiskSpaceThreshold, DominoServers.NotificationGroup, DominoServer.ScanServlet
-
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
             Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()) _
                  And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
@@ -2044,19 +2042,19 @@ Partial Public Class VitalSignsPlusDomino
 
         'start with fresh data
         '***  Build the data set dynamically
-        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfDatabaseReplicas As New List(Of VSNext.Mongo.Entities.ServerOther)
         Dim listOfDominoServers As New List(Of VSNext.Mongo.Entities.Server)
         Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
 
         Try
 
-            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabaseReplica.ToDescription()) _
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ServerOther)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabaseReplica.ToDescription()) _
                  And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
-            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Project _
                 .Include(Function(x) x.Id) _
-                .Include(Function(x) x.DeviceName) _
-                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.Name) _
+                .Include(Function(x) x.Type) _
                 .Include(Function(x) x.DominoServerA) _
                 .Include(Function(x) x.DominoServerAExcludeFolders) _
                 .Include(Function(x) x.DominoServerAFileMask) _
@@ -2074,13 +2072,15 @@ Partial Public Class VitalSignsPlusDomino
                 .Include(Function(x) x.OffHoursScanInterval) _
                 .Include(Function(x) x.CurrentNode)
 
-            listOfServers = repository.Find(filterDef, projectionDef).ToList()
+            listOfDatabaseReplicas = repository.Find(filterDef, projectionDef).ToList()
 
-            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
-            projectionDef = repository.Project _
+
+            Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim projectionDefServers As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName)
-            listOfDominoServers = repository.Find(filterDef, projectionDef).ToList()
+            listOfDominoServers = repositoryServers.Find(filterDefServers, projectionDefServers).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
             Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
@@ -2107,8 +2107,8 @@ Partial Public Class VitalSignsPlusDomino
         If myDominoClusters.Count > 0 Then
             '  WriteAuditEntry(Now.ToString & " Checking to see if any Domino servers should be deleted. ")
             'Get all the names of all the servers in the data table
-            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
-                MyServerNames += entity.DeviceName & "  "
+            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfDatabaseReplicas
+                MyServerNames += entity.Name & "  "
             Next
         End If
 
@@ -2150,13 +2150,13 @@ Partial Public Class VitalSignsPlusDomino
         WriteAuditEntry(Now.ToString & " Reading configuration settings for Domino Clusters.")
 
         Try
-            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfDatabaseReplicas
                 i += 1
 
-                If entity.DeviceName Is Nothing Then
+                If entity.Name Is Nothing Then
                     MyName = "Domino Cluster #" & i.ToString
                 Else
-                    MyName = entity.DeviceName
+                    MyName = entity.Name
                 End If
 
 
@@ -2185,7 +2185,7 @@ Partial Public Class VitalSignsPlusDomino
                 End If
 
                 With myDominoCluster
-                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Configuring Domino Cluster: " & entity.DeviceName)
+                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Configuring Domino Cluster: " & entity.Name)
 
                     Try
                         If entity.Id Is Nothing Then
@@ -2447,7 +2447,7 @@ Partial Public Class VitalSignsPlusDomino
                     Try
                         Dim entityStatus As VSNext.Mongo.Entities.Status
                         Try
-                            entityStatus = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName)).ToList()(0)
+                            entityStatus = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.Name)).ToList()(0)
                         Catch ex As Exception
 
                         End Try
