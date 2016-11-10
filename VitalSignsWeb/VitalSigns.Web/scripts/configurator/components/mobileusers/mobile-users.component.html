@@ -61,7 +61,7 @@ data.pageIndex + 1 | number
 
         </div>
     </div>
-    <wj-popup class="modal-content col-sm-10" #frmDialog style="height:60%">
+    <wj-popup class="modal-content col-sm-10" #frmDialog >
 
         <div class="panel panel-default" style="height:60%;">
             <div class="panel-heading">
@@ -91,7 +91,7 @@ data.pageIndex + 1 | number
                                     <label for="device_name" class="control-label col-sm-3">Device Name: </label>
                                     <div class="col-sm-9">
 
-                                        <label class="control-label col-sm-5" name="device_name">{{currentEditItem.device_name}} </label>
+                                        <label class="control-label col-sm-4" name="device_name">{{currentEditItem.device_name}} </label>
                                     </div>
 
                                 </div>
@@ -132,5 +132,54 @@ data.pageIndex + 1 | number
         </div>
     </wj-popup>
 
+    <div class="panel panel-default">
+        <div class="panel-heading">All Devices</div>
+        <div class="panel-body">
 
+            <wj-flex-grid #mobileDeviceGrid [itemsSource]="mobileDeviceData" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                <wj-flex-grid-filter></wj-flex-grid-filter>
+                <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="250"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Device ID'" [binding]="'device_id'" [width]="180"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'OS Type'" [binding]="'os_type'" [width]="180"></wj-flex-grid-column>
+
+
+            </wj-flex-grid>
+            <div class="btn-group" *ngIf="mobileDeviceData != null">
+                <button type="button" class="btn btn-default"
+                        (click)="mobileDeviceData.moveToFirstPage()"
+                        [disabled]="mobileDeviceData.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-fast-backward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="mobileDeviceData.moveToPreviousPage()"
+                        [disabled]="mobileDeviceData.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-step-backward">
+                    </span>
+                </button>
+                <button type="button" class="btn btn-default" disabled style="width:100px">
+                    {{
+mobileDeviceData.pageIndex + 1 | number
+                    }} / {{mobileDeviceData.pageCount | number}}
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="mobileDeviceData.moveToNextPage()"
+                        [disabled]="mobileDeviceData.pageIndex >= mobileDeviceData.pageCount - 1">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="mobileDeviceData.moveToLastPage()"
+                        [disabled]="mobileDeviceData.pageIndex >= mobileDeviceData.pageCount - 1">
+                    <span class="glyphicon glyphicon-fast-forward"></span>
+                </button>
+            </div>
+            <div class="pull-right" *ngIf="mobileDeviceData != null">
+                <wj-menu [(value)]="MobileDevicepageSize" [header]="'Page size'">
+                    <wj-menu-item [value]="10">10</wj-menu-item>
+                    <wj-menu-item [value]="20">20</wj-menu-item>
+                    <wj-menu-item [value]="50">50</wj-menu-item>
+                </wj-menu>
+            </div>
+        </div>
+    </div>
 </div>
