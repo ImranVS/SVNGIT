@@ -32,6 +32,14 @@ namespace VitalSigns.API.Models
      
         [JsonProperty("StatusCode")]
         public string StatusCode { get; set; }
+
+        [JsonProperty("pending_threshold")]
+        public int? PendingThreshold { get; set; }
+
+        [JsonProperty("held_threshold")]
+        public int? HeldThreshold { get; set; }
         
+        [JsonProperty("dead_threshold")]
+        public int? DeadThreshold { get; set; }
     }
 }
