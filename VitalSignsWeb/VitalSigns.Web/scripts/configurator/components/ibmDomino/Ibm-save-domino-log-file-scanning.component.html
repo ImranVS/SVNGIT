@@ -140,7 +140,7 @@ data.pageIndex + 1 | number
         </div>
     </wj-popup>
     <div>
-        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+        <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType"></server-location-list>
         <button type="button" class="btn btn-primary" (click)="applySetting()">Ok</button>
         
         <a class="btn btn-primary" [routerLink]="['/configurator/ibmDomino']" role="button">Cancel</a>

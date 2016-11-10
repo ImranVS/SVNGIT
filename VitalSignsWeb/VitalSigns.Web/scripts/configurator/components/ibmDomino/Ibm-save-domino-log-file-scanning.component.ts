@@ -18,8 +18,9 @@ export class AddLogFile extends GridBase implements OnInit {
     results: any;
     LogFileScan: FormGroup;
     serverLog: FormGroup;
-    deviceservers: any[];
+    checkedDevices: any;
     devices: string;
+    currentDeviceType: string = "Domino";
 
     constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder) {
         super(service);
@@ -72,10 +73,11 @@ export class AddLogFile extends GridBase implements OnInit {
             response => {
                 this.sererNames = response.data.devicename;
                 this.results = response.data.result;
-                this.deviceservers = response.data.servers;
+                this.checkedDevices = response.data.servers;
                
 
                 console.log(this.results);
+                console.log(this.checkedDevices);
                 //this.attributes = response.data.device_attributes;
 
             },
@@ -123,6 +125,7 @@ export class AddLogFile extends GridBase implements OnInit {
             });
     }
     changeInDevices(server: string) {
+       
         this.devices = server;
     }
   
