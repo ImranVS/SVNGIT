@@ -34,4 +34,18 @@ export class TravelerDataStore extends GridBase implements OnInit {
     delteTravelerDataStore() {
         this.delteGridRow('/configurator/delete_traveler_data_store/');
     }
+
+    addTravelerData(dlg: wijmo.input.Popup) {
+        this.addGridRow(dlg);
+        this.currentEditItem.traveler_service_pool_name = "";
+        this.currentEditItem.device_name = "";
+        this.currentEditItem.data_store = "";
+        this.currentEditItem.database_name = "";
+        this.currentEditItem.port = "";
+        this.currentEditItem.user_name = "";
+        this.currentEditItem.password = "";
+        this.currentEditItem.integrated_security = false;
+        this.currentEditItem.test_scan_server = "";
+        this.currentEditItem.used_by_servers = "";
+    }
 }
