@@ -2190,7 +2190,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.DominoType== "Notes Database Replica").Select(x => new NotesDatabaseReplicaModel
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type== "Notes Database Replica").Select(x => new NotesDatabaseReplicaModel
                 {
                     Name = x.Name,
                     IsEnabled = x.IsEnabled,
