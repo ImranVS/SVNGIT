@@ -172,8 +172,11 @@ import {ServerListLocationReport} from './reports/components/configuration/serve
         dashboards.MailDeliveryStatus,
         dashboards.ServerSettings,
         dashboards.MobileUser,
+        dashboards.Issues,
+
         widgets.ServerListTypeReportGrid,
         widgets.ServerListLocationReportGrid,
+
         widgets.AppStatus,
         widgets.ChartComponent,
         widgets.DynamicGrid,
