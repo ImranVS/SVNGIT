@@ -33,8 +33,8 @@ export class Alerts implements OnInit {
         this.tabsData = [
             {
                 "title": "Definitions",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "AlertDefinitionsDashboard",
+                "path": "/app/configurator/components/alert/alert-definitions-dashboard.component",
                 "active": false
             },
             {

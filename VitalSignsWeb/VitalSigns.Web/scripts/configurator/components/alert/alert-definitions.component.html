@@ -1,0 +1,102 @@
+﻿<div class="widgetWrapper">
+    <div class="widgetContent">
+        <div class="grid-sort-group">
+            <!-- edit details in a popup -->
+            <button class="btn btn-success" (click)="editGridRow(frmDialog)">
+                Edit
+            </button>
+            <button class="btn btn-success" (click)="addGridRow(frmDialog)">
+                Add
+            </button>
+            <button class="btn btn-success" (click)="deleteGridRow();">
+                Delete
+            </button>
+        </div>
+        <div>&nbsp;</div>
+        <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+        <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex id="servergrid">
+            <wj-flex-grid-filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [header]="'Definition Name'" [binding]="'notification_name'" [width]="280" [visible]="false"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Escalation'" [binding]="'escalation'" [width]="400"></wj-flex-grid-column>
+        </wj-flex-grid>
+        <div class="btn-group" *ngIf="data != null">
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToFirstPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-fast-backward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToPreviousPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-step-backward">
+                </span>
+            </button>
+            <button type="button" class="btn btn-default" disabled style="width:100px">
+                {{
+data.pageIndex + 1 | number
+                }} / {{data.pageCount | number}}
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToNextPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToLastPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-fast-forward"></span>
+            </button>
+        </div>
+        <div class="pull-right" *ngIf="data != null">
+            <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                <wj-menu-item [value]="10">10</wj-menu-item>
+                <wj-menu-item [value]="20">20</wj-menu-item>
+                <wj-menu-item [value]="50">50</wj-menu-item>
+            </wj-menu>
+        </div>
+
+        <wj-popup class="col-md-8 modal-content" style="height:70%;overflow:auto" #frmDialog>
+
+            <form (ngSubmit)="saveDefinition(frmDialog)" #frmUser="ngForm">
+                <h4 class="modal-header">
+                    {{formTitle}}
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </h4>
+
+                <div class="modal-body" *ngIf="currentEditItem">
+                    <div class="form-group">
+                        <label for="notification_name">Definition Name</label>
+                        <input type="text" class="form-control" #name d="notification_name" required name="notification_name" [(ngModel)]="currentEditItem.notification_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="events">Events</label>
+                        <br />
+                        <wj-flex-grid [itemsSource]="eventsdata" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex3 id="defgrid">
+                            <wj-flex-grid-filter></wj-flex-grid-filter>
+                            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" align="center">
+                                <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                    <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="eventCheck(cell.item.id,$event)" name="is_selected" />
+                                </template>
+                            </wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'Event Type'" [binding]="'EventType'" [width]="280"></wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'Device Type'" [binding]="'DeviceType'" [visible]="false"></wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'Alert about Event Recurrences'" [binding]="'NotificationOnRepeat'" [width]="280"></wj-flex-grid-column>
+                        </wj-flex-grid>
+                    </div>
+                    <div class="form-group">
+                        <label for="devices">Devices</label>
+                        <br />
+                        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                    <button class="btn btn-primary wj-hide" type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                </div>
+
+            </form>
+        </wj-popup>
+    </div>
+</div>

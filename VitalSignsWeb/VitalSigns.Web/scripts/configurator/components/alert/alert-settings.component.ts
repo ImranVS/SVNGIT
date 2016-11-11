@@ -67,7 +67,7 @@ export class AlertSettings implements WidgetComponent, OnInit {
     ngOnInit() {
         
         this.route.params.subscribe(params => {        
-            this.dataProvider.get('/Configurator/get_alertsettings')
+            this.dataProvider.get('/Configurator/get_alert_settings')
                 .subscribe(
                 (data) => this.alertSettings.setValue(data.data),
                 (error) => this.errorMessage = <any>error
@@ -116,7 +116,7 @@ export class AlertSettings implements WidgetComponent, OnInit {
         }
         var alert_settings = this.alertSettings.value;
 
-        this.dataProvider.put('/Configurator/save_alertsettings', { alert_settings, selected_events })
+        this.dataProvider.put('/Configurator/save_alert_settings', { alert_settings, selected_events })
             .subscribe(
             response => {
 
