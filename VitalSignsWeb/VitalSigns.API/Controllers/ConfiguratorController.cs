@@ -3467,11 +3467,11 @@ namespace VitalSigns.API.Controllers
                 foreach(var id in devicesList)
                 {
 
-
+                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
 
                     var updateDefination = serversRepository.Updater.Set(p => p.AssignedNode, selectedNode);
 
-                    var result = serversRepository.Update(id, updateDefination);
+                    var result = serversRepository.Update(filterDefination, updateDefination);
                 }
             }
 
