@@ -3,6 +3,15 @@
   "version": 2,
   "targets": {
     "DNX,Version=v4.5.1": {
+      "interop.domino.dll/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/Interop.Domino.dll": {}
+        },
+        "runtime": {
+          "lib/Interop.Domino.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -1601,6 +1610,14 @@
           "VSNext.Mongo.Repository": "1.0.0"
         }
       },
+      "VSFramework/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
       "VSNext.Mongo.Entities/1.0.0": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
@@ -1614,6 +1631,15 @@
       }
     },
     "DNX,Version=v4.5.1/win7-x86": {
+      "interop.domino.dll/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/Interop.Domino.dll": {}
+        },
+        "runtime": {
+          "lib/Interop.Domino.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -3215,6 +3241,14 @@
           "VSNext.Mongo.Repository": "1.0.0"
         }
       },
+      "VSFramework/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
       "VSNext.Mongo.Entities/1.0.0": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
@@ -3228,6 +3262,15 @@
       }
     },
     "DNX,Version=v4.5.1/win7-x64": {
+      "interop.domino.dll/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/Interop.Domino.dll": {}
+        },
+        "runtime": {
+          "lib/Interop.Domino.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -4829,6 +4872,14 @@
           "VSNext.Mongo.Repository": "1.0.0"
         }
       },
+      "VSFramework/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
       "VSNext.Mongo.Entities/1.0.0": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
@@ -4847,6 +4898,10 @@
       "type": "project",
       "path": "../wrap/VitalSignsLicensing/project.json"
     },
+    "VSFramework/1.0.0": {
+      "type": "project",
+      "path": "../wrap/VSFramework/project.json"
+    },
     "VSNext.Mongo.Entities/1.0.0": {
       "type": "project",
       "path": "../wrap/VSNext.Mongo.Entities/project.json"
@@ -4854,6 +4909,16 @@
     "VSNext.Mongo.Repository/1.0.0": {
       "type": "project",
       "path": "../wrap/VSNext.Mongo.Repository/project.json"
+    },
+    "interop.domino.dll/1.0.0": {
+      "type": "package",
+      "sha512": "gKTX8fwrysbgSWSrJUpMpdp/qmRwYT8JTnbpFzTN72WnX3M1vxkHzpxH3oGMSqpHf20n9AZ0TzDJkt2itp6hyQ==",
+      "files": [
+        "interop.domino.dll.1.0.0.nupkg",
+        "interop.domino.dll.1.0.0.nupkg.sha512",
+        "interop.domino.dll.nuspec",
+        "lib/Interop.Domino.dll"
+      ]
     },
     "Microsoft.AspNet.Antiforgery/1.0.0-rc1-final": {
       "type": "package",
@@ -6735,6 +6800,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
+      "interop.domino.dll >= 1.0.0",
       "Microsoft.AspNet.IISPlatformHandler >= 1.0.0-rc1-final",
       "Microsoft.AspNet.Mvc >= 6.0.0-rc1-final",
       "Microsoft.AspNet.Server.Kestrel >= 1.0.0-rc1-final",
@@ -6748,6 +6814,7 @@
     ],
     "DNX,Version=v4.5.1": [
       "VitalSignsLicensing >= 1.0.0-*",
+      "VSFramework >= 1.0.0-*",
       "VSNext.Mongo.Entities >= 1.0.0-*",
       "VSNext.Mongo.Repository >= 1.0.0-*",
       "fx/System.Runtime.Serialization >= 4.0.0"

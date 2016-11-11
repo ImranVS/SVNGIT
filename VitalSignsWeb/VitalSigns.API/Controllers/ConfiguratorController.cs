@@ -3076,10 +3076,10 @@ namespace VitalSigns.API.Controllers
                 var result = serversRepository.All().Select(x => new ServersModel
                 {
 
-                    ServerName = x.DeviceName,
-                    ServerType = x.DeviceType,
+                    DeviceName = x.DeviceName,
+                    DeviceType = x.DeviceType,
                     Description = x.Description,
-                    ServerId = x.ServerId
+                    DeviceId = x.Id
 
 
                 }).ToList();
