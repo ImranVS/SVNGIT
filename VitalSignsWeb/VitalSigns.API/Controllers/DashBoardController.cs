@@ -35,6 +35,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
+        private IRepository<Maintenance> maintenanceRepository;
 
         private string DateFormat = "yyyy-MM-dd";
         /// <summary>
@@ -181,6 +182,7 @@ namespace VitalSigns.API.Controllers
                 result = mobileDevicesRepository.Find(filterDef)
                                  .Select(x => new MobileUserDevice
                                  {
+                                     Id = x.Id,
                                      UserName = x.UserName,
                                      Device = x.DeviceName,
                                      Notification = x.NotificationType,
@@ -190,6 +192,28 @@ namespace VitalSigns.API.Controllers
                                      DeviceId = x.DeviceID
                                  }).ToList();
             }
+
+
+            maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+            var maintainWindows = maintenanceRepository.All().Select(x => new MaintenanceModel
+            {
+                Id = x.Id,
+               
+
+            }).ToList();
+
+            mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+            var keyUsers = mobileDevicesRepository.Collection.AsQueryable().Select(x => new { KeyuserID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
+            foreach (var maintenaceWindow in maintainWindows)
+            {
+                var keyUser = keyUsers.FirstOrDefault(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id));
+                if (keyUser != null)
+                {
+                    maintenaceWindow.KeyUsers.Add(keyUser.KeyuserID);
+                }
+
+            }
+
             Response = Common.CreateResponse(result.OrderBy(x => x.UserName));
             return Response;
         }
