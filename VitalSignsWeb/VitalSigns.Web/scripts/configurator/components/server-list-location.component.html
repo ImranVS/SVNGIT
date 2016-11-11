@@ -9,6 +9,8 @@
         <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" is-read-only="true" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Description'" [binding]="'description'" is-read-only="true" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" is-read-only="true" [visible]="false"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Assigned Node Name'" [binding]="'assigned_node'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Current Node Name'" [binding]="'current_node'" [width]="200"></wj-flex-grid-column>
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"

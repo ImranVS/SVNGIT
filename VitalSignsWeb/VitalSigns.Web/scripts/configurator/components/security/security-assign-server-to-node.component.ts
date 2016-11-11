@@ -11,6 +11,7 @@ import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
+import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 
 
 @Component({
@@ -27,18 +28,28 @@ export class Nodes extends GridBase {
     errorMessage: string;
     services: any;
     nodes: any;
+    servernodes: any;
+    nodesHealth: FormGroup;
+    devices: string;
+    selectedNode: string;
 
-    constructor(service: RESTService) {
+    constructor(service: RESTService, private formBuilder: FormBuilder) {
         super(service);
         this.formName = "Node Health";
 
+        this.nodesHealth = this.formBuilder.group({
+            'setting': [''],
+            'value': [''],
+            'devices': ['']
 
+
+        });
         this.service.get('/configurator/get_nodes_health')
             .subscribe(
             (response) => {
                 this.nodeNames = response.data.result;
                 this.nodes = response.data.nodesData;
-
+                
             },
             (error) => this.errorMessage = <any>error
             );
@@ -64,7 +75,26 @@ export class Nodes extends GridBase {
         this.delteGridRow('/configurator/delete_nodes_health/');
     }
   
+    applySetting() {
 
+        var postData = {
+            "setting": this.selectedNode,
+            "value": [''],
+            "devices": this.devices,
+        };
+
+        this.nodesHealth.setValue(postData);
+        console.log(postData);
+        this.service.put('/configurator/save_nodes_servers', postData)
+            .subscribe(
+            response => {
+
+            });
+    }
+    changeInDevices(server: string) {
+
+        this.devices = server;
+    }
 }
 
 

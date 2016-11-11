@@ -58,109 +58,114 @@ data.pageIndex + 1 | number
     <div class="well grid-sort-group">
 
         <!-- edit details in a popup -->
-        <button class="btn btn-default" (click)="editGridRow1(frmDialog)">
+        <button class="btn btn-default" (click)="editGridRow(frmDialog)">
             Edit
         </button>      
         <button class="btn btn-default" (click)="deleteNodesHealth();">
             Delete
         </button>
     </div>
+    <div class="form-group" *ngIf="services">
+        <wj-flex-grid #flex [itemsSource]="services" headersVisibility="Row" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+            <wj-flex-grid-filter></wj-flex-grid-filter>
 
-    <wj-flex-grid #flex [itemsSource]="services"  headersVisibility="Row" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
-        <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column   [binding]="'Name'"  [width]="200"></wj-flex-grid-column>
-        <wj-flex-grid-column  [binding]="'State'" [width]="200">
-            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                <div [ngSwitch]="cell.item.State">
-                    <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.State}}</span>
-                    <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.State}}</span>
-                </div>
-            </template>
-        </wj-flex-grid-column>
-        
-       
-    </wj-flex-grid>
-    <div>
-        <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
-
-      <div><label for="service.Name" class="control-label col-sm-3">Nodes</label>
-
-<wj-combo-box name="service.Name" [itemsSource]="nodes" [(text)]="service.Name"
-              [(ngModel)]="service.Name">
-</wj-combo-box>  </div>
-                     
-            <button type="button" class="btn btn-success" (click)="applySetting()">Assign Nodes</button>
+            <wj-flex-grid-column  [binding]="'Name'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [binding]="'State'" [width]="200">
+                <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                    <div [ngSwitch]="cell.item.State">
+                        <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.State}}</span>
+                        <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.State}}</span>
+                    </div>
+                </template>
+            </wj-flex-grid-column>
 
 
+        </wj-flex-grid>
         </div>
+        
+    <div>
+        <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceType)]="currentDeviceType"></server-location-list>
+    </div>
+    <div>
+        <label for="selectedNode" class="control-label col-sm-3">Nodes</label>
 
-    <wj-popup class="modal-content col-sm-10" #frmDialog>
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <b> {{formTitle}}</b>
-
-                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-            </div>
-            <form (ngSubmit)="saveNodesHealth(frmDialog)" #frmUser="ngForm" class="form-horizontal">
-
-                <div class="panel panel-default">
-                    <div class="panel-heading">Node Settings</div>
+        <wj-combo-box name="selectedNode" [itemsSource]="nodes" [(text)]="service.Name"
+                      [(ngModel)]="selectedNode">
+        </wj-combo-box>
 
 
-                    <div class="panel-body" *ngIf="currentEditItem">
-                        <div class="row">
-                            <div class="form-group col-sm-6">
-                                <label for="name" class="control-label col-sm-5">Name</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+        <button type="button" class="btn btn-success" (click)="applySetting()">Assign Nodes</button>
+
+    </div>
+        
+
+        <wj-popup class="modal-content col-sm-10" #frmDialog>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b> {{formTitle}}</b>
+
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </div>
+                <form (ngSubmit)="saveNodesHealth(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Node Settings</div>
+
+
+                        <div class="panel-body" *ngIf="currentEditItem">
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label for="name" class="control-label col-sm-5">Name</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group col-sm-6">
-                                <label for="host_name" class="control-label col-sm-5">Host Name</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="host_name" required name="host_name" [(ngModel)]="currentEditItem.host_name">
+                                <div class="form-group col-sm-6">
+                                    <label for="host_name" class="control-label col-sm-5">Host Name</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="host_name" required name="host_name" [(ngModel)]="currentEditItem.host_name">
+                                    </div>
                                 </div>
+
+                                <div class="form-group col-sm-6">
+                                    <label for="load_factor" class="control-label col-sm-5">Load factor</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="load_factor" required name="load_factor" [(ngModel)]="currentEditItem.load_factor">
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-sm-6">
+                                    <label for="is_primary" class="control-label col-sm-5">Primary Node</label>
+                                    <div class="col-sm-7">
+                                        <input type="checkbox" class="checkbox-inline" id="is_primary" [(ngModel)]="currentEditItem.is_primary" name="is_primary">
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-sm-6">
+                                    <label for="alive" class="control-label col-sm-5">Alive</label>
+                                    <div class="col-sm-7">
+                                        <label class="control-label col-sm-2">{{currentEditItem.alive}}</label>
+                                    </div>
+                                </div>
+
                             </div>
 
-                            <div class="form-group col-sm-6">
-                                <label for="load_factor" class="control-label col-sm-5">Load factor</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="load_factor" required name="load_factor" [(ngModel)]="currentEditItem.load_factor">
-                                </div>
-                            </div>
-                          
-                            <div class="form-group col-sm-6">
-                                <label for="is_primary" class="control-label col-sm-5">Primary Node</label>
-                                <div class="col-sm-7">
-                                    <input type="checkbox" class="checkbox-inline" id="is_primary" [(ngModel)]="currentEditItem.is_primary" name="is_primary">
-                                </div>
-                            </div>
 
-                            <div class="form-group col-sm-6">
-                                <label for="alive" class="control-label col-sm-5">Alive</label>
-                                <div class="col-sm-7">
-                                    <label class="control-label col-sm-2">{{currentEditItem.alive}}</label>                           
-                                </div>
-                            </div>
+
+
 
                         </div>
 
-                      
-
-  
 
                     </div>
 
-                
-        </div>
-       
 
-<div class="panel-footer">
-    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-    <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-</div>
-            </form>
-        </div>
-    </wj-popup>
-        </div>
+                    <div class="panel-footer">
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </wj-popup>
+    </div>
