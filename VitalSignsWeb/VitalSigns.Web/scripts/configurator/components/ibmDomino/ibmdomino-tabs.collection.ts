@@ -7,3 +7,4 @@ export * from './Ibm-travelerdatastore.component';
 export * from './Ibm-custom-statistics.component';
 export * from './Ibm-domino-log-file-scanning.component';
 export * from './Ibm-save-domino-log-file-scanning.component';
+export * from './Ibm-overall-domino-statistics.component';
