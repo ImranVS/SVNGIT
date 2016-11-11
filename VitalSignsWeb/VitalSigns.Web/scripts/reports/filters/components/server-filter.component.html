@@ -23,22 +23,21 @@
     </div>
 
 </div>-->
-<wj-input-date format="M/d/yyyy" [(value)]="startDate"></wj-input-date>
-<wj-input-date format="M/d/yyyy" [(value)]="endDate"></wj-input-date>
-<!--<server-filter (location)="searchLocation=$event"></server-filter>-->
-<!--<select name="selecttype" class="form-control" [(ngModel)]="deviceLocation" (ngModelChange)="selectDeviceLocation()">
-    <option *ngFor="let optionData of deviceNameData" [ngValue]="optionData">{{optionData}}</option>
-</select>
-<select name="repeatSelect" class="form-control" id="repeatSelect" ng-model="data.model" multiple>
-    <option *ngFor="let optionData of deviceNameData" [ngValue]="optionData">{{optionData}}</option>
-</select>-->
-<wj-multi-select #multisel1
-                 [placeholder]="'Select Servers'"
-                 class="multiselect"
-                 [itemsSource]="deviceNameData"
-                 displayMemberPath="name" selectedValuePath="id"
-                 [headerFormat]="'{count} Servers selected'"
-                 [checkedMemberPath]="'selected'"
-                 [(ngModel)]="selectedServers">
-</wj-multi-select>
-<button (click)="applyFilters(multisel1)">Fitler</button>
+<div id="dtPanel" style="display:inline-block">
+    <wj-input-date format="M/d/yyyy" [(value)]="startDate"></wj-input-date>
+    <wj-input-date format="M/d/yyyy" [(value)]="endDate"></wj-input-date>
+</div>
+<div id="dtServer" style="display:inline-block">
+    <wj-multi-select #multisel1
+                     [placeholder]="'Select Servers'"
+                     class="multiselect"
+                     [itemsSource]="deviceNameData"
+                     displayMemberPath="name" selectedValuePath="id"
+                     [headerFormat]="'{count} Servers selected'"
+                     [checkedMemberPath]="'selected'"
+                     [(ngModel)]="selectedServers">
+    </wj-multi-select>
+</div>
+<div id="dtFilter" style="display:inline-block">
+    <button (click)="applyFilters(multisel1)">Fitler</button>
+    </div>

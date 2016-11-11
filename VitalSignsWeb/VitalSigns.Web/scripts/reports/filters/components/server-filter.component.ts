@@ -11,58 +11,47 @@ export class ServerFilter {
     @ViewChildren('multisel1') multisel1: wijmo.input.MultiSelect;
     selectedServers: any;
     serverType: string;
-    //@Output() name = new EventEmitter();
-    //@Output() type = new EventEmitter();
-    //@Output() status = new EventEmitter();
-    //@Output() location = new EventEmitter();
     @Input() deviceType: any; 
+    @Input() widgetName: string;
+    @Input() widgetURL: string;
+    @Input() hideDatePanel: boolean;
+    @Input() hideServerControl: boolean;
     startDate: Date = new Date();
     endDate: Date = new Date();
-    //selecttype: string = "";
-    //data: wijmo.collections.CollectionView;
     deviceNameData: any;
-    //deviceStatusData: any;
-    //deviceLocationData: any;
     errorMessage: any;
 
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
-    //deviceName: string = "";
-    //deviceType: string = "-All-";
-    //deviceLocation: string = "-All-";
-    //deviceStatus: string = "-All-";
     ngOnInit() {
-        this.route.queryParams.subscribe(params => {
-            this.serverType = params['server-type'];
-        });
+        //this.route.queryParams.subscribe(params => {
+        //    this.serverType = params['server-type'];
+        //});
 
-        //this.service.get('/services/server_list_dropdown?type=Domino')
-        //    .subscribe(
-        //    (data) => {
-        //        this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data.deviceName));
-        //        this.data.pageSize = 10;
-        //    },
-        //    (error) => this.errorMessage = <any>error
-        //    );
-        //let paramstatus = null;
-        //Get a query parameter if the page is called from the main dashboard via a link in a status component
-        //this.route.queryParams.subscribe(params => paramstatus = params['status'] || '-All-');
-        //this.name.emit('');
-        //this.type.emit('-All-');
-        //this.status.emit(paramstatus);
-        //this.location.emit('-All-');
         this.service.get(`/services/server_list_dropdown?type=${this.deviceType}`)
             .subscribe(
             (response) => {
                 this.deviceNameData = response.data.deviceNameData;
             },
             (error) => this.errorMessage = <any>error
-            );
+        );
+        if (this.hideDatePanel == true) {
+            var v = <HTMLDivElement>document.getElementById("dtPanel");
+            v.style.display = "none";
+        }
+        if (this.hideServerControl == true) {
+            var v1 = <HTMLDivElement>document.getElementById("dtServer");
+            v1.style.display = "none";
+        }
+        if (this.hideServerControl == true && this.hideServerControl == true) {
+            var v2 = <HTMLDivElement>document.getElementById("dtFilter");
+            v2.style.display = "none";
+        }
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
         //this.deviceStatus = paramstatus;
     }
     applyFilters(multisel1: wijmo.input.MultiSelect) {
         console.log(multisel1.checkedItems);
-        //var v = (<wijmo.input.MultiSelect>document.getElementById("text1")).value;
+       
         //var v = multisel1.checkedItems;
         var selectedServers = "";
         for (var item of multisel1.checkedItems) {
@@ -71,17 +60,14 @@ export class ServerFilter {
             else 
                 selectedServers += "," + item.id;
         }
-        //this.router.navigate([/[^\?]*/.exec(this.router.url)[0]], {
-        //    queryParams: {
-        //        start: this.startDate.toISOString(),
-        //        end: this.endDate.toISOString(),
-        //        deviceId: selectedServers
-        //    }
-
+        
+        this.widgetURL += selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString();
+        console.log(this.widgetURL);
         //});
-        this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
+        //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
+        //    .catch(error => console.log(error));
+        this.widgetService.refreshWidget(this.widgetName, this.widgetURL.toString() )
             .catch(error => console.log(error));
-
 
     }
 
