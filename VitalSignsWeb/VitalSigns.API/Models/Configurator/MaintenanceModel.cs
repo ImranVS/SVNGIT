@@ -8,7 +8,11 @@ namespace VitalSigns.API.Models
 {
     public class MaintenanceModel
     {
-
+        public MaintenanceModel()
+        {
+            DeviceList = new List<string>();
+            KeyUsers = new List<string>();
+        }
         [JsonProperty("id")]
         public string Id { get; set; }
 
@@ -37,19 +41,22 @@ namespace VitalSigns.API.Models
         public string MaintenanceDaysList { get; set; }
 
         [JsonProperty("maintain_type")]
-        public int? MaintainType { get; set; }
+        public string MaintainType { get; set; }
+
+        [JsonProperty("maintain_type_value")]
+        public string MaintainTypeValue { get; set; }
 
         [JsonProperty("continue_forever")]
         public bool ContinueForever { get; set; }
 
         [JsonProperty("device_list")]
-        public object DeviceList { get; set; }
+        public List<string> DeviceList { get; set; }
 
         [JsonProperty("key_users")]
-        public object KeyUsers { get; set; }
+        public List<string> KeyUsers { get; set; }
 
         [JsonProperty("duration_type")]
-        public int? DurationType { get; set; }
+        public string DurationType { get; set; }
 
         
     }
