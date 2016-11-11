@@ -1473,24 +1473,24 @@ Partial Public Class VitalSignsPlusDomino
 
                                             'WriteAuditEntry(Now.ToString & " Adding Task: " & drTask.Item("TaskName"))
                                             With MyNewDominoServerTaskSetting
-                                                .Enabled = Task.Enabled
+                                                .Enabled = If(Task.Enabled, False)
                                                 '    WriteAuditEntry(Now.ToString & " Enabled=" & .Enabled)
-                                                .LoadIfMissing = Task.SendLoadCmd
+                                                .LoadIfMissing = If(Task.SendLoadCmd, False)
                                                 '   WriteAuditEntry(Now.ToString & " SendLoadCommand=" & .LoadIfMissing)
                                                 .Name = Task.TaskName
-                                                .FreezeDetection = Task.FreezeDetect
+                                                .FreezeDetection = If(Task.FreezeDetect, False)
                                                 '  WriteAuditEntry(Now.ToString & " FreezeDetect=" & .FreezeDetection)
                                                 .ConsoleString = Task.ConsoleString
                                                 ' WriteAuditEntry(Now.ToString & " ConsoleString=" & .ConsoleString)
-                                                .RestartServerIfMissingASAP = Task.SendRestartCmd
-                                                .RestartServerIfMissingOFFHOURS = Task.SendRestartCmdOffhours
+                                                .RestartServerIfMissingASAP = If(Task.SendRestartCmd, False)
+                                                .RestartServerIfMissingOFFHOURS = If(Task.SendRestartCmdOffhours, False)
                                                 'WriteAuditEntry(Now.ToString & " SendRestartCommand=" & .RestartServerIfMissing)
-                                                .DisallowTask = Task.SendExitCmd
+                                                .DisallowTask = If(Task.SendExitCmd, False)
                                                 ' WriteAuditEntry(Now.ToString & " Disallow=" & .DisallowTask)
-                                                .LoadCommand = Task.SendLoadCmd
-                                                .MaxRunTime = Task.MaxBusyTime
+                                                .LoadCommand = If(Task.SendLoadCmd, False)
+                                                .MaxRunTime = If(Task.MaxBusyTime, 30)
                                                 .FailureCount = 0
-                                                .FailureThreshold = Task.RetryCount
+                                                .FailureThreshold = If(Task.RetryCount, 2)
                                             End With
                                             MyDominoServer.ServerTaskSettings.Add(MyNewDominoServerTaskSetting)
                                             '  WriteAuditEntry(Now.ToString & " Domino server " & .Name & " has " & MyDominoServer.ServerTaskSettings.Count & " tasks configured.")
