@@ -931,6 +931,7 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.IsEnabled) _
                 .Include(Function(x) x.IPAddress) _
                 .Include(Function(x) x.ResponseTime) _
+                .Include(Function(x) x.OffHoursScanInterval) _
                 .Include(Function(x) x.ScanInterval) _
                 .Include(Function(x) x.Category) _
                 .Include(Function(x) x.RetryInterval) _

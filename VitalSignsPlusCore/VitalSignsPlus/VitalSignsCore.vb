@@ -1493,7 +1493,7 @@ Public Class VitalSignsPlusCore
                             Try
 
                                 CreateSametimeServersCollection()
-                                UpdateStatusTableWithSametime()
+                                'UpdateStatusTableWithSametime()
                                 'myRegistry.WriteToRegistry("Sametime Server Update", False)
                             Catch ex As Exception
 

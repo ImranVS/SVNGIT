@@ -13,6 +13,21 @@ namespace VSNext.Mongo.Repository
         #region MongoSpecific
         private TimeSpan dateTimeOffset = new TimeSpan(100, 100, 100);
         private Boolean isService = false; 
+
+        public List<String> serviceProcessNames = new List<String>() {
+            "VitalSignsAlertService",
+            "VitalSignsConsoleCommandProcessor",
+            "VitalSignsCore64Bit",
+            "VitalSignsDailyTasks",
+            "VitalSignsDBHealth",
+            "VitalSignsMasterService",
+            "VitalSignsMicrosoft",
+            "VitalSignsPlusCore",
+            "VitalSignsPlusDomino",
+            "VitalSignsPlusEXJournal",
+            "TestMicrosoftServices.vshost"
+        };
+
         public Repository(string connectionString,int? tenantId=null)
         {
             //read from machine
@@ -26,8 +41,8 @@ namespace VSNext.Mongo.Repository
                 dateTimeOffset = new TimeSpan(now.ToLocalTime().Ticks - now.ToUniversalTime().Ticks);
 
             }
-
-            isService = System.Environment.StackTrace.Contains("RPRWyatt.VitalSigns.Services.VSServices.OnStart") || System.Environment.StackTrace.Contains("TestMicrosoftServices");
+            string currProcess = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+            isService = serviceProcessNames.Contains(System.Diagnostics.Process.GetCurrentProcess().ProcessName);// System.Environment.StackTrace.Contains("RPRWyatt.VitalSigns.Services.VSServices.OnStart") || System.Environment.StackTrace.Contains("TestMicrosoftServices");
         }
 
         public Repository()
@@ -102,12 +117,12 @@ namespace VSNext.Mongo.Repository
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> filter, int pageIndex, int size)
         {
-            return ConvertDateTimes(Find(filter, i => i.Id, pageIndex, size));
+            return Find(filter, i => i.Id, pageIndex, size);
         }
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size)
         {
-            return ConvertDateTimes(Find(filter, order, pageIndex, size, true));
+            return Find(filter, order, pageIndex, size, true);
         }
 
         public virtual IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size, bool isDescending)
