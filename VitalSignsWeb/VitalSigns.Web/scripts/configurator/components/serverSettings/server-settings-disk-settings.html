@@ -1,70 +1,85 @@
 ﻿
 <div class="container">
 
-    <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
+    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
         <div class="panel panel-default">
 
             <div class="panel-body">
-                <div class="input-group">
-                    <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting">
-                    <label for="selectionType">	All Disks - By Percentage</label>
-                </div>
-                <div class="input-group">
-                    <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting">
-                    <label for="selectionType">All Disks - By GB</label>
-                </div>
-                <div class="input-group">
-                    <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting">
-                    <label for="selectionType">	Selected Disks</label>
-                </div>
-                <div class="input-group">
-                    <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting">
-                    <label for="selectionType">No Disk Alerts</label>
-                </div>
-            </div>
-        </div>
-        </div>
-    <div class="col-xs-12 col-md-8 col-sm-12 col-lg-8">
-        <div class="row">
-            <div class="form-group col-sm-7" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
-                <label for="currentThresholdByPercentage" class="control-label col-sm-4">Current threshold:</label>
-                <div class="col-sm-5">
-                    <input type="text" class="form-control" name="currentThresholdByPercentage" [(ngModel)]="diskByPercentage">
+                <div class="row">
+                    <div class="form-group col-sm-2">
                     </div>
-                    <label for="currentThresholdByPercentage"  class="control-label col-sm-3">% free space</label>
+                    <div class="form-group col-sm-3">
+
+                        <div class="input-group">
+                            <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting">
+                            <label for="selectionType">	All Disks - By Percentage</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting">
+                            <label for="selectionType">All Disks - By GB</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting">
+                            <label for="selectionType">	Selected Disks</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting">
+                            <label for="selectionType">No Disk Alerts</label>
+                        </div>
+
+
+                    </div>
+
+                     <div class="form-group col-sm-7">
+                        <div class="row">
+                            <div class="form-group col-sm-9" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
+                                <label for="currentThresholdByPercentage" class="control-label col-sm-4">Current threshold:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="currentThresholdByPercentage" [(ngModel)]="diskByPercentage">
+                                </div>
+                                <label for="currentThresholdByPercentage" class="control-label col-sm-3">% free space</label>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-9" *ngIf="selectedDiskSetting=='allDisksByGB'">
+                                <label for="currentThresholdByGB" class="control-label col-sm-4">Current threshold:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskByGB">
+                                </div>
+                                <label for="currentThresholdByGB" class="control-label col-sm-3">GB free space</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" *ngIf="selectedDiskSetting=='selectedDisks'">
+                                <!--<label >Current disk:</label>-->
+                                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" (itemsSourceChanged)="itemsSourceChangedHandler()" #flexDisks>
+
+                                    <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
+
+                                    </wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'Disk Name'" [binding]="'disk_name'" is-read-only="true">
+
+                                    </wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'" [width]="150">
+
+                                    </wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'threshold_type'"></wj-flex-grid-column>
+
+
+                                </wj-flex-grid>
+
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>
-        <div class="row">
-            <div class="form-group col-sm-7" *ngIf="selectedDiskSetting=='allDisksByGB'">
-                <label for="currentThresholdByGB" class="control-label col-sm-4">Current threshold:</label>
-                <div class="col-sm-5">
-                    <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskByGB">
-                </div>
-                    <label for="currentThresholdByGB" class="control-label col-sm-3">GB free space</label>
-                </div>
         </div>
-        <div class="row">
-            <div class="form-group" *ngIf="selectedDiskSetting=='selectedDisks'">
-                <!--<label >Current disk:</label>-->
-                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" (itemsSourceChanged)="itemsSourceChangedHandler()" #flexDisks>
 
-                    <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
-
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Disk Name'" [binding]="'disk_name'" is-read-only="true">
-
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'" [width]="150">
-
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'threshold_type'"></wj-flex-grid-column>
-
-
-                </wj-flex-grid>
-
-            </div>
-        </div>
+    </div>
+    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+       
             <div class="form-group" *ngIf="selectedDiskSetting">
                 <server-location-list (checkedDevices)="changeInDevices($event)"></server-location-list>
                 <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12 panel-footer" style="padding-right:15px">
