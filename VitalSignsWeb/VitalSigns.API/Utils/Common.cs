@@ -7,6 +7,8 @@ using System.Linq;
 using VSNext.Mongo.Repository;
 using MongoDB.Driver;
 using System;
+using System.Reflection;
+
 
 namespace VitalSigns.API
 {
@@ -61,6 +63,34 @@ namespace VitalSigns.API
             return result;
         }
 
+        public static bool SaveNameValue(VSNext.Mongo.Entities.NameValue setting)
+        {
+            bool result = true;
+            try
+            {
+                Repository<VSNext.Mongo.Entities.NameValue> namevalueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
+
+
+                if (namevalueRepository.Collection.AsQueryable().Where(x => x.Name.Equals(setting.Name)).Count() > 0)
+                {
+                    var filterDefination = Builders<VSNext.Mongo.Entities.NameValue>.Filter.Where(p => p.Name == setting.Name);
+                    var updateDefinitaion = namevalueRepository.Updater.Set(p => p.Value, setting.Value);
+                    var results = namevalueRepository.Update(filterDefination, updateDefinitaion);
+                }
+                else
+                {
+                    namevalueRepository.Insert(setting);
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+
         public static List<VSNext.Mongo.Entities.NameValue> GetNameValues(List<string> nameValues)
         {
             List<VSNext.Mongo.Entities.NameValue> result =new  List<VSNext.Mongo.Entities.NameValue>();
@@ -69,6 +99,22 @@ namespace VitalSigns.API
                 Repository<VSNext.Mongo.Entities.NameValue> namevalueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
                  result = namevalueRepository.Collection.AsQueryable().Where(x => nameValues.Contains(x.Name)).ToList();
                     
+            }
+            catch (Exception ex)
+            {
+                result = null;
+            }
+            return result;
+        }
+
+        public static VSNext.Mongo.Entities.NameValue GetNameValue(string name)
+        {
+            VSNext.Mongo.Entities.NameValue result = new VSNext.Mongo.Entities.NameValue();
+            try
+            {
+                Repository<VSNext.Mongo.Entities.NameValue> namevalueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
+                result = namevalueRepository.Collection.AsQueryable().FirstOrDefault(x =>(x.Name== name));
+
             }
             catch (Exception ex)
             {
@@ -89,6 +135,17 @@ namespace VitalSigns.API
             return l.getLicenseInfo(key);
 
 
+        }
+
+       public static void SetObjectProperty(object theObject, string propertyName, object value)
+        {
+            //Type type = theObject.GetType();
+            //var property = type.GetProperty(propertyName);
+            //var setter = property.SetMethod();
+            //setter.Invoke(theObject, new ojbject[] { value });
+
+            PropertyInfo propertyInfo = theObject.GetType().GetProperty(propertyName);
+            propertyInfo.SetValue(propertyInfo, value, null);
         }
 
     }

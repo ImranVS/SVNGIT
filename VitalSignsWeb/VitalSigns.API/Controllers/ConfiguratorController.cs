@@ -3635,6 +3635,320 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+
+        #region Servers Import
+        #region Domino
+        // [FunctionAuthorize("DominoServerImport")]
+        [HttpPut("load_domino_servers")]
+        public APIResponse LoadDominoServers([FromBody]DominoServerImportModel serverImport)
+        {
+
+            try
+            {
+                Domino.NotesDbDirectory notesDBDirectory;
+                Domino.NotesDatabase notesDatabase;
+                Domino.NotesView notesView;
+                Domino.NotesDocument notesDocument;
+                Domino.NotesName notesName;
+                Domino.NotesItem notesItem;
+                Domino.NotesItem item2;
+                byte[] password;
+                string dominoPassword; //should be string
+                string encryptedPassword = string.Empty;
+                string errorMessage = string.Empty;
+
+                //Save the prumary server value in name_value collection
+                List<NameValue> nameValueList = new List<NameValue>();
+                bool isNamevalueSaved = Common.SaveNameValue(new NameValue { Name = "Primary Server", Value = serverImport.DominoServer });
+                VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+
+                locationRepository = new Repository<Location>(ConnectionString);
+                var locationList = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+
+
+                if (locationList.Count > 0)
+                {
+                    try
+                    {
+                        var passwordName = Common.GetNameValue("Password");
+
+                        if (passwordName != null)
+                            encryptedPassword = passwordName.Value;
+                        if (!string.IsNullOrEmpty(encryptedPassword))
+                        {
+                            var passwordArray = encryptedPassword.Split(',');
+                            password = new byte[passwordArray.Length];
+                            for (int i = 0; i < passwordArray.Length; i++)
+                            {
+                                password[i] = Byte.Parse(passwordArray[i]);
+                            }
+                        }
+                        else
+                        {
+                            errorMessage = "Notes password may not be empty. Please update the password under Stored Passwords & Options\\IBM Domino Settings.";
+                            throw new Exception(errorMessage);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorMessage = "The following error has occurred: " + ex.Message;
+                        password = null;
+                        throw new Exception(errorMessage);
+                    }
+                    try
+                    {
+                        if (password != null)
+                        {
+                            dominoPassword = mySecrets.Decrypt(password);
+                        }
+                        else
+                        {
+                            dominoPassword = null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorMessage = "The following error has occurred: " + ex.Message;
+                        dominoPassword = string.Empty;
+                        throw new Exception(errorMessage);
+                    }
+
+                    if (!string.IsNullOrEmpty(dominoPassword))
+                    {
+                        try
+                        {
+                            Domino.NotesSession NotesSessionObject = new Domino.NotesSession();
+                            NotesSessionObject.Initialize(dominoPassword);
+                            notesDBDirectory = NotesSessionObject.GetDbDirectory(serverImport.DominoServer); ;
+                            notesDatabase = notesDBDirectory.OpenDatabase("names.nsf");
+                            notesView = notesDatabase.GetView("($Servers)");
+                            notesDocument = notesView.GetFirstDocument();
+                            List<ServersModel> serverList = new List<ServersModel>();
+                            serversRepository = new Repository<Server>(ConnectionString);
+                            var existingServerList = serversRepository.Collection.AsQueryable().Select(x => new ServersModel
+                            {
+                                DeviceName = x.DeviceName,
+                                DeviceType = x.DeviceType,
+                                Description = x.Description
+                                // DeviceId = x.Id
+                            }).ToList();
+
+                            while (notesDocument != null)
+                            {
+                                ServersModel server = new ServersModel();
+                                notesItem = notesDocument.GetFirstItem("ServerName");
+                                notesName = NotesSessionObject.CreateName(notesItem.Text);
+                                server.DeviceName = notesName.Abbreviated;
+
+                                var matchedServers = existingServerList.Where(x => x.DeviceName == server.DeviceName).Count();
+                                if (matchedServers == 0)
+                                {
+                                    notesItem = notesDocument.GetFirstItem("SMTPFullHostDomain");
+
+                                    if (notesItem == null || notesItem.Text == null || notesItem.Text == "")
+                                    {
+                                        item2 = notesDocument.GetFirstItem("NetAddresses");
+
+                                        if (item2 == null || item2.Text == null || item2.Text == "")
+                                        {
+                                            server.IpAddress = "dummyaddress.yourdomain.com";
+                                        }
+                                        else
+                                        { server.IpAddress = item2.Text; }
+                                    }
+                                    else
+                                    { server.IpAddress = notesItem.Text; }
+                                    serverList.Add(server);
+                                }
+                                notesDocument = notesView.GetNextDocument(notesDocument);
+                            }
+                            //serverList.Add(new ServersModel {DeviceName="Server1",IpAddress="19.10.1.125" });
+                            //serverList.Add(new ServersModel { DeviceName = "Server2", IpAddress = "19.10.1.125" });
+                            //serverList.Add(new ServersModel { DeviceName = "Server3", IpAddress = "19.10.1.125" });
+                            //serverList.Add(new ServersModel { DeviceName = "Server4", IpAddress = "19.10.1.125" });
+                            //serverList.Add(new ServersModel { DeviceName = "Server5", IpAddress = "19.10.1.125" });
+                            //serverList.Add(new ServersModel { DeviceName = "Server6", IpAddress = "19.10.1.125" });
+                            //serverList.Add(new ServersModel { DeviceName = "Server7", IpAddress = "19.10.1.125" });
+                            if (serverList.Count > 0)
+                            {
+
+                                Response = Common.CreateResponse(new { locationList = locationList, serverList = serverList });
+                            }
+                            else
+                            {
+                                errorMessage = "There are no new servers in the address book that have not already been imported into VitalSigns.";
+                                throw new Exception(errorMessage);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            errorMessage = "The following error has occurred: " + ex.Message;
+                            throw new Exception(errorMessage);
+
+                        }
+                    }
+                }
+                //5/13/2014 NS added for VSPLUS-183
+                else
+                {
+                    errorMessage = "All imported servers must be assigned to a location. There were no locations found. Please create at least one location entry using the 'Setup & Security - Maintain Server Locations' menu option.";
+                    throw new Exception(errorMessage);
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+        //  [FunctionAuthorize("DominoServerImport")]
+        [HttpGet("get_domino_import")]
+        public APIResponse GetDominoImportData()
+        {
+            DominoServerImportModel model = new DominoServerImportModel();
+            model.DominoServer = Common.GetNameValue("Primary Server").Value;
+            model.Location = null;
+
+            deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+            model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == "Domino") && (x.Category == "Scan Settings" || x.Category == "Mail Settings")).Select(x => new DeviceAttributesModel
+            {
+                Id = x.Id,
+                AttributeName = x.AttributeName,
+                DefaultValue = x.DefaultValue,
+                DeviceType = x.DeviceType,
+                FieldName = x.FieldName,
+                Category = x.Category,
+                DataType = x.DataType,
+                Type = x.Type,
+                Unitofmeasurement = x.Unitofmeasurement,
+                IsSelected = false
+            }).OrderBy(x => x.AttributeName).ToList();
+
+
+            model.CpuThreshold = 90;
+            model.MemoryThreshold = 90;
+            dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+            model.ServerTasks = dominoservertasksRepository.All().Select(x => new DominoServerTasksModel
+            {
+                Id = x.Id,
+                IsSelected = false,
+                TaskName = x.TaskName,
+                IsLoad = false,
+                IsRestartASAP = false,
+                IsResartLater = false,
+                IsDisallow = false
+            }).OrderBy(x => x.TaskName).ToList();
+            return Common.CreateResponse(model);
+        }
+
+
+        [HttpPut("save_domino_servers")]
+        public APIResponse SaveDominoServers([FromBody]DominoServerImportModel serverImport)
+        {
+
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+
+                foreach (var serverModel in serverImport.Servers)
+                {
+                    if (serverModel.IsSelected)
+                    {
+                        Server server = new Server();
+                        server.Id = ObjectId.GenerateNewId().ToString();
+                        server.DeviceName = serverModel.DeviceName;
+                        server.DeviceType = "Domino";
+                        server.LocationId = serverImport.Location;
+
+                        List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
+                        foreach (var serverTask in serverImport.ServerTasks)
+                        {
+                            if (serverTask.IsSelected ?? false)
+                            {
+                                DominoServerTask dominoServerTask = new DominoServerTask();
+                                dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                                dominoServerTask.TaskId = serverTask.TaskId;
+                                dominoServerTask.TaskName = serverTask.TaskName;
+                                dominoServerTask.SendLoadCmd = false;
+                                dominoServerTask.Monitored = false;
+                                dominoServerTask.SendRestartCmd = false;
+                                dominoServerTask.SendRestartCmdOffhours = false;
+                                dominoServerTask.SendExitCmd = false;
+                                if (server.ServerTasks != null)
+                                    ServerTasks = server.ServerTasks;
+                                ServerTasks.Add(dominoServerTask);
+                            }
+                        }
+                        server.ServerTasks = ServerTasks;
+                        serversRepository.Insert(server);
+
+                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
+
+                        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
+                        foreach (var attribute in serverImport.DeviceAttributes)
+                        {
+                            if (!string.IsNullOrEmpty(attribute.FieldName))
+                            {
+                                string field = attribute.FieldName;
+                                string value = attribute.DefaultValue;
+                                string datatype = attribute.DataType;
+                                if (datatype == "int")
+                                {
+                                    int outputvalue = Convert.ToInt32(value);
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "double")
+                                {
+                                    double outputvalue = Convert.ToDouble(value);
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "bool")
+                                {
+                                    bool booloutput;
+                                    if (value == "0")
+                                    {
+                                        booloutput = false;
+                                    }
+                                    else
+                                    {
+                                        booloutput = true;
+                                    }
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                        .Set(field, booloutput);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+
+
+                                if (datatype == "string")
+                                {
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                        .Set(field, value);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+
+
+                            }
+
+                        }
+
+                        // serversRepository.Insert(server);
+                    }
+                }
+                Response = Common.CreateResponse("Success");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+        #endregion
+        #endregion
+
     }
 }
 

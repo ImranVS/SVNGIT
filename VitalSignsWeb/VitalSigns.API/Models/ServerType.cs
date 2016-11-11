@@ -32,5 +32,7 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("secondary_role")]
         public string SecondaryRole { get; set; }
+        [JsonProperty("active")]
+        public bool Active { get; set; }
     }
 }

@@ -11,17 +11,23 @@ namespace VitalSigns.API.Models
 
 
         [JsonProperty("device_name")]
-        public string ServerName { get; set; }
+        public string DeviceName { get; set; }
 
         [JsonProperty("device_type")]
-        public string ServerType { get; set; }
+        public string DeviceType { get; set; }
 
         [JsonProperty("description")]
         public string Description { get; set; }
 
 
-        [JsonProperty("server_id")]
-        public List<string> ServerId { get; set; }
+        [JsonProperty("device_id")]
+        public string DeviceId { get; set; }
+
+        [JsonProperty("ip_address")]
+        public string IpAddress { get; set; }
+
+        [JsonProperty("selected")]
+        public bool IsSelected { get; set; }
 
 
     }
