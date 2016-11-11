@@ -44,8 +44,6 @@ namespace VitalSigns.API.Controllers
         private IRepository<TravelerDTS> travelerdatastoreRepository;
         private IRepository<DeviceAttributes> deviceAttributesRepository;
 
-        private IRepository<NameValue> namevalueRepository;
-
         private IRepository<WindowsService> windowsservicesRepository;
 
         private IRepository<DominoServerTasks> dominoservertasksRepository;
@@ -57,6 +55,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<ServerOther> serverOtherRepository;
         private IRepository<EventsMaster> eventsMasterRepository;
         private IRepository<MobileDevices> mobileDevicesRepository;
+        private IRepository<Notifications> notificationsRepository;
         #endregion
 
         #region Application Settings
@@ -367,28 +366,37 @@ namespace VitalSigns.API.Controllers
         /// <returns>List of business hours details</returns>
 
         [HttpGet("get_business_hours")]
-        public APIResponse GetAllBusinessHours()
+        public APIResponse GetAllBusinessHours(bool nameonly = false)
         {
             try
             {
-
-
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-                var result = businessHoursRepository.All().Select(x => new BusinessHourModel
+                if (!nameonly)
                 {
-                    Id = x.Id,
-                    Name = x.Name,
-                    StartTime = x.StartTime,
-                    Duration = x.Duration,
-                    Sunday = x.Days.Contains("Sunday"),
-                    Monday = x.Days.Contains("Monday"),
-                    Tuesday = x.Days.Contains("Tuesday"),
-                    Wednesday = x.Days.Contains("Wednesday"),
-                    Thursday = x.Days.Contains("Thursday"),
-                    Friday = x.Days.Contains("Friday"),
-                    Saturday = x.Days.Contains("Saturday")
-                }).ToList();
-                Response = Common.CreateResponse(result);
+                    var result = businessHoursRepository.All().Select(x => new BusinessHourModel
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        StartTime = x.StartTime,
+                        Duration = x.Duration,
+                        Sunday = x.Days.Contains("Sunday"),
+                        Monday = x.Days.Contains("Monday"),
+                        Tuesday = x.Days.Contains("Tuesday"),
+                        Wednesday = x.Days.Contains("Wednesday"),
+                        Thursday = x.Days.Contains("Thursday"),
+                        Friday = x.Days.Contains("Friday"),
+                        Saturday = x.Days.Contains("Saturday")
+                    }).ToList();
+                    Response = Common.CreateResponse(result);
+                }
+                else
+                {
+                    var result = businessHoursRepository.Find(_ => true)
+                        .OrderBy(y => y.Name)
+                        .Select(x => x.Name)
+                        .ToList();
+                    Response = Common.CreateResponse(result);
+                }
             }
             catch (Exception exception)
             {
@@ -2704,7 +2712,7 @@ namespace VitalSigns.API.Controllers
 
         #region Alert Settings
         
-        [HttpPut("save_alertsettings")]
+        [HttpPut("save_alert_settings")]
         public APIResponse UpdateIbmAlertSettings([FromBody]RecurringEvents listAlertSettings)
         {
             //Console.WriteLine("inside function");
@@ -2718,34 +2726,33 @@ namespace VitalSigns.API.Controllers
                 try
                 {
                     var alertData = new List<NameValue> { new NameValue { Name = "PrimaryHostName", Value = alertSettings.PrimaryHostName },
-                                                                new NameValue { Name = "PrimaryFrom", Value = alertSettings.PrimaryForm },
-                                                                new NameValue { Name = "PrimaryUserId", Value = alertSettings.PrimaryUserId},
-                                                                new NameValue { Name = "Primarypwd", Value = alertSettings.PrimaryPwd},
-                                                                new NameValue { Name = "PrimaryPort", Value =Convert.ToString(alertSettings.PrimaryPort)},
-                                                                new NameValue { Name = "SmsForm", Value =  alertSettings.SmsForm},
-                                                                 new NameValue { Name = "PrimaryAuth", Value =Convert.ToString(alertSettings.PrimaryAuth)},
-                                                                  new NameValue { Name = "PrimarySSL", Value = Convert.ToString(alertSettings.PrimarySSL)},
-                                                                   new NameValue { Name = "SecondaryHostName", Value =  Convert.ToString(alertSettings.SecondaryHostName)},
-                                                                 new NameValue { Name = "SecondaryFrom", Value = alertSettings.SecondaryForm},
-                                                                  new NameValue { Name = "SecondaryUserId", Value = alertSettings.SecondaryUserId},
-                                                                   new NameValue { Name = "SecondaryPwd", Value =  Convert.ToString(alertSettings.SecondaryPwd)},
-                                                                 new NameValue { Name = "SecondaryPort", Value = alertSettings.SecondaryPort},
-                                                                  new NameValue { Name = "SecondaryAuth", Value = Convert.ToString(alertSettings.SecondaryAuth)},
-                                                                   new NameValue { Name = "SecondarySSL", Value =  Convert.ToString(alertSettings.SecondarySSL)},
-                                                                 new NameValue { Name = "SmsAccountSid", Value = alertSettings.SmsAccountSid},
-                                                                  new NameValue { Name = "SmsAuthToken", Value = alertSettings.SmsAuthToken},
-                                                                  new NameValue { Name = "EnablePersitentAlerting", Value=alertSettings.EnablePersistentAlerting?"True":"False"},
-                                                                new NameValue { Name = "AlertInterval", Value =Convert.ToString(alertSettings.AlertInterval)},
-                                                                new NameValue { Name = "AlertDuration", Value = Convert.ToString(alertSettings.AlertDuration)},
-                                                                //new NameValue { Name = "Email", Value =Convert.ToString(alertSettings.EMail)},
-                                                                new NameValue { Name = "EnableAlertLimits", Value = (alertSettings.EnableAlertLimits?"True":"False")},
-                                                                new NameValue { Name = "TotalMaximumAlertsPerDefinition", Value = Convert.ToString(alertSettings.TotalMaximumAlertsPerDefinition)},
-                                                                new NameValue {Name = "TotalMaximumAlertsPerDay", Value=Convert.ToString(alertSettings.TotalMaximumAlertsPerDay)},
-                                                                new NameValue { Name = "EnableSNMPTraps",Value=(alertSettings.EnableSNMPTraps?"True":"False")},
-                                                                new NameValue {Name = "HostName", Value= alertSettings.HostName},
-                                                                  new NameValue { Name = "AlertAboutRecurrencesOnly",Value=Convert.ToString(alertSettings.AlertAboutRecurrencesOnly)},
-                                                                new NameValue {Name = "NumberOfRecurrences", Value= alertSettings.NumberOfRecurrences.ToString()}
-                                                             };
+                        new NameValue { Name = "PrimaryFrom", Value = alertSettings.PrimaryForm },
+                        new NameValue { Name = "PrimaryUserId", Value = alertSettings.PrimaryUserId},
+                        new NameValue { Name = "Primarypwd", Value = alertSettings.PrimaryPwd},
+                        new NameValue { Name = "PrimaryPort", Value =Convert.ToString(alertSettings.PrimaryPort)},
+                        new NameValue { Name = "SmsForm", Value =  alertSettings.SmsForm},
+                        new NameValue { Name = "PrimaryAuth", Value =Convert.ToString(alertSettings.PrimaryAuth)},
+                        new NameValue { Name = "PrimarySSL", Value = Convert.ToString(alertSettings.PrimarySSL)},
+                        new NameValue { Name = "SecondaryHostName", Value =  Convert.ToString(alertSettings.SecondaryHostName)},
+                        new NameValue { Name = "SecondaryFrom", Value = alertSettings.SecondaryForm},
+                        new NameValue { Name = "SecondaryUserId", Value = alertSettings.SecondaryUserId},
+                        new NameValue { Name = "SecondaryPwd", Value =  Convert.ToString(alertSettings.SecondaryPwd)},
+                        new NameValue { Name = "SecondaryPort", Value = alertSettings.SecondaryPort},
+                        new NameValue { Name = "SecondaryAuth", Value = Convert.ToString(alertSettings.SecondaryAuth)},
+                        new NameValue { Name = "SecondarySSL", Value =  Convert.ToString(alertSettings.SecondarySSL)},
+                        new NameValue { Name = "SmsAccountSid", Value = alertSettings.SmsAccountSid},
+                        new NameValue { Name = "SmsAuthToken", Value = alertSettings.SmsAuthToken},
+                        new NameValue { Name = "EnablePersitentAlerting", Value=alertSettings.EnablePersistentAlerting?"True":"False"},
+                        new NameValue { Name = "AlertInterval", Value =Convert.ToString(alertSettings.AlertInterval)},
+                        new NameValue { Name = "AlertDuration", Value = Convert.ToString(alertSettings.AlertDuration)},
+                        new NameValue { Name = "EnableAlertLimits", Value = (alertSettings.EnableAlertLimits?"True":"False")},
+                        new NameValue { Name = "TotalMaximumAlertsPerDefinition", Value = Convert.ToString(alertSettings.TotalMaximumAlertsPerDefinition)},
+                        new NameValue {Name = "TotalMaximumAlertsPerDay", Value=Convert.ToString(alertSettings.TotalMaximumAlertsPerDay)},
+                        new NameValue { Name = "EnableSNMPTraps",Value=(alertSettings.EnableSNMPTraps?"True":"False")},
+                        new NameValue {Name = "HostName", Value= alertSettings.HostName},
+                        new NameValue { Name = "AlertAboutRecurrencesOnly",Value=Convert.ToString(alertSettings.AlertAboutRecurrencesOnly)},
+                        new NameValue {Name = "NumberOfRecurrences", Value= alertSettings.NumberOfRecurrences.ToString()}
+                    };
                     var result = Common.SaveNameValues(alertData);
                     eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
                     filterDef = eventsMasterRepository.Filter.Eq(x => x.NotificationOnRepeat, true);
@@ -2768,21 +2775,16 @@ namespace VitalSigns.API.Controllers
                 {
                     Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
                 }
-
                 return Response;
-
-
             }
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
             }
-
             return Response;
-
         }
 
-        [HttpGet("get_alertsettings")]
+        [HttpGet("get_alert_settings")]
         public APIResponse GetAlertSettings()
         {
 
@@ -2910,6 +2912,120 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, "Error", ex.Message);
             }
             return Response;
+        }
+        #endregion
+
+        #region Notifications
+        [HttpGet("notifications_list")]
+        public APIResponse GetNotifications()
+        {
+            List<dynamic> result_disp = new List<dynamic>();
+            List<dynamic> result_sendto = new List<dynamic>();
+            List<dynamic> result_escalateto = new List<dynamic>();
+            List<dynamic> result = new List<dynamic>();
+            FilterDefinition<BusinessHours> filterDef;
+            try
+            {
+                notificationsRepository = new Repository<Notifications>(ConnectionString);
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                var notifications = notificationsRepository.Collection.AsQueryable().ToList();
+                foreach (var notification in notifications)
+                {
+                    var escalate = "";
+                    foreach (var sendto in notification.SendList)
+                    {
+                        if (sendto.Interval != null)
+                        {
+                            escalate += sendto.SendTo + " after " + sendto.Interval + " min, ";
+                            result_escalateto.Add(new NotificationsModel
+                            {
+                                NotificationName = notification.NotificationName,
+                                Interval = sendto.Interval.ToString(),
+                                SendVia = sendto.SendVia,
+                                SendTo = sendto.SendTo
+                            });
+                        }
+                    }
+                    foreach (var sendto in notification.SendList)
+                    {
+                        var hoursname = "";
+                        var days = "";
+                        var starttime = "";
+                        var duration = "0";
+                        if (sendto.Interval == null)
+                        {
+                            var escalation = escalate == "" ? "" : escalate.Substring(0, escalate.Length - 2);
+                            result_disp.Add(new NotificationsModel
+                            {
+                                NotificationName = notification.NotificationName,
+                                Interval = sendto.Interval.ToString(),
+                                SendVia = sendto.SendVia,
+                                SendTo = sendto.SendTo,
+                                Escalation = escalation
+                            });
+                            filterDef = businessHoursRepository.Filter.Eq(x => x.Id, sendto.BusinessHoursId);
+                            var hourstype = businessHoursRepository.Find(filterDef).ToList();
+
+                            if (hourstype.Count > 0)
+                            {
+                                hoursname = hourstype[0].Name;
+                                starttime = hourstype[0].StartTime;
+                                duration = hourstype[0].Duration.ToString();
+                                days = String.Join(",", hourstype[0].Days);
+                            }
+                            result_sendto.Add(new NotificationsModel
+                            {
+                                NotificationName = notification.NotificationName,
+                                Interval = sendto.Interval.ToString(),
+                                SendVia = sendto.SendVia,
+                                SendTo = sendto.SendTo,
+                                CopyTo = sendto.CopyTo == null ? "" : sendto.CopyTo,
+                                BlindCopyTo = sendto.BlindCopyTo == null ? "" : sendto.BlindCopyTo,
+                                BusinessHoursType = hoursname,
+                                StartTime = starttime,
+                                Duration = Convert.ToInt32(duration),
+                                Days = days,
+                                PersistentNotification = sendto.PersistentNotification
+                            });
+                        }
+                    }
+                }
+                result.Add(result_disp);
+                result.Add(result_sendto);
+                result.Add(result_escalateto);
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_notification_definition")]
+        public APIResponse UpdateNotificationDefinition([FromBody]NotificationDefinition notificationDefinition)
+        {
+            List<dynamic> result = new List<dynamic>();
+            try
+            {
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+            }
+            return Response;
+        }
+
+        [HttpDelete("delete_notification_definition/{id}")]
+        public void DeleteNotificationDefinition(string id)
+        {
+            notificationsRepository = new Repository<Notifications>(ConnectionString);
+            Expression<Func<Notifications, bool>> expression = (p => p.Id == id);
+            notificationsRepository.Delete(expression);
+            //Update the events_master collection - remove id from the notifications embedded document
+            //Update the server collection - remove id from the notifications embedded document
+
         }
         #endregion
 
