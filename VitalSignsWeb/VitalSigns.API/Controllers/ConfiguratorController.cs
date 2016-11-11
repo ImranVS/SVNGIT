@@ -584,8 +584,8 @@ namespace VitalSigns.API.Controllers
                         Duration = maintenance.Duration,
                         EndDate = maintenance.EndDate,
                         MaintenanceDaysList = maintenance.MaintenanceDaysList,
-                        MaintainType = Convert.ToInt32(maintenance.MaintainType),
-                        DurationType =Convert.ToInt32 (maintenance.DurationType)
+                        MaintainType = maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType),
+                        DurationType = maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType)
                     };
 
 
@@ -602,8 +602,8 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.StartTime, maintenance.StartTime)
                                                              .Set(p => p.Duration, maintenance.Duration)
                                                              .Set(p => p.EndDate, maintenance.EndDate)
-                                                              .Set(p => p.MaintainType, Convert.ToInt32(maintenance.MaintainType))
-                                                              .Set(p => p.DurationType, Convert.ToInt32(maintenance.DurationType))
+                                                              .Set(p => p.MaintainType, maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType))
+                                                              .Set(p => p.DurationType, maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType))
                                                              .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
                     var result = maintenanceRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
