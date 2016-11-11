@@ -614,7 +614,7 @@ Partial Public Class VitalSignsPlusDomino
                 .Include(Function(x) x.ThresholdValue) _
                 .Include(Function(x) x.GreaterThanOrLessThan) _
                 .Include(Function(x) x.TimesInARow) _
-               .Include(Function(x) x.DominoServers) _
+                .Include(Function(x) x.DominoServers) _
                 .Include(Function(x) x.ConsoleCommand)
 
             listOfCustomStats = repositoryServerOther.Find(filterDefServerOther, projectionDefServerOther).ToList()
@@ -1321,7 +1321,7 @@ Partial Public Class VitalSignsPlusDomino
                     Try
 
                         'Create a list of only those custom stats which are applicable to this server
-                        Dim listCurrentCustomStats As List(Of VSNext.Mongo.Entities.ServerOther) = listOfCustomStats.Where(Function(x) x.DominoServers.Contains(entity.Id)).ToList()
+                        Dim listCurrentCustomStats As List(Of VSNext.Mongo.Entities.ServerOther) = listOfCustomStats.Where(Function(x) x.DominoServers IsNot Nothing).Where(Function(x) x.DominoServers.Contains(entity.Id)).ToList()
 
 
 
