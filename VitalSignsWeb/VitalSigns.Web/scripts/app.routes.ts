@@ -93,6 +93,8 @@ import { IBMDomino } from './configurator/components/ibmDomino/ibmdomino-tabs-co
 import { AddLogFile } from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
 import { MobileUser } from './configurator/components/mobileusers/mobile-users.component';
 
+import { ServerImports } from './configurator/components/serverImport/server-import-tabs-component';
+
 
 export * from './dashboards/components/overall-dashboard.component';
 
@@ -452,6 +454,9 @@ const appRoutes: Routes = [
      {
          path: 'configurator/mobileusers',
          component: MobileUser
+     }, {
+         path: 'configurator/serverImport',
+         component: ServerImports
      }
 ];
 

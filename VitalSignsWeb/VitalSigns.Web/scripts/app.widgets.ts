@@ -102,6 +102,11 @@ export * from './configurator/components/ibmDomino/Ibm-overall-domino-statistics
 //reports
 export * from './reports/components/servers/any-statistic-report-grid.component'
 export * from './reports/components/servers/overall-status-report-grid.component'
+
+//Server Import
+export * from './configurator/components/serverImport/server-import-domino.component'
+export * from './configurator/components/serverImport/server-import-websphere.component'
+
 export * from './reports/components/ibm-sametime/sametime-statistics-grid-report-grid.component'
 export * from './reports/filters/components/server-filter.component'
 
