@@ -1321,7 +1321,7 @@ Partial Public Class VitalSignsPlusDomino
                     Try
 
                         'Create a list of only those custom stats which are applicable to this server
-                        Dim listCurrentCustomStats As List(Of VSNext.Mongo.Entities.ServerOther) = listOfCustomStats.Where(Function(x) x.DominoServers.Contains(entity.Id))
+                        Dim listCurrentCustomStats As List(Of VSNext.Mongo.Entities.ServerOther) = listOfCustomStats.Where(Function(x) x.DominoServers.Contains(entity.Id)).ToList()
 
 
 
