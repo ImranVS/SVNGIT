@@ -498,7 +498,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-                var result = maintenanceRepository.All().Select(x => new MaintenanceModel
+                var maintainWindows = maintenanceRepository.All().Select(x => new MaintenanceModel
                 {
                     Id = x.Id,
                     Name = x.Name,
@@ -506,18 +506,52 @@ namespace VitalSigns.API.Controllers
                     StartTime = x.StartTime,
                     EndDate = x.EndDate,
                     Duration = x.Duration,
+                    DurationType = Convert.ToString(x.DurationType),
 
                     MaintenanceDaysList = x.MaintenanceDaysList,
                     ContinueForever = x.ContinueForever,
-                    //MaintainType = x.MaintainType == "1" ? "OneTime" :
-                    //               x.MaintainType == "2" ? "Daily" :
-                    //                x.MaintainType == "3" ? "Weekly" :
-                    //                 x.MaintainType == "4" ? "Monthly" : "-"
+                    MaintainType = Convert.ToString(x.MaintainType )== "1" ? "OneTime" :
+                                   Convert.ToString(x.MaintainType) == "2" ? "Daily" :
+                                    Convert.ToString(x.MaintainType) == "3" ? "Weekly" :
+                                     Convert.ToString(x.MaintainType) == "4" ? "Monthly" : "-",
 
-                    MaintainType = x.MaintainType
+                    MaintainTypeValue = Convert.ToString(x.MaintainType)
 
                 }).ToList();
-                Response = Common.CreateResponse(result);
+
+                 
+
+                serversRepository = new Repository<Server>(ConnectionString);
+                var servers = serversRepository.Collection.AsQueryable().Select(x => new { ServerID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
+                foreach (var maintainWindow in maintainWindows)
+                {
+                    var server = servers.FirstOrDefault(x => x.MaintenanceWindows.Contains(maintainWindow.Id));
+                    if (server != null)
+                    {
+                        maintainWindow.DeviceList.Add(server.ServerID);
+                    }
+                   
+
+                }
+
+                
+
+                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                var keyUsers = mobileDevicesRepository.Collection.AsQueryable().Select(x => new { KeyuserID = x.Id, MaintenanceWindows = x.MaintenanceWindows});
+                foreach(var maintenaceWindow in maintainWindows)
+                {
+                    var keyUser = keyUsers.FirstOrDefault(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id));
+                    if(keyUser != null)
+                    {
+                        maintenaceWindow.KeyUsers.Add(keyUser.KeyuserID);
+                    }
+
+                }
+
+
+                Response = Common.CreateResponse(maintainWindows,  "OK", "Maintenancedata inserted successfully");
+
+
             }
             catch (Exception exception)
             {
@@ -550,8 +584,8 @@ namespace VitalSigns.API.Controllers
                         Duration = maintenance.Duration,
                         EndDate = maintenance.EndDate,
                         MaintenanceDaysList = maintenance.MaintenanceDaysList,
-                        MaintainType = maintenance.MaintainType,
-                        DurationType = maintenance.DurationType
+                        MaintainType = Convert.ToInt32(maintenance.MaintainType),
+                        DurationType =Convert.ToInt32 (maintenance.DurationType)
                     };
 
 
@@ -568,8 +602,8 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.StartTime, maintenance.StartTime)
                                                              .Set(p => p.Duration, maintenance.Duration)
                                                              .Set(p => p.EndDate, maintenance.EndDate)
-                                                              .Set(p => p.MaintainType, maintenance.MaintainType)
-                                                              .Set(p => p.DurationType, maintenance.DurationType)
+                                                              .Set(p => p.MaintainType, Convert.ToInt32(maintenance.MaintainType))
+                                                              .Set(p => p.DurationType, Convert.ToInt32(maintenance.DurationType))
                                                              .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
                     var result = maintenanceRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
@@ -579,7 +613,8 @@ namespace VitalSigns.API.Controllers
                
                     serversRepository = new Repository<Server>(ConnectionString);
                     UpdateDefinition<Server> updateDefinition = null;
-                    var devicesList = ((Newtonsoft.Json.Linq.JArray)maintenance.DeviceList).ToObject<string[]>();
+               // var devicesList = ((Newtonsoft.Json.Linq.JArray)maintenance.DeviceList).ToObject<List<string>>();
+                var devicesList = maintenance.DeviceList;
                     foreach (string id in devicesList)
                     {
 
@@ -609,9 +644,9 @@ namespace VitalSigns.API.Controllers
                 UpdateDefinition<MobileDevices> mupdateDefinition = null;
 
 
-                var keyusersList = ((Newtonsoft.Json.Linq.JArray)maintenance.KeyUsers).ToObject<string[]>();
-
-                foreach(string id in keyusersList)
+                //var keyusersList = ((Newtonsoft.Json.Linq.JArray)maintenance.KeyUsers).ToObject<string[]>();
+                var keyusersList = maintenance.KeyUsers;
+                foreach (string id in keyusersList)
                 {
                    var keyUser = mobiledevicesRepository.Get(id);
                     if (keyUser.MaintenanceWindows != null)
