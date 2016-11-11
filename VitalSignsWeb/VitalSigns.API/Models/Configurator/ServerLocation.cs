@@ -17,6 +17,12 @@ namespace VitalSigns.API.Models
         [JsonProperty("device_name")]
         public string DeviceName { get; set; }
 
+        [JsonProperty("current_node")]
+        public string CurrentNode { get; set; }
+
+        [JsonProperty("assigned_node")]
+        public string AssignedNode { get; set; }
+
         [JsonProperty("device_type")]
         public string DeviceType { get; set; }
 

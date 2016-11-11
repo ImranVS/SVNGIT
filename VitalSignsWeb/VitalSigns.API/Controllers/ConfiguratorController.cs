@@ -2579,6 +2579,7 @@ namespace VitalSigns.API.Controllers
                         var devicename = serverOther.Name;
                         var result = serverOther.LogFileKeywords;
                         var servers = serverOther.LogFileServers;
+                        
                         service = new List<Models.Configurator.LogFile>();
                         foreach (LogFileKeyword task in result)
                         {
@@ -2951,117 +2952,117 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Notifications
-        [HttpGet("notifications_list")]
-        public APIResponse GetNotifications()
-        {
-            List<dynamic> result_disp = new List<dynamic>();
-            List<dynamic> result_sendto = new List<dynamic>();
-            List<dynamic> result_escalateto = new List<dynamic>();
-            List<dynamic> result = new List<dynamic>();
-            FilterDefinition<BusinessHours> filterDef;
-            try
-            {
-                notificationsRepository = new Repository<Notifications>(ConnectionString);
-                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-                var notifications = notificationsRepository.Collection.AsQueryable().ToList();
-                foreach (var notification in notifications)
-                {
-                    var escalate = "";
-                    foreach (var sendto in notification.SendList)
-                    {
-                        if (sendto.Interval != null)
-                        {
-                            escalate += sendto.SendTo + " after " + sendto.Interval + " min, ";
-                            result_escalateto.Add(new NotificationsModel
-                            {
-                                NotificationName = notification.NotificationName,
-                                Interval = sendto.Interval.ToString(),
-                                SendVia = sendto.SendVia,
-                                SendTo = sendto.SendTo
-                            });
-                        }
-                    }
-                    foreach (var sendto in notification.SendList)
-                    {
-                        var hoursname = "";
-                        var days = "";
-                        var starttime = "";
-                        var duration = "0";
-                        if (sendto.Interval == null)
-                        {
-                            var escalation = escalate == "" ? "" : escalate.Substring(0, escalate.Length - 2);
-                            result_disp.Add(new NotificationsModel
-                            {
-                                NotificationName = notification.NotificationName,
-                                Interval = sendto.Interval.ToString(),
-                                SendVia = sendto.SendVia,
-                                SendTo = sendto.SendTo,
-                                Escalation = escalation
-                            });
-                            filterDef = businessHoursRepository.Filter.Eq(x => x.Id, sendto.BusinessHoursId);
-                            var hourstype = businessHoursRepository.Find(filterDef).ToList();
+        //[HttpGet("notifications_list")]
+        //public APIResponse GetNotifications()
+        //{
+        //    List<dynamic> result_disp = new List<dynamic>();
+        //    List<dynamic> result_sendto = new List<dynamic>();
+        //    List<dynamic> result_escalateto = new List<dynamic>();
+        //    List<dynamic> result = new List<dynamic>();
+        //    FilterDefinition<BusinessHours> filterDef;
+        //    try
+        //    {
+        //        notificationsRepository = new Repository<Notifications>(ConnectionString);
+        //        businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+        //        var notifications = notificationsRepository.Collection.AsQueryable().ToList();
+        //        foreach (var notification in notifications)
+        //        {
+        //            var escalate = "";
+        //            foreach (var sendto in notification.SendList)
+        //            {
+        //                if (sendto.Interval != null)
+        //                {
+        //                    escalate += sendto.SendTo + " after " + sendto.Interval + " min, ";
+        //                    result_escalateto.Add(new NotificationsModel
+        //                    {
+        //                        NotificationName = notification.NotificationName,
+        //                        Interval = sendto.Interval.ToString(),
+        //                        SendVia = sendto.SendVia,
+        //                        SendTo = sendto.SendTo
+        //                    });
+        //                }
+        //            }
+        //            foreach (var sendto in notification.SendList)
+        //            {
+        //                var hoursname = "";
+        //                var days = "";
+        //                var starttime = "";
+        //                var duration = "0";
+        //                if (sendto.Interval == null)
+        //                {
+        //                    var escalation = escalate == "" ? "" : escalate.Substring(0, escalate.Length - 2);
+        //                    result_disp.Add(new NotificationsModel
+        //                    {
+        //                        NotificationName = notification.NotificationName,
+        //                        Interval = sendto.Interval.ToString(),
+        //                        SendVia = sendto.SendVia,
+        //                        SendTo = sendto.SendTo,
+        //                        Escalation = escalation
+        //                    });
+        //                    filterDef = businessHoursRepository.Filter.Eq(x => x.Id, sendto.BusinessHoursId);
+        //                    var hourstype = businessHoursRepository.Find(filterDef).ToList();
 
-                            if (hourstype.Count > 0)
-                            {
-                                hoursname = hourstype[0].Name;
-                                starttime = hourstype[0].StartTime;
-                                duration = hourstype[0].Duration.ToString();
-                                days = String.Join(",", hourstype[0].Days);
-                            }
-                            result_sendto.Add(new NotificationsModel
-                            {
-                                NotificationName = notification.NotificationName,
-                                Interval = sendto.Interval.ToString(),
-                                SendVia = sendto.SendVia,
-                                SendTo = sendto.SendTo,
-                                CopyTo = sendto.CopyTo == null ? "" : sendto.CopyTo,
-                                BlindCopyTo = sendto.BlindCopyTo == null ? "" : sendto.BlindCopyTo,
-                                BusinessHoursType = hoursname,
-                                StartTime = starttime,
-                                Duration = Convert.ToInt32(duration),
-                                Days = days,
-                                PersistentNotification = sendto.PersistentNotification
-                            });
-                        }
-                    }
-                }
-                result.Add(result_disp);
-                result.Add(result_sendto);
-                result.Add(result_escalateto);
-                Response = Common.CreateResponse(result);
-            }
-            catch (Exception ex)
-            {
-                Response = Common.CreateResponse(null, "Error", ex.Message);
-            }
-            return Response;
-        }
+        //                    if (hourstype.Count > 0)
+        //                    {
+        //                        hoursname = hourstype[0].Name;
+        //                        starttime = hourstype[0].StartTime;
+        //                        duration = hourstype[0].Duration.ToString();
+        //                        days = String.Join(",", hourstype[0].Days);
+        //                    }
+        //                    result_sendto.Add(new NotificationsModel
+        //                    {
+        //                        NotificationName = notification.NotificationName,
+        //                        Interval = sendto.Interval.ToString(),
+        //                        SendVia = sendto.SendVia,
+        //                        SendTo = sendto.SendTo,
+        //                        CopyTo = sendto.CopyTo == null ? "" : sendto.CopyTo,
+        //                        BlindCopyTo = sendto.BlindCopyTo == null ? "" : sendto.BlindCopyTo,
+        //                        BusinessHoursType = hoursname,
+        //                        StartTime = starttime,
+        //                        Duration = Convert.ToInt32(duration),
+        //                        Days = days,
+        //                        PersistentNotification = sendto.PersistentNotification
+        //                    });
+        //                }
+        //            }
+        //        }
+        //        result.Add(result_disp);
+        //        result.Add(result_sendto);
+        //        result.Add(result_escalateto);
+        //        Response = Common.CreateResponse(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Response = Common.CreateResponse(null, "Error", ex.Message);
+        //    }
+        //    return Response;
+        //}
 
-        [HttpPut("save_notification_definition")]
-        public APIResponse UpdateNotificationDefinition([FromBody]NotificationDefinition notificationDefinition)
-        {
-            List<dynamic> result = new List<dynamic>();
-            try
-            {
-                Response = Common.CreateResponse(result);
-            }
-            catch (Exception ex)
-            {
-                Response = Common.CreateResponse(null, "Error", ex.Message);
-            }
-            return Response;
-        }
+        //[HttpPut("save_notification_definition")]
+        //public APIResponse UpdateNotificationDefinition([FromBody]NotificationDefinition notificationDefinition)
+        //{
+        //    List<dynamic> result = new List<dynamic>();
+        //    try
+        //    {
+        //        Response = Common.CreateResponse(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Response = Common.CreateResponse(null, "Error", ex.Message);
+        //    }
+        //    return Response;
+        //}
 
-        [HttpDelete("delete_notification_definition/{id}")]
-        public void DeleteNotificationDefinition(string id)
-        {
-            notificationsRepository = new Repository<Notifications>(ConnectionString);
-            Expression<Func<Notifications, bool>> expression = (p => p.Id == id);
-            notificationsRepository.Delete(expression);
-            //Update the events_master collection - remove id from the notifications embedded document
-            //Update the server collection - remove id from the notifications embedded document
+        //[HttpDelete("delete_notification_definition/{id}")]
+        //public void DeleteNotificationDefinition(string id)
+        //{
+        //    notificationsRepository = new Repository<Notifications>(ConnectionString);
+        //    Expression<Func<Notifications, bool>> expression = (p => p.Id == id);
+        //    notificationsRepository.Delete(expression);
+        //    //Update the events_master collection - remove id from the notifications embedded document
+        //    //Update the server collection - remove id from the notifications embedded document
 
-        }
+        //}
         #endregion
 
         #endregion
@@ -3156,6 +3157,8 @@ namespace VitalSigns.API.Controllers
                         serverLocation.DeviceName = x.GetValue("device_name", BsonString.Create(string.Empty)).ToString();
                         serverLocation.DeviceType = x.GetValue("device_type", BsonString.Create(string.Empty)).ToString();
                         serverLocation.Description = x.GetValue("description", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.AssignedNode = x.GetValue("assigned_node", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.CurrentNode = x.GetValue("current_node", BsonString.Create(string.Empty)).ToString();
                         if (x.GetValue("result", BsonValue.Create(string.Empty)).AsBsonArray.Values.Count() > 0)
                         {
                             serverLocation.LocationName = x.GetValue("result", BsonValue.Create(string.Empty))[0]["location_name"].ToString();
@@ -3355,6 +3358,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 nodesRepository = new Repository<Nodes>(ConnectionString);
+                serversRepository = new Repository<Server>(ConnectionString);
                 var result = nodesRepository.Collection.AsQueryable().Select(x => new NodesModel
                 {
                     Id = x.Id,
@@ -3373,12 +3377,13 @@ namespace VitalSigns.API.Controllers
                 // var servicesresult =  nodesRepository.Collection.AsQueryable().Select(x => x.ServiceStatus).ToList();
                
                 var nodesData = nodesRepository.All().Select(x => x.Name).Distinct().OrderBy(x => x).ToList();
+                //  Response = Common.CreateResponse(result);
 
-                //  var serviceresult = nodesRepository.Collection.AsQueryable().Where(x => x.Id == result.id).Select(x => x.ServiceStatus).FirstOrDefault();
+                // var serviceresult = nodesRepository.Collection.AsQueryable().Where(x => x.Id == servernodes.id).Select(x => x.ServiceStatus).FirstOrDefault();
 
+              
 
-
-                Response = Common.CreateResponse(new { nodesData = nodesData, result = result });
+                Response = Common.CreateResponse(new { nodesData = nodesData, result = result});
 
             }
             catch (Exception exception)
@@ -3446,6 +3451,35 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, "Error", "Nodes Health falied .\n Error Message :" + exception.Message);
             }
 
+            return Response;
+
+        }
+
+
+        [HttpPut("save_nodes_servers")]
+        public APIResponse UpdateNodesServers([FromBody] DeviceSettings devicesettings)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                string selectedNode = Convert.ToString(devicesettings.Setting);
+                var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
+                foreach(var id in devicesList)
+                {
+
+
+
+                    var updateDefination = serversRepository.Updater.Set(p => p.AssignedNode, selectedNode);
+
+                    var result = serversRepository.Update(id, updateDefination);
+                }
+            }
+
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Log Scan Servers falied .\n Error Message :" + exception.Message);
+            }
             return Response;
 
         }
