@@ -4,10 +4,10 @@
     <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"> </wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Start Date'" [binding]="'start_date'" [width]="150"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Start Date'"  [format] ="d"  [binding]="'start_date'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Start Time'"  [format] ="t" [binding]="'start_time'" [width]="150"></wj-flex-grid-column>
 
-        <wj-flex-grid-column [header]="'End Date'" [binding]="'end_date'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'End Date'" [format] ="d" [binding]="'end_date'" [width]="150"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="160"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Maintain Type'" [binding]="'maintain_type'" [width]="200"></wj-flex-grid-column>
 
@@ -53,10 +53,10 @@ data.pageIndex + 1 | number
     <div class="well grid-sort-group">
 
         <!-- edit details in a popup -->
-        <button class="btn btn-default" (click)="editGridRow(frmDialog)">
+        <button class="btn btn-default" (click)="editMaintenance(frmDialog)">
             Edit
         </button>
-        <button class="btn btn-default" (click)="addGridRow(frmDialog)">
+        <button class="btn btn-default" (click)="addMaintenance(frmDialog)">
             Add
         </button>
         <button class="btn btn-default" (click)="deleteMaintenance();">
@@ -117,13 +117,13 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="start_date" class="col-sm-4">Start Date</label>
                                 <div class="col-sm-8">
-                                    <input type="date" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
+                                    <input type="datetime" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" *ngIf="durationSetting=='1'">
                                 <label for="end_date" class="col-sm-4">End Date</label>
                                 <div class="col-sm-8">
-                                    <input type="date" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
+                                    <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
                                 </div>
                             </div>
                         </div>
@@ -131,13 +131,13 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="start_time" class="col-sm-4">Start Time</label>
                                 <div class="col-sm-8">
-                                    <input type="time" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
+                                    <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" >
                                 <label for="end_time" class="col-sm-4">End Time</label>
                                 <div class="col-sm-8">
-                                    <input type="time" class="form-control" id="end_time" name="end_time" [(ngModel)]="currentEditItem.end_time">
+                                    <input type="text" class="form-control" id="end_time" name="end_time" [(ngModel)]="currentEditItem.end_time">
                                 </div>
                             </div>
 
@@ -243,16 +243,16 @@ data.pageIndex + 1 | number
                         </div>
 
                         <div class="form-group" style="width:auto">
-                            <server-location-list (checkedDevices)="changeInDevices($event)"  ></server-location-list>
+                            <server-location-list (checkedDevices)="changeInDevices($event)"  [(deviceList)]="devices" ></server-location-list>
                         </div>
                         <div class="form-group" style="width:auto">
                             <wj-group-panel [grid]="flex1" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
 
-                            <wj-flex-grid #flex1 [itemsSource]="dataMobileUsers" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                            <wj-flex-grid #flex1 [itemsSource]="dataMobileUsers" selectionMode="Row" [frozenColumns]="1"   [isReadOnly]="true">
                                 <wj-flex-grid-filter></wj-flex-grid-filter>
-                                <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
+                                <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true">
                                     <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                                        <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="keyUsersCheck(cell.item.id,$event)" name="is_selected" />
+                                        <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="keyUsersCheck(cell.item.id,$event)"  name="isSelected" />
                                     </template> 
                                 </wj-flex-grid-column>
 
@@ -298,7 +298,7 @@ data.pageIndex + 1 | number
                         </div>
                         <div class="modal-footer">
                             <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                            <button class="btn btn-primary" type="cancel" name="cancel">Cancel</button>
+                            <button class="btn btn-primary wj-hide" type="button"  name="cancel"  (click)="cancelEditAdd()">Cancel</button>
                         </div>
 
 
