@@ -67,13 +67,13 @@ export class Maintenance extends GridBase implements OnInit  {
         this.service.get('/Dashboard/mobile_user_devices')
             .subscribe(
             (response) => {
-                console.log("Key Users :" + this.keyUsers);
+                //console.log("Key Users :" + this.keyUsers);
                 var resultData: any = [];
                 for (var item of response.data) {
                     if (this.keyUsers) {
                         var value = this.keyUsers.filter((record) => record==item.id);
-                        console.log(item.id);
-                        console.log(value);
+                        //console.log(item.id);
+                        //console.log(value);
                         if (value.length > 0) {
                             item.is_selected = true;
                         }
@@ -81,7 +81,7 @@ export class Maintenance extends GridBase implements OnInit  {
                     resultData.push(item);
                 }
 
-                console.log(resultData);
+                
                 this.dataMobileUsers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 this.dataMobileUsers.pageSize = 10;
             },
@@ -93,12 +93,45 @@ export class Maintenance extends GridBase implements OnInit  {
 
         var selectedWeekDays = this.currentEditItem.maintenance_days_list;
        // alert(selectedWeekDays);
-        console.log(selectedWeekDays);
+        //console.log(selectedWeekDays);
         this.splittedVlue = selectedWeekDays.split(":");
+        //alert(selectedWeekDays.split(":")[1]);
+        console.log(this.splittedVlue +"splitted value");
+        console.log(this.splittedVlue[0]);
+        console.log(this.splittedVlue[1]);
+        
+        if (this.currentEditItem.maintain_type_value == "3") {
+            console.log(this.splittedVlue[1]);
+            this.repeat = this.splittedVlue[1];
+
+            console.log(this.repeat);
+        }
+        if (this.currentEditItem.maintain_type_value == "4"){
+
+            console.log(this.splittedVlue[1]);
+            this.repeat_monthly = this.splittedVlue[1];
+            console.log(this.repeat_monthly);
+        }
+
+        if (this.splittedVlue[1] == "specific_day") {
+
+            this.day_of_the_month = this.splittedVlue[0]
+        }
+
+        for (var item of this.weekDays) {
+
+            if (item.dayNumber == this.splittedVlue[0]) {
+
+                item.isChecked = true;
+            }
+        }
+
+
+
         //alert(this.splittedVlue);
-        console.log(this.splittedVlue);
+        //console.log(this.splittedVlue);
         this.selectedSetting = this.currentEditItem.maintain_type_value;
-        console.log(this.selectedSetting);
+       
        this.durationSetting = this.currentEditItem.duration_type;
        this.keyUsers = this.currentEditItem.key_users ;
        this.devices = this.currentEditItem.device_list;
