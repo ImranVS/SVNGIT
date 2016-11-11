@@ -145,6 +145,8 @@ export *from './configurator/components/security/security-assign-server-to-node.
 export * from './configurator/components/ibmDomino/ibmdomino-tabs-component';
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
 export * from './configurator/components/mobileusers/mobile-users.component';
+export * from './configurator/components/serverImport/server-import-tabs-component';
+
 
 
 const appRoutes: Routes = [
