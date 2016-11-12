@@ -61,7 +61,7 @@ Partial Public Class VitalSignsPlusDomino
         'Connect to the data source
 
         WriteAuditEntry(vbCrLf & Now.ToString & " Creating a dataset in CreateNotesDatabaseCollection." & vbCrLf)
-        Dim listOfServers As New List(Of VSNext.Mongo.Entities.ServerOther)
+        Dim listOfNotesDatabases As New List(Of VSNext.Mongo.Entities.ServerOther)
         Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
         Try
 
@@ -84,7 +84,7 @@ Partial Public Class VitalSignsPlusDomino
                 .Include(Function(x) x.InitiateReplication) _
                 .Include(Function(x) x.ReplicationDestination) _
                 .Include(Function(x) x.CurrentNode)
-            listOfServers = repository.Find(filterDef, projectionDef).ToList()
+            listOfNotesDatabases = repository.Find(filterDef, projectionDef).ToList()
 
             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
             Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
@@ -102,7 +102,7 @@ Partial Public Class VitalSignsPlusDomino
             Exit Sub
         End Try
 
-        WriteAuditEntry(Now.ToString & " There are " & listOfServers.Count().ToString() & " Notes Database servers found in the database", LogLevel.Normal)
+        WriteAuditEntry(Now.ToString & " There are " & listOfNotesDatabases.Count().ToString() & " Notes Database servers found in the database", LogLevel.Normal)
 
         '***
         'but first delete any that are in the collection but not in the database anymore
@@ -111,7 +111,7 @@ Partial Public Class VitalSignsPlusDomino
         If MyNotesDatabases.Count > 0 Then
             WriteAuditEntry(Now.ToString & " Checking to see if any Notes databases should be deleted. ")
             'Get all the names of all the servers in the data table
-            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfServers
+            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfNotesDatabases
                 MyServerNames += entity.Name & "  "
             Next
         End If
@@ -156,7 +156,7 @@ Partial Public Class VitalSignsPlusDomino
 
         Try
             Dim myString As String = ""
-            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfServers
+            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfNotesDatabases
                 i += 1
                 Dim MyName As String
                 MyName = entity.Name
@@ -1270,7 +1270,7 @@ Partial Public Class VitalSignsPlusDomino
 
                             Dim MyCustomStatistic As MonitoredItems.DominoCustomStatistic
                             'Check to see if this stat  is already configured
-                            WriteAuditEntry(Now.ToString & " Found custom statistic: " & customStat.StatName)
+                            ' WriteAuditEntry(Now.ToString & " Found custom statistic: " & customStat.StatName)
                             Try
                                 MyCustomStatistic = MyDominoServer.CustomStatisticsSettings.Search(customStat.StatName)
                                 'if not, add it to the server's collection
@@ -1911,19 +1911,18 @@ Partial Public Class VitalSignsPlusDomino
         myKeywords.Clear()
         'Connect to the data source
         'VSPLUS-2300 ticket,Sowjanya
-        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.ServerOther)
         Try
 
-            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DominoLogScanning.ToDescription()) _
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ServerOther)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.DominoLogScanning.ToDescription()) _
                  And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
-            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Project _
                 .Include(Function(x) x.Id) _
-                .Include(Function(x) x.DeviceName) _
-                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.Name) _
+                .Include(Function(x) x.Type) _
                 .Include(Function(x) x.LogFileServers) _
                 .Include(Function(x) x.LogFileKeywords)
-
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
         Catch ex As Exception
@@ -1934,13 +1933,13 @@ Partial Public Class VitalSignsPlusDomino
         'Add the keywords to the collection
         WriteAuditEntry(Now.ToString & "  Reading configuration settings for Domino log file keywords.")
         Try
-            Dim dr As DataRow
-            Dim i As Integer = 0
-            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+
+            For Each entity As VSNext.Mongo.Entities.ServerOther In listOfServers
+                WriteAuditEntry(Now.ToString & "  Processing keyword: " & entity.Name)
+
                 For Each entityKeyword As VSNext.Mongo.Entities.LogFileKeyword In entity.LogFileKeywords
                     For Each serverObjectId As String In entity.LogFileServers
                         Try
-
 
                             Dim MyKeyword As New LogFileKeyword()
                             MyKeyword.Keyword = entityKeyword.Keyword
@@ -1970,7 +1969,7 @@ Partial Public Class VitalSignsPlusDomino
 
             Next
             ' ReDim Preserve Keywords(i - 1)
-            dr = Nothing
+
         Catch exception As DataException
             WriteAuditEntry(Now.ToString & " Data Exception creating Domino log file collection: " & exception.Message)
         Catch ex As Exception
