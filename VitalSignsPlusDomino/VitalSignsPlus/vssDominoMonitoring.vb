@@ -425,7 +425,7 @@ Partial Public Class VitalSignsPlusDomino
                     WriteAuditEntry(Now.ToString & " Found statistics, trying to update SQL.")
                     Dim key As Dictionary(Of String, Integer).KeyCollection = MailStatsDict.Keys
                     For i As Integer = 0 To key.Count - 1
-                        WriteAuditEntry(Now.ToString & " Updating the SQL Settings table with " & key(i).ToString() & "   " & MailStatsDict.Item(key(i)).ToString())
+                        WriteAuditEntry(Now.ToString & " Updating the name/value collection with " & key(i).ToString() & "   " & MailStatsDict.Item(key(i)).ToString())
                         WriteSettingsValue(key(i), MailStatsDict.Item(key(i)))
                     Next
                 Else

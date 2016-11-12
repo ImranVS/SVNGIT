@@ -862,18 +862,6 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
 
-                    'Try
-                    '    If dr.Item("NotificationGroup") Is Nothing Then
-                    '        .NotificationGroup = ""
-                    '        '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
-                    '    Else
-                    '        .NotificationGroup = dr.Item("NotificationGroup")
-                    '    End If
-                    'Catch ex As Exception
-                    '    .NotificationGroup = ""
-                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Custom notification group Not set for this server, using default alert settings.")
-                    'End Try
-
                     'CheckMailThreshold
                     'This value is set to 1 if we are supposed to stop counting once the pending or held thresholds are met
                     Try
@@ -1044,28 +1032,6 @@ Partial Public Class VitalSignsPlusDomino
                         .OffHours = False
                     End Try
 
-                    'Try
-                    '    If entity.ObjectId.ToString() Is Nothing Then
-                    '    Else
-                    '        .Key = entity.ObjectId.ToString()
-                    '        WriteAuditEntry(Now.ToString & " " & .Name & " Domino server 'Key' in Servers table is " & .Key, LogLevel.Verbose)
-                    '    End If
-                    'Catch ex As Exception
-                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Domino server 'Key' field not found. " & ex.ToString)
-                    'End Try
-
-                    'AdvancedMailScan is not being used in the service and is not from SQL
-                    'Try
-                    '    If dr.Item("AdvancedMailScan") Is Nothing Then
-                    '        .AdvancedMailScan = True
-                    '        '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
-                    '    Else
-                    '        .AdvancedMailScan = dr.Item("AdvancedMailScan")
-                    '    End If
-                    'Catch ex As Exception
-                    '    .AdvancedMailScan = True
-                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Advanced Mail Scan setting not found, set to True.", LogLevel.Verbose)
-                    'End Try
 
                     Try
                         If entity.HeldMailThreshold Is Nothing Then
@@ -1137,30 +1103,6 @@ Partial Public Class VitalSignsPlusDomino
                         .MailFileScanDate = Now.AddDays(-1)
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino server MailFileScanDate not set, using default of 'Yesterday'.", LogLevel.Verbose)
                     End Try
-
-
-                    'Try
-                    '    '  WriteAuditEntry(Now.ToString & " " & .Name & " Checking Domino server value of BES_Server for ")
-                    '    If dr.Item("BES_Server") Is Nothing Then
-                    '        .BES_Server = False
-                    '    Else
-                    '        .BES_Server = dr.Item("BES_Server")
-                    '        '     WriteAuditEntry(Now.ToString & " " & .Name & " BES Server value: " & .BES_Server)
-                    '    End If
-                    'Catch ex As Exception
-                    '    ' WriteAuditEntry(Now.ToString & " Exception ERROR: " & ex.Message)
-                    '    .BES_Server = False
-                    'End Try
-
-                    'Try
-                    '    If dr.Item("BES_Threshold") Is Nothing Then
-                    '        .BES_Threshold = 3000
-                    '    Else
-                    '        .BES_Threshold = dr.Item("BES_Threshold")
-                    '    End If
-                    'Catch ex As Exception
-                    '    .BES_Threshold = 3000
-                    'End Try
 
 
                     Try
@@ -1324,12 +1266,11 @@ Partial Public Class VitalSignsPlusDomino
                         Dim listCurrentCustomStats As List(Of VSNext.Mongo.Entities.ServerOther) = listOfCustomStats.Where(Function(x) x.DominoServers IsNot Nothing).Where(Function(x) x.DominoServers.Contains(entity.Id)).ToList()
 
 
-
                         For Each customStat As VSNext.Mongo.Entities.ServerOther In listCurrentCustomStats
 
                             Dim MyCustomStatistic As MonitoredItems.DominoCustomStatistic
                             'Check to see if this stat  is already configured
-                            'If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Searching for statistic: " & drTask.Item("StatName"))
+                            WriteAuditEntry(Now.ToString & " Found custom statistic: " & customStat.StatName)
                             Try
                                 MyCustomStatistic = MyDominoServer.CustomStatisticsSettings.Search(customStat.StatName)
                                 'if not, add it to the server's collection
