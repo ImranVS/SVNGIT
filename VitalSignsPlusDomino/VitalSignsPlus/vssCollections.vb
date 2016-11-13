@@ -1912,6 +1912,7 @@ Partial Public Class VitalSignsPlusDomino
         'Connect to the data source
         'VSPLUS-2300 ticket,Sowjanya
         Dim listOfServers As New List(Of VSNext.Mongo.Entities.ServerOther)
+        Dim listOfDominoServers As New List(Of VSNext.Mongo.Entities.Server)
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ServerOther)(connectionString)
@@ -1925,6 +1926,10 @@ Partial Public Class VitalSignsPlusDomino
                 .Include(Function(x) x.LogFileKeywords)
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
+            Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+            Dim projectionDefServers As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Project.Include(Function(x) x.DeviceName).Include(Function(x) x.Id)
+            listOfDominoServers = repositoryServers.Find(filterDefServers, projectionDefServers).ToList()
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Failed to create dataset in Create Keywords Collection processing code. Exception: " & ex.Message)
             '  Exit Sub
@@ -1948,10 +1953,8 @@ Partial Public Class VitalSignsPlusDomino
                             MyKeyword.ScanLog = entityKeyword.ScanLog
                             MyKeyword.ScanAgentLog = entityKeyword.ScanAgentLog
                             'MyKeyword.ServerID = dr.Item("ServerID")
-                            Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-                            Dim filterDefServers As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.Id, serverObjectId)
-                            Dim projectionDefServers As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Project.Include(Function(x) x.DeviceName)
-                            MyKeyword.ServerName = repositoryServers.Find(filterDefServers, projectionDefServers).ToList()(0).DeviceName
+
+                            MyKeyword.ServerName = listOfDominoServers.Where(Function(x) x.Id = serverObjectId).ToList()(0).DeviceName
                             'added Server Name'
                             myKeywords.Add(MyKeyword)
                             If MyKeyword.ScanAgentLog = True Then
