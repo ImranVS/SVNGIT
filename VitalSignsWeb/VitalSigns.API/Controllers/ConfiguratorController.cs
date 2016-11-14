@@ -55,7 +55,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<EventsMaster> eventsMasterRepository;
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<Notifications> notificationsRepository;
-        private IRepository<NotificationDestinations> notificationDestRepository;
+       private IRepository<NotificationDestinations> notificationDestRepository;
         #endregion
 
         #region Application Settings
@@ -1041,6 +1041,7 @@ namespace VitalSigns.API.Controllers
                     DefaultValue = x.DefaultValue,
                     DeviceType = x.DeviceType,
                     FieldName = x.FieldName,
+                    DataType = x.DataType,
                     Unitofmeasurement = x.Unitofmeasurement,
                     IsSelected = false
                 }).ToList();
@@ -1067,7 +1068,7 @@ namespace VitalSigns.API.Controllers
                 Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                 UpdateDefinition<BsonDocument> updateDefinition = null;
                 if (devicesList.Count() > 0 && deviceAttributes.Count()>0)
-                {
+                 {
 
                     foreach (string id in devicesList)
                     {
@@ -1076,16 +1077,59 @@ namespace VitalSigns.API.Controllers
                         {
                             if (!string.IsNullOrEmpty(attribute.FieldName))
                             {
-                                updateDefinition = Builders<BsonDocument>.Update
-                                   .Set(attribute.FieldName, attribute.Value);
+                                
+                                //updateDefinition = Builders<BsonDocument>.Update
+                                //   .Set(attribute.FieldName, attribute.Value);
+                                string field = attribute.FieldName;
+                                string value = attribute.Value;
+                                string datatype = attribute.DataType;
+                                if (datatype == "int")
+                                {
+                                    int outputvalue = Convert.ToInt32(value);
+                                   updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "double")
+                                {
+                                    double outputvalue = Convert.ToDouble(value);
+                                     updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "bool")
+                                {
+                                    bool booloutput;
+                                    if (value == "0")
+                                    {
+                                        booloutput = false;
+                                    }
+                                    else
+                                    {
+                                        booloutput = true;
+                                    }
+                                    updateDefinition = Builders<BsonDocument>.Update
+                                                                                                        .Set(field, booloutput);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+
+
+                                if (datatype == "string")
+                                {
+                                     updateDefinition = Builders<BsonDocument>.Update
+                                                                                                        .Set(field, value);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+
                             }
                         }
-                        var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                        }
+                       // var result = repository.Collection.UpdateMany(filter, updateDefinition);
 
                     }
                     Response = Common.CreateResponse(null, "OK", "Settings are not selected");                 
 
-                }
+                
 }
             catch (Exception exception)
             {
@@ -3115,16 +3159,16 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        //[HttpDelete("delete_notification_definition/{id}")]
-        //public void DeleteNotificationDefinition(string id)
-        //{
-        //    notificationsRepository = new Repository<Notifications>(ConnectionString);
-        //    Expression<Func<Notifications, bool>> expression = (p => p.Id == id);
-        //    notificationsRepository.Delete(expression);
-        //    //Update the events_master collection - remove id from the notifications embedded document
-        //    //Update the server collection - remove id from the notifications embedded document
+        [HttpDelete("delete_notification_definition/{id}")]
+        public void DeleteNotificationDefinition(string id)
+        {
+            notificationsRepository = new Repository<Notifications>(ConnectionString);
+            Expression<Func<Notifications, bool>> expression = (p => p.Id == id);
+            notificationsRepository.Delete(expression);
+            //Update the events_master collection - remove id from the notifications embedded document
+            //Update the server collection - remove id from the notifications embedded document
 
-        //}
+        }
         #endregion
 
         #endregion
@@ -4009,6 +4053,41 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
+        #endregion
+
+        #region Log Settings
+        [HttpGet("get_log_files")]
+        public APIResponse GetLogFiles()
+        {
+
+
+            try
+            {
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+                List<SendLogs> sendlogfiles = new List<SendLogs>();
+                var logfiles = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Files Path-New").Select(x => x.Value).FirstOrDefault();
+                string[] filePaths = System.IO.Directory.GetFiles(logfiles);
+                string[] folderPaths = System.IO.Directory.GetDirectories(logfiles);
+                foreach (var x in filePaths)
+                {
+                    if (x.Contains("LogFiles.z"))
+                        continue;
+                    var path = x.Substring(x.LastIndexOf("\\") + 1);
+                    SendLogs sendlogs = new SendLogs();
+                    {
+                        sendlogs.LogFileName = path.ToString();
+
+                    }
+                    sendlogfiles.Add(sendlogs);       
+                }
+                Response = Common.CreateResponse(sendlogfiles);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
         #endregion
 
     }
