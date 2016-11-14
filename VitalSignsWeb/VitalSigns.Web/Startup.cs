@@ -14,6 +14,7 @@ namespace VitalSigns.Web.Redesign
     public class Startup
     {
         public static string ConnectionString { get; private set; }
+        public static string DatabaseName { get; private set; }
 
         public Startup(IHostingEnvironment env)
         {
@@ -24,6 +25,7 @@ namespace VitalSigns.Web.Redesign
             Configuration = builder.Build();
 
             ConnectionString = Configuration.Get<string>("Data:MongoDB:MongoServerSettings");
+            DatabaseName = Configuration.Get<string>("Data:MongoDB:DatabaseName");
         }
 
         public IConfigurationRoot Configuration { get; set; }
