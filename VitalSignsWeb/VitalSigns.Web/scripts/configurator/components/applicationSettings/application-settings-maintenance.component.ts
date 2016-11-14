@@ -16,8 +16,7 @@ export class Maintenance extends GridBase implements OnInit  {
     
    errorMessage: string;
    dataMobileUsers: wijmo.collections.CollectionView;
- 
-    selectedSetting: string="1";
+   selectedSetting: string="1";
     durationSetting: any;
     selectedSettingValue: any;
     selectedDays: any;
@@ -27,9 +26,7 @@ export class Maintenance extends GridBase implements OnInit  {
     end_date: any;
     day_of_the_month: any;
     splittedVlue: string;
-   
-    //currentDeviceType: string = ""
-    
+    checkedDevices: any;
    
   keyUsers: string[] = []; 
     
@@ -53,34 +50,63 @@ export class Maintenance extends GridBase implements OnInit  {
     keyUsersCheck(value, event) {
 
         if (event.target.checked)
+        {
             this.keyUsers.push(value);
+            this.flex1.collectionView.currentItem.is_selected = true;
+        }
         else {
             this.keyUsers.splice(this.keyUsers.indexOf(value), 1);
+            this.flex1.collectionView.currentItem.is_selected = false;
         }
     }
 
     ngOnInit() {
         this.initialGridBind('/Configurator/get_maintenance');
+        this.keyUsersGridBind();
+        
+    }
+
+    handleClickMonthly(index: any) 
+    {
+        if (this.currentEditItem.maintain_type_value != "4") {
+            for (var i = 0; i < 7; i++) {
+                this.weekDays[i].isChecked = false;
+            }
+        }
+        else if (this.currentEditItem.maintain_type_value == "4") {
+            this.monthlyEditBinding();
+        }
+
+    }
+
+   
+
+    handleClickWeekly(index: any) {
+
+        if (this.currentEditItem.maintain_type_value != "3") {
+            for (var i = 0; i < 7; i++) {
+                this.weekDays[i].isChecked = false;
+            }
+        }
+        else if (this.currentEditItem.maintain_type_value == "3") {
+            this.weeklyEditBinding();
+        }
     }
 
     keyUsersGridBind() {
         this.service.get('/Dashboard/mobile_user_devices')
             .subscribe(
             (response) => {
-                //console.log("Key Users :" + this.keyUsers);
                 var resultData: any = [];
                 for (var item of response.data) {
                     if (this.keyUsers) {
                         var value = this.keyUsers.filter((record) => record==item.id);
-                        //console.log(item.id);
-                        //console.log(value);
                         if (value.length > 0) {
                             item.is_selected = true;
                         }
                     }
                     resultData.push(item);
                 }
-
                 
                 this.dataMobileUsers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 this.dataMobileUsers.pageSize = 10;
@@ -90,159 +116,157 @@ export class Maintenance extends GridBase implements OnInit  {
     }
     editMaintenance(dlg: wijmo.input.Popup) {
         this.editGridRow(dlg);
-
-        var selectedWeekDays = this.currentEditItem.maintenance_days_list;
-       // alert(selectedWeekDays);
-        //console.log(selectedWeekDays);
-        this.splittedVlue = selectedWeekDays.split(":");
-        //alert(selectedWeekDays.split(":")[1]);
-        console.log(this.splittedVlue +"splitted value");
-        console.log(this.splittedVlue[0]);
-        console.log(this.splittedVlue[1]);
-        
-        if (this.currentEditItem.maintain_type_value == "3") {
-            console.log(this.splittedVlue[1]);
-            this.repeat = this.splittedVlue[1];
-
-            console.log(this.repeat);
-        }
-        if (this.currentEditItem.maintain_type_value == "4"){
-
-            console.log(this.splittedVlue[1]);
-            this.repeat_monthly = this.splittedVlue[1];
-            console.log(this.repeat_monthly);
-        }
-
-        if (this.splittedVlue[1] == "specific_day") {
-
-            this.day_of_the_month = this.splittedVlue[0]
-        }
+        this.repeat = "";
+        this.repeat_monthly = "";
+        this.day_of_the_month = "";
+        this.splittedVlue = "";
 
         for (var item of this.weekDays) {
-
-            if (item.dayNumber == this.splittedVlue[0]) {
-
-                item.isChecked = true;
-            }
+            this.weekDays[this.weekDays.indexOf(item)].isChecked = false;
+        }
+        
+        if (this.currentEditItem.maintain_type_value == "3") {
+            this.weeklyEditBinding(); 
         }
 
+        if (this.currentEditItem.maintain_type_value == "4") {
+            this.monthlyEditBinding();
+        }
 
-
-        //alert(this.splittedVlue);
-        //console.log(this.splittedVlue);
+  
         this.selectedSetting = this.currentEditItem.maintain_type_value;
-       
        this.durationSetting = this.currentEditItem.duration_type;
-       this.keyUsers = this.currentEditItem.key_users ;
-       this.devices = this.currentEditItem.device_list;
+       this.keyUsers = this.currentEditItem.key_users;
+       console.log(this.currentEditItem.device_list +"serverslist");
+       this.checkedDevices = this.currentEditItem.device_list;
        this.keyUsersGridBind();
     }
+    weeklyEditBinding()
+    {
+        var selectedWeekDays = this.currentEditItem.maintenance_days_list;
+        if (selectedWeekDays.indexOf(',') > 0) {
 
+            var a = selectedWeekDays.split(",");
+
+            for (var x of a) {
+
+               this.splittedVlue = x.split(":");
+               this.repeat = this.splittedVlue[1];
+                for (var item of this.weekDays) {
+                    if (item.dayNumber == this.splittedVlue[0]) {
+                      this.weekDays[this.weekDays.indexOf(item)].isChecked = true;
+                    }
+                }
+            }
+        }
+        else if (selectedWeekDays.indexOf(':') > 0) {
+            this.splittedVlue = selectedWeekDays.split(":")
+            this.repeat = this.splittedVlue[1];
+            for (var item of this.weekDays) {
+                if (item.dayNumber == this.splittedVlue[0]) {
+                    this.weekDays[this.weekDays.indexOf(item)].isChecked = true;
+                }
+            }
+        }
+    }
+    monthlyEditBinding() {
+        var selectedWeekDays = this.currentEditItem.maintenance_days_list;
+        if (selectedWeekDays.indexOf(',') > 0) {
+            var a = selectedWeekDays.split(",");
+            for (var x of a) {
+                this.splittedVlue = x.split(":");
+                this.repeat_monthly = this.splittedVlue[1];
+                if (this.splittedVlue[1] == "specific_day") {
+                this.day_of_the_month = this.splittedVlue[0]
+                }
+                for (var item of this.weekDays) {
+                    if (item.dayNumber == this.splittedVlue[0]) {
+                        this.weekDays[this.weekDays.indexOf(item)].isChecked = true;
+                    }
+                }
+            }
+        }
+        else if (selectedWeekDays.indexOf(':') > 0) {
+            this.splittedVlue = selectedWeekDays.split(":")
+            this.repeat_monthly = this.splittedVlue[1];
+            if (this.splittedVlue[1] == "specific_day") {
+                this.day_of_the_month = this.splittedVlue[0]
+            }
+            for (var item of this.weekDays) {
+                if (item.dayNumber == this.splittedVlue[0]) {
+                    this.weekDays[this.weekDays.indexOf(item)].isChecked = true;
+                }
+            }
+        }
+    }
 
     saveMaintenance(dlg: wijmo.input.Popup) {
         var selectedWeekDays = "";
         this.currentEditItem.maintain_type = this.selectedSetting;
         if (this.selectedSetting == "3") {
-
             for (var item of this.weekDays) {
-              
-                if (item.isChecked == true )
+               if (item.isChecked == true )
                 {
-                    if (selectedWeekDays == "") {
-
-                        selectedWeekDays = item.dayNumber + ":" + this.repeat;
-
-                        console.log(selectedWeekDays)
-
-                    }
+                  if (selectedWeekDays == "") {
+                      selectedWeekDays = item.dayNumber + ":" + this.repeat;
+                      }
 
                     else {
-
                         selectedWeekDays += "," + item.dayNumber + ":" + this.repeat;
-                        console.log(selectedWeekDays)
-
                     }
                    
-                  
-                }
-              
-            
-            }
-
-       
-
-        }
+                  }
+               }
+ }
 
    
         if (this.selectedSetting == "4") {
-
-            for (var item of this.weekDays) {
-
-                if (item.isChecked == true) {
+               for (var item of this.weekDays) {
+                  if (item.isChecked == true) {
                     if (selectedWeekDays == "") {
-
-                        selectedWeekDays = item.dayNumber + ":" + this.repeat_monthly;
-
-                        console.log(selectedWeekDays)
-
-                    }
-
-                    else {
-
+                      selectedWeekDays = item.dayNumber + ":" + this.repeat_monthly;
+                          }
+                     else {
                         selectedWeekDays += "," + item.dayNumber + ":" + this.repeat_monthly;
-                        console.log(selectedWeekDays)
-
+                      }
                     }
-
-
-                }
-
-
-            }
-
-
+                    }
+            
             if (this.repeat_monthly == "specific_day") {
 
                 selectedWeekDays = this.day_of_the_month + ":" + "specific_day";
-                console.log(selectedWeekDays)
             }
 
         }
-
-       
-      
+        
         this.currentEditItem.maintenance_days_list = selectedWeekDays;
         this.currentEditItem.maintain_type = this.selectedSetting;
         this.currentEditItem.duration_type = this.durationSetting;
         this.currentEditItem.key_users = this.keyUsers;
         this.currentEditItem.device_list = this.devices;
-        console.log(this.devices)
-        
-
-        //if (this.durationSetting == 1) {
-
-        //    this.currentEditItem.end_date = this.end_date;
-
-        //}
-        //else {
-
-        //    this.currentEditItem.end_date = null;
-
-        //}
-
         this.saveGridRow('/Configurator/save_maintenancedata',dlg);  
     }
 
     addMaintenance(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
-        this.currentEditItem.name = "";
-        this.currentEditItem.start_date = "";
-        this.currentEditItem.end_date = "";
-        this.currentEditItem.start_time = "";
-        this.currentEditItem.end_time = "";
-        this.currentEditItem.duration = "";
+      
+        this.selectedSetting = "";
+        this.durationSetting = "";
+        
        
+    }
 
+
+    selectAllClick(index: any) {
+       for (var i = 0; i < 7; i++) {
+                this.weekDays[i].isChecked = true;
+            }
+    }
+
+    deselectAllClick(index: any) {
+        for (var i = 0; i < 7; i++) {
+            this.weekDays[i].isChecked = false;
+        }
     }
 
     deleteMaintenance() {      
