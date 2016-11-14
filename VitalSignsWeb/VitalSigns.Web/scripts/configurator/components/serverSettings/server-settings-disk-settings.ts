@@ -32,7 +32,7 @@ export class ServerDiskSettings implements OnInit {
     noDiskAlerts: string;
     postData: any;
     diskValues: any;
-   
+    deviceTypes: string = "Domino,Exchange,Active Directory,Windows";
 
     constructor(    
         private dataProvider: RESTService,
