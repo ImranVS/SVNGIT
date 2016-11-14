@@ -13,7 +13,7 @@ export class NotesDatabaseReplica extends GridBase implements OnInit {
     currentEditItem: any;
     constructor(service: RESTService) {
         super(service);
-        this.formName = "Notes Databse Replica";
+        this.formName = "Notes Database Replica";
         this.service.get('/Configurator/get_domino_servers')
             .subscribe(
             (response) => {

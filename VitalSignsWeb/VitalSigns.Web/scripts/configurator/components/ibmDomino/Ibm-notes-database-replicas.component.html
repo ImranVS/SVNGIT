@@ -84,7 +84,7 @@ data.pageIndex + 1 | number
                                                     <div class="form-group col-sm-6">
                                                         <label for="name" class="control-label col-sm-4">Name:</label>
                                                         <div class="col-sm-8">
-                                                            <input type="text" class="form-control" name="name" [(ngModel)]="currentEditItem.name">
+                                                            <input type="text" class="form-control" name="name" [(ngModel)]="currentEditItem.name" required>
 
                                                         </div>
 
@@ -140,7 +140,7 @@ data.pageIndex + 1 | number
                                                     <div class="form-group col-sm-12">
                                                         <label for="scan_interval" class="control-label col-sm-4">Scan Interval:</label>
                                                         <div class="col-sm-4">
-                                                            <input type="text" class="form-control" name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
+                                                            <input type="number" class="form-control" name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
 
                                                         </div>
                                                         <label for="scan_interval" class="control-label col-sm-1">minutes</label>
@@ -150,7 +150,7 @@ data.pageIndex + 1 | number
                                                         <div class="form-group col-sm-12">
                                                             <label for="off_hours_scan_interval" class="control-label col-sm-4">Off-Hours Scan Interval:</label>
                                                             <div class="col-sm-4">
-                                                                <input type="text" class="form-control" name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval">
+                                                                <input type="number" class="form-control" name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval">
 
                                                             </div>
                                                             <label for="off_hours_scan_interval" class="control-label col-sm-1">minutes</label>
@@ -166,118 +166,124 @@ data.pageIndex + 1 | number
 
                         </div>-->
                                 <div class="row">
-                                    <div class="form-group col-sm-4">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">Server A</div>
-                                            <div class="panel-body">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_a" class="control-label col-sm-5"> Domino Server:</label>
-                                                    <div class="col-sm-7">
-                                                        <wj-combo-box name="domino_server_a" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_a">
-
-                                                        </wj-combo-box>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_a_file_mask" class="control-label col-sm-5">File Mask:</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" name="domino_server_a_file_mask" [(ngModel)]="currentEditItem.domino_server_a_file_mask">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_a_exclude_folders" class="control-label col-sm-5">Exclude Folder(s)</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" name="domino_server_a_exclude_folders" [(ngModel)]="currentEditItem.domino_server_a_exclude_folders">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <div class="form-group col-sm-4">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">Server B</div>
-                                            <div class="panel-body">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_b" class="control-label col-sm-5"> Domino Server:</label>
-                                                    <div class="col-sm-7">
-                                                        <wj-combo-box name="domino_server_b" [itemsSource]="sererNames" displayMemberPath="text" [(ngModel)]="currentEditItem.domino_server_b" selectedValuePath="value">
-
-                                                        </wj-combo-box>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_b_file_mask" class="control-label col-sm-5">File Mask:</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" name="domino_server_b_file_mask" [(ngModel)]="currentEditItem.domino_server_b_file_mask">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_b_exclude_folders" class="control-label col-sm-5">Exclude Folder(s)</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" name="domino_server_b_exclude_folders" [(ngModel)]="currentEditItem.domino_server_b_exclude_folders">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <div class="form-group col-sm-4">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">Server C</div>
-                                            <div class="panel-body">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_c" class="control-label col-sm-5"> Domino Server:</label>
-                                                    <div class="col-sm-7">
-                                                        <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_c">
-
-                                                        </wj-combo-box>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_c_file_mask" class="control-label col-sm-5">File Mask:</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" name="domino_server_c_file_mask" [(ngModel)]="currentEditItem.domino_server_c_file_mask">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group col-sm-12">
-                                                    <label for="domino_server_c_exclude_folders" class="control-label col-sm-5">Exclude Folder(s)</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" name="domino_server_c_exclude_folders" [(ngModel)]="currentEditItem.domino_server_c_exclude_folders">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                                <div class="row">
                                     <div class="form-group col-sm-12">
                                         <div class="panel panel-default">
-                                            <div class="panel-heading">Alert Settings</div>
+                                            <div class="panel-heading">Servers</div>
                                             <div class="panel-body">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="device_type">The Difference Threshold is the percentage difference in document count between two replicas on different servers. In other words, if a database on server A has 100 documents, but the same database on server B has only 80 documents, an alert will go out if the threshold is set to 20%.</label>
+                                                <div class="form-group col-sm-4">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">Server A</div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_a" class="control-label col-sm-5"> Domino Server:</label>
+                                                                <div class="col-sm-7">
+                                                                    <wj-combo-box name="domino_server_a" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_a">
+
+                                                                    </wj-combo-box>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_a_file_mask" class="control-label col-sm-5">File Mask:</label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="text" class="form-control" name="domino_server_a_file_mask" [(ngModel)]="currentEditItem.domino_server_a_file_mask">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_a_exclude_folders" class="control-label col-sm-5">Exclude Folder(s):</label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="text" class="form-control" name="domino_server_a_exclude_folders" [(ngModel)]="currentEditItem.domino_server_a_exclude_folders">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
                                                 </div>
-                                                <div class="form-group col-sm-12">
-                                                    <label for="difference_threshold" class="control-label col-sm-5">Difference Threshold(%):</label>
-                                                    <div class="col-sm-2">
-                                                        <input type="text" class="form-control" name="difference_threshold" [(ngModel)]="currentEditItem.difference_threshold">
+                                                <div class="form-group col-sm-4">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">Server B</div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_b" class="control-label col-sm-5"> Domino Server:</label>
+                                                                <div class="col-sm-7">
+                                                                    <wj-combo-box name="domino_server_b" [itemsSource]="sererNames" displayMemberPath="text" [(ngModel)]="currentEditItem.domino_server_b" selectedValuePath="value">
 
+                                                                    </wj-combo-box>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_b_file_mask" class="control-label col-sm-5">File Mask:</label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="text" class="form-control" name="domino_server_b_file_mask" [(ngModel)]="currentEditItem.domino_server_b_file_mask">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_b_exclude_folders" class="control-label col-sm-5">Exclude Folder(s):</label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="text" class="form-control" name="domino_server_b_exclude_folders" [(ngModel)]="currentEditItem.domino_server_b_exclude_folders">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group col-sm-4">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">Server C</div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_c" class="control-label col-sm-5"> Domino Server:</label>
+                                                                <div class="col-sm-7">
+                                                                    <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_c">
+
+                                                                    </wj-combo-box>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_c_file_mask" class="control-label col-sm-5">File Mask:</label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="text" class="form-control" name="domino_server_c_file_mask" [(ngModel)]="currentEditItem.domino_server_c_file_mask">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="domino_server_c_exclude_folders" class="control-label col-sm-5">Exclude Folder(s):</label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="text" class="form-control" name="domino_server_c_exclude_folders" [(ngModel)]="currentEditItem.domino_server_c_exclude_folders">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">Alert Settings</div>
+                                                    <div class="panel-body">
+                                                        <div class="form-group col-sm-12">
+                                                            <label for="device_type">The Difference Threshold is the percentage difference in document count between two replicas on different servers. In other words, if a database on server A has 100 documents, but the same database on server B has only 80 documents, an alert will go out if the threshold is set to 20%.</label>
+
+                                                        </div>
+                                                        <div class="form-group col-sm-12">
+                                                            <label for="difference_threshold" class="control-label col-sm-5">Difference Threshold(%):</label>
+                                                            <div class="col-sm-2">
+                                                                <input type="number" class="form-control" name="difference_threshold" [(ngModel)]="currentEditItem.difference_threshold">
+
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="panel-footer">
+                                            <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmDatabaseReplica.form.valid">Save</button>
+                                            <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="panel-footer">
-                                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmDatabaseReplica.form.valid">Save</button>
-                                    <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                                </div>
-                            </div>
-                        </form>
+</form>
                     </div>
                 </wj-popup>
             </div>
