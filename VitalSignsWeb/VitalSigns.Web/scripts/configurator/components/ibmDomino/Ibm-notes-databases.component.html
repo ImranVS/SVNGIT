@@ -86,12 +86,15 @@ data.pageIndex + 1 | number
                                 </div>
                                
                             </div>
+                         
                             <div class="form-group col-sm-5">
                                 <div class="form-inline col-sm-6">
-                                    <div class="checkbox-inline">
-                                        <input type="checkbox" class="form-control" name="is_enabled" [(ngModel)]="currentEditItem.is_enabled">
+                                    <div class="checkbox-inline" >
+                                        <input type="checkbox" style="margin-left:-10px;position: absolute;" class="form-control" name="is_enabled" [(ngModel)]="currentEditItem.is_enabled">
                                         <label for="is_enabled" class="control-label col-sm-12">Enabled for scanning</label>
+                                        
                                     </div>
+                                 
 
 
                                 </div>
@@ -126,7 +129,7 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="scan_interval" required name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
+                                    <input type="number" class="form-control" id="scan_interval" required name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
                                 </div>
                             </div>
                         </div>
@@ -134,7 +137,7 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="retry_interval" class="control-label col-sm-5">Retry Interval</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="retry_interval" required name="retry_interval" [(ngModel)]="currentEditItem.retry_interval">
+                                    <input type="number" class="form-control" id="retry_interval" required name="retry_interval" [(ngModel)]="currentEditItem.retry_interval">
                                 </div>
                             </div>
                         </div>
@@ -142,7 +145,7 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="off_hours_scan_interval" class="control-label col-sm-5">OffHours Scan Interval</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval">
+                                    <input type="number" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval">
                                 </div>
                             </div>
                         </div>
@@ -175,7 +178,7 @@ data.pageIndex + 1 | number
                                     <label for="trigger_type" class="control-label col-sm-5">Trigger Value</label>
                                 </div>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="trigger_value" required name="trigger_value" [(ngModel)]="currentEditItem.trigger_value">
+                                    <input type="number" class="form-control" id="trigger_value" required name="trigger_value" [(ngModel)]="currentEditItem.trigger_value">
                                 </div>
                             </div>
                         </div>
