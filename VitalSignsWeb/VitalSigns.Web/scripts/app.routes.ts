@@ -30,6 +30,7 @@ import { FinancialDashboard } from './dashboards/components/financial-dashboard.
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
 import { MailDeliveryStatus } from './dashboards/components/mail-delivery-status/maildelivery-tabs-component';
 import { Issues } from './dashboards/components/issues/issues.component';
+import { DominoStatistics } from './dashboards/components/overall-statistics/overall-domino-statistics.component';
 
 import {SiteMapList} from './navigation/editor/components/sitemap-list.component';
 import {SiteMapEditor} from './navigation/editor/components/sitemap-editor.component';
@@ -106,7 +107,7 @@ export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.com
 export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 export * from './dashboards/components/mail-delivery-status/maildelivery-tabs-component';
 export * from './dashboards/components/issues/issues.component';
-
+export * from './dashboards/components/overall-statistics/overall-domino-statistics.component';
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
 export * from './dashboards/components/key-metrics/overall-database-dashboard.component'
 export * from './dashboards/components/key-metrics/hardware-stats-dashboard.component'; 
@@ -243,6 +244,11 @@ const appRoutes: Routes = [
     {
         path: 'dashboard/issues',
         component: Issues
+    },
+    
+    {
+        path: 'dashboard/domino-statistics',
+        component: DominoStatistics
     },
    
     {

@@ -115,8 +115,8 @@ export * from './configurator/components/mobileusers/mobile-users.component'
 
 
 //Issues
+export * from './dashboards/components/overall-statistics/overall-domino-statistics.component';
 export * from './dashboards/components/issues/issues.component';
-
 export * from './reports/components/configuration/domino-server-configuration-report-grid.component'
 export * from './reports/components/configuration/server-list-type-report-grid.component'
 export * from './reports/components/configuration/server-list-location-report-grid.component'

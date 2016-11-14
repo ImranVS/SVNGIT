@@ -176,7 +176,7 @@ import {ServerFilter} from './reports/filters/components/server-filter.component
         dashboards.ServerImports,
         dashboards.MobileUser,
         dashboards.Issues,
-
+        dashboards.DominoStatistics,
         widgets.ServerListTypeReportGrid,
         widgets.ServerListLocationReportGrid,
 
