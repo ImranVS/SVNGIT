@@ -3002,7 +3002,7 @@ namespace VitalSigns.API.Controllers
                     EventDetectedSent = (s.NotificationsSent[-1].EventDetectedSent.Value),
                     EventDismissed = s.EventDismissed.Value,
                     NotificationSentTo = s.NotificationsSent[-1].NotificationSentTo
-                }).ToList();
+                }).OrderByDescending(x => x.EventDetectedSent).ToList();
                 Response = Common.CreateResponse(result);
             }
             catch (Exception ex)
@@ -3200,7 +3200,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpGet("get_Device_type__list")]
+        [HttpGet("get_device_type_list")]
         public APIResponse GetDeviceTypes()
         {
             try
