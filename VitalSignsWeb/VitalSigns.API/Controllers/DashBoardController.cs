@@ -206,8 +206,8 @@ namespace VitalSigns.API.Controllers
             var keyUsers = mobileDevicesRepository.Collection.AsQueryable().Select(x => new { KeyuserID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
             foreach (var maintenaceWindow in maintainWindows)
             {
-                var keyUser = keyUsers.FirstOrDefault(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id));
-                if (keyUser != null)
+                var innerkeyUsers = keyUsers.Where(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id)).ToList();
+                foreach (var keyUser in innerkeyUsers)
                 {
                     maintenaceWindow.KeyUsers.Add(keyUser.KeyuserID);
                 }

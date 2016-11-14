@@ -14,8 +14,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using MongoDB.Bson;
 using System.Runtime.Serialization.Json;
-
-
+using System.Globalization;
 
 namespace VitalSigns.API.Controllers
 {
@@ -533,39 +532,30 @@ namespace VitalSigns.API.Controllers
 
                 }).ToList();
 
-                 
-
                 serversRepository = new Repository<Server>(ConnectionString);
                 var servers = serversRepository.Collection.AsQueryable().Select(x => new { ServerID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
                 foreach (var maintainWindow in maintainWindows)
                 {
-                    var server = servers.FirstOrDefault(x => x.MaintenanceWindows.Contains(maintainWindow.Id));
-                    if (server != null)
+                    var innerServers = servers.Where(x => x.MaintenanceWindows.Contains(maintainWindow.Id)).ToList();
+                    foreach (var server in innerServers)
                     {
                         maintainWindow.DeviceList.Add(server.ServerID);
                     }
-                   
-
                 }
-
-                
 
                 mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
                 var keyUsers = mobileDevicesRepository.Collection.AsQueryable().Select(x => new { KeyuserID = x.Id, MaintenanceWindows = x.MaintenanceWindows});
                 foreach(var maintenaceWindow in maintainWindows)
                 {
-                    var keyUser = keyUsers.FirstOrDefault(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id));
-                    if(keyUser != null)
+                    var innerkeyUsers = keyUsers.Where(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id)).ToList();
+                  foreach(var keyUser in innerkeyUsers)
                     {
                         maintenaceWindow.KeyUsers.Add(keyUser.KeyuserID);
                     }
 
                 }
 
-
                 Response = Common.CreateResponse(maintainWindows,  "OK", "Maintenancedata inserted successfully");
-
-
             }
             catch (Exception exception)
             {
@@ -3710,7 +3700,7 @@ namespace VitalSigns.API.Controllers
 
         #region Servers Import
         #region Domino
-        // [FunctionAuthorize("DominoServerImport")]
+        //[FunctionAuthorize("DominoServerImport")]
         [HttpPut("load_domino_servers")]
         public APIResponse LoadDominoServers([FromBody]DominoServerImportModel serverImport)
         {
@@ -3873,7 +3863,7 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-        //  [FunctionAuthorize("DominoServerImport")]
+        //[FunctionAuthorize("DominoServerImport")]
         [HttpGet("get_domino_import")]
         public APIResponse GetDominoImportData()
         {
