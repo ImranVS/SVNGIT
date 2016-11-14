@@ -19,6 +19,12 @@ export class ClusterSecQueue extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = false;
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `clusterQueue`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=Replica.Cluster.SecondsOnQueue&deviceId=`;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);
@@ -35,14 +41,14 @@ export class ClusterSecQueue extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'mobileDevicesChart',
+                id: 'clusterQueue',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
                     url: '/reports/summarystats_chart?statName=Replica.Cluster.SecondsOnQueue',
                     chart: {
                         chart: {
-                            renderTo: 'mobileDevicesChart',
+                            renderTo: 'clusterQueue',
                             type: 'spline',
                             height: 300
                         },

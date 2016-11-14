@@ -60,13 +60,28 @@ export class ServerFilter {
             else 
                 selectedServers += "," + item.id;
         }
-        
-        this.widgetURL += selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString();
-        console.log(this.widgetURL);
+        var selStartDate = (this.startDate.getDate()).toString();
+        var selStartMonth = (this.startDate.getMonth()+1).toString();
+        if (selStartDate.length == 1)
+            selStartDate = '0' + selStartDate;
+        if (selStartMonth.length == 1)
+            selStartMonth = '0' + selStartMonth;
+
+        var selEndDate = (this.endDate.getDate()).toString();
+        var selEndMonth = (this.endDate.getMonth() + 1).toString();
+        if (selEndDate.length == 1)
+            selEndDate = '0' + selEndDate;
+        if (selEndMonth.length == 1)
+            selEndMonth = '0' + selEndMonth;
+
+        var startFinalDate = this.startDate.getFullYear().toString() + '-' + selStartMonth + '-' + selStartDate;
+        var endFinalDate = this.endDate.getFullYear().toString() + '-' + selEndMonth + '-' + selEndDate;
+        var URL = this.widgetURL + selectedServers + `&startDate=` + startFinalDate + `&endDate=` + endFinalDate;
+        console.log(URL);
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
         //    .catch(error => console.log(error));
-        this.widgetService.refreshWidget(this.widgetName, this.widgetURL.toString() )
+        this.widgetService.refreshWidget(this.widgetName, URL )
             .catch(error => console.log(error));
 
     }

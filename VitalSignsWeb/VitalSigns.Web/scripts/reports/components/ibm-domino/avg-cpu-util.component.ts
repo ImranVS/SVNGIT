@@ -19,11 +19,13 @@ export class AvgCPUUtil extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
     servers: string;
+
     currentHideServerControl: boolean = false;
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `avgcpuutilchart`;
     currentWidgetURL: string = `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=`;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private router: Router, private route: ActivatedRoute) {
 
         super(resolver, widgetService);

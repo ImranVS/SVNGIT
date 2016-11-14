@@ -19,6 +19,12 @@ export class ServerAvailabilityIndexReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = false;
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `dailyservertranschart`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=Server.AvailabilityIndex&deviceId=`;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);

@@ -19,6 +19,11 @@ export class DailyServerTrans extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
+    currentHideServerControl: boolean = true;
+    currentHideDatePanel: boolean = true;
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `dailyservertranschart`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=Server.Trans.PerMinute&deviceId=`;
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);

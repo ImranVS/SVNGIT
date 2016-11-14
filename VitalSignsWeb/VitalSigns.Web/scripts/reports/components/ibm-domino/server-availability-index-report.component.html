@@ -11,6 +11,7 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
+        <server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel"></server-filter>
         <div class="reportsPage">
             <h1>Server Availabiity Index Report</h1>
             <div *ngFor="let widget of widgets">

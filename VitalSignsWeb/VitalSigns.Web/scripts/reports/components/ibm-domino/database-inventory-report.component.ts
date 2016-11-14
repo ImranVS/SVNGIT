@@ -19,6 +19,12 @@ export class DatabaseInventoryReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = false;
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `databaseInventoryReport`;
+    currentWidgetURL: string = `/reports/database_inventory&deviceId=`;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);

@@ -22,6 +22,14 @@ export class DominoResponseTimes extends WidgetController {
     widgets: WidgetContract[];
     statname: string;
     title: string;
+
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = false;
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `dailyservertranschart`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=ResponseTime&deviceId=`;
+
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
@@ -29,10 +37,10 @@ export class DominoResponseTimes extends WidgetController {
     }
 
     ngOnInit() {
-        this.route.queryParams.subscribe(params => {
-            this.statname = params['statname'];
-            this.title = params['title'];
-        });
+        //this.route.queryParams.subscribe(params => {
+        //    this.statname = params['statname'];
+        //    this.title = params['title'];
+        //});
         this.service.get('/navigation/sitemaps/domino_reports')
             .subscribe
             (
@@ -45,7 +53,7 @@ export class DominoResponseTimes extends WidgetController {
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=${this.statname}`,
+                    url: `/reports/summarystats_chart?statName=ResponseTime`,
                     chart: {
                         chart: {
                             renderTo: 'dailyservertranschart',
