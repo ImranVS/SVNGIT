@@ -34,9 +34,13 @@ export class ServersLocation implements OnInit {
     serverCheck(value,event) {
      
         if (event.target.checked)
+        {
             this.devices.push(value);
+            this.flex.collectionView.currentItem.is_selected = true;
+        }
         else {          
             this.devices.splice(this.devices.indexOf(value), 1);
+            this.flex.collectionView.currentItem.is_selected = false;
         }
         this.checkedDevices.emit(this.devices);
     }
