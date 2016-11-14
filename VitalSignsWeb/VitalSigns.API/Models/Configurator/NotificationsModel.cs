@@ -14,23 +14,20 @@ namespace VitalSigns.API.Models
         [JsonProperty("notification_name")]
         public string NotificationName { get; set; }
 
+        [JsonProperty("hours_destinations_id")]
+        public string HoursDestinationsID { get; set; }
+
         [JsonProperty("interval")]
         public string Interval { get; set; }
+
+        [JsonProperty("business_hours_id")]
+        public string BusinessHoursId { get; set; }
 
         [JsonProperty("business_hours_type")]
         public string BusinessHoursType { get; set; }
 
         [JsonProperty("b_id")]
         public int BId { get; set; }
-
-        [JsonProperty("start_time")]
-        public string StartTime { get; set; }
-
-        [JsonProperty("duration")]
-        public int Duration { get; set; }
-
-        [JsonProperty("days")]
-        public string Days { get; set; }
 
         [JsonProperty("send_via")]
         public string SendVia { get; set; }

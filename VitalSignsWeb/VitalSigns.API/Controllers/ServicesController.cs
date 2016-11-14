@@ -1116,13 +1116,14 @@ namespace VitalSigns.API.Controllers
             Expression<Func<Status, bool>> expression;
             List<dynamic> result = new List<dynamic>();
             List<Segment> segments = new List<Segment>();
+            List<Status> list = null;
             Segment segment = new Segment();
 
             try
             {
                 if (string.IsNullOrEmpty(type))
                 {
-                    var list = statusRepository.Collection.AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                    list = statusRepository.Collection.AsQueryable().OrderBy(x => x.DeviceName).ToList();
 
                     foreach (Status status in list)
                     {
@@ -1139,10 +1140,17 @@ namespace VitalSigns.API.Controllers
                 {
                     if (string.IsNullOrEmpty(docfield))
                     {
-                        expression = (p => p.DeviceType == type);
-
-                        var list = statusRepository.Find(expression).AsQueryable().OrderBy(x => x.DeviceName).ToList();
-
+                        if (type == "Traveler")
+                        {
+                            FilterDefinition<Status> filterDef = statusRepository.Filter.Exists(p => p.TravelerStatus);
+                            list = statusRepository.Find(filterDef).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                        }
+                        else
+                        {
+                            expression = (p => p.DeviceType == type);
+                            list = statusRepository.Find(expression).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                        }
+                        
                         foreach (Status status in list)
                         {
                             var x = new ExpandoObject() as IDictionary<string, Object>;
@@ -1156,8 +1164,17 @@ namespace VitalSigns.API.Controllers
                     }
                     else
                     {
-                        FilterDefinition<Status> filterdefStatus = statusRepository.Filter.Eq(x => x.DeviceType, type);
-                        statslist = statusRepository.Collection.Find(filterdefStatus).ToList();
+                        if (type == "Traveler")
+                        {
+                            FilterDefinition<Status> filterDef = statusRepository.Filter.Exists(p => p.TravelerStatus);
+                            statslist = statusRepository.Find(filterDef).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                        }
+                        else
+                        {
+                            FilterDefinition<Status> filterdefStatus = statusRepository.Filter.Eq(x => x.DeviceType, type);
+                            statslist = statusRepository.Collection.Find(filterdefStatus).ToList();
+                        }
+                        
                         if (!string.IsNullOrEmpty(sortby))
                         {
                             var propertyInfo = typeof(Status).GetProperty(sortby);
