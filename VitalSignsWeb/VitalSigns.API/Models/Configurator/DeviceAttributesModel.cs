@@ -95,5 +95,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("value")]
         public string Value { get; set; }
 
+        [JsonProperty("datatype")]
+        public string DataType { get; set; }
+
+
     }
 }
