@@ -83,6 +83,8 @@ export *from './configurator/components/alert/alert-definitions.component'
 export * from './configurator/components/alert/hours-destinations.component'
 export * from './configurator/components/alert/escalation.component'
 
+//log Files
+export * from './configurator/components/logFiles/log-settings-list.component'
 export *from './configurator/components/security/security-assign-server-to-node.component'
 
 //Ibm domino

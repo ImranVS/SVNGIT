@@ -13,6 +13,7 @@ import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metri
 import {OverallDatabaseDashboard} from './dashboards/components/key-metrics/overall-database-dashboard.component'; 
 import {HardwareStatsDashboard} from './dashboards/components/key-metrics/hardware-stats-dashboard.component'; 
 import {UsersDashboard} from './dashboards/components/key-metrics/users-dashboard.component'; 
+import {ServerDaysUp} from './dashboards/components/key-metrics/server-days-up-dashboard.component'; 
 
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -90,6 +91,7 @@ import { Alerts } from './configurator/components/alert/alert-tabs-component';
 import { Nodes } from './configurator/components/security/security-assign-server-to-node.component';
 
 import { IBMDomino } from './configurator/components/ibmDomino/ibmdomino-tabs-component';
+import { LogsTabs } from './configurator/components/logFiles/log-files-tabs-component';
 
 import { AddLogFile } from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
 import { MobileUser } from './configurator/components/mobileusers/mobile-users.component';
@@ -111,7 +113,8 @@ export * from './dashboards/components/overall-statistics/overall-domino-statist
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
 export * from './dashboards/components/key-metrics/overall-database-dashboard.component'
 export * from './dashboards/components/key-metrics/hardware-stats-dashboard.component'; 
-export * from './dashboards/components/key-metrics/users-dashboard.component'
+export * from './dashboards/components/key-metrics/users-dashboard.component';
+export * from './dashboards/components/key-metrics/server-days-up-dashboard.component';
 
 export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -142,7 +145,7 @@ export *from './configurator/components/alert/alert-tabs-component';
 
 export *from './configurator/components/security/security-assign-server-to-node.component';
 
-
+export * from './configurator/components/logFiles/log-files-tabs-component';
 export * from './configurator/components/ibmDomino/ibmdomino-tabs-component';
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
 export * from './configurator/components/mobileusers/mobile-users.component';
@@ -232,6 +235,10 @@ const appRoutes: Routes = [
     {
         path: 'dashboard/users',
         component: UsersDashboard
+    },
+    {
+        path: 'dashboard/serverdaysup',
+        component: ServerDaysUp
     },
     {
         path: 'dashboard/financial',
@@ -457,6 +464,11 @@ const appRoutes: Routes = [
         path: 'configurator/nodes',
         component: Nodes
     }
+    ,
+     {
+         path: 'configurator/logFiles',
+         component: LogsTabs
+     }
     ,
 
      {

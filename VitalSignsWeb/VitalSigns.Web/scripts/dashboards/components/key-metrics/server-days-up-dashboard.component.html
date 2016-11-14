@@ -1,0 +1,46 @@
+﻿<div id="zeusContext">
+
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="img/menu/dashboard.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Domino Servers
+                <app-navigator></app-navigator>
+            </h2>
+            <p>Consecutive Days of Operation</p>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+</div>
+<div id="zeusContent">
+    <div class="row">
+        <div class="aZeusFilter col-md-6 col-lg-6">
+            <div class="radio radio-info radio-inline">
+                <input type="radio" [checked]="false" (click)="setSort1($event.target.checked)" id="sortchoice11" name="sortchoice1">
+                <label for="sortchoice11">By Server</label>
+            </div>
+            <div class="radio radio-info radio-inline">
+                <input type="radio" [checked]="true" (click)="setSort1(!$event.target.checked)" id="sortchoice12" name="sortchoice1">
+                <label for="sortchoice12">By Duration</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+    </div>
+    <div class="row">
+        <div class="{{widget.css}}" *ngFor="let widget of widgets">
+            <div class="widgetWrapper">
+                <div class="widgetTitle">
+                    {{widget.title}}
+                </div>
+                <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+                <div class="widgetContent" id="{{widget.id}}">
+                    <my-widget [contract]="widget">loading...</my-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

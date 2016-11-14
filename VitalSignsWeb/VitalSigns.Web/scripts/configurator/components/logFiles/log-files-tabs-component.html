@@ -1,0 +1,26 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="img/menu/servers.svg" title="Log Files" alt="Log Files" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Log Files
+            </h2>
+            <p>Detailed Information about what VitalSigns is doing</p>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of tabsData">
+        <a href="javascript:void(0);">{{tab.title}}</a>
+    </li>
+</ul>
+
+<div class="tab-content">
+
+    <div #tab></div>
+
+</div>

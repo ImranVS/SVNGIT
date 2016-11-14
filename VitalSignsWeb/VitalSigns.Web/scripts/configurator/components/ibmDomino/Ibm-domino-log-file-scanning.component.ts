@@ -36,12 +36,11 @@ export class DominoLogFiles extends GridBase implements OnInit {
 
         this.initialGridBind('/configurator/get_log_scaning');
     }
-    deleteLogFileScanning() {
-        this.delteGridRow('/configurator/delete_log_file_scanning/');
+    deleteLogFileScanning(id: string) {
+
+        this.service.delete(`/configurator/delete_log_file_scanning/${id}`)
+        this.ngOnInit();
     }
-
-
 }
-
 
 

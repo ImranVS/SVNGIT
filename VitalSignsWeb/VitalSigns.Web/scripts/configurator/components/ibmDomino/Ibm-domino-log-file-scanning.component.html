@@ -56,7 +56,7 @@ data.pageIndex + 1 | number
                         <div class="table-cell-height">
                             <a class="btn btn-default"  [routerLink]="['/ibmDomino/add/'+dominolog.id]" role="button" (click)="selectService(dominolog.id)">Edit</a>
                             <a class="btn btn-default" [routerLink]="['/ibmDomino/add']" role="button">Add</a>
-                            <button class="btn btn-default" (click)="deleteLogFileScanning();">
+                            <button class="btn btn-default" (click)="deleteLogFileScanning(dominolog.id)">
                                 Delete
                             </button>
                         </div>
