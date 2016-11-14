@@ -4,9 +4,9 @@
 
         <div class="{{widget.css}}" *ngFor="let widget of widgets">
             <div class="widgetWrapper">
-                <div class="widgetTitle">
+                <!--<div class="widgetTitle">
                     {{widget.title}}
-                </div>
+                </div>-->
                 <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
                 <div class="widgetContent" id="{{widget.id}}">
                     <my-widget [contract]="widget">loading...</my-widget>

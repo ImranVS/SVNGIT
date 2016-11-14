@@ -125,6 +125,57 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
                     series: []
                 }
             }
+        },
+        {
+            id: 'travelerUsers',
+            title: 'Users',
+            name: 'ChartComponent',
+            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-5',
+            settings: {
+                url: '/services/status_list?type=Traveler&docfield=user_count&isChart=true',
+                chart: {
+                    chart: {
+                        renderTo: 'travelerUsers',
+                        type: 'bar',
+                        height: 240
+                    },
+                    title: { text: '' },
+                    subtitle: { text: '' },
+                    xAxis: {
+                        categories: []
+                    },
+                    yAxis: {
+                        min: 0,
+                        endOnTick: false,
+                        allowDecimals: false,
+                        title: {
+                            enabled: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: false
+                            },
+                            groupPadding: 0.1,
+                            borderWidth: 0
+                        },
+                        series: {
+                            pointPadding: 0
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: []
+                }
+            }
         }
     ]
     
@@ -136,5 +187,4 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
         injectSVG();
         bootstrapNavigator();
     }
-
 }

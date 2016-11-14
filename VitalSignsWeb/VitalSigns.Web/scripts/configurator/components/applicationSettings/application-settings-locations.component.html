@@ -1,107 +1,111 @@
-﻿<div class="container">
+﻿<div class="widgetWrapper">
+    <div class="widgetContent">
+        <div class="grid-sort-group">
 
-    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility ="Column"  [frozenColumns]="1" [isReadOnly]="true" #flex id="servergrid">
-        <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Location Name'" [binding]="'location_name'" [width]="200"> </wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Country'" [binding]="'country'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Region'" [binding]="'region'" [width]="100"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'City'" [binding]="'city'" [width]="100"></wj-flex-grid-column>
-    </wj-flex-grid>
-    <div class="btn-group" *ngIf="data != null">
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToFirstPage()"
-                [disabled]="data.pageIndex <= 0">
-            <span class="glyphicon glyphicon-fast-backward"></span>
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToPreviousPage()"
-                [disabled]="data.pageIndex <= 0">
-            <span class="glyphicon glyphicon-step-backward">
-            </span>
-        </button>
-        <button type="button" class="btn btn-default" disabled style="width:100px">
-            {{
+            <!-- edit details in a popup -->
+            <button class="btn btn-default" (click)="editGridRow(frmDialog)">
+                Edit
+            </button>
+            <button class="btn btn-default" (click)="addlocations(frmDialog)">
+                Add
+            </button>
+            <button class="btn btn-default" (click)="deltelocations();">
+                Delete
+            </button>
+        </div>
+        <div>&nbsp;</div>
+        <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1" [isReadOnly]="true" #flex id="servergrid">
+            <wj-flex-grid-filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [header]="'Location Name'" [binding]="'location_name'" [width]="200"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Country'" [binding]="'country'" [width]="180"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Region'" [binding]="'region'" [width]="180"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'City'" [binding]="'city'" [width]="180"></wj-flex-grid-column>
+        </wj-flex-grid>
+        <div class="btn-group" *ngIf="data != null">
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToFirstPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-fast-backward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToPreviousPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-step-backward">
+                </span>
+            </button>
+            <button type="button" class="btn btn-default" disabled style="width:100px">
+                {{
 data.pageIndex + 1 | number
-            }} / {{data.pageCount | number}}
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToNextPage()"
-                [disabled]="data.pageIndex >= data.pageCount - 1">
-            <span class="glyphicon glyphicon-step-forward"></span>
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToLastPage()"
-                [disabled]="data.pageIndex >= data.pageCount - 1">
-            <span class="glyphicon glyphicon-fast-forward"></span>
-        </button>
+                }} / {{data.pageCount | number}}
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToNextPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToLastPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-fast-forward"></span>
+            </button>
+        </div>
+        <div class="pull-right" *ngIf="data != null">
+            <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                <wj-menu-item [value]="10">10</wj-menu-item>
+                <wj-menu-item [value]="20">20</wj-menu-item>
+                <wj-menu-item [value]="50">50</wj-menu-item>
+            </wj-menu>
+        </div>
+
+        <wj-popup class="col-md-6 modal-content" #frmDialog>
+
+            <form (ngSubmit)="savelocations(frmDialog)" #frmUser="ngForm">
+                <h4 class="modal-header">
+                    {{formTitle}}
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </h4>
+
+                <div class="modal-body" *ngIf="currentEditItem">
+                    <div class="form-group">
+                        <label for="location_name">LocationName</label>
+                        <input type="text" class="form-control" #name d="location_name" required name="location_name" [(ngModel)]="currentEditItem.location_name">
+                    </div>
+                    <div class="form-group" *ngIf="countries">
+                        <label for="country">Country</label>
+                        <br />
+                        <wj-combo-box name="country" [itemsSource]="countries" [(text)]="currentEditItem.country"
+                                      [(ngModel)]="currentEditItem.country" (ngModelChange)="getstates()">
+                        </wj-combo-box>
+                    </div>
+                    <div class="form-group" *ngIf="states">
+                        <label for="region">Region</label>
+                        <br />
+                        <wj-combo-box name="region" [itemsSource]="states" [(text)]="currentEditItem.region"
+                                      [(ngModel)]="currentEditItem.region" (ngModelChange)="getcities()">
+                        </wj-combo-box>
+                    </div>
+                    <div class="form-group" *ngIf="cities">
+                        <label for="city">City</label>
+                        <br />
+                        <wj-combo-box name="city" [itemsSource]="cities" [(text)]="currentEditItem.city"
+                                      [(ngModel)]="currentEditItem.city">
+                        </wj-combo-box>
+                    </div>
+                </div>
+
+
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                    <button class="btn btn-primary" type="cancel" name="cancel">Cancel</button>
+                </div>
+
+
+            </form>
+        </wj-popup>
     </div>
-    <div class="pull-right" *ngIf="data != null">
-        <wj-menu [(value)]="pageSize" [header]="'Page size'">
-            <wj-menu-item [value]="10">10</wj-menu-item>
-            <wj-menu-item [value]="20">20</wj-menu-item>
-            <wj-menu-item [value]="50">50</wj-menu-item>
-        </wj-menu>
-    </div>
+</div>
+<div class="container">
 
-
-    <div class="well grid-sort-group">
-
-        <!-- edit details in a popup -->
-        <button class="btn btn-default" (click)="editGridRow(frmDialog)">
-            Edit
-        </button>
-        <button class="btn btn-default" (click)="addlocations(frmDialog)">
-            Add
-        </button>
-        <button class="btn btn-default" (click)="deltelocations();">
-            Delete
-        </button>
-    </div>
-    <wj-popup class="col-md-6 modal-content" #frmDialog>
-
-        <form (ngSubmit)="savelocations(frmDialog)" #frmUser="ngForm">
-            <h4 class="modal-header">
-                {{formTitle}}
-                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-            </h4>
-           
-            <div class="modal-body" *ngIf="currentEditItem">
-                <div class="form-group">
-                    <label for="location_name">LocationName</label>
-                    <input type="text" class="form-control" #name d="location_name" required name="location_name" [(ngModel)]="currentEditItem.location_name">
-                </div>
-                <div class="form-group" *ngIf="countries">
-                    <label for="country">Country</label>
-                    <br />
-                    <wj-combo-box name="country" [itemsSource]="countries" [(text)]="currentEditItem.country"
-                                  [(ngModel)]="currentEditItem.country" (ngModelChange)="getstates()">
-                    </wj-combo-box>
-                </div>
-                <div class="form-group" *ngIf="states">
-                    <label for="region">Region</label>
-                    <br />
-                    <wj-combo-box name="region" [itemsSource]="states" [(text)]="currentEditItem.region"
-                                  [(ngModel)]="currentEditItem.region" (ngModelChange)="getcities()">
-                    </wj-combo-box>
-                </div>
-                <div class="form-group" *ngIf="cities">
-                    <label for="city">City</label>
-                    <br />
-                    <wj-combo-box name="city" [itemsSource]="cities" [(text)]="currentEditItem.city"
-                                  [(ngModel)]="currentEditItem.city">
-                    </wj-combo-box>
-                </div>
-            </div>
-
-
-
-            <div class="modal-footer">
-                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                <button class="btn btn-primary" type="cancel" name="cancel" >Cancel</button>
-            </div>
-          
-
-        </form>
-    </wj-popup>
+    
 </div>

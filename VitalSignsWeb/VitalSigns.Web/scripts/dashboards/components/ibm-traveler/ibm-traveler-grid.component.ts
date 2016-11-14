@@ -46,7 +46,18 @@ export class IBMTravelerGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
         );
+        
         //this.flex.autoSizeRow(0);
+    }
+
+    onItemsSourceChanged() {
+
+        var row = this.flex.columnHeaders.rows[0];
+        row.wordWrap = true;
+
+        // autosize first header row
+        this.flex.autoSizeRow(0, true);
+
     }
     
     getAccessColor(access: string) {
