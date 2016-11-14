@@ -11,7 +11,7 @@ namespace VitalSigns.API.Models
 {
     public class DataContext
     {
-        public const string DATABASE_NAME = "vitalsigns";
+        private static string DATABASE_NAME = Startup .DatabaseName;
         public const string SITE_MAP_COLLECTION_NAME = "sitemap";
 
         // TODO: put this into an IoC container
