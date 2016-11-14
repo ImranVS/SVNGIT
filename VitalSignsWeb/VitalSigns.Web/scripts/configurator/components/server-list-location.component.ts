@@ -51,11 +51,11 @@ export class ServersLocation implements OnInit {
         }
     }
     onDeviceListChange() {
-        console.log(this.deviceList);
+        console.log(this.deviceType);
     }
 
-    ngOnInit() {       
-        console.log(this.deviceList);
+    ngOnInit() {
+        console.log(this.deviceType);
         this.service.get("/Configurator/device_list")
             .subscribe(
             response => {

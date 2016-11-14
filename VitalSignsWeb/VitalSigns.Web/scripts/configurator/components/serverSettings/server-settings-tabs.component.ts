@@ -45,14 +45,6 @@ export class ServerSettings implements OnInit {
                 "active": false
             },
             {
-                "title": "Windows Services",
-
-                "component": "WindowsServices",
-                "path": "/app/configurator/components/serverSettings/server-settings-windows-services .component",
-                "active": false
-
-            },
-            {
                 "title": "Disk Settings",
                 "component": "ServerDiskSettings",
                 "path": "/app/configurator/components/serverSettings/server-settings-disk-settings",
@@ -61,8 +53,7 @@ export class ServerSettings implements OnInit {
             {
                 "title": "Location/Credentials/Business Hours",
                 "component": "ServerLocations",
-                "path": "/app/configurator/components/serverSettings/server-settings-locations-credentials-businesshours.component",
-               
+                "path": "/app/configurator/components/serverSettings/server-settings-locations-credentials-businesshours.component",              
                 "active": false
             }
 

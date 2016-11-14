@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+﻿import {Component, OnInit, EventEmitter, Input, Output, ViewChild, AfterViewInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
@@ -22,7 +22,10 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
         RESTService
     ]
 })
-export class DeviceAttributes extends GridBase implements OnInit {  
+export class DeviceAttributes extends GridBase implements OnInit {
+    @ViewChild('combo') combo: wijmo.input.ComboBox;
+    @Output() type = new EventEmitter();  
+    @Input() currentDeviceType: string;
     devices: string;
     deviceTypeData: any;
     errorMessage: any;
@@ -45,10 +48,15 @@ export class DeviceAttributes extends GridBase implements OnInit {
        
     }
 
+    onDeviceTypeIndexChanged(event: wijmo.EventArgs) {
+        this.currentDeviceType = this.combo.selectedItem.Text;
+        this.type.emit(this.currentDeviceType);
+    }
+
     ngOnInit()
     {
         this.initialGridBind('/Configurator/get_device_attributes');
-        this.service.get('/configurator/get_Device_type__list')
+        this.service.get('/configurator/get_device_type_list')
             .subscribe(
             (response) => {
                 this.deviceTypeData = response.data;                
