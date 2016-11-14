@@ -413,7 +413,7 @@
 
       {
         "server_type": "URL",
-        "icon": "/img/servers/Paintbrush.svg",
+        "icon": "/img/servers/url.svg",
         "tabs": [
 
         ]
