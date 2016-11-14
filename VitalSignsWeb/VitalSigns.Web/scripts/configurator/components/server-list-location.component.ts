@@ -25,9 +25,11 @@ export class ServersLocation implements OnInit {
     @Output() checkedDevices = new EventEmitter();  
     @Input() deviceList: any; 
     @Input() deviceType: any; 
+    @Input() deviceTypes: any; 
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
-    devices: string[]=[];
+    devices: string[] = [];
+    deviceTypeNames: any;
     constructor(private service: RESTService) {
        
     } 
@@ -63,7 +65,8 @@ export class ServersLocation implements OnInit {
         this.service.get("/Configurator/device_list")
             .subscribe(
             response => {
-                var resultData:any = [];
+                var resultData: any = [];
+                var resultDataNew: any = [];
                 for (var item of response.data) {
                     if (this.deviceList) {
                         var value = this.deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);                       
@@ -77,7 +80,22 @@ export class ServersLocation implements OnInit {
                 if (this.deviceType) {
                     resultData = resultData.filter((record) => record.device_type == this.deviceType);
 
-                }               
+                }   
+                if (this.deviceTypes)
+                {
+                    this.deviceTypeNames = this.deviceTypes.split(',');
+                    
+                    for (var name of this.deviceTypeNames) {
+                       
+                        resultDataNew = resultDataNew.concat(resultData.filter((record) => record.device_type == name ));
+                        
+                       
+                    }
+                    resultData = resultDataNew;
+                 
+                }
+              
+               
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
                 this.data.pageSize = 10;               
