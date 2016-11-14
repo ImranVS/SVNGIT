@@ -23,61 +23,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("send")]
         [BsonIgnoreIfNullAttribute]
-        public List<SendList> SendList { get; set; }
-    }
-    /* Documents created using SendList can be either regular notifications or escalations. The difference between the two is the presence 
-     of the property Interval in the list of members. Interval will only pertain to escalations. */
-    public class SendList : Entity
-    {
-        [DataMember]
-        [BsonElement("business_hours_id")]
-        [BsonIgnoreIfNullAttribute]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string BusinessHoursId { get; set; }
-
-        [DataMember]
-        [BsonElement("b_id")]
-        [BsonIgnoreIfNullAttribute]
-        public int BId { get; set; }
-
-        [DataMember]
-        [BsonElement("send_via")]
-        [BsonIgnoreIfNullAttribute]
-        public string SendVia { get; set; }
-
-        [DataMember]
-        [BsonElement("send_to")]
-        [BsonIgnoreIfNullAttribute]
-        public string SendTo { get; set; }
-
-        [DataMember]
-        [BsonElement("copy_to")]
-        [BsonIgnoreIfNullAttribute]
-        public string CopyTo { get; set; }
-
-        [DataMember]
-        [BsonElement("blind_copy_to")]
-        [BsonIgnoreIfNullAttribute]
-        public string BlindCopyTo { get; set; }
-
-        [DataMember]
-        [BsonElement("script_command")]
-        [BsonIgnoreIfNullAttribute]
-        public string ScriptCommand { get; set; }
-
-        [DataMember]
-        [BsonElement("script_location")]
-        [BsonIgnoreIfNullAttribute]
-        public string ScriptLocation { get; set; }
-
-        [DataMember]
-        [BsonElement("persistent_notification")]
-        [BsonIgnoreIfNullAttribute]
-        public bool PersistentNotification { get; set; }
-
-        [DataMember]
-        [BsonElement("interval")]
-        [BsonIgnoreIfNullAttribute]
-        public int? Interval { get; set; }
+        public List<string> SendList { get; set; }
     }
 }
