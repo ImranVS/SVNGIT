@@ -24,6 +24,7 @@ export abstract class GridBase {
     formTitle: string;
     modal = true;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    @ViewChild('flex1') flex1: wijmo.grid.FlexGrid;
     @ViewChild('mobileDeviceGrid') mobileDeviceGrid: wijmo.grid.FlexGrid;
 
     constructor(service: RESTService) {  
