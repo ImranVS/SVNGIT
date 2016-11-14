@@ -23,13 +23,31 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 export class ServersLocation implements OnInit {
    
     @Output() checkedDevices = new EventEmitter();  
-    @Input() deviceList: any; 
+    _deviceList: any;
     @Input() deviceType: any; 
-    @Input() deviceTypes: any; 
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     devices: string[] = [];
-    deviceTypeNames: any;
+
+
+    @Input() public set deviceList(val: string) {
+        this._deviceList = val;
+        this.devices = [];
+        this.refreshCheckedDevices();       
+    }
+    refreshCheckedDevices() {
+        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+            if (this._deviceList) {
+                var value = this._deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);
+                if (value.length > 0) {
+                    item.is_selected = true;
+                    this.devices.push(item.id)
+                }
+            } 
+
+        }
+    }
     constructor(private service: RESTService) {
        
     } 
@@ -61,41 +79,24 @@ export class ServersLocation implements OnInit {
     }
 
     ngOnInit() {
-        console.log(this.deviceType);
         this.service.get("/Configurator/device_list")
             .subscribe(
             response => {
-                var resultData: any = [];
-                var resultDataNew: any = [];
+                var resultData:any = [];
                 for (var item of response.data) {
-                    if (this.deviceList) {
-                        var value = this.deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);                       
+                    if (this._deviceList) {
+                        var value = this._deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);                       
                         if (value.length > 0) {
                             item.is_selected = true;
                             this.devices.push(item.id)
                         }
                     } 
                     resultData.push(item);
-                }                
+                } 
+                this.deviceList = "";               
                 if (this.deviceType) {
                     resultData = resultData.filter((record) => record.device_type == this.deviceType);
-
-                }   
-                if (this.deviceTypes)
-                {
-                    this.deviceTypeNames = this.deviceTypes.split(',');
-                    
-                    for (var name of this.deviceTypeNames) {
-                       
-                        resultDataNew = resultDataNew.concat(resultData.filter((record) => record.device_type == name ));
-                        
-                       
-                    }
-                    resultData = resultDataNew;
-                 
-                }
-              
-               
+                }               
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
                 this.data.pageSize = 10;               
