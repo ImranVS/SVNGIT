@@ -1,81 +1,86 @@
-﻿
-<div class="container">
-    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-8">
-        <form [formGroup]="ibmDominoSettingsForm" (ngSubmit)="onSubmit(ibmDominoSettingsForm.value)" class="form-horizontal">
-          
-            <div class="panel panel-default">
-                <div class="panel-heading">IBM Domino Settings</div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="name" class="control-label col-sm-5">Notes Program Directory Path:</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" #notesprogramdirectory name="notes_program_directory" formControlName="notes_program_directory">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="name" class="control-label col-sm-5">Notes ID file:</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" #notesuserid name="notes_user_id" formControlName="notes_user_id">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="name" class="control-label col-sm-5">Notes.INI:</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" #notesini name="notes_ini" formControlName="notes_ini">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="name" class="control-label col-sm-5">Notes Password:</label>
-                        <div class="col-sm-7">
-                            <input type="password" class="form-control" #notespassword name="notes_password" formControlName="notes_password">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-sm-offset-5 col-sm-7">
-                            <label for="enableex_journal">
-                                <input type="checkbox" class="checkbox-inline" id="enableex_journal" formControlName="enableex_journal">
-                                EXJournaling is enabled
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-sm-offset-5 col-sm-7">
-                            <label for="enable_domino_console_commands">
-                                <input type="checkbox" class="checkbox-inline" id="enable_domino_console_commands" formControlName="enable_domino_console_commands">
-                                Enable Console Commands
-                            </label>
+﻿<div class="col-lg-2">&nbsp;</div>
+<div class="col-xs-12 col-md-12 col-sm-12 col-lg-8">
+    <div class="widgetWrapper">
+        <div class="widgetContent">
+            <div class="row">
+                <form [formGroup]="ibmDominoSettingsForm" (ngSubmit)="onSubmit(ibmDominoSettingsForm.value)">
 
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="exjournalthreshold" class="control-label col-sm-5">Threshold:</label>
-                        <div class="col-sm-7">
-                            <input type="text"  pattern="^[1-9]\d*(\.\d+)?$" class="form-control" #exjournalthreshold name="exjournal_threshold" formControlName="exjournal_threshold">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="consecutivetelnet" class="control-label col-sm-5">Consecutive Telnet</label>
-                        <div class="col-sm-7">
-                            <input type="text"  pattern="^[1-9]\d*(\.\d+)?$" class="form-control" #consecutivetelnet name="consecutive_telnet" formControlName="consecutive_telnet">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-sm-offset-5 col-sm-3">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                                <button class="btn btn-primary wj-hide " type="button" name="cancel" [routerLink]="['']">Cancel</button>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">IBM Domino Settings</div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="notes_program_directory" class="control-label col-sm-3">Notes Program Directory Path:</label>
+                                <div class="form-group col-sm-9">
+                                    <input type="text" class="form-control" #notesprogramdirectory id="notes_program_directory" name="notes_program_directory" formControlName="notes_program_directory">
+                                </div>
                             </div>
-                            <div class="col-sm-1">
-                             
+                            <div class="form-group">
+                                <label for="notes_user_id" class="control-label col-sm-3">Notes ID file:</label>
+                                <div class="form-group col-sm-9">
+                                    <input type="text" class="form-control" #notesuserid id="notes_user_id" name="notes_user_id" formControlName="notes_user_id">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="notes_ini" class="control-label col-sm-3">Notes.INI:</label>
+                                <div class="form-group col-sm-9">
+                                    <input type="text" class="form-control" #notesini id="notes_ini" name="notes_ini" formControlName="notes_ini">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="notes_password" class="control-label col-sm-3">Notes Password:</label>
+                                <div class="form-group col-sm-9">
+                                    <input type="password" class="form-control" #notespassword id="notes_password" name="notes_password" formControlName="notes_password">
+                                </div>
+                            </div>
+                                            <div class="form-group">
+                                                <label for="exjournal_threshold" class="control-label col-sm-3">Threshold:</label>
+                                                <div class="form-group col-sm-9">
+                                                    <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" #exjournalthreshold id="exjournal_threshold" name="exjournal_threshold" formControlName="exjournal_threshold">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="consecutive_telnet" class="control-label col-sm-3">Consecutive Telnet:</label>
+                                                <div class="form-group col-sm-9">
+                                                    <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" #consecutivetelnet id="consecutive_telnet" name="consecutive_telnet" formControlName="consecutive_telnet">
+                                                </div>
+                                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-3">&nbsp;</div>
+                                <div class="col-sm-9">
+                                    <div class="funkyradio">
+                                        <div class="funkyradio-default">
+                                            <input type="checkbox" id="enableex_journal" formControlName="enableex_journal">
+                                            <label for="enableex_journal">Enable EXJournaling</label>
+                                        </div>
+                                    </div>
+                                </div>            
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-3">&nbsp;</div>
+                                <div class="col-sm-9">
+                                    <div class="funkyradio">
+                                        <div class="funkyradio-default">
+                                            <input type="checkbox" id="enable_domino_console_commands" formControlName="enable_domino_console_commands">
+                                            <label for="enable_domino_console_commands">Enable Console Commands</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div>&nbsp;</div>
 
-                            </div>
-                        </div>
-                      
+                                            <div class="form-group">
+                                                <div class="col-sm-7">
+                                                    <button type="submit" class="btn btn-primary">Save</button>
+                                                    <!--<button class="btn btn-primary wj-hide " type="button" name="cancel" [routerLink]="['']">Cancel</button>-->
+                                                </div>
+
+                                            </div>
+                                        </div>
                     </div>
-                </div>
+                </form>
             </div>
-           
-          
-        </form>
+        </div>
     </div>
 </div>
+<div class="col-lg-2">&nbsp;</div>
