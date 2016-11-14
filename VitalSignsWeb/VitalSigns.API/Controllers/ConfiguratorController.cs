@@ -182,10 +182,23 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
 
 
-
+                bool updated = false;
+                byte[] MyPass;
+                
+                VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+                MyPass = mySecrets.Encrypt(serverCredential.Password);
+               
+                System.Text.StringBuilder newstr = new System.Text.StringBuilder();
+                foreach (byte b in MyPass)
+                {
+                    newstr.AppendFormat("{0}, ", b);
+                }
+                string bytepwd = newstr.ToString();
+                int n = bytepwd.LastIndexOf(", ");
+                bytepwd = bytepwd.Substring(0, n);
                 if (string.IsNullOrEmpty(serverCredential.Id))
                 {
-                    Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = serverCredential.Password, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
+                    Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = bytepwd, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
 
 
                     string id = credentialsRepository.Insert(serverCredentials);
@@ -970,10 +983,24 @@ namespace VitalSigns.API.Controllers
 
                 try
                 {
+                    bool updated = false;
+                    byte[] MyPass;
+
+                    VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+                    MyPass = mySecrets.Encrypt(dominoSettings.NotesPassword);
+
+                    System.Text.StringBuilder newstr = new System.Text.StringBuilder();
+                    foreach (byte b in MyPass)
+                    {
+                        newstr.AppendFormat("{0}, ", b);
+                    }
+                    string bytepwd = newstr.ToString();
+                    int n = bytepwd.LastIndexOf(", ");
+                    bytepwd = bytepwd.Substring(0, n);
                     var ibmDominoSettings = new List<NameValue> { new NameValue { Name = "Notes Program Directory", Value = dominoSettings.NotesProgramDirectory },
                                                                 new NameValue { Name = "Notes User ID", Value = dominoSettings.NotesUserID },
                                                                 new NameValue { Name = "Notes.ini", Value = dominoSettings.NotesIni},
-                                                                new NameValue { Name = "Password", Value = dominoSettings.NotesPassword},
+                                                                new NameValue { Name = "Password", Value = bytepwd},
                                                                 new NameValue { Name = "Enable Domino Console Commands", Value = Convert.ToString(dominoSettings.EnableDominoConsoleCommands)},
                                                                 new NameValue { Name = "Enable ExJournal", Value =  Convert.ToString(dominoSettings.EnableExJournal)},
                                                                  new NameValue { Name = "ExJournal Threshold", Value = dominoSettings.ExJournalThreshold},
@@ -3018,14 +3045,14 @@ namespace VitalSigns.API.Controllers
                                         NotificationName = notification.NotificationName,
                                         SendVia = notificationDest.SendVia,
                                         SendTo = notificationDest.SendTo
-                                        
+
                                     });
                                 }
                             }
                         }
-                            
+
                     }
-                    
+
                 }
                 result.Add(result_disp);
                 result.Add(result_sendto);
@@ -3073,7 +3100,7 @@ namespace VitalSigns.API.Controllers
                     .Set(x => x.PersistentNotification, notificationDef.PersistentNotification);
                 }
                 var result = notificationDestRepository.Update(filterDef, updateHours);
-                
+
                 Response = Common.CreateResponse(result);
             }
             catch (Exception ex)
