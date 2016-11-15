@@ -49,7 +49,10 @@ namespace VSNext.Mongo.Entities
                 property.SetValue(this, null);
             }
         }
-
+        [DataMember]
+        [BsonElement("device_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
         [DataMember]
         [BsonElement("server_name")]
         public string ServerName { get; set; }
