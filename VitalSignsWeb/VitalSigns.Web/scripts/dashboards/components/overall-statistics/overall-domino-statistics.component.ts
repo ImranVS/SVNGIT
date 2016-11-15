@@ -38,9 +38,7 @@ export class DominoStatistics implements OnInit {
         }
     }
     ngOnInit() {
-
-        alert("Hi");
-        this.service.get('/DashBoard/get_domino_statistics')
+        this.service.get('/DashBoard/get_domino_statistics/{overall_domino_date}')
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
