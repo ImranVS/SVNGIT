@@ -60,7 +60,7 @@ export class ConnectionsServerFilter {
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
         //this.deviceStatus = paramstatus;
     }
-    applyFilters(multisel1: wijmo.input.MultiSelect, multisel2: wijmo.input.MultiSelect) {
+    applyFilters(multisel1: wijmo.input.MultiSelect, multisel2: wijmo.input.ComboBox) {
         console.log(multisel1.checkedItems);
        
         //var v = multisel1.checkedItems;
@@ -72,13 +72,13 @@ export class ConnectionsServerFilter {
                 selectedServers += "," + item.id;
         }
 
-        var selectedStats = "";
-        for (var item of multisel2.checkedItems) {
-            if (selectedStats == "")
-                selectedStats = item;
-            else
-                selectedStats += "," + item;
-        }
+        var selectedStats = multisel2.selectedValue;
+        //for (var item of multisel2.checkedItems) {
+        //    if (selectedStats == "")
+        //        selectedStats = item;
+        //    else
+        //        selectedStats += "," + item;
+        //}
 
         var selStartDate = (this.startDate.getDate()).toString();
         var selStartMonth = (this.startDate.getMonth()+1).toString();

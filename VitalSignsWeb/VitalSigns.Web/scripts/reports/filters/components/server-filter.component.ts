@@ -21,13 +21,12 @@ export class ServerFilter {
     endDate: Date = new Date();
     deviceNameData: any;
     errorMessage: any;
-
+    
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
         this.route.queryParams.subscribe(params => {
             this.statName = params['statname'];
         });
-
         this.service.get(`/services/server_list_dropdown?type=${this.deviceType}`)
             .subscribe(
             (response) => {

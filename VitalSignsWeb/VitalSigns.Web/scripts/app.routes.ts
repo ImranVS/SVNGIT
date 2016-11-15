@@ -89,6 +89,7 @@ import {ConnectionsFilesReport} from './reports/components/ibm-connections/conne
 import {ConnectionsForumsReport} from './reports/components/ibm-connections/connections-forums-report.component';
 import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
+import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -420,6 +421,10 @@ const appRoutes: Routes = [
             {
                 path: 'connectionstags',
                 component: ConnectionsTagsReport
+            },
+            {
+                path: 'connectionswiki',
+                component: ConnectionsWikiReport
             },
             {
                 path: 'hourlystatistics',

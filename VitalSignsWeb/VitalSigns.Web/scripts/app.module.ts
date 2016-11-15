@@ -82,6 +82,7 @@ import {ConnectionsFilesReport} from './reports/components/ibm-connections/conne
 import {ConnectionsForumsReport} from './reports/components/ibm-connections/connections-forums-report.component';
 import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
+import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
 
 @NgModule({
     imports: [
@@ -153,6 +154,7 @@ import {ConnectionsTagsReport} from './reports/components/ibm-connections/connec
         ConnectionsForumsReport,
         ConnectionsProfilesReport,
         ConnectionsTagsReport,
+        ConnectionsWikiReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,

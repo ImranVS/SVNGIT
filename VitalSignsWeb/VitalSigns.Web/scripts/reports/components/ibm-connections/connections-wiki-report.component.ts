@@ -10,23 +10,23 @@ declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/ibm-connections/connections-tags-report.component.html',
+    templateUrl: '/app/reports/components/ibm-connections/connections-wiki-report.component.html',
     providers: [
         WidgetService,
         RESTService,
         helpers.UrlHelperService
     ]
 })
-export class ConnectionsTagsReport extends WidgetController {
+export class ConnectionsWikiReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
     statname: string;
     title: string;
-    currentStatType: string = "COMMUNITY_TAG";
+    currentStatType: string = "NUM_OF_WIKIS_";
     currentHideServerControl: boolean = false;
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "IBM Connections";
-    currentWidgetName: string = `connectionsTags`;
+    currentWidgetName: string = `connectionsWiki`;
     currentWidgetURL: string = `/reports/summarystats_chart?deviceId=`;
 
 
@@ -50,14 +50,14 @@ export class ConnectionsTagsReport extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'connectionsTags',
+                id: 'connectionsWiki',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=COMMUNITY_TAG_COUNT`,
+                    url: `/reports/summarystats_chart?statName=NUM_OF_WIKIS_WIKIS`,
                     chart: {
                         chart: {
-                            renderTo: 'connectionsTags',
+                            renderTo: 'connectionsWiki',
                             type: 'spline',
                             height: 540
                         },

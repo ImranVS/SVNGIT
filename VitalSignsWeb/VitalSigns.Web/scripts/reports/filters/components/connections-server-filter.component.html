@@ -39,15 +39,19 @@
     </wj-multi-select>
 </div>
 <div id="dtStat" style="display:inline-block">
-    <wj-multi-select #multisel2
+    <wj-combo-box name="statList" [itemsSource]="statNameData"  #multisel2 style="width:200px;"
+                  [(ngModel)]="selectedStats">
+    </wj-combo-box>
+
+    <!--<wj-multi-select #multisel2
                      [placeholder]="'Select Stats'"
                      class="multiselect"
                      [itemsSource]="statNameData"
                      [headerFormat]="'{count} Stats selected'"
                      [checkedMemberPath]="'selected'"
                      [(ngModel)]="selectedStats">
-    </wj-multi-select>
+    </wj-multi-select>-->
 </div>
 <div id="dtFilter" style="display:inline-block">
-    <button (click)="applyFilters(multisel1,multisel2)">Fitler</button>
+    <button (click)="applyFilters(multisel1,multisel2)">Filter</button>
     </div>
