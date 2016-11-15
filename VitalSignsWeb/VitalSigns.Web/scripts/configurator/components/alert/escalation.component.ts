@@ -26,6 +26,15 @@ export class Escalation extends GridBase implements OnInit  {
     isSMS: boolean;
     isEmail: boolean;
     isScript: boolean;
+    key: string;
+    formObject: any = {
+        id: null,
+        escalation_id: null,
+        send_to: null,
+        script_name: null,
+        interval: null,
+        send_via: null
+    };
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -48,34 +57,112 @@ export class Escalation extends GridBase implements OnInit  {
         );
     }
 
+    showEditForm(dlg: wijmo.input.Popup) {
+
+        this.formTitle = "Edit " + this.formName;
+
+        this.formObject.escalation_id = this.flex.collectionView.currentItem.hours_destinations_id;
+        this.formObject.send_to = this.flex.collectionView.currentItem.send_to;
+        this.formObject.script_name = this.flex.collectionView.currentItem.script_name;
+        this.formObject.send_via = this.flex.collectionView.currentItem.send_via;
+        this.formObject.interval = this.flex.collectionView.currentItem.interval;
+
+        (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
+        this.showDialog(dlg);
+
+    }
+
+    showAddForm(dlg: wijmo.input.Popup) {
+
+        this.formTitle = "Add " + this.formName;
+
+        this.formObject.escalation_id = "";
+        this.formObject.send_to = "";
+        this.formObject.script_name = "";
+        this.formObject.send_via = "E-mail";
+        this.formObject.interval = "";
+        this.getSendVia(this.formObject.send_via);
+
+        this.showDialog(dlg);
+
+    }
+
+    saveEscalation(dlg: wijmo.input.Popup) {
+        var saveUrl = '/configurator/save_escalation';
+        if (this.formObject.send_via == "E-mail") {
+            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+            this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
+            this.flex.collectionView.currentItem.interval = this.formObject.interval;
+        }
+        else if (this.formObject.send_via == "SMS") {
+            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+            this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
+            this.flex.collectionView.currentItem.interval = this.formObject.interval;
+        }
+        else if (this.formObject.send_via == "Script") {
+            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+            this.flex.collectionView.currentItem.script_name = this.formObject.script_name;
+            this.flex.collectionView.currentItem.interval = this.formObject.interval;
+            //add script name and location
+        }
+        if (this.formObject.escalation_id == "") {
+            this.service.put(saveUrl, this.formObject)
+                .subscribe(
+                response => {
+                    this.data = response.data;
+                }
+                );
+            this.flex.refresh();
+        }
+        else {
+            this.service.put(saveUrl, this.formObject)
+                .subscribe(
+                response => {
+                    this.flex.collectionView.currentItem.id = response.data;
+                }
+                );
+            (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
+        }
+        dlg.hide();
+    }
+
     changeInDevices(devices: string) {
         this.devices = devices;
     }
 
-    saveEscalation(dlg: wijmo.input.Popup) {
-        this.saveGridRow('/configurator/save_escalation', dlg);
+    onSendViaSelectedIndexChanged(event: wijmo.EventArgs) {
+
+        this.getSendVia(this.formObject.send_via);
+
     }
 
-    setDefaults(src: wijmo.input.ComboBox) {
-        this.getSendVia(src);
-    }
-
-    getSendVia(src: wijmo.input.ComboBox) {
-        console.log(src);
-        if (src._oldText == "E-mail") {
+    
+    getSendVia(combotxt: string) {
+        //console.log(src);
+        if (combotxt == "E-mail") {
             this.isEmail = true;
             this.isScript = false;
             this.isSMS = false;
         }
-        else if (src._oldText == "Script") {
+        else if (combotxt == "Script") {
             this.isEmail = false;
             this.isScript = true;
             this.isSMS = false;
         }
-        else if (src._oldText == "SMS") {
+        else if (combotxt == "SMS") {
             this.isEmail = false;
             this.isScript = false;
             this.isSMS = true;
+        }
+    }
+
+    deleteEscalate() {
+        let deleteUrl = '/configurator/delete_hours_destinations/';
+        this.key = this.flex.collectionView.currentItem.escalation_id;
+        console.log(this.key);
+        if (confirm("Are you sure want to delete this record?")) {
+            this.service.delete(deleteUrl + this.key);
+            (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
         }
     }
 }

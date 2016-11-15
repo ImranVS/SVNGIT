@@ -91,7 +91,7 @@ export abstract class GridBase {
 
     delteGridRow(deleteUrl) {
         this.key = this.flex.collectionView.currentItem.id;
-        if (confirm("Are you sure want to delete record")) {
+        if (confirm("Are you sure want to delete this record?")) {
             this.service.delete(deleteUrl + this.key);//'/Configurator/' + this.businessHourId + '/delete_business_hours');
             (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
         }

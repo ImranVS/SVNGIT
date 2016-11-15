@@ -4,7 +4,6 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
-import {EventsMaster} from '../../models/events-master';
 
 @Component({
     templateUrl: '/app/configurator/components/alert/alert-settings.component.html',
@@ -104,16 +103,17 @@ export class AlertSettings implements WidgetComponent, OnInit {
     }
 
     onSubmit(nameValue: any): void {
-        var selected_events: EventsMaster[] = [];
-        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
-            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
-            if (item.NotificationOnRepeat) {
-                var eventObject = new EventsMaster();
-                eventObject.device_type = item.DeviceType;
-                eventObject.event_type = item.EventType;
-                selected_events.push(eventObject);
-            }
-        }
+        //var selected_events: EventsMaster[] = [];
+        //for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+        //    var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+        //    if (item.NotificationOnRepeat) {
+        //        var eventObject = new EventsMaster();
+        //        eventObject.device_type = item.DeviceType;
+        //        eventObject.event_type = item.EventType;
+        //        selected_events.push(eventObject);
+        //    }
+        //}
+        var selected_events = null;
         var alert_settings = this.alertSettings.value;
 
         this.dataProvider.put('/Configurator/save_alert_settings', { alert_settings, selected_events })

@@ -35,7 +35,7 @@ export class HoursDestinations extends GridBase implements OnInit {
     isScript: boolean;
     isWinLog: boolean;
     currentRow: any;
-
+    key: string;
     formObject: any = {
         id: null,
         hours_destinations_id: null,
@@ -88,14 +88,40 @@ export class HoursDestinations extends GridBase implements OnInit {
 
     saveHoursDestinations(dlg: wijmo.input.Popup) {
         var saveUrl = '/configurator/save_hours_destinations';
-        if (this.formObject.hours_destinations_id == "") {
-            //console.log('empty');
-        }
-        else {
+        if (this.formObject.send_via == "E-mail") {
             this.flex.collectionView.currentItem.business_hours_type = this.formObject.business_hours_type;
             this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
             this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
+            this.flex.collectionView.currentItem.copy_to = this.formObject.copy_to;
+            this.flex.collectionView.currentItem.blind_copy_to = this.formObject.blind_copy_to;
             this.flex.collectionView.currentItem.persistent_notification = this.formObject.persistent_notification;
+        }
+        else if (this.formObject.send_via == "SMS") {
+            this.flex.collectionView.currentItem.business_hours_type = this.formObject.business_hours_type;
+            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+            this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
+        }
+        else if (this.formObject.send_via == "SNMP Trap" || this.formObject.send_via == "Windows Log") {
+            this.flex.collectionView.currentItem.business_hours_type = this.formObject.business_hours_type;
+            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+        }
+        else if (this.formObject.send_via == "Script") {
+            this.flex.collectionView.currentItem.business_hours_type = this.formObject.business_hours_type;
+            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+            //add script name and location
+        }
+        if (this.formObject.hours_destinations_id == "") {
+            this.service.put(saveUrl, this.formObject)
+                .subscribe(
+                response => {
+                    this.data = response.data;
+                    //console.log(this.data);
+                }
+            );
+            //(<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
+            this.flex.refresh();
+        }
+        else {     
             this.service.put(saveUrl, this.formObject)
                 .subscribe(
                 response => {
@@ -127,6 +153,24 @@ export class HoursDestinations extends GridBase implements OnInit {
         this.formObject.blind_copy_to = this.flex.collectionView.currentItem.blind_copy_to;
 
         (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
+        this.showDialog(dlg);
+
+    }
+
+    showAddForm(dlg: wijmo.input.Popup) {
+
+        this.formTitle = "Add " + this.formName;
+
+        this.formObject.hours_destinations_id = "";
+        this.formObject.business_hours_type = "";
+        this.formObject.send_to = "";
+        this.formObject.script_name = "";
+        this.formObject.send_via = "E-mail";
+        this.formObject.copy_to = "";
+        this.formObject.persistent_notification = "";
+        this.formObject.blind_copy_to = "";
+        this.getSendVia(this.formObject.send_via);
+
         this.showDialog(dlg);
 
     }
@@ -173,6 +217,16 @@ export class HoursDestinations extends GridBase implements OnInit {
             this.isSMS = false;
             this.isSNMP = false;
             this.isWinLog = false;
+        }
+    }
+
+    deleteHoursDestinations() {
+        let deleteUrl = '/configurator/delete_hours_destinations/';
+        this.key = this.flex.collectionView.currentItem.hours_destinations_id;
+        console.log(this.key);
+        if (confirm("Are you sure want to delete this record?")) {
+            this.service.delete(deleteUrl + this.key);
+            (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
         }
     }
 }
