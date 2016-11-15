@@ -885,7 +885,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("database_inventory")]
-        public APIResponse getDatabaseInventory()
+        public APIResponse getDatabaseInventory(string deviceId)
         {
             databaseRepository = new Repository<Database>(ConnectionString);
             List<DatabaseInventoryList> result = null;

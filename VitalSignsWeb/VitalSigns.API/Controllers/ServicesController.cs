@@ -1542,7 +1542,7 @@ namespace VitalSigns.API.Controllers
                 { Name = x.DeviceName, Id = x.Id }).ToList();
                 Response = Common.CreateResponse(result);
 
-                result.Insert(0, new NameValueModel { Name="", Id="" });
+                result.Insert(0, new NameValueModel { Name="All", Id="0" });
 
                 Response = Common.CreateResponse(new { deviceNameData = result });
                 return Response;
@@ -1555,7 +1555,26 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("stats_list_dropdown")]
+        public APIResponse GetStatsDropDown(string type,string statType)
+        {
 
+            try
+            {
+                summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+                var filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Eq(p => p.DeviceType, type),
+                    summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression("/" + statType +"/i")));
+                var result = summaryRepository.Collection.Distinct(x => x.StatName, filterDef).ToList();
+                Response = Common.CreateResponse(result);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
 
 
 
