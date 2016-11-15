@@ -59,7 +59,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("persistent_notification")]
         [BsonIgnoreIfNullAttribute]
-        public bool PersistentNotification { get; set; }
+        public bool? PersistentNotification { get; set; }
 
         [DataMember]
         [BsonElement("interval")]
