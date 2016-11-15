@@ -416,6 +416,14 @@
         "icon": "/img/servers/url.svg",
         "tabs": [
 
+          {
+            "tab_id": 1,
+            "title": "URL",
+            "type": "Configurator",
+            "component": "ServerAttribute",
+            "path": "/app/configurator/components/server/server-device-attributes.component"
+          }
+
         ]
 
       },
