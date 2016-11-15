@@ -18,7 +18,7 @@ namespace VitalSigns.API.Models
         public string HoursDestinationsID { get; set; }
 
         [JsonProperty("interval")]
-        public string Interval { get; set; }
+        public int? Interval { get; set; }
 
         [JsonProperty("business_hours_id")]
         public string BusinessHoursId { get; set; }
@@ -27,7 +27,7 @@ namespace VitalSigns.API.Models
         public string BusinessHoursType { get; set; }
 
         [JsonProperty("b_id")]
-        public int BId { get; set; }
+        public int? BId { get; set; }
 
         [JsonProperty("send_via")]
         public string SendVia { get; set; }
@@ -42,10 +42,13 @@ namespace VitalSigns.API.Models
         public string BlindCopyTo { get; set; }
 
         [JsonProperty("persistent_notification")]
-        public bool PersistentNotification { get; set; }
+        public bool? PersistentNotification { get; set; }
 
         [JsonProperty("escalation")]
         public string Escalation { get; set; }
+
+        [JsonProperty("escalation_id")]
+        public string EscalationId { get; set; }
 
     }
 

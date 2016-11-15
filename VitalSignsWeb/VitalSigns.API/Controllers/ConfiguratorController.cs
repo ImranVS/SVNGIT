@@ -3046,7 +3046,7 @@ namespace VitalSigns.API.Controllers
                         result_escalateto.Add(new NotificationsModel
                         {
                             HoursDestinationsID = notificationDest.Id.ToString(),
-                            Interval = notificationDest.Interval.ToString(),
+                            Interval = notificationDest.Interval,
                             SendVia = notificationDest.SendVia,
                             SendTo = notificationDest.SendTo
                         });
@@ -3116,11 +3116,12 @@ namespace VitalSigns.API.Controllers
             FilterDefinition<NotificationDestinations> filterDef;
             UpdateDefinition<NotificationDestinations> updateHours;
             FilterDefinition<BusinessHours> filterDefBusHrs;
+            List<dynamic> result_sendto = new List<dynamic>();
+            bool result = false;
             try
             {
                 NotificationsModel notificationDef = notificationDefinition;
                 notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
-                filterDef = notificationDestRepository.Filter.Eq(x => x.Id, notificationDef.HoursDestinationsID);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
                 //need to get the id of the business hours definition based on the selected hours
                 filterDefBusHrs = businessHoursRepository.Filter.Eq(x => x.Name, notificationDef.BusinessHoursType);
@@ -3130,26 +3131,136 @@ namespace VitalSigns.API.Controllers
                 {
                     bushrsid = bushrs[0].Id;
                 }
-                if (notificationDef.SendVia != "E-mail")
+                if (string.IsNullOrEmpty(notificationDefinition.HoursDestinationsID))
                 {
-                    updateHours = notificationDestRepository.Updater.Set(x => x.BusinessHoursId, bushrsid)
-                    .Set(x => x.SendVia, notificationDef.SendVia)
-                    .Set(x => x.SendTo, notificationDef.SendTo);
+                    NotificationDestinations hoursdata = new NotificationDestinations
+                    {
+                        BusinessHoursId = bushrsid,
+                        SendVia = notificationDefinition.SendVia,
+                        SendTo = notificationDefinition.SendTo,
+                        CopyTo = notificationDefinition.CopyTo,
+                        BlindCopyTo = notificationDefinition.BlindCopyTo,
+                        PersistentNotification = notificationDefinition.PersistentNotification
+                    };
+                    hoursdata.Id = notificationDestRepository.Insert(hoursdata);
+                    var notificationDestinations = notificationDestRepository.Collection.AsQueryable().ToList();
+                    foreach (var notificationDest in notificationDestinations)
+                    {
+                        var hoursname = "";
+                        if (notificationDest.Interval == null)
+                        {
+                            filterDefBusHrs = businessHoursRepository.Filter.Eq(x => x.Id, notificationDest.BusinessHoursId);
+                            var hourstype = businessHoursRepository.Find(filterDefBusHrs).ToList();
+                            if (hourstype.Count > 0)
+                            {
+                                hoursname = hourstype[0].Name;
+                            }
+                            result_sendto.Add(new NotificationsModel
+                            {
+                                HoursDestinationsID = notificationDest.Id.ToString(),
+                                SendVia = notificationDest.SendVia,
+                                SendTo = notificationDest.SendTo,
+                                CopyTo = notificationDest.CopyTo == null ? "" : notificationDest.CopyTo,
+                                BlindCopyTo = notificationDest.BlindCopyTo == null ? "" : notificationDest.BlindCopyTo,
+                                BusinessHoursType = hoursname,
+                                PersistentNotification = notificationDest.PersistentNotification
+                            });
+                        }
+                    }
+                    Response = Common.CreateResponse(result_sendto, "OK", "Hours and Destinations inserted successfully.");
                 }
                 else
                 {
-                    updateHours = notificationDestRepository.Updater.Set(x => x.BusinessHoursId, bushrsid)
-                    .Set(x => x.SendVia, notificationDef.SendVia)
-                    .Set(x => x.SendTo, notificationDef.SendTo)
-                    .Set(x => x.PersistentNotification, notificationDef.PersistentNotification);
+                    filterDef = notificationDestRepository.Filter.Eq(x => x.Id, notificationDef.HoursDestinationsID);
+                    
+                    if (notificationDef.SendVia != "E-mail")
+                    {
+                        updateHours = notificationDestRepository.Updater.Set(x => x.BusinessHoursId, bushrsid)
+                        .Set(x => x.SendVia, notificationDef.SendVia)
+                        .Set(x => x.SendTo, notificationDef.SendTo);
+                    }
+                    else
+                    {
+                        updateHours = notificationDestRepository.Updater.Set(x => x.BusinessHoursId, bushrsid)
+                        .Set(x => x.SendVia, notificationDef.SendVia)
+                        .Set(x => x.SendTo, notificationDef.SendTo)
+                        .Set(x => x.CopyTo, notificationDef.CopyTo)
+                        .Set(x => x.BlindCopyTo, notificationDef.BlindCopyTo)
+                        .Set(x => x.PersistentNotification, notificationDef.PersistentNotification);
+                    }
+                    result = notificationDestRepository.Update(filterDef, updateHours);
+                    Response = Common.CreateResponse(result);
                 }
-                var result = notificationDestRepository.Update(filterDef, updateHours);
-
-                Response = Common.CreateResponse(result);
             }
             catch (Exception ex)
             {
                 Response = Common.CreateResponse(null, "Error", ex.Message);
+                Console.WriteLine("error: " + ex.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_escalation")]
+        public APIResponse UpdateEscalation([FromBody]NotificationsModel notificationDefinition)
+        {
+            FilterDefinition<NotificationDestinations> filterDef;
+            UpdateDefinition<NotificationDestinations> updateHours;
+            List<dynamic> result_sendto = new List<dynamic>();
+            bool result = false;
+            try
+            {
+                NotificationsModel notificationDef = notificationDefinition;
+                notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
+                if (string.IsNullOrEmpty(notificationDefinition.EscalationId))
+                {
+                    NotificationDestinations hoursdata = new NotificationDestinations
+                    {
+                        SendVia = notificationDefinition.SendVia,
+                        SendTo = notificationDefinition.SendTo,
+                        Interval = notificationDefinition.Interval
+                    };
+                    hoursdata.Id = notificationDestRepository.Insert(hoursdata);
+                    var notificationDestinations = notificationDestRepository.Collection.AsQueryable().ToList();
+                    foreach (var notificationDest in notificationDestinations)
+                    {
+                        if (notificationDest.Interval != null)
+                        {
+                            result_sendto.Add(new NotificationsModel
+                            {
+                                EscalationId = notificationDest.Id.ToString(),
+                                SendVia = notificationDest.SendVia,
+                                SendTo = notificationDest.SendTo,
+                                Interval = notificationDest.Interval
+                            });
+                        }
+                    }
+                    Response = Common.CreateResponse(result_sendto, "OK", "Hours and Destinations inserted successfully.");
+                }
+                else
+                {
+                    filterDef = notificationDestRepository.Filter.Eq(x => x.Id, notificationDef.EscalationId);
+
+                    if (notificationDef.SendVia != "Script")
+                    {
+                        updateHours = notificationDestRepository.Updater.Set(x => x.SendVia, notificationDef.SendVia)
+                        .Set(x => x.SendTo, notificationDef.SendTo)
+                        .Set(x => x.Interval, notificationDef.Interval);
+                    }
+                    else
+                    {
+                        //adddscript update
+                        updateHours = notificationDestRepository.Updater.Set(x => x.SendVia, notificationDef.SendVia)
+                        .Set(x => x.SendTo, notificationDef.SendTo)
+                        .Set(x => x.Interval, notificationDef.Interval);
+                    }
+                    result = notificationDestRepository.Update(filterDef, updateHours);
+                    Response = Common.CreateResponse(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+                Console.WriteLine("error: " + ex.Message);
             }
             return Response;
         }
@@ -3167,6 +3278,21 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, "Error", ex.Message);
             }
             return Response;
+        }
+
+        [HttpDelete("delete_hours_destinations/{id}")]
+        public void DeleteHoursDestinations(string id)
+        {
+            try
+            {
+                notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
+                Expression<Func<NotificationDestinations, bool>> expression = (p => p.Id == id);
+                notificationDestRepository.Delete(expression);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+            }
         }
 
         [HttpDelete("delete_notification_definition/{id}")]
