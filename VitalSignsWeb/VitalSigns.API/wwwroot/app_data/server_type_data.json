@@ -418,7 +418,7 @@
 
           {
             "tab_id": 1,
-            "title": "URL",
+            "title": "Device Attributes",
             "type": "Configurator",
             "component": "ServerAttribute",
             "path": "/app/configurator/components/server/server-device-attributes.component"
