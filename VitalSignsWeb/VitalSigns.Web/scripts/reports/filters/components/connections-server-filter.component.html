@@ -1,0 +1,53 @@
+﻿<!--<wj-list-box displayMemberPath="deviceNameData" [itemSource]="deviceNameData">
+</wj-list-box>
+<wj-multi-select #multisel1
+                 [placeholder]="'Select Countries'"
+                 class="multiselect"
+                 [itemsSource]="deviceNameData"
+                 [headerFormat]="'{count} countries selected'"
+                                 [checkedMemberPath]="'selected'">
+</wj-multi-select>
+<ol>
+    <li *ngFor="let item of multisel1.checkedItems">
+        </li>
+</ol>
+<div class="zeusFilterWrapper simple">
+    <div class="row">
+        <div class="aZeusFilter col-md-5 col-lg-5">
+            <span class="aZeusFilterName">Select 1 Server : </span>
+            <select name="selecttype"  multiple class="form-control" [(ngModel)]="deviceLocation" (ngModelChange)="selectDeviceLocation()">
+                <option *ngFor="let optionData of deviceNameData" [ngValue]="optionData">{{optionData}}</option>
+                
+            </select>
+        </div>
+    </div>
+
+</div>-->
+<div id="dtPanel" style="display:inline-block">
+    <wj-input-date format="yyyy-MM-dd" [(value)]="startDate"></wj-input-date>
+    <wj-input-date format="yyyy-MM-dd" [(value)]="endDate"></wj-input-date>
+</div>
+<div id="dtServer" style="display:inline-block">
+    <wj-multi-select #multisel1
+                     [placeholder]="'Select Servers'"
+                     class="multiselect"
+                     [itemsSource]="deviceNameData"
+                     displayMemberPath="name" selectedValuePath="id"
+                     [headerFormat]="'{count} Servers selected'"
+                     [checkedMemberPath]="'selected'"
+                     [(ngModel)]="selectedServers">
+    </wj-multi-select>
+</div>
+<div id="dtStat" style="display:inline-block">
+    <wj-multi-select #multisel2
+                     [placeholder]="'Select Stats'"
+                     class="multiselect"
+                     [itemsSource]="statNameData"
+                     [headerFormat]="'{count} Stats selected'"
+                     [checkedMemberPath]="'selected'"
+                     [(ngModel)]="selectedStats">
+    </wj-multi-select>
+</div>
+<div id="dtFilter" style="display:inline-block">
+    <button (click)="applyFilters(multisel1,multisel2)">Fitler</button>
+    </div>

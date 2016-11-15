@@ -4,10 +4,10 @@ import {RESTService} from '../../../core/services';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
 
 @Component({
-    selector: 'server-filter',
-    templateUrl: '/app/reports/filters/components/server-filter.component.html',
+    selector: 'connections-server-filter',
+    templateUrl: '/app/reports/filters/components/connections-server-filter.component.html',
 })
-export class ServerFilter {
+export class ConnectionsServerFilter {
     @ViewChildren('multisel1') multisel1: wijmo.input.MultiSelect;
     selectedServers: any;
     serverType: string;
@@ -15,11 +15,14 @@ export class ServerFilter {
     @Input() deviceType: any; 
     @Input() widgetName: string;
     @Input() widgetURL: string;
+    @Input() statType: string;
     @Input() hideDatePanel: boolean;
     @Input() hideServerControl: boolean;
+
     startDate: Date = new Date();
     endDate: Date = new Date();
     deviceNameData: any;
+    statNameData: any;
     errorMessage: any;
 
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
@@ -35,6 +38,13 @@ export class ServerFilter {
             },
             (error) => this.errorMessage = <any>error
         );
+        this.service.get(`/services/stats_list_dropdown?type=${this.deviceType}&statType=${this.statType}`)
+            .subscribe(
+            (response) => {
+                this.statNameData = response.data;
+            },
+            (error) => this.errorMessage = <any>error
+            );
         if (this.hideDatePanel == true) {
             var v = <HTMLDivElement>document.getElementById("dtPanel");
             v.style.display = "none";
@@ -50,7 +60,7 @@ export class ServerFilter {
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
         //this.deviceStatus = paramstatus;
     }
-    applyFilters(multisel1: wijmo.input.MultiSelect) {
+    applyFilters(multisel1: wijmo.input.MultiSelect, multisel2: wijmo.input.MultiSelect) {
         console.log(multisel1.checkedItems);
        
         //var v = multisel1.checkedItems;
@@ -61,6 +71,15 @@ export class ServerFilter {
             else 
                 selectedServers += "," + item.id;
         }
+
+        var selectedStats = "";
+        for (var item of multisel2.checkedItems) {
+            if (selectedStats == "")
+                selectedStats = item;
+            else
+                selectedStats += "," + item;
+        }
+
         var selStartDate = (this.startDate.getDate()).toString();
         var selStartMonth = (this.startDate.getMonth()+1).toString();
         if (selStartDate.length == 1)
@@ -79,8 +98,8 @@ export class ServerFilter {
         var startFinalDate = this.startDate.getFullYear().toString() + '-' + selStartMonth + '-' + selStartDate;
         var endFinalDate = this.endDate.getFullYear().toString() + '-' + selEndMonth + '-' + selEndDate;
         var URL = this.widgetURL + selectedServers + `&startDate=` + startFinalDate + `&endDate=` + endFinalDate;
-        if (this.statName != "")
-            URL += "&statName=" + this.statName;
+        if (selectedStats != "")
+            URL += "&statName=" + selectedStats;
         console.log(URL);
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())

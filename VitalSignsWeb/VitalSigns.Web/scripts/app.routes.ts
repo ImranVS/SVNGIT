@@ -46,6 +46,7 @@ import { ProfilesForm } from './profiles/components/profiles-form.component';
 
 import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
 import {ServerFilter} from './reports/filters/components/server-filter.component'
+import {ConnectionsServerFilter} from './reports/filters/components/connections-server-filter.component'
 
 import { ReportsBrowser } from './reports/components/reports-browser.component';
 import { NoSelectedReport } from './reports/components/no-selected-report.component';
@@ -82,6 +83,12 @@ import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sa
 import {DominoServerConfigurationReport} from './reports/components/configuration/domino-server-configuration-report.component';
 import {ServerListTypeReport} from './reports/components/configuration/server-list-type-report.component';
 import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
+import {ConnectionsActivityReport} from './reports/components/ibm-connections/connections-activity-report.component';
+import {ConnectionsBookmarkReport} from './reports/components/ibm-connections/connections-bookmark-report.component';
+import {ConnectionsFilesReport} from './reports/components/ibm-connections/connections-files-report.component';
+import {ConnectionsForumsReport} from './reports/components/ibm-connections/connections-forums-report.component';
+import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
+import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -389,6 +396,30 @@ const appRoutes: Routes = [
             {
                 path: 'communityusers',
                 component: CommunityUsersReport
+            },
+            {
+                path: 'connectionsactivity',
+                component: ConnectionsActivityReport
+            },
+            {
+                path: 'connectionsbookmark',
+                component: ConnectionsBookmarkReport
+            },
+            {
+                path: 'connectionsfiles',
+                component: ConnectionsFilesReport
+            },
+            {
+                path: 'connectionsforums',
+                component: ConnectionsForumsReport
+            },
+            {
+                path: 'connectionsprofiles',
+                component: ConnectionsProfilesReport
+            },
+            {
+                path: 'connectionstags',
+                component: ConnectionsTagsReport
             },
             {
                 path: 'hourlystatistics',

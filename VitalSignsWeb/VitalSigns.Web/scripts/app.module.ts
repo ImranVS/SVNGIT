@@ -75,6 +75,13 @@ import {DominoServerConfigurationReport} from './reports/components/configuratio
 import {ServerListTypeReport} from './reports/components/configuration/server-list-type-report.component';
 import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
 import {ServerFilter} from './reports/filters/components/server-filter.component';
+import {ConnectionsServerFilter} from './reports/filters/components/connections-server-filter.component';
+import {ConnectionsActivityReport} from './reports/components/ibm-connections/connections-activity-report.component';
+import {ConnectionsBookmarkReport} from './reports/components/ibm-connections/connections-bookmark-report.component';
+import {ConnectionsFilesReport} from './reports/components/ibm-connections/connections-files-report.component';
+import {ConnectionsForumsReport} from './reports/components/ibm-connections/connections-forums-report.component';
+import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
+import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 
 @NgModule({
     imports: [
@@ -139,6 +146,13 @@ import {ServerFilter} from './reports/filters/components/server-filter.component
         ServerListTypeReport,
         ServerListLocationReport,
         ServerFilter,
+        ConnectionsServerFilter,
+        ConnectionsActivityReport,
+        ConnectionsBookmarkReport,
+        ConnectionsFilesReport,
+        ConnectionsForumsReport,
+        ConnectionsProfilesReport,
+        ConnectionsTagsReport,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,

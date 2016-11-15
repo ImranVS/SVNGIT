@@ -1,9 +1,9 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-
+import {ActivatedRoute} from '@angular/router';
 import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
 
 import {RESTService} from '../../../core/services/rest.service';
-
+import * as helpers from '../../../core/services/helpers/helpers';
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
@@ -12,7 +12,8 @@ declare var bootstrapNavigator: any;
     templateUrl: '/app/reports/components/domino/daily-server-trans.component.html',
     providers: [
         WidgetService,
-        RESTService
+        RESTService,
+        helpers.UrlHelperService
     ]
 })
 export class DailyServerTrans extends WidgetController {
@@ -24,7 +25,7 @@ export class DailyServerTrans extends WidgetController {
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `dailyservertranschart`;
     currentWidgetURL: string = `/reports/summarystats_chart?statName=Server.Trans.PerMinute&deviceId=`;
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
 
