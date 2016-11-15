@@ -58,6 +58,14 @@ namespace VitalSigns.API.Controllers
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<Notifications> notificationsRepository;
        private IRepository<NotificationDestinations> notificationDestRepository;
+        private IRepository<DailyStatistics> dailyStatisticsRepository;
+        private IRepository<Database> databaseRepository;
+        private IRepository<IbmConnectionsObjects> ibmConnectionsObjectsRepository;
+        private IRepository<SharePointWebTrafficDailyStatistics> sharepointWebTrafficDailyStatisticsRepository;
+        private IRepository<StatusDetails> statusDetailsRepository;
+        private IRepository<SummaryStatistics> summaryStatisticsRepository;
+        private IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
+
         #endregion
 
         #region Application Settings
@@ -3727,7 +3735,8 @@ namespace VitalSigns.API.Controllers
                     DeviceType=x.DeviceType,
                     DeviceName = x.Device,
                     EventType = x.EventType,
-                    Details = x.Details
+                    Details = x.Details,
+                    EventDetected=Convert.ToString(x.EventDetected)
                   
                 }).ToList();
 
@@ -4426,6 +4435,60 @@ namespace VitalSigns.API.Controllers
         #endregion
         #endregion
 
+        #region Deleting Servers
+        [HttpDelete("delete_server/{Id}")]
+        public void DeleteServer(string Id)
+        {
+            try
+            {
+                dailyStatisticsRepository = new Repository<DailyStatistics>(ConnectionString);
+                Expression<Func<DailyStatistics, bool>> dailyStatisticsExpression = (p => p.DeviceId == Id);
+                dailyStatisticsRepository.Delete(dailyStatisticsExpression);
+                databaseRepository = new Repository<Database>(ConnectionString);
+                Expression<Func<Database, bool>> databaseExpression = (p => p.DeviceId == Id);
+                databaseRepository.Delete(databaseExpression);
+                ibmConnectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                Expression<Func<IbmConnectionsObjects, bool>> ibmConnectionsObjectsExpression = (p => p.DeviceId == Id);
+                ibmConnectionsObjectsRepository.Delete(ibmConnectionsObjectsExpression);
+                mobiledevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                Expression<Func<MobileDevices, bool>> mobileDevicesExpression = (p => p.DeviceID == Id);
+                mobiledevicesRepository.Delete(mobileDevicesExpression);
+                sharepointWebTrafficDailyStatisticsRepository = new Repository<SharePointWebTrafficDailyStatistics>(ConnectionString);
+                Expression<Func<SharePointWebTrafficDailyStatistics, bool>> sharepeointExpression = (p => p.DeviceId == Id);
+                sharepointWebTrafficDailyStatisticsRepository.Delete(sharepeointExpression);
+                statusRepository = new Repository<Status>(ConnectionString);
+                Expression<Func<Status, bool>> statustExpression = (p => p.DeviceId == Id);
+                statusRepository.Delete(statustExpression);
+                
+                statusDetailsRepository = new Repository<StatusDetails>(ConnectionString);
+                Expression<Func<StatusDetails, bool>> statusDeatilstExpression = (p => p.DeviceId == Id);
+                statusDetailsRepository.Delete(statusDeatilstExpression);
+                summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
+                Expression<Func<SummaryStatistics, bool>> summaryStatisticsExpression = (p => p.DeviceId == Id);
+                summaryStatisticsRepository.Delete(summaryStatisticsExpression);
+               travelerSummaryStatsRepository = new Repository<TravelerStatusSummary>(ConnectionString);
+                Expression<Func<TravelerStatusSummary, bool>> travelerStatusSummaryExpression = (p => p.DeviceId == Id);
+                travelerSummaryStatsRepository.Delete(travelerStatusSummaryExpression);
+                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                Expression<Func<BusinessHours, bool>> businessHoursExpression = (p => p.DeviceId == Id);
+                businessHoursRepository.Delete(businessHoursExpression);
+
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                Expression<Func<ServerOther, bool>> serverOtherExpression = (p => p.Id == Id);
+                businessHoursRepository.Delete(businessHoursExpression);
+
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> serverExpression = (p => p.Id == Id);
+                serversRepository.Delete(serverExpression);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+        }
+        #endregion 
 
         #region Log Settings
         [HttpGet("get_log_files")]
@@ -4461,6 +4524,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
+
 
     }
 }
