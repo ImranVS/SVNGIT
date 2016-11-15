@@ -37,6 +37,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     optionalSettings: string = "Optional Settings"
     webSphereSettings: string = "WebSphere Settings"
     chatSettings: string = "Chat Settings"
+    searchText: string = "Optional Search Text"
+    usernameorPassword: string = "Optional Username/Password"
 
 
     constructor(
