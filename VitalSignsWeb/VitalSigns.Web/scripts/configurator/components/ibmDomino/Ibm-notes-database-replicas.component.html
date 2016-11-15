@@ -76,7 +76,7 @@ data.pageIndex + 1 | number
 
                             <div class="panel-body" *ngIf="currentEditItem" style="height:70%;overflow:auto">
                                 <div class="row">
-                                    <div class="form-group col-sm-6">
+                                    <div class="form-group col-sm-offset-1 col-sm-6">
                                         <div class="panel panel-default">
                                             <div class="panel-heading">Replica Attributes</div>
                                             <div class="panel-body">
@@ -89,14 +89,7 @@ data.pageIndex + 1 | number
                                                         </div>
 
                                                     </div>
-                                                    <div class="form-inline col-sm-6">
-                                                        <div class="checkbox-inline">
-                                                            <input type="checkbox" class="form-control" name="is_enabled" [(ngModel)]="currentEditItem.is_enabled">
-                                                            <label for="is_enabled" class="control-label col-sm-15">Enabled for scanning</label>
-                                                        </div>
-
-
-                                                    </div>
+                                                  
 
                                                 </div>
                                                 <div class="row">
@@ -128,14 +121,25 @@ data.pageIndex + 1 | number
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="row">
+                                                    <div class="form-group col-sm-6">
+                                                     
+                                                        <div class="funkyradio col-sm-offset-1 col-sm-12">
+                                                            <div class="funkyradio-default">
+                                                                <input type="checkbox" id="is_enabled" name="is_enabled" [(ngModel)]="currentEditItem.is_enabled" />
+                                                                <label for="is_enabled">Enabled for scanning</label>
+                                                            </div>
+                                                        </div>
 
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="form-group col-sm-6">
                                         <div class="panel panel-default">
                                             <div class="panel-heading">Scan Settings</div>
-                                            <div class="panel-body">
+                                            <div class="panel-body" style="width:600px;height:185px">
                                                 <div class="row">
                                                     <div class="form-group col-sm-12">
                                                         <label for="scan_interval" class="control-label col-sm-4">Scan Interval:</label>
@@ -270,7 +274,7 @@ data.pageIndex + 1 | number
                                                         <div class="form-group col-sm-12">
                                                             <label for="difference_threshold" class="control-label col-sm-5">Difference Threshold(%):</label>
                                                             <div class="col-sm-2">
-                                                                <input type="number" class="form-control" name="difference_threshold" [(ngModel)]="currentEditItem.difference_threshold">
+                                                                <input type="text"  pattern="^[1-9]\d*(\.\d+)?$" class="form-control" name="difference_threshold" [(ngModel)]="currentEditItem.difference_threshold">
 
                                                             </div>
                                                         </div>
