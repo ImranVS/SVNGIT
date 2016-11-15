@@ -816,11 +816,16 @@ namespace VSNext.Mongo.Entities
         [BsonElement("connection_type")]
         public string ConnectionType { get; set; }
 
-        //In Mail
-        //[DataMember]
-        //[BsonIgnoreIfNull]
-        //[BsonElement("port_number")]
-        //public int? PortNumber { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("cell_host_name")]
+        public string CellHostName { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("global_security")]
+        public bool GlobalSecurity { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]
