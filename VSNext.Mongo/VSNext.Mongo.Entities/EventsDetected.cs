@@ -61,6 +61,8 @@ namespace VSNext.Mongo.Entities
         [BsonElement("notifications_sent")]
         [BsonIgnoreIfNullAttribute]
         public List<NotificationsSent> NotificationsSent { get; set; }
+
+       
     }
 
     public class NotificationsSent : Entity
