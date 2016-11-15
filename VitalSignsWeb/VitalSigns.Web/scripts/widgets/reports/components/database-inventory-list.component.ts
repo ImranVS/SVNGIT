@@ -24,7 +24,7 @@ export class DatabaseInventoryList implements WidgetComponent, OnInit {
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/reports/database_inventory')
+        this.service.get(this.settings.url)
             .subscribe(
             data => this.databaseInventory = data.data,
             error => this.errorMessage = <any>error

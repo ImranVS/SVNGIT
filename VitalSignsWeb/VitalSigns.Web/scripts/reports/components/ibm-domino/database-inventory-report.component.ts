@@ -20,10 +20,10 @@ export class DatabaseInventoryReport extends WidgetController {
     widgets: WidgetContract[];
 
     currentHideServerControl: boolean = false;
-    currentHideDatePanel: boolean = false;
+    currentHideDatePanel: boolean = true;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `databaseInventoryReport`;
-    currentWidgetURL: string = `/reports/database_inventory&deviceId=`;
+    currentWidgetURL: string = `/reports/database_inventory?deviceId=`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -44,7 +44,7 @@ export class DatabaseInventoryReport extends WidgetController {
                     id: 'databaseInventoryReport',
                     title: 'Database Inventory',
                     name: 'DatabaseInventoryList',
-                    settings: {}
+                    settings: { url: `/reports/database_inventory`}
                 }
             ];
             injectSVG();

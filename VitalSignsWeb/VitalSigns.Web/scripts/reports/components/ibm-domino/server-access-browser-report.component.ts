@@ -49,7 +49,7 @@ export class ServerAccessBrowserReport extends WidgetController {
                     chart: {
                         chart: {
                             renderTo: 'dailyservertranschart',
-                            type: 'spline',
+                            type: 'bar',
                             height: 540
                         },
                         title: { text: '' },
