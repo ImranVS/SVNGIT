@@ -58,6 +58,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("location")]
         public string Location { get; set; }
 
+        [JsonProperty("is_enabled")]
+        public bool? IsEnabled { get; set; }
+
 
         [JsonProperty("tabs")]
         public List<Tab> Tabs { get; set; }

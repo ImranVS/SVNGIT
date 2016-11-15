@@ -113,50 +113,64 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetAllServerServices()
         {
             statusRepository = new Repository<Status>(ConnectionString);
+            serverRepository = new Repository<Server>(ConnectionString);
             try
             {
                 var serviceIcons = Common.GetServerTypeIcons();
-                var result = statusRepository.All().AsQueryable()
-                                     .Select(x => new ServerStatus
-                                     {
-                                         Id = x.Id,
-                                         Type = x.DeviceType,
-                                         Country = x.Location,
-                                         Name = x.DeviceName,
-                                         Version = x.SoftwareVersion,
-                                         LastUpdated = x.LastUpdated,
-                                         Description = x.Description,
-                                         Status = x.StatusCode,// Holds the formated status code for displaying colors in UI
-                                         StatusCode=x.StatusCode,//Holds actual server code data
-                                         DeviceId = x.DeviceId,
-                                         Location=x.Location
-
-                                     }).ToList();
-                foreach (ServerStatus item in result)
+                var servers = serverRepository.Collection.AsQueryable()
+                                                        .Select(x => new ServerStatus
+                                                        {
+                                                            Id = x.Id,
+                                                            IsEnabled = x.IsEnabled,
+                                                            Type = x.DeviceType,
+                                                            Name = x.DeviceName,
+                                                        }).OrderBy(x=>x.Name).ToList(); ;
+                foreach (var server in servers)
                 {
 
-                    if (item.LastUpdated.HasValue)
-                        item.Description = "Last Updated: " + item.LastUpdated.Value.ToShortDateString();
-                    if (item.Type != null)
+                    var serverStatus = statusRepository.Collection.AsQueryable().FirstOrDefault(x => x.DeviceId == server.Id);
+                    if (serverStatus != null)
                     {
-                        if (serviceIcons.ContainsKey(item.Type))
-                            item.Icon = serviceIcons[item.Type];
-                        else
-                            item.Icon = @"/img/servers/Paintbrush.svg";
-                    }
-                    if (!string.IsNullOrEmpty(item.Status))
-                        item.Status = item.Status.ToLower().Replace(" ", "");
-                    else
-                        item.Status = string.Empty;
-                    if (string.IsNullOrEmpty(item.Type))
-                        item.Type = string.Empty;
-                    if (string.IsNullOrEmpty(item.StatusCode))
-                        item.StatusCode = string.Empty;
 
-                    if (string.IsNullOrEmpty(item.Location))
-                        item.Location = string.Empty;
+                        server.Country = serverStatus.Location; ;
+                        server.Version = serverStatus.SoftwareVersion;
+                        server.LastUpdated = serverStatus.LastUpdated;
+                        server.Status = serverStatus.StatusCode;// Holds the formated status code for displaying colors in UI
+                        server.StatusCode = serverStatus.StatusCode;//Holds actual server code data
+                        server.Location = serverStatus.Location;
+                        if (server.LastUpdated.HasValue)
+                            server.Description = "Last Updated: " + server.LastUpdated.Value.ToShortDateString();
+                        else
+                            server.Description = "Device Status not updated";
+
+                    }
+                    else
+                    {
+                        server.Description = "Device Status not updated";
+                    }
+                    
+                    if (server.Type != null)
+                    {
+                        if (serviceIcons.ContainsKey(server.Type))
+                            server.Icon = serviceIcons[server.Type];
+                        else
+                            server.Icon = @"/img/servers/Paintbrush.svg";
+                    }
+                    if (!string.IsNullOrEmpty(server.Status))
+                        server.Status = server.Status.ToLower().Replace(" ", "");
+                    else
+                        server.Status = string.Empty;
+                    if (string.IsNullOrEmpty(server.Type))
+                        server.Type = string.Empty;
+                    if (string.IsNullOrEmpty(server.StatusCode))
+                        server.StatusCode = string.Empty;
+
+                    if (string.IsNullOrEmpty(server.Location))
+                        server.Location = string.Empty;
+
                 }
-                Response = Common.CreateResponse(result.OrderBy(x => x.Name));
+                
+                Response = Common.CreateResponse(servers);
             }
             catch (Exception exception)
             {
@@ -182,41 +196,39 @@ namespace VitalSigns.API.Controllers
             {
                 if (!string.IsNullOrEmpty(device_id))
                 {
-                Expression<Func<Status, bool>> expression = (p => p.DeviceId == device_id);
-                var result = (statusRepository.Find(expression)
-                                     .Select(x => new ServerStatus
-                                     {
-                                         Id = x.Id,
-                                         Type = x.DeviceType,
-                                         Country = x.Location,
-                                         Name = x.DeviceName,
-                                         Version = x.SoftwareVersion,
-                                         LastUpdated = x.LastUpdated,
-                                         Description = x.Description,
-                                         Status = x.StatusCode,
-                                         DeviceId = x.DeviceId,
-                                         SecondaryRole = x.SecondaryRole
+                    Expression<Func<Status, bool>> expression = (p => p.DeviceId == device_id);
+                    var result = (statusRepository.Find(expression)
+                                         .Select(x => new ServerStatus
+                                         {
+                                             Id = x.Id,
+                                             Type = x.DeviceType,
+                                             Country = x.Location,
+                                             Name = x.DeviceName,
+                                             Version = x.SoftwareVersion,
+                                             LastUpdated = x.LastUpdated,
+                                             Description = x.Description,
+                                             Status = x.StatusCode,
+                                             DeviceId = x.DeviceId,
+                                             SecondaryRole = x.SecondaryRole
+                                         })).FirstOrDefault();
+                    var serviceIcons = Common.GetServerTypeIcons();
+                    Models.ServerType serverType = Common.GetServerTypeTabs(result.Type);
 
-
-                                     })).FirstOrDefault();
-                var serviceIcons = Common.GetServerTypeIcons();
-                Models.ServerType serverType = Common.GetServerTypeTabs(result.Type);
-
-                if (string.IsNullOrEmpty(result.SecondaryRole))
-                    result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
-                else
-                {
+                    if (string.IsNullOrEmpty(result.SecondaryRole))
+                        result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
+                    else
+                    {
                         var secondaryRoles = result.SecondaryRole.Split(';').Select(x => x.Trim());
-                    result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
+                        result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && (x.SecondaryRole == null || secondaryRoles.Contains(x.SecondaryRole))).ToList();
+                    }
+
+
+                    result.Description = "Last Updated: " + result.LastUpdated.Value;
+                    result.Icon = serverType.Icon;
+                    if (!string.IsNullOrEmpty(result.Status))
+                        result.Status = result.Status.ToLower().Replace(" ", "");
+                    Response = Common.CreateResponse(result);
                 }
-
-
-                result.Description = "Last Updated: " + result.LastUpdated.Value;
-                result.Icon = serverType.Icon;
-                if (!string.IsNullOrEmpty(result.Status))
-                    result.Status = result.Status.ToLower().Replace(" ", "");
-                Response = Common.CreateResponse(result);
-            }
                 else
                 {
                     if (!string.IsNullOrEmpty(deviceType))
