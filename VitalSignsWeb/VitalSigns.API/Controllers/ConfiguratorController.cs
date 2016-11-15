@@ -15,6 +15,8 @@ using System.Linq;
 using MongoDB.Bson;
 using System.Runtime.Serialization.Json;
 using System.Globalization;
+using System.Xml.Serialization;
+using System.Xml;
 
 namespace VitalSigns.API.Controllers
 {
@@ -3744,7 +3746,7 @@ namespace VitalSigns.API.Controllers
 
         #region Servers Import
         #region Domino
-        //[FunctionAuthorize("DominoServerImport")]
+        // [FunctionAuthorize("DominoServerImport")]
         [HttpPut("load_domino_servers")]
         public APIResponse LoadDominoServers([FromBody]DominoServerImportModel serverImport)
         {
@@ -3907,7 +3909,7 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-        //[FunctionAuthorize("DominoServerImport")]
+        //  [FunctionAuthorize("DominoServerImport")]
         [HttpGet("get_domino_import")]
         public APIResponse GetDominoImportData()
         {
@@ -4053,7 +4055,377 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
+
+
+        #region WebSphere
+
+        [HttpPut("get_websohere_nodes")]
+        public APIResponse LoadWebSphereNodes([FromBody]CellInfo cellInfo)
+        {
+
+            try
+            {
+                byte[] password;
+                string decryptedPassword = string.Empty;
+                string errorMessage = string.Empty;
+
+
+                //Get user name and password from credentials
+
+                try
+                {
+                    credentialsRepository = new Repository<Credentials>(ConnectionString);
+                    var credential = credentialsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == cellInfo.Id);
+                    if (credential != null)
+                    {
+                        if (!string.IsNullOrEmpty(credential.Password))
+                        {
+                            var passwordArray = credential.Password.Split(',');
+                            password = new byte[passwordArray.Length];
+                            for (int i = 0; i < passwordArray.Length; i++)
+                            {
+                                password[i] = Byte.Parse(passwordArray[i]);
+                            }
+                            VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+                            cellInfo.Password = mySecrets.Decrypt(password);
+                            cellInfo.UserName = credential.UserId;
+
+
+                        }
+                        else
+                        {
+                            errorMessage = "Notes password may not be empty. Please update the password under Stored Passwords & Options\\IBM Domino Settings.";
+                            throw new Exception(errorMessage);
+                        }
+
+                    }
+
+                }
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                }
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+
+        public Cells getServerList(CellInfo cellProperties)
+        {
+
+            try
+            {
+
+                VSFramework.RegistryHandler registry = new VSFramework.RegistryHandler();
+                string AppClientPath = "";
+                string ServicePath = "";
+
+                try
+                {
+                    AppClientPath = registry.ReadFromRegistry("WebSphereAppClientPath").ToString();
+                }
+                catch
+                {
+                    AppClientPath = "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\";
+                }
+
+                if (!AppClientPath.EndsWith("\\"))
+                    AppClientPath += "\\";
+
+                //WS switched to use registry value in case of different paths on HA installs
+                try
+                {
+                    ServicePath = registry.ReadFromVitalSignsComputerRegistry("InstallPath").ToString();
+                }
+                catch (Exception ex)
+                {
+                    //ServicePath = "C:\\Program Files (x86)\\VitalSignsPlus\\";
+                }
+
+                if (ServicePath == "")
+                {
+                    try
+                    {
+                        ServicePath = registry.ReadFromRegistry("InstallLocation").ToString();
+                    }
+                    catch
+                    {
+                        //ServicePath = "C:\\Program Files (x86)\\VitalSignsPlus\\";
+                    }
+                }
+
+                if (ServicePath == "")
+                    ServicePath = "C:\\Program Files (x86)\\VitalSignsPlus\\";
+
+                if (!ServicePath.EndsWith("\\"))
+                    ServicePath += "\\";
+
+
+                ExecuteGetServerListCmd(cellProperties, AppClientPath, ServicePath);
+
+                string filePath = ServicePath + "VitalSigns\\xml\\AppServerList.xml";
+
+                Cells cells = (Cells)DecodeXMLFromPath(filePath, typeof(Cells));
+
+
+
+                return cells;
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
+
+        private void ExecuteGetServerListCmd(CellInfo cellProperties, string AppClientFolder, string ServicePath)
+        {
+
+            //string AppClientFolder = "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\";
+            string pathToBatch = "GET_SERVER_LIST.bat";
+
+            string arguments = "";
+            arguments += " \"" + cellProperties.HostName + "\"";
+            arguments += " \"" + cellProperties.PortNo + "\"";
+            arguments += " \"" + cellProperties.ConnectionType + "\"";
+            arguments += " \"" + cellProperties.UserName + "\"";
+            arguments += " \"" + cellProperties.Password + "\"";
+            arguments += " \"" + cellProperties.Realm + "\"";
+            arguments += " \"" + AppClientFolder + "\"";
+
+            ExecuteCommand(pathToBatch + "" + arguments, AppClientFolder, ServicePath, 60);
+        }
+        private void ExecuteCommand(string cmd, string AppClientFolder, string ServicePath, int timeoutSec = 60)
+        {
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments = "/C " + cmd;
+            //throw new Exception(cmd);
+            startInfo.WorkingDirectory = ServicePath;
+            // *** Redirect the output ***
+            startInfo.RedirectStandardError = true;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
+            //startInfo.UserName = "wasadmin";
+            //System.Security.SecureString str = new System.Security.SecureString();
+            //"W@sadm1n".ToCharArray().ToList().ForEach(str.AppendChar);
+            //startInfo.Password = str;
+            process.StartInfo = startInfo;
+            process.Start();
+
+
+            if (!process.WaitForExit(300 * 1000))
+                throw new Exception("Process did not complete in the specified time");
+
+            //for debugging
+            string s = process.StandardOutput.ReadToEnd();
+            string p = process.StandardError.ReadToEnd();
+            //throw new Exception(s + "...." + p);
+        }
+
+        private object DecodeXMLFromPath(string pathToXML, Type type)
+        {
+            XmlSerializer serializer = new XmlSerializer(type);
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(pathToXML);
+
+            XmlNodeReader reader = new XmlNodeReader(doc);
+
+            object obj = serializer.Deserialize(reader);
+
+            return obj;
+        }
+
+        [HttpGet("get_websohere_import")]
+        public APIResponse GetWebSphereImportData()
+        {
+            WebShpereServerImport model = new WebShpereServerImport();
+            serversRepository = new Repository<Server>(ConnectionString);
+            model.CellsData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "WebSphere" && x.CellName != null)
+                                                                        .Select(x => new CellInfo
+                                                                        {
+                                                                            Id = x.CellId,
+                                                                            CellName = x.CellName,
+                                                                            Name = x.DeviceName,
+                                                                            HostName = x.CellHostName,
+                                                                            PortNo = x.PortNumber,
+                                                                            ConnectionType = x.ConnectionType,
+                                                                            GlobalSecurity = x.GlobalSecurity,
+                                                                            CredentialsId = x.CredentialsId,
+                                                                            Realm = x.Realm
+                                                                        }).ToList();
+            deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+            model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == "WebSphere")).Select(x => new DeviceAttributesModel
+            {
+                Id = x.Id,
+                AttributeName = x.AttributeName,
+                DefaultValue = x.DefaultValue,
+                DeviceType = x.DeviceType,
+                FieldName = x.FieldName,
+                Category = x.Category,
+                DataType = x.DataType,
+                Type = x.Type,
+                Unitofmeasurement = x.Unitofmeasurement,
+                IsSelected = false
+            }).OrderBy(x => x.AttributeName).ToList();
+
+            credentialsRepository = new Repository<Credentials>(ConnectionString);
+
+            model.CredentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+
+            return Common.CreateResponse(model);
+        }
+
+
+        [HttpPut("save_websphere_servers")]
+        public APIResponse SaveWebSphereServers([FromBody]DominoServerImportModel serverImport)
+        {
+
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+
+                foreach (var serverModel in serverImport.Servers)
+                {
+                    if (serverModel.IsSelected)
+                    {
+                        Server server = new Server();
+                        server.Id = ObjectId.GenerateNewId().ToString();
+                        server.DeviceName = serverModel.DeviceName;
+                        server.DeviceType = "Domino";
+                        server.LocationId = serverImport.Location;
+
+                        List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
+                        foreach (var serverTask in serverImport.ServerTasks)
+                        {
+                            if (serverTask.IsSelected ?? false)
+                            {
+                                DominoServerTask dominoServerTask = new DominoServerTask();
+                                dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                                dominoServerTask.TaskId = serverTask.TaskId;
+                                dominoServerTask.TaskName = serverTask.TaskName;
+                                dominoServerTask.SendLoadCmd = false;
+                                dominoServerTask.Monitored = false;
+                                dominoServerTask.SendRestartCmd = false;
+                                dominoServerTask.SendRestartCmdOffhours = false;
+                                dominoServerTask.SendExitCmd = false;
+                                if (server.ServerTasks != null)
+                                    ServerTasks = server.ServerTasks;
+                                ServerTasks.Add(dominoServerTask);
+                            }
+                        }
+                        server.ServerTasks = ServerTasks;
+                        serversRepository.Insert(server);
+
+                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
+
+                        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
+                        foreach (var attribute in serverImport.DeviceAttributes)
+                        {
+                            if (!string.IsNullOrEmpty(attribute.FieldName))
+                            {
+                                string field = attribute.FieldName;
+                                string value = attribute.DefaultValue;
+                                string datatype = attribute.DataType;
+                                if (datatype == "int")
+                                {
+                                    int outputvalue = Convert.ToInt32(value);
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "double")
+                                {
+                                    double outputvalue = Convert.ToDouble(value);
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "bool")
+                                {
+                                    bool booloutput;
+                                    if (value == "0")
+                                    {
+                                        booloutput = false;
+                                    }
+                                    else
+                                    {
+                                        booloutput = true;
+                                    }
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                        .Set(field, booloutput);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+
+
+                                if (datatype == "string")
+                                {
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                        .Set(field, value);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+
+
+                            }
+
+                        }
+
+                        // serversRepository.Insert(server);
+                    }
+                }
+                Response = Common.CreateResponse("Success");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_websphere_cell")]
+        public APIResponse SaveWebsphereCellInfo([FromBody]CellInfo cellInfo)
+        {
+            try
+            {
+                Server server = new Server();
+                server.Id = ObjectId.GenerateNewId().ToString();
+                server.CellId = ObjectId.GenerateNewId().ToString();
+                server.CellName = cellInfo.CellName;
+                server.DeviceName = cellInfo.Name;
+                server.CellHostName = cellInfo.HostName;
+                server.ConnectionType = cellInfo.ConnectionType;
+                server.PortNumber = cellInfo.PortNo;
+                server.GlobalSecurity = cellInfo.GlobalSecurity;
+                server.CredentialsId = cellInfo.CredentialsId;
+                server.Realm = cellInfo.Realm;
+                server.DeviceType = "WebSphere";
+                serversRepository = new Repository<Server>(ConnectionString);
+                serversRepository.Insert(server);
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+
+        }
         #endregion
+        #endregion
+
 
         #region Log Settings
         [HttpGet("get_log_files")]
