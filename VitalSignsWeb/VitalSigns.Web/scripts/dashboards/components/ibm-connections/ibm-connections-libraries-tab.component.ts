@@ -5,6 +5,7 @@ import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
 import {IBMConnectionsGrid} from './ibm-connections-grid.component';
+import {ActivatedRoute} from '@angular/router';
 
 declare var injectSVG: any;
 
@@ -17,15 +18,21 @@ export class IBMConnectionsLibrariesTab extends WidgetController implements OnIn
     widgets: WidgetContract[];
     serviceId: string;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
     }
     
     ngOnInit() {
+        this.route.params.subscribe(params => {
+            if (params['service'])
+                this.serviceId = params['service'];
+            else {
+
+                this.serviceId = this.widgetService.getProperty('serviceId');
+            }
+        });
 
         this.widgetService.setProperty("tabname", "LIBRARIES");
-
-        this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
             {

@@ -5,6 +5,7 @@ import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 
 import {IBMConnectionsGrid} from './ibm-connections-grid.component';
+import {ActivatedRoute} from '@angular/router';
 
 declare var injectSVG: any;
 
@@ -19,16 +20,20 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
     serviceId: string;
     today: Date;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
     }
 
     
     
     ngOnInit() {
-
-        this.serviceId = this.widgetService.getProperty('serviceId');
-
+        this.route.params.subscribe(params => {
+            if (params['service'])
+                this.serviceId = params['service'];
+            else {
+                this.serviceId = this.widgetService.getProperty('serviceId');
+            }
+        });
         var displayDate = (new Date()).toISOString().slice(0, 10);
 
         this.widgets = [

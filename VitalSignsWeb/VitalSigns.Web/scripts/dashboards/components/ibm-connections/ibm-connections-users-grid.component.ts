@@ -5,6 +5,7 @@ import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
 import {IBMConnectionsGrid} from './ibm-connections-grid.component';
+import {ActivatedRoute} from '@angular/router';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
@@ -26,15 +27,16 @@ export class IBMConnectionsUsersGrid implements WidgetComponent, OnInit {
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+    _serviceId: string;
     
     get serviceId(): string {
 
-        return this.widgetService.getProperty('serviceId');
+        return this._serviceId
 
     }
 
     set serviceId(id: string) {
-
+        this._serviceId = id;
         this.widgetService.setProperty('serviceId', id);
 
         this.select.emit(this.widgetService.getProperty('serviceId'));
@@ -42,7 +44,7 @@ export class IBMConnectionsUsersGrid implements WidgetComponent, OnInit {
     }
 
 
-    constructor(private service: RESTService, private widgetService: WidgetService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -56,8 +58,14 @@ export class IBMConnectionsUsersGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
+        this.route.params.subscribe(params => {
+            if (params['service'])
+                this.serviceId = params['service'];
+            else {
 
-        this.serviceId = this.widgetService.getProperty('serviceId');
+                this.serviceId = this.widgetService.getProperty('serviceId');
+            }
+        });
 
         var displayDate = (new Date()).toISOString().slice(0, 10);
         console.log(`/services/summarystats?statName=NUM_OF_ACTIVITIES_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)

@@ -47,11 +47,19 @@ export class IBMConnectionsDetails implements OnInit {
     }
     
     ngOnInit() {
-    
+        this.route.params.subscribe(params => {
+            if (params['service'])
+                this.serviceId = params['service'];
+            else {
+                this.serviceId = this.widgetService.getProperty('serviceId');
+            }
+        });
+
+        this.widgetService.setProperty("tabname", "ACTIVITIES");
         this.route.params.subscribe(params => {
 
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/device_details?device_id=${this.widgetService.getProperty('serviceId')}&destination=dashboard`)
+            this.dataProvider.get(`/services/device_details?device_id=${this.serviceId}&destination=dashboard`)
                 .subscribe(
                 data => {
                     this.service = data.data;

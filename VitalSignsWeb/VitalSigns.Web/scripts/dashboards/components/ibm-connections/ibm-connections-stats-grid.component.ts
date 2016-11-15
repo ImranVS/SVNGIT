@@ -1,6 +1,6 @@
 ﻿import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
-
+import {ActivatedRoute} from '@angular/router';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
@@ -27,15 +27,16 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+    _serviceId: string;
     
     get serviceId(): string {
 
-        return this.widgetService.getProperty('serviceId');
+        return this._serviceId;
 
     }
 
     set serviceId(id: string) {
-
+        this._serviceId = id;
         this.widgetService.setProperty('serviceId', id);
 
         this.select.emit(this.widgetService.getProperty('serviceId'));
@@ -43,7 +44,7 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
     }
 
 
-    constructor(private service: RESTService, private widgetService: WidgetService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -57,7 +58,14 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
+        this.route.params.subscribe(params => {
+            if (params['service'])
+                this.serviceId = params['service'];
+            else {
 
+                this.serviceId = this.widgetService.getProperty('serviceId');
+            }
+        });
         var displayDate = (new Date()).toISOString().slice(0, 10);
 
         this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
