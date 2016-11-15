@@ -1,31 +1,30 @@
-﻿
-<div id="zeusContext">
-
-    <div id="zeusContextNavigation">
-        <div id="zeusContextNavigationIcon">
-            <img class="svgInject" src="img/menu/dashboard.svg" title="Dashboard" alt="Dashboard" />
-        </div>
-        <div id="zeusContextNavigationText">
-            <h2>
-                Issues
-                <app-navigator></app-navigator>
-            </h2>
-            <p>Issues list</p>
+﻿<div class="container">
+    <h3>Overall Domino Statistics</h3>
+    <div class="row">
+        <div class="form-group col-sm-6">
+            <label for="start_date" class="col-sm-4">Month/Year:</label>
+            <div class="col-sm-8">
+                <input type="date" class="form-control col-sm-7" id="start_date" required name="start_date">
+            </div>
         </div>
     </div>
-
-    <div class="clearfix"></div>
-</div>
-
-
-<div class="container">
-
-    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
+    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
         <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Server Name'" [binding]="'device'" [width]="300"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Server Type'" [binding]="'device_type'" [width]="150"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Test Name'" [binding]="'event_type'" [width]="300"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="300"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Total Mail Delivered'" [binding]="'total_mail_delivered'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Avg Mail Delivery Time (ms)'" [binding]="'avg_mail_delivery'" [width]="250"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Avg Server Availability Index'" [binding]="'avg_server_availability_index'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Down Time (min)'" [binding]="'down_time'" [width]="150"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Avg Memory % Available'" [binding]="'avg_memory'" [width]="180"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Web Documents Opened'" [binding]="'web_documents_opened'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Web Documents Created'" [binding]="'web_documents_created'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Web Databases Opened'" [binding]="'web_database_opened'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Web Views Opened'" [binding]="'web_views_opened'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Web Commands Total'" [binding]="'web_commands_total'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'HTTP Sessions'" [binding]="'http_session'" [width]="200"></wj-flex-grid-column>
+
+
     </wj-flex-grid>
     <div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"

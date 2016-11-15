@@ -39,8 +39,8 @@ export class DominoStatistics implements OnInit {
     }
     ngOnInit() {
 
-
-        this.service.get('/Configurator/get_all_open_issues/')
+        alert("Hi");
+        this.service.get('/DashBoard/get_domino_statistics')
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
