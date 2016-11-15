@@ -1542,7 +1542,7 @@ namespace VitalSigns.API.Controllers
                 { Name = x.DeviceName, Id = x.Id }).ToList();
                 Response = Common.CreateResponse(result);
 
-                result.Insert(0, new NameValueModel { Name="All", Id="0" });
+                result.Insert(0, new NameValueModel { Name="All", Id="" });
 
                 Response = Common.CreateResponse(new { deviceNameData = result });
                 return Response;
