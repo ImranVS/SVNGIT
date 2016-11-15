@@ -8,12 +8,14 @@ import {RESTService} from '../../core/services';
 import {ServiceTab} from '../models/service-tab.interface';
 
 import * as ServiceTabs from '../service-tab.collection';
+import {WidgetService} from '../../core/widgets';
 
 @Component({
     templateUrl: '/app/services/components/service-details.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        WidgetService
     ]
 })
 export class ServiceDetails implements OnInit {
@@ -46,8 +48,7 @@ export class ServiceDetails implements OnInit {
         
     }
     
-    ngOnInit() {
-        console.log(this.router.routerState)
+    ngOnInit() {      
         const parentActivatedRoute = this.router.routerState.root.children[0].params;
         parentActivatedRoute.subscribe(params => {
             this.module = params['module'];
