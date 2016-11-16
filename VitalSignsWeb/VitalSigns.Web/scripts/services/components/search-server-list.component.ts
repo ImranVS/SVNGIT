@@ -52,13 +52,15 @@ export class SearchServerList implements OnInit  {
     ngOnInit() {
         let paramstatus = null;
         let paramtype = null;
+        let ParamName = null;
 
         //Get a query parameter if the page is called from the main dashboard via a link in a status component
-        this.route.queryParams.subscribe(params => [paramstatus = params['status'] || '-All-', paramtype = params['type'] || '-All-']);
+        this.route.queryParams.subscribe(params => [paramstatus = params['status'] || '-All-', paramtype = params['type'] || '-All-', ParamName = params['devicename'] || '']);
         this.name.emit('');
         this.type.emit(paramtype);
         this.status.emit(paramstatus);
         this.location.emit('-All-');
+        this.name.emit(ParamName);
         this.service.get('/services/server_list_selectlist_data')
             .subscribe(
             (response) => {
@@ -71,5 +73,7 @@ export class SearchServerList implements OnInit  {
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
         this.deviceType = paramtype;
         this.deviceStatus = paramstatus;
+        this.deviceName = ParamName;
+
     }
 }

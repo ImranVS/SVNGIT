@@ -16,7 +16,7 @@ declare var bootstrapNavigator: any;
 })
 export class AppHeader implements OnInit {
     errorMessage: string;
-
+    deviceName: string;
     deviceSummary: any;
 
     constructor(private service: RESTService, private router: Router) { }
@@ -33,7 +33,12 @@ export class AppHeader implements OnInit {
             }
             );
     }
-
+    changeDeviceName() {
+        console.log(this.deviceName);
+        if (this.deviceName != "") {
+            this.router.navigateByUrl('services/dashboard?devicename='+this.deviceName);
+        }
+    }   
     ngOnInit() {
         this.loadData();
         //alert(this.deviceSummary);

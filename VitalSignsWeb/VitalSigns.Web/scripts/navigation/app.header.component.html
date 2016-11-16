@@ -6,8 +6,8 @@
         <img src="/img/LogoVitalSigns.png" />
     </a>
     <div id="searchWrapper" class="headerBlock">
-        <input type="text" value="" placeholder="Find servers..." id="searchInput" />
-        <span class="glyphicon glyphicon-search" aria-hidden="true" id="launchSearchBt"></span>
+        <input type="text" value="" placeholder="Find servers..." id="searchInput"  [(ngModel)]="deviceName" (blur)="changeDeviceName()"/>      
+        <span class="glyphicon glyphicon-search" aria-hidden="true" id="launchSearchBt" ></span>
     </div>
 </div>
 <div id="zeusHeaderRightWrapper">

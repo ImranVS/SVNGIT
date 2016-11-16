@@ -5,7 +5,7 @@
 export class SearchDeviceListPipe{
     transform(value: any, searchText: string, type: string, status: string, location: string) {
         if (value != null) {
-            if (searchText) {
+            if (searchText!="") {
                 value = value.filter((item) => item.name.toLocaleLowerCase().indexOf(searchText.toLocaleLowerCase()) !== -1);
             }
             if (type && type != "-All-") {
