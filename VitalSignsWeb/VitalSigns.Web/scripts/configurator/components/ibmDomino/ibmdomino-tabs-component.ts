@@ -72,13 +72,7 @@ export class IBMDomino implements OnInit {
                 "component": "TravelerDataStore",
                 "path": "/app/configurator/components/ibmDomino/Ibm-travelerdatastore.component",
                 "active": false
-            },
-            {
-                "title": "Overall domino",
-                "component": "OverallDominoStat",
-                "path": "/app/configurator/components/ibmDomino/Ibm-overall-domino-statistics.component",
-                "active": false
-            }
+            }       
         ];
         this.selectTab(this.tabsData[0]);
     };
