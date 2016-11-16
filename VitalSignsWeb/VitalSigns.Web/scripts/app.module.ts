@@ -312,6 +312,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
         tabs.ServiceClusterHealthTab,
         tabs.ServiceOutagesTab,
         tabs.ServiceEventsTab,
+        tabs.URLHealthTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -441,6 +442,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
         tabs.ServiceTasksTab,
         tabs.ServiceClusterHealthTab,
         tabs.ServiceEventsTab,
+        tabs.URLHealthTab,
         tabs.ServiceOutagesTab
     ],
     bootstrap: [
