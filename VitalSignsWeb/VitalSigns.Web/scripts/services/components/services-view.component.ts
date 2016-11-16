@@ -1,4 +1,5 @@
-﻿import {Component, AfterViewChecked, OnInit, Input} from '@angular/core'
+﻿import {Component, AfterViewChecked, OnInit, Input, ViewChildren} from '@angular/core'
+import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
@@ -17,9 +18,10 @@ declare var injectSVG: any;
 })
 export class ServicesView implements OnInit, AfterViewChecked {
 
-
+  //  @ViewChildren('deviceName') deviceName;
     filterCount = 0;
     _searchText: string;
+    serversData: FormGroup;
     @Input('searchText')
     public set searchText(val: string) {
         this._searchText = val;
@@ -64,9 +66,29 @@ export class ServicesView implements OnInit, AfterViewChecked {
     module: string;
     status: string;
     services: any[];
-   
+    addServersForm: FormGroup;
+    deviceLocationData: any;
+    selectedLocation: string;
+    selectedType: string;
+    selectedBusinessHour: string;
+    devicebusinessHourData: any;
+     deviceTypeData:any;
+     postData: any;
+    constructor(private formBuilder: FormBuilder, private service: RESTService, private router: Router, private route: ActivatedRoute) {
+        this.addServersForm = this.formBuilder.group({
+            'device_name': ['', Validators.required],
+            'device_type': ['', Validators.required],
+            'description': ['', Validators.required],
+            'location_id': ['', Validators.required],
+            'ip_address': ['', Validators.required],
+            'business_hours_id': ['', Validators.required],
+            'monthly_operating_cost': [''],
+            'ideal_user_count': ['']
 
-    constructor(private service: RESTService, private router: Router, private route: ActivatedRoute) { }
+        });
+
+      
+    }
 
     selectService(service: any) {
 
@@ -99,7 +121,16 @@ export class ServicesView implements OnInit, AfterViewChecked {
     }
 
     ngOnInit() {
-       
+        this.service.get('/Configurator/get_server_credentials_businesshours')
+            .subscribe(
+            (response) => {
+
+                this.deviceLocationData = response.data.locationsData;
+                this.deviceTypeData = response.data.serverTypeData;
+                this.devicebusinessHourData = response.data.businessHoursData;
+            },
+            (error) => this.errorMessage = <any>error
+            );
         this.route.params.subscribe(params => {
             this.module = params['module'];
             this.loadData(); 
@@ -109,6 +140,17 @@ export class ServicesView implements OnInit, AfterViewChecked {
 
     ngAfterViewChecked() {
         injectSVG();
+    }
+    onSubmit(addServer: any, dialog: wijmo.input.Popup) {
+        this.service.put('/Configurator/save_servers', addServer)
+            .subscribe(
+            response => {              
+                this.addServersForm.reset();
+                this.router.navigate(['services/' + this.module, response.data]);
+            });
+        
+        dialog.hide();
+        
     }
 
 }
