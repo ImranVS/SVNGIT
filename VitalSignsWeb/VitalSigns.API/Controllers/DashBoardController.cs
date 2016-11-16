@@ -1517,39 +1517,43 @@ namespace VitalSigns.API.Controllers
                 {
                     if (statdate.Date == DateTime.Now.Date)
                     {
-                        summaryStats = summaryStatisticsRepository.Collection.Aggregate()
-                                                   .Match(x => x.DeviceId != null && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Date== statdate.Date)
-                                                   .Group(x => new { x.DeviceId, x.StatName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
-                                                                                             .Project(x => new SummaryDataModel
-                                                                                             {
-                                                                                                 DeviceID = x.key.DeviceId,
-                                                                                                 StatName = x.key.StatName,
-                                                                                                 Value = x.value
-                                                                                             }).ToList();
+                        var result = summaryStatisticsRepository.All().Where(x => x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Date == statdate.Date).ToList();
+
+                        summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
+                                             .Select(x => new SummaryDataModel
+                                             {
+                                                 DeviceID = x.Key.DeviceId,
+                                                 DeviceName = x.Key.DeviceName,
+                                                 StatName = x.Key.StatName,
+                                                 Value = x.Sum(y => y.StatValue)
+                                             }).ToList();
                     }
                     else
                     {
-                        summaryStats = summaryStatisticsRepository.Collection.Aggregate()
-                           .Match(x => x.DeviceId != null && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year)
-                           .Group(x => new { x.DeviceId, x.StatName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
-                                                                     .Project(x => new SummaryDataModel
-                                                                     {
-                                                                         DeviceID = x.key.DeviceId,
-                                                                         StatName = x.key.StatName,
-                                                                         Value = x.value
-                                                                     }).ToList();
+                        var result = summaryStatisticsRepository.All().Where(x => x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year).ToList();
+
+                        summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
+                                             .Select(x => new SummaryDataModel
+                                             {
+                                                 DeviceID = x.Key.DeviceId,
+                                                 DeviceName = x.Key.DeviceName,
+                                                 StatName = x.Key.StatName,
+                                                 Value = x.Sum(y => y.StatValue)
+                                             }).ToList();
+
                     }
                 }
                 else
                 {
                      summaryStats = summaryStatisticsRepository.Collection.Aggregate()
                         .Match(x => x.DeviceId != null && x.StatName != null )
-                        .Group(x => new { x.DeviceId, x.StatName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
+                        .Group(x => new { x.DeviceId,x.DeviceName, x.StatName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
                                                                  .Project(x => new SummaryDataModel
                                                                   {
                                                                      DeviceID = x.key.DeviceId,
+                                                                     DeviceName=x.key.DeviceName,
                                                                      StatName = x.key.StatName,
-                                                                     Value = x.value
+                                                                     Value =x.value 
                                                                  }).ToList();
                 }
                 var distinctData = summaryStats.Select(x => x.DeviceID).Distinct().OrderBy(x => x).ToList();
@@ -1558,7 +1562,7 @@ namespace VitalSigns.API.Controllers
                 {
                     if (item != null)
                     {
-                      
+
                         var server = serverRepository.Get(item);
                         if (server != null && server.DeviceType == "Domino")
                         {
