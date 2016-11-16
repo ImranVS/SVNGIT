@@ -1,11 +1,14 @@
 ﻿<div class="container">
     <h3>Overall Domino Statistics</h3>
     <div class="row">
-        <div class="form-group col-sm-6">
-            <label for="start_date" class="col-sm-4">Month/Year:</label>
-            <div class="col-sm-8">
-                <input type="date" class="form-control col-sm-7" id="start_date" required name="start_date">
+        <div class="col-sm-6">
+            <label for="start_date" class="control-label col-sm-3">Month/Year:</label>
+            <div class="col-sm-7">
+                <input type="date" class="form-control col-sm-2" id="start_date" required name="start_date" [(ngModel)]="filterDate">
             </div>
+        </div>
+        <div class="col-sm-6">
+            <button type="button" class="btn btn-primary" (click)="filterStats()">Done</button>
         </div>
     </div>
     <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
