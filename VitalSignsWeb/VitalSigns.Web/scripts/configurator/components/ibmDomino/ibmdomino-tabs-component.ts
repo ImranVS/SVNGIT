@@ -18,7 +18,7 @@ export class IBMDomino implements OnInit {
 
     tabsData: any;
     activeTabComponent: ComponentRef<{}>;
-    constructor(private resolver: ComponentFactoryResolver, private elementRef: ElementRef) { }
+    constructor(private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private route: ActivatedRoute) { }
     selectTab(tab: any) {
         // Activate selected tab
         this.tabsData.forEach(tab => tab.active = false);
@@ -74,6 +74,13 @@ export class IBMDomino implements OnInit {
                 "active": false
             }       
         ];
-        this.selectTab(this.tabsData[0]);
+        var tab:number = 0;
+        this.route.queryParams.subscribe(params => {
+            if (params['tab']) {
+                tab = Number.parseInt(params['tab']);
+            }
+        });
+        console.log('true part ' + tab);
+        this.selectTab(this.tabsData[tab]);    
     };
 }

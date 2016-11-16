@@ -15,7 +15,7 @@ export class DominoLogFiles extends GridBase implements OnInit {
     sererNames: any;
     errorMessage: string;
     id: string;
-    constructor(service: RESTService) {
+    constructor(service: RESTService, private route: ActivatedRoute, private router: Router) {
         super(service);
         this.formName = "Domino Log File Scanning";
 
@@ -39,7 +39,10 @@ export class DominoLogFiles extends GridBase implements OnInit {
     deleteLogFileScanning(id: string) {
 
         this.service.delete(`/configurator/delete_log_file_scanning/${id}`)
-        this.ngOnInit();
+        window.location.reload();
+        this.router.navigateByUrl('/configurator/ibmDomino?tab=1');
+    
+       
     }
 }
 
