@@ -28,6 +28,8 @@ export class ServiceDetails implements OnInit {
     service: any;
     module: string;
     activeTabComponent: ComponentRef<{}>;
+    services: any[];
+   // service: any
 
     constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute) {
         //.map(routeParams => routeParams.id);
@@ -53,6 +55,7 @@ export class ServiceDetails implements OnInit {
         parentActivatedRoute.subscribe(params => {
             this.module = params['module'];
         });
+     
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
             // Get tabs associated with selected service
@@ -68,6 +71,8 @@ export class ServiceDetails implements OnInit {
 
 
         });
+
+      
        
         
     }
@@ -86,5 +91,10 @@ export class ServiceDetails implements OnInit {
         }
 
     }
+    deleteServer() {
+       
+        this.dataProvider.delete('/configurator/delete_server/' + this.deviceId);
     
+    }
+
 }
