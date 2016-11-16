@@ -65,6 +65,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<StatusDetails> statusDetailsRepository;
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
         private IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
+        private IRepository<ServerTypeEntity> serverTypeRepository;
+      
 
         #endregion
 
@@ -1437,10 +1439,12 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
                 locationRepository = new Repository<Location>(ConnectionString);
+                serverTypeRepository = new Repository<ServerTypeEntity>(ConnectionString);
+                var serverTypeData = serverTypeRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Name }).ToList().OrderBy(x => x.DisplayText);
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData, locationsData = locationsData });
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData, locationsData = locationsData, serverTypeData= serverTypeData });
                 return Response;
             }
             catch (Exception exception)
@@ -4651,7 +4655,44 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+        #region Add Servers
 
+        [HttpPut("save_servers")]
+        public APIResponse UpdateServers([FromBody]ServersNewModel serverData)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+
+
+
+                
+                    Server servers = new Server
+                    {
+                       DeviceName = serverData.DeviceName   ,
+                        DeviceType = serverData.DeviceType,
+                        Description = serverData.Description,
+                        LocationId = serverData.LocationId,
+                        IPAddress = serverData.IpAddress,
+                        BusinessHoursId = serverData.BusinessHoursId,
+                        MonthlyOperatingCost = serverData.MonthlyOperatingCost,
+                        IdealUserCount = serverData.IdealUserCount
+                    };
+
+
+                    string id = serversRepository.Insert(servers);
+                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
+             
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+        #endregion
     }
 }
 
