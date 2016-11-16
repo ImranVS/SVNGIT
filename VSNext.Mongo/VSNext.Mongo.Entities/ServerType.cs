@@ -10,7 +10,7 @@ namespace VSNext.Mongo.Entities
     [DataContract]
     [Serializable]
     [CollectionName("server_type")]
-    public class ServerType:Entity
+    public class ServerTypeEntity:Entity
     {
         [DataMember]
         [BsonElement("server_type__id")]
