@@ -1376,20 +1376,20 @@ Partial Public Class VitalSignsPlusDomino
                                                 ' WriteAuditEntry(Now.ToString & " Checking settings for Task: " & MyConfiguredDominoServerTaskSetting.Name)
                                                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Updating server task settings...now updating existing task: " & .Name, LogLevel.Verbose)
                                                 Try
-                                                    .Enabled = Task.Enabled
+                                                    .Enabled = If(Task.Enabled, False)
                                                 Catch ex As Exception
 
                                                 End Try
 
                                                 Try
-                                                    .LoadIfMissing = Task.SendLoadCmd
+                                                    .LoadIfMissing = If(Task.SendLoadCmd, False)
                                                     .ConsoleString = Task.ConsoleString
-                                                    .RestartServerIfMissingASAP = Task.SendRestartCmd
-                                                    .RestartServerIfMissingOFFHOURS = Task.SendRestartCmdOffhours
-                                                    .DisallowTask = Task.SendExitCmd
-                                                    .LoadCommand = Task.SendLoadCmd
-                                                    .FreezeDetection = Task.FreezeDetect
-                                                    .FailureThreshold = Task.RetryCount
+                                                    .RestartServerIfMissingASAP = If(Task.SendRestartCmd, False)
+                                                    .RestartServerIfMissingOFFHOURS = If(Task.SendRestartCmdOffhours, False)
+                                                    .DisallowTask = If(Task.SendExitCmd, False)
+                                                    .LoadCommand = If(Task.SendLoadCmd, False)
+                                                    .FreezeDetection = If(Task.FreezeDetect, False)
+                                                    .FailureThreshold = If(Task.RetryCount, 2)
                                                 Catch ex As Exception
                                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Domino server " & MyDominoServer.Name & " Error configuring existing task " & MyConfiguredDominoServerTaskSetting.Name & "  Error: " & ex.Message)
                                                 End Try
