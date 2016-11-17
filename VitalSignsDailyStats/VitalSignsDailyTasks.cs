@@ -103,17 +103,41 @@ namespace VitalSignsDailyStats
                 nameValueRepository = _unitOfWork.Repository<NameValue>();
 
                 validLocationsRepository = _unitOfWork.Repository<ValidLocation>();
+                try
+                {
+                    if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
+                        culture = ConfigurationManager.AppSettings[cultureName];
+
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("Exception in getting culture.  Error: " + ex.Message);
+                    culture = "en-US";
+                }
               
-                if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
-                    culture = ConfigurationManager.AppSettings[cultureName];
 
                 RegistryHandler myRegistry = new RegistryHandler();
+                try
+                {
+                    logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
+                }
+                catch (Exception ex)
+                {
+                    logLevel = LogUtils.LogLevel.Verbose;
+                    WriteAuditEntry("Exception in getting logLevel.  Error: " + ex.Message);
+                }
 
-                logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
-
-                //logLevel = LogUtils.LogLevel.Verbose;
-                appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                appPath = string.IsNullOrEmpty(appPath) ? @"c:\" : appPath;
+                try
+                {
+                    appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    appPath = string.IsNullOrEmpty(appPath) ? @"c:\" : appPath;
+                }
+                catch (Exception ex)
+                {
+                    appPath = @"c:\";
+                    WriteAuditEntry("Exception in getting appPath.  Error: " + ex.Message);
+                }
+              
                 try
                 {
                     dateFormat = objDateUtils.GetDateFormat();
@@ -122,17 +146,26 @@ namespace VitalSignsDailyStats
                 {
                     WriteAuditEntry("Exception while handling DateFormate.  Error: " + ex.Message);
                 }
-                logDest = appPath + @"\Log_Files\Daily_Tasks_Log.txt";
-                if (File.Exists(logDest))
+                try
                 {
-                    File.Move(logDest, appPath + @"\Log_Files\Daily_Tasks_Log_Bak.txt");
-                    File.Delete(logDest);
+                    logDest = appPath + @"\Log_Files\Daily_Tasks_Log.txt";
+                    if (File.Exists(logDest))
+                    {
+                        File.Move(logDest, appPath + @"\Log_Files\Daily_Tasks_Log_Bak.txt");
+                        File.Delete(logDest);
+                    }
                 }
+                catch (Exception ex)
+                {
+
+                    WriteAuditEntry("Exception in moving old Daily_Tasks_Log.txt to Daily_Tasks_Log_Bak.txt.  Error: " + ex.Message);
+                }
+               
                 //To DO 
                 try
                 {
-                  //  myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-                 //   myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
+                    myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+                    myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
                 }
                 catch (Exception ex)
                 {
@@ -141,12 +174,12 @@ namespace VitalSignsDailyStats
                 }
                 try
                 {
-                    //productName = myRegistry.ReadFromRegistry("ProductName").ToString();
-                    //if (productName=="")
-                    //{
-                    //    productName = "VitalSigns";
+                    productName = myRegistry.ReadFromRegistry("ProductName").ToString();
+                    if (productName == "")
+                    {
+                        productName = "VitalSigns";
 
-                    //}
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -166,7 +199,7 @@ namespace VitalSignsDailyStats
 
                 }
                 bool isPrimaryNode = true;
-                string sql = null;
+             
                 try
                 {
 
@@ -211,6 +244,7 @@ namespace VitalSignsDailyStats
 
                 try
                 {
+                    WriteAuditEntry("Building ConsolidateStatistics,if any... ");
                     ConsolidateStatistics();
                 }
 
@@ -221,7 +255,7 @@ namespace VitalSignsDailyStats
 
                 try
                 {
-
+                    WriteAuditEntry("Starting CleanUpObsoleteData......");
                     Task cleanupObsoleteDatatask = Task.Factory.StartNew(() => CleanUpObsoleteData());
 
                     cleanupObsoleteDatatask.Wait();
@@ -233,7 +267,7 @@ namespace VitalSignsDailyStats
                 }
 
                 // To do
-                {
+                { 
                     try
                     {
                         VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
@@ -313,7 +347,7 @@ namespace VitalSignsDailyStats
             }
             catch (Exception ex)
             {
-                WriteAuditEntry("OOPS, error in processing TravelerSummaryStats" + ex.ToString());
+                WriteAuditEntry("OOPS, error in processing TravelerSummaryStats " + ex.ToString());
             }
         }
         public bool SaveNameValues(VSNext.Mongo.Entities.NameValue nameValues)
@@ -1407,7 +1441,7 @@ namespace VitalSignsDailyStats
             catch (Exception ex)
             {
 
-                throw ex;
+                WriteAuditEntry(DateTime.Now.ToString() + " Error in processing SummaryforAllDomino for Stat" + statName + " Date = " + StatDate);
             }
 
 
@@ -1635,13 +1669,13 @@ namespace VitalSignsDailyStats
             try
             {
                 //Cleaning Up Status Details
-                statusDeatilsRepository.Delete();
+                // statusDeatilsRepository.Delete();
                 //Cleaning Up Status Table
                 //   statusRepository.Delete();
                 //Cleaning Up TravelerStats Table
 
-              //  Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated < DateTime.Now);
-              //  travelerStatsRepository.Delete(expression);
+                //Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated < DateTime.Now);
+                //travelerStatsRepository.Delete(expression);
 
                 //To Do pending for Clean up Alert History
 
