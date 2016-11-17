@@ -36,5 +36,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("ideal_user_count")]
         public int? IdealUserCount { get; set; }
+
+        [JsonProperty("category")]
+        public string Category { get; set; }
     }
 }
