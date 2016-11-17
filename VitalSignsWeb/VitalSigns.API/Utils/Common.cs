@@ -19,15 +19,15 @@ namespace VitalSigns.API
         {
             Dictionary<string, string> serverTypeIcons = new Dictionary<string, string>();
            
-            List<ServerType> serverTypeList = (List<ServerType>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerType>));
-            foreach (ServerType item in serverTypeList)
+            List<ServerTypeModel> serverTypeList = (List<ServerTypeModel>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerTypeModel>));
+            foreach (ServerTypeModel item in serverTypeList)
                 serverTypeIcons[item.ServerTypeName] = item.Icon;
             return serverTypeIcons;
         }
 
-        public static ServerType GetServerTypeTabs(string serverTypeName )
+        public static ServerTypeModel GetServerTypeTabs(string serverTypeName )
         {   
-            List<ServerType> serverTypeList = (List<ServerType>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerType>));
+            List<ServerTypeModel> serverTypeList = (List<ServerTypeModel>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerTypeModel>));
             var serverType = serverTypeList.Where(x => x.ServerTypeName.ToUpper() == serverTypeName.ToUpper()).FirstOrDefault();
             return serverType;
         }
