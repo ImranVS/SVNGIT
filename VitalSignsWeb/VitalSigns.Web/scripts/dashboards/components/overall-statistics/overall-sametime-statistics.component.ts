@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
@@ -26,7 +26,8 @@ export class SametimeStatistics implements OnInit {
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-
+    filterDate: Date;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     constructor(private service: RESTService, private route: ActivatedRoute) { }
 
     get pageSize(): number {
@@ -47,6 +48,18 @@ export class SametimeStatistics implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
+    }
+    filterStats() {
+        console.log(this.filterDate);
+        this.service.get('/DashBoard/get_sametime_statistics?statdate=' + this.filterDate)
+            .subscribe(
+            (response) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data.pageSize = 10;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+
     }
 }
 
