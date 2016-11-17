@@ -44,7 +44,7 @@ export class DominoMailDeliveryStatus implements OnInit {
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                this.data.pageSize = 10;
+                this.data.pageSize = 50;
             },
             (error) => this.errorMessage = <any>error
             );
