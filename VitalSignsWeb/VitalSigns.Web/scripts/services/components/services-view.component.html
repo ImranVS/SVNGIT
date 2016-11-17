@@ -1,4 +1,4 @@
-﻿<div id="zeusContext">
+﻿<!--<div id="zeusContext">
     <div id="zeusContextNavigation">
         <div id="zeusContextNavigationIcon">
             <img class="svgInject" src="img/menu/servers.svg" title="Dashboard" alt="Dashboard" />
@@ -26,9 +26,7 @@
 
         </div>
     </div>
-    <div id="zeusContextActions">
-
-        <!-- Split button -->
+    <div id="zeusContextActions">       
         <div class="btn-wrapper">
             <div class="btn-group">
                 <button  type="button" class="btn btn-primary">Action</button>
@@ -47,11 +45,36 @@
         </div>
     </div>
     <div class="clearfix"></div>
-</div>
+</div>-->
 
-<div id="zeusContent" class="noPadding twoColumns30-70">
-
+<div id="zeusContent" class="noPadding twoColumns30-70">    
     <div class="twoColumn30 serversList">
+        <div class="clearfix"></div>
+        <div id="serverContext" class="row">
+            <div class="col-lg-6">
+                <div id="serverListIcon">
+                    <img class="svgInject" src="img/menu/servers.svg" title="Dashboard" alt="Dashboard" />
+                </div>
+                <div class="text-left">
+                    <h4>
+                        <b>Servers</b>
+                    </h4>
+
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row floatRight" >             
+                        <button type="button" class="btn btn-primary" (click)="refreshServers()">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                            Refresh
+                        </button>                 
+                        <button type="button" class="btn btn-primary" (click)="addServer(frmDialog)" *ngIf="module=='configurator'">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Add Server
+                        </button>                   
+                </div>
+            </div>
+        </div>
         <div id="serversFilters">
             <search-server-list (name)="searchText=$event" (type)="searchType=$event" (status)="searchStatus=$event" (location)="searchLocation=$event"></search-server-list>
         </div>
@@ -61,13 +84,23 @@
             </div>
         </div>
         <div id="serversListWrapper" style="overflow-y: auto;">
-            <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" *ngFor="let service of services |searchserverlist:searchText :searchType :searchStatus :searchLocation; let i = index;" (click)="selectService(service)">
+            <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" *ngFor="let service of services |searchserverlist:searchText :searchType :searchStatus :searchLocation; let i = index;" >
+                <div class="floatRight">
+                    <span class="glyphicon glyphicon-trash" (click)="deleteServer(service)" *ngIf="module=='configurator'"></span>
+                    <span class="glyphicon glyphicon-cog" (click)="selectService(service)"></span>             
+                </div>
                 <div class="serverIcon">
                     <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
                 </div>
-                <div class="serverTitle">{{service.name}}</div>
-                <p class="desc" *ngIf="service.version">{{service.version}}</p>
-                <p class="desc">{{service.description}}</p>
+                
+                    <div class="serverTitle">
+                        {{service.name}}
+                    </div>
+                
+                    <p class="desc" *ngIf="service.version">{{service.version}}</p>
+                    <p class="desc">{{service.description}}</p>
+              
+                
                 <div class="statusIndicator"></div>      
                 {{setFilterCount(i)}}         
             </div>
@@ -75,7 +108,7 @@
     </div>
 
     <div class="twoColumn70 serverDetailWrapper">
-        <wj-popup #frmDialog class="popover" [owner]="addServer" [showTrigger]="'Click'" [hideTrigger]="'None'" style="min-width: 800.2778px" >
+        <wj-popup #frmDialog class="modal-content col-sm-8"  >
             <form (ngSubmit)="onSubmit(addServersForm.value,frmDialog)"  class="form-horizontal" [formGroup]="addServersForm">
                 <h3 class="popover-title">
                     Maintain Servers
@@ -157,7 +190,7 @@
                     </div>
                     <div class="panel-footer">
                         <button type="submit" class="btn btn-primary"> Save </button>
-                        <!--<button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>-->
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
                     </div>
                 </div>
             </form>

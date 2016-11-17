@@ -91,10 +91,6 @@ export class ServiceDetails implements OnInit {
         }
 
     }
-    deleteServer() {
-       
-        this.dataProvider.delete('/configurator/delete_server/' + this.deviceId);
-    
-    }
+   
 
 }
