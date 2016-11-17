@@ -263,7 +263,7 @@ namespace VitalSigns.API.Controllers
                                                       
                    
                    
-                    Models.ServerType serverType = Common.GetServerTypeTabs(serverStatus.Type);
+                    Models.ServerTypeModel serverType = Common.GetServerTypeTabs(serverStatus.Type);
 
                     if (string.IsNullOrEmpty(serverStatus.SecondaryRole))
                         serverStatus.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
@@ -298,7 +298,7 @@ namespace VitalSigns.API.Controllers
                                                  SecondaryRole = x.SecondaryRole
                                              })).FirstOrDefault();
 
-                        Models.ServerType serverType = Common.GetServerTypeTabs(deviceType);
+                        Models.ServerTypeModel serverType = Common.GetServerTypeTabs(deviceType);
                         result.Tabs = serverType.Tabs;
                         Response = Common.CreateResponse(result);
                     }

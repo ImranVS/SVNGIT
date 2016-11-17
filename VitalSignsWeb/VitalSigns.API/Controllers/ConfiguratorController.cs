@@ -68,7 +68,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<StatusDetails> statusDetailsRepository;
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
         private IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
-        private IRepository<ServerTypeEntity> serverTypeRepository;
+        private IRepository<ServerType> serverTypeRepository;
       
 
         #endregion
@@ -1442,8 +1442,9 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
                 locationRepository = new Repository<Location>(ConnectionString);
-                serverTypeRepository = new Repository<ServerTypeEntity>(ConnectionString);
+                serverTypeRepository = new Repository<ServerType>(ConnectionString);
                 var serverTypeData = serverTypeRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Name }).ToList().OrderBy(x => x.DisplayText);
+              //  serverTypeData.ad
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
