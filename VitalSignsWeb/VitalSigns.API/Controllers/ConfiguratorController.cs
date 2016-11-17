@@ -4835,7 +4835,8 @@ namespace VitalSigns.API.Controllers
                         IPAddress = serverData.IpAddress,
                         BusinessHoursId = serverData.BusinessHoursId,
                         MonthlyOperatingCost = serverData.MonthlyOperatingCost,
-                        IdealUserCount = serverData.IdealUserCount
+                        IdealUserCount = serverData.IdealUserCount,
+                        Category=serverData.Category
                     };
 
 
