@@ -244,7 +244,29 @@ export class Maintenance extends GridBase implements OnInit  {
         this.currentEditItem.duration_type = this.durationSetting;
         this.currentEditItem.key_users = this.keyUsers;
         this.currentEditItem.device_list = this.devices;
-        this.saveGridRow('/Configurator/save_maintenancedata',dlg);  
+        console.log(this.currentEditItem.key_users.count +"count")
+        if (this.keyUsers.length > 0 || this.devices.length > 0) {
+
+            this.saveGridRow('/Configurator/save_maintenancedata', dlg);
+        }
+        else {
+
+            alert("Please Select atleast one Key User or One Server");
+        }
+        if (this.selectedSetting == "1") {
+            this.currentEditItem.maintain_type = "One Time";
+        }
+        else if (this.selectedSetting == "2")
+        {
+            this.currentEditItem.maintain_type = "Daily";
+        }
+        else if (this.selectedSetting == "3")
+        {
+            this.currentEditItem.maintain_type = "Weekly";
+        }
+        else {
+            this.currentEditItem.maintain_type = "Monthly";
+        }
     }
 
     addMaintenance(dlg: wijmo.input.Popup) {
