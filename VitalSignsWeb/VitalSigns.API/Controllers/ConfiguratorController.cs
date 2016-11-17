@@ -15,8 +15,11 @@ using System.Linq;
 using MongoDB.Bson;
 using System.Runtime.Serialization.Json;
 using System.Globalization;
+using System.IO;
 using System.Xml.Serialization;
 using System.Xml;
+using System.Net.Mail;
+using Ionic.Zip;
 
 namespace VitalSigns.API.Controllers
 {
@@ -4623,35 +4626,191 @@ namespace VitalSigns.API.Controllers
         #region Log Settings
         [HttpGet("get_log_files")]
         public APIResponse GetLogFiles()
-        {
-
-
+      {
             try
             {
                 nameValueRepository = new Repository<NameValue>(ConnectionString);
-                List<SendLogs> sendlogfiles = new List<SendLogs>();
+               
                 var logfiles = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Files Path-New").Select(x => x.Value).FirstOrDefault();
                 string[] filePaths = System.IO.Directory.GetFiles(logfiles);
-                string[] folderPaths = System.IO.Directory.GetDirectories(logfiles);
+                string[] folderPaths = System.IO.Directory.GetDirectories(logfiles);               
+                List<SendLogs> logfilenames = new List<SendLogs>();
+             
+           
                 foreach (var x in filePaths)
                 {
+
                     if (x.Contains("LogFiles.z"))
                         continue;
                     var path = x.Substring(x.LastIndexOf("\\") + 1);
+
                     SendLogs sendlogs = new SendLogs();
                     {
-                        sendlogs.LogFileName = path.ToString();
+                        sendlogs.FileName = path.ToString();
 
                     }
-                    sendlogfiles.Add(sendlogs);       
+                    logfilenames.Add(sendlogs);
+
                 }
-                Response = Common.CreateResponse(sendlogfiles);
+                List<string> sendlogfiles = new List<string>();
+                List<ComboBoxListItem> combolist = new List<ComboBoxListItem>();
+                //logs.LogFileName = sendlogfiles.ToList();
+               
+                foreach (var x in filePaths)
+                {
+
+                    if (x.Contains("LogFiles.z"))
+                        continue;
+                    var path = x.Substring(x.LastIndexOf("\\") + 1);
+
+
+                    combolist.Add(new ComboBoxListItem { DisplayText = path });
+                }
+
+
+                Response = Common.CreateResponse(new { logfilenames = logfilenames, combolist = combolist });
             }
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
             }
             return Response;
+        }
+
+      
+
+        [HttpGet("get_read_files/{logfile}")]
+        public APIResponse GetreagLogFiles(string logfile)
+        {
+            try
+            {
+                var Text = "";
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+
+                var logfiles = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Files Path-New").Select(x => x.Value).FirstOrDefault();
+                string filepath = logfiles+"\\" + logfile;
+                double maxfileLength = 5;
+                long length = new System.IO.FileInfo(filepath).Length;
+                double lengthd = length / 1024 / 1024;
+                if (lengthd >= maxfileLength)
+                {
+                     Text = "The log file you selected is too large to be displayed in the browser. Please view the file " + filepath + " directly on the server.";
+                }
+                else
+                {
+                    using (StreamReader streamReader = new StreamReader(filepath))
+                    {
+                        Text = streamReader.ReadToEnd();
+                        streamReader.Close();
+                    }
+                }
+
+
+
+                Response = Common.CreateResponse(Text);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+
+        [HttpPut("save_log_settings")]
+        public APIResponse UpdateLogSettings([FromBody] LogFolders devicesettings)
+        {
+            try
+            {
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+                var logfiles = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Files Path-New").Select(x => x.Value).FirstOrDefault();
+                string loglevel = Convert.ToString(devicesettings.LogLevel);
+                string email = Convert.ToString(devicesettings.Email);
+
+                var logslist = devicesettings;
+                var updateDefination = nameValueRepository.Updater.Set(p => p.Name, loglevel);
+                var filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Log Level");
+                var update = nameValueRepository.Update(filterDefination, updateDefination);
+                Response = Common.CreateResponse(update);
+                //  var logslist = ((Newtonsoft.Json.Linq.JObject)devicesettings.FileName).ToObject<List<LogFolders>>();
+                List<string> listoffiles =new  List<string>();
+               
+                
+                foreach (var file in logslist.LogName)
+                {
+                    string filename = file.ToString();
+                   // filename = filename.Replace("{file_name:" , "");
+
+                    string filepath = logfiles + "\\" + filename;
+                    listoffiles.Add(filepath);
+                }
+                string[] paths = listoffiles.ToArray();
+               
+                    string[] oldZipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
+                foreach (var files in oldZipFiles)
+                   System.IO.File.Delete(files);
+                //Directory.Delete(files);
+
+                ZipFile zip = new ZipFile();
+
+                zip.AddFiles(listoffiles);
+                zip.MaxOutputSegmentSize = 3 * 1024 * 1024;
+                //zip.Save(logPath + "LogFiles.zip");
+                zip.Save(logfiles + "//LogFiles.zip");
+
+                //string[] zipFiles = System.IO.Directory.GetFiles(logPath, "LogFiles.z*");
+                string[] zipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
+
+                    var result = nameValueRepository.All()
+                                         .Select(x => new
+                                         {
+                                             Name = x.Name,
+                                             Value = x.Value
+                                         }).ToList();
+
+                    var host = result.Where(x => x.Name == "PrimaryHostName").Select(x => x.Value).FirstOrDefault();
+                   
+                    var PEmail = result.Where(x => x.Name == "PrimaryUserId").Select(x => x.Value).FirstOrDefault();
+                    var Ppwd = result.Where(x => x.Name == "Primarypwd").Select(x => x.Value).FirstOrDefault();
+                    var port = result.Where(x => x.Name == "PrimaryPort").Select(x => x.Value).FirstOrDefault();
+
+                    var auth = result.Where(x => x.Name == "PrimaryAuth").Select(x => x.Value).FirstOrDefault();
+                    var PSSL = result.Where(x => x.Name == "PrimarySSL").Select(x => x.Value).FirstOrDefault();
+                    bool gmail = host.ToUpper().Contains("GMAIL");
+
+
+                    for (int i = 0; i < zipFiles.Length; i++)
+                    {
+
+                        string newfile = zipFiles[i];
+
+                        MailMessage mail = new MailMessage();
+
+                        System.Net.Mail.SmtpClient SmtpServer = new SmtpClient(host);
+                        mail.From = new MailAddress(PEmail);
+                        mail.To.Add(email);
+                        mail.Subject = "Log Files";
+                        mail.Body = "Log Files sent from VitalSigns.  File  " + (i + 1) + " of " + zipFiles.Length + ".";
+
+                        System.Net.Mail.Attachment attachment;
+                        attachment = new System.Net.Mail.Attachment(newfile);
+                        mail.Attachments.Add(attachment);
+
+                        SmtpServer.Port = Convert.ToInt32(port);
+                        SmtpServer.Credentials = new System.Net.NetworkCredential(PEmail, Ppwd);
+                        SmtpServer.EnableSsl = Convert.ToBoolean(PSSL);
+
+                        SmtpServer.Send(mail);
+                    }
+                }
+ 
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Log Scan Servers falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+
         }
         #endregion
 

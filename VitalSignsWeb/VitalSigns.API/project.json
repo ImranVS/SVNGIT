@@ -25,6 +25,7 @@
   "frameworks": {
     "dnx451": {
       "dependencies": {
+        "Ionic.Zip": "1.0.0-*",
         "VitalSignsLicensing": "1.0.0-*",
         "VSFramework": "1.0.0-*",
         "VSNext.Mongo.Entities": "1.0.0-*",
