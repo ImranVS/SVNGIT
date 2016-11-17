@@ -1668,14 +1668,16 @@ namespace VitalSignsDailyStats
 
             try
             {
-                //Cleaning Up Status Details
-                // statusDeatilsRepository.Delete();
-                //Cleaning Up Status Table
-                //   statusRepository.Delete();
-                //Cleaning Up TravelerStats Table
+                // Cleaning Up Status Details
+                Expression<Func<StatusDetails, bool>> expression = (p => p.CreatedOn < DateTime.Now);
+                statusDeatilsRepository.Delete(expression);
+                // Cleaning Up Status Table
+                Expression<Func<Status, bool>> statusExpression = (p => p.CreatedOn < DateTime.Now);
+                statusRepository.Delete(statusExpression);
+              //  Cleaning Up TravelerStats Table
 
-                //Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated < DateTime.Now);
-                //travelerStatsRepository.Delete(expression);
+                Expression<Func<TravelerStats, bool>> travelerstatsExpression = (p => p.DateUpdated < DateTime.Now);
+                travelerStatsRepository.Delete(travelerstatsExpression);
 
                 //To Do pending for Clean up Alert History
 
