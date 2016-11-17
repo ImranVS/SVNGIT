@@ -1502,7 +1502,6 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-
         [HttpGet("get_domino_statistics")]
         public APIResponse GetOverallDominoStatistics(DateTime statdate)
 
@@ -1627,6 +1626,111 @@ namespace VitalSigns.API.Controllers
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+
+        [HttpGet("get_sametime_statistics")]
+        public APIResponse GetSametimeStatistics(DateTime statdate)
+        {
+            try
+            {
+                List<SametimeStatisticsModel> sametimeStatisticsData = new List<SametimeStatisticsModel>();
+                summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                List<SummaryDataModel> summaryStats = new List<SummaryDataModel>();
+                if (statdate == DateTime.MinValue || statdate.Date == DateTime.Now.Date)
+                {
+                    statdate = DateTime.Now;
+                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Sametime" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Date == statdate.Date).ToList();
+
+                    summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
+                                         .Select(x => new SummaryDataModel
+                                         {
+                                             DeviceID = x.Key.DeviceId,
+                                             DeviceName = x.Key.DeviceName,
+                                             StatName = x.Key.StatName,
+                                             Value = x.Sum(y => y.StatValue)
+                                         }).ToList();
+                }
+                else
+                {
+                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Sametime" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year).ToList();
+
+                    summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
+                                         .Select(x => new SummaryDataModel
+                                         {
+                                             DeviceID = x.Key.DeviceId,
+                                             DeviceName = x.Key.DeviceName,
+                                             StatName = x.Key.StatName,
+                                             Value = x.Sum(y => y.StatValue)
+                                         }).ToList();
+
+                }
+                var distinctData = summaryStats.Select(x => new { DeviceId = x.DeviceID, DeviceName = x.DeviceName }).Distinct().OrderBy(x => x.DeviceName).ToList();
+
+                foreach (var item in distinctData)
+                {
+                    if (item != null)
+                    {
+                   
+                            SametimeStatisticsModel MaxConcurrentLogins = new SametimeStatisticsModel();
+                            MaxConcurrentLogins.DeviceName = item.DeviceName;
+                            MaxConcurrentLogins.StatName = "Peak Logins";
+                            var peaklogin = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "MaxConcurrentLogins" || x.StatName == "PeakLogins"));
+                            if (peaklogin != null)
+                            {
+                                MaxConcurrentLogins.StatValue = peaklogin.Value;
+                            }
+                            else
+                            {
+                                MaxConcurrentLogins.StatValue = null;
+                            }
+                            SametimeStatisticsModel TotalTwoWayChats = new SametimeStatisticsModel();
+                            TotalTwoWayChats.DeviceName = item.DeviceName;
+                            TotalTwoWayChats.StatName = "Total 2-Way Chats";
+                            var totaltwoway = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "TotalTwoWayChats" || x.StatName == "Total2WayChats"));
+                            if (totaltwoway != null)
+                            {
+                                TotalTwoWayChats.StatValue = totaltwoway.Value;
+                            }
+                            else
+                            {
+                                TotalTwoWayChats.StatValue = null;
+                            }
+                            SametimeStatisticsModel TotalNWChats = new SametimeStatisticsModel();
+                            TotalNWChats.DeviceName = item.DeviceName;
+                            TotalNWChats.StatName = "Total n-Way Chats";
+                            var totalnchat = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "TotalNWChats" || x.StatName == "TotalnWayChats"));
+                            if (totalnchat != null)
+                            {
+                                TotalNWChats.StatValue = totalnchat.Value;
+                            }
+                            else
+                            {
+                                TotalNWChats.StatValue = null;
+                            }
+                            if(MaxConcurrentLogins.StatValue!=null)
+                        {
+                            sametimeStatisticsData.Add(MaxConcurrentLogins);
+                        }
+                           if(TotalNWChats.StatValue!=null)
+                        {
+                            sametimeStatisticsData.Add(TotalNWChats);
+                        }
+                           if(TotalTwoWayChats.StatValue!=null)
+                        {
+                            sametimeStatisticsData.Add(TotalTwoWayChats);
+                        }
+                                                     
+                        }
+                    }
+                Response = Common.CreateResponse(sametimeStatisticsData);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get sametime statistics falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
