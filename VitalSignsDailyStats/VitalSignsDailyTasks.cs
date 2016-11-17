@@ -1695,7 +1695,7 @@ namespace VitalSignsDailyStats
             VSAdaptor objVSAdaptor = new VSAdaptor();
             try
             {
-                Expression<Func<DailyStatistics, bool>> expression = (p => p.CreatedOn <= DateTime.Now.AddDays(-2));
+                Expression<Func<DailyStatistics, bool>> expression = (p => p.CreatedOn <= DateTime.Now.AddDays(-1));
                 dailyStatasticsRepository.Delete(expression);
             }
             catch (Exception ex)
