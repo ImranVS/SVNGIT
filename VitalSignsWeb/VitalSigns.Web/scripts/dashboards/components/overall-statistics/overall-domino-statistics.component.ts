@@ -50,11 +50,9 @@ export class DominoStatistics implements OnInit {
     }
 
     filterStats() {
-        console.log(this.filterDate);
         this.service.get('/DashBoard/get_domino_statistics?statdate='+this.filterDate)
             .subscribe(
             (response) => {
-                (<wijmo.collections.CollectionView>this.flex.collectionView).items = [];
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
                 this.data.pageSize = 10;
             },
@@ -62,8 +60,6 @@ export class DominoStatistics implements OnInit {
             );
 
     }
-
-
 }
 
 
