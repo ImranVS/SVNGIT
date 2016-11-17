@@ -1541,30 +1541,13 @@ namespace VitalSigns.API.Controllers
                                          }).ToList();
 
                 }
-                //}
-                //else
-                //{
-                //     summaryStats = summaryStatisticsRepository.Collection.Aggregate()
-                //        .Match(x => x.DeviceId != null && x.StatName != null )
-                //        .Group(x => new { x.DeviceId,x.DeviceName, x.StatName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
-                //                                                 .Project(x => new SummaryDataModel
-                //                                                  {
-                //                                                     DeviceID = x.key.DeviceId,
-                //                                                     DeviceName=x.key.DeviceName,
-                //                                                     StatName = x.key.StatName,
-                //                                                     Value =x.value 
-                //                                                 }).ToList();
-                //}
                 var distinctData = summaryStats.Select(x => new { DeviceId = x.DeviceID, DeviceName = x.DeviceName }).Distinct().OrderBy(x => x.DeviceName).ToList();
               
                 foreach (var item in distinctData)
                 {
                     if (item != null)
                     {
-
-                      
-                      //  if (server != null && server.DeviceType == "Domino")
-                        {
+                        
                             DominoStatisticsModel dominoStats = new DominoStatisticsModel();
                             dominoStats.DeviceName = item.DeviceName;
 
@@ -1632,11 +1615,12 @@ namespace VitalSigns.API.Controllers
                             if (httpsession != null)
                                 dominoStats.HttpSession = httpsession.Value;
                             else
-                                dominoStats.HttpSession = null;
+                            dominoStats.HttpSession = null;                     
+                              
                             dominoStatisticsData.Add(dominoStats);
                         }
                     }
-                }
+                
                 Response = Common.CreateResponse(dominoStatisticsData);
             }
 
