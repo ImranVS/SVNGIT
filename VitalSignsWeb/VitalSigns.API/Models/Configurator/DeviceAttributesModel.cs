@@ -48,7 +48,7 @@ namespace VitalSigns.API.Models
 
 
         [JsonProperty("is_enabled")]
-        public bool IsEnabled { get; set; }
+        public bool? IsEnabled { get; set; }
 
         [JsonProperty("device_attributes")]
         public List<DeviceAttributesModel> DeviceAttributes { get; set; }
