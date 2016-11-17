@@ -267,7 +267,7 @@ namespace VitalSignsDailyStats
                 }
 
                 // To do
-                { 
+             //   { 
                     try
                     {
                         VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
@@ -342,7 +342,7 @@ namespace VitalSignsDailyStats
 
                     this.Stop();
 
-                }
+                
 
             }
             catch (Exception ex)
