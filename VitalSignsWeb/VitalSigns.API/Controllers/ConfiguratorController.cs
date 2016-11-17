@@ -1547,7 +1547,7 @@ namespace VitalSigns.API.Controllers
                     Description = s.Description,
                     IPAddress = s.IPAddress,
                     Category = s.Category,
-                    //IsEnabled=s.IsEnabled,
+                    IsEnabled=s.IsEnabled,
 
                     LocationId = s.LocationId,
                     Devicetype = s.DeviceType,
@@ -1690,15 +1690,15 @@ namespace VitalSigns.API.Controllers
                             }
                             if (datatype == "bool")
                             {
-                                bool booloutput;
-                               if (value=="0")
-                                {
-                                    booloutput = false;
-                                }
-                               else
-                                {
-                                    booloutput = true;
-                                }
+                                bool booloutput = Convert.ToBoolean(value);
+                               //if (value=="0")
+                               // {
+                               //     booloutput = false;
+                               // }
+                               //else
+                               // {
+                               //     booloutput = true;
+                               // }
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                                                                                     .Set(field, booloutput);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
