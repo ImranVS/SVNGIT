@@ -70,10 +70,13 @@ export class ServicesView implements OnInit, AfterViewChecked {
     deviceLocationData: any;
     selectedLocation: string;
     selectedType: string;
+    Type: string;
     selectedBusinessHour: string;
     devicebusinessHourData: any;
      deviceTypeData:any;
      postData: any;
+     url: boolean;
+    
     constructor(private formBuilder: FormBuilder, private service: RESTService, private router: Router, private route: ActivatedRoute) {
         this.addServersForm = this.formBuilder.group({
             'device_name': ['', Validators.required],
@@ -83,7 +86,8 @@ export class ServicesView implements OnInit, AfterViewChecked {
             'ip_address': ['', Validators.required],
             'business_hours_id': ['', Validators.required],
             'monthly_operating_cost': [''],
-            'ideal_user_count': ['']
+            'ideal_user_count': [''],
+            'category':['']
 
         });
 
@@ -101,7 +105,14 @@ export class ServicesView implements OnInit, AfterViewChecked {
     setFilterCount(index: any) {
         this.filterCount= index+1;
     }
+    onServerTypeSelectedIndexChanged(event: wijmo.EventArgs, deviceType: wijmo.input.ComboBox) {
+      
+        this.Type = deviceType.selectedValue;
+        console.log(this.Type);
+      
+    }
 
+  
     loadData() {
         this.service.get('/Services/device_list')
             .subscribe(
@@ -109,10 +120,11 @@ export class ServicesView implements OnInit, AfterViewChecked {
                 if (this.module == "dashboard") {                  
                   var value=  response.data.filter((item) => item.is_enabled == true);
                   this.services = value;
-                  console.log(value);
+                 
                 }
                 else {
                     this.services = response.data;
+                  
                 }
 
             },
