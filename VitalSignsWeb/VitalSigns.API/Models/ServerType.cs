@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VitalSigns.API.Models
 {
-    public class ServerType
+    public class ServerTypeModel
     {
         [JsonProperty("server_type")]
         public string ServerTypeName { get; set; }
