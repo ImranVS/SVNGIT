@@ -110,8 +110,8 @@ namespace VitalSignsDailyStats
                 RegistryHandler myRegistry = new RegistryHandler();
 
                 logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
-            
 
+                //logLevel = LogUtils.LogLevel.Verbose;
                 appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                 appPath = string.IsNullOrEmpty(appPath) ? @"c:\" : appPath;
                 try
@@ -131,8 +131,8 @@ namespace VitalSignsDailyStats
                 //To DO 
                 try
                 {
-                    myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-                    myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
+                  //  myRegistry.WriteToRegistry("Daily Tasks Start", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+                 //   myRegistry.WriteToRegistry("Daily Tasks Build", builddNumber);
                 }
                 catch (Exception ex)
                 {
@@ -141,12 +141,12 @@ namespace VitalSignsDailyStats
                 }
                 try
                 {
-                    productName = myRegistry.ReadFromRegistry("ProductName").ToString();
-                    if (productName=="")
-                    {
-                        productName = "VitalSigns";
+                    //productName = myRegistry.ReadFromRegistry("ProductName").ToString();
+                    //if (productName=="")
+                    //{
+                    //    productName = "VitalSigns";
 
-                    }
+                    //}
                 }
                 catch (Exception ex)
                 {
@@ -685,6 +685,7 @@ namespace VitalSignsDailyStats
                         StatName = "OpenTimesDelta",
                         MailServerName = travelerStatData.FirstOrDefault().MailServerName,
                         DateUpdated = travelerStatData.FirstOrDefault().DateUpdated,
+                       
                         DeviceId = item.deviceId,
                         c_000_001 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "000-001")).Average(s => s.Delta)),
                         c_001_002 = Convert.ToInt32(travelerStatData.Where(x => (x.Interval == "001-002")).Average(s => s.Delta)),
@@ -798,7 +799,7 @@ namespace VitalSignsDailyStats
                                 var avgResult = dailyStatasticsRepository.Collection.Aggregate()
                                .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
 
-                                   .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Average(s => s.StatValue) })
+                                   .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Average(s => s.StatValue) })
 
                                    .Project(x => new SummaryStatistics
                                    {
@@ -806,6 +807,7 @@ namespace VitalSignsDailyStats
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
+                                       DeviceType=x.key.DeviceType
                                    //StatDate= SearchDate
 
 
@@ -825,13 +827,15 @@ namespace VitalSignsDailyStats
                             case "SUM":
                                 var sumResult = dailyStatasticsRepository.Collection.Aggregate()
                                   .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
-                                   .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
+                                   .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
                                    .Project(x => new SummaryStatistics
                                    {
                                        DeviceId = x.key.DeviceId,
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
+                                       DeviceType=x.key.DeviceType
+
                                    //  StatDate = SearchDate
                                }).ToList();
                                 if (sumResult.Count > 0)
@@ -846,14 +850,15 @@ namespace VitalSignsDailyStats
                             case "MAX":
                                 var maxResult = dailyStatasticsRepository.Collection.Aggregate()
                                     .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
-                                   .Group(g => new { g.DeviceId, g.StatName, g.DeviceName }, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
+                                   .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
                                    .Project(x => new SummaryStatistics
                                    {
                                        DeviceId = x.key.DeviceId,
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
-                                   //  StatDate = SearchDate
+                                       DeviceType=x.key.DeviceType
+                                     
                                }).ToList();
                                 if (maxResult.Count > 0)
                                 {
@@ -991,7 +996,7 @@ namespace VitalSignsDailyStats
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("Mailbox."));
                 var dailyStsts = dailyStatasticsRepository.Find(expression);
 
-                var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId })
+                var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId,g.DeviceType})
 
                              .Select(x => new SummaryStatistics
                              {
@@ -1000,7 +1005,8 @@ namespace VitalSignsDailyStats
                                  DeviceName = x.Key.DeviceName,
                                  StatName = x.Key.StatName,
                                  DeviceId = x.Key.DeviceId,
-                                 StatDate = curDate
+                                 StatDate = curDate,
+                                 DeviceType=x.Key.DeviceType
 
 
                              }).ToList();
@@ -1029,7 +1035,7 @@ namespace VitalSignsDailyStats
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("ExDatabaseSizeMb"));
                 var dailyStsts = dailyStatasticsRepository.Find(expression);
 
-                var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId })
+                var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId,g.DeviceType })
 
                              .Select(x => new SummaryStatistics
                              {
@@ -1038,7 +1044,8 @@ namespace VitalSignsDailyStats
                                  DeviceName = x.Key.DeviceName,
                                  StatName = x.Key.StatName,
                                  DeviceId = x.Key.DeviceId,
-                                 StatDate = curDate
+                                 StatDate = curDate,
+                                 DeviceType=x.Key.DeviceType
 
 
                              }).ToList();
@@ -1373,7 +1380,7 @@ namespace VitalSignsDailyStats
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName);
                 var dailyStsts = dailyStatasticsRepository.Find(expression);
 
-                var result = dailyStsts.GroupBy(g => new { g.DeviceName, g.StatName, g.DeviceId})
+                var result = dailyStsts.GroupBy(g => new { g.DeviceName, g.StatName, g.DeviceId,g.DeviceType})
 
                              .Select(x => new SummaryStatistics
                              {
@@ -1382,7 +1389,8 @@ namespace VitalSignsDailyStats
                                  DeviceName = x.Key.DeviceName,
                                  StatName = x.Key.StatName,
                                  DeviceId = x.Key.DeviceId,
-                                 StatDate= StatDate
+                                 StatDate= StatDate,
+                                 DeviceType=x.Key.DeviceType
 
 
                              }).ToList();
