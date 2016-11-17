@@ -9,7 +9,12 @@
                 </div>
                 <h2>{{service.name}}</h2>
                 <p>{{service.version}} - {{service.description}}</p>
-            </div>            
+            </div>
+            <div class="form-group col-sm-offset-3 col-sm-3" >
+                <button class="btn btn-primary" (click)="deleteServer()" *ngIf="module=='Configurator'">
+                    Delete Server
+                </button>
+            </div>
         </div>
        
     </div>

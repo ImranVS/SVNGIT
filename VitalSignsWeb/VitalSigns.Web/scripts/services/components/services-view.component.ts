@@ -75,7 +75,8 @@ export class ServicesView implements OnInit, AfterViewChecked {
     devicebusinessHourData: any;
      deviceTypeData:any;
      postData: any;
-     url: boolean;    
+     url: boolean;
+    
     constructor(private formBuilder: FormBuilder, private service: RESTService, private router: Router, private route: ActivatedRoute) {
         this.addServersForm = this.formBuilder.group({
             'device_name': ['', Validators.required],
@@ -144,7 +145,6 @@ export class ServicesView implements OnInit, AfterViewChecked {
             );
         this.route.params.subscribe(params => {
             this.module = params['module'];
-            this.module = this.module.toLocaleLowerCase();
             this.loadData(); 
         });
         
@@ -158,20 +158,11 @@ export class ServicesView implements OnInit, AfterViewChecked {
             .subscribe(
             response => {              
                 this.addServersForm.reset();
-                this.loadData();
+                this.router.navigate(['services/' + this.module, response.data]);
             });
         
         dialog.hide();
         
     }
 
-    addServer(dialog: wijmo.input.Popup) {
-        dialog.show();
-    }
-    refreshServers() {
-        this.loadData();
-    }
-    deleteServer(service: any) {
-        this.service.delete('/configurator/delete_server/' + service.id, () => { this.loadData();});
-    }
 }
