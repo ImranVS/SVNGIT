@@ -57,7 +57,7 @@
                     <div class="form-group">
                         <label class="control-label col-sm-2">Enable For Scanning</label>
                         <div class="col-sm-10">
-                            <input type="checkbox" [(ngModel)]="serverAttributes.is_enabled">
+                            <input type="checkbox" id="serverAttributes.is_enabled" name="serverAttributes.is_enabled" [(ngModel)]="serverAttributes.is_enabled">
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@
                                     <input type="text" [(ngModel)]="attribute.default_value">
                                 </div>
                                 <div *ngIf="attribute.type=='CheckBox'">
-                                    <input type="checkbox" [(ngModel)]="attribute.default_value">
+                                    <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.attribute_name">
                                 </div>
                             </div>
                             <div class="col-sm-2">
