@@ -1602,7 +1602,26 @@ namespace VitalSigns.API.Controllers
 
 
                 });
-                serverresult.DeviceAttributes = attributes.ToList();
+
+
+                var serverattributes = serversRepository.Find(attributeexpression).AsQueryable().OrderBy(x => x.Id).FirstOrDefault();
+
+             
+                    var bson2 = serverattributes.ToBsonDocument();
+                    foreach (var attri in attributes)
+                    {
+                        if (bson2.Contains(attri.FieldName) )
+                        {
+                            var servervalue = bson2.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
+                            attri.DefaultValue = servervalue.ToString();
+
+                        serverresult.DeviceAttributes.Add(attri);
+                    }
+
+                    }
+                //}
+                   
+               
 
                 //Response = Common.CreateResponse(serverresult);
                 Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult });
