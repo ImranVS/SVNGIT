@@ -16,7 +16,7 @@ function bootstrapZeus() {
     zeus.interface = function () {
 
         var _zeusWrapper = document.getElementById('zeusWrapper');
-        var _headerHeight = 51;
+        var _headerHeight = 21;
         var _resolution = {
             current: 'md',
             isMobile: false,

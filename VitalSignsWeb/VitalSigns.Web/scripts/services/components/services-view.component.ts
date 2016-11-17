@@ -5,6 +5,8 @@ import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
+import {ServicesViewService} from '../services/services-view.service';
+
 import {RESTService} from '../../core/services';
 
 declare var injectSVG: any;
@@ -13,7 +15,8 @@ declare var injectSVG: any;
     templateUrl: '/app/services/components/services-view.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        ServicesViewService
     ]
 })
 export class ServicesView implements OnInit, AfterViewChecked {
@@ -77,7 +80,14 @@ export class ServicesView implements OnInit, AfterViewChecked {
      postData: any;
      url: boolean;
     
-    constructor(private formBuilder: FormBuilder, private service: RESTService, private router: Router, private route: ActivatedRoute) {
+     constructor(
+         private formBuilder: FormBuilder,
+         private service: RESTService,
+         private router: Router,
+         private route: ActivatedRoute,
+         private servicesViewService: ServicesViewService
+     ) {
+
         this.addServersForm = this.formBuilder.group({
             'device_name': ['', Validators.required],
             'device_type': ['', Validators.required],
@@ -91,7 +101,8 @@ export class ServicesView implements OnInit, AfterViewChecked {
 
         });
 
-      
+        this.servicesViewService.registerServicesView(this);
+
     }
 
     selectService(service: any) {

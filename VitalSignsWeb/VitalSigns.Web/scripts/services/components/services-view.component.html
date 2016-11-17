@@ -4,26 +4,17 @@
             <img class="svgInject" src="img/menu/servers.svg" title="Dashboard" alt="Dashboard" />
         </div>
         <div id="zeusContextNavigationText">
-            <div class="row">
-                <div class="form-group col-sm-6">
-                    <h2>
-                        Servers
-                        <div class="dropdown">
-                            <span class="glyphicon glyphicon-chevron-down" data-toggle="dropdown" class="dropdown-toggle" id="openContextNavigation" aria-hidden="true"></span>
-                            <ul class="dropdown-menu">
-                                <li><a href="#">Action</a></li>
-                                <li><a href="#">Another action</a></li>
-                            </ul>
-                        </div>
-                    </h2>
-                    <p>Manage your servers</p>
-                    </div>
-                <div class="form-group col-sm-6" >
-                    <button #addServer type="button" class="btn btn-primary">Add Server</button>
-                    </div>
+            <h2>
+                Servers
+                <div class="dropdown">
+                    <span class="glyphicon glyphicon-chevron-down" data-toggle="dropdown" class="dropdown-toggle" id="openContextNavigation" aria-hidden="true"></span>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                    </ul>
                 </div>
-          
-
+            </h2>
+            <p>Manage your servers</p>
         </div>
     </div>
     <div id="zeusContextActions">
@@ -31,7 +22,7 @@
         <!-- Split button -->
         <div class="btn-wrapper">
             <div class="btn-group">
-                <button  type="button" class="btn btn-primary">Action</button>
+                <button type="button" class="btn btn-primary">Action</button>
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="caret"></span>
                     <span class="sr-only">Toggle Dropdown</span>
@@ -68,15 +59,15 @@
                 <div class="serverTitle">{{service.name}}</div>
                 <p class="desc" *ngIf="service.version">{{service.version}}</p>
                 <p class="desc">{{service.description}}</p>
-                <div class="statusIndicator"></div>      
-                {{setFilterCount(i)}}         
+                <div class="statusIndicator"></div>
+                {{setFilterCount(i)}}
             </div>
         </div>
     </div>
 
     <div class="twoColumn70 serverDetailWrapper">
-        <wj-popup #frmDialog class="popover" [owner]="addServer" [showTrigger]="'Click'" [hideTrigger]="'None'" style="min-width: 800.2778px" >
-            <form (ngSubmit)="onSubmit(addServersForm.value,frmDialog)"  class="form-horizontal" [formGroup]="addServersForm">
+        <wj-popup #frmDialog class="popover" [owner]="addServer" [showTrigger]="'Click'" [hideTrigger]="'None'" style="min-width: 800.2778px">
+            <form (ngSubmit)="onSubmit(addServersForm.value,frmDialog)" class="form-horizontal" [formGroup]="addServersForm">
                 <h3 class="popover-title">
                     Maintain Servers
                     <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
@@ -86,16 +77,16 @@
                         <div class="form-group col-sm-6">
                             <label for="device_name" class="control-label col-sm-5">Server Name</label>
                             <div class="col-sm-7">
-                                <input #deviceName type="text" class="form-control"  name="device_name" formControlName="device_name" required>
+                                <input #deviceName type="text" class="form-control" name="device_name" formControlName="device_name" required>
                             </div>
                         </div>
                         <div class="form-group col-sm-6">
                             <label for="device_type" class="control-label col-sm-5">Server Type</label>
                             <div class="col-sm-7">
-                              
+
                                 <wj-combo-box #selectedType displayMemberPath="text" selectedValuePath="value" name="selectedType" [itemsSource]="deviceTypeData" [(text)]="device_type"
-                                            placeholder="Select Location"    formControlName="device_type" (selectedIndexChanged)="onServerTypeSelectedIndexChanged($event,selectedType)">
-                                    
+                                              placeholder="Select Location" formControlName="device_type" (selectedIndexChanged)="onServerTypeSelectedIndexChanged($event,selectedType)">
+
                                 </wj-combo-box>
                             </div>
                         </div>
@@ -104,7 +95,7 @@
                         <div class="form-group col-sm-6" *ngIf="Type!='URL'">
                             <label for="description" class="control-label col-sm-5">Description</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control"  name="description" formControlName="description" required>
+                                <input type="text" class="form-control" name="description" formControlName="description" required>
                             </div>
                         </div>
                         <div class="form-group col-sm-6" *ngIf="Type=='URL'">
@@ -116,9 +107,9 @@
                         <div class="form-group col-sm-6">
                             <label for="location_name" class="control-label col-sm-5">Location</label>
                             <div class="col-sm-7">
-                             
-                                <wj-combo-box  displayMemberPath="text" selectedValuePath="value" name="location" [itemsSource]="deviceLocationData"
-                                              formControlName="location_id" placeholder="Select Location" >
+
+                                <wj-combo-box displayMemberPath="text" selectedValuePath="value" name="location" [itemsSource]="deviceLocationData"
+                                              formControlName="location_id" placeholder="Select Location">
                                 </wj-combo-box>
                             </div>
                         </div>
@@ -128,13 +119,13 @@
                         <div class="form-group col-sm-6">
                             <label for="ip_address" class="control-label col-sm-5">IP/Host Name</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control" name="ip_address" formControlName="ip_address" >
+                                <input type="text" class="form-control" name="ip_address" formControlName="ip_address">
                             </div>
                         </div>
                         <div class="form-group col-sm-6">
                             <label for="business_hour" class="control-label col-sm-5">Business Hours</label>
                             <div class="col-sm-7">
-                              
+
                                 <wj-combo-box name="businessHour" [itemsSource]="devicebusinessHourData" displayMemberPath="text" selectedValuePath="value"
                                               formControlName="business_hours_id" placeholder="Select Hours">
                                 </wj-combo-box>
@@ -142,16 +133,16 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="form-group col-sm-6"  *ngIf="Type!='URL'">
+                        <div class="form-group col-sm-6" *ngIf="Type!='URL'">
                             <label for="monthly_operating_cost" class="control-label col-sm-5">Monthly Operating Cost</label>
                             <div class="col-sm-7">
-                                <input type="text"  pattern="^[1-9]\d*(\.\d+)?$" class="form-control"  name="monthly_operating_cost" formControlName="monthly_operating_cost">
+                                <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" name="monthly_operating_cost" formControlName="monthly_operating_cost">
                             </div>
                         </div>
-                        <div class="form-group col-sm-6"  *ngIf="Type!='URL'">
+                        <div class="form-group col-sm-6" *ngIf="Type!='URL'">
                             <label for="ideal_user_count" class="control-label col-sm-5">Ideal User Count</label>
                             <div class="col-sm-7">
-                                <input type="text"  pattern="^[1-9]\d*(\.\d+)?$"  class="form-control"  name="ideal_user_count" formControlName="ideal_user_count">
+                                <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" name="ideal_user_count" formControlName="ideal_user_count">
                             </div>
                         </div>
                     </div>

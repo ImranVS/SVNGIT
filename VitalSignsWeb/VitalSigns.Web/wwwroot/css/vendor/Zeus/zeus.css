@@ -463,9 +463,8 @@ html.zeus, .zeus body {
 
 
 #zeusContext {
-	padding: 30px 30px 30px 30px;
+	padding: 15px 30px 15px 30px;
 	background-color: #F2F2F2;
-    padding: 20px 30px;
     position: relative;
 }
 
@@ -473,24 +472,24 @@ html.zeus, .zeus body {
 /* NAVIGATION */
 #zeusContext #zeusContextNavigation {
 	float: left;
-	height: 70px;
+	height: 50px;
 }
 
 #zeusContext #zeusContextNavigationIcon {
-	width: 70px;
-	height: 70px;
+	width: 50px;
+	height: 50px;
 	background-color: #5fbe7f;
 	border-radius: 10px;
 	text-align: center;
-	padding-top: 12px;
+	padding-top: 10px;
 	float: left;
 	margin-right: 15px;
 }
 
 #zeusContext #zeusContextNavigationIcon svg {
 	fill: #FFFFFF;
-	width: 44px;
-	height: 44px;
+	width: 30px;
+	height: 30px;
 }
 
 #zeusContext #zeusContextNavigationText {
@@ -504,12 +503,12 @@ html.zeus, .zeus body {
 }
 
 #zeusContext #zeusContextNavigation h2 {
-	font-size: 36px;
+	font-size: 28px;
 	margin: 0;
 }
 
 #zeusContext #zeusContextNavigation p {
-	font-size: 16px;
+	font-size: 14px;
 }
 
 #zeusContext #zeusContextNavigation .dropdown {
@@ -519,7 +518,7 @@ html.zeus, .zeus body {
 }
 
 #zeusContext #zeusContextNavigation #openContextNavigation {
-	font-size: 15px;
+	font-size: 12px;
 	margin-left: 5px;
 	vertical-align: 4px;
 	cursor: pointer;
@@ -536,7 +535,7 @@ html.zeus, .zeus body {
 
 #zeusContext #zeusContextActions {
 	float: right;
-	padding-top: 17px;
+	padding-top: 10px;
 }
 
 #zeusContext #zeusContextActions .btn-wrapper {
