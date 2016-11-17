@@ -37,6 +37,14 @@ export class LogsTabs implements OnInit {
                 "path": "/app/configurator/components/logFiles/log-settings-list.componenet.html",
                 "active": false
             },
+            {
+                "title": "View Logs",
+                "component": "ViewLogs",
+                "path": "/app/configurator/components/logFiles/view-log-settings.component.html",
+                "active": false
+
+
+            },
           
         ];
         this.selectTab(this.tabsData[0]);

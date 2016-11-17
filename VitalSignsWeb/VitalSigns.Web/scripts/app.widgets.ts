@@ -85,6 +85,9 @@ export * from './configurator/components/alert/escalation.component'
 
 //log Files
 export * from './configurator/components/logFiles/log-settings-list.component'
+export * from './configurator/components/logFiles/view-log-settings.component'
+
+
 export *from './configurator/components/security/security-assign-server-to-node.component'
 
 //Ibm domino

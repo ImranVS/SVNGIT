@@ -1,0 +1,16 @@
+﻿<div class="widgetWrapper">
+    <div class="widgetContent" >
+        <div class="form-group">
+            <label for="deviceType" class="control-label">Select Log:</label>
+
+            <wj-combo-box name="deviceType" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceTypeData" [(text)]="selectedDeviceType"
+                          [(ngModel)]="selectedDeviceType" placeholder="Select Log File" (selectedIndexChanged)="onDeviceTypeIndexChanged($event)" #combo>
+            </wj-combo-box>
+       
+            
+        </div>
+        <div *ngIf="logFile">
+                 <textarea class="form-control" style="height: 422px; width: 1420px;" [(ngModel)]="logFile"></textarea>
+        </div>
+    </div>
+</div>

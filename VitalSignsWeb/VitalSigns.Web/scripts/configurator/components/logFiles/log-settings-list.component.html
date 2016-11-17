@@ -1,45 +1,60 @@
-﻿<div class="form-group">
-    <wj-flex-grid #flex [itemsSource]="data" selectionMode="ListBox" headersVisibility ="Column" >
-        <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true"> 
-            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" /> 
-            </template>                
-        </wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Device Name'" [binding]="'log_file_name'" is-read-only="true" [width]="280"> </wj-flex-grid-column>
-    </wj-flex-grid>
-    <div class="btn-group" *ngIf="data != null">
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToFirstPage()"
-                [disabled]="data.pageIndex <= 0">
-            <span class="glyphicon glyphicon-fast-backward"></span>
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToPreviousPage()"
-                [disabled]="data.pageIndex <= 0">
-            <span class="glyphicon glyphicon-step-backward">
-            </span>
-        </button>
-        <button type="button" class="btn btn-default" disabled style="width:100px">
-            {{
-                                               data.pageIndex + 1 | number
-            }} / {{data.pageCount | number}}
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToNextPage()"
-                [disabled]="data.pageIndex >= data.pageCount - 1">
-            <span class="glyphicon glyphicon-step-forward"></span>
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToLastPage()"
-                [disabled]="data.pageIndex >= data.pageCount - 1">
-            <span class="glyphicon glyphicon-fast-forward"></span>
-        </button>
-    </div>
-    <div class="pull-right" *ngIf="data != null">
-        <wj-menu [(value)]="pageSize" [header]="'Page size'">
-            <wj-menu-item [value]="10">10</wj-menu-item>
-            <wj-menu-item [value]="20">20</wj-menu-item>
-            <wj-menu-item [value]="50">50</wj-menu-item>
-        </wj-menu>
-    </div> 
+﻿<div class="container">
+    <div class="widgetContent">
+        <div class="panel-body">
+            <div class="row">
+                <div class="form-group col-sm-9">
+                    <label for="log_level" class="control-label col-sm-2">Log Level  </label>
+                    <div class="col-sm-4">
+                        <select class="form-control" style="width: 100px;" name="log_level" id="log_level" [(ngModel)]="log_level">
+                            <option value="2">Normal</option>
+                            <option value="1">Debug</option>
+                            <option value="0">Verbose</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group col-sm-9">
+                    <div class="col-sm-2">
+                        <button type="button" class="btn btn-primary" (click)="applySetting(logsettingform.value)">
+                            Zip and Send
+                        </button>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" [(ngModel)]="email" class="form-control" style="width: 150px;">
+                    </div>
+                </div>
+
+
+            </div>
+            <div>
+
+                <div>
+                    <table class="table table-hover" width="25">
+                        <tbody *ngIf="logNames">
+                            <tr *ngFor="let logname of logNames">
+
+                                <td>
+                                    <div class="table-cell-height">
+                                        <div>
+                                            <div class="funkyradio col-sm-8">
+                                                <label>
+                                                    <input class="funkyradio" type="checkbox" (change)="serverCheck(logname.file_name,$event)" />
+                                                    {{ logname.file_name }}
+                                                </label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        </div>
 </div>
