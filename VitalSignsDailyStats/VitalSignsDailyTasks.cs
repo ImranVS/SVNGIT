@@ -59,7 +59,7 @@ namespace VitalSignsDailyStats
 
         public VitalSignsDailyTasks()
         {
-            string connetionString = System.Configuration.ConfigurationManager.AppSettings["MongoConnectionString"];
+            string connetionString = System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
             int? tenantId = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["TenantId"]);
             _unitOfWork = new UnitOfWork(connetionString, tenantId);
             InitializeComponent();
