@@ -69,7 +69,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
         private IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
         private IRepository<ServerType> serverTypeRepository;
-      
+        VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
 
         #endregion
 
@@ -1608,19 +1608,43 @@ namespace VitalSigns.API.Controllers
                 var serverattributes = serversRepository.Find(attributeexpression).AsQueryable().OrderBy(x => x.Id).FirstOrDefault();
 
              
-                    var bson2 = serverattributes.ToBsonDocument();
+                    var serverValues = serverattributes.ToBsonDocument();
                     foreach (var attri in attributes)
                     {
-                        if (bson2.Contains(attri.FieldName) )
+                        if (serverValues.Contains(attri.FieldName) )
                         {
-                            var servervalue = bson2.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
+                       
+                            var servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
                             attri.DefaultValue = servervalue.ToString();
 
+                        if (attri.FieldName == "password")
+                        {
+                            servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
+
+                            string MyObjPwd = servervalue.ToString();
+                            if (MyObjPwd != "")
+                            {
+                                string[] MyObjPwdArr = MyObjPwd.Split(',');
+                                byte[] MyPass = new byte[MyObjPwdArr.Length];
+                               
+
+                                for (int j = 0; j < MyObjPwdArr.Length; j++)
+                                {
+                                    MyPass[j] = Byte.Parse(MyObjPwdArr[j]);
+                                }
+                                servervalue = tripleDes.Decrypt(MyPass);
+
+                                attri.DefaultValue = servervalue.ToString();
+
+                            }
+                        }
+
+                       
                         serverresult.DeviceAttributes.Add(attri);
-                    }
+                    
 
                     }
-                //}
+                }
                    
                
 
@@ -1675,6 +1699,25 @@ namespace VitalSigns.API.Controllers
                             string field = attribute.FieldName;
                             string value = attribute.DefaultValue;
                             string datatype = attribute.DataType;
+                            if(field == "password")
+                            {
+                               
+                                byte[] MyPass;
+
+                                VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+                                MyPass = mySecrets.Encrypt(attribute.DefaultValue);
+
+                                System.Text.StringBuilder newstr = new System.Text.StringBuilder();
+                                foreach (byte b in MyPass)
+                                {
+                                    newstr.AppendFormat("{0}, ", b);
+                                }
+                                string bytepwd = newstr.ToString();
+                                int n = bytepwd.LastIndexOf(", ");
+                                bytepwd = bytepwd.Substring(0, n);
+                                value = bytepwd;
+
+                            }
                             if(datatype=="int")
                             {
                                 int outputvalue = Convert.ToInt32(value);
