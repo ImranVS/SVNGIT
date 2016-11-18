@@ -1639,18 +1639,18 @@ namespace VitalSigns.API.Controllers
                         {
                             servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
 
-                            string MyObjPwd = servervalue.ToString();
-                            if (MyObjPwd != "")
+                            string myPassword = servervalue.ToString();
+                            if (myPassword != "")
                             {
-                                string[] MyObjPwdArr = MyObjPwd.Split(',');
-                                byte[] MyPass = new byte[MyObjPwdArr.Length];
+                                string[] myPasswordArray = myPassword.Split(',');
+                                byte[] Password = new byte[myPasswordArray.Length];
                                
 
-                                for (int j = 0; j < MyObjPwdArr.Length; j++)
+                                for (int j = 0; j < myPasswordArray.Length; j++)
                                 {
-                                    MyPass[j] = Byte.Parse(MyObjPwdArr[j]);
+                                    Password[j] = Byte.Parse(myPasswordArray[j]);
                                 }
-                                servervalue = tripleDes.Decrypt(MyPass);
+                                servervalue = tripleDes.Decrypt(Password);
 
                                 attri.DefaultValue = servervalue.ToString();
 
@@ -1720,20 +1720,20 @@ namespace VitalSigns.API.Controllers
                             if(field == "password")
                             {
                                
-                                byte[] MyPass;
+                                byte[] myPassWord;
 
                                 VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
-                                MyPass = mySecrets.Encrypt(attribute.DefaultValue);
+                                myPassWord = mySecrets.Encrypt(attribute.DefaultValue);
 
-                                System.Text.StringBuilder newstr = new System.Text.StringBuilder();
-                                foreach (byte b in MyPass)
+                                System.Text.StringBuilder newString = new System.Text.StringBuilder();
+                                foreach (byte b in myPassWord)
                                 {
-                                    newstr.AppendFormat("{0}, ", b);
+                                    newString.AppendFormat("{0}, ", b);
                                 }
-                                string bytepwd = newstr.ToString();
-                                int n = bytepwd.LastIndexOf(", ");
-                                bytepwd = bytepwd.Substring(0, n);
-                                value = bytepwd;
+                                string bytePassword = newString.ToString();
+                                int n = bytePassword.LastIndexOf(", ");
+                                bytePassword = bytePassword.Substring(0, n);
+                                value = bytePassword;
 
                             }
                             if(datatype=="int")
