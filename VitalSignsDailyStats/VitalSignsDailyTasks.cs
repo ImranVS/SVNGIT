@@ -338,16 +338,14 @@ namespace VitalSignsDailyStats
                    
                     WriteAuditEntry("Daily Task is finished....");
 
-
-
-                    this.Stop();
-
-                
-
             }
             catch (Exception ex)
             {
                 WriteAuditEntry("OOPS, error in processing TravelerSummaryStats " + ex.ToString());
+            }
+            finally
+            {
+                this.Stop();
             }
         }
         public bool SaveNameValues(VSNext.Mongo.Entities.NameValue nameValues)
