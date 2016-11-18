@@ -26,6 +26,7 @@ export abstract class GridBase {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @ViewChild('flex1') flex1: wijmo.grid.FlexGrid;
     @ViewChild('mobileDeviceGrid') mobileDeviceGrid: wijmo.grid.FlexGrid;
+    @ViewChild('attributeGrid') attributeGrid: wijmo.grid.FlexGrid;
 
     constructor(service: RESTService) {  
         this.service = service; 
@@ -74,6 +75,7 @@ export abstract class GridBase {
   
     addGridRow(dlg: wijmo.input.Popup) {
         this.formTitle = "Add " + this.formName;
+
         this.currentEditItem = (<wijmo.collections.CollectionView>this.flex.collectionView).addNew()
         this.currentEditItem.id = "";
         this.showDialog(dlg);
