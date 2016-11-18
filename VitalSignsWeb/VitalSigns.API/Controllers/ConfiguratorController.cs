@@ -165,7 +165,7 @@ namespace VitalSigns.API.Controllers
                 string[] enkey;
                
                 byte[] credeskey;
-                VSFramework.TripleDES mytestenkey = new VSFramework.TripleDES();
+              
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
                 {
@@ -188,7 +188,7 @@ namespace VitalSigns.API.Controllers
                         credeskey[j] = Byte.Parse(enkey[j]);
                     }
 
-                    paswword.Password = mytestenkey.Decrypt(credeskey);
+                    paswword.Password = tripleDes.Decrypt(credeskey);
 
               
 
