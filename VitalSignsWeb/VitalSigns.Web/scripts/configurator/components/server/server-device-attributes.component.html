@@ -9,14 +9,14 @@
                     <div class="form-group">
                         <label class="control-label col-sm-2">Cell Name</label>
                         <div class="col-sm-10">
-                            <input type="text" [(ngModel)]="serverAttributes.cell_name">
+                            <input type="text" [(ngModel)]="serverAttributes.cell_name" class="form-control">
 
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-sm-2">Node Name</label>
                         <div class="col-sm-10">
-                            <input type="text" [(ngModel)]="serverAttributes.node_name">
+                            <input type="text" [(ngModel)]="serverAttributes.node_name" class="form-control">
 
 
                         </div>
@@ -26,39 +26,43 @@
                 <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || serverAttributes.device_type=='URL'">
                     <div class="form-group">
                         <label class="control-label col-sm-2">Server Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" [(ngModel)]="serverAttributes.device_name">
+                        <div class="col-sm-5">
+                            <input type="text" [(ngModel)]="serverAttributes.device_name" class="form-control">
                         </div>
                     </div>
                     <div class="form-group" *ngIf="serverAttributes.device_type !='URL'">
                         <label class="control-label col-sm-2">Description</label>
-                        <div class="col-sm-10">
-                            <input type="text" [(ngModel)]="serverAttributes.description">
+                        <div class="col-sm-5">
+                            <input type="text" [(ngModel)]="serverAttributes.description" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-sm-2">Location</label>
-                        <div class="col-sm-10">
-                            <input type="text" [(ngModel)]="serverAttributes.location_id">
+                        <div class="col-sm-5">
+                            <input type="text" [(ngModel)]="serverAttributes.location_id" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-sm-2">Category</label>
-                        <div class="col-sm-10">
-                            <input type="text" [(ngModel)]="serverAttributes.category">
+                        <div class="col-sm-5">
+                            <input type="text" [(ngModel)]="serverAttributes.category" class="form-control">
                         </div>
                     </div>
                     <div class="form-group" *ngIf="serverAttributes.device_type=='URL'">
                         <label class="control-label col-sm-2">Address:</label>
-                        <div class="col-sm-10">
-                            <input type="text" [(ngModel)]="serverAttributes.ip_address">
+                        <div class="col-sm-5">
+                            <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-sm-2">Enable For Scanning</label>
-                        <div class="col-sm-10">
-                            <input type="checkbox" id="serverAttributes.is_enabled" name="serverAttributes.is_enabled" [(ngModel)]="serverAttributes.is_enabled">
+                        <div class="funkyradio"></div>
+                        <div class="funkyradio-default">
+                            <div class="col-sm-5">
+                                <input type="checkbox" id="serverAttributes.is_enabled" name="serverAttributes.is_enabled" [(ngModel)]="serverAttributes.is_enabled">
+                            </div>
                         </div>
+
                     </div>
 
 
@@ -88,7 +92,7 @@
                             <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                             <div class="col-sm-2">
                                 <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
                                 <div *ngIf="attribute.type=='CheckBox'">
                                     <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
@@ -124,7 +128,7 @@
                             <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                             <div class="col-sm-2">
                                 <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
                                 <div *ngIf="attribute.type=='CheckBox'">
                                     <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
@@ -158,7 +162,7 @@
                             <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                             <div class="col-sm-2">
                                 <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
                                 <div *ngIf="attribute.type=='CheckBox'">
                                     <input type="checkbox" [(ngModel)]="attribute.default_value">
@@ -196,7 +200,7 @@
                             <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                             <div class="col-sm-2">
                                 <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
                                 <div *ngIf="attribute.type=='CheckBox'">
                                     <input type="checkbox" [(ngModel)]="attribute.default_value">
@@ -228,7 +232,7 @@
                             <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                             <div class="col-sm-2">
                                 <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
                                 <div *ngIf="attribute.type=='CheckBox'">
                                     <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
@@ -271,7 +275,7 @@
                             <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                             <div class="col-sm-5">
                                 <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
                                 <div *ngIf="attribute.type=='CheckBox'">
                                     <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
@@ -299,56 +303,56 @@
                 <div class="panel-heading">Optional: Search Text</div>
                 <div class="panel-body">
                     <p>
-                        If you enter a value into the Search Text box, then VitalSigns will 
-                        try to locate this text on the URL page and an Alert will be generated based on the option you select below. 
+                        If you enter a value into the Search Text box, then VitalSigns will
+                        try to locate this text on the URL page and an Alert will be generated based on the option you select below.
                     </p>
                     <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:searchText">
-                       
-                            <div class="form-group">
-                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-5">
-                                    <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value">
-                                    </div>
 
-                                    
-                                    <div *ngIf="attribute.type=='RadioButton'">
-                                        <input type="radio" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
-                                    </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                            <div class="col-sm-5">
+                                <div *ngIf="attribute.type=='TextBox'">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
 
+
+                                <div *ngIf="attribute.type=='RadioButton'">
+                                    <input type="radio" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+                                </div>
                             </div>
 
                         </div>
 
                     </div>
-                </div>
 
+                </div>
             </div>
 
         </div>
 
+    </div>
+
     <div *ngIf="serverAttributes" class="form-horizontal">
         <div *ngIf="serverAttributes.device_type == 'URL'">
             <div class="panel panel-default">
-              <div class="panel-heading">Optional: Username/Password</div>
-               
+                <div class="panel-heading">Optional: Username/Password</div>
+
                 <div class="panel-body">
                     <p>
                         If you enter values into the Username and Password field, VitalSigns will use them when navigating to the page.
                         This is only applicable to pages requiring authentication when searching for specific text in the page which is only available after authentication.
                     </p>
-                 
+
                     <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:usernameorPassword">
 
                         <div class="form-group">
                             <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                             <div class="col-sm-5">
                                 <div *ngIf="attribute.type=='TextBox' && attribute.field_name =='password'">
-                                    <input type="password" [(ngModel)]="attribute.default_value">
+                                    <input type="password" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
                                 <div *ngIf="attribute.type=='TextBox' && attribute.field_name !='password'">
-                                    <input type="text" [(ngModel)]="attribute.default_value">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                 </div>
 
                             </div>
@@ -363,7 +367,7 @@
         </div>
 
     </div>
-   
+
     <div>
         <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
     </div>
