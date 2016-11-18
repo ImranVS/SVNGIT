@@ -20,13 +20,12 @@ export class ServerCredentials extends GridBase implements OnInit {
     constructor(service: RESTService) {
         super(service);
         this.formName = "Server Credentials";
-        this.service.get('/services/server_list_selectlist_data')
+        this.service.get('/Configurator/get_server_credentials_businesshours')
             .subscribe(
             (response) => {
-                this.deviceTypes = response.data.deviceTypeData;
+                this.deviceTypes = response.data.serverTypeData;
               
 
-                this.deviceTypes.splice(0, 1);
 
             },
             (error) => this.errorMessage = <any>error
