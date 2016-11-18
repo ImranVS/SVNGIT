@@ -161,18 +161,39 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
+                string key;
+                string[] enkey;
+               
+                byte[] credeskey;
+                VSFramework.TripleDES mytestenkey = new VSFramework.TripleDES();
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
                 {
-                    Alias = x.Alias,
-                    UserId = x.UserId,
-                    DeviceType = x.DeviceType,
-                    Password = x.Password,
-                    Id = x.Id
+                   Alias=x.Alias,
+                   UserId=x.UserId,
+                   DeviceType=x.DeviceType,
+                   Id=x.Id,
 
+                    Password = x.Password
 
                 }).ToList();
+                foreach (var paswword in result)
+                {
+                    key = paswword.Password;
+                    enkey = key.Split(',');
 
+                    credeskey = new byte[enkey.Length];
+                    for (int j = 0; j < enkey.Length; j++)
+                    {
+                        credeskey[j] = Byte.Parse(enkey[j]);
+                    }
+
+                    paswword.Password = mytestenkey.Decrypt(credeskey);
+
+              
+
+
+                }
 
                 Response = Common.CreateResponse(result);
 
@@ -195,19 +216,16 @@ namespace VitalSigns.API.Controllers
             {
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
 
-
-                bool updated = false;
-                byte[] MyPass;
-                
-                VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
-                MyPass = mySecrets.Encrypt(serverCredential.Password);
+                byte[] password;
+              
+                password = tripleDes.Encrypt(serverCredential.Password);
                
-                System.Text.StringBuilder newstr = new System.Text.StringBuilder();
-                foreach (byte b in MyPass)
+                System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+                foreach (byte b in password)
                 {
-                    newstr.AppendFormat("{0}, ", b);
+                    stringBuilder.AppendFormat("{0}, ", b);
                 }
-                string bytepwd = newstr.ToString();
+                string bytepwd = stringBuilder.ToString();
                 int n = bytepwd.LastIndexOf(", ");
                 bytepwd = bytepwd.Substring(0, n);
                 if (string.IsNullOrEmpty(serverCredential.Id))
@@ -1444,7 +1462,7 @@ namespace VitalSigns.API.Controllers
                 locationRepository = new Repository<Location>(ConnectionString);
                 serverTypeRepository = new Repository<ServerType>(ConnectionString);
                 var serverTypeData = serverTypeRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Name }).ToList().OrderBy(x => x.DisplayText);
-              //  serverTypeData.ad
+               // var credentialServerTypeData = serverTypeRepository.All().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.ServerTypeId.ToString() }).ToList().OrderBy(x => x.DisplayText);
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
