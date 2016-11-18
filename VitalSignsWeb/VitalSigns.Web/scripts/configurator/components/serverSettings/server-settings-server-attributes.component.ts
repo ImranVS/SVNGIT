@@ -106,9 +106,6 @@ export class DeviceAttributes extends GridBase implements OnInit {
 
             });
     }
-
-
-
     get AttributepageSize(): number {
        // alert(this.attributedata.pageSize)
         return this.attributedata.pageSize;
@@ -116,12 +113,12 @@ export class DeviceAttributes extends GridBase implements OnInit {
     }
     set AttributepageSize(value: number) {
         
-        if (this.attributegrid) {
-            
+        if (this.attributeGrid) {
+            console.log(value);
             if (this.attributedata.pageSize != value) {
                 this.attributedata.pageSize = value;
-                if (this.attributegrid) {
-                    (<wijmo.collections.IPagedCollectionView>this.attributegrid.collectionView).pageSize = value;
+                if (this.attributeGrid) {
+                    (<wijmo.collections.IPagedCollectionView>this.attributeGrid.collectionView).pageSize = value;
                 }
             }
         }
