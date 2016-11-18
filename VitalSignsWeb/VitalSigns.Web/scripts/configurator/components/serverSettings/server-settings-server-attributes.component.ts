@@ -28,10 +28,10 @@ export class DeviceAttributes extends GridBase implements OnInit {
     @Input() currentDeviceType: string;
     devices: string;
     deviceTypeData: any;
-    attributedata: any;
     errorMessage: any;
     selectedDeviceType: any;
     currentForm: FormGroup;
+    attributedata: wijmo.collections.CollectionView;
     constructor(service: RESTService,
         private formBuilder: FormBuilder) {
         super(service);
@@ -56,8 +56,8 @@ export class DeviceAttributes extends GridBase implements OnInit {
         this.service.get('/configurator/get_device_attributes/'+ this.selectedDeviceType)
             .subscribe(
             (response) => {
-                this.attributedata = response.data;
-                console.log(this.attributedata)
+                this.attributedata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));               
+                this.attributedata.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
             );
@@ -89,7 +89,10 @@ export class DeviceAttributes extends GridBase implements OnInit {
                 slectedAttributeValues.push(deviceAttrObject);
             }
 
-        }
+       }
+
+
+
         var postData = {
             "setting": "",
             "value": slectedAttributeValues,
@@ -102,6 +105,27 @@ export class DeviceAttributes extends GridBase implements OnInit {
             response => {
 
             });
+    }
+
+
+
+    get AttributepageSize(): number {
+       // alert(this.attributedata.pageSize)
+        return this.attributedata.pageSize;
+       
+    }
+    set AttributepageSize(value: number) {
+        
+        if (this.attributegrid) {
+            
+            if (this.attributedata.pageSize != value) {
+                this.attributedata.pageSize = value;
+                if (this.attributegrid) {
+                    (<wijmo.collections.IPagedCollectionView>this.attributegrid.collectionView).pageSize = value;
+                }
+            }
+        }
+
     }
 }
 
