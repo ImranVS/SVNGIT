@@ -1060,14 +1060,14 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         /// <returns>List of device attributes data</returns>
-        [HttpGet("get_device_attributes")]
-        public APIResponse GetDeviceAttributes()
+        [HttpGet("get_device_attributes/{type}")]
+        public APIResponse GetDeviceAttributes(string type)
 
         {
             try
             {
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-                var result = deviceAttributesRepository.All().Select(x => new DeviceAttributesModel
+                var result = deviceAttributesRepository.All().Where(x=>x.DeviceType==type).Select(x => new DeviceAttributesModel
                 {
                     Id = x.Id,
                     AttributeName = x.AttributeName,
@@ -1633,7 +1633,8 @@ namespace VitalSigns.API.Controllers
                         {
                        
                             var servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
-                            attri.DefaultValue = servervalue.ToString();
+                        attri.DefaultValue = servervalue.ToString();
+                       
 
                         if (attri.FieldName == "password")
                         {
