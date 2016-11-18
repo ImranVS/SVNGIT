@@ -28,6 +28,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
     @Input() currentDeviceType: string;
     devices: string;
     deviceTypeData: any;
+    attributedata: any;
     errorMessage: any;
     selectedDeviceType: any;
     currentForm: FormGroup;
@@ -51,11 +52,23 @@ export class DeviceAttributes extends GridBase implements OnInit {
     onDeviceTypeIndexChanged(event: wijmo.EventArgs) {
         this.currentDeviceType = this.combo.selectedItem.Text;
         this.type.emit(this.currentDeviceType);
+        this.selectedDeviceType = this.selectedDeviceType;
+        this.service.get('/configurator/get_device_attributes/'+ this.selectedDeviceType)
+            .subscribe(
+            (response) => {
+                this.attributedata = response.data;
+                console.log(this.attributedata)
+            },
+            (error) => this.errorMessage = <any>error
+            );
+
+
+
     }
 
     ngOnInit()
     {
-        this.initialGridBind('/Configurator/get_device_attributes');
+       // this.initialGridBind('/Configurator/get_device_attributes');
         this.service.get('/configurator/get_device_type_list')
             .subscribe(
             (response) => {
@@ -72,6 +85,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
                 var deviceAttrObject=new DeviceAttributeValue();
                 deviceAttrObject.value = item.default_value;
                 deviceAttrObject.field_name = item.field_name;
+                deviceAttrObject.datatype = item.datatype;
                 slectedAttributeValues.push(deviceAttrObject);
             }
 
