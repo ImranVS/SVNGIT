@@ -60,42 +60,50 @@ data.pageIndex + 1 | number
         <wj-popup class="col-md-6 modal-content" #frmDialog>
 
             <form (ngSubmit)="savelocations(frmDialog)" #frmUser="ngForm">
-                <h4 class="modal-header">
+                <h4 class="panel-heading">
                     {{formTitle}}
                     <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                 </h4>
 
-                <div class="modal-body" *ngIf="currentEditItem">
-                    <div class="form-group">
-                        <label for="location_name">LocationName</label>
-                        <input type="text" class="form-control" #name d="location_name" required name="location_name" [(ngModel)]="currentEditItem.location_name">
+                <div class="panel-body" *ngIf="currentEditItem">
+                    <div class="form-group col-sm-12">
+                        <label for="location_name" class="control-label col-sm-5">LocationName</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" #name d="location_name" required name="location_name" [(ngModel)]="currentEditItem.location_name">
+                        </div>
+
                     </div>
-                    <div class="form-group" *ngIf="countries">
-                        <label for="country">Country</label>
-                        <br />
-                        <wj-combo-box name="country" [itemsSource]="countries" [(text)]="currentEditItem.country"
-                                      [(ngModel)]="currentEditItem.country" (ngModelChange)="getstates()">
-                        </wj-combo-box>
+                    <div class="form-group col-sm-12" *ngIf="countries">
+                        <label for="country" class="control-label col-sm-5">Country</label>
+                        <div class="col-sm-7">
+                            <wj-combo-box name="country" [itemsSource]="countries" [(text)]="currentEditItem.country"
+                                          [(ngModel)]="currentEditItem.country" (ngModelChange)="getstates()">
+                            </wj-combo-box>
+                        </div>
                     </div>
-                    <div class="form-group" *ngIf="states">
-                        <label for="region">Region</label>
-                        <br />
-                        <wj-combo-box name="region" [itemsSource]="states" [(text)]="currentEditItem.region"
-                                      [(ngModel)]="currentEditItem.region" (ngModelChange)="getcities()">
-                        </wj-combo-box>
+                    <div class="form-group col-sm-12" *ngIf="states">
+                        <label for="region" class="control-label col-sm-5">Region</label>
+                        <div class="col-sm-7">
+                            <wj-combo-box name="region" [itemsSource]="states" [(text)]="currentEditItem.region"
+                                          [(ngModel)]="currentEditItem.region" (ngModelChange)="getcities()">
+                            </wj-combo-box>
+                        </div>
+
                     </div>
-                    <div class="form-group" *ngIf="cities">
-                        <label for="city">City</label>
-                        <br />
-                        <wj-combo-box name="city" [itemsSource]="cities" [(text)]="currentEditItem.city"
-                                      [(ngModel)]="currentEditItem.city">
-                        </wj-combo-box>
+                    <div class="form-group col-sm-12" *ngIf="cities">
+                        <label for="city" class="control-label col-sm-5">City</label>
+                        <div class="col-sm-7">
+                            <wj-combo-box name="city" [itemsSource]="cities" [(text)]="currentEditItem.city"
+                                          [(ngModel)]="currentEditItem.city">
+                            </wj-combo-box>
+                        </div>
+
                     </div>
                 </div>
 
 
 
-                <div class="modal-footer">
+                <div class="panel-footer">
                     <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
                     <button class="btn btn-primary" type="cancel" name="cancel">Cancel</button>
                 </div>
@@ -107,5 +115,5 @@ data.pageIndex + 1 | number
 </div>
 <div class="container">
 
-    
+
 </div>
