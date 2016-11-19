@@ -97,7 +97,8 @@ data.pageIndex + 1 | number
                                                         <label for="category" class="control-label col-sm-2">Category:</label>
                                                         <div class="col-sm-4">
                                                             <select name="category" class="form-control" [(ngModel)]="currentEditItem.category" id="category">
-                                                                <option value="Administration Server">Administration Server</option>
+                                                             
+                                                                  <option value="Administration Server">Administration Server</option>
                                                                 <option value="Application">Application</option>
                                                                 <option value="Backup">Backup</option>
                                                                 <option value="Development">Development</option>
@@ -181,7 +182,7 @@ data.pageIndex + 1 | number
                                                             <div class="form-group col-sm-12">
                                                                 <label for="domino_server_a" class="control-label col-sm-5"> Domino Server:</label>
                                                                 <div class="col-sm-7">
-                                                                    <wj-combo-box name="domino_server_a" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_a">
+                                                                    <wj-combo-box name="domino_server_a" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_a"  placeholder="Select Server"  [isEditable]="true">
 
                                                                     </wj-combo-box>
                                                                 </div>
@@ -209,7 +210,7 @@ data.pageIndex + 1 | number
                                                             <div class="form-group col-sm-12">
                                                                 <label for="domino_server_b" class="control-label col-sm-5"> Domino Server:</label>
                                                                 <div class="col-sm-7">
-                                                                    <wj-combo-box name="domino_server_b" [itemsSource]="sererNames" displayMemberPath="text" [(ngModel)]="currentEditItem.domino_server_b" selectedValuePath="value">
+                                                                    <wj-combo-box name="domino_server_b" [itemsSource]="sererNames" displayMemberPath="text" [(ngModel)]="currentEditItem.domino_server_b" selectedValuePath="value"  placeholder="Select Server"  [isEditable]="true">
 
                                                                     </wj-combo-box>
                                                                 </div>
@@ -237,7 +238,7 @@ data.pageIndex + 1 | number
                                                             <div class="form-group col-sm-12">
                                                                 <label for="domino_server_c" class="control-label col-sm-5"> Domino Server:</label>
                                                                 <div class="col-sm-7">
-                                                                    <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_c">
+                                                                    <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_c"  placeholder="Select Server"  [isEditable]="true">
 
                                                                     </wj-combo-box>
                                                                 </div>
