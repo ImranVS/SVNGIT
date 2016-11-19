@@ -53,7 +53,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("integrated_security")]
         [BsonIgnoreIfNull]
-        public bool IntegratedSecurity { get; set; }
+        public int? IntegratedSecurity { get; set; }
 
         [DataMember]
         [BsonElement("test_scan_server")]
