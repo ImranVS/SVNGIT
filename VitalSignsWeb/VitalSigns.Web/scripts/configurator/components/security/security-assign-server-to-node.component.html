@@ -84,7 +84,7 @@ data.pageIndex + 1 | number
         </div>
         
     <div>
-        <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceType)]="currentDeviceType"></server-location-list>
+        <server-location-list (checkedDevices)="changeInDevices($event)" [(isVisible)]="visibility" [(deviceType)]="currentDeviceType"></server-location-list>
     </div>
     <div>
         <label for="selectedNode" class="control-label col-sm-3">Nodes</label>

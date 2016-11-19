@@ -40,18 +40,6 @@ export class AddLogFile extends GridBase implements OnInit {
 
         });
       
-        //this.route.params.subscribe(params => {
-
-        //    this.id = params['id'];
-        //});
-        //this.service.get('/configurator/get_event_log_scaning?id=' + this.id)
-        //    .subscribe(
-        //    (response) => {
-        //        this.sererNames = response.data;
-
-        //    },
-        //    (error) => this.errorMessage = <any>error
-        //    );
 
     }
     ngOnInit() {

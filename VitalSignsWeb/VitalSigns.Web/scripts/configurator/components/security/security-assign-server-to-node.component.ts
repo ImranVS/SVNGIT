@@ -32,6 +32,8 @@ export class Nodes extends GridBase {
     nodesHealth: FormGroup;
     devices: string;
     selectedNode: string;
+    visibility: boolean = true;
+    
 
     constructor(service: RESTService, private formBuilder: FormBuilder) {
         super(service);

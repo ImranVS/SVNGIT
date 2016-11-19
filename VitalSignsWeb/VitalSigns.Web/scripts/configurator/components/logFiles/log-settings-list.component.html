@@ -5,8 +5,8 @@
                 <div class="form-group col-sm-9">
                     <label for="log_level" class="control-label col-sm-2">Log Level  </label>
                     <div class="col-sm-4">
-                        <select class="form-control" style="width: 100px;" name="log_level" id="log_level" [(ngModel)]="log_level">
-                            <option value="2">Normal</option>
+                        <select class="form-control" style="width: 100px;"  name="log_level" id="log_level" [(ngModel)]="log_level">
+                            <option value="2" selected="selected">Normal</option>
                             <option value="1">Debug</option>
                             <option value="0">Verbose</option>
                         </select>
@@ -22,7 +22,7 @@
                         </button>
                     </div>
                     <div class="col-sm-4">
-                        <input type="text" [(ngModel)]="email" class="form-control" style="width: 150px;">
+                        <input type="email" [(ngModel)]="emailid" id="emailid" name="emailid" class="form-control" style="width: 150px;">
                     </div>
                 </div>
 

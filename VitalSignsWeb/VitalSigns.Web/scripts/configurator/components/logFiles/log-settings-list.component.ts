@@ -20,10 +20,11 @@ export class Logs implements OnInit, AfterViewChecked {
   
     logsettingform: FormGroup;
     log_level: string;
-    email: string;
+    emailid: string;
     errorMessage: any;
     selectedlogs: any[];
     logNames: any[];
+    //selectedLogLevel: string[];
     isselected: boolean;
     devices: string[] = [];
     postData: any;
@@ -35,7 +36,7 @@ export class Logs implements OnInit, AfterViewChecked {
         private route: ActivatedRoute) {
         this.logsettingform = this.formBuilder.group({
             'log_level': [],
-            'email': [],
+            'emailid': [],
             'log_name': [],
            
 
@@ -63,7 +64,7 @@ export class Logs implements OnInit, AfterViewChecked {
         this.service.get('/configurator/get_log_files')
             .subscribe(
             response => {
-
+                this.log_level = response.data.loglevel;
                 this.logNames = response.data.logfilenames;
                 
 
@@ -88,9 +89,9 @@ export class Logs implements OnInit, AfterViewChecked {
     }
     applySetting(nameValue: any) {
 
-         this.postData = {
+        this.postData = {
             "log_level": this.log_level,
-            "email": this.email,
+            "emailid": this.emailid,
             "log_name": this.devices,
            
         };

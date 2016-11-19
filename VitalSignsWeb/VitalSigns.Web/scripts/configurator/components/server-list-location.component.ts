@@ -30,6 +30,7 @@ export class ServersLocation implements OnInit {
     data: wijmo.collections.CollectionView;
     devices: string[] = [];
     deviceTypeNames: any;
+    @Input() isVisible: boolean = false;
 
     @Input() public set deviceList(val: string) {
         this._deviceList = val;
@@ -96,6 +97,7 @@ export class ServersLocation implements OnInit {
         this.service.get("/Configurator/device_list")
             .subscribe(
             response => {
+                console.log("server selector reloaded");
                 var resultData: any = [];
                 var resultDataNew: any = [];
                 for (var item of response.data) {
