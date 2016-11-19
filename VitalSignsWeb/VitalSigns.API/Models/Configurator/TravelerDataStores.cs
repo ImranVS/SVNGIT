@@ -33,7 +33,7 @@ namespace VitalSigns.API.Models.Configurator
         public string Password { get; set; }
 
         [JsonProperty("integrated_security")]
-        public bool IntegratedSecurity { get; set; }
+        public int? IntegratedSecurity { get; set; }
 
         [JsonProperty("test_scan_server")]
         public string TestScanServer { get; set; }
