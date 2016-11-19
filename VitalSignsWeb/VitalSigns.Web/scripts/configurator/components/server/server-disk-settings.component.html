@@ -1,27 +1,24 @@
 ﻿
-<div class="container">
+<div class="widgetWrapper">
     <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
-        <div class="panel panel-default">
-
-            <div class="panel-body">
-                <div class="input-group">
-                    <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting" (click)="handleClick(this);">
-                    <label for="selectionType">	All Disks - By Percentage</label>
-                </div>
-                <div class="input-group">
-                    <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting" (click)="handleClick(this);">
-                    <label for="selectionType">All Disks - By GB</label>
-                </div>
-                <div class="input-group">
-                    <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting">
-                    <label for="selectionType">	Selected Disks</label>
-                </div>
-                <div class="input-group">
-                    <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting">
-                    <label for="selectionType">No Disk Alerts</label>
-                </div>
+        <div class="funkyradio">
+            <div class="funkyradio-default">
+                <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting"  id="selectionType1">
+                <label for="selectionType">	All Disks - By Percentage</label>
             </div>
-        </div>
+            <div class="funkyradio-default">
+                <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting" id="selectionType2">
+                <label for="selectionType">All Disks - By GB</label>
+            </div>
+            <div class="funkyradio-default">
+                <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting" id="selectionType3">
+                <label for="selectionType">	Selected Disks</label>
+            </div>
+            <div class="funkyradio-default">
+                <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting" id="selectionType4">
+                <label for="selectionType">No Disk Alerts</label>
+            </div>
+            </div>
         </div>
     <div class="col-xs-12 col-md-8 col-sm-12 col-lg-8">
         <div class="input-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
