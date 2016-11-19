@@ -1,26 +1,34 @@
 ﻿
 <div class="widgetWrapper">
     <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
+        <div class="row">&nbsp;</div>
+        <div class="form-group">
         <div class="funkyradio">
             <div class="funkyradio-default">
                 <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting"  id="selectionType1">
-                <label for="selectionType">	All Disks - By Percentage</label>
+                <label for="selectionType1">	All Disks - By Percentage</label>
             </div>
             <div class="funkyradio-default">
                 <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting" id="selectionType2">
-                <label for="selectionType">All Disks - By GB</label>
+                <label for="selectionType2">All Disks - By GB</label>
             </div>
             <div class="funkyradio-default">
                 <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting" id="selectionType3">
-                <label for="selectionType">	Selected Disks</label>
+                <label for="selectionType3">	Selected Disks</label>
             </div>
             <div class="funkyradio-default">
                 <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting" id="selectionType4">
-                <label for="selectionType">No Disk Alerts</label>
+                <label for="selectionType4">No Disk Alerts</label>
             </div>
             </div>
+</div>
+        <div class="form-group" *ngIf="selectedDiskSetting">
+
+            <button type="button" class="btn btn-primary" (click)="applySetting(diskSettingsForm.value)">Save</button>
+        </div>
         </div>
     <div class="col-xs-12 col-md-8 col-sm-12 col-lg-8">
+        <div class="row">&nbsp;</div>
         <div class="input-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
             <div class="row">
                 <label for="currentThresholdByPercentage" class="control-label col-sm-3">Current threshold:</label>
@@ -102,9 +110,6 @@ data.pageIndex + 1 | number
                 </div>
             </div>
             <br />
-            <div class="form-group" *ngIf="selectedDiskSetting">
-
-                <button type="button" class="btn btn-primary" (click)="applySetting(diskSettingsForm.value)">Save</button>
-            </div>
+          
         </div>
     </div>

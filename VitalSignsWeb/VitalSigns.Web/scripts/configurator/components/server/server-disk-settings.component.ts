@@ -191,11 +191,7 @@ export class DominoServerDiskSettings  implements OnInit {
 
             });
     }
-    handleClick(index :any)
-    {
-       
-    this.diskThreshold = "";
-    }
+   
    
     get pageSize(): number {
         return this.data.pageSize;
