@@ -24,9 +24,9 @@ export class ServerLocations implements OnInit, AfterViewInit {
     selectedSetting: any;
     selectedSettingValue: any;
     devices: string;
-    selectedLocation: string;
-    selectedCredential: string;
-    selectedBusinessHour: string;
+    selectedLocation: string=null;
+    selectedCredential: string = null;
+    selectedBusinessHour: string = null;
     postData: any;
     constructor(    
         private dataProvider: RESTService,
