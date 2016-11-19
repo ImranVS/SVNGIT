@@ -27,7 +27,7 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("log_level")]
         public object LogLevel { get; set; }
 
-        [JsonProperty("email")]
+        [JsonProperty("emailid")]
         public object Email { get; set; }
 
        

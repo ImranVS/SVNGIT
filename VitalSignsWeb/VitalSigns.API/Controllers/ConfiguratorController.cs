@@ -2843,8 +2843,9 @@ namespace VitalSigns.API.Controllers
                                                                       .Set(p => p.Type, "Domino Log Scanning");
 
                                 var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
+                            Response = Common.CreateResponse(result, "OK", "Log File Scanning updated successfully");
 
-                            }
+                        }
 
                         }
                     }
@@ -4712,7 +4713,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 nameValueRepository = new Repository<NameValue>(ConnectionString);
-               
+                var loglevel = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Level").Select(x => x.Value).FirstOrDefault();
                 var logfiles = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Files Path-New").Select(x => x.Value).FirstOrDefault();
                 string[] filePaths = System.IO.Directory.GetFiles(logfiles);
                 string[] folderPaths = System.IO.Directory.GetDirectories(logfiles);               
@@ -4750,7 +4751,7 @@ namespace VitalSigns.API.Controllers
                 }
 
 
-                Response = Common.CreateResponse(new { logfilenames = logfilenames, combolist = combolist });
+                Response = Common.CreateResponse(new { loglevel =loglevel,logfilenames = logfilenames, combolist = combolist });
             }
             catch (Exception exception)
             {
