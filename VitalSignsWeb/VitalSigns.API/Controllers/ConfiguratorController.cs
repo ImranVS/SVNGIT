@@ -950,6 +950,23 @@ namespace VitalSigns.API.Controllers
             Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
             travelerdatastoreRepository.Delete(expression);
         }
+
+        [HttpGet("get_traveller_servers")]
+        public APIResponse Gettravellerserver()
+        {
+            try
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+                var result = statusRepository.Collection.AsQueryable().Where(x => x.SecondaryRole.Contains("Traveler")).Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get traveler servers falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+
+        } 
         #endregion
 
         #region IBM Domino Settings
