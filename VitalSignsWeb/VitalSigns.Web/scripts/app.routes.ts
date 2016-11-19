@@ -106,6 +106,13 @@ import { AddLogFile } from './configurator/components/ibmDomino/Ibm-save-domino-
 import { MobileUser } from './configurator/components/mobileusers/mobile-users.component';
 
 import { ServerImports } from './configurator/components/serverImport/server-import-tabs-component';
+import { DominoMailDeliveryStatus } from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
+
+
+
+
+
+
 
 
 export * from './dashboards/components/overall-dashboard.component';
@@ -160,6 +167,8 @@ export * from './configurator/components/ibmDomino/ibmdomino-tabs-component';
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
 export * from './configurator/components/mobileusers/mobile-users.component';
 export * from './configurator/components/serverImport/server-import-tabs-component';
+export * from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
+
 
 
 
@@ -256,7 +265,7 @@ const appRoutes: Routes = [
     },
     {
         path: 'dashboard/mail-delivery-status',
-        component: MailDeliveryStatus
+        component: DominoMailDeliveryStatus
     },
     {
         path: 'dashboard/issues',
