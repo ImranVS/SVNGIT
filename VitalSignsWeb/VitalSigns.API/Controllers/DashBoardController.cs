@@ -1491,7 +1491,7 @@ namespace VitalSigns.API.Controllers
                   DeadThreshold=x.DeadThreshold,
                   HeldThreshold=x.HeldThreshold
                     
-                }).ToList();
+                }).ToList().OrderBy(x => x.DeviceName).OrderByDescending(x=>x.PendingMail);
                 Response = Common.CreateResponse(result);
             }
 
