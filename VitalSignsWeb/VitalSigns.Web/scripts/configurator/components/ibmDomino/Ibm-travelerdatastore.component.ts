@@ -1,4 +1,4 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, OnInit,ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -20,13 +20,27 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class TravelerDataStore extends GridBase implements OnInit {
+    datastore: any;
+    errorMessage: any;
+    travelerServers: any;
 
     constructor(service: RESTService) {
         super(service);
         this.formName = "Traveler Data Store";
+        this.datastore = ["SQL Server", "DB2"];
+       
     }
+               
     ngOnInit() {
         this.initialGridBind('/configurator/get_travelerdatastore');
+        this.service.get('/Configurator/get_traveller_servers')
+            .subscribe(
+            (response) => {
+                this.travelerServers = response.data;
+                console.log(this.travelerServers);
+            },
+            (error) => this.errorMessage = <any>error
+            );
     }
     saveTravelerDataStore(dlg: wijmo.input.Popup) {
         this.saveGridRow('/configurator/save_traveler_data_store', dlg);
@@ -34,6 +48,7 @@ export class TravelerDataStore extends GridBase implements OnInit {
     delteTravelerDataStore() {
         this.delteGridRow('/configurator/delete_traveler_data_store/');
     }
+
 
     addTravelerData(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
@@ -44,8 +59,9 @@ export class TravelerDataStore extends GridBase implements OnInit {
         this.currentEditItem.port = "";
         this.currentEditItem.user_name = "";
         this.currentEditItem.password = "";
-        this.currentEditItem.integrated_security = false;
+        this.currentEditItem.integrated_security = "";
         this.currentEditItem.test_scan_server = "";
         this.currentEditItem.used_by_servers = "";
     }
+
 }
