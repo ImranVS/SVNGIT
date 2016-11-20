@@ -33,7 +33,7 @@ export class ServerSettings implements OnInit {
     ngOnInit() {   
         this.tabsData= [
             {
-                "title": "Server Atributes",
+                "title": "Server Attributes",
                 "component": "DeviceAttributes",
                 "path": "/app/configurator/components/serverSettings/server-settings-server-attributes.component",
                 "active": "true"

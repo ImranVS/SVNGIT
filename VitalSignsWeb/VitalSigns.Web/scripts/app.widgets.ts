@@ -77,11 +77,12 @@ export * from './configurator/components/server/server-domino-server-tasks.compo
 //alerts
 
 export * from './configurator/components/alert/alerts-allalert-history.component'
-export *from './configurator/components/alert/alert-settings.component'
-export *from './configurator/components/alert/alert-definitions-dashboard.component'
-export *from './configurator/components/alert/alert-definitions.component'
+export * from './configurator/components/alert/alert-settings.component'
+export * from './configurator/components/alert/alert-definitions-dashboard.component'
+export * from './configurator/components/alert/alert-definitions.component'
 export * from './configurator/components/alert/hours-destinations.component'
 export * from './configurator/components/alert/escalation.component'
+export * from './configurator/components/alert/scripts.component'
 
 //log Files
 export * from './configurator/components/logFiles/log-settings-list.component'

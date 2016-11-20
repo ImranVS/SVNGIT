@@ -24,6 +24,7 @@ export class AlertSettings implements WidgetComponent, OnInit {
     recurrencesChecked: boolean;
     persistentChecked: boolean;
     limitsChecked: boolean;
+    selected_events: string[] = [];
     data: wijmo.collections.CollectionView;
 
     constructor(
@@ -82,7 +83,7 @@ export class AlertSettings implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                this.data.pageSize = 10;
+                //this.data.pageSize = 10;
                 var groupDesc = new wijmo.collections.PropertyGroupDescription('DeviceType');
                 this.data.groupDescriptions.push(groupDesc);
             },
@@ -102,20 +103,23 @@ export class AlertSettings implements WidgetComponent, OnInit {
         this.limitsChecked = ischecked;
     }
 
-    onSubmit(nameValue: any): void {
-        //var selected_events: EventsMaster[] = [];
-        //for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
-        //    var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
-        //    if (item.NotificationOnRepeat) {
-        //        var eventObject = new EventsMaster();
-        //        eventObject.device_type = item.DeviceType;
-        //        eventObject.event_type = item.EventType;
-        //        selected_events.push(eventObject);
-        //    }
-        //}
-        var selected_events = null;
-        var alert_settings = this.alertSettings.value;
+    refreshCheckedEvents() {
+        if (this.flex.collectionView) {
+            (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).pageIndex = 0;
+            for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+                var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+                var val = this.selected_events.filter((record) => record == item.Id);
+                if (item.NotificationOnRepeat && val.length == 0) {
+                    this.selected_events.push(item.Id);
+                }
+            }
+        }
+    }
 
+    onSubmit(nameValue: any): void {
+        this.refreshCheckedEvents();
+        var alert_settings = this.alertSettings.value;
+        var selected_events = this.selected_events;
         this.dataProvider.put('/Configurator/save_alert_settings', { alert_settings, selected_events })
             .subscribe(
             response => {

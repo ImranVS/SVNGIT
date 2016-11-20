@@ -23,7 +23,8 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 export class ServersLocation implements OnInit {
    
     @Output() checkedDevices = new EventEmitter();  
-    _deviceList: any;
+    //_deviceList: any;
+    _deviceList: string[] = [];
     @Input() deviceType: any; 
     @Input() deviceTypes: any; 
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
@@ -32,7 +33,7 @@ export class ServersLocation implements OnInit {
     deviceTypeNames: any;
     @Input() isVisible: boolean = false;
 
-    @Input() public set deviceList(val: string) {
+    @Input() public set deviceList(val: string[]) {
         this._deviceList = val;
         this.devices = [];
         this.refreshCheckedDevices();  
@@ -44,14 +45,16 @@ export class ServersLocation implements OnInit {
             (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).pageIndex = 0;
             for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
                 var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+                //console.log(item.is_selected);
                 if (this._deviceList) {
-                    var value = this._deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);
+                    //var value = this._deviceList.filter((record) => record.indexOf(item.id) !== -1);
+                    var value = this._deviceList.filter((record) => record == item.id);
                     if (value.length > 0) {
                         item.is_selected = true;
                         this.devices.push(item.id)
                     }
                     else {
-                        this.devices.splice(this.devices.indexOf(value), 1);
+                        //this.devices.splice(this.devices.indexOf(value[0]), 1);
                         item.is_selected = false;
                     }
                 }
@@ -102,15 +105,17 @@ export class ServersLocation implements OnInit {
                 var resultDataNew: any = [];
                 for (var item of response.data) {
                     if (this._deviceList) {
-                        var value = this._deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);                       
-                        if (value.length > 0) {
-                            item.is_selected = true;
-                            this.devices.push(item.id)
+                        var value = this._deviceList.filter((record) => record.toLocaleLowerCase().indexOf(item.id.toLocaleLowerCase()) !== -1);    
+                        if (value != null) {
+                            if (value.length > 0) {
+                                item.is_selected = true;
+                                this.devices.push(item.id)
+                            }
                         }
                     } 
                     resultData.push(item);
                 } 
-                this.deviceList = "";               
+                this.deviceList = [];               
                 if (this.deviceType) {
                     resultData = resultData.filter((record) => record.device_type == this.deviceType);
                 }    

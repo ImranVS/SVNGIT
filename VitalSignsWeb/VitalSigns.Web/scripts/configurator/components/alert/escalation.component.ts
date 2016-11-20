@@ -29,7 +29,6 @@ export class Escalation extends GridBase implements OnInit  {
     key: string;
     formObject: any = {
         id: null,
-        escalation_id: null,
         send_to: null,
         script_name: null,
         interval: null,
@@ -61,7 +60,7 @@ export class Escalation extends GridBase implements OnInit  {
 
         this.formTitle = "Edit " + this.formName;
 
-        this.formObject.escalation_id = this.flex.collectionView.currentItem.hours_destinations_id;
+        this.formObject.id = this.flex.collectionView.currentItem.id;
         this.formObject.send_to = this.flex.collectionView.currentItem.send_to;
         this.formObject.script_name = this.flex.collectionView.currentItem.script_name;
         this.formObject.send_via = this.flex.collectionView.currentItem.send_via;
@@ -76,7 +75,7 @@ export class Escalation extends GridBase implements OnInit  {
 
         this.formTitle = "Add " + this.formName;
 
-        this.formObject.escalation_id = "";
+        this.formObject.id = "";
         this.formObject.send_to = "";
         this.formObject.script_name = "";
         this.formObject.send_via = "E-mail";
@@ -105,7 +104,7 @@ export class Escalation extends GridBase implements OnInit  {
             this.flex.collectionView.currentItem.interval = this.formObject.interval;
             //add script name and location
         }
-        if (this.formObject.escalation_id == "") {
+        if (this.formObject.id == "") {
             this.service.put(saveUrl, this.formObject)
                 .subscribe(
                 response => {
@@ -158,7 +157,7 @@ export class Escalation extends GridBase implements OnInit  {
 
     deleteEscalate() {
         let deleteUrl = '/configurator/delete_hours_destinations/';
-        this.key = this.flex.collectionView.currentItem.escalation_id;
+        this.key = this.flex.collectionView.currentItem.id;
         console.log(this.key);
         if (confirm("Are you sure want to delete this record?")) {
             this.service.delete(deleteUrl + this.key);

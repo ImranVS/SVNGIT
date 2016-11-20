@@ -45,8 +45,8 @@ export class Alerts implements OnInit {
             },
             {
                 "title": "Scripts",
-                "component": "NotYetImplemented",
-                "path": "/app/not-yet-implemented.component",
+                "component": "Scripts",
+                "path": "/app/configurator/components/alert/scripts.component",
                 "active": false
             },
             {

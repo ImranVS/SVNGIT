@@ -1,0 +1,59 @@
+﻿<div id="zeusContent">
+    <div class="widgetWrapper">
+        <div class="widgetContent">
+            <div class="grid-sort-group">
+
+                <!-- edit details in a popup -->
+                <button class="btn btn-success" (click)="showEditForm(frmDialog)">
+                    Edit
+                </button>
+                <button class="btn btn-success" (click)="showAddForm(frmDialog)">
+                    Add
+                </button>
+                <button class="btn btn-success" (click)="deleteScript()">
+                    Delete
+                </button>
+            </div>
+            <div>&nbsp;</div>
+            <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1" [isReadOnly]="true" #flex>
+                <wj-flex-grid-filter></wj-flex-grid-filter>
+                <wj-flex-grid-column [header]="'Script Name'" [binding]="'script_name'" [width]="200"> </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Command'" [binding]="'script_command'" [width]="280"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="180" [visible]="false"></wj-flex-grid-column>
+            </wj-flex-grid>
+            
+
+            <wj-popup class="col-md-6 modal-content" #frmDialog>
+
+                <form (ngSubmit)="saveScripts(frmDialog)" #frmUser="ngForm">
+                    <h4 class="modal-header">
+                        {{formTitle}}
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                    </h4>
+
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="script_name">Script Name:</label>
+                            <input type="text" class="form-control" id="script_name" required name="script_name" [(ngModel)]="formObject.script_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="script_name">Command:</label>
+                            <input type="text" class="form-control" id="script_command" required name="script_command" [(ngModel)]="formObject.script_command">
+                        </div>
+                        <div class="form-group">
+                            <label for="script_name">Location:</label>
+                            <input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">
+                        </div>
+                    </div>
+
+
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                        <button class="btn btn-primary" type="cancel" name="cancel">Cancel</button>
+                    </div>
+
+                </form>
+            </wj-popup>
+        </div>
+    </div>
+</div>
