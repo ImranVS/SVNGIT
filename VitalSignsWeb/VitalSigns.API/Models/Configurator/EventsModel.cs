@@ -22,7 +22,7 @@ namespace VitalSigns.API.Models
         public AlertSettingsModel AlertSettings { get; set; }
 
         [JsonProperty("selected_events")]
-        public List<EventsModel> SelectedEvents { get; set; }
+        public List<string> SelectedEvents { get; set; }
 
 
     }

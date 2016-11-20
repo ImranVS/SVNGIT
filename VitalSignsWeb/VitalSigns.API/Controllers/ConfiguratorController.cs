@@ -60,7 +60,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<EventsMaster> eventsMasterRepository;
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<Notifications> notificationsRepository;
-       private IRepository<NotificationDestinations> notificationDestRepository;
+        private IRepository<NotificationDestinations> notificationDestRepository;
+        private IRepository<Scripts> scriptsRepository;
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<IbmConnectionsObjects> ibmConnectionsObjectsRepository;
@@ -2936,7 +2937,7 @@ namespace VitalSigns.API.Controllers
                 FilterDefinition<EventsMaster> filterDef;
                 UpdateDefinition<EventsMaster> updateEvents;
                 AlertSettingsModel alertSettings = listAlertSettings.AlertSettings;
-                List<EventsModel> selectedEvents = listAlertSettings.SelectedEvents;
+                List<string> selectedEvents = listAlertSettings.SelectedEvents;
                 
                 try
                 {
@@ -2977,8 +2978,7 @@ namespace VitalSigns.API.Controllers
                     {
                         foreach (var selectedEvent in selectedEvents)
                         {
-                            filterDef = eventsMasterRepository.Filter.And(eventsMasterRepository.Filter.Eq(x => x.DeviceType, selectedEvent.DeviceType),
-                                eventsMasterRepository.Filter.Eq(x => x.EventType, selectedEvent.EventType));
+                            filterDef = eventsMasterRepository.Filter.And(eventsMasterRepository.Filter.Eq(x => x.Id, selectedEvent));
                             updateEvents = eventsMasterRepository.Updater.Set(x => x.NotificationOnRepeat, true);
                             eventsMasterRepository.Update(filterDef, updateEvents);
                         }
@@ -3087,7 +3087,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
-                var result = eventsMasterRepository.All().OrderBy(x => x.EventType).ToList();
+                var result = eventsMasterRepository.All().OrderBy(x => x.DeviceType).ToList();
                 Response = Common.CreateResponse(result);
             }
             catch (Exception exception)
@@ -3131,16 +3131,31 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Notifications
-        [HttpGet("notifications_list")]
-        public APIResponse GetNotifications()
+
+        private List<dynamic> GetNotificationsList()
         {
             List<dynamic> result_disp = new List<dynamic>();
             List<dynamic> result_sendto = new List<dynamic>();
             List<dynamic> result_escalateto = new List<dynamic>();
+            List<dynamic> result_events = new List<dynamic>();
+            List<dynamic> result_servers = new List<dynamic>();
             List<dynamic> result = new List<dynamic>();
+            List<string> send_to = new List<string>();
+            List<string> send_via = new List<string>();
+            List<bool> is_selected_send = new List<bool>();
+            List<string> event_ids = new List<string>();
+            List<bool> is_selected_event = new List<bool>();
+            List<string> server_ids = new List<string>();
+            List<bool> is_selected_server = new List<bool>();
+            List<string> hour_ids = new List<string>();
+            List<bool> is_selected_hour = new List<bool>();
             FilterDefinition<BusinessHours> filterDef;
+
             try
             {
+                eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
+
+                serversRepository = new Repository<Server>(ConnectionString);
                 notificationsRepository = new Repository<Notifications>(ConnectionString);
                 notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
@@ -3150,9 +3165,10 @@ namespace VitalSigns.API.Controllers
                 {
                     if (notificationDest.Interval != null)
                     {
-                        result_escalateto.Add(new NotificationsModel
+                        result_escalateto.Add(new HourDefinition
                         {
-                            HoursDestinationsID = notificationDest.Id.ToString(),
+                            Id = notificationDest.Id.ToString(),
+                            IsSelectedHour = false,
                             Interval = notificationDest.Interval,
                             SendVia = notificationDest.SendVia,
                             SendTo = notificationDest.SendTo
@@ -3166,9 +3182,10 @@ namespace VitalSigns.API.Controllers
                         {
                             hoursname = hourstype[0].Name;
                         }
-                        result_sendto.Add(new NotificationsModel
+                        result_sendto.Add(new HourDefinition
                         {
-                            HoursDestinationsID = notificationDest.Id.ToString(),
+                            Id = notificationDest.Id.ToString(),
+                            IsSelectedHour = false,
                             SendVia = notificationDest.SendVia,
                             SendTo = notificationDest.SendTo,
                             CopyTo = notificationDest.CopyTo == null ? "" : notificationDest.CopyTo,
@@ -3177,37 +3194,188 @@ namespace VitalSigns.API.Controllers
                             PersistentNotification = notificationDest.PersistentNotification
                         });
                     }
+                    hour_ids.Add(notificationDest.Id.ToString());
                 }
 
                 var notifications = notificationsRepository.Collection.AsQueryable().ToList();
+
+                var eventsList = eventsMasterRepository.Find(_ => true).OrderBy(x => x.DeviceType).ToList();
+                foreach (var eventItem in eventsList)
+                {
+                    result_events.Add(new EventDefinition
+                    {
+                        Id = eventItem.Id,
+                        IsSelectedEvent = false,
+                        EventType = eventItem.EventType,
+                        DeviceType = eventItem.DeviceType,
+                        NotificationOnRepeat = eventItem.NotificationOnRepeat
+                    });
+                }
+
+                var serversList = serversRepository.Find(_ => true).OrderBy(x => x.DeviceName).ToList();
+                foreach (var serverItem in serversList)
+                {
+                    result_servers.Add(new ServerDefinition
+                    {
+                        Id = serverItem.Id,
+                        IsSelectedServer = false,
+                        DeviceName = serverItem.DeviceName,
+                        DeviceType = serverItem.DeviceType,
+                        Location = serverItem.LocationId,
+                        Description = serverItem.Description
+                    });
+                }
+
                 foreach (var notification in notifications)
                 {
-                    foreach (var sendto in notification.SendList)
+                    is_selected_event = new List<bool>();
+                    event_ids = new List<string>();
+                    foreach (var eventItem in eventsList)
                     {
-                        foreach (var notificationDest in notificationDestinations)
+                        var is_sel = false;
+                        if (eventItem.NotificationList != null)
+                        {
+                            var found = eventItem.NotificationList.Find(x => x == notification.Id);
+                            if (found != null)
+                            {
+                                is_sel = true;
+                            }
+                        }
+                        is_selected_event.Add(is_sel);
+                        event_ids.Add(eventItem.Id);
+                    }
+
+                    is_selected_server = new List<bool>();
+                    server_ids = new List<string>();
+                    foreach (var serverItem in serversList)
+                    {
+                        var is_sel = false;
+                        if (serverItem.NotificationList != null)
+                        {
+                            var found = serverItem.NotificationList.Find(x => x == notification.Id);
+                            if (found != null)
+                            {
+                                is_sel = true;
+                            }
+                        }
+                        is_selected_server.Add(is_sel);
+                        server_ids.Add(serverItem.Id);
+                    }
+
+                    is_selected_hour = new List<bool>();
+                    send_to = new List<string>();
+                    send_via = new List<string>();
+                    foreach (var notificationDest in notificationDestinations)
+                    {
+                        var is_sel = false;
+                        foreach (var sendto in notification.SendList)
                         {
                             if (sendto == notificationDest.Id)
                             {
+                                is_sel = true;
                                 if (notificationDest.Interval == null)
                                 {
-                                    result_disp.Add(new NotificationsModel
-                                    {
-                                        ID = notification.Id.ToString(),
-                                        NotificationName = notification.NotificationName,
-                                        SendVia = notificationDest.SendVia,
-                                        SendTo = notificationDest.SendTo
-
-                                    });
+                                    send_to.Add(notificationDest.SendTo);
+                                    send_via.Add(notificationDest.SendVia);
                                 }
                             }
                         }
+                        is_selected_hour.Add(is_sel);
 
                     }
 
+                    result_disp.Add(new NotificationsModel
+                    {
+                        ID = notification.Id.ToString(),
+                        NotificationName = notification.NotificationName,
+                        SendVia = String.Join(", ", send_via.ToArray()),
+                        SendTo = String.Join(", ", send_to.ToArray()),
+                        SendViaList = send_via,
+                        SendToList = send_to,
+                        BusinessHoursIds = hour_ids,
+                        IsSelectedHour = is_selected_hour,
+                        EventIds = event_ids,
+                        IsSelectedEvent = is_selected_event,
+                        ServerIds = server_ids,
+                        IsSelectedServer = is_selected_server
+                    });
+
+                    //if (notificationDest.Interval == null)
+                    //{
+
+                    //}
+
+                    //foreach (var sendto in notification.SendList)
+                    //{
+                    //    foreach (var notificationDest in notificationDestinations)
+                    //    {
+                    //        if (sendto == notificationDest.Id)
+                    //        {
+                    //            if (notificationDest.Interval == null)
+                    //            {
+                    //                result_disp.Add(new NotificationsModel
+                    //                {
+                    //                    ID = notification.Id.ToString(),
+                    //                    NotificationName = notification.NotificationName,
+                    //                    SendVia = String.Join(", ", send_via.ToArray()),
+                    //                    SendTo = String.Join(", ", send_to.ToArray()),
+                    //                    BusinessHoursIds = hour_ids,
+                    //                    IsSelectedHour = is_selected_hour,
+                    //                    EventIds = event_ids,
+                    //                    IsSelectedEvent = is_selected_event,
+                    //                    ServerIds = server_ids,
+                    //                    IsSelectedServer = is_selected_server
+                    //                });
+                    //            }
+                    //        }
+                    //    }
+                    //}
                 }
                 result.Add(result_disp);
                 result.Add(result_sendto);
                 result.Add(result_escalateto);
+                result.Add(result_events);
+                result.Add(result_servers);
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return result;
+        }
+
+        [HttpGet("notifications_list")]
+        public APIResponse GetNotifications()
+        {
+            List<dynamic> result = new List<dynamic>();
+            
+            try
+            {
+                result = GetNotificationsList();
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("get_scripts")]
+        public APIResponse GetScripts()
+        {
+            try
+            {
+                scriptsRepository = new Repository<Scripts>(ConnectionString);
+                var result = scriptsRepository.Collection.AsQueryable()
+                .Select(s => new ScriptDefinition
+                {
+                    Id = s.Id,
+                    ScriptName = s.ScriptName,
+                    ScriptCommand = s.ScriptCommand,
+                    ScriptLocation = s.ScriptLocation
+                }).OrderBy(x => x.ScriptName).ToList();
                 Response = Common.CreateResponse(result);
             }
             catch (Exception ex)
@@ -3238,7 +3406,7 @@ namespace VitalSigns.API.Controllers
                 {
                     bushrsid = bushrs[0].Id;
                 }
-                if (string.IsNullOrEmpty(notificationDefinition.HoursDestinationsID))
+                if (string.IsNullOrEmpty(notificationDefinition.ID))
                 {
                     NotificationDestinations hoursdata = new NotificationDestinations
                     {
@@ -3262,9 +3430,9 @@ namespace VitalSigns.API.Controllers
                             {
                                 hoursname = hourstype[0].Name;
                             }
-                            result_sendto.Add(new NotificationsModel
+                            result_sendto.Add(new HourDefinition
                             {
-                                HoursDestinationsID = notificationDest.Id.ToString(),
+                                Id = notificationDest.Id.ToString(),
                                 SendVia = notificationDest.SendVia,
                                 SendTo = notificationDest.SendTo,
                                 CopyTo = notificationDest.CopyTo == null ? "" : notificationDest.CopyTo,
@@ -3278,7 +3446,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    filterDef = notificationDestRepository.Filter.Eq(x => x.Id, notificationDef.HoursDestinationsID);
+                    filterDef = notificationDestRepository.Filter.Eq(x => x.Id, notificationDef.ID);
                     
                     if (notificationDef.SendVia != "E-mail")
                     {
@@ -3318,7 +3486,7 @@ namespace VitalSigns.API.Controllers
             {
                 NotificationsModel notificationDef = notificationDefinition;
                 notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
-                if (string.IsNullOrEmpty(notificationDefinition.EscalationId))
+                if (string.IsNullOrEmpty(notificationDefinition.ID))
                 {
                     NotificationDestinations hoursdata = new NotificationDestinations
                     {
@@ -3345,7 +3513,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    filterDef = notificationDestRepository.Filter.Eq(x => x.Id, notificationDef.EscalationId);
+                    filterDef = notificationDestRepository.Filter.Eq(x => x.Id, notificationDef.ID);
 
                     if (notificationDef.SendVia != "Script")
                     {
@@ -3372,13 +3540,307 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpPut("save_notification_definition")]
-        public APIResponse UpdateNotificationDefinition([FromBody]NotificationDefinition notificationDefinition)
+        [HttpPut("save_script")]
+        public APIResponse UpdateScript([FromBody]ScriptDefinition scriptDefinition)
         {
-            List<dynamic> result = new List<dynamic>();
+            FilterDefinition<Scripts> filterDef;
+            List<dynamic> result_scripts = new List<dynamic>();
+            UpdateDefinition<Scripts> updateScripts;
+            bool result = false;
             try
             {
-                Response = Common.CreateResponse(result);
+                scriptsRepository = new Repository<Scripts>(ConnectionString);
+                if (string.IsNullOrEmpty(scriptDefinition.Id))
+                {
+                    Scripts scriptdata = new Scripts
+                    {
+                        ScriptName = scriptDefinition.ScriptName,
+                        ScriptCommand = scriptDefinition.ScriptCommand,
+                        ScriptLocation = scriptDefinition.ScriptLocation
+                    };
+                    scriptdata.Id = scriptsRepository.Insert(scriptdata);
+                    var scriptList = scriptsRepository.Collection.AsQueryable().ToList();
+                    foreach (var scriptval in scriptList)
+                    {
+                        result_scripts.Add(new ScriptDefinition
+                        {
+                            Id = scriptval.Id.ToString(),
+                            ScriptName = scriptval.ScriptName,
+                            ScriptCommand = scriptval.ScriptCommand,
+                            ScriptLocation = scriptval.ScriptLocation
+                        });
+                    }
+                    Response = Common.CreateResponse(result_scripts, "OK", "Hours and Destinations inserted successfully.");
+                }
+                else
+                {
+                    filterDef = scriptsRepository.Filter.Eq(x => x.Id, scriptDefinition.Id);
+                    updateScripts = scriptsRepository.Updater.Set(x => x.ScriptName, scriptDefinition.ScriptName)
+                       .Set(x => x.ScriptCommand, scriptDefinition.ScriptCommand)
+                       .Set(x => x.ScriptLocation, scriptDefinition.ScriptLocation);
+                    result = scriptsRepository.Update(filterDef, updateScripts);
+                    Response = Common.CreateResponse(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+                Console.WriteLine("error: " + ex.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_notification_definition")]
+        public APIResponse UpdateNotificationDefinition([FromBody]NotificationsModel notificationDefinition)
+        {
+            //List<dynamic> result = new List<dynamic>();
+            FilterDefinition<Notifications> filterNotificationDef;
+            UpdateDefinition<Notifications> updateNotificationDef;
+            FilterDefinition<Server> filterServerDef;
+            FilterDefinition<EventsMaster> filterEventsDef;
+            List<string> notificationData = new List<string>();
+            List<string> serversData = new List<string>();
+            List<string> eventsData = new List<string>();
+            List<string> tempList = new List<string>();
+            List<dynamic> saveresult = new List<dynamic>();
+            string _id = "";
+            try
+            {
+                _id = notificationDefinition.ID;
+                List<string> businessHoursIds = notificationDefinition.BusinessHoursIds;
+                List<bool> selectedHours = notificationDefinition.IsSelectedHour;
+                List<string> eventIds = notificationDefinition.EventIds;
+                List<bool> selectedEvents = notificationDefinition.IsSelectedEvent;
+                List<string> serverIds = notificationDefinition.ServerIds;
+                List<bool> selectedServers = notificationDefinition.IsSelectedServer;
+
+                notificationsRepository = new Repository<Notifications>(ConnectionString);
+                serversRepository = new Repository<Server>(ConnectionString);
+                eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
+
+                notificationData = new List<string>();
+                foreach (var hour in businessHoursIds)
+                {
+                    var ind = businessHoursIds.IndexOf(hour);
+                    if (ind != -1)
+                    {
+                        var val = selectedHours[ind];
+                        if (val)
+                        {
+                            notificationData.Add(hour);
+                        }
+                    }
+                }
+
+                serversData = new List<string>();
+                foreach (var server in serverIds)
+                {
+                    var ind = serverIds.IndexOf(server);
+                    if (ind != -1)
+                    {
+                        var val = selectedServers[ind];
+                        if (val)
+                        {
+                            serversData.Add(server);
+                        }
+                    }
+                }
+
+                eventsData = new List<string>();
+                foreach (var eventval in eventIds)
+                {
+                    var ind = eventIds.IndexOf(eventval);
+                    if (ind != -1)
+                    {
+                        var val = selectedEvents[ind];
+                        if (val)
+                        {
+                            eventsData.Add(eventval);
+                        }
+                    }
+                }
+
+                // Create a new notification definition
+                if (_id == null || _id == "")
+                {
+                    // 1. Create a notifications document with a list of hours and destinations and escalation id's in SendList
+
+                    Notifications notification = new Notifications();
+                    notification.Id = ObjectId.GenerateNewId().ToString();
+                    _id = notification.Id;
+                    notification.NotificationName = notificationDefinition.NotificationName;
+                    notification.SendList = notificationData;
+                    notificationsRepository.Insert(notification);
+
+                    // 2. Update the server documents with a list of notifications - add a notification to NotificationList
+
+                    filterServerDef = serversRepository.Filter.In(x => x.Id, serversData);
+                    var serverList = serversRepository.Find(filterServerDef);
+
+                    foreach (var serverDef in serverList)
+                    {
+                        tempList = new List<string>();
+                        if (serverDef.NotificationList != null)
+                        {
+                            var notificationList = serverDef.NotificationList.ToList();
+                            int ind = notificationList.FindIndex(x => x == notification.Id);
+                            if (ind < 0)
+                            {
+                                serverDef.NotificationList.Add(notification.Id);
+                            }
+                        }
+                        else
+                        {
+                            tempList.Add(notification.Id);
+                            serverDef.NotificationList = tempList;
+                        }
+                        serversRepository.Replace(serverDef);
+                    }
+
+                    // 3. Update the events_master documents with a list of notifications - add a notificaion to NotificationList
+
+                    filterEventsDef = eventsMasterRepository.Filter.In(x => x.Id, eventsData);
+                    var eventsList = eventsMasterRepository.Find(filterEventsDef);
+
+                    foreach (var eventDef in eventsList)
+                    {
+                        tempList = new List<string>();
+                        if (eventDef.NotificationList != null)
+                        {
+                            var notificationList = eventDef.NotificationList.ToList();
+                            int ind = notificationList.FindIndex(x => x == notification.Id);
+                            if (ind < 0)
+                            {
+                                eventDef.NotificationList.Add(notification.Id);
+                            }                            
+                        }
+                        else
+                        {
+                            tempList.Add(notification.Id);
+                            eventDef.NotificationList = tempList;                            
+                        }
+                        eventsMasterRepository.Replace(eventDef);
+                    }
+                    saveresult = GetNotificationsList();
+                    Response = Common.CreateResponse(saveresult, "OK", "Hours and Destinations inserted successfully.");
+                }
+                // Update an existing notification definition
+                else
+                {
+                    // 1. Update the notifications document with a list of hours and destinations and escalation id's
+
+                    filterNotificationDef = notificationsRepository.Filter.Eq(x => x.Id, _id);
+                    updateNotificationDef = notificationsRepository.Updater.Set(x => x.SendList, notificationData).Set(x => x.NotificationName, notificationDefinition.NotificationName);
+                    var result = notificationsRepository.Update(filterNotificationDef, updateNotificationDef);
+
+                    // 2. Update the server documents with a list of notifications. The algorithm is as follows:
+                    //    2.1. Get server documents that have a NotificationList embedded document containing the notification id
+                    //    2.2. Parse the documents and update the NotificationList of the ones that are no longer associated with the notification
+                    //    2.3. Get server documents that match the id's listed in the notification - serversData
+                    //    2.4. Update the NotificationList of the documents by adding the current notification id to NotificationList
+
+                    filterServerDef = serversRepository.Filter.AnyEq(x => x.NotificationList, _id);
+                    var serversList = serversRepository.Find(filterServerDef).ToList();
+
+                    if (serversList.Count > 0)
+                    {
+                        foreach (var serverDef in serversList)
+                        {
+                            if (!serversData.Contains(serverDef.Id))
+                            {
+                                if (serverDef.NotificationList != null)
+                                {
+                                    var notificationList = serverDef.NotificationList.ToList();
+                                    var itemToRemove = notificationList.Single(r => r == _id);
+                                    serverDef.NotificationList.Remove(itemToRemove);
+                                    serversRepository.Replace(serverDef);
+                                }
+
+                            }
+                        }
+                    }
+
+                    filterServerDef = serversRepository.Filter.In(x => x.Id, serversData);
+                    serversList = serversRepository.Find(filterServerDef).ToList();
+
+                    if (serversList.Count > 0)
+                    {
+                        foreach (var serverDef in serversList)
+                        {
+                            tempList = new List<string>();
+                            if (serverDef.NotificationList != null)
+                            {
+                                var notificationList = serverDef.NotificationList.ToList();
+                                int ind = notificationList.FindIndex(x => x == _id);
+                                if (ind < 0)
+                                {
+                                    serverDef.NotificationList.Add(_id);
+                                } 
+                            }
+                            else
+                            {
+                                tempList.Add(_id);
+                                serverDef.NotificationList = tempList;
+                            }
+                            serversRepository.Replace(serverDef);
+                        }
+                    }
+
+                    // 3. Update the events_master documents with a list of notifications. The algorithm is as follows:
+                    //    2.1. Get events_master documents that have a NotificationList embedded document containing the notification id
+                    //    2.2. Parse the documents and update the NotificationList of the ones that are no longer associated with the notification
+                    //    2.3. Get events_master documents that match the id's listed in the notification - eventsData
+                    //    2.4. Update the NotificationList of the documents by adding the current notification id to NotificationList
+
+                    filterEventsDef = eventsMasterRepository.Filter.AnyEq(x => x.NotificationList, _id);
+                    var eventsList = eventsMasterRepository.Find(filterEventsDef).ToList();
+
+                    if (eventsList.Count > 0)
+                    {
+                        foreach (var eventDef in eventsList)
+                        {
+                            if (!eventsData.Contains(eventDef.Id))
+                            {
+                                if (eventDef.NotificationList != null)
+                                {
+                                    var notificationList = eventDef.NotificationList.ToList();
+                                    var itemToRemove = notificationList.Single(r => r == _id);
+                                    eventDef.NotificationList.Remove(itemToRemove);
+                                    eventsMasterRepository.Replace(eventDef);
+                                }
+
+                            }
+                        }
+                    }
+
+                    filterEventsDef = eventsMasterRepository.Filter.In(x => x.Id, eventsData);
+                    eventsList = eventsMasterRepository.Find(filterEventsDef).ToList();
+
+                    if (eventsList.Count > 0)
+                    {
+                        foreach (var eventDef in eventsList)
+                        {
+                            tempList = new List<string>();
+                            if (eventDef.NotificationList != null)
+                            {
+                                var notificationList = eventDef.NotificationList.ToList();
+                                int ind = notificationList.FindIndex(x => x == _id);
+                                if (ind < 0)
+                                {
+                                    eventDef.NotificationList.Add(_id);
+                                }                                
+                            }
+                            else
+                            {
+                                tempList.Add(_id);
+                                eventDef.NotificationList = tempList;
+                            }
+                            eventsMasterRepository.Replace(eventDef);
+                        }
+                    }
+                    saveresult = GetNotificationsList();
+                    Response = Common.CreateResponse(saveresult, "OK", "Hours and Destinations inserted successfully.");
+                }
             }
             catch (Exception ex)
             {
@@ -3402,14 +3864,73 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpDelete("delete_script/{id}")]
+        public void DeleteScript(string id)
+        {
+            try
+            {
+                scriptsRepository = new Repository<Scripts>(ConnectionString);
+                Expression<Func<Scripts, bool>> expression = (p => p.Id == id);
+                scriptsRepository.Delete(expression);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+            }
+        }
+
         [HttpDelete("delete_notification_definition/{id}")]
         public void DeleteNotificationDefinition(string id)
         {
-            notificationsRepository = new Repository<Notifications>(ConnectionString);
-            Expression<Func<Notifications, bool>> expression = (p => p.Id == id);
-            notificationsRepository.Delete(expression);
-            //Update the events_master collection - remove id from the notifications embedded document
-            //Update the server collection - remove id from the notifications embedded document
+            FilterDefinition<Server> filterServerDef;
+            FilterDefinition<EventsMaster> filterEventsDef;
+            try
+            {
+                // 1. Delete the notification document from the notifications collection
+
+                notificationsRepository = new Repository<Notifications>(ConnectionString);
+                Expression<Func<Notifications, bool>> expression = (p => p.Id == id);
+                notificationsRepository.Delete(expression);
+
+                // 2. Update the events_master collection - remove id from the notifications embedded document
+
+                eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
+                filterEventsDef = eventsMasterRepository.Filter.AnyEq(x => x.NotificationList, id);
+                var eventsList = eventsMasterRepository.Find(filterEventsDef).ToList();
+
+                if (eventsList.Count > 0)
+                {
+                    foreach (var eventDef in eventsList)
+                    {
+                        var notificationList = eventDef.NotificationList.ToList();
+                        var itemToRemove = notificationList.Single(r => r == id);
+                        eventDef.NotificationList.Remove(itemToRemove);
+                        eventsMasterRepository.Replace(eventDef);
+                    }
+                }
+
+                // 3. Update the server collection - remove id from the notifications embedded document
+
+                serversRepository = new Repository<Server>(ConnectionString);
+                filterServerDef = serversRepository.Filter.AnyEq(x => x.NotificationList, id);
+                var serversList = serversRepository.Find(filterServerDef).ToList();
+
+                if (serversList.Count > 0)
+                {
+                    foreach (var serverDef in serversList)
+                    {
+                        var notificationList = serverDef.NotificationList.ToList();
+                        var itemToRemove = notificationList.Single(r => r == id);
+                        serverDef.NotificationList.Remove(itemToRemove);
+                        serversRepository.Replace(serverDef);
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Notification falied .\n Error Message :" + exception.Message);
+            }
+            
 
         }
         #endregion
