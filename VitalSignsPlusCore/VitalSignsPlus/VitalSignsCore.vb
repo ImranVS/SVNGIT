@@ -5718,7 +5718,7 @@ CleanUp:
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
 
-                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
                 'Dim adapter As New VSAdaptor()
@@ -5972,7 +5972,7 @@ CleanUp:
                             'DailyStats.UsageCount = row("Num_Of_Blog_Tags").ToString()
                             'DailyStats.Type = "NumOfBlogTagUses"
                             'repo.Insert(DailyStats)
-                            addSummaryStats(myServer.ServerObjectID, myServer.Name, "NumOfBlogTagUses." + row("Name").ToString(), row("Num_Of_Blog_Tags").ToString())
+                            addSummaryStats(myServer, "NumOfBlogTagUses." + row("Name").ToString(), row("Num_Of_Blog_Tags").ToString())
                         Next
                         'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
                     End If
@@ -6000,7 +6000,7 @@ CleanUp:
                             'IbmConnectionsTopStats.UsageCount = row("Num_Of_Entry_Tags").ToString()
                             'IbmConnectionsTopStats.Type = "NumOfEntryTagUses"
                             'repo.Insert(IbmConnectionsTopStats)
-                            addSummaryStats(myServer.ServerObjectID, myServer.Name, "NumOfEntryTagUses." + row("Name").ToString(), row("Num_Of_Entry_Tags").ToString())
+                            addSummaryStats(myServer, "NumOfEntryTagUses." + row("Name").ToString(), row("Num_Of_Entry_Tags").ToString())
                         Next
                         'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
                     End If
@@ -6031,11 +6031,7 @@ CleanUp:
                             Val = Int(20 * Rnd()) + 1
                         End If
                     End If
-                    Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
-                    SummaryStats.DeviceId = myServer.ServerObjectID
-                    SummaryStats.StatName = Name.ToUpper()
-                    SummaryStats.StatValue = Val
-                    repoSummary.Insert(SummaryStats)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
 
                 Next
@@ -6202,14 +6198,16 @@ CleanUp:
         End Try
 
     End Sub
-    Public Sub addSummaryStats(id As String, serverName As String, statName As String, statVal As String)
+    Public Sub addSummaryStats(myServer As MonitoredItems.MonitoredDevice, statName As String, statVal As String)
         Try
             Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
-            SummaryStats.DeviceName = serverName
+            SummaryStats.DeviceName = myServer.Name
             SummaryStats.StatName = statName
             SummaryStats.StatValue = Double.Parse(statVal)
-            SummaryStats.DeviceId = id
+            SummaryStats.DeviceId = myServer.ServerObjectID
+            SummaryStats.DeviceType = myServer.ServerType
+            SummaryStats.StatDate = DateTime.Now()
             repo.Insert(SummaryStats)
         Catch ex As Exception
 
@@ -6304,7 +6302,7 @@ CleanUp:
                         'IbmConnectionsTopStats.Type = "NumOfCommunityTagUses"
                         'repo.Insert(IbmConnectionsTopStats)
                         'counter += 1
-                        addSummaryStats(myServer.ServerObjectID, myServer.Name, "NumOfCommunityTagUses." + row("Name").ToString(), row("TOP_TAG_COUNT").ToString())
+                        addSummaryStats(myServer, "NumOfCommunityTagUses." + row("Name").ToString(), row("TOP_TAG_COUNT").ToString())
                     Next
                     'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
                 End If
@@ -6327,7 +6325,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
 
@@ -6677,7 +6675,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
 
@@ -6760,7 +6758,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
 
@@ -6940,7 +6938,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
 
@@ -7170,7 +7168,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
 
@@ -7393,7 +7391,7 @@ CleanUp:
                     End If
 
                     'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
-                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
 
@@ -7543,7 +7541,7 @@ CleanUp:
                             Val = Int(20 * Rnd()) + 1
                         End If
                     End If
-                    addSummaryStats(myServer.ServerObjectID, myServer.Name, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
             Catch ex As Exception
