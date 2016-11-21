@@ -44,12 +44,47 @@ export class BusinessHours extends GridBase implements OnInit {
         this.initialGridBind('/Configurator/get_business_hours');
     } 
     saveBusinessHour(dlg: wijmo.input.Popup) {        
-        this.saveGridRow('/Configurator/save_business_hours',dlg);  
+        //if (this.currentEditItem.sunday == false && this.currentEditItem.monday == false && this.currentEditItem.tuesday == false &&
+        //    this.currentEditItem.wednesday == false && this.currentEditItem.thursday == false && this.currentEditItem.friday == false &&
+        //    this.currentEditItem.saturday == false) {
+        //    alert("Please select at least one day");
+        //}
+        //else {
+
+            this.saveGridRow('/Configurator/save_business_hours', dlg);
+        //}
 
     }
     
     delteBusinessHour() {      
         this.delteGridRow('/Configurator/delete_business_hours/');  
+    }
+
+    editBusinessHours(dlg: wijmo.input.Popup) {
+        this.editGridRow(dlg);
+        console.log(this.currentEditItem.use_type);
+    }
+
+    selectAllClick(index: any) {
+        this.currentEditItem.sunday = true;
+        this.currentEditItem.monday = true;
+        this.currentEditItem.tuesday = true;
+        this.currentEditItem.wednesday = true;
+        this.currentEditItem.thursday = true;
+        this.currentEditItem.friday = true;
+        this.currentEditItem.saturday = true;
+       
+    }
+
+    deselectAllClick(index: any) {
+
+        this.currentEditItem.sunday = false;
+        this.currentEditItem.monday = false;
+        this.currentEditItem.tuesday = false;
+        this.currentEditItem.wednesday = false;
+        this.currentEditItem.thursday = false;
+        this.currentEditItem.friday = false;
+        this.currentEditItem.saturday = false;
     }
 }
 
