@@ -37,7 +37,7 @@ export class HourlyStatisticsReport extends WidgetController {
             this.title = params['title'];
         });
         console.log(this.statname);
-
+        var date = new Date(2016, 10, 17);
         this.service.get('/navigation/sitemaps/server_reports')
             .subscribe
             (
@@ -54,7 +54,8 @@ export class HourlyStatisticsReport extends WidgetController {
                 //title: `${this.title}`,
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/dailystats_hourly_chart?statName=${this.statname}`,
+                    url: `/reports/dailystats_hourly_chart?statName=${this.statname}&date=${date.toISOString()}`,
+                    dateformat: "hour",
                     chart: {
                         chart: {
                             renderTo: 'report',

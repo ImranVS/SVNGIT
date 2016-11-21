@@ -46,7 +46,6 @@ export class ServerAvailabilityReport extends WidgetController {
         this.widgets = [
             {
                 id: 'blogs',
-                title: 'Response Times',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {

@@ -27,10 +27,11 @@ namespace VitalSigns.API.Controllers
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
 
-        private string DateFormat = "yyyy-MM-dd";
+        //private string DateFormat = "yyyy-MM-dd";
+        private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         private IRepository<DominoServerTasks> doimoServerTasksRepository;
         private IRepository<IbmConnectionsObjects> connectionsRepository;
-        private string DateFormatMonthYear = "yyyy-MM";
+        //private string DateFormatMonthYear = "yyyy-MM";
 
 
         [HttpGet("disk_availability_trend")]
@@ -51,26 +52,26 @@ namespace VitalSigns.API.Controllers
             {
                 if (string.IsNullOrEmpty(deviceId))
                 {
-                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart),
-                    summaryRepository.Filter.Lt(p => p.CreatedOn, dtEnd),
+                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
+                    summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression("/Disk.*Free/i")));
                 }
                 else
                 {
-                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart),
-                    summaryRepository.Filter.Lt(p => p.CreatedOn, dtEnd),
+                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
+                    summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Eq(p => p.DeviceId, deviceId),
                     summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression("/Disk.*Free/i")));
                 }
-                var summarylist = summaryRepository.Find(filterDef).OrderBy(p => p.CreatedOn).ToList();
+                var summarylist = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
 
                 var result = summarylist
                     .GroupBy(row => new
                     {
-                        row.CreatedOn.Year,
-                        row.CreatedOn.Month,
+                        row.StatDate.Value.Year,
+                        row.StatDate.Value.Month,
                         row.DeviceId,
                         row.StatName,
                         row.DeviceName
@@ -123,11 +124,11 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetServerUtilization(string deviceId = "", string statName = "")
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
-            string startDate = DateTime.Now.AddDays(-30).ToString(DateFormat);
+           // string startDate = DateTime.UtcNow.AddDays(-30).ToString(DateFormat);
 
-            DateTime dtStart = DateTime.Parse(startDate);
+            DateTime dtStart = DateTime.UtcNow.AddDays(-30).ToUniversalTime();
 
-            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+            //dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
 
             System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
@@ -137,18 +138,18 @@ namespace VitalSigns.API.Controllers
             {
                 if (string.IsNullOrEmpty(deviceId))
                 {
-                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart),
+                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Eq(p => p.StatName, statName));
                 }
                 else
                 {
-                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart),
+                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Eq(p => p.DeviceId, deviceId),
                     summaryRepository.Filter.Eq(p => p.StatName, statName));
                 }
-                var summarylist = summaryRepository.Find(filterDef).OrderBy(p => p.CreatedOn).ToList();
+                var summarylist = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
                 serverlist = serverRepository.Collection.Aggregate().Match(_ => true).ToList();
                 var result = summarylist
                     .GroupBy(row => new
@@ -226,24 +227,20 @@ namespace VitalSigns.API.Controllers
             {
 
                 if (startDate == "")
-                    startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
+                    startDate = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
 
                 if (endDate == "")
-                    endDate = DateTime.Today.ToString(DateFormat);
-
-                //1 day is added to the end so we include that days data
-                DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
-                DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
-
-                dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
-                dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+                    endDate = DateTime.UtcNow.ToString(DateFormat);
+                
+                DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
+                DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1).ToUniversalTime();
 
                 summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
 
                 var filterDef = summaryRepository.Filter.Eq(x => x.DeviceType, type) &
                     summaryRepository.Filter.Eq(x => x.StatName, statName) &
-                    summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
-                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
+                    summaryRepository.Filter.Gte(p => p.StatDate, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.StatDate, dtEnd);
 
                 var results = summaryRepository.Find(filterDef).ToList();
 
@@ -279,7 +276,8 @@ namespace VitalSigns.API.Controllers
                     expandoObj.Add("Device Name", results[0].DeviceName);
                     foreach (var entity in results)
                     {
-                        expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
+                        //expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
+                        expandoObj.Add(entity.StatDate.Value.ToString(DateFormat), entity.StatValue);
                     }
                     expandoObj.Add(aggregationDisplay, aggregatedValue);
                 }
@@ -306,19 +304,15 @@ namespace VitalSigns.API.Controllers
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
             if (startDate == "")
-                startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
+                startDate = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
 
             if (endDate == "")
-                endDate = DateTime.Today.ToString(DateFormat);
+                endDate = DateTime.UtcNow.ToString(DateFormat);
 
             //1 day is added to the end so we include that days data
-            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
-            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
+            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1).ToUniversalTime();
 
-            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
-            dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
-
-            System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
 
             List<String> listOfDevices;
@@ -344,9 +338,10 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
-                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd) &
-                    summaryRepository.Filter.Eq(p => p.StatName, statName);
+                filterDef = summaryRepository.Filter.Gte(p => p.StatDate, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.StatDate, dtEnd) &
+                    summaryRepository.Filter.Eq(p => p.StatName, statName) &
+                    summaryRepository.Filter.Ne(p => p.DeviceName, null);
 
                 if (listOfDevices.Count > 0)
                 {
@@ -356,7 +351,7 @@ namespace VitalSigns.API.Controllers
                 {
                     filterDef = filterDef & summaryRepository.Filter.In(p => p.DeviceType, listOfTypes);
                 }
-                var result = summaryRepository.Find(filterDef).OrderBy(p => p.CreatedOn).ToList();
+                var result = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
 
                 List<Serie> series = new List<Serie>();
 
@@ -367,11 +362,11 @@ namespace VitalSigns.API.Controllers
                     serie.Segments = new List<Segment>();
                     serie.Title = currList[0].DeviceName;
 
-                    for (DateTime date = dtStart.Date; date.Date < dtEnd.Date; date = date.AddDays(1))
+                    for (DateTime date = dtStart; date < dtEnd; date = date.AddDays(1))
                     {
-                        var item = currList.Where(x => x.CreatedOn.Date == date.Date).ToList();
+                        var item = currList.Where(x => x.StatDate.Value.Date == date.Date).ToList();
 
-                        serie.Segments.Add(new Segment() { Label = date.Date.ToString(DateFormat), Value = item.Count > 0 ? (double?)item[0].StatValue : null });
+                        serie.Segments.Add(new Segment() { Label = date.ToString(DateFormat), Value = item.Count > 0 ? (double?)item[0].StatValue : null });
                     }
                     series.Add(serie);
                 }
@@ -392,17 +387,14 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("dailystats_hourly_chart")]
-        public APIResponse GetDailyStatsChart(string statName, string deviceId = "", string date = "", string type = "")
+        public APIResponse GetDailyStatsChart(string statName, string date, string deviceId = "", string type = "")
         {
             FilterDefinition<DailyStatistics> filterDef = null;
-            if (date == "")
-                date = DateTime.Now.Date.ToString(DateFormat);
-
 
             //1 day is added to the end so we include that days data
-            DateTime dtDate = DateTime.ParseExact(date, DateFormat, CultureInfo.InvariantCulture);
+            DateTime dtDate = DateTime.ParseExact(date, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime(); 
 
-            dtDate = DateTime.SpecifyKind(dtDate, DateTimeKind.Utc);
+            //dtDate = DateTime.SpecifyKind(dtDate, DateTimeKind.Utc);
 
             System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
@@ -447,6 +439,7 @@ namespace VitalSigns.API.Controllers
                     .Group(x => new
                     {
                         Hour = x.CreatedOn.Hour,
+                        //Date = x.CreatedOn.Date,
                         DeviceId = x.DeviceId,
                         DeviceName = x.DeviceName
                     }, y => new
@@ -457,6 +450,8 @@ namespace VitalSigns.API.Controllers
                     .Project(y => new
                     {
                         Hour = y.Key.Hour,
+
+                        //DateHour = 
                         StatValue = y.Average,
                         DeviceName = y.Key.DeviceName,
                         DeviceId = y.Key.DeviceId
@@ -471,12 +466,22 @@ namespace VitalSigns.API.Controllers
                     serie.Segments = new List<Segment>();
                     serie.Title = currList[0].DeviceName;
 
-                    for (var hour = 0; hour < 24; hour++)
+                    for(var tempDate = dtDate; tempDate < dtDate.AddDays(1); tempDate = tempDate.AddHours(1))
                     {
-                        var item = currList.Where(x => x.Hour == hour).ToList();
+                        var item = currList.Where(x => x.Hour == tempDate.Hour).ToList();
 
-                        serie.Segments.Add(new Segment() { Label = hour.ToString(), Value = item.Count > 0 ? (double?)item[0].StatValue : null });
+                        serie.Segments.Add(new Segment() { Label = tempDate.ToString(DateFormat), Value = item.Count > 0 ? (double?)item[0].StatValue : null });
+
                     }
+
+                    //for (var hour = 0; hour < 24; hour++)
+                    //{
+                    //    var item = currList.Where(x => x.Hour == hour).ToList();
+
+                    //    serie.Segments.Add(new Segment() { Label = dtDate.AddHours( (hour - dtDate.Hour) > 0 ? (hour - dtDate.Hour) : (hour - dtDate.Hour + 24) ).ToString(DateFormat), Value = item.Count > 0 ? (double?)item[0].StatValue : null });
+                    //}
+
+
                     series.Add(serie);
                 }
 
@@ -503,47 +508,10 @@ namespace VitalSigns.API.Controllers
                 //string statName = "HourlyDownTimeMinutes";
                 //string statName = "DeviceUpTimeStats";
                 if (month == "")
-                    month = DateTime.Now.Date.ToString(DateFormatMonthYear);
+                    month = DateTime.UtcNow.Date.ToString(DateFormatMonthYear);
 
-                DateTime dtStart = DateTime.ParseExact(month, DateFormatMonthYear, CultureInfo.InvariantCulture);
-                DateTime dtEnd = DateTime.ParseExact(month, DateFormatMonthYear, CultureInfo.InvariantCulture).AddMonths(1).AddDays(-1);
-
-                //if (reportType == "minutes")
-                //{
-                //    Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
-                //    List<Serie> series = chart.Series.ToList();
-                //    List<Segment> segments = new List<Segment>();
-                //    foreach (Serie currSerie in series)
-                //    {
-
-                //        segments.Add(new Segment() { Label = currSerie.Title, Value = currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) });
-
-                //    }
-
-                //    Serie serie = new Serie();
-                //    serie.Title = "";
-                //    serie.Segments = segments;
-                //    chart.Series = new List<Serie>() { serie };
-
-                //    return Common.CreateResponse(chart);
-                //}
-                //else if(reportType == "percent")
-                //{
-                //    Chart chartUp = ((Chart)(GetSumamryStatsChart("DeviceUpTimeStats", deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
-                //    Chart chartDown = ((Chart)(GetSumamryStatsChart("HourlyDownTimeMinutes", deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
-
-                //    List <Segment> segments = new List<Segment>();
-                //    foreach (string deviceName in chartUp.Series.Select(x => x.Title).Union(chartDown.Series.Select(x => x.Title)).Distinct())
-                //    {
-                //        int up = chartUp.Series.Where(x => x.Title == deviceName).Count() > 0 ? Convert.ToInt32(chartUp.Series.Where(x => x.Title == deviceName).First().Segments.Sum(x => x.Value)) : 0;
-                //        int down = chartDown.Series.Where(x => x.Title == deviceName).Count() > 0 ? Convert.ToInt32(chartDown.Series.Where(x => x.Title == deviceName).First().Segments.Sum(x => x.Value)) : 0;
-                //        int percent = ()
-                //        segments.Add(new Segment() { Label = currSerie.Title, Value = currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) });
-
-                //    }
-
-                //}
-
+                DateTime dtStart = DateTime.ParseExact(month, DateFormatMonthYear, CultureInfo.InvariantCulture).ToUniversalTime();
+                DateTime dtEnd = dtStart.AddMonths(1).AddDays(-1).ToUniversalTime();
 
                 Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
                 List<Serie> series = chart.Series.ToList();
@@ -559,7 +527,7 @@ namespace VitalSigns.API.Controllers
                         int minsInMonth;
                         if (dtStart.Year == DateTime.Now.Year && dtStart.Month == DateTime.Now.Month)
                         {
-                            minsInMonth = (int)((DateTime.Now - new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)).TotalMinutes);
+                            minsInMonth = (int)((DateTime.UtcNow - new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1)).TotalMinutes);
                         }
                         else
                         {
@@ -587,45 +555,6 @@ namespace VitalSigns.API.Controllers
             
         }
 
-        //[HttpGet("monthly_server_up_time")]
-        //public APIResponse GetMonthlyServerUpTime(string deviceId = "", string month = "", string type = "", string minValue = "0")
-        //{
-        //    try
-        //    {
-                
-        //        if (month == "")
-        //            month = DateTime.Now.Date.ToString(DateFormatMonthYear);
-
-        //        DateTime dtStart = DateTime.ParseExact(month, DateFormat, CultureInfo.InvariantCulture);
-        //        DateTime dtEnd = DateTime.ParseExact(month, DateFormat, CultureInfo.InvariantCulture).AddMonths(1).AddDays(-1);
-
-        //        Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
-        //        List<Serie> series = chart.Series.ToList();
-        //        List<Segment> segments = new List<Segment>();
-        //        foreach (Serie currSerie in series)
-        //        {
-
-        //            segments.Add(new Segment() { Label = currSerie.Title, Value = currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) });
-
-        //        }
-
-        //        Serie serie = new Serie();
-        //        serie.Title = "";
-        //        serie.Segments = segments;
-        //        chart.Series = new List<Serie>() { serie };
-
-        //        return Common.CreateResponse(chart);
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        Response = Common.CreateResponse(null, "Error", exception.Message);
-
-        //        return Response;
-        //    }
-
-        //}
-
-
         [HttpGet("cost_per_user")]
         public APIResponse GetCostPerUser(string deviceId = "", string statName = "", bool isChart = true)
         {
@@ -633,9 +562,9 @@ namespace VitalSigns.API.Controllers
             List<dynamic> result = new List<dynamic>();
             FilterDefinition<SummaryStatistics> filterDef = null;
 
-            string startDate = DateTime.Now.AddDays(-30).ToString(DateFormat);
-            DateTime dtStart = DateTime.Parse(startDate);
-            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+            //string startDate = DateTime.Now.AddDays(-30).ToString(DateFormat);
+            DateTime dtStart = DateTime.UtcNow.AddDays(-30).ToUniversalTime();
+            //dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
 
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
             Repository<Server> serverRepository = new Repository<Server>(ConnectionString);
@@ -644,13 +573,13 @@ namespace VitalSigns.API.Controllers
             {
                 if (string.IsNullOrEmpty(deviceId))
                 {
-                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart),
+                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Eq(p => p.StatName, statName));
                 }
                 else
                 {
-                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart),
+                    filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Eq(p => p.DeviceId, deviceId),
                     summaryRepository.Filter.Eq(p => p.StatName, statName));
@@ -658,7 +587,7 @@ namespace VitalSigns.API.Controllers
 
                 if (isChart)
                 {
-                    var summarylist = summaryRepository.Find(filterDef).OrderBy(p => p.CreatedOn).ToList();
+                    var summarylist = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
                     serverlist = serverRepository.Collection.Aggregate().Match(_ => true).ToList();
                     var result1 = summarylist
                         .GroupBy(row => new
@@ -723,7 +652,7 @@ namespace VitalSigns.API.Controllers
                     {
                         row.DeviceId,
                         row.DeviceName,
-                        row.CreatedOn.Date
+                        row.StatDate.Value.Date
                     })
                     .Select(grp => new
                     {
@@ -731,7 +660,7 @@ namespace VitalSigns.API.Controllers
                         DeviceName = grp.Key.DeviceName,
                         Label = grp.Key.DeviceName,
                         StatValue = grp.Average(x => x.StatValue),
-                        CreatedOn = grp.Key.Date
+                        StatDate = grp.Key.Date
                     }).ToList(); ;
                     serverlist = serverRepository.Collection.Aggregate().Match(_ => true).ToList();
                     foreach (var stats in summarylist)
@@ -739,7 +668,7 @@ namespace VitalSigns.API.Controllers
                         var x = new ExpandoObject() as IDictionary<string, Object>;
                         x.Add("device_name", stats.DeviceName);
                         x.Add("user_count", stats.StatValue);
-                        x.Add("date", stats.CreatedOn);
+                        x.Add("date", stats.StatDate);
                         var server = serverlist.Where(p => p.Id == stats.DeviceId).ToList();
                         var bson2 = server[0].ToBsonDocument();
                         var fieldvalue = bson2["monthly_operating_cost"].ToDouble();
@@ -790,7 +719,7 @@ namespace VitalSigns.API.Controllers
                         {
                             if (record.MailServerName == mailserver)
                             {
-                                segments.Add(new Segment { Label = record.CreatedOn.TimeOfDay.ToString(), Value = Convert.ToDouble(record.OpenTimes) });
+                                segments.Add(new Segment { Label = record.CreatedOn.ToString(DateFormat), Value = Convert.ToDouble(record.OpenTimes) });
                                 serie.Title = mailserver;
                             }
                         }
@@ -1036,13 +965,13 @@ namespace VitalSigns.API.Controllers
             try
             {
 
-                List<String> StatNames = new List<string>() { "ResponseTime", "Total2WayChats", "PeakLogins" };
-                StatNames = new List<string>() { "Platform.System.PctCombinedCpuUtil", "ResponseTime", "Mem.PercentUsed" };
+                List<String> StatNames = new List<string>() { "TotalNWayChats", "Total2WayChats", "PeakLogins" };
+                //StatNames = new List<string>() { "Platform.System.PctCombinedCpuUtil", "ResponseTime", "Mem.PercentUsed" };
                 if (startDate == "")
-                    startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
+                    startDate = DateTime.UtcNow.AddDays(-7).ToUniversalTime().ToString(DateFormat);
 
                 if (endDate == "")
-                    endDate = DateTime.Today.ToString(DateFormat);
+                    endDate = DateTime.UtcNow.ToUniversalTime().ToString(DateFormat);
 
                 //1 day is added to the end so we include that days data
                 DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
@@ -1054,8 +983,8 @@ namespace VitalSigns.API.Controllers
                 summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
 
                 var filterDef = summaryRepository.Filter.In(x => x.StatName, StatNames) &
-                    summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
-                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
+                    summaryRepository.Filter.Gte(p => p.StatDate, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.StatDate, dtEnd);
 
                 var results = summaryRepository.Find(filterDef).ToList();
 
@@ -1074,8 +1003,8 @@ namespace VitalSigns.API.Controllers
 
                         foreach (var entity in workingList)
                         {
-                            if(expandoObj.Where(x => x.Key == entity.CreatedOn.ToString("MM/dd/yyyy")).Count() == 0)
-                                expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
+                            if(expandoObj.Where(x => x.Key == entity.StatDate.Value.ToString(DateFormat)).Count() == 0)
+                                expandoObj.Add(entity.StatDate.Value.ToString(DateFormat), entity.StatValue);
                         }
                         
                         listOfObjs.Add(expandoObj);

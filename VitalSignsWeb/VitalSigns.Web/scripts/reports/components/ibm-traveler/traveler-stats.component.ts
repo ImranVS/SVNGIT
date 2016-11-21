@@ -51,6 +51,7 @@ export class TravelerStatsReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/traveler_stats?travelername=azphxdom1/RPRWyatt&paramtype=${this.paramtype}&paramvalue=${this.paramvalue}`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'travelerStatsChart',

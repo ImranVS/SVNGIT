@@ -45,12 +45,11 @@ export class DominoServerConfigurationReportGrid implements WidgetComponent, OnI
 
         var displayDate = (new Date()).toISOString().slice(0, 10);
 
-        this.service.get(`/reports/server_list`)
+        this.service.get(`/reports/server_configuration?type=Domino`)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = 10;
-                this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("Location"));
             },
             (error) => this.errorMessage = <any>error
             );

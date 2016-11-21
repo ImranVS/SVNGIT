@@ -4,6 +4,8 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent, WidgetController, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
+import * as helpers from '../../../core/services/helpers/helpers';
+
 import {Chart} from '../models/chart';
 
 declare var Highcharts: any;
@@ -12,7 +14,8 @@ declare var Highcharts: any;
     template: '',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.DateTimeHelper
     ]
 })
 export class ChartComponent implements WidgetComponent, OnInit {
@@ -21,7 +24,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
     errorMessage: string;
     chart: any;
 
-    constructor(private service: RESTService, private widgetService: WidgetService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     refresh(serviceUrl?: string) {
 
@@ -39,7 +42,20 @@ export class ChartComponent implements WidgetComponent, OnInit {
 
         this.service.get(serviceUrl || this.settings.url)
             .subscribe(data => {
-
+                switch (this.settings.dateformat) {
+                    case "date":
+                        data.data = this.datetimeHelpers.toLocalDate(data.data);
+                        break;
+                    case "datetime":
+                        data.data = this.datetimeHelpers.toLocalDateTime(data.data);
+                        break;
+                    case "hour":
+                        data.data = this.datetimeHelpers.toLocalHour(data.data);
+                        break;
+                    case "time":
+                        data.data = this.datetimeHelpers.toLocalTime(data.data);
+                        break;
+                }
                 if (this.chart) {
                     this.settings.chart.series = [];
                     this.chart.destroy();

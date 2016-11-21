@@ -45,7 +45,8 @@ export class SametimeStatisticsChartReport extends WidgetController {
                 //title: `${this.title}`,
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=TotalnWayChats`,
+                    url: `/reports/summarystats_chart?statName=ResponseTime`,
+                    dateformat: 'date',
                     chart: {
                         chart: {
                             renderTo: 'report',

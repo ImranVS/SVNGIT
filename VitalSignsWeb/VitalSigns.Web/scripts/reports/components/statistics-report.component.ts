@@ -23,6 +23,12 @@ export class StatisticsReport extends WidgetController {
     statname: string;
     title: string;
 
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = false;
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `report`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=${this.statname}`;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute,
         protected urlHelpers: helpers.UrlHelperService) {
 
@@ -37,6 +43,8 @@ export class StatisticsReport extends WidgetController {
             this.title = params['title'];
         });
 
+        this.currentWidgetURL = `/reports/summarystats_chart?statName=${this.statname}`;
+
         this.service.get('/navigation/sitemaps/server_reports')
             .subscribe
             (
@@ -46,14 +54,20 @@ export class StatisticsReport extends WidgetController {
             }
             ,
             error => console.log(error)
-            );
+        );
+
+        var startDate = new Date(2016, 10, 5).toISOString();
+        var endDate = new Date(2016, 10, 20).toISOString();
+
         this.widgets = [
             {
                 id: 'report',
                 //title: `${this.title}`,
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=${this.statname}`,
+                    //url: `/reports/summarystats_chart?statName=${this.statname}&startDate=${startDate}&endDate=${endDate}`,
+                    url: this.currentWidgetURL,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'report',
@@ -101,6 +115,6 @@ export class StatisticsReport extends WidgetController {
         ];
         injectSVG();
         bootstrapNavigator();
-
     }
+
 }
