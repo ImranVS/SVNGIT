@@ -508,9 +508,9 @@ namespace VitalSigns.API.Controllers
                 //string statName = "HourlyDownTimeMinutes";
                 //string statName = "DeviceUpTimeStats";
                 if (month == "")
-                    month = DateTime.UtcNow.Date.ToString(DateFormatMonthYear);
+                    month = DateTime.UtcNow.Date.ToString(DateFormat);
 
-                DateTime dtStart = DateTime.ParseExact(month, DateFormatMonthYear, CultureInfo.InvariantCulture).ToUniversalTime();
+                DateTime dtStart = DateTime.ParseExact(month, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
                 DateTime dtEnd = dtStart.AddMonths(1).AddDays(-1).ToUniversalTime();
 
                 Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
