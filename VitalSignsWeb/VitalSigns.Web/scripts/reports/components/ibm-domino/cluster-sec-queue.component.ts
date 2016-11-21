@@ -34,7 +34,7 @@ export class ClusterSecQueue extends WidgetController {
 
     ngOnInit() {
         var tempDate = new Date();
-        var date = new Date(tempDate.getFullYear(),tempDate.getMonth(),tempDate.getDate(),tempDate.getHours()-1);
+        var date = new Date(tempDate.getFullYear(),tempDate.getMonth(),tempDate.getDate());
         this.service.get('/navigation/sitemaps/domino_reports')
             .subscribe
             (
