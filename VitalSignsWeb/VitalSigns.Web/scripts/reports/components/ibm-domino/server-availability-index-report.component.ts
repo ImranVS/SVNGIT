@@ -46,6 +46,7 @@ export class ServerAvailabilityIndexReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: '/reports/summarystats_chart?statName=Server.AvailabilityIndex',
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'dailyservertranschart',

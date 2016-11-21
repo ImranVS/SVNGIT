@@ -49,6 +49,7 @@ export class AvgCPUUtil extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'avgcpuutilchart',

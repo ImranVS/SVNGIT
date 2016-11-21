@@ -46,6 +46,7 @@ export class ServerAccessBrowserReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: '/reports/summarystats_chart?statName=Domino.Command.OpenDatabase',
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'dailyservertranschart',

@@ -55,6 +55,7 @@ export class DominoResponseTimes extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=ResponseTime`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'dailyservertranschart',

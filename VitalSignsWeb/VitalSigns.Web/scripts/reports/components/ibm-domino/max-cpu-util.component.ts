@@ -49,6 +49,7 @@ export class MaxCPUUtil extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil.Max`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'maxcpuutilchart',
