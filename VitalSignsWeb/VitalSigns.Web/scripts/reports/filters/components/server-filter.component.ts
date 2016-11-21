@@ -17,8 +17,9 @@ export class ServerFilter {
     @Input() widgetURL: string;
     @Input() hideDatePanel: boolean;
     @Input() hideServerControl: boolean;
-    startDate: Date = new Date();
     endDate: Date = new Date();
+    startDate: Date = new Date(this.endDate.getFullYear() ,this.endDate.getMonth(),this.endDate.getDate()-7);
+    
     deviceNameData: any;
     errorMessage: any;
     

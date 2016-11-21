@@ -18,9 +18,11 @@ export class ConnectionsServerFilter {
     @Input() statType: string;
     @Input() hideDatePanel: boolean;
     @Input() hideServerControl: boolean;
-
-    startDate: Date = new Date();
     endDate: Date = new Date();
+    startDate: Date = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate() - 7);
+
+
+    //startDate1:string = this.startDate.getFullYear().toString() + '-' + (this.startDate.getMonth() + 1).toString() + '-' + (this.startDate.getDate()-6).toString();
     deviceNameData: any;
     statNameData: any;
     errorMessage: any;
