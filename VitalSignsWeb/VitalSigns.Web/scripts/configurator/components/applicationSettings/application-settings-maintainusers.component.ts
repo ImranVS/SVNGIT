@@ -20,9 +20,13 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class MaintainUser extends GridBase implements OnInit {
+    status: any;
+    superadmin: any;
     constructor(service: RESTService) {
         super(service);
         this.formName = "Maintain Users";
+        this.status = ["Active", "Inactive"];
+        this.superadmin = ["Yes", "No"];
 
     }
     ngOnInit() {
@@ -39,12 +43,11 @@ export class MaintainUser extends GridBase implements OnInit {
         this.currentEditItem.login_name = "";
         this.currentEditItem.full_name = "";
         this.currentEditItem.email = "";
-        this.currentEditItem.status = "";
-        this.currentEditItem.super_admin = "";
+        this.currentEditItem.status = "Active";
+        this.currentEditItem.super_admin = "No";
         this.currentEditItem.configurator_access = false;
         this.currentEditItem.console_command_access = false;
     }
-
 }
 
 
