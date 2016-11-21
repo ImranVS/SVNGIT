@@ -16,6 +16,7 @@ export class ServerFilter {
     @Input() widgetName: string;
     @Input() widgetURL: string;
     @Input() hideDatePanel: boolean;
+    @Input() showSingleDatePanel: boolean;
     @Input() hideServerControl: boolean;
     endDate: Date = new Date();
     startDate: Date = new Date(this.endDate.getFullYear() ,this.endDate.getMonth(),this.endDate.getDate()-7);
@@ -38,7 +39,10 @@ export class ServerFilter {
         if (this.hideDatePanel == true) {
             var v = <HTMLDivElement>document.getElementById("dtPanel");
             v.style.display = "none";
+            var v1 = <HTMLDivElement>document.getElementById("dtPanel2");
+            v1.style.display = "none";
         }
+        
         if (this.hideServerControl == true) {
             var v1 = <HTMLDivElement>document.getElementById("dtServer");
             v1.style.display = "none";
@@ -47,6 +51,11 @@ export class ServerFilter {
             var v2 = <HTMLDivElement>document.getElementById("dtFilter");
             v2.style.display = "none";
         }
+        if (this.showSingleDatePanel == true) {
+            var v = <HTMLDivElement>document.getElementById("dtPanel");
+            v.style.display = "block";
+        }
+        
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
         //this.deviceStatus = paramstatus;
     }
@@ -81,10 +90,12 @@ export class ServerFilter {
 
         var newStartDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate());
         var newEndDate = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate());
-
+        
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
-        if (this.statName != "")
-            URL += "&statName=" + this.statName;
+        if (this.showSingleDatePanel)
+            URL += "&date=" + newStartDate.toISOString();
+        //if (this.statName != "")
+        //    URL += "&statName=" + this.statName;
         console.log(URL);
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())

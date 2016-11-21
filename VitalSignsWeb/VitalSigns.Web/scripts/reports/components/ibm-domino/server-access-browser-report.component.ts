@@ -23,7 +23,7 @@ export class ServerAccessBrowserReport extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `dailyservertranschart`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=Domino.Command.OpenDatabase&deviceId=`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=Domino.Command.OpenDatabase`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -62,7 +62,8 @@ export class ServerAccessBrowserReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text :"Server Access"
                             }
                         },
                         plotOptions: {

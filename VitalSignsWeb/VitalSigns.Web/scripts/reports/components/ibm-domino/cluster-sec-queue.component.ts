@@ -20,10 +20,11 @@ export class ClusterSecQueue extends WidgetController {
     widgets: WidgetContract[];
 
     currentHideServerControl: boolean = false;
-    currentHideDatePanel: boolean = false;
+    currentHideDatePanel: boolean = true;
+    currentShowSingleDatePanel: boolean = true;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `clusterQueue`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=Replica.Cluster.SecondsOnQueue&deviceId=`;
+    currentWidgetURL: string = `/reports/dailystats_hourly_chart?statName=Replica.Cluster.SecondsOnQueue`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -32,7 +33,8 @@ export class ClusterSecQueue extends WidgetController {
     }
 
     ngOnInit() {
-
+        var tempDate = new Date();
+        var date = new Date(tempDate.getFullYear(),tempDate.getMonth(),tempDate.getDate(),tempDate.getHours()-1);
         this.service.get('/navigation/sitemaps/domino_reports')
             .subscribe
             (
@@ -45,7 +47,8 @@ export class ClusterSecQueue extends WidgetController {
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: '/reports/summarystats_chart?statName=Replica.Cluster.SecondsOnQueue',
+                    url: `/reports/dailystats_hourly_chart?statName=Replica.Cluster.SecondsOnQueue&date=${date.toISOString()}`,
+                    dateformat: "hour",
                     chart: {
                         chart: {
                             renderTo: 'clusterQueue',

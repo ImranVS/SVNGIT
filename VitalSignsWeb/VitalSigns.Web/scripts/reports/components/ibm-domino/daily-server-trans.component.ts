@@ -1,38 +1,41 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
 
+import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
+import {Router, ActivatedRoute} from '@angular/router';
 import {RESTService} from '../../../core/services/rest.service';
-import * as helpers from '../../../core/services/helpers/helpers';
+
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/domino/daily-server-trans.component.html',
+    templateUrl: '/app/reports/components/ibm-domino/daily-server-trans.component.html',
     providers: [
         WidgetService,
-        RESTService,
-        helpers.UrlHelperService
+        RESTService
     ]
 })
 export class DailyServerTrans extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
+    servers: string;
 
     currentHideServerControl: boolean = false;
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "Domino";
-    currentWidgetName: string = `dailyservertranschart`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=Server.Trans.PerMinute&deviceId=`;
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
+    currentWidgetName: string = `avgcpuutilchart`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=Server.Trans.PerMinute`;
+
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private router: Router, private route: ActivatedRoute) {
 
         super(resolver, widgetService);
 
     }
 
     ngOnInit() {
-
+        this.route.queryParams.subscribe(params => {
+            this.servers = params['server-type'];
+        });
         this.service.get('/navigation/sitemaps/domino_reports')
             .subscribe
             (
@@ -41,17 +44,17 @@ export class DailyServerTrans extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'dailyservertranschart',
+                id: 'avgcpuutilchart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    //deviceid=57ace45abf46711cd4681e15&
-                    url: '/reports/summarystats_chart?statName=Server.Trans.PerMinute',
+                    url: `/reports/summarystats_chart?statName=Server.Trans.PerMinute`,
+                    dateformat: "date",
                     chart: {
                         chart: {
-                            renderTo: 'dailyservertranschart',
+                            renderTo: 'avgcpuutilchart',
                             type: 'spline',
-                            height: 300
+                            height: 540
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -63,11 +66,24 @@ export class DailyServerTrans extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Transactions'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false

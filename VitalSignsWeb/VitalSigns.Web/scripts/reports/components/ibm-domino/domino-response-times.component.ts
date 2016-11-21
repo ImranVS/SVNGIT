@@ -27,7 +27,7 @@ export class DominoResponseTimes extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `dailyservertranschart`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=ResponseTime&deviceId=`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=ResponseTime`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {

@@ -1,61 +1,58 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
-import {RESTService} from '../../../core/services/rest.service';
 
-import * as helpers from '../../../core/services/helpers/helpers';
+import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
+import {Router, ActivatedRoute} from '@angular/router';
+import {RESTService} from '../../../core/services/rest.service';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/ibm-sametime/sametime-statistics-chart-report.component.html',
+    templateUrl: '/app/reports/components/ibm-domino/max-cpu-util.component.html',
     providers: [
         WidgetService,
-        RESTService,
-        helpers.UrlHelperService
+        RESTService
     ]
 })
-export class SametimeStatisticsChartReport extends WidgetController {
+export class MaxCPUUtil extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
+    servers: string;
 
     currentHideServerControl: boolean = false;
     currentHideDatePanel: boolean = false;
-    currentDeviceType: string = "Sametime";
-    currentWidgetName: string = `report`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=Total n-Way Chats&deviceId=`;
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `maxcpuutilchart`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil.Max`;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
-        protected urlHelpers: helpers.UrlHelperService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private router: Router, private route: ActivatedRoute) {
 
         super(resolver, widgetService);
 
     }
 
     ngOnInit() {
-
-        this.service.get('/navigation/sitemaps/sametime_reports')
+        this.route.queryParams.subscribe(params => {
+            this.servers = params['server-type'];
+        });
+        this.service.get('/navigation/sitemaps/domino_reports')
             .subscribe
             (
-            data => {
-                this.contextMenuSiteMap = data;
-                console.log(data)
-            }
-            ,
+            data => this.contextMenuSiteMap = data,
             error => console.log(error)
             );
         this.widgets = [
             {
-                id: 'report',
-                //title: `${this.title}`,
+                id: 'maxcpuutilchart',
+                title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=Total n-Way Chats`,
+                    url: `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil.Max`,
                     chart: {
                         chart: {
-                            renderTo: 'report',
-                            type: 'bar',
+                            renderTo: 'maxcpuutilchart',
+                            type: 'spline',
                             height: 540
                         },
                         title: { text: '' },
@@ -68,7 +65,8 @@ export class SametimeStatisticsChartReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Max CPU Utilization'
                             }
                         },
                         plotOptions: {
@@ -84,7 +82,7 @@ export class SametimeStatisticsChartReport extends WidgetController {
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
@@ -95,7 +93,7 @@ export class SametimeStatisticsChartReport extends WidgetController {
                         series: []
                     }
                 }
-            },
+            }
         ];
         injectSVG();
         bootstrapNavigator();

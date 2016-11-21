@@ -24,7 +24,7 @@ export class AvgCPUUtil extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `avgcpuutilchart`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private router: Router, private route: ActivatedRoute) {
 

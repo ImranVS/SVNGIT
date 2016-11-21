@@ -23,7 +23,7 @@ export class DatabaseInventoryReport extends WidgetController {
     currentHideDatePanel: boolean = true;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `databaseInventoryReport`;
-    currentWidgetURL: string = `/reports/database_inventory?deviceId=`;
+    currentWidgetURL: string = `/reports/database_inventory`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 

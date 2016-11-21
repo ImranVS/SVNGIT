@@ -11,7 +11,7 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
-        <server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel"></server-filter>
+        <server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel" [(hideServerControl)]="currentHideServerControl" [(showSingleDatePanel)]="currentShowSingleDatePanel"></server-filter>
         <div class="reportsPage">
             <h1>Daily Cluster Seconds on Queue</h1>
             <div *ngFor="let widget of widgets">

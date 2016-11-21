@@ -25,19 +25,21 @@
 </div>-->
 <div id="dtPanel" style="display:inline-block">
     <wj-input-date format="yyyy-MM-dd" [(value)]="startDate"></wj-input-date>
+</div>
+<div id="dtPanel2" style="display:inline-block">
     <wj-input-date format="yyyy-MM-dd" [(value)]="endDate"></wj-input-date>
 </div>
-<div id="dtServer" style="display:inline-block">
-    <wj-multi-select #multisel1
-                     [placeholder]="'Select Servers'"
-                     class="multiselect"
-                     [itemsSource]="deviceNameData"
-                     displayMemberPath="name" selectedValuePath="id"
-                     [headerFormat]="'{count} Servers selected'"
-                     [checkedMemberPath]="'selected'"
-                     [(ngModel)]="selectedServers">
-    </wj-multi-select>
-</div>
-<div id="dtFilter" style="display:inline-block">
-    <button (click)="applyFilters(multisel1)">Filter</button>
+    <div id="dtServer" style="display:inline-block">
+        <wj-multi-select #multisel1
+                         [placeholder]="'Select Servers'"
+                         class="multiselect"
+                         [itemsSource]="deviceNameData"
+                         displayMemberPath="name" selectedValuePath="id"
+                         [headerFormat]="'{count} Servers selected'"
+                         [checkedMemberPath]="'selected'"
+                         [(ngModel)]="selectedServers">
+        </wj-multi-select>
+    </div>
+    <div id="dtFilter" style="display:inline-block">
+        <button (click)="applyFilters(multisel1)">Filter</button>
     </div>

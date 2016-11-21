@@ -23,7 +23,7 @@ export class ServerAvailabilityIndexReport extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `dailyservertranschart`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=Server.AvailabilityIndex&deviceId=`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=Server.AvailabilityIndex`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -62,7 +62,8 @@ export class ServerAvailabilityIndexReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text : "Server Availability"
                             }
                         },
                         plotOptions: {

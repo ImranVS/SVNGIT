@@ -27,7 +27,7 @@ export class ConnectionsTagsReport extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "IBM Connections";
     currentWidgetName: string = `connectionsTags`;
-    currentWidgetURL: string = `/reports/summarystats_chart?deviceId=`;
+    currentWidgetURL: string = `/reports/summarystats_chart`;
 
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
