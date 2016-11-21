@@ -1,9 +1,20 @@
-﻿<div class="container">
+﻿<div class="widgetWrapper">
+    <div class="widgetTitle">
+        Node Health
+    </div>
+    <div class="well grid-sort-group">
 
-    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+        <!-- edit details in a popup -->
+        <button class="btn btn-default" (click)="editGridRow(frmDialog)">
+            Edit
+        </button>
+        <button class="btn btn-default" (click)="deleteNodesHealth();">
+            Delete
+        </button>
+    </div>
     <wj-flex-grid #flex [itemsSource]="nodeNames" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshGrid($event)">
         <wj-flex-grid-filter></wj-flex-grid-filter>
-        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="200" style="display:none"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="200" [visible]="isVisible"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Primary Node'" [binding]="'is_primary'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Host Name'" [binding]="'host_name'" [width]="250"></wj-flex-grid-column>
@@ -14,7 +25,7 @@
                 <div [ngSwitch]="cell.item.is_alive">
                     <span *ngSwitchCase="'Yes'" class="label label-pill label-success">{{cell.item.is_alive}}</span>
                     <span *ngSwitchCase="'No'" class="label label-pill label-danger">{{cell.item.is_alive}}</span>
-                    </div>                  
+                </div>
             </template>
         </wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Last Updated'" [binding]="'pulse'" [width]="200"></wj-flex-grid-column>
@@ -55,49 +66,113 @@ data.pageIndex + 1 | number
         </wj-menu>
     </div>
 
-    <div class="well grid-sort-group">
-
-        <!-- edit details in a popup -->
-        <button class="btn btn-default" (click)="editGridRow(frmDialog)">
-            Edit
-        </button>      
-        <button class="btn btn-default" (click)="deleteNodesHealth();">
-            Delete
-        </button>
+    <div class="widgetTitle">
+        VSNodeName - Services Status
     </div>
-    <div class="form-group" *ngIf="services">
-        <wj-flex-grid #flex [itemsSource]="services" headersVisibility="Row" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
-            <wj-flex-grid-filter></wj-flex-grid-filter>
+    <div class="widgetContent">
+        <p>Only the "Primary Node", the node marked with the star, will have the "Alerting Service" and the "DB Health" running on it. Also, any service not colored is due to it running only when needed, so it is expected to be in the "Stopped" state.</p>
+        <div class="form-group" *ngIf="services !=null">
+            <div *ngIf="services!= null">
 
-            <wj-flex-grid-column  [binding]="'Name'" [width]="200"></wj-flex-grid-column>
-            <wj-flex-grid-column [binding]="'State'" [width]="200">
-                <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                    <div [ngSwitch]="cell.item.State">
-                        <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.State}}</span>
-                        <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.State}}</span>
-                    </div>
-                </template>
-            </wj-flex-grid-column>
+                <wj-flex-grid #flex [itemsSource]="services" headersVisibility="Column" [frozenColumns]="1" [isReadOnly]="true">
+                    <wj-flex-grid-filter></wj-flex-grid-filter>
 
-
-        </wj-flex-grid>
+                    <wj-flex-grid-column [header]="'Alerting'" align="center" [binding]="'VSService_Alerting'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_Alerting">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Alerting}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Alerting}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Console Commands'" align="center" [binding]="'VSService_Console_Commands'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_Console_Commands">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Console_Commands}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Console_Commands}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Core'" align="center" [binding]="'VSService_Core'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_Core">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Core}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Core}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Core 64-bit'" align="center" [binding]="'VSService_Core_64'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_Core_64">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Core_64}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Core_64}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'DB Health'" align="center" [binding]="'VSService_DB_Health'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_DB_Health">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_DB_Health}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_DB_Health}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Domino'" align="center" [binding]="'VSService_Domino'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_Domino">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Domino}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Domino}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'EX Journal'" align="center" [binding]="'VSService_EX_Journal'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_EX_Journal">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_EX_Journal}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_EX_Journal}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Master Service'" align="center" [binding]="'VSService_Master_Service'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_Master_Service">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Master_Service}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Master_Service}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Microsoft'" align="center" [binding]="'VSService_Microsoft'" is-read-only="true" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.VSService_Microsoft">
+                                <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Microsoft}}</span>
+                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Microsoft}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
+                </wj-flex-grid>
+            </div>
         </div>
-        
-    <div>
-        <server-location-list (checkedDevices)="changeInDevices($event)" [(isVisible)]="visibility" [(deviceType)]="currentDeviceType"></server-location-list>
-    </div>
-    <div>
-        <label for="selectedNode" class="control-label col-sm-3">Nodes</label>
+        </div>
+        <div class="widgetTitle">
+            Servers
+        </div>
+        <div class="widgetContent">
+            <div>
+                <server-location-list (checkedDevices)="changeInDevices($event)" [(isVisible)]="visibility" [(deviceType)]="currentDeviceType"></server-location-list>
+            </div>
+        </div>
+        <div>
+            <label for="selectedNode" class="control-label col-sm-3">Nodes</label>
 
-        <wj-combo-box name="selectedNode" [itemsSource]="nodes" [(text)]="service.Name"
-                      [(ngModel)]="selectedNode">
-        </wj-combo-box>
+            <wj-combo-box name="selectedNode" [itemsSource]="nodes" [(text)]="service.Name"
+                          [(ngModel)]="selectedNode">
+            </wj-combo-box>
 
 
-        <button type="button" class="btn btn-success" (click)="applySetting()">Assign Nodes</button>
+            <button type="button" class="btn btn-success" (click)="applySetting()">Assign Nodes</button>
 
-    </div>
-        
+        </div>
+
 
         <wj-popup class="modal-content col-sm-10" #frmDialog>
 

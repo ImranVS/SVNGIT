@@ -33,6 +33,7 @@ export class Nodes extends GridBase {
     devices: string;
     selectedNode: string;
     visibility: boolean = true;
+    isVisible: boolean = false;
     
 
     constructor(service: RESTService, private formBuilder: FormBuilder) {
@@ -64,6 +65,7 @@ export class Nodes extends GridBase {
             .subscribe(
             (response) => {
                 this.services = response.data;
+                console.log(this.services)
 
             },
             (error) => this.errorMessage = <any>error
