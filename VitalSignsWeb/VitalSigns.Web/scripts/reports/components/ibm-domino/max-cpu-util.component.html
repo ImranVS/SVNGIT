@@ -13,7 +13,7 @@
     <div id="zeusContent" class="container-fluid">
         <server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel" ></server-filter>
         <div class="reportsPage">
-            <h1>Avg CPU Utilization per day</h1>
+            <h1>Max CPU Utilization per day</h1>
             <div *ngFor="let widget of widgets">
                 <h3>{{widget.title}}</h3>
                 <div id="{{widget.id}}">
