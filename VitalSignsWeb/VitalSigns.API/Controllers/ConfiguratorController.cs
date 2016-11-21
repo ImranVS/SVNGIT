@@ -61,7 +61,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<Notifications> notificationsRepository;
         private IRepository<NotificationDestinations> notificationDestRepository;
-        private IRepository<Scripts> scriptsRepository;
+       private IRepository<Scripts> scriptsRepository;
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<IbmConnectionsObjects> ibmConnectionsObjectsRepository;
@@ -4268,24 +4268,60 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                nodesRepository = new Repository<Nodes>(ConnectionString);              
+                nodesRepository = new Repository<Nodes>(ConnectionString);
                 Expression<Func<Nodes, bool>> expression = (p => p.Id == id);
 
                 var serviceresult = nodesRepository.Find(expression).Select(x => x.ServiceStatus).FirstOrDefault();
+                //   var distinctData = summaryStats.Select(x => new { DeviceId = x.DeviceID, DeviceName = x.DeviceName }).Distinct().OrderBy(x => x.DeviceName).ToList();
                 List<ServiceStatusModel> service = new List<ServiceStatusModel>();
-                foreach(VSNext.Mongo.Entities.ServiceStatus task in serviceresult)
-                {
-                    service.Add(new ServiceStatusModel
+                List<NodesServices> nodesServicesStatus = new List<NodesServices>();
+               
+                    if (serviceresult != null)
                     {
-                       Name=task.Name,
-                       State=task.State
+
+                        NodesServices nodesservices = new NodesServices();
 
 
-                    });
+                        var dominoService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Domino");
+                        nodesservices.VSServicDomino = dominoService.State;
 
-                }
-                Response = Common.CreateResponse(serviceresult);
+                    
 
+                        var coreService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Core");
+                        nodesservices.VSServiceCore = coreService.State;
+
+                        var vsAlert = serviceresult.FirstOrDefault(x => x.Name == "VSService_Alerting");
+                        nodesservices.VSServiceAlerting = vsAlert.State;
+
+                        var clusterHealth = serviceresult.FirstOrDefault(x => x.Name == "VSService_Cluster Health");
+                        nodesservices.VSServiceCluster = clusterHealth.State;
+
+                        var dailyService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Daily Service");
+                        nodesservices.VSService_Daily = dailyService.State;
+
+                        var masterService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Master Service");
+                        nodesservices.VSService_Master = masterService.State;
+
+                        var dbHealth = serviceresult.FirstOrDefault(x => x.Name == "VSService_DB Health");
+                        nodesservices.VSService_DB = dbHealth.State;
+
+                        var exJournal = serviceresult.FirstOrDefault(x => x.Name == "VSService_EX Journal");
+                        nodesservices.VSService_EX = exJournal.State;
+
+                        var console = serviceresult.FirstOrDefault(x => x.Name == "VSService_Console Commands");
+                        nodesservices.VSService_Console = console.State;
+
+                        var microsoft = serviceresult.FirstOrDefault(x => x.Name == "VSService_Microsoft");
+                        nodesservices.VSService_Microsoft = microsoft.State;
+
+                        var core64Bit = serviceresult.FirstOrDefault(x => x.Name == "VSService_Core 64-bit");
+                        nodesservices.VSService_Core64 = core64Bit.State;
+
+                        nodesServicesStatus.Add(nodesservices);
+                    }
+                    Response = Common.CreateResponse(nodesServicesStatus);
+
+                
             }
             catch (Exception exception)
             {

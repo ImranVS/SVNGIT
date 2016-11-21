@@ -58,6 +58,9 @@ namespace VitalSigns.API.Models.Configurator
          
         [JsonProperty("service_status_model")]       
         public List<ServiceStatusModel> ServiceStatusModel { get; set; }
+
+        [JsonProperty("nodes_services")]
+        public List<NodesServices> Nodeservices { get; set; }
     }
 
     public class ServiceStatusModel
@@ -69,5 +72,44 @@ namespace VitalSigns.API.Models.Configurator
 
         [JsonProperty("state")]
         public string State { get; set; }
+    }
+
+    public class NodesServices
+    {
+
+        [JsonProperty("VSService_Domino")]
+        public string VSServicDomino { get; set; }
+
+
+        [JsonProperty("VSService_Core")]
+        public string VSServiceCore { get; set; }
+
+        [JsonProperty("VSService_Alerting")]
+        public string VSServiceAlerting { get; set; }
+
+        [JsonProperty("VSService_Cluster_Health")]
+        public string VSServiceCluster { get; set; }
+
+        [JsonProperty("VSService_Daily_Service")]
+        public string VSService_Daily { get; set; }
+
+        [JsonProperty("VSService_Master_Service")]
+        public string VSService_Master { get; set; }
+
+        [JsonProperty("VSService_DB_Health")]
+        public string VSService_DB { get; set; }
+
+        [JsonProperty("VSService_EX_Journal")]
+        public string VSService_EX { get; set; }
+
+        [JsonProperty("VSService_Console_Commands")]
+        public string VSService_Console { get; set; }
+
+        [JsonProperty("VSService_Microsoft")]
+        public string VSService_Microsoft { get; set; }
+
+        [JsonProperty("VSService_Core_64")]
+        public string VSService_Core64 { get; set; }
+
     }
 }
