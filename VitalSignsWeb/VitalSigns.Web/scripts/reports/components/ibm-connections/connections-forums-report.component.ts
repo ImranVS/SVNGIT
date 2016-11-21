@@ -55,6 +55,7 @@ export class ConnectionsForumsReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=NUM_OF_FORUMS_FORUMS`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'connectionsForums',

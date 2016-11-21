@@ -55,6 +55,7 @@ export class ConnectionsTagsReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=COMMUNITY_TAG_COUNT`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'connectionsTags',

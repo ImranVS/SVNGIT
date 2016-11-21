@@ -55,6 +55,7 @@ export class ConnectionsBookmarkReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=NUM_OF_BOOKMARKS_BOOKMARKS`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'connectionsBookmark',

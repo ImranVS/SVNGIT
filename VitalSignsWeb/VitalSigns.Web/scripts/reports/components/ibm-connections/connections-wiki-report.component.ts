@@ -55,6 +55,7 @@ export class ConnectionsWikiReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=NUM_OF_WIKIS_WIKIS`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'connectionsWiki',

@@ -49,6 +49,7 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/services/summarystats?statName=Traveler.Memory.${this.param}.Current&seriesTitle=DeviceName`,
+                    dateformat: 'date',
                     chart: {
                         chart: {
                             renderTo: 'travelerMemoryChart',

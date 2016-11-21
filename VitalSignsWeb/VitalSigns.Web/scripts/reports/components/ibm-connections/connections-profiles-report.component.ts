@@ -55,6 +55,7 @@ export class ConnectionsProfilesReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=NUM_OF_PROFILES_PROFILES`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'connectionsProfiles',

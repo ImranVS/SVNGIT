@@ -55,6 +55,7 @@ export class ConnectionsActivityReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=ACTIVITY_LOGINS_LAST_MONTH`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'connectionsActivity',

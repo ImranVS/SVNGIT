@@ -99,7 +99,11 @@ export class ConnectionsServerFilter {
 
         var startFinalDate = this.startDate.getFullYear().toString() + '-' + selStartMonth + '-' + selStartDate;
         var endFinalDate = this.endDate.getFullYear().toString() + '-' + selEndMonth + '-' + selEndDate;
-        var URL = this.widgetURL + selectedServers + `&startDate=` + startFinalDate + `&endDate=` + endFinalDate;
+
+        var newStartDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate());
+        var newEndDate = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate());
+
+        var URL = this.widgetURL + selectedServers + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
         if (selectedStats != "")
             URL += "&statName=" + selectedStats;
         console.log(URL);

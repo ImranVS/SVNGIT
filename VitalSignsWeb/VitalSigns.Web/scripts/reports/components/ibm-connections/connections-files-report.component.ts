@@ -55,6 +55,7 @@ export class ConnectionsFilesReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `/reports/summarystats_chart?statName=TOTAL_NUM_OF_FILES`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'connectionsFiles',
