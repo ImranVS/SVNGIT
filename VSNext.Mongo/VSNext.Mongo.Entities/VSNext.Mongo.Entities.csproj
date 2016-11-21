@@ -75,6 +75,7 @@
     <Compile Include="LogFile.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Mailbox.cs" />
+    <Compile Include="Scripts.cs" />
     <Compile Include="NotificationDestinations.cs" />
     <Compile Include="ServerOther.cs" />
     <Compile Include="TravelerDTS.cs" />
