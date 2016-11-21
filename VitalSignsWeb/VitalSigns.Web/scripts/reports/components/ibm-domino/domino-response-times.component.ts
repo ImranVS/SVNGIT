@@ -1,6 +1,7 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
+
 import {RESTService} from '../../../core/services/rest.service';
 
 import * as helpers from '../../../core/services/helpers/helpers';
@@ -20,8 +21,7 @@ declare var bootstrapNavigator: any;
 export class DominoResponseTimes extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-    statname: string;
-    title: string;
+    param: string;
 
     currentHideServerControl: boolean = false;
     currentHideDatePanel: boolean = false;
@@ -29,24 +29,25 @@ export class DominoResponseTimes extends WidgetController {
     currentWidgetName: string = `dailyservertranschart`;
     currentWidgetURL: string = `/reports/summarystats_chart?statName=ResponseTime&deviceId=`;
 
-
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
+        private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
 
     }
 
     ngOnInit() {
-        //this.route.queryParams.subscribe(params => {
-        //    this.statname = params['statname'];
-        //    this.title = params['title'];
-        //});
+        let paramtype = null;
+        this.route.queryParams.subscribe(params => paramtype = params['type']);
+        this.param = paramtype;
         this.service.get('/navigation/sitemaps/domino_reports')
             .subscribe
             (
             data => this.contextMenuSiteMap = data,
             error => console.log(error)
             );
+
+
         this.widgets = [
             {
                 id: 'dailyservertranschart',
@@ -70,7 +71,8 @@ export class DominoResponseTimes extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Response Time (ms)'
                             }
                         },
                         plotOptions: {
@@ -103,57 +105,4 @@ export class DominoResponseTimes extends WidgetController {
         bootstrapNavigator();
 
     }
-
-    //ngOnInit() {
-
-    //    this.service.get('/navigation/sitemaps/domino_reports')
-    //        .subscribe
-    //        (
-    //        data => this.contextMenuSiteMap = data,
-    //        error => console.log(error)
-    //        );
-    //    this.widgets = [
-    //        {
-    //            id: 'mobileDevicesChart',
-    //            title: '',
-    //            name: 'ChartComponent',
-    //            settings: {
-    //                url: '/reports/summarystats_chart?statName=ResponseTime',
-    //                chart: {
-    //                    chart: {
-    //                        renderTo: 'mobileDevicesChart',
-    //                        type: 'spline',
-    //                        height: 300
-    //                    },
-    //                    title: { text: '' },
-    //                    subtitle: { text: '' },
-    //                    xAxis: {
-    //                        categories: []
-    //                    },
-    //                    yAxis: {
-    //                        min: 0,
-    //                        endOnTick: false,
-    //                        allowDecimals: false,
-    //                        title: {
-    //                            enabled: false
-    //                        }
-    //                    },
-    //                    legend: {
-    //                        enabled: false
-    //                    },
-    //                    credits: {
-    //                        enabled: false
-    //                    },
-    //                    exporting: {
-    //                        enabled: false
-    //                    },
-    //                    series: []
-    //                }
-    //            }
-    //        }
-    //    ];
-    //    injectSVG();
-    //    bootstrapNavigator();
-
-    //}
 }

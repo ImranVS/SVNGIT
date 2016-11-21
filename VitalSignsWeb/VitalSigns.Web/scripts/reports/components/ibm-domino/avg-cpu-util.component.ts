@@ -43,13 +43,6 @@ export class AvgCPUUtil extends WidgetController {
             error => console.log(error)
             );
         this.widgets = [
-            //{
-            //    id: 'filter',
-            //    title: 'filter',
-            //    name: 'ServerFilter',
-            //    device
-                
-            //},
             {
                 id: 'avgcpuutilchart',
                 title: '',
@@ -60,7 +53,7 @@ export class AvgCPUUtil extends WidgetController {
                         chart: {
                             renderTo: 'avgcpuutilchart',
                             type: 'spline',
-                            height: 300
+                            height: 540
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -72,11 +65,24 @@ export class AvgCPUUtil extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Avg CPU Utilization'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
