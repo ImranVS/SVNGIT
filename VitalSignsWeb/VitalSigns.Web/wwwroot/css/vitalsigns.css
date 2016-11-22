@@ -854,7 +854,20 @@
 #overview-stats-table td:nth-child(2) {
 	text-align: right;
 }
-
+.info {
+    font-family:Tahoma,Arial, Helvetica, sans-serif; 
+    font-size:12px;
+    font-weight:normal;
+    border: 1px solid ; 
+    margin-bottom: 10px;
+    padding: 15px 15px 15px 30px;
+    border-radius: 3px;
+    background-repeat: no-repeat;
+    background-position: 10px 15px;
+    color: #00529B;
+    background-color: #BDE5F8;
+    background-image: url('../lib/highcharts/api/images/information.png');
+}
 
 .visible{display: block !important;}
 
