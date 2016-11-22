@@ -10,7 +10,7 @@
         <a *ngIf="item.issue > 0" [style.-webkit-flex-grow]="item.issue" [style.flex-grow]="item.issue" [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Issue', type: item.type}">
             <div *ngIf="item.issue > 0" class="zeusColorReact-warning zeusColorReactBg" [style.-webkit-flex-grow]="item.issue" [style.flex-grow]="item.issue">{{item.issue}}</div>
         </a>    
-        <a *ngIf="item.maintenance > 0" [style.-webkit-flex-grow]="item.maintenance" [style.flex-grow]="item.maintenance" [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Issue', type: item.type}">
+        <a *ngIf="item.maintenance > 0" [style.-webkit-flex-grow]="item.maintenance" [style.flex-grow]="item.maintenance" [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Maintenance', type: item.type}">
             <div *ngIf="item.maintenance > 0" class="zeusColorReact-default zeusColorReactBg" [style.-webkit-flex-grow]="item.maintenance" [style.flex-grow]="item.maintenance">{{item.maintenance}}</div>
         </a>
             
