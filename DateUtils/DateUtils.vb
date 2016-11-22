@@ -45,22 +45,22 @@ Public Class DateUtils
     Public Function GetDateFormat() As String
         Dim strdateformat As String = "mdy"
         Return strdateformat
-        Dim myAdapter As New VSFramework.XMLOperation
+        'Dim myAdapter As New VSFramework.XMLOperation
 
-        'CONNECTION STRING TO BE TAKEN FROM VSFRAMEWORK
-        Dim connectionString As String = myAdapter.GetDBConnectionString("VitalSigns")
-        '"Data Source=SERVER_NAME; Integrated Security=true;Initial Catalog=vitalsigns;"
+        ''CONNECTION STRING TO BE TAKEN FROM VSFRAMEWORK
+        'Dim connectionString As String = myAdapter.GetDBConnectionString("VitalSigns")
+        ''"Data Source=SERVER_NAME; Integrated Security=true;Initial Catalog=vitalsigns;"
 
-        Dim strSQL As String = "select * from master..syslanguages where langid = (select value from master..sysconfigures where comment = 'default language')"
-        Dim Sqlcon As New SqlConnection(connectionString)
-        Dim DA As New SqlDataAdapter(strSQL, Sqlcon)
-        Dim Ds As New DataSet
-        DA.Fill(Ds, "SysLanguages")
-        Dim dt As DataTable = Ds.Tables(0)
-        If dt.Rows.Count > 0 Then
-            strdateformat = dt.Rows.Item(0).Item("dateformat").ToString()
-        End If
-        Return strdateformat
+        'Dim strSQL As String = "select * from master..syslanguages where langid = (select value from master..sysconfigures where comment = 'default language')"
+        'Dim Sqlcon As New SqlConnection(connectionString)
+        'Dim DA As New SqlDataAdapter(strSQL, Sqlcon)
+        'Dim Ds As New DataSet
+        'DA.Fill(Ds, "SysLanguages")
+        'Dim dt As DataTable = Ds.Tables(0)
+        'If dt.Rows.Count > 0 Then
+        '    strdateformat = dt.Rows.Item(0).Item("dateformat").ToString()
+        'End If
+        'Return strdateformat
     End Function
 
     ''' <summary>
