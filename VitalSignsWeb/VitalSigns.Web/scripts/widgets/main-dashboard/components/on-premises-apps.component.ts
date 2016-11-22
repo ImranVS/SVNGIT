@@ -23,7 +23,7 @@ export class OnPremisesApps implements WidgetComponent, OnInit {
     loadData() {
         this.service.get('/services/status_summary_by_type')
             .subscribe(
-            data => this.onPremApps = data,
+            response => this.onPremApps = response.data,
             error => this.errorMessage = <any>error
         );
     }
