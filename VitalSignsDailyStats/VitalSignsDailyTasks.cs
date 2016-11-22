@@ -59,7 +59,10 @@ namespace VitalSignsDailyStats
 
         public VitalSignsDailyTasks()
         {
+           // string connetionString = System.Configuration.ConfigurationManager.AppSettings["VitalSignsMongo"];
+
             string connetionString = System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
+
             int? tenantId = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["TenantId"]);
             _unitOfWork = new UnitOfWork(connetionString, tenantId);
             InitializeComponent();
@@ -119,6 +122,15 @@ namespace VitalSignsDailyStats
                 RegistryHandler myRegistry = new RegistryHandler();
                 try
                 {
+                    Expression<Func<NameValue, bool>> expression = (p => p.Name == "Log Level");
+
+                    var result = nameValueRepository.Find(expression).FirstOrDefault();
+
+                    if (result == null)
+                    {
+                        NameValue nameValue = new NameValue { Name = "Log Level", Value = "2" };
+                        nameValueRepository.Insert(nameValue);
+                    }
                     logLevel = myRegistry.ReadFromRegistry("Log Level") == null ? LogUtils.LogLevel.Verbose : (LogUtils.LogLevel)Convert.ToInt32(myRegistry.ReadFromRegistry("Log Level"));
                 }
                 catch (Exception ex)
@@ -148,10 +160,16 @@ namespace VitalSignsDailyStats
                 }
                 try
                 {
+                  
+                    string logBak = appPath + @"\Log_Files\Daily_Tasks_Log_Bak.txt";
                     logDest = appPath + @"\Log_Files\Daily_Tasks_Log.txt";
+                    if (File.Exists(logBak))
+                    {
+                        File.Delete(logBak);
+                    }
                     if (File.Exists(logDest))
                     {
-                        File.Move(logDest, appPath + @"\Log_Files\Daily_Tasks_Log_Bak.txt");
+                        File.Move(logDest, logBak);
                         File.Delete(logDest);
                     }
                 }
@@ -174,6 +192,15 @@ namespace VitalSignsDailyStats
                 }
                 try
                 {
+                    Expression<Func<NameValue, bool>> expression = (p => p.Name == "ProductName");
+
+                    var result = nameValueRepository.Find(expression).FirstOrDefault();
+
+                    if (result == null)
+                    {
+                        NameValue nameValue = new NameValue { Name = "ProductName", Value = "VitalSigns" };
+                        nameValueRepository.Insert(nameValue);
+                    }
                     productName = myRegistry.ReadFromRegistry("ProductName").ToString();
                     if (productName == "")
                     {
@@ -266,8 +293,7 @@ namespace VitalSignsDailyStats
                     WriteAuditEntry("OOPS, error cleaning up old data...." + ex.ToString());
                 }
 
-                // To do
-             //   { 
+             
                     try
                     {
                         VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
@@ -281,8 +307,10 @@ namespace VitalSignsDailyStats
                             NameValue nameValue = new NameValue { Name = "CleanUpTablesDate", Value = "" };
                             nameValueRepository.Insert(nameValue);
                         }
-                        
-                        var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7) : Convert.ToDateTime(result.Value);
+                    Expression<Func<NameValue, bool>> filterExpression = (p => p.Name == "CleanUpTablesDate");
+
+                     result = nameValueRepository.Find(filterExpression).FirstOrDefault();
+                    var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7) : Convert.ToDateTime(result.Value);
 
                       
                         if (svalue.AddDays(7) < DateTime.Now)
@@ -429,7 +457,7 @@ namespace VitalSignsDailyStats
                         myFolder = myFolder_loopVariable;
 
                         
-                        Directory.Delete(myFolder, true);
+                        Directory.Delete(myFolder,true);
                         WriteAuditEntry(DateTime.Now.ToString() + " Deleting " + myFolder);
                     }
                     ExchangeFolders = null;
@@ -483,14 +511,14 @@ namespace VitalSignsDailyStats
                         }
                         else
                         {
-                            
+
                             Directory.Delete(destFolder);
                             Directory.Move(folder, destFolder);
                         }
-                       
-                        WriteAuditEntry(DateTime.Now.ToString() + " Moving folder " + folder + " to " + destFolder);
-                       
 
+                        WriteAuditEntry(DateTime.Now.ToString() + " Moving folder " + folder + " to " + destFolder);
+
+                     // Directory.Move(folder, destFolder);
 
                     }
 
@@ -1205,80 +1233,6 @@ namespace VitalSignsDailyStats
                     }
 
                 }
-
-
-                if ((root.Device.Length > 0))
-                {
-                    DataTable dt = new DataTable();
-                    dt.Columns.Add("DeviceType");
-                    dt.Columns.Add("TranslatedValue");
-                    dt.Columns.Add("OSName");
-                    foreach (Device item in root.Device)
-                    {
-                        DataRow row = dt.NewRow();
-                        row["DeviceType"] = item.DeviceType.ToString();
-                        row["TranslatedValue"] = item.TranslatedValue.ToString();
-                        row["OSName"] = item.OSName.ToString();
-                        dt.Rows.Add(row);
-                    }
-
-
-                    try
-                    {
-                        objVsAdaptor.ExecuteNonQueryAny("VitalSigns", "", "DELETE FROM DeviceTypeTranslation");
-
-                        SqlConnection con = objVsAdaptor.StartConnectionSQL("VitalSigns");
-
-                        SqlBulkCopy blk = new SqlBulkCopy(con);
-                        blk.DestinationTableName = "DeviceTypeTranslation";
-                        blk.WriteToServer(dt);
-
-                        blk.Close();
-                        objVsAdaptor.StopConnectionSQL(con);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteAuditEntry(DateTime.Now.ToString() + " Error executing SQL command " + ex.ToString());
-                    }
-
-                }
-
-
-
-                if ((root.OS.Length > 0))
-                {
-                    DataTable dt = new DataTable();
-                    dt.Columns.Add("OSType");
-                    dt.Columns.Add("TranslatedValue");
-                    dt.Columns.Add("OSName");
-                    foreach (OS item in root.OS)
-                    {
-                        DataRow row = dt.NewRow();
-                        row["OSType"] = item.OSType.ToString();
-                        row["TranslatedValue"] = item.TranslatedValue.ToString();
-                        row["OSName"] = item.OSName.ToString();
-                        dt.Rows.Add(row);
-                    }
-
-                    try
-                    {
-                        objVsAdaptor.ExecuteNonQueryAny("VitalSigns", "", "DELETE FROM OSTypeTranslation");
-                        SqlConnection con = objVsAdaptor.StartConnectionSQL("VitalSigns");
-
-                        SqlBulkCopy blk = new SqlBulkCopy(con);
-                        blk.DestinationTableName = "OSTypeTranslation";
-                        blk.WriteToServer(dt);
-
-                        blk.Close();
-                        objVsAdaptor.StopConnectionSQL(con);
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteAuditEntry(DateTime.Now.ToString() + " Error executing SQL command " + ex.ToString());
-                    }
-                }
-
 
                 try
                 {
