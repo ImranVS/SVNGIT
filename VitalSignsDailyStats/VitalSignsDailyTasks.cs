@@ -705,8 +705,9 @@ namespace VitalSignsDailyStats
 
                 try
                 {
-                    ProcessTravelerstats();
                     CleanUpTravelerSummaryData();
+                    ProcessTravelerstats();
+                    
 
                 }
                 catch (Exception ex)
@@ -1532,12 +1533,10 @@ namespace VitalSignsDailyStats
             {
                 WriteAuditEntry(DateTime.Now.ToString() + " Cleaning up TravelerStats for today in case the query has been run today already. ");
 
-                DateTime SearchDate = default(DateTime);
-                SearchDate = Convert.ToDateTime(FixDate(DateTime.Today.AddDays(-30)));
 
                 try
                 {
-                    Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated <= DateTime.Now);
+                    Expression<Func<TravelerStats, bool>> expression = (p => p.DateUpdated <= DateTime.Now.AddDays(-1));
                     travelerStatsRepository.Delete(expression);
                 }
                 catch (Exception ex)
