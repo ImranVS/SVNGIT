@@ -11,7 +11,6 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
-
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-travelerdatastore.component.html',
     providers: [
@@ -20,37 +19,54 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class TravelerDataStore extends GridBase implements OnInit {
-    datastore: any;
     errorMessage: any;
     travelerServers: any;
+    testTravelerServers: any;
+    usersByserver: any = [];
+    checkedItems: any[];
 
     constructor(service: RESTService) {
         super(service);
         this.formName = "Traveler Data Store";
-        this.datastore = ["SQL Server", "DB2"];
-       
-    }
-               
-    ngOnInit() {
-        this.initialGridBind('/configurator/get_travelerdatastore');
-        this.service.get('/Configurator/get_traveller_servers')
+    }              
+    ngOnInit() {       
+        this.service.get('/Configurator/get_travelerdatastore')
             .subscribe(
             (response) => {
-                this.travelerServers = response.data;
-                console.log(this.travelerServers);
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.travellerData));
+                this.travelerServers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray( response.data.travelerServers));               
+                this.testTravelerServers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.travelerServers));
             },
             (error) => this.errorMessage = <any>error
             );
     }
+    serversChecked(servers: wijmo.input.MultiSelect) {
+        this.usersByserver = [];     
+        for (var item of servers.checkedItems) {
+            this.usersByserver.push(item.value);
+        }   
+    }
     saveTravelerDataStore(dlg: wijmo.input.Popup) {
+        this.currentEditItem.used_by_servers = this.usersByserver;
         this.saveGridRow('/configurator/save_traveler_data_store', dlg);
     }
     delteTravelerDataStore() {
         this.delteGridRow('/configurator/delete_traveler_data_store/');
     }
-
-
-    addTravelerData(dlg: wijmo.input.Popup) {
+    editTravelerDataStore(dlg: wijmo.input.Popup) {
+        this.editGridRow(dlg);
+        this.checkedItems = [];
+        var usedByServers = this.currentEditItem.used_by_servers;
+        if (usedByServers) {
+            for (var travelerItem of (<wijmo.collections.CollectionView>this.travelerServers).sourceCollection) {
+                var server = usedByServers.filter((item) => item == travelerItem.value);
+                if (server.length > 0)
+                    this.checkedItems.push(travelerItem);
+            }
+        }     
+    }
+    addTravelerData(dlg: wijmo.input.Popup, servers: wijmo.input.MultiSelect) {
+        console.log(servers);
         this.addGridRow(dlg);
         this.currentEditItem.traveler_service_pool_name = "";
         this.currentEditItem.device_name = "";
@@ -61,7 +77,8 @@ export class TravelerDataStore extends GridBase implements OnInit {
         this.currentEditItem.password = "";
         this.currentEditItem.integrated_security = "";
         this.currentEditItem.test_scan_server = "";
-        this.currentEditItem.used_by_servers = "";
+        this.currentEditItem.used_by_servers = [];
+        this.checkedItems = [];
     }
 
 }
