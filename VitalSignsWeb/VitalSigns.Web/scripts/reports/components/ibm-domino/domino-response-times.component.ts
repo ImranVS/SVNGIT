@@ -27,7 +27,7 @@ export class DominoResponseTimes extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `dailyservertranschart`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=ResponseTime`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=ResponseTime&type=Domino`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
@@ -54,7 +54,7 @@ export class DominoResponseTimes extends WidgetController {
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=ResponseTime`,
+                    url: `/reports/summarystats_chart?statName=ResponseTime&type=Domino`,
                     dateformat: "date",
                     chart: {
                         chart: {

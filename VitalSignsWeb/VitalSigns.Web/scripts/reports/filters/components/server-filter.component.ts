@@ -20,7 +20,7 @@ export class ServerFilter {
     @Input() hideServerControl: boolean;
     endDate: Date = new Date();
     startDate: Date = new Date(this.endDate.getFullYear() ,this.endDate.getMonth(),this.endDate.getDate()-7);
-    
+    currentDate: Date = new Date();
     deviceNameData: any;
     errorMessage: any;
     
@@ -52,8 +52,8 @@ export class ServerFilter {
             v2.style.display = "none";
         }
         if (this.showSingleDatePanel == true) {
-            var v = <HTMLDivElement>document.getElementById("dtPanel");
-            v.style.display = "block";
+            var v = <HTMLDivElement>document.getElementById("dtPanel3");
+            v.style.display = "inline-block";
         }
         
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
@@ -83,17 +83,25 @@ export class ServerFilter {
             selEndDate = '0' + selEndDate;
         if (selEndMonth.length == 1)
             selEndMonth = '0' + selEndMonth;
-        
+
+        var currentStartDate = (this.currentDate.getDate()).toString();
+        var currentStartMonth = (this.currentDate.getMonth() + 1).toString();
+        if (currentStartDate.length == 1)
+            currentStartDate = '0' + currentStartDate;
+        if (currentStartMonth.length == 1)
+            currentStartMonth = '0' + currentStartMonth;
+
 
         var startFinalDate = this.startDate.getFullYear().toString() + '-' + selStartMonth + '-' + selStartDate;
         var endFinalDate = this.endDate.getFullYear().toString() + '-' + selEndMonth + '-' + selEndDate;
 
         var newStartDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate());
         var newEndDate = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate());
+        var newCurrentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDate());
         
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
         if (this.showSingleDatePanel)
-            URL += "&date=" + newStartDate.toISOString();
+            URL += "&date=" + newCurrentDate.toISOString();
         //if (this.statName != "")
         //    URL += "&statName=" + this.statName;
         console.log(URL);

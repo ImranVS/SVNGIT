@@ -24,22 +24,24 @@
 
 </div>-->
 <div id="dtPanel" style="display:inline-block">
-    <wj-input-date format="yyyy-MM-dd" [(value)]="startDate"></wj-input-date>
-    <wj-input-date format="yyyy-MM-dd" [(value)]="endDate"></wj-input-date>
+    <span class="headerBlock">Start Date :</span><wj-input-date format="yyyy-MM-dd" [(value)]="startDate" style="width:125px;"></wj-input-date>
+    <span class="headerBlock">End Date:</span><wj-input-date format="yyyy-MM-dd" [(value)]="endDate" style="width:125px;"></wj-input-date>
 </div>
 <div id="dtServer" style="display:inline-block">
-    <wj-multi-select #multisel1
+    <span class="headerBlock">Servers:</span><wj-multi-select #multisel1
                      [placeholder]="'Select Servers'"
                      class="multiselect"
                      [itemsSource]="deviceNameData"
                      displayMemberPath="name" selectedValuePath="id"
                      [headerFormat]="'{count} Servers selected'"
                      [checkedMemberPath]="'selected'"
-                     [(ngModel)]="selectedServers">
+                     [(ngModel)]="selectedServers" style="width:150px;">
     </wj-multi-select>
 </div>
+<br />
 <div id="dtStat" style="display:inline-block">
-    <wj-combo-box name="statList" [itemsSource]="statNameData"  #multisel2 style="width:200px;"
+    <span class="headerBlock">Select Stat:</span>
+    <wj-combo-box name="statList" [itemsSource]="statNameData"  #multisel2 style="width:310px;"
                   [(ngModel)]="selectedStats">
     </wj-combo-box>
 

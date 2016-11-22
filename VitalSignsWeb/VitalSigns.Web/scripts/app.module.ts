@@ -51,6 +51,7 @@ import {StatisticsReport} from './reports/components/statistics-report.component
 import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
 import {ConsoleCommands} from './reports/components/ibm-domino/console-commands-report.component';
 import {AvgCPUUtil} from './reports/components/ibm-domino/avg-cpu-util.component';
+import {MaxCPUUtil} from './reports/components/ibm-domino/max-cpu-util.component';
 import {DailyServerTrans} from './reports/components/ibm-domino/daily-server-trans.component';
 import {ClusterSecQueue} from './reports/components/ibm-domino/cluster-sec-queue.component';
 import {DominoResponseTimes} from './reports/components/ibm-domino/domino-response-times.component';
@@ -122,6 +123,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
         ResponseTimeReport,
         ConsoleCommands,
         AvgCPUUtil,
+        MaxCPUUtil,
         DailyServerTrans,
         ClusterSecQueue,
         DominoResponseTimes,
