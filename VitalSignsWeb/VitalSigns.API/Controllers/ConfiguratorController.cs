@@ -61,7 +61,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<Notifications> notificationsRepository;
         private IRepository<NotificationDestinations> notificationDestRepository;
-       private IRepository<Scripts> scriptsRepository;
+        private IRepository<Scripts> scriptsRepository;
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<IbmConnectionsObjects> ibmConnectionsObjectsRepository;
@@ -881,7 +881,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
-                var result = travelerdatastoreRepository.All().Select(x => new TravelerDataStoresModel
+                var travellerData = travelerdatastoreRepository.All().Select(x => new TravelerDataStoresModel
                 {
                     Id = x.Id,
                     TravelerServicePoolName = x.TravelerServicePoolName,
@@ -896,8 +896,9 @@ namespace VitalSigns.API.Controllers
                     UsedByServers = x.UsedByServers
 
                 }).ToList();
-
-                Response = Common.CreateResponse(result);
+                statusRepository = new Repository<Status>(ConnectionString);
+                var travelerServers = statusRepository.Collection.AsQueryable().Where(x => x.SecondaryRole.Contains("Traveler")).Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
+                Response = Common.CreateResponse(new { travellerData= travellerData, travelerServers= travelerServers });
             }
 
             catch (Exception exception)
@@ -916,8 +917,8 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(travelerdatas.Id))
                 {
                     TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer, UsedByServers = travelerdatas.UsedByServers };
-                    travelerdatastoreRepository.Insert(travelerds);
-                    Response = Common.CreateResponse(true, "OK", "traveler data inserted successfully");
+                   string id= travelerdatastoreRepository.Insert(travelerds);
+                    Response = Common.CreateResponse(id, "OK", "traveler data inserted successfully");
                 }
                 else
                 {
@@ -951,23 +952,6 @@ namespace VitalSigns.API.Controllers
             Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
             travelerdatastoreRepository.Delete(expression);
         }
-
-        [HttpGet("get_traveller_servers")]
-        public APIResponse Gettravellerserver()
-        {
-            try
-            {
-                statusRepository = new Repository<Status>(ConnectionString);
-                var result = statusRepository.Collection.AsQueryable().Where(x => x.SecondaryRole.Contains("Traveler")).Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
-                Response = Common.CreateResponse(result);
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Get traveler servers falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-
-        } 
         #endregion
 
         #region IBM Domino Settings
