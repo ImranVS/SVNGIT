@@ -61,6 +61,7 @@ export class CustomStatistics extends GridBase implements OnInit {
         this.currentEditItem.greater_than_or_less_than = "";
         this.currentEditItem.times_in_a_row = 0;
         this.currentEditItem.console_command = "";
+        this.checkedDevices = [];
 
     }
 
