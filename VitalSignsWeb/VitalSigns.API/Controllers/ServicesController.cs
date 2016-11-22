@@ -37,45 +37,84 @@ namespace VitalSigns.API.Controllers
         [HttpGet("dashboard_summary")]
         public APIResponse ServersStatusSummary()
         {
-            statusRepository = new Repository<Status>(ConnectionString);
-            var result = statusRepository.Collection.Aggregate()
-                                               .Group(x => x.StatusCode, g => new { label = g.Key, value = g.Count() })
-                                               .Project(x => new
-                                               {
-                                                   Label = x.label,
-                                                   Value = x.value
-                                               }).ToList();
-            var issue = result.Where(item => item.Label == "Issue").Select(x => x.Value);
-            var ok = result.Where(item => item.Label == "OK").Select(x => x.Value);
-            var notResponding = result.Where(item => item.Label == "Not Responding").Select(x => x.Value);
-            var maintenance = result.Where(item => item.Label == "Maintenance").Select(x => x.Value);
-            return Common.CreateResponse(new { issue = issue, ok = ok, notResponding = notResponding, maintenance = maintenance });
+            try
+            {
+                List<string> statusCode = new List<string>();
+                serverRepository = new Repository<Server>(ConnectionString);
+                statusRepository = new Repository<Status>(ConnectionString);
+                var servers = serverRepository.Collection.AsQueryable().Where(x => x.IsEnabled == true)
+                                                        .Select(x => new ServerStatus
+                                                        {
+                                                            Id = x.Id,
+                                                            IsEnabled = x.IsEnabled,
+                                                            Type = x.DeviceType,
+                                                            Name = x.DeviceName,
+                                                        }).OrderBy(x => x.Name).ToList(); ;
+                foreach (var server in servers)
+                {
+                    var serverStatus = statusRepository.Collection.AsQueryable().FirstOrDefault(x => x.DeviceId == server.Id);
+                    if (serverStatus != null)
+                    {
+                        statusCode.Add(serverStatus.StatusCode);
+                    }
+                }
+                var issue = statusCode.Where(item => item == "Issue").Count();
+                var ok = statusCode.Where(item => item == "OK").Count();
+                var notResponding = statusCode.Where(item => item == "Not Responding").Count();
+                var maintenance = statusCode.Where(item => item == "Maintenance").Count();
+                Response = Common.CreateResponse(new { issue = issue, ok = ok, notResponding = notResponding, maintenance = maintenance });
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
         }
 
         [HttpGet("status_summary_by_type")]
-        public IEnumerable<StatusSummary> GetStatusSummaryByType()
+        public APIResponse GetStatusSummaryByType()
         {
-            statusRepository = new Repository<Status>(ConnectionString);
-            var result = statusRepository.All()
-                                        .Select(x => new
-                                        {
-                                            DeviceType = x.DeviceType,
-                                            StatusCode = x.StatusCode
-                                        }).ToList();
-            List<string> typeList = result.Select(x => x.DeviceType).Distinct().ToList();
-            List<StatusSummary> summaryList = new List<StatusSummary>();
-            foreach (string type in typeList)
+            try
             {
-                summaryList.Add(new StatusSummary
+                List<ServerStatus> statusData = new List<ServerStatus>();
+                List<string> typeList = new List<string>();
+            
+                serverRepository = new Repository<Server>(ConnectionString);
+                statusRepository = new Repository<Status>(ConnectionString);
+                var deviceIds = serverRepository.Collection.AsQueryable().Where(x => x.IsEnabled == true)
+                                                        .Select(x => x.Id).ToList();
+                foreach (var server in deviceIds)
                 {
-                    Type = type,
-                    Ok = result.Where(x => x.DeviceType == type && x.StatusCode == "OK").Count(),
-                    NotResponding = result.Where(x => x.DeviceType == type && x.StatusCode == "Not Responding").Count(),
-                    Issue = result.Where(x => x.DeviceType == type && x.StatusCode == "Issue").Count(),
-                    Maintenance = result.Where(x => x.DeviceType == type && x.StatusCode == "Maintenance").Count()
-                });
+                    var serverStatus = statusRepository.Collection.AsQueryable().FirstOrDefault(x => x.DeviceId == server);
+                    if (serverStatus != null)
+                    {
+                        statusData.Add(new ServerStatus { Type = serverStatus.DeviceType, StatusCode = serverStatus.StatusCode });
+                        if(!typeList.Contains(serverStatus.DeviceType))
+                             typeList.Add(serverStatus.DeviceType);
+                    }
+                }
+              
+                List<StatusSummary> summaryList = new List<StatusSummary>();
+                foreach (string type in typeList)
+                {
+                    summaryList.Add(new StatusSummary
+                    {
+                        Type = type,
+                        Ok = statusData.Where(x =>  x.Type == type && x.StatusCode == "OK").Count(),
+                        NotResponding = statusData.Where(x => x.Type == type && x.StatusCode == "Not Responding").Count(),
+                        Issue = statusData.Where(x => x.Type == type && x.StatusCode == "Issue").Count(),
+                        Maintenance = statusData.Where(x => x.Type == type && x.StatusCode == "Maintenance").Count()
+                    });
+                }
+                Response = Common.CreateResponse(summaryList.Where(x => x.Type != null && x.Type != "Domino Cluster").ToList());
             }
-            return summaryList.Where(x => x.Type != null && x.Type != "Domino Cluster").ToList();
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
         }
         [HttpGet("dashboard_stats")]
         public APIResponse GetDashboardStats()
@@ -159,7 +198,7 @@ namespace VitalSigns.API.Controllers
                     if (!string.IsNullOrEmpty(server.Status))
                         server.Status = server.Status.ToLower().Replace(" ", "");
                     else
-                        server.Status = string.Empty;
+                        server.Status = "notset";
                     if (string.IsNullOrEmpty(server.Type))
                         server.Type = string.Empty;
                     if (string.IsNullOrEmpty(server.StatusCode))
