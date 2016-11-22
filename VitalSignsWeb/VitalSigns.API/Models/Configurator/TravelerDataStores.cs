@@ -39,7 +39,7 @@ namespace VitalSigns.API.Models.Configurator
         public string TestScanServer { get; set; }
 
         [JsonProperty("used_by_servers")]
-        public string UsedByServers { get; set; }
+        public List<string> UsedByServers { get; set; }
 
     }
 }
