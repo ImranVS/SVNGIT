@@ -22,7 +22,10 @@ namespace VitalSigns.API.Models
     public class CellInfo
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public string DeviceId { get; set; }
+
+        [JsonProperty("cell_id")]
+        public string CellId { get; set; }
 
         [JsonProperty("cell_name")]
         public string CellName { get; set; }
