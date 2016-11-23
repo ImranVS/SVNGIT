@@ -162,39 +162,18 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                string key;
-                string[] enkey;
-               
-                byte[] credeskey;
-              
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
                 {
                    Alias=x.Alias,
                    UserId=x.UserId,
                    DeviceType=x.DeviceType,
-                   Id=x.Id,
-
-                    Password = x.Password
+                   Id=x.Id
+                
+                  
 
                 }).ToList();
-                foreach (var paswword in result)
-                {
-                    key = paswword.Password;
-                    enkey = key.Split(',');
-
-                    credeskey = new byte[enkey.Length];
-                    for (int j = 0; j < enkey.Length; j++)
-                    {
-                        credeskey[j] = Byte.Parse(enkey[j]);
-                    }
-
-                    paswword.Password = tripleDes.Decrypt(credeskey);
-
-              
-
-
-                }
+             
 
                 Response = Common.CreateResponse(result);
 
@@ -239,13 +218,28 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
-                    var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
-                                                             .Set(p => p.DeviceType, serverCredential.DeviceType)
-                                                             .Set(p => p.Password, serverCredential.Password)
-                                                             .Set(p => p.UserId, serverCredential.UserId);
-                    var result = credentialsRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                   
+                    if (!serverCredential.IsModified)
+                    {
+                        FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
+                        var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
+                                                           .Set(p => p.DeviceType, serverCredential.DeviceType)
+
+                                                           .Set(p => p.UserId, serverCredential.UserId);
+                        var result = credentialsRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                    }
+                    else
+                    {
+                        FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
+                        var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
+                                                                 .Set(p => p.DeviceType, serverCredential.DeviceType)
+                                                                 .Set(p => p.Password, bytepwd)
+                                                                 .Set(p => p.UserId, serverCredential.UserId);
+                        var result = credentialsRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                    }
+                    
                 }
             }
             catch (Exception exception)
@@ -1032,7 +1026,7 @@ namespace VitalSigns.API.Controllers
                                                                   new NameValue { Name = "ConsecutiveTelnet", Value = dominoSettings.ConsecutiveTelnet}
                                                              };
                     var result = Common.SaveNameValues(ibmDominoSettings);
-                    Response = Common.CreateResponse(true);
+                    Response = Common.CreateResponse(result);
                 }
                 catch (Exception exception)
                 {
@@ -4450,7 +4444,7 @@ namespace VitalSigns.API.Controllers
                 mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
 
 
-
+                
                 if (!string.IsNullOrEmpty(mobileUser.Id))
                 {
                   
