@@ -510,7 +510,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("database")]
-        public APIResponse GetDatabase(string filter_by, string filter_value, string order_by, string order_type, string group_by, string top_x, bool get_chart, string exceptions)
+        public APIResponse GetDatabase(string filter_by, string filter_value, string order_by, string order_type, string group_by, string top_x, bool get_chart, string exceptions, string device_id = "")
         {
             List<ServerDatabase> data = null;
             List<Segment> segments = new List<Segment>();
@@ -529,29 +529,56 @@ namespace VitalSigns.API.Controllers
                         // exceptions is not requested - getting all entries, no exceptions
                         if (string.IsNullOrEmpty(exceptions))
                         {
-                            var res = databaseRepository.Collection.Aggregate()
-                                    .Match(_ => true).ToList();
-
-                            data = res.Select(x => new ServerDatabase
+                            if (string.IsNullOrEmpty(device_id))
                             {
-                                DeviceId = x.DeviceId,
-                                Title = x.Title,
-                                DeviceName = x.DeviceName,
-                                Status = x.Status,
-                                Folder = x.Folder,
-                                FolderCount = x.FolderCount,
-                                Details = x.Details,
-                                FileName = x.FileName,
-                                DesignTemplateName = Convert.ToString(x.DesignTemplateName == null || x.DesignTemplateName == "" ? "" : x.DesignTemplateName),
-                                FileSize = x.FileSize,
-                                Quota = x.Quota,
-                                InboxDocCount = x.InboxDocCount,
-                                ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
-                                ReplicaId = x.ReplicaId,
-                                DocumentCount = x.DocumentCount,
-                                Categories = x.Categories,
-                                PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
-                            }).ToList();
+                                var res = databaseRepository.Collection.Aggregate()
+                                    .Match(_ => true).ToList();
+                                data = res.Select(x => new ServerDatabase
+                                {
+                                    DeviceId = x.DeviceId,
+                                    Title = x.Title,
+                                    DeviceName = x.DeviceName,
+                                    Status = x.Status,
+                                    Folder = x.Folder,
+                                    FolderCount = x.FolderCount,
+                                    Details = x.Details,
+                                    FileName = x.FileName,
+                                    DesignTemplateName = Convert.ToString(x.DesignTemplateName == null || x.DesignTemplateName == "" ? "" : x.DesignTemplateName),
+                                    FileSize = x.FileSize,
+                                    Quota = x.Quota,
+                                    InboxDocCount = x.InboxDocCount,
+                                    ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                    ReplicaId = x.ReplicaId,
+                                    DocumentCount = x.DocumentCount,
+                                    Categories = x.Categories,
+                                    PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
+                                }).ToList();
+                            }
+                            else
+                            {
+                                var res = databaseRepository.Collection.Aggregate()
+                                    .Match(y => y.DeviceId == device_id).ToList();
+                                data = res.Select(x => new ServerDatabase
+                                {
+                                    DeviceId = x.DeviceId,
+                                    Title = x.Title,
+                                    DeviceName = x.DeviceName,
+                                    Status = x.Status,
+                                    Folder = x.Folder,
+                                    FolderCount = x.FolderCount,
+                                    Details = x.Details,
+                                    FileName = x.FileName,
+                                    DesignTemplateName = Convert.ToString(x.DesignTemplateName == null || x.DesignTemplateName == "" ? "" : x.DesignTemplateName),
+                                    FileSize = x.FileSize,
+                                    Quota = x.Quota,
+                                    InboxDocCount = x.InboxDocCount,
+                                    ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                    ReplicaId = x.ReplicaId,
+                                    DocumentCount = x.DocumentCount,
+                                    Categories = x.Categories,
+                                    PercentQuota = Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)
+                                }).ToList();
+                            }
                         }
                         else
                         {
