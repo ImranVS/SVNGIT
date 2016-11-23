@@ -63,6 +63,6 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("used_by_servers")]
         [BsonIgnoreIfNull]
-        public string UsedByServers { get; set; }
+        public List<string> UsedByServers { get; set; }
     }
 }
