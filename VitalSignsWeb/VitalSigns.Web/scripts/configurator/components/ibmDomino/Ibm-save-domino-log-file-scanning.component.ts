@@ -113,6 +113,10 @@ export class AddLogFile extends GridBase implements OnInit {
             });
         this.router.navigateByUrl('/configurator/ibmDomino?tab=1');
     }
+    CancelSettings() {
+
+        this.router.navigateByUrl('/configurator/ibmDomino?tab=1');
+    }
     changeInDevices(server: string) {
        
         this.devices = server;
