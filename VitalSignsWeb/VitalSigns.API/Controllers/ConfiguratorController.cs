@@ -4858,7 +4858,7 @@ namespace VitalSigns.API.Controllers
                 try
                 {
                     credentialsRepository = new Repository<Credentials>(ConnectionString);
-                    var credential = credentialsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == cellInfo.Id);
+                    var credential = credentialsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == cellInfo.CredentialsId);
                     if (credential != null)
                     {
                         if (!string.IsNullOrEmpty(credential.Password))
@@ -4873,7 +4873,7 @@ namespace VitalSigns.API.Controllers
                             cellInfo.Password = mySecrets.Decrypt(password);
                             cellInfo.UserName = credential.UserId;
 
-
+                            var result = getServerList(cellInfo);
                         }
                         else
                         {
@@ -5039,7 +5039,8 @@ namespace VitalSigns.API.Controllers
             model.CellsData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "WebSphere" && x.CellName != null)
                                                                         .Select(x => new CellInfo
                                                                         {
-                                                                            Id = x.CellId,
+                                                                            DeviceId = x.Id,
+                                                                            CellId = x.CellId,
                                                                             CellName = x.CellName,
                                                                             Name = x.DeviceName,
                                                                             HostName = x.CellHostName,
@@ -5067,7 +5068,12 @@ namespace VitalSigns.API.Controllers
             credentialsRepository = new Repository<Credentials>(ConnectionString);
 
             model.CredentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
-
+            foreach (var item in model.CellsData)
+            {
+                var credential = model.CredentialsData.FirstOrDefault(x => x.Value == item.CredentialsId);
+                if(credential!=null)
+                item.CredentialsName = credential.DisplayText;
+            }
             return Common.CreateResponse(model);
         }
 
@@ -5180,22 +5186,40 @@ namespace VitalSigns.API.Controllers
         [HttpPut("save_websphere_cell")]
         public APIResponse SaveWebsphereCellInfo([FromBody]CellInfo cellInfo)
         {
+            serversRepository = new Repository<Server>(ConnectionString);
             try
-            {
-                Server server = new Server();
-                server.Id = ObjectId.GenerateNewId().ToString();
-                server.CellId = ObjectId.GenerateNewId().ToString();
-                server.CellName = cellInfo.CellName;
-                server.DeviceName = cellInfo.Name;
-                server.CellHostName = cellInfo.HostName;
-                server.ConnectionType = cellInfo.ConnectionType;
-                server.PortNumber = cellInfo.PortNo;
-                server.GlobalSecurity = cellInfo.GlobalSecurity;
-                server.CredentialsId = cellInfo.CredentialsId;
-                server.Realm = cellInfo.Realm;
-                server.DeviceType = "WebSphere";
-                serversRepository = new Repository<Server>(ConnectionString);
-                serversRepository.Insert(server);
+            {  if (string.IsNullOrEmpty(cellInfo.DeviceId))
+                {
+                    Server server = new Server();
+                    server.Id = ObjectId.GenerateNewId().ToString();
+                    server.CellId = ObjectId.GenerateNewId().ToString();
+                    server.CellName = cellInfo.CellName;
+                    server.DeviceName = cellInfo.Name;
+                    server.CellHostName = cellInfo.HostName;
+                    server.ConnectionType = cellInfo.ConnectionType;
+                    server.PortNumber = cellInfo.PortNo;
+                    server.GlobalSecurity = cellInfo.GlobalSecurity;
+                    server.CredentialsId = cellInfo.CredentialsId;
+                    server.Realm = cellInfo.Realm;
+                    server.DeviceType = "WebSphere";                   
+                    serversRepository.Insert(server);
+                }
+            else
+                {
+
+                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                    var updateDefination = serversRepository.Updater.Set(p => p.CellId, cellInfo.CellId)
+                                                             .Set(p => p.CellName, cellInfo.CellName)
+                                                             .Set(p => p.DeviceName, cellInfo.Name)
+                                                             .Set(p => p.CellHostName, cellInfo.HostName)
+                                                             .Set(p => p.ConnectionType, cellInfo.ConnectionType)
+                                                             .Set(p => p.PortNumber, cellInfo.PortNo)
+                                                             .Set(p => p.GlobalSecurity, cellInfo.GlobalSecurity)
+                                                             .Set(p => p.CredentialsId, cellInfo.CredentialsId)
+                                                             .Set(p => p.Realm, cellInfo.Realm);
+                    var result = serversRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, "OK", "Cell information updated successfully");
+                }
 
 
             }
@@ -5204,6 +5228,25 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, "Error", exception.Message);
             }
             return Response;
+
+        }
+        [HttpDelete("delete_cellInfo/{id}")]
+        public void DeleteCellInfo(string id)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == id);
+                serversRepository.Delete(expression);
+
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+            }
+
+
 
         }
         #endregion
