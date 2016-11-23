@@ -40,6 +40,7 @@ namespace VitalSignsDailyStats
         IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
         IRepository<StatusDetails> statusDeatilsRepository;
         IRepository<NameValue> nameValueRepository;
+        IRepository<ConsolidationResults> consolidationResultsRepository;
 
         IRepository<ValidLocation> validLocationsRepository;
         List<string> diskNames = new List<string>();
@@ -106,6 +107,7 @@ namespace VitalSignsDailyStats
                 nameValueRepository = _unitOfWork.Repository<NameValue>();
 
                 validLocationsRepository = _unitOfWork.Repository<ValidLocation>();
+                consolidationResultsRepository = _unitOfWork.Repository<ConsolidationResults>();
                 try
                 {
                     if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
@@ -831,6 +833,47 @@ namespace VitalSignsDailyStats
         {
             try
             {
+                bool alreadyProcessed = false;
+                try
+                {
+                    Expression<Func<ConsolidationResults, bool>> filterExpression = (p => p.ScanDate == SearchDate);
+
+                    var  result = consolidationResultsRepository.Find(filterExpression).FirstOrDefault();
+                    if(result!=null)
+                    {
+                        alreadyProcessed = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    alreadyProcessed = false;
+                    WriteAuditEntry("Exception in getting  ConsolidationResults" + ex.Message);
+                }
+                try
+                {
+                    if (alreadyProcessed)
+                    {
+                        WriteAuditEntry(DateTime.Now.ToString() + " " + SearchDate.ToString() + " has already been processed", LogUtils.LogLevel.Normal);
+                        return;
+                    }
+                   else
+                    {
+                        WriteAuditEntry(DateTime.Now.ToString() + " " + SearchDate.ToString() + " has NOT already been processed", LogUtils.LogLevel.Normal);
+             
+
+
+                              ConsolidationResults consolidationResults = new ConsolidationResults { ScanDate = SearchDate, Result = "Sucess" };
+                        consolidationResultsRepository.Insert(consolidationResults);
+                    }
+
+                   
+                }
+                catch (Exception ex)
+                {
+
+                    WriteAuditEntry("Exception in inserting data into ConsolidationResults" + ex.Message);
+                }
                 WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks service is consolidating statistics for " + SearchDate, LogUtilities.LogUtils.LogLevel.Normal);
 
                 try
