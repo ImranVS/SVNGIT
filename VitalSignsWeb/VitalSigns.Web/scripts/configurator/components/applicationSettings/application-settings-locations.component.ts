@@ -31,6 +31,7 @@ export class Location extends GridBase implements OnInit  {
     countries: any;
     states: any;
     cities: any;
+    data: wijmo.collections.CollectionView;
     get pageSize(): number {
         return this.data.pageSize;
     }
@@ -57,25 +58,25 @@ export class Location extends GridBase implements OnInit  {
 
 
     ngOnInit() {
-            this.initialGridBind( '/Configurator/locations');
+        this.initialGridBind('/Configurator/locations');
         }
  
 
-    getstates() {
+    getstates(currentregion) {
       
-        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country)
+        this.service.get('/Configurator/get_locations?country=' + currentregion)
 
             .subscribe(
             (response) => {
                 this.states = response.data.stateData;
-                this.states.splice(0, 1);
+               // this.states.splice(0, 1);
             },
             (error) => this.errorMessage = <any>error
             );
     }
-    getcities() {
+    getcities(currentitem) {
        
-        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country+'&state='+ this.currentEditItem.region)
+        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country + '&state=' + currentitem)
             .subscribe(
             (response) => {               
                 this.cities = response.data.cityData 
