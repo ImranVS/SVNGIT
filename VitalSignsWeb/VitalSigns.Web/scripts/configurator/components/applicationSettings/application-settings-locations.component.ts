@@ -31,10 +31,6 @@ export class Location extends GridBase implements OnInit  {
     countries: any;
     states: any;
     cities: any;
-    data: wijmo.collections.CollectionView;
-    get pageSize(): number {
-        return this.data.pageSize;
-    }
 
     constructor(service: RESTService) {
         super(service);
