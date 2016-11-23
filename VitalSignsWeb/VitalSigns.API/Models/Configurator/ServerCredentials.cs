@@ -22,8 +22,14 @@ namespace VitalSigns.API.Models
         [JsonProperty("device_type")]
         public string DeviceType { get; set; }
 
+        [JsonProperty("confirm_password")]
+        public string ConfirmPassword { get; set; }
 
         [JsonProperty("id")]
         public string Id { get; set; }
+
+        [JsonProperty("is_modified")]
+        public bool IsModified { get; set; }
+
     }
 }
