@@ -27,7 +27,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<NameValue> nameValueRepository;
         // private IRepository<DominoSettingsModel> dominoSettingsRepository;
 
-        private string DateFormat = "yyyy-MM-dd";
+        private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
 
         //private IRepository<IbmConnectionsTopStats> ibmRepository;
 
@@ -274,6 +274,8 @@ namespace VitalSigns.API.Controllers
                             else
                                 serverStatus.Description = "Device Status not updated";
 
+                            serverStatus.Details = status.Details;
+
                         }
                         else
                         {
@@ -334,7 +336,8 @@ namespace VitalSigns.API.Controllers
                                                  Description = x.Description,
                                                  Status = x.StatusCode,
                                                  DeviceId = x.DeviceId,
-                                                 SecondaryRole = x.SecondaryRole
+                                                 SecondaryRole = x.SecondaryRole,
+                                                 Details = x.Details
                                              })).FirstOrDefault();
 
                         Models.ServerTypeModel serverType = Common.GetServerTypeTabs(deviceType);
@@ -934,25 +937,22 @@ namespace VitalSigns.API.Controllers
         {
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
-                startDate = DateTime.Now.AddDays(-7).ToString(DateFormat);
+                startDate = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
                 
             if (endDate == "")
-                endDate = DateTime.Today.ToString(DateFormat);
+                endDate = DateTime.UtcNow.ToString(DateFormat);
 
             //1 day is added to the end so we include that days data
-            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
-            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
-
-            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
-            dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1).ToUniversalTime();
 
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
             var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
             try
             {
                 FilterDefinition<SummaryStatistics> filterDefTemp;
-                FilterDefinition<SummaryStatistics> filterDef = summaryRepository.Filter.Gte(p => p.CreatedOn, dtStart) &
-                    summaryRepository.Filter.Lte(p => p.CreatedOn, dtEnd);
+                FilterDefinition<SummaryStatistics> filterDef = summaryRepository.Filter.Gte(p => p.StatDate, dtStart) &
+                    summaryRepository.Filter.Lte(p => p.StatDate, dtEnd);
 
                 if (!string.IsNullOrEmpty(statName) && isChart == false)
                 {
@@ -1022,7 +1022,7 @@ namespace VitalSigns.API.Controllers
                     var result = statsHourly
                                        .GroupBy(row => new
                                        {
-                                           row.CreatedOn.Date,
+                                           row.StatDate.Value.Date,
                                            row.StatName,
                                            row.DeviceName
 
@@ -1045,7 +1045,7 @@ namespace VitalSigns.API.Controllers
                             summaryRepository.Find(filterDefTemp)
                             .GroupBy(row => new
                             {
-                                row.CreatedOn.Date,
+                                row.StatDate.Value.Date,
                                 row.StatName,
                                 row.DeviceName
                             })
@@ -1092,12 +1092,12 @@ namespace VitalSigns.API.Controllers
                             var devicename = result.Where(x => x.StatName == name.ToString()).ToList();
 
                             //WS changed to just less then end date due to the end date being the next day to include all of the previous day values.
-                            for (DateTime date = dtStart.Date; date.Date < dtEnd.Date; date = date.AddDays(1))
+                            for (DateTime date = dtStart; date < dtEnd; date = date.AddDays(1))
                             {
                                 var item = result.Where(x => x.Date == date && x.StatName == name.ToString()).FirstOrDefault();
                                 var output = result.Where(x => x.Date == date && x.StatName == name.ToString()).ToList();
                                 
-                                string statdate = date.ToString("d-MMMM-yyyy", CultureInfo.InvariantCulture);
+                                string statdate = date.ToString(DateFormat);
                                 if (item != null && statNames.Length == 1)
                                 {
                                     segments.Add(new Segment { Label = statdate.ToString(), Value = item.Value });

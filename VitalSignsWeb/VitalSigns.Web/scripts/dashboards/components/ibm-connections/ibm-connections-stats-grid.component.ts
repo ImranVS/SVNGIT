@@ -66,7 +66,8 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
                 this.serviceId = this.widgetService.getProperty('serviceId');
             }
         });
-        var displayDate = (new Date()).toISOString().slice(0, 10);
+        var date = new Date();
+        var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
         this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
             .subscribe(
@@ -81,7 +82,8 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
 
     refresh(serviceUrl?: string) {
 
-        var displayDate = (new Date()).toISOString().slice(0, 10);
+        var date = new Date();
+        var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
         this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
             .subscribe(

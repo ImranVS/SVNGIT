@@ -43,6 +43,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/summarystats?statName=*_CREATED_LAST_DAY&deviceid=${this.serviceId}`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'dailyActivities',

@@ -40,6 +40,7 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
                     url: `/services/summarystats?statName=[NUM_OF_ACTIVITIES_ACTIVITIES_CREATED_YESTERDAY,NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY,ACTIVITY_LOGINS_LAST_DAY]&deviceid=${this.serviceId}`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'activities',
@@ -136,7 +137,8 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
 
             this.serviceId = value;
 
-            var displayDate = (new Date()).toISOString().slice(0, 10);
+            var date = new Date();
+            var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
             this.widgetService.refreshWidget('activities', `/services/summarystats?statName=[NUM_OF_ACTIVITIES_ACTIVITIES_CREATED_YESTERDAY,NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY,ACTIVITY_LOGINS_LAST_DAY]&deviceid=${this.serviceId}`)
                 .catch(error => console.log(error));
@@ -144,7 +146,7 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
             this.widgetService.refreshWidget('top5CommunitiesActivities', `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Activity&count=5`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('activitiesGrid', `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=2016-10-20&endDate=2016-10-20`)
+            this.widgetService.refreshWidget('activitiesGrid', `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
                 .catch(error => console.log(error));
             
 

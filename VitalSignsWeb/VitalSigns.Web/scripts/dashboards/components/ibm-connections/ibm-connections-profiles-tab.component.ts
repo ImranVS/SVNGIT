@@ -32,7 +32,8 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
             }
         });
 
-        var displayDate = (new Date()).toISOString().slice(0, 10);
+        var date = new Date();
+        var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
         this.widgets = [
             {

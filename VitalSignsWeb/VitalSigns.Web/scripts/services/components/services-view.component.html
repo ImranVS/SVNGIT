@@ -58,7 +58,7 @@
                 </div>
                 <div class="serverTitle">{{service.name}}</div>
                 <p class="desc" *ngIf="service.version">{{service.version}}</p>
-                <p class="desc">{{service.description}}</p>
+                <p class="desc">Last Updated: {{service.last_updated}}</p>
                 <div class="statusIndicator"></div>
                 {{setFilterCount(i)}}
             </div>

@@ -5,6 +5,8 @@ import {Router} from '@angular/router';
 
 import {RESTService} from '../../core/services';
 
+import * as helpers from '../../core/services/helpers/helpers';
+
 import {ServiceTab} from '../models/service-tab.interface';
 
 import * as ServiceTabs from '../service-tab.collection';
@@ -15,7 +17,8 @@ import {WidgetService} from '../../core/widgets';
     providers: [
         HttpModule,
         RESTService,
-        WidgetService
+        WidgetService,
+        helpers.DateTimeHelper
     ]
 })
 export class ServiceDetails implements OnInit {
@@ -31,7 +34,8 @@ export class ServiceDetails implements OnInit {
     services: any[];
    // service: any
 
-    constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute) {
+    constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute,
+        private datetimeHelpers: helpers.DateTimeHelper) {
         //.map(routeParams => routeParams.id);
     }
     
@@ -62,7 +66,7 @@ export class ServiceDetails implements OnInit {
             this.dataProvider.get(`/services/device_details?device_id=${this.deviceId}&destination=${this.module}`)
                 .subscribe(
                 response => {
-                    this.service = response.data;
+                    this.service = this.datetimeHelpers.toLocalDateTime(response.data);
                     this.selectTab(this.service.tabs[0]);
                     console.log(this.service.tabs);
                 },

@@ -42,6 +42,7 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
                     url: `/services/summarystats?statName=NUM_OF_WIKIS_*_YESTERDAY&deviceid=${this.serviceId}`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'wikis',

@@ -6,6 +6,7 @@ import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {ServicesViewService} from '../services/services-view.service';
+import * as helpers from '../../core/services/helpers/helpers';
 
 import {RESTService} from '../../core/services';
 
@@ -16,7 +17,8 @@ declare var injectSVG: any;
     providers: [
         HttpModule,
         RESTService,
-        ServicesViewService
+        ServicesViewService,
+        helpers.DateTimeHelper
     ]
 })
 export class ServicesView implements OnInit, AfterViewChecked {
@@ -85,7 +87,8 @@ export class ServicesView implements OnInit, AfterViewChecked {
          private service: RESTService,
          private router: Router,
          private route: ActivatedRoute,
-         private servicesViewService: ServicesViewService
+         private servicesViewService: ServicesViewService,
+         private datetimeHelpers: helpers.DateTimeHelper
      ) {
 
         this.addServersForm = this.formBuilder.group({
@@ -136,8 +139,8 @@ export class ServicesView implements OnInit, AfterViewChecked {
                 else {
                     this.services = response.data;
                   
-                }
-
+                } 
+                this.services = this.datetimeHelpers.toLocalDateTime(this.services);
             },
             error => this.errorMessage = <any>error
             );

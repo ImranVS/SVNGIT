@@ -41,6 +41,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
                     url: `/services/summarystats?statName=NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY&deviceid=${this.serviceId}`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'bookmarks',

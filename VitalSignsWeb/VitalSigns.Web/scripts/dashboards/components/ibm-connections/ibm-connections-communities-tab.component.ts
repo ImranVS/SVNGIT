@@ -34,7 +34,8 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 this.serviceId = this.widgetService.getProperty('serviceId');
             }
         });
-        var displayDate = (new Date()).toISOString().slice(0, 10);
+        var date = new Date();
+        var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
         this.widgets = [
             {
@@ -44,6 +45,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 css: 'col-xs-12 col-sm-6 col-md-4 col-lg-4',
                 settings: {
                     url: `/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'communitiesByType',
@@ -185,7 +187,8 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
 
             this.serviceId = value;
 
-            var displayDate = (new Date()).toISOString().slice(0, 10);
+            var date = new Date();
+            var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
             this.widgetService.refreshWidget('communitiesByType', `/services/summarystats?statName=[COMMUNITY_TYPE_PRIVATE,COMMUNITY_TYPE_PUBLIC,COMMUNITY_TYPE_PUBLICINVITEONLY]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`)
                 .catch(error => console.log(error));

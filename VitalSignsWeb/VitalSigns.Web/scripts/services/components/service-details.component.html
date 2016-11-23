@@ -2,15 +2,16 @@
 
     <div id="serverOverview">
         <div class="row">
-            <div class="form-group col-sm-6">
+            <!--<div class="form-group col-lg-12">-->
+            <div class="form-group col-sm-9">
                 <div class="serverStatus {{service.status}}" [innerHTML]="getStatusDescription(service.status)"></div>
                 <div class="serverIcon">
                     <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
                 </div>
                 <h2>{{service.name}}</h2>
-                <p>{{service.version}} - {{service.description}}</p>
+                <p>{{service.details}} - Last Updated: {{service.last_updated}}</p>
             </div>
-            <div class="form-group col-sm-offset-3 col-sm-3" >
+            <div class="form-group col-sm-3" >
                 <button class="btn btn-primary" (click)="deleteServer()" *ngIf="module=='Configurator'">
                     Delete Server
                 </button>

@@ -42,6 +42,7 @@ export class IBMConnectionsForumsTab extends WidgetController implements OnInit,
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/summarystats?statName=NUM_OF_FORUMS_*_YESTERDAY&deviceid=${this.serviceId}`,
+                    dateformat: "date",
                     chart: {
                         chart: {
                             renderTo: 'forums',
