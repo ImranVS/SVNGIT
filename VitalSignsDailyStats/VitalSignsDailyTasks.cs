@@ -415,7 +415,7 @@ namespace VitalSignsDailyStats
             try
             {
 
-                appPath = @"C:\Program Files (x86)";
+             //   appPath = @"C:\Program Files (x86)";
                 string[] LogFilesToBeRecreated = {
                                             "History.txt",
                                              "Daily_Tasks_Log.txt"
