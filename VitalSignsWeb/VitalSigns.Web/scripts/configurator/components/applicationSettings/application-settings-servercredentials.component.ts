@@ -15,6 +15,7 @@ export class ServerCredentials extends GridBase implements OnInit {
     selectedDeviceType: string;  
     ServerCredentialId: string;
     deviceTypes: any;
+    isVisible: boolean = false;
  
   
     constructor(service: RESTService) {
@@ -30,20 +31,51 @@ export class ServerCredentials extends GridBase implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-      
+       
     } 
   
     ngOnInit() {
         this.initialGridBind('/Configurator/get_credentials');
+      
 
     }
     saveServerCredential(dlg: wijmo.input.Popup) {
+      
         this.saveGridRow('/Configurator/save_credentials',dlg);
     }
     
     delteServerCredential() {
        
         this.delteGridRow('/Configurator/delete_credential/');  
+
+    }
+    addServerCredential(dlg: wijmo.input.Popup) {
+        this.addGridRow(dlg);
+        this.currentEditItem.alias = "";
+        this.currentEditItem.user_id = "";
+        this.currentEditItem.device_type = "";
+        this.currentEditItem.password = "";
+       
+    }
+    editServerCredential(dlg: wijmo.input.Popup) {
+     
+        this.editGridRow(dlg);
+        this.currentEditItem.is_modified = false;
+        this.currentEditItem.password = "****";
+        this.currentEditItem.confirm_password = "****";
+
+      
+    }
+    valuechange(newValue) {
+
+        if (this.currentEditItem.password == "****") {
+
+            this.currentEditItem.is_modified = false;
+
+        }
+        else {
+            this.currentEditItem.is_modified = true;
+        }
 
     }
 }
