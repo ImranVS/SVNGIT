@@ -132,7 +132,7 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-5',
             settings: {
-                url: '/services/status_list?type=Traveler&docfield=user_count&isChart=true',
+                url: '/services/status_list?type=Traveler&docfield=traveler_users&isChart=true',
                 chart: {
                     chart: {
                         renderTo: 'travelerUsers',

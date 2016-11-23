@@ -157,7 +157,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                 this.eventsdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[3]));
                 var groupDesc = new wijmo.collections.PropertyGroupDescription('device_type');
                 this.eventsdata.groupDescriptions.push(groupDesc);
-                //this.eventsdata.pageSize = 10;
+                this.eventsdata.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
         );

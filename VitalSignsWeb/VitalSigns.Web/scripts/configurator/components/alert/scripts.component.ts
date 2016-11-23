@@ -107,4 +107,6 @@ export class Scripts extends GridBase implements OnInit  {
         dlg.hide();
     }
 
+    uploadScript() { }
+
 }

@@ -52,8 +52,8 @@
                         </div>
                         <div class="form-group col-sm-6" *ngIf="isScript">
                             <label for="script_name" class="control-label col-sm-4">Script:</label>
-                            <wj-combo-box name="script_name" [itemsSource]="scripts" [(text)]="formObject.script_name"
-                                          [(ngModel)]="formObject.script_name">
+                            <wj-combo-box name="script_name" [itemsSource]="scripts" displayMemberPath="text" selectedValuePath="text"
+                                         placeholder="Select Script" [(ngModel)]="formObject.send_to">
                             </wj-combo-box>
                         </div>
                     </div>

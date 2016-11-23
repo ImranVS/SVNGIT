@@ -29,6 +29,7 @@ export class HoursDestinations extends GridBase implements OnInit {
     eventsdata: any;
     businesshours: any;
     sendvia: any;
+    scripts: any;
     isSMS: boolean;
     isSNMP: boolean;
     isEmail: boolean;
@@ -44,7 +45,8 @@ export class HoursDestinations extends GridBase implements OnInit {
         send_via: null,
         copy_to: null,
         persistent_notification: null,
-        blind_copy_to: null
+        blind_copy_to: null,
+        scripts: null
     };
 
     get pageSize(): number {
@@ -71,6 +73,13 @@ export class HoursDestinations extends GridBase implements OnInit {
             .subscribe(
             (response) => {
                 this.businesshours = response.data;
+            },
+            (error) => this.errorMessage = <any>error
+        );
+        this.service.get('/configurator/get_scripts?isCombo=true')
+            .subscribe(
+            (response) => {
+                this.scripts = response.data;
             },
             (error) => this.errorMessage = <any>error
             );
@@ -107,7 +116,7 @@ export class HoursDestinations extends GridBase implements OnInit {
         else if (this.formObject.send_via == "Script") {
             this.flex.collectionView.currentItem.business_hours_type = this.formObject.business_hours_type;
             this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
-            //add script name and location
+            this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
         }
         if (this.formObject.id == "") {
             this.service.put(saveUrl, this.formObject)
@@ -144,6 +153,7 @@ export class HoursDestinations extends GridBase implements OnInit {
 
         this.formObject.id = this.flex.collectionView.currentItem.id;
         //console.log(this.flex.collectionView.currentItem.id);
+        this.formObject.scripts = this.scripts;
         this.formObject.business_hours_type = this.flex.collectionView.currentItem.business_hours_type;
         this.formObject.send_to = this.flex.collectionView.currentItem.send_to;
         this.formObject.script_name = this.flex.collectionView.currentItem.script_name;

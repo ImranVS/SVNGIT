@@ -3,8 +3,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-import { AppComponent } from './app.component'
+import { AppComponent } from './app.component';
 import { APP_ROUTES } from './app.routes';
+
+import {SuccessErrorMessageComponent} from './core/components/success-error-message-component';
 
 import { DragulaModule } from 'ng2-dragula/ng2-dragula';
 
@@ -96,6 +98,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
     ],
     declarations: [
         AppComponent,
+        SuccessErrorMessageComponent,
         WidgetContainer,
         AppHeader,
         AppMainMenu,

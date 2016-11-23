@@ -32,15 +32,21 @@ export class Alerts implements OnInit {
     ngOnInit() {
         this.tabsData = [
             {
-                "title": "Definitions",
+                "title": "Settings",
+                "component": "AlertSettings",
+                "path": "/app/configurator/components/alert/alert-settings.component",
+                "active": false
+            },
+            {
+                "title": "Hours and Destinations/Escalation",
                 "component": "AlertDefinitionsDashboard",
                 "path": "/app/configurator/components/alert/alert-definitions-dashboard.component",
                 "active": false
             },
             {
-                "title": "Settings",
-                "component": "AlertSettings",
-                "path": "/app/configurator/components/alert/alert-settings.component",
+                "title": "Notification Definitions",
+                "component": "AlertDefinitions",
+                "path": "/app/configurator/components/alert/alert-definitions.component",
                 "active": false
             },
             {

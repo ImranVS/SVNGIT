@@ -41,15 +41,23 @@
                             <input type="text" class="form-control" id="script_command" required name="script_command" [(ngModel)]="formObject.script_command">
                         </div>
                         <div class="form-group">
+                            <label for="script_name">Upload Script:</label>
+                            <input type="file" class="form-control" required name="script_location" [(ngModel)]="formObject.script_location">
+                            <button class="btn btn-success" (click)="uploadScript()">
+                                Upload
+                            </button>
+                        </div>
+                        <div class="form-group">
                             <label for="script_name">Location:</label>
-                            <input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">
+                            <!--<input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">-->
+                            <label id="scriptLocation"></label>
                         </div>
                     </div>
 
 
                     <div class="modal-footer">
                         <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                        <button class="btn btn-primary" type="cancel" name="cancel">Cancel</button>
+                        <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
                     </div>
 
                 </form>

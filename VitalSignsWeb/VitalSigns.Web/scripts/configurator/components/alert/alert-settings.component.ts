@@ -1,9 +1,12 @@
-﻿import {Component, Input, OnInit, AfterViewInit, ViewChild, ViewChildren} from '@angular/core';
+﻿import {Component, NgModule, Input, OnInit, AfterViewInit, ViewChild, ViewChildren} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
+import {SuccessErrorMessageComponent} from '../../../core/components/success-error-message-component';
+import { BrowserModule  } from '@angular/platform-browser';
+
 
 @Component({
     templateUrl: '/app/configurator/components/alert/alert-settings.component.html',
@@ -12,19 +15,23 @@ import {RESTService} from '../../../core/services';
         RESTService
     ]
 })
+
 export class AlertSettings implements WidgetComponent, OnInit {
     @Input() settings: any;
     @ViewChildren('name') inputName;
+    @ViewChild('message') message;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     insertMode: boolean = false;
     alertSettings: FormGroup;
     errorMessage: string;
+    successMessage: string;
     profileEmail: string;
     formTitle: string;
     recurrencesChecked: boolean;
     persistentChecked: boolean;
     limitsChecked: boolean;
     selected_events: string[] = [];
+    visibility: boolean = false;
     data: wijmo.collections.CollectionView;
 
     constructor(
@@ -65,7 +72,8 @@ export class AlertSettings implements WidgetComponent, OnInit {
         });
     }
     ngOnInit() {
-        
+        this.errorMessage = "";
+        this.successMessage = "";
         this.route.params.subscribe(params => {        
             this.dataProvider.get('/Configurator/get_alert_settings')
                 .subscribe(
@@ -117,13 +125,25 @@ export class AlertSettings implements WidgetComponent, OnInit {
     }
 
     onSubmit(nameValue: any): void {
+        this.errorMessage = "";
+        this.successMessage = "";
         this.refreshCheckedEvents();
         var alert_settings = this.alertSettings.value;
         var selected_events = this.selected_events;
-        this.dataProvider.put('/Configurator/save_alert_settings', { alert_settings, selected_events })
-            .subscribe(
-            response => {
-
-            });
+        if (this.selected_events.length == 0 && this.recurrencesChecked) {
+            this.errorMessage = "No selection made. Please select at least one Events entry.";
+            this.message.toggleVisibility(true, this.errorMessage);
+        }
+        if (!this.errorMessage) {
+            this.dataProvider.put('/configurator/save_alert_settings', { alert_settings, selected_events })
+                .subscribe(
+                response => {
+                    this.successMessage = response.message;
+                    this.message.toggleVisibility(false, this.successMessage);
+                },
+            (error) => this.errorMessage = <any>error
+            );
+        } 
+        this.selected_events = [];
     }
 }
