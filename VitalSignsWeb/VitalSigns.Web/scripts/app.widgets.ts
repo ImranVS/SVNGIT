@@ -67,6 +67,7 @@ export * from './configurator/components/server/server-simulation-tests.compomen
 export * from './configurator/components/server/server-device-attributes.component'
 
 export * from './configurator/components/server/server-maintenance-windows.component'
+export * from './configurator/components/server/server-events.component'
 
 export * from './configurator/components/server/server-disk-settings.component'
 export * from './configurator/components/server/server-advanced-settings.component'
