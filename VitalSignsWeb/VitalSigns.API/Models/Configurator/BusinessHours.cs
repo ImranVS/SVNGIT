@@ -43,6 +43,11 @@ namespace VitalSigns.API.Models
         public bool Saturday { get; set; }
 
 
+        [JsonProperty("use_type")]
+        public int UseType { get; set; }
+
+
+
 
 
 
