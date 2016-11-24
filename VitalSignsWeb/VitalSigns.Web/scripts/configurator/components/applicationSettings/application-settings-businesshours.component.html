@@ -1,5 +1,6 @@
 ﻿<div class="widgetWrapper">
     <div class="widgetContent">
+        <p>Hours definitions below may be used when configuring server scanning and maintenance as well as alerting. Note: the default definition for Business Hours may not be renamed or deleted.</p>
         <div class="grid-sort-group">
 
             <!-- edit details in a popup -->
@@ -111,9 +112,10 @@ data.pageIndex + 1 | number
                         <div class="row">
                             <div class="form-group col-sm-6">
                                 <label for="duration" class="control-label col-sm-5">Duration</label>
-                                <div class="col-sm-7">
-                                    <input type="number" class="form-control" id="duration" required name="duration" [(ngModel)]="currentEditItem.duration">
+                                <div class="col-sm-5">
+                                    <input type="number" min="1" class="form-control" id="duration" required name="duration" [(ngModel)]="currentEditItem.duration">
                                 </div>
+                                <label for="duration" class="control-label col-sm-2">Minutes</label>
                             </div>
                           
                         </div>
