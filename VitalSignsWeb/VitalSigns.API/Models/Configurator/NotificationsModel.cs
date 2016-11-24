@@ -44,6 +44,15 @@ namespace VitalSigns.API.Models
         [JsonProperty("blind_copy_to")]
         public string BlindCopyTo { get; set; }
 
+        [JsonProperty("script_name")]
+        public string ScriptName { get; set; }
+
+        [JsonProperty("script_command")]
+        public string ScriptCommand { get; set; }
+
+        [JsonProperty("script_location")]
+        public string ScriptLocation { get; set; }
+
         [JsonProperty("persistent_notification")]
         public bool? PersistentNotification { get; set; }
 

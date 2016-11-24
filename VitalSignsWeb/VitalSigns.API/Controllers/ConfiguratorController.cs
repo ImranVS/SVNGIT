@@ -886,8 +886,8 @@ namespace VitalSigns.API.Controllers
                     UserName = x.UserName,
                     Password = x.Password,
                     IntegratedSecurity = x.IntegratedSecurity,
-                    TestScanServer = x.TestScanServer,
-                    UsedByServers = x.UsedByServers
+                    TestScanServer = x.TestScanServer
+                    //UsedByServers = x.UsedByServers
 
                 }).ToList();
                 statusRepository = new Repository<Status>(ConnectionString);
@@ -910,7 +910,7 @@ namespace VitalSigns.API.Controllers
                 travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
                 if (string.IsNullOrEmpty(travelerdatas.Id))
                 {
-                    TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer, UsedByServers = travelerdatas.UsedByServers };
+                    TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer };//, UsedByServers = travelerdatas.UsedByServers };
                    string id= travelerdatastoreRepository.Insert(travelerds);
                     Response = Common.CreateResponse(id, "OK", "traveler data inserted successfully");
                 }
@@ -925,8 +925,8 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.UserName, travelerdatas.UserName)
                                                              .Set(p => p.Password, travelerdatas.Password)
                                                              .Set(p => p.IntegratedSecurity, travelerdatas.IntegratedSecurity)
-                                                             .Set(p => p.TestScanServer, travelerdatas.TestScanServer)
-                                                             .Set(p => p.UsedByServers, travelerdatas.UsedByServers);
+                                                             .Set(p => p.TestScanServer, travelerdatas.TestScanServer);
+                                                             //.Set(p => p.UsedByServers, travelerdatas.UsedByServers);
                     var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "traveler data updated successfully");
                 }
@@ -2962,7 +2962,7 @@ namespace VitalSigns.API.Controllers
                         }
                     }
 
-                    Response = Common.CreateResponse(true);
+                    Response = Common.CreateResponse(true, "OK", "Alert Settings were successully updated.");
                 }
                 catch (Exception exception)
                 {
@@ -3341,20 +3341,31 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("get_scripts")]
-        public APIResponse GetScripts()
+        public APIResponse GetScripts(bool isCombo = false)
         {
             try
             {
-                scriptsRepository = new Repository<Scripts>(ConnectionString);
-                var result = scriptsRepository.Collection.AsQueryable()
-                .Select(s => new ScriptDefinition
+                if (!isCombo)
                 {
-                    Id = s.Id,
-                    ScriptName = s.ScriptName,
-                    ScriptCommand = s.ScriptCommand,
-                    ScriptLocation = s.ScriptLocation
-                }).OrderBy(x => x.ScriptName).ToList();
-                Response = Common.CreateResponse(result);
+                    scriptsRepository = new Repository<Scripts>(ConnectionString);
+                    var result = scriptsRepository.Collection.AsQueryable()
+                        .Select(x => new ScriptDefinition
+                        {
+                            Id = x.Id,
+                            ScriptName = x.ScriptName,
+                            ScriptCommand = x.ScriptCommand,
+                            ScriptLocation = x.ScriptLocation
+                        }
+                        ).OrderBy(x => x.ScriptName).ToList();
+                    Response = Common.CreateResponse(result);
+                }
+                else
+                {
+                    scriptsRepository = new Repository<Scripts>(ConnectionString);
+                    var result = scriptsRepository.Collection.AsQueryable()
+                        .Select(x => new ComboBoxListItem { DisplayText = x.ScriptName, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
+                    Response = Common.CreateResponse(result);
+                }          
             }
             catch (Exception ex)
             {
@@ -3370,6 +3381,7 @@ namespace VitalSigns.API.Controllers
             UpdateDefinition<NotificationDestinations> updateHours;
             FilterDefinition<BusinessHours> filterDefBusHrs;
             List<dynamic> result_sendto = new List<dynamic>();
+            NotificationDestinations hoursdata;
             bool result = false;
             try
             {
@@ -3386,15 +3398,44 @@ namespace VitalSigns.API.Controllers
                 }
                 if (string.IsNullOrEmpty(notificationDefinition.ID))
                 {
-                    NotificationDestinations hoursdata = new NotificationDestinations
+                    if (notificationDef.SendVia == "E-mail")
                     {
-                        BusinessHoursId = bushrsid,
-                        SendVia = notificationDefinition.SendVia,
-                        SendTo = notificationDefinition.SendTo,
-                        CopyTo = notificationDefinition.CopyTo,
-                        BlindCopyTo = notificationDefinition.BlindCopyTo,
-                        PersistentNotification = notificationDefinition.PersistentNotification
-                    };
+                        hoursdata = new NotificationDestinations
+                        {
+                            BusinessHoursId = bushrsid,
+                            SendVia = notificationDefinition.SendVia,
+                            SendTo = notificationDefinition.SendTo,
+                            CopyTo = notificationDefinition.CopyTo,
+                            BlindCopyTo = notificationDefinition.BlindCopyTo,
+                            PersistentNotification = notificationDefinition.PersistentNotification
+                        };
+                    }
+                    else if (notificationDef.SendVia == "SMS")
+                    {
+                        hoursdata = new NotificationDestinations
+                        {
+                            BusinessHoursId = bushrsid,
+                            SendVia = notificationDefinition.SendVia,
+                            SendTo = notificationDefinition.SendTo
+                        };
+                    }
+                    else if (notificationDef.SendVia == "Script")
+                    {
+                        hoursdata = new NotificationDestinations
+                        {
+                            BusinessHoursId = bushrsid,
+                            SendVia = notificationDefinition.SendVia,
+                            SendTo = notificationDefinition.ScriptName
+                        };
+                    }
+                    else
+                    {
+                        hoursdata = new NotificationDestinations
+                        {
+                            BusinessHoursId = bushrsid,
+                            SendVia = notificationDefinition.SendVia
+                        };
+                    }
                     hoursdata.Id = notificationDestRepository.Insert(hoursdata);
                     var notificationDestinations = notificationDestRepository.Collection.AsQueryable().ToList();
                     foreach (var notificationDest in notificationDestinations)

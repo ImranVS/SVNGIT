@@ -36,6 +36,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
         private IRepository<Maintenance> maintenanceRepository;
+        private IRepository<Location> locationRepository;
+        private IRepository<NameValue> namevalueRepository;
 
         private string DateFormat = "yyyy-MM-dd";
         /// <summary>
@@ -146,7 +148,7 @@ namespace VitalSigns.API.Controllers
             return chart;
         }
 
-       
+
         ///<Author>Kiran Dadireddy</Author>
         /// <summary>
         /// Returns all mobile user devices
@@ -172,7 +174,7 @@ namespace VitalSigns.API.Controllers
                                      Access = x.Access,
                                      DeviceId = x.DeviceID,
 
-                                    
+
                                      //IsSelected = false
                                  }).ToList();
             }
@@ -198,7 +200,7 @@ namespace VitalSigns.API.Controllers
             var maintainWindows = maintenanceRepository.All().Select(x => new MaintenanceModel
             {
                 Id = x.Id,
-               
+
 
             }).ToList();
 
@@ -1248,7 +1250,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("users/cost_per_user")]
-        public APIResponse GetCostPerUser(string deviceId, string sortby, string startDate = "", string endDate = "", bool isChart = false)
+        public APIResponse GetCostPerUser(string deviceId, string sortby, string startDate = "", string endDate = "", bool isChart = false, int top_x = 0)
         {
             Repository<Server> serverRepository = new Repository<Server>(ConnectionString);
             Repository<SummaryStatistics> summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
@@ -1300,7 +1302,7 @@ namespace VitalSigns.API.Controllers
                         Label = grp.Key.DeviceName,
                         Value = grp.Average(x => x.StatValue)
                     }).ToList(); ;
-                serverlist = serverRepository.Find(p => p.DeviceType == "Domino").ToList();
+                serverlist = serverRepository.Collection.Aggregate().ToList();
                 foreach (var stats in summarylist)
                 {
                     var x = new ExpandoObject() as IDictionary<string, Object>;
@@ -1313,7 +1315,7 @@ namespace VitalSigns.API.Controllers
                             var fieldvalue = bson2[fieldName].ToDouble();
                             if (stats.Value != 0)
                             {
-                                x.Add("cost_per_user", Math.Round(fieldvalue / stats.Value,2));
+                                x.Add("cost_per_user", Math.Round(fieldvalue / stats.Value, 2));
                             }
                             else
                             {
@@ -1333,6 +1335,10 @@ namespace VitalSigns.API.Controllers
                     else
                     {
                         result = result.OrderByDescending(x => x.cost_per_user).ToList();
+                    }
+                    if (top_x > 0)
+                    {
+                        result = result.Take(top_x).ToList();
                     }
                     foreach (var doc in result)
                     {
@@ -1376,7 +1382,7 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetCPUMemory()
         {
             List<dynamic> result = new List<dynamic>();
-            
+
             try
             {
                 dailyStatisticsRepository = new Repository<DailyStatistics>(ConnectionString);
@@ -1438,7 +1444,7 @@ namespace VitalSigns.API.Controllers
                         if (stat1.DeviceName == stat3.DeviceName)
                         {
                             var doc = stat3.ToBsonDocument();
-                            x.Add("Memory", Math.Round(Convert.ToDouble(doc["memory"].ToString()),2).ToString());
+                            x.Add("Memory", Math.Round(Convert.ToDouble(doc["memory"].ToString()), 2).ToString());
                             x.Add("CPU", Math.Round(Convert.ToDouble(doc["cpu"].ToString()), 2).ToString());
                             //x.Add("MemoryThreshold", doc["memory_threshold"].ToString());
                             //x.Add("CPUThreshold", doc["cpu_threshold"].ToString());
@@ -1464,7 +1470,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-                FilterDefinition<Status> filterDefStatus = statusRepository.Filter.Exists(x => x.Disks,true);
+                FilterDefinition<Status> filterDefStatus = statusRepository.Filter.Exists(x => x.Disks, true);
                 List<Status> result1 = statusRepository.Find(filterDefStatus).AsQueryable().OrderBy(x => x.DeviceName).ToList();
                 foreach (Status status in result1)
                 {
@@ -1508,17 +1514,17 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceName = x.DeviceName,
                     Category = x.Category,
-                    LastUpdated =Convert.ToString(x.LastUpdated),
+                    LastUpdated = Convert.ToString(x.LastUpdated),
                     PendingMail = x.PendingMail,
                     DeadMail = x.DeadMail,
                     HeldMail = x.HeldMail,
                     Location = x.Location,
-                    StatusCode=x.StatusCode,
-                  PendingThreshold=x.PendingThreshold,
-                  DeadThreshold=x.DeadThreshold,
-                  HeldThreshold=x.HeldThreshold
-                    
-                }).ToList().OrderBy(x => x.DeviceName).OrderByDescending(x=>x.PendingMail);
+                    StatusCode = x.StatusCode,
+                    PendingThreshold = x.PendingThreshold,
+                    DeadThreshold = x.DeadThreshold,
+                    HeldThreshold = x.HeldThreshold
+
+                }).ToList().OrderBy(x => x.DeviceName).OrderByDescending(x => x.PendingMail);
                 Response = Common.CreateResponse(result);
             }
 
@@ -1542,7 +1548,7 @@ namespace VitalSigns.API.Controllers
                 if (statdate == DateTime.MinValue || statdate.Date == DateTime.Now.Date)
                 {
                     statdate = DateTime.Now;
-                    var result = summaryStatisticsRepository.All().Where(x =>x.DeviceType=="Domino" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Date == statdate.Date).ToList();
+                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Domino" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Date == statdate.Date).ToList();
 
                     summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
                                          .Select(x => new SummaryDataModel
@@ -1568,85 +1574,85 @@ namespace VitalSigns.API.Controllers
 
                 }
                 var distinctData = summaryStats.Select(x => new { DeviceId = x.DeviceID, DeviceName = x.DeviceName }).Distinct().OrderBy(x => x.DeviceName).ToList();
-              
+
                 foreach (var item in distinctData)
                 {
                     if (item != null)
                     {
-                        
-                            DominoStatisticsModel dominoStats = new DominoStatisticsModel();
-                            dominoStats.DeviceName = item.DeviceName;
 
-                            var mailDelivered = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mail.Delivered");
-                            if (mailDelivered != null)
-                                dominoStats.TotalMailDelivered = mailDelivered.Value;
-                            else
-                                dominoStats.TotalMailDelivered = null;
+                        DominoStatisticsModel dominoStats = new DominoStatisticsModel();
+                        dominoStats.DeviceName = item.DeviceName;
 
-                            var mailaveragedelivertime = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mail.AverageDeliverTime");
-                            if (mailaveragedelivertime != null)
-                                dominoStats.AvgMailDelivery = mailaveragedelivertime.Value;
-                            else
-                                dominoStats.AvgMailDelivery = null;
+                        var mailDelivered = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mail.Delivered");
+                        if (mailDelivered != null)
+                            dominoStats.TotalMailDelivered = mailDelivered.Value;
+                        else
+                            dominoStats.TotalMailDelivered = null;
 
-                            var serveravailabilityindex = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Server.AvailabilityIndex");
-                            if (serveravailabilityindex != null)
-                                dominoStats.AvgServerAvailabilityIndex = serveravailabilityindex.Value;
-                            else
-                                dominoStats.AvgServerAvailabilityIndex = null;
+                        var mailaveragedelivertime = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mail.AverageDeliverTime");
+                        if (mailaveragedelivertime != null)
+                            dominoStats.AvgMailDelivery = mailaveragedelivertime.Value;
+                        else
+                            dominoStats.AvgMailDelivery = null;
 
-                            var hourlydowntimemin = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HourlyDownTimeMinutes");
-                            if (hourlydowntimemin != null)
-                                dominoStats.DownTime = hourlydowntimemin.Value;
-                            else
-                                dominoStats.DownTime = null;
+                        var serveravailabilityindex = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Server.AvailabilityIndex");
+                        if (serveravailabilityindex != null)
+                            dominoStats.AvgServerAvailabilityIndex = serveravailabilityindex.Value;
+                        else
+                            dominoStats.AvgServerAvailabilityIndex = null;
 
-                            var mempercentavilable = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mem.PercentAvailable");
-                            if (mempercentavilable != null)
-                                dominoStats.AvgMemory = mempercentavilable.Value;
-                            else
-                                dominoStats.AvgMemory = null;
+                        var hourlydowntimemin = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HourlyDownTimeMinutes");
+                        if (hourlydowntimemin != null)
+                            dominoStats.DownTime = hourlydowntimemin.Value;
+                        else
+                            dominoStats.DownTime = null;
 
-                            var dominocommandopendocument = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenDocument");
-                            if (dominocommandopendocument != null)
-                                dominoStats.WebDocumentsOpened = dominocommandopendocument.Value;
-                            else
-                                dominoStats.WebDocumentsOpened = null;
+                        var mempercentavilable = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mem.PercentAvailable");
+                        if (mempercentavilable != null)
+                            dominoStats.AvgMemory = mempercentavilable.Value;
+                        else
+                            dominoStats.AvgMemory = null;
 
-                            var dominocommandcreatedocument = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.CreateDocument");
-                            if (dominocommandcreatedocument != null)
-                                dominoStats.WebDocumentsCreated = dominocommandcreatedocument.Value;
-                            else
-                                dominoStats.WebDocumentsCreated = null;
+                        var dominocommandopendocument = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenDocument");
+                        if (dominocommandopendocument != null)
+                            dominoStats.WebDocumentsOpened = dominocommandopendocument.Value;
+                        else
+                            dominoStats.WebDocumentsOpened = null;
 
-                            var dominocommandopendb = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenDatabase");
-                            if (dominocommandopendb != null)
-                                dominoStats.WebDatabaseOpened = dominocommandopendb.Value;
-                            else
-                                dominoStats.WebDatabaseOpened = null;
+                        var dominocommandcreatedocument = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.CreateDocument");
+                        if (dominocommandcreatedocument != null)
+                            dominoStats.WebDocumentsCreated = dominocommandcreatedocument.Value;
+                        else
+                            dominoStats.WebDocumentsCreated = null;
 
-                            var dominocommandopenview = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenView");
-                            if (dominocommandopenview != null)
-                                dominoStats.WebViewsOpened = dominocommandopenview.Value;
-                            else
-                                dominoStats.WebViewsOpened = null;
+                        var dominocommandopendb = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenDatabase");
+                        if (dominocommandopendb != null)
+                            dominoStats.WebDatabaseOpened = dominocommandopendb.Value;
+                        else
+                            dominoStats.WebDatabaseOpened = null;
 
-                            var dominocommandtotal = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.Total");
-                            if (dominocommandtotal != null)
-                                dominoStats.WebCommandsTotal = dominocommandtotal.Value;
-                            else
-                                dominoStats.WebCommandsTotal = null;
+                        var dominocommandopenview = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenView");
+                        if (dominocommandopenview != null)
+                            dominoStats.WebViewsOpened = dominocommandopenview.Value;
+                        else
+                            dominoStats.WebViewsOpened = null;
 
-                            var httpsession = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HTTP sessions");
-                            if (httpsession != null)
-                                dominoStats.HttpSession = httpsession.Value;
-                            else
-                            dominoStats.HttpSession = null;                     
-                              
-                            dominoStatisticsData.Add(dominoStats);
-                        }
+                        var dominocommandtotal = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.Total");
+                        if (dominocommandtotal != null)
+                            dominoStats.WebCommandsTotal = dominocommandtotal.Value;
+                        else
+                            dominoStats.WebCommandsTotal = null;
+
+                        var httpsession = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HTTP sessions");
+                        if (httpsession != null)
+                            dominoStats.HttpSession = httpsession.Value;
+                        else
+                            dominoStats.HttpSession = null;
+
+                        dominoStatisticsData.Add(dominoStats);
                     }
-                
+                }
+
                 Response = Common.CreateResponse(dominoStatisticsData);
             }
 
@@ -1701,58 +1707,58 @@ namespace VitalSigns.API.Controllers
                 {
                     if (item != null)
                     {
-                   
-                            SametimeStatisticsModel MaxConcurrentLogins = new SametimeStatisticsModel();
-                            MaxConcurrentLogins.DeviceName = item.DeviceName;
-                            MaxConcurrentLogins.StatName = "Peak Logins";
-                            var peaklogin = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "MaxConcurrentLogins" || x.StatName == "PeakLogins"));
-                            if (peaklogin != null)
-                            {
-                                MaxConcurrentLogins.StatValue = peaklogin.Value;
-                            }
-                            else
-                            {
-                                MaxConcurrentLogins.StatValue = null;
-                            }
-                            SametimeStatisticsModel TotalTwoWayChats = new SametimeStatisticsModel();
-                            TotalTwoWayChats.DeviceName = item.DeviceName;
-                            TotalTwoWayChats.StatName = "Total 2-Way Chats";
-                            var totaltwoway = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "TotalTwoWayChats" || x.StatName == "Total2WayChats"));
-                            if (totaltwoway != null)
-                            {
-                                TotalTwoWayChats.StatValue = totaltwoway.Value;
-                            }
-                            else
-                            {
-                                TotalTwoWayChats.StatValue = null;
-                            }
-                            SametimeStatisticsModel TotalNWChats = new SametimeStatisticsModel();
-                            TotalNWChats.DeviceName = item.DeviceName;
-                            TotalNWChats.StatName = "Total n-Way Chats";
-                            var totalnchat = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "TotalNWChats" || x.StatName == "TotalnWayChats"));
-                            if (totalnchat != null)
-                            {
-                                TotalNWChats.StatValue = totalnchat.Value;
-                            }
-                            else
-                            {
-                                TotalNWChats.StatValue = null;
-                            }
-                            if(MaxConcurrentLogins.StatValue!=null)
+
+                        SametimeStatisticsModel MaxConcurrentLogins = new SametimeStatisticsModel();
+                        MaxConcurrentLogins.DeviceName = item.DeviceName;
+                        MaxConcurrentLogins.StatName = "Peak Logins";
+                        var peaklogin = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "MaxConcurrentLogins" || x.StatName == "PeakLogins"));
+                        if (peaklogin != null)
+                        {
+                            MaxConcurrentLogins.StatValue = peaklogin.Value;
+                        }
+                        else
+                        {
+                            MaxConcurrentLogins.StatValue = null;
+                        }
+                        SametimeStatisticsModel TotalTwoWayChats = new SametimeStatisticsModel();
+                        TotalTwoWayChats.DeviceName = item.DeviceName;
+                        TotalTwoWayChats.StatName = "Total 2-Way Chats";
+                        var totaltwoway = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "TotalTwoWayChats" || x.StatName == "Total2WayChats"));
+                        if (totaltwoway != null)
+                        {
+                            TotalTwoWayChats.StatValue = totaltwoway.Value;
+                        }
+                        else
+                        {
+                            TotalTwoWayChats.StatValue = null;
+                        }
+                        SametimeStatisticsModel TotalNWChats = new SametimeStatisticsModel();
+                        TotalNWChats.DeviceName = item.DeviceName;
+                        TotalNWChats.StatName = "Total n-Way Chats";
+                        var totalnchat = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && (x.StatName == "TotalNWChats" || x.StatName == "TotalnWayChats"));
+                        if (totalnchat != null)
+                        {
+                            TotalNWChats.StatValue = totalnchat.Value;
+                        }
+                        else
+                        {
+                            TotalNWChats.StatValue = null;
+                        }
+                        if (MaxConcurrentLogins.StatValue != null)
                         {
                             sametimeStatisticsData.Add(MaxConcurrentLogins);
                         }
-                           if(TotalNWChats.StatValue!=null)
+                        if (TotalNWChats.StatValue != null)
                         {
                             sametimeStatisticsData.Add(TotalNWChats);
                         }
-                           if(TotalTwoWayChats.StatValue!=null)
+                        if (TotalTwoWayChats.StatValue != null)
                         {
                             sametimeStatisticsData.Add(TotalTwoWayChats);
                         }
-                                                     
-                        }
+
                     }
+                }
                 Response = Common.CreateResponse(sametimeStatisticsData);
             }
             catch (Exception exception)
@@ -1762,6 +1768,234 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpGet("monthly_expenditure")]
+        public APIResponse GetMonthlyExpenditure(int count = 5, string group_by = "")
+        {
+            List<dynamic> result = new List<dynamic>();
+            List<Segment> segmentList = new List<Segment>();
+
+            try
+            {
+                namevalueRepository = new Repository<NameValue>(ConnectionString);
+                var currencySymbol = namevalueRepository.Collection.Aggregate()
+                    .Match(y => y.Name == "Currency Symbol")
+                    .ToList();
+
+                locationRepository = new Repository<Location>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var temp = serverRepository.Collection.Aggregate().ToList();
+                if (group_by == "")
+                {
+                    var serverdata = temp.GroupBy(row => new
+                    {
+                        row.DeviceType
+                    })
+                    .Select(grp => new
+                    {
+                        Label = grp.Key.DeviceType,
+                        Value = grp.Sum(y => y.MonthlyOperatingCost)
+                    }).ToList();
+                    foreach (var val in serverdata)
+                    {
+                        var x = new ExpandoObject() as IDictionary<string, Object>;
+                        x.Add("device_type", val.Label);
+                        x.Add("monthly_cost", val.Value);
+                        result.Add(x);
+                    }
+                    result = result.OrderByDescending(x => x.monthly_cost).Take(count).ToList();
+                    foreach (var doc in result)
+                    {
+                        Segment segment = new Segment()
+                        {
+                            Label = doc.device_type,
+                            Value = Convert.ToDouble(doc.monthly_cost)
+                        };
+                        segmentList.Add(segment);
+                    }
+                }
+                else if (group_by == "Location")
+                {
+                    var serverdata = temp.GroupBy(row => new
+                    {
+                        row.LocationId
+                    })
+                    .Select(grp => new
+                    {
+                        Label = grp.Key.LocationId,
+                        Value = grp.Sum(y => y.MonthlyOperatingCost)
+                    }).ToList();
+                    foreach (var val in serverdata)
+                    {
+                        var x = new ExpandoObject() as IDictionary<string, Object>;
+                        var locationData = locationRepository.Collection.Aggregate()
+                                    .Match(y => y.Id == val.Label).ToList();
+                        foreach (var value in locationData)
+                        {
+                            x.Add("location", value.LocationName);
+                            x.Add("monthly_cost", val.Value);
+                            result.Add(x);
+                        }
+                    }
+                    result = result.OrderByDescending(x => x.monthly_cost).Take(count).ToList();
+                    foreach (var doc in result)
+                    {
+                        Segment segment = new Segment()
+                        {
+                            Label = doc.location,
+                            Value = Convert.ToDouble(doc.monthly_cost)
+                        };
+                        segmentList.Add(segment);
+                    }
+                }
+                else if (group_by == "Category")
+                {
+                    var serverdata = temp.GroupBy(row => new
+                    {
+                        row.Category
+                    })
+                    .Select(grp => new
+                    {
+                        Label = grp.Key.Category,
+                        Value = grp.Sum(y => y.MonthlyOperatingCost)
+                    }).ToList();
+                    foreach (var val in serverdata)
+                    {
+                        var x = new ExpandoObject() as IDictionary<string, Object>;
+                        x.Add("category", val.Label);
+                        x.Add("monthly_cost", val.Value);
+                        result.Add(x);
+                    }
+                    result = result.OrderByDescending(x => x.monthly_cost).Take(count).ToList();
+                    foreach (var doc in result)
+                    {
+                        Segment segment = new Segment()
+                        {
+                            Label = doc.category,
+                            Value = Convert.ToDouble(doc.monthly_cost)
+                        };
+                        segmentList.Add(segment);
+                    }
+                }
+
+                Serie serie = new Serie();
+                serie.Title = "Monthly Expenditure";
+                serie.Segments = segmentList;
+
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+
+                Chart chart = new Chart();
+                chart.Title = "";
+                chart.Series = series;
+                if (currencySymbol.Count > 0)
+                {
+                    chart.YAxisTitle = currencySymbol[0].Value;
+                }
+
+                Response = Common.CreateResponse(chart);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get monthly expenditure falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("device_utilization")]
+        public APIResponse GetDeviceUtilization(string sort_type = "asc", int top_x = 0)
+        {
+            List<dynamic> result = new List<dynamic>();
+            List<SummaryStatistics> summaryData = new List<SummaryStatistics>(); 
+            List<Segment> segmentList = new List<Segment>();
+
+            try
+            {
+                summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                summaryData = summaryStatisticsRepository.Collection.Aggregate()
+                    .Match(y => y.StatName == "Server.Users")
+                    .ToList();
+                var summary = summaryData.GroupBy(row => new
+                {
+                    row.DeviceId,
+                    row.DeviceName
+                })
+                .Select(row => new {
+                    DeviceId = row.Key.DeviceId,
+                    DeviceName = row.Key.DeviceName,
+                    StatValue = row.Average(x => x.StatValue)
+                }).ToList();
+                
+                var serverData = serverRepository.Collection.Aggregate().ToList();
+                foreach (var val in summary)
+                {
+                    var devices = serverData.Where(y => y.Id == val.DeviceId && y.DeviceName == val.DeviceName)
+                        .Select(y => new
+                        {
+                            DeviceName = y.DeviceName,
+                            UserCount = y.IdealUserCount == null ? 0 : y.IdealUserCount
+                        }).ToList();
+                    if (devices.Count > 0)
+                    {
+                        var x = new ExpandoObject() as IDictionary<string, Object>;
+                        x.Add("device_name", val.DeviceName);
+                        if (devices[0].UserCount != 0)
+                        {
+                            double usercount = Convert.ToDouble(devices[0].UserCount);
+                            x.Add("device_expenditure", Math.Round(val.StatValue / usercount * 100, 2));
+                        }
+                        else
+                        {
+                            x.Add("device_expenditure", 0.0);
+                        }
+                        result.Add(x);
+                    }     
+                }
+
+                if (sort_type == "asc")
+                {
+                    //var propertyInfo = result[0].GetType().GetProperty("device_expenditure");
+                    result = result.OrderBy(x => x.device_expenditure).ToList();
+                }
+                else
+                {
+                    //var propertyInfo = result[0].GetType().GetProperty("device_expenditure");
+                    result = result.OrderByDescending(x => x.device_expenditure).ToList();
+                }
+                if (top_x > 0)
+                {
+                    result = result.Take(top_x).ToList();
+                }
+                foreach (var doc in result)
+                {
+                    Segment segment = new Segment()
+                    {
+                        Label = doc.device_name,
+                        Value = Convert.ToDouble(doc.device_expenditure)
+                    };
+                    segmentList.Add(segment);
+                }
+                Serie serie = new Serie();
+                serie.Title = "Percent Utilization";
+                serie.Segments = segmentList;
+
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+                
+                Chart chart = new Chart();
+                chart.Title = "";
+                chart.Series = series;
+
+                Response = Common.CreateResponse(chart);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get device utilization falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
     }
 }
 
