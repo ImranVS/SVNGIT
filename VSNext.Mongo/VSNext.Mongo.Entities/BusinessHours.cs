@@ -44,5 +44,10 @@ namespace VSNext.Mongo.Entities
         [BsonElement("device_id")]
         public string DeviceId { get; set; }
 
+        [DataMember]
+        [BsonElement("use_type")]
+        public int UseType { get; set; }
+
+
     }
 }
