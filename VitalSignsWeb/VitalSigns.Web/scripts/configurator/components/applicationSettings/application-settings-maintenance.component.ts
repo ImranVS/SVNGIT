@@ -298,6 +298,22 @@ export class Maintenance extends GridBase implements OnInit  {
     changeInDevices(devices: string) {
         this.devices = devices;
     }
+
+    get dataMobileUserspageSize(): number {
+        return this.dataMobileUsers.pageSize;
+    }
+    set dataMobileUserspageSize(value: number) {
+
+        if (this.flex1) {
+            if (this.dataMobileUsers.pageSize != value) {
+                this.dataMobileUsers.pageSize = value;
+                if (this.flex1) {
+                    (<wijmo.collections.IPagedCollectionView>this.flex1.collectionView).pageSize = value;
+                }
+            }
+        }
+
+    }
 }
 
 

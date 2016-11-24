@@ -114,7 +114,7 @@ data.pageIndex + 1 | number
                                 <div class="form-group col-sm-6">
                                     <label for="start_date" class="col-sm-4">Start Date</label>
                                     <div class="col-sm-8">
-                                        <input type="datetime" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
+                                        <input type="text" [value]="currentEditItem.start_date | date:'yyyy-MM-dd'" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
                                     </div>
                                 </div>
                                 <div class="form-group col-sm-6" *ngIf="durationSetting=='1'">
@@ -143,9 +143,10 @@ data.pageIndex + 1 | number
                             <div class="row">
                                 <div class="form-group col-sm-6">
                                     <label for="duration" class="col-sm-4">Duration</label>
-                                    <div class="col-sm-8">
+                                    <div class="col-sm-6">
                                         <input type="text" class="form-control" id="duration" name="duration" [(ngModel)]="currentEditItem.duration">
                                     </div>
+                                    <label for="duration" class="col-sm-2">Minutes</label>
                                 </div>
                             </div>
                         </div>
@@ -268,7 +269,7 @@ data.pageIndex + 1 | number
                                 </button>
                             </div>
                             <div class="pull-right" *ngIf="dataMobileUsers != null">
-                                <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                                <wj-menu [(value)]="dataMobileUserspageSize" [header]="'Page size'">
                                     <wj-menu-item [value]="10">10</wj-menu-item>
                                     <wj-menu-item [value]="20">20</wj-menu-item>
                                     <wj-menu-item [value]="50">50</wj-menu-item>
