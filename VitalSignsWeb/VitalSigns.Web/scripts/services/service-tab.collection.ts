@@ -46,6 +46,8 @@ export * from '../configurator/components/server/server-device-attributes.compon
 
 export * from '../configurator/components/server/server-domino-server-tasks.component'
 
+export * from '../configurator/components/server/server-events.component'
+
 
 
 
