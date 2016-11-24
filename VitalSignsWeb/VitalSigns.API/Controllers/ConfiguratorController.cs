@@ -61,7 +61,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<Notifications> notificationsRepository;
         private IRepository<NotificationDestinations> notificationDestRepository;
-        private IRepository<Scripts> scriptsRepository;
+       private IRepository<Scripts> scriptsRepository;
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<IbmConnectionsObjects> ibmConnectionsObjectsRepository;
@@ -426,7 +426,8 @@ namespace VitalSigns.API.Controllers
                         Wednesday = x.Days.Contains("Wednesday"),
                         Thursday = x.Days.Contains("Thursday"),
                         Friday = x.Days.Contains("Friday"),
-                        Saturday = x.Days.Contains("Saturday")
+                        Saturday = x.Days.Contains("Saturday"),
+                        UseType = x.UseType
                     }).ToList();
                     Response = Common.CreateResponse(result);
                 }
@@ -477,7 +478,7 @@ namespace VitalSigns.API.Controllers
 
                 if (string.IsNullOrEmpty(businesshour.Id))
                 {
-                    BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray() };
+                    BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray(), UseType = businesshour.UseType };
                     string id = businessHoursRepository.Insert(businessHours);
                     Response = Common.CreateResponse(id, "OK", "Business hour inserted successfully");
                 }
@@ -487,7 +488,9 @@ namespace VitalSigns.API.Controllers
                     var updateDefination = businessHoursRepository.Updater.Set(p => p.Name, businesshour.Name)
                                                              .Set(p => p.Duration, businesshour.Duration)
                                                              .Set(p => p.StartTime, businesshour.StartTime)
+                                                              .Set(p => p.UseType, businesshour.UseType)
                                                              .Set(p => p.Days, days.ToArray());
+                            
                     var result = businessHoursRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
                 }
@@ -2020,8 +2023,8 @@ namespace VitalSigns.API.Controllers
             try
             {
                 dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
-                var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
-               // var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => new ComboBoxListItem { DisplayText = x.TaskName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+               // var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
+                var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => new ComboBoxListItem { DisplayText = x.TaskName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 //var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.DeviceName }).ToList().OrderBy(x => x.DisplayText);
                 Response = Common.CreateResponse(new { TaskNames = result1});
                
