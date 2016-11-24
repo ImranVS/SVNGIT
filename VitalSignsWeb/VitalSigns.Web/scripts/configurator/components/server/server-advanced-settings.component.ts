@@ -8,16 +8,19 @@ import {Router, ActivatedRoute} from '@angular/router';
 
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
-export class ServerAdvancedSettings implements OnInit{
+export class ServerAdvancedSettings implements OnInit {
     advancedSettingsForm: FormGroup;
     errorMessage: string;
     deviceId: any;
     deviceCredentialData: any;
-   // selectedCredential: string;
+    // selectedCredential: string;
     selectedTpe: string;
     deviceType: any;
     selectedIbmDb2Credential: string;
     selectedCredential: string;
+    modal = true;
+    addCredentialForm: FormGroup;
+    serverType: string;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
@@ -25,7 +28,7 @@ export class ServerAdvancedSettings implements OnInit{
     ) {
 
         this.advancedSettingsForm = this.formBuilder.group({
-            'memory_threshold':  [''],
+            'memory_threshold': [''],
             'cpu_threshold': [''],
             'server_days_alert': [''],
             'cluster_replication_delay_threshold': [''],
@@ -33,7 +36,7 @@ export class ServerAdvancedSettings implements OnInit{
             'proxy_server_protocol': [''],
             'dbms_host_name': [''],
             'dbms_name': [''],
-            'dbms_port':[''],
+            'dbms_port': [''],
             'collect_extended_statistics': [''],
             'collect_meeting_statistics': [''],
             'extended_statistics_port': [''],
@@ -53,7 +56,16 @@ export class ServerAdvancedSettings implements OnInit{
 
         });
 
-      
+        this.addCredentialForm = this.formBuilder.group({
+            'alias': ['', Validators.required],
+            'user_id': ['', Validators.required],
+            'password': ['', Validators.required],
+            'device_type': [''],
+            'confirm_password': [''],
+            'id': [''],
+            'is_modified': ['']
+
+        });
     }
 
     ngOnInit() {
@@ -67,15 +79,15 @@ export class ServerAdvancedSettings implements OnInit{
             (response) => {
                 console.log(response.data);
 
-                this.advancedSettingsForm.setValue(response.data); 
+                this.advancedSettingsForm.setValue(response.data);
                 this.deviceType = response.data.device_type;
                 console.log(this.deviceType);
             },
-            
+
             (error) => this.errorMessage = <any>error
 
             );
-       // this.selectedTpe = this.advancedSettingsForm.memory_threshold;
+        // this.selectedTpe = this.advancedSettingsForm.memory_threshold;
 
         this.dataProvider.get('/Configurator/get_server_credentials_businesshours')
             .subscribe(
@@ -86,7 +98,7 @@ export class ServerAdvancedSettings implements OnInit{
             },
             (error) => this.errorMessage = <any>error
             );
-       // alert(this.deviceId);
+        // alert(this.deviceId);
     }
 
     onSubmit(advancedSettings: any): void {
@@ -101,6 +113,38 @@ export class ServerAdvancedSettings implements OnInit{
 
     }
 
-  
-   
+    addIbmCredentials(dlg: wijmo.input.Popup) {
+        if (dlg) {
+            dlg.modal = this.modal;
+            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
+            dlg.show();
+            this.serverType = "IBM Connections"
+        }
+    }
+    addSametimeCredentials(dlg: wijmo.input.Popup) {
+        if (dlg) {
+            dlg.modal = this.modal;
+            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
+            dlg.show();
+            this.serverType = "Sametime"
+        }
+    }
+    SaveCredential(addCrdential: any, dialog: wijmo.input.Popup) {
+        if (this.serverType == "IBM Connections")
+            addCrdential.device_type = "IBM Connections";
+        else if (addCrdential.device_type = "Sametime")
+            addCrdential.device_type = "Sametime";
+
+        addCrdential.confirm_password = "";
+        addCrdential.id = null;
+        addCrdential.is_modified = true;
+        this.dataProvider.put('/Configurator/save_credentials', addCrdential)
+            .subscribe(
+            response => {
+                this.addCredentialForm.reset();
+            });
+
+        dialog.hide();
+
+    }
 }
