@@ -182,8 +182,8 @@
         "tab_id": 6,
         "title": "Events",
         "type": "Configurator",
-        "component": "NotYetImplemented",
-        "path": "/app/not-yet-implemented.component"
+        "component": "ServerEvents",
+        "path": "/app/configurator/components/server/server-events.component"
       }
     ]
 
@@ -403,8 +403,8 @@
             "tab_id": 5,
             "title": "Events",
             "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServerEvents",
+            "path": "/app/configurator/components/server/server-events.component"
           }
 
         ]
@@ -505,8 +505,8 @@
             "tab_id": 4,
             "title": "Events",
             "type": "Configurator",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "ServerEvents",
+            "path": "/app/configurator/components/server/server-events.component"
           }
 
         ]
