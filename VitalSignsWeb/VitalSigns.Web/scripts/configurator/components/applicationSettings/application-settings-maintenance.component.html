@@ -61,233 +61,268 @@ data.pageIndex + 1 | number
             </wj-menu>
         </div>
         <wj-popup style="height:70%;overflow:auto" class="col-md-10 modal-content" #frmDialog>
-
-            <form (ngSubmit)="saveMaintenance(frmDialog)" #frmUser="ngForm" class="form-horizontal">
-                <h4 class="modal-header">
-                    {{formTitle}}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b> {{formTitle}}</b>
                     <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-                </h4>
+                </div>
 
-                <div class="modal-body" *ngIf="currentEditItem">
-                    <div class="row">
-                        <div class="form-group col-sm-4" style="padding-right:10px">
-                            <label for="name" class="col-sm-2">Name</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
-                            </div>
-                        </div>
-                        <div class="form-group col-sm-8 " style="padding-left:20px">
-                            <div class="form-group ">
-                                <label for="selectionType" class="col-sm-2">
-                                    <input type="radio" name="selectionType" value="1" [(ngModel)]="selectedSetting">
-                                    One time
-                                </label>
 
-                                <label for="selectionType" class="col-sm-2">
-                                    <input type="radio" name="selectionType" value="2" [(ngModel)]="selectedSetting">
-                                    Daily
-                                </label>
+                <form (ngSubmit)="saveMaintenance(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+                    <!--<h4 class="modal-header">
+                        {{formTitle}}
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                    </h4>-->
 
-                                <label for="selectionType" class="col-sm-2">
-                                    <input type="radio" name="selectionType" value="3" [(ngModel)]="selectedSetting" (click)="handleClickWeekly(this);">
-                                    Weekly
-                                </label>
-                                <label for="selectionType" class="col-sm-2">
-                                    <input type="radio" name="selectionType" value="4" [(ngModel)]="selectedSetting" (click)="handleClickMonthly(this);">
-                                    Monthly
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="row">
-                                <div class="form-group col-sm-10" *ngIf="selectedSetting=='2' || selectedSetting=='3'||selectedSetting=='4'">
-                                    <label for="durationSetting">Duration Type : </label>
-                                    <input type="radio" name="durationSetting" value="1" [(ngModel)]="durationSetting"> <label for="continueuntil">Continue Until:</label>
-                                    <input type="radio" name="durationSetting" value="2" [(ngModel)]="durationSetting"><label for="forever">Forever:</label>
-
+                    <div class="panel-body" *ngIf="currentEditItem">
+                        <div class="row">
+                            <div class="form-group col-sm-1">
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group col-sm-6">
-                                    <label for="start_date" class="col-sm-4">Start Date</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" [value]="currentEditItem.start_date | date:'yyyy-MM-dd'" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
-                                    </div>
-                                </div>
-                                <div class="form-group col-sm-6" *ngIf="durationSetting=='1'">
-                                    <label for="end_date" class="col-sm-4">End Date</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group col-sm-6">
-                                    <label for="start_time" class="col-sm-4">Start Time</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
-                                    </div>
-                                </div>
-                                <div class="form-group col-sm-6">
-                                    <label for="end_time" class="col-sm-4">End Time</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="end_time" name="end_time" [(ngModel)]="currentEditItem.end_time">
+                                <div class="form-group col-sm-4">
+                                    <div class="info col-sm-8">
+                                        <p>Enter duration in minutes below.</p>
                                     </div>
                                 </div>
 
-                            </div>
-
-                            <div class="row">
-                                <div class="form-group col-sm-6">
-                                    <label for="duration" class="col-sm-4">Duration</label>
-                                    <div class="col-sm-6">
-                                        <input type="text" class="form-control" id="duration" name="duration" [(ngModel)]="currentEditItem.duration">
+                                <div class="form-group col-sm-7">
+                                    <div class="info col-sm-8" *ngIf="selectedSetting=='1'">
+                                        <p>Maintenance window will only occur once.</p>
                                     </div>
-                                    <label for="duration" class="col-sm-2">Minutes</label>
+                                    <div class="info col-sm-8" *ngIf="selectedSetting=='2'">
+                                        <p>Maintenance window will occur every day of the week.</p>
+                                    </div>
+                                    <div class="info col-sm-8" *ngIf="selectedSetting=='3'">
+                                        <p>Maintenance window will occur every number of weeks specified in the text box on selected days of the week.</p>
+                                    </div>
+                                    <div class="info col-sm-8" *ngIf="selectedSetting=='4'">
+                                        <p>Maintenence window will occur on selected day(s) of the week on the first, second, third, or last week of the month (depending on selection) every month or on a specific day of the month.</p>
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        <div class="row">
+                            <div class="form-group col-sm-4" style="padding-right:10px">
+                                <label for="name" class="col-sm-2">Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group col-sm-8 " style="padding-left:20px">
+                                <div class="form-group ">
+                                    <label for="selectionType" class="col-sm-2">
+                                        <input type="radio" name="selectionType" value="1" [(ngModel)]="selectedSetting">
+                                        One time
+                                    </label>
+
+                                    <label for="selectionType" class="col-sm-2">
+                                        <input type="radio" name="selectionType" value="2" [(ngModel)]="selectedSetting">
+                                        Daily
+                                    </label>
+
+                                    <label for="selectionType" class="col-sm-2">
+                                        <input type="radio" name="selectionType" value="3" [(ngModel)]="selectedSetting" (click)="handleClickWeekly(this);">
+                                        Weekly
+                                    </label>
+                                    <label for="selectionType" class="col-sm-2">
+                                        <input type="radio" name="selectionType" value="4" [(ngModel)]="selectedSetting" (click)="handleClickMonthly(this);">
+                                        Monthly
+                                    </label>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group col-sm-6">
-                                <div class="form-group" *ngIf="selectedSetting=='3'">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="form-group col-sm-10" *ngIf="selectedSetting=='2' || selectedSetting=='3'||selectedSetting=='4'">
+                                        <label for="durationSetting">Duration Type : </label>
+                                        <input type="radio" name="durationSetting" value="1" [(ngModel)]="durationSetting"> <label for="continueuntil">Continue Until:</label>
+                                        <input type="radio" name="durationSetting" value="2" [(ngModel)]="durationSetting"><label for="forever">Forever:</label>
 
-                                    <div class="form-group">
-                                        <label for="repeat">Repeat every:</label>
-                                        <input type="text" class="form-control" style="width:50%;" id="repeat" name="repeat" [(ngModel)]="repeat">
-                                        <label for="repeat">weeks on</label>
                                     </div>
                                 </div>
-                                <div class="form-group" *ngIf="selectedSetting =='4'">
-                                    <div class="form-group">
-                                        <label for="repeat_monthly">Repeat every month on</label>
-
-                                        <select name="repeat_monthly" class="form-control" style="width: 50%;" [(ngModel)]="repeat_monthly" id="repeat_monthly">
-                                            <option value="first">First</option>
-                                            <option value="second">Second</option>
-                                            <option value="third">Third</option>
-                                            <option value="last">Last</option>
-                                            <option value="specific_day">Specific Day</option>
-
-                                        </select>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                            <div class="form-group col-sm-6">
-
-                                <div class="panel panel-default" *ngIf="selectedSetting=='3'||selectedSetting=='4' && repeat_monthly !='specific_day' ">
-
-                                    <div class="panel-body">
-                                        <div class="form-group col-sm-6">
-                                            <button class="btn btn-primary" type="button" name="submit" (click)="selectAllClick(this);">Select All</button>
+                                <div class="row">
+                                    <div class="form-group col-sm-6">
+                                        <label for="start_date" class="col-sm-4">Start Date</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" [value]="currentEditItem.start_date | date:'yyyy-MM-dd'" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
                                         </div>
-                                        <div class="form-group col-sm-8">
-                                            <button class="btn btn-primary" type="button" name="submit" (click)="deselectAllClick(this);">Clear All</button>
+                                    </div>
+                                    <div class="form-group col-sm-6" *ngIf="durationSetting=='1'">
+                                        <label for="end_date" class="col-sm-4">End Date</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
                                         </div>
-                                        <div class="form-group" *ngFor="let weekDay of weekDays" style="margin:20px;">
-                                            <input type="checkbox" class="checkbox-inline" id="{{weekDay.dayNumber}}" name="{{weekDay.dayNumber}}" [(ngModel)]="weekDay.isChecked">
-                                            <label for="sunday">{{weekDay.weekday}} </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-6">
+                                        <label for="start_time" class="col-sm-4">Start Time</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <label for="end_time" class="col-sm-4">End Time</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" id="end_time" name="end_time" [(ngModel)]="currentEditItem.end_time">
                                         </div>
                                     </div>
 
                                 </div>
-                            </div>
 
-                            <div class="form-group col-sm-6">
-                                <div *ngIf="selectedSetting == '4' && repeat_monthly == 'specific_day'">
-                                    <label for="day_of_the_month">Day of the month:</label>
-                                    <input type="text" class="form-control" id="day_of_the_month" name="day_of_the_month" [(ngModel)]="day_of_the_month">
-
+                                <div class="row">
+                                    <div class="form-group col-sm-6">
+                                        <label for="duration" class="col-sm-4">Duration</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" id="duration" name="duration" [(ngModel)]="currentEditItem.duration">
+                                        </div>
+                                        <label for="duration" class="col-sm-2">Minutes</label>
+                                    </div>
                                 </div>
                             </div>
 
-                        </div>
+                            <div class="col-md-6">
+                                <div class="form-group col-sm-6">
+                                    <div class="form-group" *ngIf="selectedSetting=='3'">
 
-                    </div>
+                                        <div class="form-group">
+                                            <label for="repeat">Repeat every:</label>
+                                            <input type="text" class="form-control" style="width:50%;" id="repeat" name="repeat" [(ngModel)]="repeat">
+                                            <label for="repeat">weeks on</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" *ngIf="selectedSetting =='4'">
+                                        <div class="form-group">
+                                            <label for="repeat_monthly">Repeat every month on</label>
 
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Server/Locations</div>
-                        <div class="panel-body">
-                            <div class="form-group" style="width:auto; padding:20px;">
-                                <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices"></server-location-list>
+                                            <select name="repeat_monthly" class="form-control" style="width: 50%;" [(ngModel)]="repeat_monthly" id="repeat_monthly">
+                                                <option value="first">First</option>
+                                                <option value="second">Second</option>
+                                                <option value="third">Third</option>
+                                                <option value="last">Last</option>
+                                                <option value="specific_day">Specific Day</option>
+
+                                            </select>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <div class="form-group col-sm-6">
+
+                                    <div class="panel panel-default" *ngIf="selectedSetting=='3'||selectedSetting=='4' && repeat_monthly !='specific_day' ">
+
+                                        <div class="panel-body">
+                                            <div class="form-group col-sm-6">
+                                                <button class="btn btn-primary" type="button" name="submit" (click)="selectAllClick(this);">Select All</button>
+                                            </div>
+                                            <div class="form-group col-sm-8">
+                                                <button class="btn btn-primary" type="button" name="submit" (click)="deselectAllClick(this);">Clear All</button>
+                                            </div>
+                                            <div class="form-group" *ngFor="let weekDay of weekDays" style="margin:20px;">
+                                                <input type="checkbox" class="checkbox-inline" id="{{weekDay.dayNumber}}" name="{{weekDay.dayNumber}}" [(ngModel)]="weekDay.isChecked">
+                                                <label for="sunday">{{weekDay.weekday}} </label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-sm-6">
+                                    <div *ngIf="selectedSetting == '4' && repeat_monthly == 'specific_day'">
+                                        <label for="day_of_the_month">Day of the month:</label>
+                                        <input type="text" class="form-control" id="day_of_the_month" name="day_of_the_month" [(ngModel)]="day_of_the_month">
+
+                                    </div>
+                                </div>
+
                             </div>
+
                         </div>
-                    </div>
-
-
-                    <div class="form-group" style="width:auto">
 
                         <div class="panel panel-default">
-                            <div class="panel-heading">Key Users</div>
+                            <div class="panel-heading">Server/Locations</div>
                             <div class="panel-body">
-                                <wj-group-panel [grid]="flex1" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-
-                                <wj-flex-grid #flex1 [itemsSource]="dataMobileUsers" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
-                                    <wj-flex-grid-filter></wj-flex-grid-filter>
-                                    <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true">
-                                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                                            <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="keyUsersCheck(cell.item.id,$event)" name="{{cell.item.id}}" />
-                                        </template>
-                                    </wj-flex-grid-column>
-
-                                    <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'"> </wj-flex-grid-column>
-                                    <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'"></wj-flex-grid-column>
-                                    <wj-flex-grid-column [header]="'Last Synchronous Time'" [binding]="'last_sync_time'"></wj-flex-grid-column>
-                                </wj-flex-grid>
+                                <div class="form-group" style="width:auto; padding:20px;">
+                                    <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices"></server-location-list>
+                                </div>
                             </div>
-                            <div class="btn-group" *ngIf="dataMobileUsers != null">
-                                <button type="button" class="btn btn-default"
-                                        (click)="dataMobileUsers.moveToFirstPage()"
-                                        [disabled]="dataMobileUsers.pageIndex <= 0">
-                                    <span class="glyphicon glyphicon-fast-backward"></span>
-                                </button>
-                                <button type="button" class="btn btn-default"
-                                        (click)="dataMobileUsers.moveToPreviousPage()"
-                                        [disabled]="dataMobileUsers.pageIndex <= 0">
-                                    <span class="glyphicon glyphicon-step-backward">
-                                    </span>
-                                </button>
-                                <button type="button" class="btn btn-default" disabled style="width:100px">
-                                    {{
-                                               dataMobileUsers.pageIndex + 1 | number
-                                    }} / {{data.pageCount | number}}
-                                </button>
-                                <button type="button" class="btn btn-default"
-                                        (click)="dataMobileUsers.moveToNextPage()"
-                                        [disabled]="dataMobileUsers.pageIndex >= dataMobileUsers.pageCount - 1">
-                                    <span class="glyphicon glyphicon-step-forward"></span>
-                                </button>
-                                <button type="button" class="btn btn-default"
-                                        (click)="dataMobileUsers.moveToLastPage()"
-                                        [disabled]="dataMobileUsers.pageIndex >= dataMobileUsers.pageCount - 1">
-                                    <span class="glyphicon glyphicon-fast-forward"></span>
-                                </button>
-                            </div>
-                            <div class="pull-right" *ngIf="dataMobileUsers != null">
-                                <wj-menu [(value)]="dataMobileUserspageSize" [header]="'Page size'">
-                                    <wj-menu-item [value]="10">10</wj-menu-item>
-                                    <wj-menu-item [value]="20">20</wj-menu-item>
-                                    <wj-menu-item [value]="50">50</wj-menu-item>
-                                </wj-menu>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                                <button class="btn btn-primary wj-hide" type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                            </div>
-
-
-
                         </div>
 
+
+                        <div class="form-group" style="width:auto">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Key Users</div>
+                                <div class="panel-body">
+                                    <wj-group-panel [grid]="flex1" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+
+                                    <wj-flex-grid #flex1 [itemsSource]="dataMobileUsers" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                                        <wj-flex-grid-filter></wj-flex-grid-filter>
+                                        <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true">
+                                            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                                <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="keyUsersCheck(cell.item.id,$event)" name="{{cell.item.id}}" />
+                                            </template>
+                                        </wj-flex-grid-column>
+
+                                        <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'"> </wj-flex-grid-column>
+                                        <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'"></wj-flex-grid-column>
+                                        <wj-flex-grid-column [header]="'Last Synchronous Time'" [binding]="'last_sync_time'"></wj-flex-grid-column>
+                                    </wj-flex-grid>
+                                </div>
+                                <div class="btn-group" *ngIf="dataMobileUsers != null">
+                                    <button type="button" class="btn btn-default"
+                                            (click)="dataMobileUsers.moveToFirstPage()"
+                                            [disabled]="dataMobileUsers.pageIndex <= 0">
+                                        <span class="glyphicon glyphicon-fast-backward"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-default"
+                                            (click)="dataMobileUsers.moveToPreviousPage()"
+                                            [disabled]="dataMobileUsers.pageIndex <= 0">
+                                        <span class="glyphicon glyphicon-step-backward">
+                                        </span>
+                                    </button>
+                                    <button type="button" class="btn btn-default" disabled style="width:100px">
+                                        {{
+                                               dataMobileUsers.pageIndex + 1 | number
+                                        }} / {{data.pageCount | number}}
+                                    </button>
+                                    <button type="button" class="btn btn-default"
+                                            (click)="dataMobileUsers.moveToNextPage()"
+                                            [disabled]="dataMobileUsers.pageIndex >= dataMobileUsers.pageCount - 1">
+                                        <span class="glyphicon glyphicon-step-forward"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-default"
+                                            (click)="dataMobileUsers.moveToLastPage()"
+                                            [disabled]="dataMobileUsers.pageIndex >= dataMobileUsers.pageCount - 1">
+                                        <span class="glyphicon glyphicon-fast-forward"></span>
+                                    </button>
+                                </div>
+                                <div class="pull-right" *ngIf="dataMobileUsers != null">
+                                    <wj-menu [(value)]="dataMobileUserspageSize" [header]="'Page size'">
+                                        <wj-menu-item [value]="10">10</wj-menu-item>
+                                        <wj-menu-item [value]="20">20</wj-menu-item>
+                                        <wj-menu-item [value]="50">50</wj-menu-item>
+                                    </wj-menu>
+                                </div>
+                                <div class="panel-footer">
+                                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                                    <button class="btn btn-primary wj-hide" type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                                </div>
+
+
+
+                            </div>
+
+                        </div>
                     </div>
+                </form>
                 </div>
-            </form>
-        </wj-popup>
+</wj-popup>
     </div>
 </div>
 

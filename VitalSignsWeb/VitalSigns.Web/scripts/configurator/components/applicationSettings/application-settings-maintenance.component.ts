@@ -272,8 +272,9 @@ export class Maintenance extends GridBase implements OnInit  {
     addMaintenance(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
       
-        this.selectedSetting = "";
-        this.durationSetting = "";
+        this.selectedSetting = "1";
+        this.durationSetting = "1";
+        
         
        
     }
