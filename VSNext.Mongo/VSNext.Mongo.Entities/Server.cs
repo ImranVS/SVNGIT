@@ -432,6 +432,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("db2_settings_credentials_id")]
         [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string Db2SettingsCredentialsId { get; set; }
 
 
