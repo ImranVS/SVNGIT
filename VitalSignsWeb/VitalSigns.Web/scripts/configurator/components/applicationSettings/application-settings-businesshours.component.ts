@@ -31,19 +31,26 @@ export class BusinessHours extends GridBase implements OnInit {
         this.currentEditItem.name = "";
         this.currentEditItem.start_time = "";
         this.currentEditItem.duration = "";
-        this.currentEditItem.sunday = "";
-        this.currentEditItem.monday = "";
-        this.currentEditItem.tuesday = "";
-        this.currentEditItem.wednesday = "";
-        this.currentEditItem.thursday = "";
-        this.currentEditItem.friday = "";
-        this.currentEditItem.saturday = "";
+        this.currentEditItem.sunday = false;
+        this.currentEditItem.monday = false;
+        this.currentEditItem.tuesday = false;
+        this.currentEditItem.wednesday = false;
+        this.currentEditItem.thursday = false;
+        this.currentEditItem.friday = false;
+        this.currentEditItem.saturday = false;
+        this.currentEditItem.use_type = "2";
 
     }
     ngOnInit() {
         this.initialGridBind('/Configurator/get_business_hours');
     } 
-    saveBusinessHour(dlg: wijmo.input.Popup) {        
+    saveBusinessHour(dlg: wijmo.input.Popup) {    
+        console.log(this.currentEditItem.name);
+        console.log(this.currentEditItem.start_time);
+        console.log(this.currentEditItem.duration);
+        console.log(this.currentEditItem.use_type);
+        console.log(this.currentEditItem.sunday);
+
         //if (this.currentEditItem.sunday == false && this.currentEditItem.monday == false && this.currentEditItem.tuesday == false &&
         //    this.currentEditItem.wednesday == false && this.currentEditItem.thursday == false && this.currentEditItem.friday == false &&
         //    this.currentEditItem.saturday == false) {
