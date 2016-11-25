@@ -44,7 +44,7 @@ namespace VitalSigns.API.Models
 
 
         [JsonProperty("use_type")]
-        public int UseType { get; set; }
+        public string UseType { get; set; }
 
 
 
