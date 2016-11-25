@@ -427,7 +427,7 @@ namespace VitalSigns.API.Controllers
                         Thursday = x.Days.Contains("Thursday"),
                         Friday = x.Days.Contains("Friday"),
                         Saturday = x.Days.Contains("Saturday"),
-                        UseType = x.UseType
+                        UseType = Convert.ToString(x.UseType)
                     }).ToList();
                     Response = Common.CreateResponse(result);
                 }
@@ -476,24 +476,40 @@ namespace VitalSigns.API.Controllers
                 if (businesshour.Saturday)
                     days.Add("Saturday");
 
-                if (string.IsNullOrEmpty(businesshour.Id))
-                {
-                    BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray(), UseType = businesshour.UseType };
-                    string id = businessHoursRepository.Insert(businessHours);
-                    Response = Common.CreateResponse(id, "OK", "Business hour inserted successfully");
-                }
-                else
-                {
-                    FilterDefinition<BusinessHours> filterDefination = Builders<BusinessHours>.Filter.Where(p => p.Id == businesshour.Id);
-                    var updateDefination = businessHoursRepository.Updater.Set(p => p.Name, businesshour.Name)
-                                                             .Set(p => p.Duration, businesshour.Duration)
-                                                             .Set(p => p.StartTime, businesshour.StartTime)
-                                                              .Set(p => p.UseType, businesshour.UseType)
-                                                             .Set(p => p.Days, days.ToArray());
-                            
-                    var result = businessHoursRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
-                }
+                // var business = businessHoursRepository.Get(businesshour.Name);
+                //var business = businessHoursRepository.Filter.Where(x => x.Name == businesshour.Name).ToString();
+                //if (business.Count() < 0)
+                //{
+
+
+                    //business.ToString();
+                    //foreach (var name in business)
+                    //{
+                    //    if (businesshour.Name == business.Name)
+                    //    {
+
+                    //    }
+                    //}
+                    if (string.IsNullOrEmpty(businesshour.Id))
+                    {
+                        BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray(), UseType = Convert.ToInt32(businesshour.UseType) };
+                        string id = businessHoursRepository.Insert(businessHours);
+                        Response = Common.CreateResponse(id, "OK", "Business hour inserted successfully");
+                    }
+
+                    else
+                    {
+                        FilterDefinition<BusinessHours> filterDefination = Builders<BusinessHours>.Filter.Where(p => p.Id == businesshour.Id);
+                        var updateDefination = businessHoursRepository.Updater.Set(p => p.Name, businesshour.Name)
+                                                                 .Set(p => p.Duration, businesshour.Duration)
+                                                                 .Set(p => p.StartTime, businesshour.StartTime)
+                                                                  .Set(p => p.UseType, Convert.ToInt32(businesshour.UseType))
+                                                                 .Set(p => p.Days, days.ToArray());
+
+                        var result = businessHoursRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
+                    }
+                //}
             }
             catch (Exception exception)
             {
@@ -2024,7 +2040,7 @@ namespace VitalSigns.API.Controllers
             {
                 dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
                // var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
-                var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => new ComboBoxListItem { DisplayText = x.TaskName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+               var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => new ComboBoxListItem { DisplayText = x.TaskName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 //var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.DeviceName }).ToList().OrderBy(x => x.DisplayText);
                 Response = Common.CreateResponse(new { TaskNames = result1});
                
