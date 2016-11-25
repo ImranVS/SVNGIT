@@ -302,30 +302,32 @@
 
                 <div class="panel-heading">Optional: Search Text</div>
                 <div class="panel-body">
-                    <p>
-                        If you enter a value into the Search Text box, then VitalSigns will
-                        try to locate this text on the URL page and an Alert will be generated based on the option you select below.
-                    </p>
-                    <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:searchText">
+                    <div class="info">
+                        <p>
+                            If you enter a value into the Search Text box, then VitalSigns will
+                            try to locate this text on the URL page and an Alert will be generated based on the option you select below.
+                        </p>
+                        </div>
+                        <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:searchText">
 
-                        <div class="form-group">
-                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-5">
-                                <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-5">
+                                    <div *ngIf="attribute.type=='TextBox'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+
+
+                                    <div *ngIf="attribute.type=='CheckBox'">
+                                        <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+                                    </div>
                                 </div>
 
-
-                                <div *ngIf="attribute.type=='CheckBox'">
-                                    <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
-                                </div>
                             </div>
 
                         </div>
 
                     </div>
-
-                </div>
             </div>
 
         </div>
@@ -338,21 +340,25 @@
                 <div class="panel-heading">Optional: Username/Password</div>
 
                 <div class="panel-body">
-                    <p>
-                        If you enter values into the Username and Password field, VitalSigns will use them when navigating to the page.
-                        This is only applicable to pages requiring authentication when searching for specific text in the page which is only available after authentication.
-                    </p>
+                    <div class="info">
+                        <p>
+                            If you enter values into the Username and Password field, VitalSigns will use them when navigating to the page.
+                            This is only applicable to pages requiring authentication when searching for specific text in the page which is only available after authentication.
+                        </p>
+                        </div>
 
-                    <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:usernameorPassword">
+                        <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:usernameorPassword">
 
-                        <div class="form-group">
-                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-5">
-                                <div *ngIf="attribute.type=='TextBox' && attribute.field_name =='password'">
-                                    <input type="password" [(ngModel)]="attribute.default_value" class="form-control">
-                                </div>
-                                <div *ngIf="attribute.type=='TextBox' && attribute.field_name !='password'">
-                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-5">
+                                    <div *ngIf="attribute.type=='TextBox' && attribute.field_name =='password'">
+                                        <input type="password" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+                                    <div *ngIf="attribute.type=='TextBox' && attribute.field_name !='password'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+
                                 </div>
 
                             </div>
@@ -360,8 +366,6 @@
                         </div>
 
                     </div>
-
-                </div>
             </div>
 
         </div>
