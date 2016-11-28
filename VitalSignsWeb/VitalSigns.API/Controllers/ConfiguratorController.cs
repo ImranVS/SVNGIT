@@ -784,7 +784,7 @@ namespace VitalSigns.API.Controllers
                                                                   StartTime = m.StartTime,
                                                                   EndDate = m.EndDate,
                                                                   Duration = m.Duration,
-                                                                  // MaintainType = pending
+                                                                   MaintainType = m.MaintainType,
                                                                   MaintenanceFrequency = m.MaintenanceFrequency
                                                               }).ToList();
                 Response = Common.CreateResponse(results);
