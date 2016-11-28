@@ -136,8 +136,8 @@
                             <label for="db2_settings_credentials_id" class="control-label col-sm-5">DB2 Credentials</label>
                             <div class="col-sm-7">
                              
-                                <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                              placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_settings_credentials_id" [isEditable]="true">
+                                <wj-combo-box [itemsSource]="ConnectionsCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                              placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_settings_credentials_id" [isEditable]="true"  [selectedValue]="null">
                                 </wj-combo-box>
                             
                             </div>
@@ -251,7 +251,7 @@
                                 <div class="col-sm-7">
                                    
                                     <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                 placeholder="Select Credential" formControlName="database_settings_credentials_id" name="database_settings_credentials_id" [isEditable]="true">
+                                 placeholder="Select Credential" formControlName="database_settings_credentials_id" name="database_settings_credentials_id" [isEditable]="true" [selectedValue]="null">
                                   </wj-combo-box>
 
                                 </div>

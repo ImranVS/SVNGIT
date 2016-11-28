@@ -13,6 +13,7 @@ export class ServerAdvancedSettings implements OnInit {
     errorMessage: string;
     deviceId: any;
     deviceCredentialData: any;
+    ConnectionsCredentialData: any;
     // selectedCredential: string;
     selectedTpe: string;
     deviceType: any;
@@ -94,7 +95,7 @@ export class ServerAdvancedSettings implements OnInit {
             (response) => {
 
                 this.deviceCredentialData = response.data.credentialsData;
-
+                this.ConnectionsCredentialData = response.data.credentialsData;
             },
             (error) => this.errorMessage = <any>error
             );
