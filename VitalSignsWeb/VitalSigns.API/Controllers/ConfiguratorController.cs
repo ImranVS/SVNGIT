@@ -2041,8 +2041,8 @@ namespace VitalSigns.API.Controllers
             try
             {
                 dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
-               // var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
-               var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => new ComboBoxListItem { DisplayText = x.TaskName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
+                var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
+               //var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => new ComboBoxListItem { DisplayText = x.TaskName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 //var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.DeviceName }).ToList().OrderBy(x => x.DisplayText);
                 Response = Common.CreateResponse(new { TaskNames = result1});
                
@@ -2073,7 +2073,19 @@ namespace VitalSigns.API.Controllers
                 List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
                 var server = serversRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == servertasks.DeviceId);
                 DominoServerTask dominoServerTask = new DominoServerTask();
-                dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                if (servertasks.Id != null)
+                {
+                    dominoServerTask.Id = servertasks.Id;
+                }
+                else
+                {
+                    dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                }
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                var result1 = dominoservertasksRepository.Collection.AsQueryable().Where(x => x.TaskName == servertasks.TaskName).Select(x => x.Id).Distinct();
+
+
+
                 dominoServerTask.TaskId = servertasks.TaskId;
                 dominoServerTask.TaskName = servertasks.TaskName;
                 dominoServerTask.SendLoadCmd = servertasks.IsLoad;
