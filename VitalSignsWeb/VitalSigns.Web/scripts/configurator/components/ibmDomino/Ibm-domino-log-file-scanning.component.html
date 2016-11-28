@@ -5,57 +5,69 @@
     <div class="widgetTitle">
         Domino Event Definitions
     </div>
-    <div class="well grid-sort-group">
+    <div class="widgetContent">
+        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+            <div class="row">
+                <div class="info">
+                    <p>The list of available Event Definitions is displayed below. In order to add new Event Definitions or configure existing alerts, please use the buttons in the 'Actions' column.</p>
+                </div>
 
-        <!-- edit details in a popup -->
-        <button class="btn btn-success" (click)="editGrid()">
-            Edit
-        </button>
-        <a class="btn btn-success" [routerLink]="['/ibmDomino/add']" role="button">Add</a>
+                <div class="grid-sort-group">
 
-        <button class="btn btn-success" (click)="deleteLogFileScanning();">
-            Delete
-        </button>
-    </div>
-    <wj-flex-grid #flex [itemsSource]="sererNames" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshGrid($event)">
-        <wj-flex-grid-filter></wj-flex-grid-filter>
-        
-        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="200" [visible]="isVisible"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Event Definition Name'" [binding]="'name'" [width]="200"></wj-flex-grid-column>
-    </wj-flex-grid>
-    <div class="btn-group" *ngIf="data != null">
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToFirstPage()"
-                [disabled]="data.pageIndex <= 0">
-            <span class="glyphicon glyphicon-fast-backward"></span>
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToPreviousPage()"
-                [disabled]="data.pageIndex <= 0">
-            <span class="glyphicon glyphicon-step-backward">
-            </span>
-        </button>
-        <button type="button" class="btn btn-default" disabled style="width:100px">
-            {{
+                    <!-- edit details in a popup -->
+                    <button class="btn btn-success" (click)="editGrid()">
+                        Edit
+                    </button>
+                    <a class="btn btn-success" [routerLink]="['/ibmDomino/add']" role="button">Add</a>
+
+                    <button class="btn btn-success" (click)="deleteLogFileScanning();">
+                        Delete
+                    </button>
+                </div>
+                <div>&nbsp;</div>
+                <wj-flex-grid #flex [itemsSource]="sererNames" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshGrid($event)">
+                    <wj-flex-grid-filter></wj-flex-grid-filter>
+
+                    <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="200" [visible]="isVisible"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Event Definition Name'" [binding]="'name'" [width]="200"></wj-flex-grid-column>
+                </wj-flex-grid>
+                <div class="btn-group" *ngIf="data != null">
+                    <button type="button" class="btn btn-default"
+                            (click)="data.moveToFirstPage()"
+                            [disabled]="data.pageIndex <= 0">
+                        <span class="glyphicon glyphicon-fast-backward"></span>
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            (click)="data.moveToPreviousPage()"
+                            [disabled]="data.pageIndex <= 0">
+                        <span class="glyphicon glyphicon-step-backward">
+                        </span>
+                    </button>
+                    <button type="button" class="btn btn-default" disabled style="width:100px">
+                        {{
 data.pageIndex + 1 | number
-            }} / {{data.pageCount | number}}
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToNextPage()"
-                [disabled]="data.pageIndex >= data.pageCount - 1">
-            <span class="glyphicon glyphicon-step-forward"></span>
-        </button>
-        <button type="button" class="btn btn-default"
-                (click)="data.moveToLastPage()"
-                [disabled]="data.pageIndex >= data.pageCount - 1">
-            <span class="glyphicon glyphicon-fast-forward"></span>
-        </button>
+                        }} / {{data.pageCount | number}}
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            (click)="data.moveToNextPage()"
+                            [disabled]="data.pageIndex >= data.pageCount - 1">
+                        <span class="glyphicon glyphicon-step-forward"></span>
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            (click)="data.moveToLastPage()"
+                            [disabled]="data.pageIndex >= data.pageCount - 1">
+                        <span class="glyphicon glyphicon-fast-forward"></span>
+                    </button>
+                </div>
+                <div class="pull-right" *ngIf="data != null">
+                    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                        <wj-menu-item [value]="10">10</wj-menu-item>
+                        <wj-menu-item [value]="20">20</wj-menu-item>
+                        <wj-menu-item [value]="50">50</wj-menu-item>
+                    </wj-menu>
+                </div>
+                <div>&nbsp;</div>
+            </div>
+        </div>
     </div>
-    <div class="pull-right" *ngIf="data != null">
-        <wj-menu [(value)]="pageSize" [header]="'Page size'">
-            <wj-menu-item [value]="10">10</wj-menu-item>
-            <wj-menu-item [value]="20">20</wj-menu-item>
-            <wj-menu-item [value]="50">50</wj-menu-item>
-        </wj-menu>
-    </div>
-    </div>
+</div>
