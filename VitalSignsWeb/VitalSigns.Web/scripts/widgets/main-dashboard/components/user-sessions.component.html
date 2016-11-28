@@ -25,30 +25,34 @@
 </div>
 
 <div class="col-lg-3 col-md-6 zeusColorReact-warning">
-    <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
-        <img class="svgInject" src="img/dashboard/HourGlass.svg" title="Average response time" alt="Average Response time" />
-        <div>
-            <div class="widgetImageText-head"*ngIf="usersessionsStatus">{{usersessionsStatus.response_time | number:'1.0-2'}}</div>
-            <div class="widgetImageText-text">Average response time</div>
+    
+        <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
+            <img class="svgInject" src="img/dashboard/HourGlass.svg" title="Average response time" alt="Average Response time" />
+            <div>
+                <div class="widgetImageText-head" *ngIf="usersessionsStatus">{{usersessionsStatus.response_time | number:'1.0-2'}}</div>
+                <div class="widgetImageText-text">Average response time</div>
+            </div>
         </div>
-    </div>
+       
 </div>
 
 <div class="col-lg-3 col-md-6 zeusColorReact-default">
-    <div class="widgetWrapper h-xs-108" data-widget-type="widgetImageText">
-        <img class="svgInject zeusColorReactFill" src="img/dashboard/Email.svg" title="Email" alt="Email" />
-        <div style="padding: 0 5px;">
-            <div class="widgetImageText-head zeusColorReactText"*ngIf="usersessionsStatus">{{usersessionsStatus.pendingMail }}</div>
-            <div class="widgetImageText-text zeusColorReactText">Pending mail</div>
+    <a [routerLink]="['/dashboard/mail-delivery-status']">
+        <div class="widgetWrapper h-xs-108" data-widget-type="widgetImageText">
+            <img class="svgInject zeusColorReactFill" src="img/dashboard/Email.svg" title="Email" alt="Email" />
+            <div style="padding: 0 5px;">
+                <div class="widgetImageText-head zeusColorReactText" *ngIf="usersessionsStatus">{{usersessionsStatus.pendingMail }}</div>
+                <div class="widgetImageText-text zeusColorReactText">Pending mail</div>
+            </div>
+            <div style="padding: 0 5px;">
+                <div class="widgetImageText-head zeusColorReactText" *ngIf="usersessionsStatus">{{usersessionsStatus.deadMail }}</div>
+                <div class="widgetImageText-text zeusColorReactText">Dead mail</div>
+            </div>
+            <div style="padding: 0 5px;">
+                <div class="widgetImageText-head zeusColorReactText" *ngIf="usersessionsStatus">{{usersessionsStatus.heldMail }}</div>
+                <div class="widgetImageText-text zeusColorReactText">Held mail</div>
+            </div>
         </div>
-        <div style="padding: 0 5px;">
-            <div class="widgetImageText-head zeusColorReactText"*ngIf="usersessionsStatus">{{usersessionsStatus.deadMail }}</div>
-            <div class="widgetImageText-text zeusColorReactText">Dead mail</div>
-        </div>
-        <div style="padding: 0 5px;">
-            <div class="widgetImageText-head zeusColorReactText"*ngIf="usersessionsStatus">{{usersessionsStatus.heldMail }}</div>
-            <div class="widgetImageText-text zeusColorReactText">Held mail</div>
-        </div>
-    </div>
+        </a>
 </div>
 
