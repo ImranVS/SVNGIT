@@ -1045,7 +1045,9 @@ namespace VitalSigns.API.Controllers
                                                                   new NameValue { Name = "ConsecutiveTelnet", Value = dominoSettings.ConsecutiveTelnet}
                                                              };
                     var result = Common.SaveNameValues(ibmDominoSettings);
-                    Response = Common.CreateResponse(result);
+                  //  Response = Common.CreateResponse(result);
+                    Response = Common.CreateResponse(result, "OK", "IBM Domino settings are successfully updated.");
+
                 }
                 catch (Exception exception)
                 {
@@ -2162,6 +2164,7 @@ namespace VitalSigns.API.Controllers
                                 DbmsHostName = x.DbmsHostName,
                                 DbmsName = x.DbmsName,
                                 DbmsPort = x.DbmsPort,
+                                Db2SettingsCredentialsId = x.Db2SettingsCredentialsId,
                                 CollectExtendedStatistics = x.CollectExtendedStatistics,
                                 CollectMeetingStatistics = x.CollectExtendedStatistics,
                                 ExtendedStatisticsPort = x.ExtendedStatisticsPort,
@@ -2177,22 +2180,22 @@ namespace VitalSigns.API.Controllers
                                 DeviceType = x.DeviceType,
                                 CollectConferenceStatistics=x.CollectConferenceStatistics,
                                 ClusterReplicationQueueThreshold=x.ClusterReplicationQueueThreshold,
-                                Db2SettingsCredentialsId=x.Db2SettingsCredentialsId
+                              
                                 
                                 
 
                             }).FirstOrDefault();
 
-                if (results.DeviceType == "IBM Connections")
-                {
-                    var ibmCredentialname = credentialsRepository.All().Where(x => x.Id == results.DatabaseSettingsCredentialsId).Select(x => new Credentials
-                    {
-                        Alias = x.Alias
+                //if (results.DeviceType == "IBM Connections")
+                //{
+                //    var ibmCredentialname = credentialsRepository.All().Where(x => x.Id == results.DatabaseSettingsCredentialsId).Select(x => new Credentials
+                //    {
+                //        Alias = x.Alias
 
 
-                    }).FirstOrDefault();
-                    results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
-                }
+                //    }).FirstOrDefault();
+                //    results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
+                //}
                 Response = Common.CreateResponse(results);
             }
             catch (Exception ex)
@@ -2288,7 +2291,7 @@ namespace VitalSigns.API.Controllers
             return Response;
 
         }
-
+       
         #endregion
         #endregion
 
