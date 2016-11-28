@@ -197,7 +197,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-sm-1">
-                                        <button type="submit" class="btn btn-primary">Test Connection</button>
+                                        <button type="submit" class="btn btn-primary" style="display: none">Test Connection</button>
                                     </div>
                                 </div>
 
@@ -221,14 +221,15 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-sm-1">
-                                        <button type="submit" class="btn btn-primary">Test Message</button>
+                                        <button type="submit" class="btn btn-primary" style="display: none">Test Message</button>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-sm-4">
                                         <label for="primary_port" class="control-label col-sm-4">Port:</label>
                                         <div class="col-sm-4">
-                                            <input type="text" class="form-control" id="primary_port" name="primary_port" formControlName="primary_port" />
+                                            <input type="text" class="form-control" id="primary_port" name="primary_port" formControlName="primary_port"
+                                                   onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                         </div>
                                     </div>
 
@@ -260,7 +261,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-sm-1">
-                                        <button type="submit" class="btn btn-primary">Test Connection</button>
+                                        <button type="submit" class="btn btn-primary" style="display: none">Test Connection</button>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -283,14 +284,15 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-sm-1">
-                                        <button type="submit" class="btn btn-primary">Test Message</button>
+                                        <button type="submit" class="btn btn-primary" style="display: none">Test Message</button>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-sm-4">
                                         <label for="secondary_port" class="control-label col-sm-4">Port:</label>
                                         <div class="col-sm-4">
-                                            <input type="text" class="form-control" id="secondary_port" name="secondary_port" formControlName="secondary_port" />
+                                            <input type="text" class="form-control" id="secondary_port" name="secondary_port" formControlName="secondary_port" 
+                                                   onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                         </div>
                                     </div>
                                 </div>
@@ -345,7 +347,8 @@
                                     </div>
                                     <div class="form-inline col-sm-8" *ngIf="recurrencesChecked">
                                         <label for="number_of_recurrences">Number of recurrences (per hour):</label>
-                                        <input type="text" class="form-control" id="number_of_recurrences" name="number_of_recurrences" formControlName="number_of_recurrences" />
+                                        <input type="text" class="form-control" id="number_of_recurrences" name="number_of_recurrences" formControlName="number_of_recurrences"
+                                               onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                     </div>
                                 </div>
                                 <div class="row">

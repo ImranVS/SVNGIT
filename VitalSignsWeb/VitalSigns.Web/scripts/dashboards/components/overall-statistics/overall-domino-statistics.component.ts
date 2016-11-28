@@ -60,6 +60,16 @@ export class DominoStatistics implements OnInit {
             );
 
     }
+
+    onItemsSourceChanged() {
+
+        var row = this.flex.columnHeaders.rows[0];
+        row.wordWrap = true;
+
+        // autosize first header row
+        this.flex.autoSizeRow(0, true);
+
+    }
 }
 
 

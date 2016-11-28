@@ -1,20 +1,19 @@
 ﻿<div class="widgetWrapper">
     <div class="widgetContent">
         <div class="row">
-            <h4>Notes Traveler HA - Backend Data Store</h4>
-            <div class="info">
-                <p>Traveler HA servers share a common backend data store, either SQL Server or DB2.</p>
+            <div class="alert alert-info col-lg-12">
+                Traveler HA servers share a common backend data store, either SQL Server or DB2.
             </div>
             <div class="grid-sort-group">
 
                 <!-- edit details in a popup -->
-                <button class="btn btn-default" (click)="editTravelerDataStore(frmDialog)">
+                <button class="btn btn-success" (click)="editTravelerDataStore(frmDialog)">
                     Edit
                 </button>
-                <button class="btn btn-default" (click)="addTravelerData(frmDialog,usedByServers)">
+                <button class="btn btn-success" (click)="addTravelerData(frmDialog,usedByServers)">
                     Add
                 </button>
-                <button class="btn btn-default" (click)="delteTravelerDataStore();">
+                <button class="btn btn-success" (click)="delteTravelerDataStore();">
                     Delete
                 </button>
             </div>

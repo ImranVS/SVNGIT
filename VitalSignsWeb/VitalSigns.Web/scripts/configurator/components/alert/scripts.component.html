@@ -24,43 +24,44 @@
             
 
             <wj-popup class="col-md-6 modal-content" #frmDialog>
-
-                <form (ngSubmit)="saveScripts(frmDialog)" #frmUser="ngForm">
-                    <h4 class="modal-header">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
                         {{formTitle}}
                         <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-                    </h4>
-
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="script_name">Script Name:</label>
-                            <input type="text" class="form-control" id="script_name" required name="script_name" [(ngModel)]="formObject.script_name">
-                        </div>
-                        <div class="form-group">
-                            <label for="script_name">Command:</label>
-                            <input type="text" class="form-control" id="script_command" required name="script_command" [(ngModel)]="formObject.script_command">
-                        </div>
-                        <div class="form-group">
-                            <label for="script_name">Upload Script:</label>
-                            <input type="file" class="form-control" required name="script_location" [(ngModel)]="formObject.script_location">
-                            <button class="btn btn-success" (click)="uploadScript()">
-                                Upload
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label for="script_name">Location:</label>
-                            <!--<input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">-->
-                            <label id="scriptLocation"></label>
-                        </div>
                     </div>
+                    <form (ngSubmit)="saveScripts(frmDialog)" #frmUser="ngForm">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="script_name">Script Name:</label>
+                                <input type="text" class="form-control" id="script_name" required name="script_name" [(ngModel)]="formObject.script_name">
+                            </div>
+                            <div class="form-group">
+                                <label for="script_name">Command:</label>
+                                <input type="text" class="form-control" id="script_command" required name="script_command" [(ngModel)]="formObject.script_command">
+                            </div>
+                            <div class="form-group">
+                                <label for="script_name">Upload Script:</label>
+                                <input type="file" class="form-control" required name="script_location" [(ngModel)]="formObject.script_location">
+                                <button class="btn btn-success" (click)="uploadScript()">
+                                    Upload
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label for="script_name">Location:</label>
+                                <!--<input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">-->
+                                <label id="scriptLocation"></label>
+                            </div>
+                        </div>
 
 
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                        <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                    </div>
+                        <div class="panel-footer">
+                            <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                            <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                        </div>
 
-                </form>
+                    </form>
+                </div>
+                
             </wj-popup>
         </div>
     </div>
