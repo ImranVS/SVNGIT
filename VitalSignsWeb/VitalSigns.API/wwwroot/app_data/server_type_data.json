@@ -173,7 +173,7 @@
       },
       {
         "tab_id": 5,
-        "title": "Maintainance Window",
+        "title": "Maintenance Window",
         "type": "Configurator",
         "component": "MaintenanceWindows",
         "path": "/app/configurator/components/server/server-maintenance-windows.component"
@@ -510,7 +510,7 @@
           },
           {
             "tab_id": 3,
-            "title": "Maintainance Window",
+            "title": "Maintenance Window",
             "type": "Configurator",
              "component": "MaintenanceWindows",
             "path": "/app/configurator/components/server/server-maintenance-windows.component"
