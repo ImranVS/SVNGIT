@@ -440,7 +440,7 @@
 
           {
             "tab_id": 1,
-            "title": "URLHealthTab",
+            "title": "URL Health",
             "component": "URLHealthTab",
             "path": "/app/services/components/service-url-health.component",
             "type": "Dashboard"
