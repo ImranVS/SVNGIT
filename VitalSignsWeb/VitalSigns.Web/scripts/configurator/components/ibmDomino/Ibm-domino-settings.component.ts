@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, AfterViewInit, ViewChildren} from '@angular/core';
+﻿import {Component, OnInit, AfterViewInit, ViewChild, ViewChildren} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
@@ -16,10 +16,11 @@ import {RESTService} from '../../../core/services';
 export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
 
     @ViewChildren('name') inputName;
-
+    @ViewChild('message') message;
     insertMode: boolean = false;
     ibmDominoSettingsForm: FormGroup;
     errorMessage: string;
+    successMessage: string;
     profileEmail: string;
     formTitle: string;
 
@@ -68,11 +69,13 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
     }
 
     onSubmit(nameValue: any): void {
-        
+        this.errorMessage = "";
+        this.successMessage = "";
         this.dataProvider.put('/Configurator/save_ibm_domino_settings', nameValue)
             .subscribe(
             response => {
-              
+                this.successMessage = response.message;
+                this.message.toggleVisibility(false, this.successMessage);
             });
       
 
