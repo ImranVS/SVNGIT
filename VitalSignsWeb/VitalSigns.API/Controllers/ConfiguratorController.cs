@@ -2070,38 +2070,49 @@ namespace VitalSigns.API.Controllers
             serversRepository = new Repository<Server>(ConnectionString);
             try
             {
-                List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
+                List<DominoServerTask> serverTasks = new List<DominoServerTask>();
                 var server = serversRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == servertasks.DeviceId);
-                DominoServerTask dominoServerTask = new DominoServerTask();
-                if (servertasks.Id != null)
+
+
+                if (string.IsNullOrEmpty(servertasks.Id))
                 {
-                    dominoServerTask.Id = servertasks.Id;
+                    DominoServerTask dominoServerTask = new DominoServerTask();
+                    dominoServerTask.TaskId = servertasks.TaskId;
+                    dominoServerTask.TaskName = servertasks.TaskName;
+                    dominoServerTask.SendLoadCmd = servertasks.IsLoad;
+                    dominoServerTask.Monitored = servertasks.IsSelected;
+                    dominoServerTask.SendRestartCmd = servertasks.IsResartLater;
+                    dominoServerTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
+                    dominoServerTask.SendExitCmd = servertasks.IsDisallow;
+                    dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                    serverTasks = server.ServerTasks;
+                    serverTasks.Add(dominoServerTask);
+
                 }
                 else
                 {
-                    dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                    foreach (var serverTask in server.ServerTasks)
+                    {
+                        if (serverTask.Id.Equals(servertasks.Id))
+                        {
+                            serverTask.TaskId = servertasks.TaskId;
+                            serverTask.TaskName = servertasks.TaskName;
+                            serverTask.SendLoadCmd = servertasks.IsLoad;
+                            serverTask.Monitored = servertasks.IsSelected;
+                            serverTask.SendRestartCmd = servertasks.IsResartLater;
+                            serverTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
+                            serverTask.SendExitCmd = servertasks.IsDisallow;
+                           
+                        }
+                    }
+                    serverTasks = server.ServerTasks;
                 }
-                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
-                var result1 = dominoservertasksRepository.Collection.AsQueryable().Where(x => x.TaskName == servertasks.TaskName).Select(x => x.Id).Distinct();
 
 
 
-                dominoServerTask.TaskId = servertasks.TaskId;
-                dominoServerTask.TaskName = servertasks.TaskName;
-                dominoServerTask.SendLoadCmd = servertasks.IsLoad;
-                dominoServerTask.Monitored = servertasks.IsSelected;
-                dominoServerTask.SendRestartCmd = servertasks.IsResartLater;
-                dominoServerTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
-                dominoServerTask.SendExitCmd = servertasks.IsDisallow;
-              
-                if (server.ServerTasks != null)
-                    ServerTasks = server.ServerTasks;
-                ServerTasks.Add(dominoServerTask);
-                var updateDefinitaion = serversRepository.Updater.Set(p => p.ServerTasks, ServerTasks);
-                var filterDefination = Builders<Server>.Filter.Where(p => p.Id== servertasks.DeviceId);
-
-                serversRepository.Update(filterDefination, updateDefinitaion, new UpdateOptions { IsUpsert = true });
-
+                var updateDefinitaion = serversRepository.Updater.Set(p => p.ServerTasks, serverTasks);
+                var filterDefination = Builders<Server>.Filter.Where(p => p.Id == servertasks.DeviceId);
+                serversRepository.Update(filterDefination, updateDefinitaion);
 
             }
             catch (Exception exception)
