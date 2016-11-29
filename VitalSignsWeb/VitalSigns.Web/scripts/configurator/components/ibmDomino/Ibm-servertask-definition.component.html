@@ -76,7 +76,7 @@ data.pageIndex + 1 | number
                         <form (ngSubmit)="saveServerTaskDefinition(frmDialog)" #frmUser="ngForm" class="form-horizontal">
 
                             <div class="panel-body" *ngIf="currentEditItem">
-                                <div class="info">
+                                <div class="alert alert-info col-md-12">
                                     <p>VitalSigns can monitor any server task, if the correct settings are provided for task. To obtain the correct settings, issue a "show stat server.task" command on Domino Server console window. You'll get back something like <br/>
                                         Server.Task = Rooms and Resources Manager:Idle:[05/20/2011 05:40:13 MST] <br/>
                                         Server.Task = Admin Process:Idle:[05/20/2011 05:39:40 MST]<br/>
