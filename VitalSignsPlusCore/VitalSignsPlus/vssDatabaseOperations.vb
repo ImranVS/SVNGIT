@@ -2091,7 +2091,7 @@ Partial Public Class VitalSignsPlusCore
                 updatedef = repo.Updater _
                                     .Set(Function(i) i.DeviceName, .Name) _
                                     .[Set](Function(i) i.CurrentStatus, .Status) _
-                                    .[Set](Function(i) i.StatusCode, .Status) _
+                                    .[Set](Function(i) i.StatusCode, .StatusCode) _
                                     .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                                     .[Set](Function(i) i.TypeAndName, TypeAndName) _
                                     .[Set](Function(i) i.Description, .Description) _
@@ -2578,7 +2578,8 @@ Partial Public Class VitalSignsPlusCore
                                               .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
                                               .[Set](Function(i) i.LastUpdated, Now) _
                                               .[Set](Function(i) i.ResponseTime, 0) _
-                                              .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold))
+                                              .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
+                                              .[Set](Function(i) i.DeviceId, .ServerObjectID)
 
 
                 End With
