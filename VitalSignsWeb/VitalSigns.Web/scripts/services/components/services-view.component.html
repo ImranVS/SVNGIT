@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    <div class="twoColumn70 serverDetailWrapper">
+    <div class="twoColumn70 serverDetailWrapper" style="overflow-x: auto;">
         <wj-popup #frmDialog class="popover" [owner]="addServer" [showTrigger]="'Click'" [hideTrigger]="'None'" style="min-width: 800.2778px">
             <form (ngSubmit)="onSubmit(addServersForm.value,frmDialog)" class="form-horizontal" [formGroup]="addServersForm">
                 <h3 class="popover-title">
