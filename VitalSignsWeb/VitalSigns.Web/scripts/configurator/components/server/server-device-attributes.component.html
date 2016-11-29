@@ -5,301 +5,373 @@
         <div class="panel panel-default">
             <div class="panel-heading">Server Attributes</div>
             <div class="panel-body">
-                <div *ngIf="serverAttributes.device_type=='WebSphere'">
+                <div *ngIf="serverAttributes.device_type=='WebSphere'" class="row">
                     <div class="form-group">
                         <label class="control-label col-sm-2">Cell Name</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-3">
                             <input type="text" [(ngModel)]="serverAttributes.cell_name" class="form-control">
 
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2">Node Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" [(ngModel)]="serverAttributes.node_name" class="form-control">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Node Name</label>
+                            <div class="col-sm-3">
+                                <input type="text" [(ngModel)]="serverAttributes.node_name" class="form-control">
 
 
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || serverAttributes.device_type=='URL'">
+                <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections'">
                     <div class="form-group">
                         <label class="control-label col-sm-2">Server Name</label>
-                        <div class="col-sm-5">
+                        <div class="col-sm-3">
                             <input type="text" [(ngModel)]="serverAttributes.device_name" class="form-control">
                         </div>
-                    </div>
-                    <div class="form-group" *ngIf="serverAttributes.device_type !='URL'">
-                        <label class="control-label col-sm-2">Description</label>
-                        <div class="col-sm-5">
-                            <input type="text" [(ngModel)]="serverAttributes.description" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2">Location</label>
-                        <div class="col-sm-5">
-                            <input type="text" [(ngModel)]="serverAttributes.location_id" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2">Category</label>
-                        <div class="col-sm-5">
-                            <input type="text" [(ngModel)]="serverAttributes.category" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group" *ngIf="serverAttributes.device_type=='URL'">
-                        <label class="control-label col-sm-2">Address:</label>
-                        <div class="col-sm-5">
-                            <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2">Enable For Scanning</label>
-                        <div class="funkyradio"></div>
-                        <div class="funkyradio-default">
-                            <div class="col-sm-5">
-                                <input type="checkbox" id="serverAttributes.is_enabled" name="serverAttributes.is_enabled" [(ngModel)]="serverAttributes.is_enabled">
-                            </div>
-                        </div>
-
-                    </div>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-        </div>
-    </div>
-
-
-
-    <div *ngIf="serverAttributes" class="form-horizontal">
-        <div class="panel panel-default">
-
-            <div class="panel-heading">Scan Settings</div>
-            <div class="panel-body">
-
-                <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || serverAttributes.device_type =='URL'">
-                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:scanSettings">
-
-                        <div class="form-group">
-                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-2">
-                                <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                </div>
-                                <div *ngIf="attribute.type=='CheckBox'">
-                                    <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                {{attribute.unit_of_measurement}}
-                            </div>
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-
-    <div *ngIf="serverAttributes" class="form-horizontal">
-        <div *ngIf="serverAttributes.device_type=='Domino'">
-            <div class="panel panel-default">
-
-
-                <div class="panel-heading">Mail Settings</div>
-                <div class="panel-body">
-
-
-                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:mailSettings">
-
-                        <div class="form-group">
-                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-2">
-                                <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                </div>
-                                <div *ngIf="attribute.type=='CheckBox'">
-                                    <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                {{attribute.unit_of_measurement}}
-                            </div>
-                        </div>
-
-
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-    <div *ngIf="serverAttributes" class="form-horizontal">
-        <div *ngIf="serverAttributes.device_type=='Domino'">
-            <div class="panel panel-default">
-
-                <div class="panel-heading">Traveler Settings</div>
-                <div class="panel-body">
-
-
-                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:travelerSettings">
-
-                        <div class="form-group">
-                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-2">
-                                <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                </div>
-                                <div *ngIf="attribute.type=='CheckBox'">
-                                    <input type="checkbox" [(ngModel)]="attribute.default_value">
-                                </div>
-                            </div>
+                        <div class="form-group" *ngIf="serverAttributes.device_type !='URL'">
+                            <label class="control-label col-sm-2">Description</label>
                             <div class="col-sm-3">
-                                {{attribute.unit_of_measurement}}
+                                <input type="text" [(ngModel)]="serverAttributes.description" class="form-control">
                             </div>
                         </div>
-
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div *ngIf="serverAttributes" class="form-horizontal">
-        <div *ngIf="serverAttributes.device_type=='Domino'">
-            <div class="panel panel-default">
-
-
-                <div class="panel-heading">Optional Scan Settings</div>
-                <div class="panel-body">
-                    <p>
-                        The database health service queries the Domino server on a daily basis to produce an inventory of the Notes databases on that server.
-                        This information is used to populate a variety of screens, most notably the 'Biggest Mail Files' report and 'Mail Files by Template'.
-                    </p>
-
-
-                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:optionalSettings">
-
                         <div class="form-group">
-                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-2">
-                                <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                </div>
-                                <div *ngIf="attribute.type=='CheckBox'">
-                                    <input type="checkbox" [(ngModel)]="attribute.default_value">
-                                </div>
-                            </div>
+                            <label class="control-label col-sm-2">Location </label>
                             <div class="col-sm-3">
-                                {{attribute.unit_of_measurement}}
+                                <input type="text" [(ngModel)]="serverAttributes.location_id" class="form-control">
                             </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Category</label>
+                                <div class="col-sm-3">
+                                    <input type="text" [(ngModel)]="serverAttributes.category" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+
+                            <div class="col-sm-8">
+                                <div class="funkyradio col-sm-4">
+                                    <div class="funkyradio-default">
+                                        <input type="checkbox" id="serverAttributes.is_enabled" name="serverAttributes.is_enabled" [(ngModel)]="serverAttributes.is_enabled">
+                                        <label>Enable For Scanning</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div *ngIf="serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections'" class="form-group">
+                                <label class="control-label col-sm-2">Address:</label>
+                                <div class="col-sm-3">
+                                    <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
+                                </div>
+                            </div>
+
+                            <div *ngIf="serverAttributes.device_type=='Sametime'" class="form-group col-sm-3">
+                                <label>Platform:</label>
+                                <div class="funkyradio">
+                                    <div class="funkyradio-default">
+                                        <input type="radio" name="serverAttributes.platform" id="dominoplatform"  [(ngModel)]="serverAttributes.platform">
+                                        <label for="dominoplatform" >Domino</label>
+                                        <input type="radio" name="serverAttributes.platform" id="websphereplatform"  [(ngModel)]="serverAttributes.platform">
+                                        <label for="websphereplatform">Websphere</label>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
                         </div>
 
 
+
+
+
+
+
+
                     </div>
+
+
+
                 </div>
 
-            </div>
 
+            </div>
         </div>
-    </div>
-    <div *ngIf="serverAttributes" class="form-horizontal">
-        <div *ngIf="serverAttributes.device_type=='Sametime'">
+
+
+
+        <div *ngIf="serverAttributes" class="form-horizontal">
             <div class="panel panel-default">
 
-
-                <div class="panel-heading">Chat Settings</div>
+                <div class="panel-heading">Scan Settings</div>
                 <div class="panel-body">
-                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:chatSettings">
 
-                        <div class="form-group">
-                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-2">
-                                <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                </div>
-                                <div *ngIf="attribute.type=='CheckBox'">
-                                    <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
-                                </div>
-                                <div *ngIf="attribute.type=='ComboBox'">
-                                    <div class="form-group col-sm-6">
+                    <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || serverAttributes.device_type =='URL' || serverAttributes.device_type=='IBM Connections'">
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:scanSettings">
 
-                                        <div class="col-sm-7">
-                                            <wj-combo-box name="attribute.default_value" [itemsSource]="deviceCredentialData" [(text)]="attribute.default_value"
-                                                          [(ngModel)]="attribute.default_value">
-                                            </wj-combo-box>
+
+                                    <label  class="col-sm-2" width ="20">{{attribute.attribute_name}}</label>
+                                    <div class="col-sm-1"  width ="20" >
+                                        <div *ngIf="attribute.type=='TextBox'">
+                                            <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                        </div>
+                                        <!--<div *ngIf="attribute.type=='CheckBox'">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+                                        </div>-->
+                                    </div>
+                                    <div class="col-sm-1"  width ="20">
+                                        {{attribute.unit_of_measurement}}
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div *ngIf="serverAttributes" class="form-horizontal">
+            <div *ngIf="serverAttributes.device_type=='Domino'">
+                <div class="panel panel-default">
+
+
+                    <div class="panel-heading">Mail Settings</div>
+                    <div class="panel-body">
+
+
+                        <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:mailSettings">
+
+                            <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-2">
+                                    <div *ngIf="attribute.type=='TextBox'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+
+                                <div>
+                                    <div class="funkyradio col-sm-6">
+                                        <div class="funkyradio-default">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+                                            <label >{{attribute.attribute_name}}</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-2">
-                                {{attribute.unit_of_measurement}}
-                            </div>
+
                         </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div *ngIf="serverAttributes" class="form-horizontal">
+            <div *ngIf="serverAttributes.device_type=='Domino'">
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">Traveler Settings</div>
+                    <div class="panel-body">
 
 
+                        <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:travelerSettings">
+
+                            <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-2">
+                                    <div *ngIf="attribute.type=='TextBox'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+                                    <div *ngIf="attribute.type=='ComboBox'">
+                                        <div>
+
+                                            <div>
+                                                <wj-combo-box name="attribute.default_value" [itemsSource]="deviceCredentialData" [(text)]="attribute.default_value"
+                                                              [(ngModel)]="attribute.default_value">
+                                                </wj-combo-box>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+
+                                <div>
+                                    <div class="funkyradio col-sm-6">
+                                        <div class="funkyradio-default">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+                                            <label >{{attribute.attribute_name}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
                     </div>
                 </div>
 
             </div>
-
         </div>
-    </div>
 
-    <div *ngIf="serverAttributes" class="form-horizontal">
-        <div *ngIf="serverAttributes.device_type=='WebSphere'">
-            <div class="panel panel-default">
+        <div *ngIf="serverAttributes" class="form-horizontal">
+            <div *ngIf="serverAttributes.device_type=='Domino'">
+                <div class="panel panel-default">
 
 
-                <div class="panel-heading">WebSphere Settings</div>
-                <div class="panel-body">
-                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:webSphereSettings">
-
-                        <div class="form-group">
-                            <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
-                            <div class="col-sm-5">
-                                <div *ngIf="attribute.type=='TextBox'">
-                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                </div>
-                                <div *ngIf="attribute.type=='CheckBox'">
-                                    <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                {{attribute.unit_of_measurement}}
-                            </div>
+                    <div class="panel-heading">Optional Scan Settings</div>
+                    <div class="panel-body">
+                        <div class="info">
+                            <p>
+                                The database health service queries the Domino server on a daily basis to produce an inventory of the Notes databases on that server.
+                                This information is used to populate a variety of screens, most notably the 'Biggest Mail Files' report and 'Mail Files by Template'.
+                            </p>
                         </div>
 
 
+
+                        <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:optionalSettings">
+
+                            <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-2">
+                                    <div *ngIf="attribute.type=='TextBox'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+
+                                <div>
+                                    <div class="funkyradio col-sm-6">
+                                        <div class="funkyradio-default">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+                                            <label>{{attribute.attribute_name}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
                     </div>
+
                 </div>
 
             </div>
-
         </div>
-    </div>
-
-    <div *ngIf="serverAttributes" class="form-horizontal">
-        <div *ngIf="serverAttributes.device_type =='URL'">
-            <div class="panel panel-default">
+        <div *ngIf="serverAttributes" class="form-horizontal">
+            <div *ngIf="serverAttributes.device_type=='Sametime'">
+                <div class="panel panel-default">
 
 
+                    <div class="panel-heading">Chat Settings</div>
+                    <div class="panel-body">
+                        <div class="info">
+                            <p>Two User Credentials are required to simulate a chat session between two users. ST User1 and ST User2 reflect existing users that were previously configured to gather Sametime Statistics. To edit or view these users, please go to Stored Passwords & Options -> Server credentials.</p>
+                        </div>
+                        <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:chatSettings">
+                            <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-2">
+                                    <div *ngIf="attribute.type=='TextBox'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+                                    <div *ngIf="attribute.type=='ComboBox'">
+                                        <div class="form-group">
+
+                                            <div>
+                                                <wj-combo-box name="attribute.default_value" [itemsSource]="deviceCredentialData" [(text)]="attribute.default_value" placeholder="select credential"
+                                                              [(ngModel)]="attribute.default_value">
+                                                </wj-combo-box>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+
+                                <div>
+                                    <div class="funkyradio col-sm-6">
+                                        <div class="funkyradio-default">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+                                            <label>{{attribute.attribute_name}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div *ngIf="serverAttributes" class="form-horizontal">
+            <div *ngIf="serverAttributes.device_type=='WebSphere'">
+                <div class="panel panel-default">
+
+
+                    <div class="panel-heading">WebSphere Settings</div>
+                    <div class="panel-body">
+                        <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:webSphereSettings">
+
+                            <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-2">
+                                    <div *ngIf="attribute.type=='TextBox'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+
+                                <div>
+                                    <div class="funkyradio col-sm-6">
+                                        <div class="funkyradio-default">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+                                            <label >{{attribute.attribute_name}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div *ngIf="serverAttributes" class="form-horizontal">
+            <div *ngIf="serverAttributes.device_type =='URL'">
+                <div class="panel panel-default">
+
+
+<<<<<<< .mine
+                    <div class="panel-heading">Optional: Search Text</div>
+                    <div class="panel-body">
+                        <p>
+                            If you enter a value into the Search Text box, then VitalSigns will
+                            try to locate this text on the URL page and an Alert will be generated based on the option you select below.
+                        </p>
+                        <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:searchText">
+=======
                 <div class="panel-heading">Optional: Search Text</div>
                 <div class="panel-body">
                     <div class="info">
@@ -309,7 +381,16 @@
                         </p>
                         </div>
                         <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:searchText">
+>>>>>>> .r1608
 
+<<<<<<< .mine
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-5">
+                                    <div *ngIf="attribute.type=='TextBox'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+=======
                             <div class="form-group">
                                 <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                                 <div class="col-sm-5">
@@ -318,9 +399,11 @@
                                     </div>
 
 
+>>>>>>> .r1608
                                     <div *ngIf="attribute.type=='CheckBox'">
                                         <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
                                     </div>
+
                                 </div>
 
                             </div>
@@ -328,17 +411,29 @@
                         </div>
 
                     </div>
+<<<<<<< .mine
+                </div>
+
+=======
+>>>>>>> .r1608
             </div>
 
         </div>
 
-    </div>
+        <div *ngIf="serverAttributes" class="form-horizontal">
+            <div *ngIf="serverAttributes.device_type == 'URL'">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Optional: Username/Password</div>
 
-    <div *ngIf="serverAttributes" class="form-horizontal">
-        <div *ngIf="serverAttributes.device_type == 'URL'">
-            <div class="panel panel-default">
-                <div class="panel-heading">Optional: Username/Password</div>
+                    <div class="panel-body">
+                        <p>
+                            If you enter values into the Username and Password field, VitalSigns will use them when navigating to the page.
+                            This is only applicable to pages requiring authentication when searching for specific text in the page which is only available after authentication.
+                        </p>
 
+<<<<<<< .mine
+                        <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:usernameorPassword">
+=======
                 <div class="panel-body">
                     <div class="info">
                         <p>
@@ -346,9 +441,24 @@
                             This is only applicable to pages requiring authentication when searching for specific text in the page which is only available after authentication.
                         </p>
                         </div>
+>>>>>>> .r1608
 
+<<<<<<< .mine
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                                <div class="col-sm-5">
+                                    <div *ngIf="attribute.type=='TextBox' && attribute.field_name =='password'">
+                                        <input type="password" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+                                    <div *ngIf="attribute.type=='TextBox' && attribute.field_name !='password'">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                    </div>
+=======
                         <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:usernameorPassword">
+>>>>>>> .r1608
 
+<<<<<<< .mine
+=======
                             <div class="form-group">
                                 <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
                                 <div class="col-sm-5">
@@ -359,6 +469,7 @@
                                         <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                     </div>
 
+>>>>>>> .r1608
                                 </div>
 
                             </div>
@@ -366,14 +477,18 @@
                         </div>
 
                     </div>
+<<<<<<< .mine
+                </div>
+
+=======
+>>>>>>> .r1608
             </div>
 
         </div>
 
-    </div>
+        <div>
+            <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
+        </div>
 
-    <div>
-        <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
     </div>
-
 </div>
