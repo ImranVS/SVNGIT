@@ -698,13 +698,23 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("traveler_stats")]
-        public APIResponse GetTravelerStats(string travelername, string paramtype, string paramvalue)
+        public APIResponse GetTravelerStats(string deviceId, string paramtype, string paramvalue)
         {
+            FilterDefinition<Server> filterDef = null;
             Repository<TravelerStats> travelerRepository = new Repository<TravelerStats>(ConnectionString);
             List<Serie> series = new List<Serie>();
-            
+            string travelername = "";
+            bool foundInt = false;
+
             try
             {
+                serverRepository = new Repository<Server>(ConnectionString);
+                filterDef = serverRepository.Filter.Eq(x => x.Id, deviceId);
+                var serverlist = serverRepository.Find(filterDef).ToList();
+                if (serverlist.Count > 0)
+                {
+                    travelername = serverlist[0].DeviceName;
+                }
                 var builder = Builders<TravelerStats>.Filter;
                 var result = travelerRepository.Collection.Aggregate()
                                .Match(builder.And(builder.Eq(paramtype, paramvalue), builder.Eq(x => x.TravelerServerName, travelername))).ToList();
@@ -713,13 +723,23 @@ namespace VitalSigns.API.Controllers
                 {
                     foreach (var mailserver in result.Select(x => x.MailServerName).Distinct()) 
                     {
+                        foundInt = false;
                         List<Segment> segments = new List<Segment>();
                         Serie serie = new Serie();
                         foreach (var record in result)
                         {
                             if (record.MailServerName == mailserver)
                             {
+                                foundInt = true;
                                 segments.Add(new Segment { Label = record.CreatedOn.ToString(DateFormat), Value = Convert.ToDouble(record.OpenTimes) });
+                                serie.Title = mailserver;
+                            }
+                        }
+                        if (!foundInt)
+                        {
+                            for (int i = 0; i < segments.Count; i++)
+                            {
+                                segments.Add(new Segment { Label = segments[i].Label, Value = 0 });
                                 serie.Title = mailserver;
                             }
                         }
@@ -731,13 +751,23 @@ namespace VitalSigns.API.Controllers
                 {
                     foreach (var interval in result.Select(x => x.Interval).Distinct())
                     {
+                        foundInt = false;
                         List<Segment> segments = new List<Segment>();
                         Serie serie = new Serie();
                         foreach (var record in result)
                         {
                             if (record.Interval == interval)
                             {
+                                foundInt = true;
                                 segments.Add(new Segment { Label = record.CreatedOn.TimeOfDay.ToString(), Value = Convert.ToDouble(record.OpenTimes) });
+                                serie.Title = interval;
+                            }
+                        }
+                        if (!foundInt)
+                        {
+                            for (int i=0; i < segments.Count; i++)
+                            {
+                                segments.Add(new Segment { Label = segments[i].Label, Value = 0 });
                                 serie.Title = interval;
                             }
                         }
