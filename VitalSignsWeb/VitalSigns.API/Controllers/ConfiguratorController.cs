@@ -476,21 +476,13 @@ namespace VitalSigns.API.Controllers
                 if (businesshour.Saturday)
                     days.Add("Saturday");
 
-                // var business = businessHoursRepository.Get(businesshour.Name);
-                //var business = businessHoursRepository.Filter.Where(x => x.Name == businesshour.Name).ToString();
-                //if (business.Count() < 0)
-                //{
+               
+                Expression<Func<BusinessHours, bool>> filterExpression = (p => p.Name == businesshour.Name);
+                var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+                if(string.IsNullOrEmpty(existsData))
+                { 
 
-
-                    //business.ToString();
-                    //foreach (var name in business)
-                    //{
-                    //    if (businesshour.Name == business.Name)
-                    //    {
-
-                    //    }
-                    //}
-                    if (string.IsNullOrEmpty(businesshour.Id))
+                if (string.IsNullOrEmpty(businesshour.Id))
                     {
                         BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray(), UseType = Convert.ToInt32(businesshour.UseType) };
                         string id = businessHoursRepository.Insert(businessHours);
@@ -509,7 +501,12 @@ namespace VitalSigns.API.Controllers
                         var result = businessHoursRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
                     }
-                //}
+                }
+
+                else
+                {
+                    Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
+                }
             }
             catch (Exception exception)
             {
