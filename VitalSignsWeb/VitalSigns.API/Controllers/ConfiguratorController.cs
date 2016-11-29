@@ -2042,8 +2042,6 @@ namespace VitalSigns.API.Controllers
             {
                 dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
                 var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
-               //var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => new ComboBoxListItem { DisplayText = x.TaskName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
-                //var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.DeviceName }).ToList().OrderBy(x => x.DisplayText);
                 Response = Common.CreateResponse(new { TaskNames = result1});
                
             }
@@ -2070,6 +2068,10 @@ namespace VitalSigns.API.Controllers
             serversRepository = new Repository<Server>(ConnectionString);
             try
             {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                Expression<Func<DominoServerTasks, bool>> filterExpression = (p => p.TaskName == servertasks.TaskName);
+                var taskId = dominoservertasksRepository.Find(filterExpression).Select(x => x.Id).FirstOrDefault();
+
                 List<DominoServerTask> serverTasks = new List<DominoServerTask>();
                 var server = serversRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == servertasks.DeviceId);
 
@@ -2077,7 +2079,7 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(servertasks.Id))
                 {
                     DominoServerTask dominoServerTask = new DominoServerTask();
-                    dominoServerTask.TaskId = servertasks.TaskId;
+                    dominoServerTask.TaskId = taskId;
                     dominoServerTask.TaskName = servertasks.TaskName;
                     dominoServerTask.SendLoadCmd = servertasks.IsLoad;
                     dominoServerTask.Monitored = servertasks.IsSelected;
@@ -2095,7 +2097,7 @@ namespace VitalSigns.API.Controllers
                     {
                         if (serverTask.Id.Equals(servertasks.Id))
                         {
-                            serverTask.TaskId = servertasks.TaskId;
+                            serverTask.TaskId = taskId;
                             serverTask.TaskName = servertasks.TaskName;
                             serverTask.SendLoadCmd = servertasks.IsLoad;
                             serverTask.Monitored = servertasks.IsSelected;
