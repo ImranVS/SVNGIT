@@ -108,6 +108,7 @@ export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scan
 //reports
 export * from './reports/components/servers/any-statistic-report-grid.component'
 export * from './reports/components/servers/overall-status-report-grid.component'
+export * from './reports/filters/components/traveler-filter.component'
 
 //Server Import
 export * from './configurator/components/serverImport/server-import-domino.component'

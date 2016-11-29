@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
 
 import {RESTService} from '../../../core/services/rest.service';
-
+import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as helpers from '../../../core/services/helpers/helpers';
 
 declare var injectSVG: any;
@@ -23,12 +23,18 @@ export class TravelerStatsReport extends WidgetController {
     widgets: WidgetContract[];
     paramtype: string;
     paramvalue: string;
+    selectedInterval: any;
+
+    currentHideServerControl: boolean = false;
+    currentHideIntervalControl: boolean = false;
+    currentHideAllServerControl: boolean = false;
+    currentWidgetName: string = `travelerStatsChart`;
+    currentWidgetURL: string;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
-
     }
 
     ngOnInit() {
@@ -42,16 +48,23 @@ export class TravelerStatsReport extends WidgetController {
             data => this.contextMenuSiteMap = data ,
             error => console.log(error)
         );
-
-        
+        if (this.paramtype == "interval") {
+            this.currentHideIntervalControl = false;
+            this.currentHideAllServerControl = true;
+        }
+        else {
+            this.currentHideIntervalControl = true;
+            this.currentHideAllServerControl = false;
+        }
+        this.currentWidgetURL = `/reports/traveler_stats?paramtype=${this.paramtype}`;
         this.widgets = [
             {
                 id: 'travelerStatsChart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/traveler_stats?travelername=azphxdom1/RPRWyatt&paramtype=${this.paramtype}&paramvalue=${this.paramvalue}`,
-                    dateformat: 'time',
+                    url: this.currentWidgetURL,
+                    //dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'travelerStatsChart',

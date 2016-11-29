@@ -1,5 +1,5 @@
-﻿<div>
-    <div class="hidden-xs hidden-sm dashboard-menu" id="zeusContext">
+﻿<div class="col-lg-12">
+    <div class="hidden-xs hidden-sm dashboard-menu col-lg-3" id="zeusContext">
         <ul class="list-group" *ngIf="contextMenuSiteMap">
 
             <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
@@ -10,21 +10,25 @@
 
         </ul>
     </div>
-    <div id="zeusContent" class="container-fluid">
-        <div class="reportsPage">
-            <h1>Cumulative Mail File Open Times</h1>
-            <div *ngFor="let widget of widgets">
-                <h3>{{widget.title}}</h3>
-                <div id="{{widget.id}}">
-                    <my-widget [contract]="widget"></my-widget>
-                </div>
-            </div>
-        </div>
-
+    <div class="hidden-xs hidden-sm col-lg-9" style="padding-left: 30px">
+        <traveler-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideMailServerControl)]="currentHideAllServerControl" [(hideIntervalControl)]="currentHideIntervalControl"></traveler-filter>
     </div>
 
-    <button class="visible-xs visible-sm showMbtn" onclick="$('.dashboard-menu').toggle();">
-        <img class="svgInject" src="img/dashboard/SubLevelsMenu.svg" title="Dashboard Sub Levels" alt="Dashboard Sub Levels" />
-    </button>
+        <div id="zeusContent" class="col-lg-9">
+            <div class="reportsPage">
+                <h1>Cumulative Mail File Open Times</h1>
+                <div *ngFor="let widget of widgets">
+                    <h3>{{widget.title}}</h3>
+                    <div id="{{widget.id}}">
+                        <my-widget [contract]="widget"></my-widget>
+                    </div>
+                </div>
+            </div>
 
-</div>
+        </div>
+
+        <button class="visible-xs visible-sm showMbtn" onclick="$('.dashboard-menu').toggle();">
+            <img class="svgInject" src="img/dashboard/SubLevelsMenu.svg" title="Dashboard Sub Levels" alt="Dashboard Sub Levels" />
+        </button>
+
+    </div>

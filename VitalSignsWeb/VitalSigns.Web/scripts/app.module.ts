@@ -78,6 +78,7 @@ import {DominoServerConfigurationReport} from './reports/components/configuratio
 import {ServerListTypeReport} from './reports/components/configuration/server-list-type-report.component';
 import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
 import {ServerFilter} from './reports/filters/components/server-filter.component';
+import {TravelerFilter} from './reports/filters/components/traveler-filter.component';
 import {ConnectionsServerFilter} from './reports/filters/components/connections-server-filter.component';
 import {ConnectionsActivityReport} from './reports/components/ibm-connections/connections-activity-report.component';
 import {ConnectionsBookmarkReport} from './reports/components/ibm-connections/connections-bookmark-report.component';
@@ -291,6 +292,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
         widgets.SametimeStatisticGridReportGrid,
         widgets.DominoServerConfigurationReportGrid,
         widgets.ServerFilter,
+        widgets.TravelerFilter,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -426,6 +428,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
         widgets.ServerListTypeReportGrid,
         widgets.ServerListLocationReportGrid,
         widgets.ServerFilter,
+        widgets.TravelerFilter,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
