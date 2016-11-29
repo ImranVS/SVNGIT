@@ -291,14 +291,14 @@ namespace VitalSigns.API.Controllers
                 validLocationsRepository = new Repository<ValidLocation>(ConnectionString);
                 if (string.IsNullOrEmpty(country) && string.IsNullOrEmpty(state))
                 {
-
                     var countryData = validLocationsRepository.All().Where(x => x.Country != null).Select(x => x.Country).Distinct().OrderBy(x => x).ToList();
                     Response = Common.CreateResponse(new { countryData = countryData });
-                    countryData.Insert(0, "-All-");
+                   // countryData.Insert(0, "-All-");
                 }
                 if (!string.IsNullOrEmpty(country))
                 {
                     var stateData = validLocationsRepository.All().FirstOrDefault(x => x.Country == country).States;
+                   // var countryData = validLocationsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.States, Value = x.Id }.OrderBy(x => x.DisplayText);
                     Response = Common.CreateResponse(new { stateData = stateData });
 
                 }
@@ -1082,7 +1082,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         /// <returns>List of device attributes data</returns>
-        [HttpGet("get_device_attributes/{type}")]
+        [HttpGet("get_device_attributes")]
         public APIResponse GetDeviceAttributes(string type)
 
         {
@@ -1589,7 +1589,7 @@ namespace VitalSigns.API.Controllers
                     IPAddress = s.IPAddress,
                     Category = s.Category,
                     IsEnabled=s.IsEnabled,
-
+                    Platform=s.Platform,
                     LocationId = s.LocationId,
                     Devicetype = s.DeviceType,
                     CellId = s.CellId,
@@ -4945,6 +4945,7 @@ namespace VitalSigns.API.Controllers
                 try
                 {
                     credentialsRepository = new Repository<Credentials>(ConnectionString);
+
                     var credential = credentialsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == cellInfo.CredentialsId);
                     if (credential != null)
                     {
@@ -5127,6 +5128,7 @@ namespace VitalSigns.API.Controllers
                                                                         .Select(x => new CellInfo
                                                                         {
                                                                             DeviceId = x.Id,
+
                                                                             CellId = x.CellId,
                                                                             CellName = x.CellName,
                                                                             Name = x.DeviceName,
