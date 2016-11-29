@@ -43,7 +43,7 @@
 
                         <label for="serverRunningDaysAlert" class="col-sm-12">Some companies have a practice to reboot Domino servers after a set number of days. Enter a value here if you would like to be notified if a server is running beyond this limit.</label>
 
-                        <label for="serverRunningDaysAlert" class="control-label col-sm-4">Alert if total elapsed running time exceeds:</label>
+                        <label for="serverRunningDaysAlert" class="control-label col-sm-3">Alert if total elapsed running time exceeds:</label>
                         <div class="col-sm-2">
                             <input type="text" class="form-control" name="serverRunningDaysAlert" formControlName="server_days_alert">
                         </div>
@@ -58,9 +58,11 @@
 
                 <div class="panel-body">
                     <div class="form-group">
-
-                        <label for="clusterReplicationDelaysAlert" class="col-sm-12">Cluster Replication Delay alerts will trigger if the amount of time (in seconds) that it takes for a document created on this server to be pushed to other servers in the cluster rate exceeds this threshold. If you don't want to get Cluster Replication Delay alerts, set the threshold to zero.</label>
-                        <div class="row">
+                        <div class="row col-sm-12">
+                            <label for="clusterReplicationDelaysAlert" class="col-sm-12">Cluster Replication Delay alerts will trigger if the amount of time (in seconds) that it takes for a document created on this server to be pushed to other servers in the cluster rate exceeds this threshold. If you don't want to get Cluster Replication Delay alerts, set the threshold to zero.</label>
+                        </div>
+                       
+                        <div class="row col-sm-12">
                             <label for="clusterReplicationDelaysAlert" class="control-label col-sm-4">Alert if Cluster Replication Queue time exceeds:</label>
                             <div class="col-sm-2">
                                 <input type="text" class="form-control" name="clusterReplicationDelaysAlert" formControlName="cluster_replication_delay_threshold">
@@ -68,8 +70,9 @@
                             <label for="clusterReplicationDelaysAlert" class="control-label col-sm-4">seconds</label>
                         </div>
                         <br />
-                        <div class="row">
+                        <div class="row col-sm-12">
                             <label for="clusterReplicationQueueAlert" class="control-label col-sm-6">Load another Cluster Replicator instance if cluster replication queue exceeds:</label>
+                      
                             <div class="col-sm-2">
                                 <input type="text" class="form-control" name="clusterReplicationQueueAlert" formControlName="cluster_replication_queue_threshold">
                             </div>
@@ -136,10 +139,11 @@
                             <label for="db2_settings_credentials_id" class="control-label col-sm-5">DB2 Credentials:</label>
                             <div class="col-sm-7">
                              
-                                <wj-combo-box [itemsSource]="ConnectionsCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                              placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_settings_credentials_id" [isEditable]="true"  required="false" [selectedValue]="null">
+                              <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value" 
+                                              placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_settings_credentials_id" [isEditable]="true" gotFocus="valuechange($event)">
                                 </wj-combo-box>
-                            
+                           
+                               
                             </div>
                         </div>
                         <div class="form-group  col-sm-1">
@@ -250,8 +254,8 @@
                                 <label for="database_settings_credentials_id" class="control-label col-sm-5">DB2 Credentials:</label>
                                 <div class="col-sm-7">
                                    
-                                    <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                 placeholder="Select Credential" formControlName="database_settings_credentials_id" name="database_settings_credentials_id" [isEditable]="true" [selectedValue]="null">
+                                    <wj-combo-box [itemsSource]="ConnectionsCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                 placeholder="Select Credential" formControlName="database_settings_credentials_id" name="database_settings_credentials_id" [isEditable]="true" [isRequired]="false">
                                   </wj-combo-box>
 
                                 </div>

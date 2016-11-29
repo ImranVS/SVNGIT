@@ -22,6 +22,7 @@ export class ServerAdvancedSettings implements OnInit {
     modal = true;
     addCredentialForm: FormGroup;
     serverType: string;
+    Type: string;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
@@ -82,6 +83,7 @@ export class ServerAdvancedSettings implements OnInit {
 
                 this.advancedSettingsForm.setValue(response.data);
                 this.deviceType = response.data.device_type;
+                this.Type = response.data.database_settings_credentials_id;
                 console.log(this.deviceType);
             },
 
@@ -99,7 +101,7 @@ export class ServerAdvancedSettings implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-        // alert(this.deviceId);
+    
     }
 
     onSubmit(advancedSettings: any): void {
@@ -113,7 +115,7 @@ export class ServerAdvancedSettings implements OnInit {
 
 
     }
-
+    
     addIbmCredentials(dlg: wijmo.input.Popup) {
         if (dlg) {
             dlg.modal = this.modal;
@@ -127,6 +129,7 @@ export class ServerAdvancedSettings implements OnInit {
             dlg.modal = this.modal;
             dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
             dlg.show();
+            
             this.serverType = "Sametime"
         }
     }
