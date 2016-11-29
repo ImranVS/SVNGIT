@@ -1,19 +1,19 @@
 ﻿
 <div class="container">
-    <div class="info">
+    <div class="alert alert-info col-md-12">
         <p>The list of available alerts is listed below. In order to add new alerts or configure existing alerts, please use the Alerts\Alert Definitions menu.</p> 
     </div>
     <div class="form-group">
         <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="2" [isReadOnly]="true">
             <wj-flex-grid-filter></wj-flex-grid-filter>
-            <wj-flex-grid-column [header]="'Name'" [binding]="'Name'" [width]="200"> </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Start Time'" [binding]="'s'" [width]="150"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Duration'" [binding]="'StartTime'" [width]="150"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'To'" [binding]="'EndDate'" [width]="150"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Cc'" [binding]="'Duration'" [width]="160"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Bcc'" [binding]="'MaintainType'" [width]="160"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Event Type'" [binding]="'MaintenanceFrequency'" [width]="200"></wj-flex-grid-column>
-
+            <wj-flex-grid-column [header]="'Name'" [binding]="'notification_name'" [width]="200"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Duration(min)'" [binding]="'duration'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'To'" [binding]="'send_to'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Cc'" [binding]="'copy_to'" [width]="160"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Bcc'" [binding]="'blind_copy_to'" [width]="160"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Event Type'" [binding]="'event_type'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Day(s)'" [binding]="'days'" [width]="200"></wj-flex-grid-column>
 
         </wj-flex-grid>
         <div class="btn-group" *ngIf="data != null">
