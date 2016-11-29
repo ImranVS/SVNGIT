@@ -148,7 +148,7 @@ data.pageIndex + 1 | number
                                                         <div class="form-group col-sm-12">
                                                             <label for="scan_interval" class="control-label col-sm-4">Scan Interval:</label>
                                                             <div class="col-sm-4">
-                                                                <input type="number" class="form-control" name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
+                                                                <input type="number" class="form-control" name="scan_interval" [(ngModel)]="currentEditItem.scan_interval" required>
 
                                                             </div>
                                                             <label for="scan_interval" class="control-label col-sm-1">minutes</label>
@@ -158,7 +158,7 @@ data.pageIndex + 1 | number
                                                             <div class="form-group col-sm-12">
                                                                 <label for="off_hours_scan_interval" class="control-label col-sm-4">Off-Hours Scan Interval:</label>
                                                                 <div class="col-sm-4">
-                                                                    <input type="number" class="form-control" name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval">
+                                                                    <input type="number" class="form-control" name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval" required>
 
                                                                 </div>
                                                                 <label for="off_hours_scan_interval" class="control-label col-sm-1">minutes</label>
@@ -179,7 +179,7 @@ data.pageIndex + 1 | number
                                                 <div class="panel-heading">Servers</div>
                                                 <div class="panel-body">
                                                    
-                                                        <div class="info form-group  col-sm-12">
+                                                        <div class="alert alert-info col-lg-12">
                                                             <p>The File Mask is a wild-card text string that if found in the file name, will qualify the database for cluster analysis. For example, putting mail as the file mask will select both mail\aforbes.nsf and mail2\Zbrown.nsf. It is not case sensitive.
 
                                                                   Enter .nsf as the file mask to select all databases on the server.
@@ -195,7 +195,7 @@ data.pageIndex + 1 | number
                                                                 <div class="form-group col-sm-12">
                                                                     <label for="domino_server_a" class="control-label col-sm-5"> Domino Server:</label>
                                                                     <div class="col-sm-7">
-                                                                        <wj-combo-box name="domino_server_a" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_a" placeholder="Select Server" [isEditable]="true">
+                                                                        <wj-combo-box name="domino_server_a" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_a" placeholder="Select Server" [isEditable]="true" required>
 
                                                                         </wj-combo-box>
                                                                     </div>
@@ -203,7 +203,7 @@ data.pageIndex + 1 | number
                                                                 <div class="form-group col-sm-12">
                                                                     <label for="domino_server_a_file_mask" class="control-label col-sm-5">File Mask:</label>
                                                                     <div class="col-sm-7">
-                                                                        <input type="text" class="form-control" name="domino_server_a_file_mask" [(ngModel)]="currentEditItem.domino_server_a_file_mask">
+                                                                        <input type="text" class="form-control" name="domino_server_a_file_mask" [(ngModel)]="currentEditItem.domino_server_a_file_mask" required>
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group col-sm-12">
@@ -223,7 +223,7 @@ data.pageIndex + 1 | number
                                                                 <div class="form-group col-sm-12">
                                                                     <label for="domino_server_b" class="control-label col-sm-5"> Domino Server:</label>
                                                                     <div class="col-sm-7">
-                                                                        <wj-combo-box name="domino_server_b" [itemsSource]="sererNames" displayMemberPath="text" [(ngModel)]="currentEditItem.domino_server_b" selectedValuePath="value" placeholder="Select Server" [isEditable]="true">
+                                                                        <wj-combo-box name="domino_server_b" [itemsSource]="sererNames" displayMemberPath="text" [(ngModel)]="currentEditItem.domino_server_b" selectedValuePath="value" placeholder="Select Server" [isEditable]="true" required>
 
                                                                         </wj-combo-box>
                                                                     </div>
@@ -231,8 +231,8 @@ data.pageIndex + 1 | number
                                                                 <div class="form-group col-sm-12">
                                                                     <label for="domino_server_b_file_mask" class="control-label col-sm-5">File Mask:</label>
                                                                     <div class="col-sm-7">
-                                                                        <input type="text" class="form-control" name="domino_server_b_file_mask" [(ngModel)]="currentEditItem.domino_server_b_file_mask">
-                                                                    </div>
+                                                                        <input type="text" class="form-control" name="domino_server_b_file_mask" [(ngModel)]="currentEditItem.domino_server_b_file_mask" required>
+                                                                    </div> 
                                                                 </div>
                                                                 <div class="form-group col-sm-12">
                                                                     <label for="domino_server_b_exclude_folders" class="control-label col-sm-5">Exclude Folder(s):</label>
@@ -251,7 +251,7 @@ data.pageIndex + 1 | number
                                                                 <div class="form-group col-sm-12">
                                                                     <label for="domino_server_c" class="control-label col-sm-5"> Domino Server:</label>
                                                                     <div class="col-sm-7">
-                                                                        <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_c" placeholder="Select Server" [isEditable]="true">
+                                                                        <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_c" placeholder="Select Server"  [isEditable]="true"  [required]="false">
 
                                                                         </wj-combo-box>
                                                                     </div>
@@ -282,7 +282,7 @@ data.pageIndex + 1 | number
                                                 <div class="panel-heading">Alert Settings</div>
                                                 <div class="panel-body">
                                                     
-                                                        <div class="info form-group  col-sm-12">
+                                                        <div class="alert alert-info col-lg-12">
                                                             <p>The Difference Threshold is the percentage difference in document count between two replicas on different servers. In other words, if a database on server A has 100 documents, but the same database on server B has only 80 documents, an alert will go out if the threshold is set to 20%.</p>
 
                                                         </div>
@@ -290,7 +290,7 @@ data.pageIndex + 1 | number
                                                     <div class="form-group col-sm-12">
                                                         <label for="difference_threshold" class="control-label col-sm-5">Difference Threshold(%):</label>
                                                         <div class="col-sm-2">
-                                                            <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" name="difference_threshold" [(ngModel)]="currentEditItem.difference_threshold">
+                                                            <input type="number" class="form-control" name="difference_threshold" [(ngModel)]="currentEditItem.difference_threshold">
 
                                                         </div>
                                                     </div>

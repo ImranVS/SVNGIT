@@ -51,7 +51,7 @@ export class NotesDatabaseReplica extends GridBase implements OnInit {
         this.currentEditItem.domino_server_b = "";
         this.currentEditItem.domino_server_b_file_mask = "";
         this.currentEditItem.domino_server_b_exclude_folders = "";
-        this.currentEditItem.domino_server_c = "";
+        this.currentEditItem.domino_server_c = null;
         this.currentEditItem.domino_server_c_file_mask = "";
         this.currentEditItem.domino_server_c_exclude_folders = "";
         this.currentEditItem.difference_threshold = "";
