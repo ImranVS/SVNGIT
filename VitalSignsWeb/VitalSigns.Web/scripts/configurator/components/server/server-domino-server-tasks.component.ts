@@ -64,7 +64,7 @@ export class ServerTasks extends GridBase implements OnInit {
     }
     addServerTask(frmDialog: wijmo.input.Popup) {
         this.addGridRow(frmDialog);
-        this.currentEditItem.is_selected = "";
+        this.currentEditItem.is_selected = false;
         this.currentEditItem.task_name = "";
         this.currentEditItem.is_load = false;
         this.currentEditItem.is_restart_asap = false;
