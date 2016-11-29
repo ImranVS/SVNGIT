@@ -34,9 +34,9 @@ export class NotesDatabases extends GridBase implements OnInit {
         this.currentEditItem.is_enabled = "";
         this.currentEditItem.domino_server_name = "";
         this.currentEditItem.database_file_name = "";
-        this.currentEditItem.scan_interval = "";
-        this.currentEditItem.retry_interval = "";
-        this.currentEditItem.off_hours_scan_interval = "";
+        this.currentEditItem.scan_interval = "8";
+        this.currentEditItem.retry_interval = "2";
+        this.currentEditItem.off_hours_scan_interval = "30";
         this.currentEditItem.trigger_type = "";
         this.currentEditItem.trigger_value = "";
 

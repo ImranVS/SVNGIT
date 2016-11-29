@@ -2,8 +2,8 @@
     <div class="widgetContent">
         <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
             <div class="row">
-                <div class="alert alert-info col-lg-12">
-                    IBM Notes Databases can be monitored for replication, response time, size, document count and existence.
+                <div class="alert alert-info col-md-12">
+                    <p>IBM Notes Databases can be monitored for replication, response time, size, document count and existence.</p>
                 </div>
                 <div class="grid-sort-group">
 
@@ -84,12 +84,12 @@ data.pageIndex + 1 | number
                                                 <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
                                             </div>
                                         </div>
-                                        <div class="form-group col-sm-1">
+                                        <!--<div class="form-group col-sm-1">
                                             <div class="control-label col-sm-3">
-                                                <button class="btn btn-primary" type="submit" name="submit">Browse</button>
+                                                <button class="btn btn-primary" type="submit"  name="submit">Browse</button>
                                             </div>
 
-                                        </div>
+                                        </div>-->
 
                                         <div class="form-group col-sm-5">
                                             <div class="form-inline col-sm-6">
@@ -133,16 +133,23 @@ data.pageIndex + 1 | number
                                         <div class="form-group col-sm-6">
                                             <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
                                             <div class="col-sm-7">
-                                                <input type="number" class="form-control" id="scan_interval" required name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
+                                                <input type="number" value="2" class="form-control" id="scan_interval" required name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label for="scan_interval" class="control-label col-sm-2">Minutes</label>
                                             </div>
                                         </div>
-                                    </div>
                                     <div class="row">
                                         <div class="form-group col-sm-6">
                                             <label for="retry_interval" class="control-label col-sm-5">Retry Interval</label>
                                             <div class="col-sm-7">
                                                 <input type="number" class="form-control" id="retry_interval" required name="retry_interval" [(ngModel)]="currentEditItem.retry_interval">
-                                            </div>
+                                            </div>     
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label for="scan_interval" class="control-label col-sm-2">Minutes</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -150,7 +157,10 @@ data.pageIndex + 1 | number
                                             <label for="off_hours_scan_interval" class="control-label col-sm-5">OffHours Scan Interval</label>
                                             <div class="col-sm-7">
                                                 <input type="number" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval">
-                                            </div>
+                                            </div>                             
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label for="scan_interval" class="control-label col-sm-2">Minutes</label>
                                         </div>
                                     </div>
                                 </div>
@@ -158,8 +168,8 @@ data.pageIndex + 1 | number
                             <div class="panel panel-default">
                                 <div class="panel-heading">Type</div>
                                 <div class="panel-body" *ngIf="currentEditItem">
-                                    <div>
-                                        Selecting <b>'Refresh All Views'</b>  will detect many types of database corruption.
+                                    <div class="alert alert-info col-md-12">
+                                        <p>Selecting <b>'Refresh All Views'</b>  will detect many types of database corruption.</p>
                                     </div>
                                     <div class="row">
                                         <div class="form-group col-sm-6">
