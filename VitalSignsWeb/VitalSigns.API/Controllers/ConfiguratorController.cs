@@ -619,42 +619,50 @@ namespace VitalSigns.API.Controllers
             try
             {
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-
-
-
-                if (string.IsNullOrEmpty(maintenance.Id))
+                Expression<Func<Maintenance, bool>> filterExpression = (p => p.Name == maintenance.Name);
+                var existsData = maintenanceRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+                if (string.IsNullOrEmpty(existsData))
                 {
-                    Maintenance maintenancedata = new Maintenance
+
+
+                    if (string.IsNullOrEmpty(maintenance.Id))
                     {
-                        Name = maintenance.Name,
-                        StartDate = maintenance.StartDate,
-                        StartTime = maintenance.StartTime,
-                        Duration = maintenance.Duration,
-                        EndDate = maintenance.EndDate,
-                        MaintenanceDaysList = maintenance.MaintenanceDaysList,
-                        MaintainType = maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType),
-                        DurationType = maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType)
-                    };
+                        Maintenance maintenancedata = new Maintenance
+                        {
+                            Name = maintenance.Name,
+                            StartDate = maintenance.StartDate,
+                            StartTime = maintenance.StartTime,
+                            Duration = maintenance.Duration,
+                            EndDate = maintenance.EndDate,
+                            MaintenanceDaysList = maintenance.MaintenanceDaysList,
+                            MaintainType = maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType),
+                            DurationType = maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType)
+                        };
 
 
-                     maintenance.Id = maintenanceRepository.Insert(maintenancedata);
-                    Response = Common.CreateResponse(maintenance.Id, "OK", "Maintenancedata inserted successfully");
+                        maintenance.Id = maintenanceRepository.Insert(maintenancedata);
+                        Response = Common.CreateResponse(maintenance.Id, "OK", "Maintenancedata inserted successfully");
 
 
+                    }
+                    else
+                    {
+                        FilterDefinition<Maintenance> filterDefination = Builders<Maintenance>.Filter.Where(p => p.Id == maintenance.Id);
+                        var updateDefination = maintenanceRepository.Updater.Set(p => p.Name, maintenance.Name)
+                                                                 .Set(p => p.StartDate, maintenance.StartDate)
+                                                                 .Set(p => p.StartTime, maintenance.StartTime)
+                                                                 .Set(p => p.Duration, maintenance.Duration)
+                                                                 .Set(p => p.EndDate, maintenance.EndDate)
+                                                                  .Set(p => p.MaintainType, maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType))
+                                                                  .Set(p => p.DurationType, maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType))
+                                                                 .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
+                        var result = maintenanceRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
+                    }
                 }
                 else
                 {
-                    FilterDefinition<Maintenance> filterDefination = Builders<Maintenance>.Filter.Where(p => p.Id == maintenance.Id);
-                    var updateDefination = maintenanceRepository.Updater.Set(p => p.Name, maintenance.Name)
-                                                             .Set(p => p.StartDate, maintenance.StartDate)
-                                                             .Set(p => p.StartTime, maintenance.StartTime)
-                                                             .Set(p => p.Duration, maintenance.Duration)
-                                                             .Set(p => p.EndDate, maintenance.EndDate)
-                                                              .Set(p => p.MaintainType, maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType))
-                                                              .Set(p => p.DurationType, maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType))
-                                                             .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
-                    var result = maintenanceRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
+                    Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
                 }
 
 
