@@ -479,8 +479,8 @@ namespace VitalSigns.API.Controllers
                
                 Expression<Func<BusinessHours, bool>> filterExpression = (p => p.Name == businesshour.Name);
                 var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
-                if(string.IsNullOrEmpty(existsData))
-                { 
+                //if(string.IsNullOrEmpty(existsData))
+                //{ 
 
                 if (string.IsNullOrEmpty(businesshour.Id))
                     {
@@ -501,12 +501,12 @@ namespace VitalSigns.API.Controllers
                         var result = businessHoursRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
                     }
-                }
+                //}
 
-                else
-                {
-                    Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
-                }
+                //else
+                //{
+                //    Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
+                //}
             }
             catch (Exception exception)
             {
@@ -621,8 +621,8 @@ namespace VitalSigns.API.Controllers
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
                 Expression<Func<Maintenance, bool>> filterExpression = (p => p.Name == maintenance.Name);
                 var existsData = maintenanceRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
-                if (string.IsNullOrEmpty(existsData))
-                {
+                //if (string.IsNullOrEmpty(existsData))
+                //{
 
 
                     if (string.IsNullOrEmpty(maintenance.Id))
@@ -659,11 +659,11 @@ namespace VitalSigns.API.Controllers
                         var result = maintenanceRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
                     }
-                }
-                else
-                {
-                    Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
-                }
+                //}
+                //else
+                //{
+                //    Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
+                //}
 
 
                
@@ -2603,46 +2603,60 @@ namespace VitalSigns.API.Controllers
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
 
+                Expression<Func<ServerOther, bool>> filterExpression = (p => p.Name == notesDatabase.Name);
 
+                var existedData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+               
 
-                if (string.IsNullOrEmpty(notesDatabase.Id))
-                {
-                    ServerOther notesDatabases = new ServerOther
+                    if (string.IsNullOrEmpty(notesDatabase.Id))
                     {
+                    if (string.IsNullOrEmpty(existedData))
+                    {
+                        ServerOther notesDatabases = new ServerOther
+                        {
 
-                        DominoServerName = notesDatabase.DominoServerName,
-                        Name = notesDatabase.Name,
-                        DatabaseFileName = notesDatabase.DatabaseFileName,
-                        Type = "Notes Database",
-                        TriggerType = notesDatabase.TriggerType,
-                        ScanInterval = notesDatabase.ScanInterval,
-                        OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
-                        IsEnabled = notesDatabase.IsEnabled,
-                        RetryInterval = notesDatabase.RetryInterval,
-                        TriggerValue = notesDatabase.TriggerValue,
-                        //DominoServerId = notesDatabase.DominoServerId
-                    };
+                            DominoServerName = notesDatabase.DominoServerName,
+                            Name = notesDatabase.Name,
+                            DatabaseFileName = notesDatabase.DatabaseFileName,
+                            Type = "Notes Database",
+                            TriggerType = notesDatabase.TriggerType,
+                            ScanInterval = notesDatabase.ScanInterval,
+                            OffHoursScanInterval = notesDatabase.OffHoursScanInterval,
+                            IsEnabled = notesDatabase.IsEnabled,
+                            RetryInterval = notesDatabase.RetryInterval,
+                            TriggerValue = notesDatabase.TriggerValue,
+                            //DominoServerId = notesDatabase.DominoServerId
+                        };
 
 
-                    string id = serverOtherRepository.Insert(notesDatabases);
-                    Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
+                        string id = serverOtherRepository.Insert(notesDatabases);
+                        Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
+                    }
+
+                    else
+                    {
+                        Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
+                    }
+
                 }
-                else
-                {
-                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabase.Id);
-                    var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerName, notesDatabase.DominoServerName)
-                                                               .Set(p => p.Name, notesDatabase.Name)
-                                                              .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
-                                                             .Set(p => p.TriggerType, notesDatabase.TriggerType)
-                                                             .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
-                                                             .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
-                                                            .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
-                                                            .Set(p => p.TriggerValue, notesDatabase.TriggerValue)
-                                                             .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
+               
+                    else
+                    {
+                        FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabase.Id);
+                        var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerName, notesDatabase.DominoServerName)
+                                                                   .Set(p => p.Name, notesDatabase.Name)
+                                                                  .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
+                                                                 .Set(p => p.TriggerType, notesDatabase.TriggerType)
+                                                                 .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
+                                                                 .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
+                                                                .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
+                                                                .Set(p => p.TriggerValue, notesDatabase.TriggerValue)
+                                                                 .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
 
-                    var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
-                }
+                        var result = serverOtherRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
+                    }
+               
             }
             catch (Exception exception)
             {
