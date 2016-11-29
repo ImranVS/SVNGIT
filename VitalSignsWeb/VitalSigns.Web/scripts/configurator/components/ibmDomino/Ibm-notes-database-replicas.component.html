@@ -251,7 +251,10 @@ data.pageIndex + 1 | number
                                                                 <div class="form-group col-sm-12">
                                                                     <label for="domino_server_c" class="control-label col-sm-5"> Domino Server:</label>
                                                                     <div class="col-sm-7">
-                                                                        <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_c" placeholder="Select Server"  [isEditable]="true"  [required]="false">
+                                                                        <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value"
+                                                                                       [(ngModel)]="currentEditItem.domino_server_c" placeholder="Select Server" 
+                                                                                     [isEditable]="true"  [isRequired]="false">
+
 
                                                                         </wj-combo-box>
                                                                     </div>
