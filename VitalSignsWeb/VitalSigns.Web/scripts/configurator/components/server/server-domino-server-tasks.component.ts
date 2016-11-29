@@ -66,10 +66,10 @@ export class ServerTasks extends GridBase implements OnInit {
         this.addGridRow(frmDialog);
         this.currentEditItem.is_selected = "";
         this.currentEditItem.task_name = "";
-        this.currentEditItem.is_load = "";
-        this.currentEditItem.is_restart_asap = "";
-        this.currentEditItem.is_resart_later = "";
-        this.currentEditItem.is_disallow = "";
+        this.currentEditItem.is_load = false;
+        this.currentEditItem.is_restart_asap = false;
+        this.currentEditItem.is_resart_later = false;
+        this.currentEditItem.is_disallow = false;
         this.currentEditItem.device_id = this.deviceId;
 
     }
