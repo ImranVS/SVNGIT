@@ -79,22 +79,22 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-1">
                                 </div>
                                 <div class="form-group col-sm-4">
-                                    <div class="info col-sm-8">
+                                    <div class="alert alert-info col-sm-8">
                                         <p>Enter duration in minutes below.</p>
                                     </div>
                                 </div>
 
                                 <div class="form-group col-sm-7">
-                                    <div class="info col-sm-8" *ngIf="selectedSetting=='1'">
+                                    <div class="alert alert-info col-sm-8" *ngIf="selectedSetting=='1'">
                                         <p>Maintenance window will only occur once.</p>
                                     </div>
-                                    <div class="info col-sm-8" *ngIf="selectedSetting=='2'">
+                                    <div class="alert alert-info col-sm-8" *ngIf="selectedSetting=='2'">
                                         <p>Maintenance window will occur every day of the week.</p>
                                     </div>
-                                    <div class="info col-sm-8" *ngIf="selectedSetting=='3'">
+                                    <div class="alert alert-info col-sm-8" *ngIf="selectedSetting=='3'">
                                         <p>Maintenance window will occur every number of weeks specified in the text box on selected days of the week.</p>
                                     </div>
-                                    <div class="info col-sm-8" *ngIf="selectedSetting=='4'">
+                                    <div class="alert alert-info col-sm-8" *ngIf="selectedSetting=='4'">
                                         <p>Maintenence window will occur on selected day(s) of the week on the first, second, third, or last week of the month (depending on selection) every month or on a specific day of the month.</p>
                                     </div>
                                 </div>
