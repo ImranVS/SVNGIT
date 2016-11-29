@@ -233,7 +233,7 @@
 
                     <div class="panel-heading">Optional Scan Settings</div>
                     <div class="panel-body">
-                        <div class="info">
+                        <div class="alert alert-info col-lg-12">
                             <p>
                                 The database health service queries the Domino server on a daily basis to produce an inventory of the Notes databases on that server.
                                 This information is used to populate a variety of screens, most notably the 'Biggest Mail Files' report and 'Mail Files by Template'.
@@ -279,7 +279,7 @@
 
                     <div class="panel-heading">Chat Settings</div>
                     <div class="panel-body">
-                        <div class="info">
+                        <div class="alert alert-info col-lg-12">
                             <p>Two User Credentials are required to simulate a chat session between two users. ST User1 and ST User2 reflect existing users that were previously configured to gather Sametime Statistics. To edit or view these users, please go to Stored Passwords & Options -> Server credentials.</p>
                         </div>
                         <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:chatSettings">
@@ -374,7 +374,7 @@
 =======
                 <div class="panel-heading">Optional: Search Text</div>
                 <div class="panel-body">
-                    <div class="info">
+                    <div class="alert alert-info col-lg-12">
                         <p>
                             If you enter a value into the Search Text box, then VitalSigns will
                             try to locate this text on the URL page and an Alert will be generated based on the option you select below.
@@ -435,7 +435,7 @@
                         <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:usernameorPassword">
 =======
                 <div class="panel-body">
-                    <div class="info">
+                    <div class="alert alert-info col-lg-12">
                         <p>
                             If you enter values into the Username and Password field, VitalSigns will use them when navigating to the page.
                             This is only applicable to pages requiring authentication when searching for specific text in the page which is only available after authentication.
