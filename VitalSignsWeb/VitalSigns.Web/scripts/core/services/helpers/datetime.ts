@@ -35,8 +35,9 @@ export class DateTimeHelper {
 
 
                     //check to see if property value is a datetime
-                    if (typeof data[obj] != "number") {
-                        dtNum = Date.parse(data[obj]);
+                    if (typeof data[obj] == "string") {
+                        if (data[obj].endsWith("Z"))
+                            dtNum = Date.parse(data[obj]);
                     }
                     
                     if (isNaN(dtNum) == false) {
@@ -83,11 +84,11 @@ export class DateTimeHelper {
         if (format == "date") {
             return  dt.toLocaleDateString()
         } else if (format == "datetime") {
-            return  dt.toLocaleDateString() + " " + dt.toLocaleTimeString();
+            return dt.toLocaleDateString() + " " + dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         } else if (format == "hour") {
             return dt.getHours().toString();
         } else if (format == "time") {
-            return dt.toLocaleTimeString()
+            return dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         }
     }
 
