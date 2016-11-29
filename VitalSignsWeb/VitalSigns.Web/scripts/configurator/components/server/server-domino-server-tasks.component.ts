@@ -55,7 +55,12 @@ export class ServerTasks extends GridBase implements OnInit {
     }
 
     ngOnInit() {
-        this.initialGridBind('/Configurator/get_server_tasks_info/57ace45abf46711cd4681e15');
+        this.route.params.subscribe(params => {
+            this.deviceId = params['service'];
+            //this.loadData();
+        });
+
+        this.initialGridBind('/Configurator/get_server_tasks_info/'+ this.deviceId );
     }
     addServerTask(frmDialog: wijmo.input.Popup) {
         this.addGridRow(frmDialog);
@@ -65,7 +70,7 @@ export class ServerTasks extends GridBase implements OnInit {
         this.currentEditItem.is_restart_asap = "";
         this.currentEditItem.is_resart_later = "";
         this.currentEditItem.is_disallow = "";
-        this.currentEditItem.device_id = "57ace45abf46711cd4681e15";
+        this.currentEditItem.device_id = this.deviceId;
 
     }
     saveServerTasks(dlg: wijmo.input.Popup) {
@@ -74,7 +79,9 @@ export class ServerTasks extends GridBase implements OnInit {
        
        // alert(this.selectedSettingValue);
 
+        //this.currentEditItem.task_name = Text;
         this.saveGridRow('/configurator/save_server_tasks', dlg);
+        
     }
 
 
@@ -87,6 +94,7 @@ export class ServerTasks extends GridBase implements OnInit {
 
         console.log(postData);
         this.currentForm.setValue(postData);
+       
         //this.saveGridRow('/configurator/save_server_tasks', postData, dlg)
         this.service.put('/Configurator/save_domino_server_tasks', postData)
             .subscribe(
@@ -100,7 +108,7 @@ export class ServerTasks extends GridBase implements OnInit {
 
    
     delteServerTasks() {
-        this.delteGridRow('/Configurator/delete_server_tasks/57ace45abf46711cd4681e15/');
+        this.delteGridRow('/Configurator/delete_server_tasks/'+ this.deviceId +'/');
     }
 }
 
