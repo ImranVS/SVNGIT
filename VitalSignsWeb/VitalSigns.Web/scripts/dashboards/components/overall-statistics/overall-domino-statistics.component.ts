@@ -5,11 +5,6 @@ import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
-import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
-import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
-import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
-import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
@@ -58,14 +53,10 @@ export class DominoStatistics implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-
     }
-
     onItemsSourceChanged() {
-
         var row = this.flex.columnHeaders.rows[0];
         row.wordWrap = true;
-
         // autosize first header row
         this.flex.autoSizeRow(0, true);
 
