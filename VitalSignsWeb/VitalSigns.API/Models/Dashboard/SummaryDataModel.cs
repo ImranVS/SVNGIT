@@ -19,5 +19,12 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("value")]
         public double? Value { get; set; }
+
+        [JsonProperty("sum_value")]
+        public double? SumValue { get; set; }
+
+        [JsonProperty("avg_value")]
+        public double? AvgValue { get; set; }
+
     }
 }
