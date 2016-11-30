@@ -1,5 +1,6 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import {AlertService} from '../../core/services/alert.service';
 
 import 'rxjs/Rx';
 
@@ -39,7 +40,7 @@ export class OverallDashboard extends WidgetController implements OnInit {
         settings: {}
     }
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute, private alerts: AlertService) {
 
         super(resolver, widgetService);
 
@@ -49,6 +50,12 @@ export class OverallDashboard extends WidgetController implements OnInit {
         
         injectSVG();
         bootstrapNavigator();
+
+    }
+
+    showAlert() {
+
+        this.alerts.showAlertMessage('warning', 'Hello World!');
 
     }
 

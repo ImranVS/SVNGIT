@@ -10,6 +10,8 @@ import {SuccessErrorMessageComponent} from './core/components/success-error-mess
 
 import { DragulaModule } from 'ng2-dragula/ng2-dragula';
 
+import { AlertService } from './core/services/alert.service';
+
 import * as dashboards from './app.routes';
 import * as widgets from './app.widgets';
 import * as tabs from './services/service-tab.collection';
@@ -97,6 +99,9 @@ import {ServerConfigurationFilter} from './reports/filters/components/server-con
         HttpModule,
         DragulaModule,
         APP_ROUTES
+    ],
+    providers: [
+        AlertService
     ],
     declarations: [
         AppComponent,
