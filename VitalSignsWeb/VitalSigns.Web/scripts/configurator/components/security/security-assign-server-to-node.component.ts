@@ -38,7 +38,7 @@ export class Nodes extends GridBase {
 
     constructor(service: RESTService, private formBuilder: FormBuilder) {
         super(service);
-        this.formName = "Node Health";
+        this.formName = "Nodes";
 
         this.nodesHealth = this.formBuilder.group({
             'setting': [''],
