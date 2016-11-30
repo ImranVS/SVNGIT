@@ -1535,121 +1535,139 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="statdate"></param>
+        /// <author>sowmya</author>
+        /// <returns></returns>
         [HttpGet("get_domino_statistics")]
         public APIResponse GetOverallDominoStatistics(DateTime statdate)
-
         {
             try
             {
                 List<DominoStatisticsModel> dominoStatisticsData = new List<DominoStatisticsModel>();
                 summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
                 serverRepository = new Repository<Server>(ConnectionString);
+                locationRepository = new Repository<Location>(ConnectionString);
                 List<SummaryDataModel> summaryStats = new List<SummaryDataModel>();
                 if (statdate == DateTime.MinValue || statdate.Date == DateTime.Now.Date)
                 {
                     statdate = DateTime.Now;
-                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Domino" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Date == statdate.Date).ToList();
-
+                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Domino" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year).ToList();                   
                     summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
                                          .Select(x => new SummaryDataModel
-                                         {
+                                         {                                     
                                              DeviceID = x.Key.DeviceId,
                                              DeviceName = x.Key.DeviceName,
                                              StatName = x.Key.StatName,
-                                             Value = x.Sum(y => y.StatValue)
-                                         }).ToList();
+                                             SumValue = x.Sum(y => y.StatValue),
+                                             AvgValue = x.Average(y => y.StatValue)                                        
+                                         }).ToList();                                     
                 }
                 else
                 {
                     var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Domino" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year).ToList();
-
                     summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
                                          .Select(x => new SummaryDataModel
                                          {
                                              DeviceID = x.Key.DeviceId,
                                              DeviceName = x.Key.DeviceName,
                                              StatName = x.Key.StatName,
-                                             Value = x.Sum(y => y.StatValue)
+                                             SumValue = x.Sum(y => y.StatValue),
+                                             AvgValue = x.Average(y => y.StatValue)                                         
                                          }).ToList();
 
                 }
                 var distinctData = summaryStats.Select(x => new { DeviceId = x.DeviceID, DeviceName = x.DeviceName }).Distinct().OrderBy(x => x.DeviceName).ToList();
-
                 foreach (var item in distinctData)
                 {
                     if (item != null)
                     {
+                        var server = serverRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == item.DeviceId);
+                       
+                        if (server != null && server.IsEnabled.HasValue && server.IsEnabled.Value)
+                        {
+                            var locationname = string.Empty;
+                            if (server.LocationId != null)
+                            {
+                                var location = locationRepository.All().FirstOrDefault(x => x.Id == server.LocationId);
+                                if(location != null)
+                                      locationname = location.LocationName;                               
+                            }                        
+                            DominoStatisticsModel dominoStats = new DominoStatisticsModel();
+                            dominoStats.DeviceName = item.DeviceName;
+                            dominoStats.LocationName = locationname;
 
-                        DominoStatisticsModel dominoStats = new DominoStatisticsModel();
-                        dominoStats.DeviceName = item.DeviceName;
+                            var mailDelivered = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mail.Delivered");
+                            if (mailDelivered != null)
+                                dominoStats.TotalMailDelivered = mailDelivered.SumValue;
+                            else
+                                dominoStats.TotalMailDelivered = null;
 
-                        var mailDelivered = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mail.Delivered");
-                        if (mailDelivered != null)
-                            dominoStats.TotalMailDelivered = mailDelivered.Value;
-                        else
-                            dominoStats.TotalMailDelivered = null;
+                            var mailaveragedelivertime = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mail.AverageDeliverTime");
 
-                        var mailaveragedelivertime = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mail.AverageDeliverTime");
-                        if (mailaveragedelivertime != null)
-                            dominoStats.AvgMailDelivery = mailaveragedelivertime.Value;
-                        else
-                            dominoStats.AvgMailDelivery = null;
+                            if (mailaveragedelivertime != null)
+                                dominoStats.AvgMailDelivery = mailaveragedelivertime.AvgValue;
+                            else
+                                dominoStats.AvgMailDelivery = null;
 
-                        var serveravailabilityindex = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Server.AvailabilityIndex");
-                        if (serveravailabilityindex != null)
-                            dominoStats.AvgServerAvailabilityIndex = serveravailabilityindex.Value;
-                        else
-                            dominoStats.AvgServerAvailabilityIndex = null;
+                            var serveravailabilityindex = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Server.AvailabilityIndex");
+                            if (serveravailabilityindex != null)
+                                dominoStats.AvgServerAvailabilityIndex = serveravailabilityindex.AvgValue;
+                            else
+                                dominoStats.AvgServerAvailabilityIndex = null;
 
-                        var hourlydowntimemin = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HourlyDownTimeMinutes");
-                        if (hourlydowntimemin != null)
-                            dominoStats.DownTime = hourlydowntimemin.Value;
-                        else
-                            dominoStats.DownTime = null;
+                            var hourlydowntimemin = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HourlyDownTimeMinutes");
+                            if (hourlydowntimemin != null)
+                                dominoStats.DownTime = hourlydowntimemin.SumValue;
+                            else
+                                dominoStats.DownTime = null;
 
-                        var mempercentavilable = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mem.PercentAvailable");
-                        if (mempercentavilable != null)
-                            dominoStats.AvgMemory = mempercentavilable.Value;
-                        else
-                            dominoStats.AvgMemory = null;
+                            var mempercentavilable = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Mem.PercentAvailable");
+                            if (mempercentavilable != null)
+                                dominoStats.AvgMemory = mempercentavilable.AvgValue;
+                            else
+                                dominoStats.AvgMemory = null;
 
-                        var dominocommandopendocument = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenDocument");
-                        if (dominocommandopendocument != null)
-                            dominoStats.WebDocumentsOpened = dominocommandopendocument.Value;
-                        else
-                            dominoStats.WebDocumentsOpened = null;
+                            var dominocommandopendocument = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenDocument");
+                            if (dominocommandopendocument != null)
+                                dominoStats.WebDocumentsOpened = dominocommandopendocument.SumValue;
+                            else
+                                dominoStats.WebDocumentsOpened = null;
 
-                        var dominocommandcreatedocument = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.CreateDocument");
-                        if (dominocommandcreatedocument != null)
-                            dominoStats.WebDocumentsCreated = dominocommandcreatedocument.Value;
-                        else
-                            dominoStats.WebDocumentsCreated = null;
+                            var dominocommandcreatedocument = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.CreateDocument");
+                            if (dominocommandcreatedocument != null)
+                                dominoStats.WebDocumentsCreated = dominocommandcreatedocument.SumValue;
+                            else
+                                dominoStats.WebDocumentsCreated = null;
 
-                        var dominocommandopendb = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenDatabase");
-                        if (dominocommandopendb != null)
-                            dominoStats.WebDatabaseOpened = dominocommandopendb.Value;
-                        else
-                            dominoStats.WebDatabaseOpened = null;
+                            var dominocommandopendb = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenDatabase");
+                            if (dominocommandopendb != null)
+                                dominoStats.WebDatabaseOpened = dominocommandopendb.SumValue;
+                            else
+                                dominoStats.WebDatabaseOpened = null;
 
-                        var dominocommandopenview = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenView");
-                        if (dominocommandopenview != null)
-                            dominoStats.WebViewsOpened = dominocommandopenview.Value;
-                        else
-                            dominoStats.WebViewsOpened = null;
+                            var dominocommandopenview = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.OpenView");
+                            if (dominocommandopenview != null)
+                                dominoStats.WebViewsOpened = dominocommandopenview.SumValue;
+                            else
+                                dominoStats.WebViewsOpened = null;
 
-                        var dominocommandtotal = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.Total");
-                        if (dominocommandtotal != null)
-                            dominoStats.WebCommandsTotal = dominocommandtotal.Value;
-                        else
-                            dominoStats.WebCommandsTotal = null;
+                            var dominocommandtotal = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Domino.Command.Total");
+                            if (dominocommandtotal != null)
+                                dominoStats.WebCommandsTotal = dominocommandtotal.SumValue;
+                            else
+                                dominoStats.WebCommandsTotal = null;
 
-                        var httpsession = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HTTP sessions");
-                        if (httpsession != null)
-                            dominoStats.HttpSession = httpsession.Value;
-                        else
-                            dominoStats.HttpSession = null;
+                            var httpsession = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HTTP sessions");
+                            if (httpsession != null)
+                                dominoStats.HttpSession = httpsession.SumValue;
+                            else
+                                dominoStats.HttpSession = null;
 
-                        dominoStatisticsData.Add(dominoStats);
+                            dominoStatisticsData.Add(dominoStats);
+                        }
                     }
                 }
 
@@ -1663,7 +1681,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="statdate"></param>
+        /// <author>sowmya</author>
+        /// <returns></returns>
         [HttpGet("get_sametime_statistics")]
         public APIResponse GetSametimeStatistics(DateTime statdate)
         {
