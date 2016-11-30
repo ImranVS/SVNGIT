@@ -62,7 +62,7 @@ export class ServerCredentials extends GridBase implements OnInit {
         this.editGridRow(dlg);
         this.currentEditItem.is_modified = false;
         this.currentEditItem.password = "****";
-        this.currentEditItem.confirm_password = "****";
+      //  this.currentEditItem.confirm_password = "****";
 
       
     }
