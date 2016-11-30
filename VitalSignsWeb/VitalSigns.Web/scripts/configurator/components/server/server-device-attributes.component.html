@@ -42,7 +42,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="control-label col-sm-2">Category</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
                                     <input type="text" [(ngModel)]="serverAttributes.category" class="form-control">
                                 </div>
                             </div>
@@ -362,10 +362,8 @@
             <div *ngIf="serverAttributes.device_type =='URL'">
                 <div class="panel panel-default">
 
-
-                    <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:searchText">
-
-                        <div class="panel-heading">Optional: Search Text</div>
+                    <div class="panel-heading">Optional: Search Text</div>
+ 
                         <div class="panel-body">
                             <div class="alert alert-info col-lg-12">
                                 <p>
@@ -402,8 +400,6 @@
                 </div>
 
             </div>
-        </div>
-
         <div *ngIf="serverAttributes" class="form-horizontal">
             <div *ngIf="serverAttributes.device_type == 'URL'">
                 <div class="panel panel-default">
