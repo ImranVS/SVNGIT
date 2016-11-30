@@ -11,6 +11,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("device_name")]
         public string DeviceName { get; set; }
 
+        [JsonProperty("location_name")]
+        public string LocationName { get; set; }
+
         [JsonProperty("total_mail_delivered")]
         public double? TotalMailDelivered { get; set; }
 
@@ -43,7 +46,6 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("http_session")]
         public double? HttpSession { get; set; }
-
 
     }
 }
