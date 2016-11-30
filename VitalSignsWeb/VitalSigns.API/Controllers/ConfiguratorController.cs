@@ -71,6 +71,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
         private IRepository<ServerType> serverTypeRepository;
         VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
+        string name;
 
         #endregion
 
@@ -476,13 +477,23 @@ namespace VitalSigns.API.Controllers
                 if (businesshour.Saturday)
                     days.Add("Saturday");
 
-               
-                Expression<Func<BusinessHours, bool>> filterExpression = (p => p.Name == businesshour.Name);
-                var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
-                //if(string.IsNullOrEmpty(existsData))
-                //{ 
-
+                Expression<Func<BusinessHours, bool>> filterExpression;
                 if (string.IsNullOrEmpty(businesshour.Id))
+                {
+                    filterExpression = (p => p.Name == businesshour.Name);
+                    
+                }
+                else
+                {
+                     filterExpression = (p => p.Name == businesshour.Name && p.Id != businesshour.Id );
+                    
+                }
+                var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+
+                if (string.IsNullOrEmpty(existsData))
+                {
+
+                    if (string.IsNullOrEmpty(businesshour.Id))
                     {
                         BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray(), UseType = Convert.ToInt32(businesshour.UseType) };
                         string id = businessHoursRepository.Insert(businessHours);
@@ -501,12 +512,12 @@ namespace VitalSigns.API.Controllers
                         var result = businessHoursRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
                     }
-                //}
+                }
 
-                //else
-                //{
-                //    Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
-                //}
+                else
+                {
+                    Response = Common.CreateResponse(false, "duplicate", "This" + businesshour.Name +"already exists. Enter another one.");
+                }
             }
             catch (Exception exception)
             {
@@ -1247,6 +1258,8 @@ namespace VitalSigns.API.Controllers
                 var selectedServerTasks = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Value).ToObject<List<DominoServerTasksValue>>();
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Devices).ToObject<string[]>();
                 UpdateDefinition<Server> updateDefinition = null;
+
+               
                 if (devicesList.Count() > 0 && selectedServerTasks.Count()>0 && !string.IsNullOrEmpty(setting.Trim()))
                 {
 
@@ -1255,23 +1268,48 @@ namespace VitalSigns.API.Controllers
                         var server = serversRepository.Get(id);
                         List<DominoServerTask> dominoServerTasks = new List<DominoServerTask>();
                         dominoServerTasks.AddRange(server.ServerTasks);
-
+                        name = string.Empty;
+                        
                         foreach (var serverTask in selectedServerTasks)
                         {
-                            if (setting.Equals("add"))
+                            Expression<Func<Server, bool>> filterExpression1 = (p => p.Id == id);
+                            var existsData = serversRepository.Find(filterExpression1).Select(x => x.ServerTasks).ToList();
+                            foreach (var data in existsData)
                             {
-                                DominoServerTask dominoServerTask = new DominoServerTask();
-                               dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
-                                dominoServerTask.TaskId = serverTask.Id;
-                                dominoServerTask.TaskName = serverTask.TaskName;
-                                dominoServerTask.SendLoadCmd = serverTask.IsLoad;
-                                dominoServerTask.Monitored = true;
-                                dominoServerTask.SendRestartCmd = serverTask.IsResartLater;
-                                dominoServerTask.SendRestartCmdOffhours = serverTask.IsRestartASAP;
-                                dominoServerTask.SendExitCmd = serverTask.IsDisallow;
-                                dominoServerTasks.Add(dominoServerTask);
+                                foreach (var nameData in data)
+                                {
+
+                                    if (nameData.TaskName == serverTask.TaskName)
+                                    {
+                                        name = "exists";
+                                    }
+                                 
+                                }
                             }
-                            else if (setting.Equals("remove"))
+
+
+                            if (name == "exists")
+                            {
+                                Response = Common.CreateResponse(false, "duplicate", "This" + serverTask.TaskName + " name already exists. Enter another one.");
+                            }
+                            else
+                            {
+
+                                if (setting.Equals("add"))
+                                {
+                                    DominoServerTask dominoServerTask = new DominoServerTask();
+                                    dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                                    dominoServerTask.TaskId = serverTask.Id;
+                                    dominoServerTask.TaskName = serverTask.TaskName;
+                                    dominoServerTask.SendLoadCmd = serverTask.IsLoad;
+                                    dominoServerTask.Monitored = true;
+                                    dominoServerTask.SendRestartCmd = serverTask.IsResartLater;
+                                    dominoServerTask.SendRestartCmdOffhours = serverTask.IsRestartASAP;
+                                    dominoServerTask.SendExitCmd = serverTask.IsDisallow;
+                                    dominoServerTasks.Add(dominoServerTask);
+                                }
+                            }
+                             if (setting.Equals("remove"))
                             {
                                 var dominoServerTaskRemove = dominoServerTasks.Where(x => x.TaskId == serverTask.Id).ToList();
                                 foreach(var item in dominoServerTaskRemove)
@@ -2077,50 +2115,74 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<DominoServerTasks, bool>> filterExpression = (p => p.TaskName == servertasks.TaskName);
                 var taskId = dominoservertasksRepository.Find(filterExpression).Select(x => x.Id).FirstOrDefault();
 
-                List<DominoServerTask> serverTasks = new List<DominoServerTask>();
-                var server = serversRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == servertasks.DeviceId);
-
-
-                if (string.IsNullOrEmpty(servertasks.Id))
+                Expression<Func<Server, bool>> filterExpression1 = (p => p.Id == servertasks.DeviceId);
+                var existsData = serversRepository.Find(filterExpression1).Select(x => x.ServerTasks).ToList();
+                foreach (var data in existsData)
                 {
-                    DominoServerTask dominoServerTask = new DominoServerTask();
-                    dominoServerTask.TaskId = taskId;
-                    dominoServerTask.TaskName = servertasks.TaskName;
-                    dominoServerTask.SendLoadCmd = servertasks.IsLoad;
-                    dominoServerTask.Monitored = servertasks.IsSelected;
-                    dominoServerTask.SendRestartCmd = servertasks.IsResartLater;
-                    dominoServerTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
-                    dominoServerTask.SendExitCmd = servertasks.IsDisallow;
-                    dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
-                    serverTasks = server.ServerTasks;
-                    serverTasks.Add(dominoServerTask);
+                    foreach (var nameData in data)
+                    {
+                        if (nameData.Id != servertasks.Id)
+                        {
+                            if (nameData.TaskName == servertasks.TaskName)
+                            {
+                                name = "exists";
+                            }
+                        }
 
+                       
+                    }
+                }
+                if (name == "exists")
+                {
+                    Response = Common.CreateResponse(false, "duplicate", "This" + servertasks.TaskName + " name already exists. Enter another one.");
                 }
                 else
                 {
-                    foreach (var serverTask in server.ServerTasks)
+                    List<DominoServerTask> serverTasks = new List<DominoServerTask>();
+                    var server = serversRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == servertasks.DeviceId);
+
+
+                    if (string.IsNullOrEmpty(servertasks.Id))
                     {
-                        if (serverTask.Id.Equals(servertasks.Id))
-                        {
-                            serverTask.TaskId = taskId;
-                            serverTask.TaskName = servertasks.TaskName;
-                            serverTask.SendLoadCmd = servertasks.IsLoad;
-                            serverTask.Monitored = servertasks.IsSelected;
-                            serverTask.SendRestartCmd = servertasks.IsResartLater;
-                            serverTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
-                            serverTask.SendExitCmd = servertasks.IsDisallow;
-                           
-                        }
+                        DominoServerTask dominoServerTask = new DominoServerTask();
+                        dominoServerTask.TaskId = taskId;
+                        dominoServerTask.TaskName = servertasks.TaskName;
+                        dominoServerTask.SendLoadCmd = servertasks.IsLoad;
+                        dominoServerTask.Monitored = servertasks.IsSelected;
+                        dominoServerTask.SendRestartCmd = servertasks.IsResartLater;
+                        dominoServerTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
+                        dominoServerTask.SendExitCmd = servertasks.IsDisallow;
+                        dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
+                        serverTasks = server.ServerTasks;
+                        serverTasks.Add(dominoServerTask);
+
                     }
-                    serverTasks = server.ServerTasks;
+                    else
+                    {
+                        foreach (var serverTask in server.ServerTasks)
+                        {
+                            if (serverTask.Id.Equals(servertasks.Id))
+                            {
+                                serverTask.TaskId = taskId;
+                                serverTask.TaskName = servertasks.TaskName;
+                                serverTask.SendLoadCmd = servertasks.IsLoad;
+                                serverTask.Monitored = servertasks.IsSelected;
+                                serverTask.SendRestartCmd = servertasks.IsResartLater;
+                                serverTask.SendRestartCmdOffhours = servertasks.IsRestartASAP;
+                                serverTask.SendExitCmd = servertasks.IsDisallow;
+
+                            }
+                        }
+                        serverTasks = server.ServerTasks;
+                    }
+
+
+
+                    var updateDefinitaion = serversRepository.Updater.Set(p => p.ServerTasks, serverTasks);
+                    var filterDefination = Builders<Server>.Filter.Where(p => p.Id == servertasks.DeviceId);
+                    serversRepository.Update(filterDefination, updateDefinitaion);
+
                 }
-
-
-
-                var updateDefinitaion = serversRepository.Updater.Set(p => p.ServerTasks, serverTasks);
-                var filterDefination = Builders<Server>.Filter.Where(p => p.Id == servertasks.DeviceId);
-                serversRepository.Update(filterDefination, updateDefinitaion);
-
             }
             catch (Exception exception)
             {
