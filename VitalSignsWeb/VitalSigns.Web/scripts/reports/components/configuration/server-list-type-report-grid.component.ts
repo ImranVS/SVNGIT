@@ -20,8 +20,9 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 export class ServerListTypeReportGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
+    gridUrl: string = '/reports/server_list';
 
-    @Output() select: EventEmitter<string> = new EventEmitter<string>();
+    
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
@@ -45,7 +46,7 @@ export class ServerListTypeReportGrid implements WidgetComponent, OnInit {
 
         var displayDate = (new Date()).toISOString().slice(0, 10);
 
-        this.service.get(`/reports/server_list`)
+        this.service.get(this.gridUrl)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
@@ -61,6 +62,27 @@ export class ServerListTypeReportGrid implements WidgetComponent, OnInit {
     itemsSourceChangedHandler() {
         this.flex.autoSizeColumns();
        // this.flex.group
+    }
+
+    
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'gridUrl') {
+
+            this.gridUrl = value;
+
+            this.service.get(this.gridUrl)
+                .subscribe(
+                (data) => {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                    this.data.pageSize = 10;
+                    this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("DeviceType"));
+                },
+                (error) => this.errorMessage = <any>error
+                );
+
+        }
     }
     
 

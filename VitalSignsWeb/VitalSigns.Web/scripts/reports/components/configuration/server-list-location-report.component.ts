@@ -20,6 +20,10 @@ export class ServerListLocationReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
+    currentWidgetName: string = `serverListGrid`;
+    currentWidgetURL: string = `/reports/server_list`;
+    currentDocField: string = "location_id";
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         protected urlHelpers: helpers.UrlHelperService) {
 

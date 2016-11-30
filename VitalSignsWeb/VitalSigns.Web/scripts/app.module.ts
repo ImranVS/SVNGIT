@@ -87,6 +87,7 @@ import {ConnectionsForumsReport} from './reports/components/ibm-connections/conn
 import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
+import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
 
 @NgModule({
     imports: [
@@ -161,6 +162,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
         ConnectionsProfilesReport,
         ConnectionsTagsReport,
         ConnectionsWikiReport,
+        ServerConfigurationFilter,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -293,6 +295,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
         widgets.DominoServerConfigurationReportGrid,
         widgets.ServerFilter,
         widgets.TravelerFilter,
+        widgets.ServerConfigurationFilter,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -429,6 +432,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
         widgets.ServerListLocationReportGrid,
         widgets.ServerFilter,
         widgets.TravelerFilter,
+        widgets.ServerConfigurationFilter,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,

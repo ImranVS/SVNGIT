@@ -31,6 +31,7 @@ namespace VitalSigns.API.Controllers
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         private IRepository<DominoServerTasks> doimoServerTasksRepository;
         private IRepository<IbmConnectionsObjects> connectionsRepository;
+        private IRepository<Location> locationRepository;
         //private string DateFormatMonthYear = "yyyy-MM";
 
 
@@ -1085,7 +1086,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("server_list")]
-        public APIResponse GetStatusList()
+        public APIResponse GetStatusList(string location_id = "", string device_type = "")
         {
 
             try
@@ -1096,6 +1097,16 @@ namespace VitalSigns.API.Controllers
 
                 var filterDefServer = serverRepository.Filter.Where(x => true);
                 var filterDefStatus = statusRepository.Filter.Where(x => true);
+
+                if(location_id != "")
+                {
+                    filterDefServer = filterDefServer & serverRepository.Filter.In(x => x.LocationId, location_id.Replace("[", "").Replace("]", "").Split(',').ToList());
+                }
+
+                if (device_type != "")
+                {
+                    filterDefServer = filterDefServer & serverRepository.Filter.In(x => x.DeviceType, device_type.Replace("[", "").Replace("]", "").Split(',').ToList());
+                }
 
                 var resultsServer = serverRepository.Find(filterDefServer).ToList();
                 var resultsStatus = statusRepository.Find(filterDefStatus).ToList();
@@ -1128,6 +1139,59 @@ namespace VitalSigns.API.Controllers
             }
 
 
+        }
+
+        [HttpGet("server_configuration_dropdown")]
+        public APIResponse GetServerConfigurationDropdown(string docfield, string type = "")
+        {
+
+            try
+            { 
+
+                serverRepository = new Repository<Server>(ConnectionString);
+                List<Server> results;
+                if (type != "")
+                    results = serverRepository.Find(x => x.DeviceType == type).ToList();
+                else
+                    results = serverRepository.Find(x => true).ToList();
+
+                List<Location> locList = null;
+                if (docfield == "location_id")
+                {
+                    locationRepository = new Repository<Location>(ConnectionString);
+                    locList = locationRepository.Find(x => true).ToList();
+                }
+                List<NameValueModel> docList = new List<NameValueModel>();
+
+                foreach (Server server in results)
+                {
+                    var x = new ExpandoObject() as IDictionary<string, Object>;
+                    var bson = server.ToBsonDocument();
+
+                    if (bson.Contains(docfield))
+                    {
+                        var statvalue = bson[docfield].ToString();
+
+                        if(docfield == "location_id")
+                            docList.Add(new NameValueModel() { Name = locList.Where(y => y.Id == statvalue).Select(y => y.LocationName).First(), Id = statvalue });
+                        else
+                            docList.Add(new NameValueModel() { Name = statvalue, Id = statvalue });
+
+                    }
+                }
+
+                var list = docList.Select(x => new { Name = x.Name, Id = x.Id}).Distinct().Select(x => new NameValueModel() { Name = x.Name, Id = x.Id }).ToList();
+
+                Response = Common.CreateResponse(list);
+            
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
         }
 
 

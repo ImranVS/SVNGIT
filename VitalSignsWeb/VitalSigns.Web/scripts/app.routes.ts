@@ -47,6 +47,7 @@ import { ProfilesForm } from './profiles/components/profiles-form.component';
 import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
 import {ServerFilter} from './reports/filters/components/server-filter.component'
 import {ConnectionsServerFilter} from './reports/filters/components/connections-server-filter.component'
+import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component'
 
 import { ReportsBrowser } from './reports/components/reports-browser.component';
 import { NoSelectedReport } from './reports/components/no-selected-report.component';

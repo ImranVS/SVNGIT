@@ -1,0 +1,14 @@
+﻿<div id="dtServer" style="display:inline-block">
+    <span class="headerBlock">Value to filter by:</span> <wj-multi-select #multisel1
+                        [placeholder]="'Filter'"
+                        class="multiselect"
+                        [itemsSource]="filterData"
+                        displayMemberPath="name" selectedValuePath="id"
+                        [headerFormat]="'{count} selected'"
+                        [checkedMemberPath]="'selected'"
+                        [(ngModel)]="selectedServers" style="width:150px;">
+    </wj-multi-select>
+</div>
+<div id="dtFilter" style="display:inline-block">
+    <button (click)="applyFilters(multisel1)">Filter</button>
+</div>

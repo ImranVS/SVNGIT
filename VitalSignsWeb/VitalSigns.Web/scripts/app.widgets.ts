@@ -116,6 +116,7 @@ export * from './configurator/components/serverImport/server-import-websphere.co
 
 export * from './reports/components/ibm-sametime/sametime-statistics-grid-report-grid.component'
 export * from './reports/filters/components/server-filter.component'
+export * from './reports/filters/components/server-configuration-filter.component'
 
 //Mobile users
 export * from './configurator/components/mobileusers/mobile-users.component'

@@ -11,6 +11,7 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
+        <server-configuration-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(docField)]="currentDocField"></server-configuration-filter>
         <div class="reportsPage">
             <h1>Any Statistic</h1>
             <div *ngFor="let widget of widgets">

@@ -18,7 +18,12 @@ declare var bootstrapNavigator: any;
 })
 export class ServerListTypeReport extends WidgetController {
     contextMenuSiteMap: any;
+    docField: string = "device_type";
     widgets: WidgetContract[];
+
+    currentWidgetName: string = `serverListGrid`;
+    currentWidgetURL: string = `/reports/server_list`;
+    currentDocField: string = "device_type";
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         protected urlHelpers: helpers.UrlHelperService) {
