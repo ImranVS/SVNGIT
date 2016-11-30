@@ -22,7 +22,7 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 export class CustomStatistics extends GridBase implements OnInit {
     sererNames: any;
     errorMessage: any;
-    devices: string;
+    devices: string="";
     deviceTypeData: any;
     checkedDevices: any;
     currentDeviceType: string = "Domino";
@@ -58,10 +58,11 @@ export class CustomStatistics extends GridBase implements OnInit {
         this.currentEditItem.domino_servers = "";
         this.currentEditItem.stat_name = "";
         this.currentEditItem.yellow_threshold = 0;
-        this.currentEditItem.greater_than_or_less_than = "";
+        this.currentEditItem.greater_than_or_less_than = "Less Than";
         this.currentEditItem.times_in_a_row = 0;
         this.currentEditItem.console_command = "";
         this.checkedDevices = [];
+        this.devices = "";
 
     }
 

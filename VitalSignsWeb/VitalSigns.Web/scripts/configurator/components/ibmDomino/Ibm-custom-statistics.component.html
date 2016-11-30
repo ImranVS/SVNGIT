@@ -85,9 +85,9 @@ data.pageIndex + 1 | number
                                             <div class="form-group col-sm-6">
                                                 <label class="control-label col-sm-5">Comparison</label>
                                                 <div class="col-sm-7">
-                                                    <input type="radio" name="greater_than_or_less_than" value="Greater Than" required [(ngModel)]="currentEditItem.greater_than_or_less_than" />
+                                                    <input type="radio" name="greater_than_or_less_than" value="Greater Than" [(ngModel)]="currentEditItem.greater_than_or_less_than" />
                                                     <label for="greater_than_or_less_than" class="control-label">Greater Than</label>
-                                                    <input type="radio" name="greater_than_or_less_than" value="Less Than" required [(ngModel)]="currentEditItem.greater_than_or_less_than" />
+                                                    <input type="radio" name="greater_than_or_less_than" value="Less Than" [(ngModel)]="currentEditItem.greater_than_or_less_than" />
                                                     <label for="greater_than_or_less_than" class="control-label">Less Than</label>
                                                 </div>
                                             </div>
@@ -131,14 +131,16 @@ data.pageIndex + 1 | number
                                             <div class="form-group col-sm-2">
                                             </div>
                                             <div class="form-group col-sm-6">
-                                                <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType"></server-location-list>
+                                                {{ (frmUser.form.valid && devices.length>0)}}
+                                                <div class="alert alert-danger" *ngIf="devices.length==0">Please select atleast on server</div>
+                                                <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType" ></server-location-list>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="panel-footer">
-                                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!(frmUser.form.valid && devices.length>0)">Save</button>
                                 <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
                             </div>
                         </form>
