@@ -556,7 +556,7 @@ Partial Public Class VitalSignsPlusDomino
         Dim lastLineProcessed As Integer = 0
         Dim start, done As Long
         Dim elapsed As TimeSpan
-        Dim span As System.TimeSpan
+        'Dim span As System.TimeSpan
         start = Now.Ticks
 
         WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Started Domino Log processing (CheckDominoLogFile)")
@@ -1855,7 +1855,7 @@ WaitHere:
         If ResponseTime <> 0 Then
             Try
                 'Check Dead and Pending Mail
-                Call GetDeadandPendingMailWrapper(MyDominoServer)
+                Call GetDeadandPendingMail(MyDominoServer)
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error getting dead and pending mail:  " & ex.Message)
@@ -3282,15 +3282,15 @@ WaitHere:
                             myDateOnly = Mid(myDateString, 1, SpaceLocation)
                             'WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " My date string for " & myTask.Name & ", " & myTask.TaskName & " is " & myDateString & ", my time only is " & myTimeOnly)
                             Try
-                                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Attempting to convert " & myDateOnly & " " & myTimeOnly)
+                                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Attempting to convert " & myDateOnly & " " & myTimeOnly, LogUtilities.LogUtils.LogLevel.Verbose)
                                 'myTask.LastUpdated = (CDate(Now.Date & " " & myTimeOnly)).ToUniversalTime
                                 myTask.LastUpdated = CDate(myDateOnly & " " & myTimeOnly)
-                                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Dated converted as " & myTask.LastUpdated.ToLongDateString & " " & myTask.LastUpdated.ToShortTimeString)
+                                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Dated converted as " & myTask.LastUpdated.ToLongDateString & " " & myTask.LastUpdated.ToShortTimeString, LogUtilities.LogUtils.LogLevel.Verbose)
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Exception: " & ex.Message)
                                 myTask.LastUpdated = Now
                             End Try
-                            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Final date is " & myTask.LastUpdated)
+                            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Final date is " & myTask.LastUpdated, LogUtilities.LogUtils.LogLevel.Verbose)
 
                         End If
 
@@ -3431,7 +3431,7 @@ WaitHere:
                         If MyServerTasks.Search(ConfiguredTask.Name) Is Nothing Then
                             'Only track the first instance of a task
                             MyServerTasks.Add(ServerTask)
-                            WriteAuditEntry(Now.ToString & " Adding the missing " & ServerTask.Name & " to list of current server tasks")
+                            ' WriteAuditEntry(Now.ToString & " Adding the missing " & ServerTask.Name & " to list of current server tasks")
                         End If
 
                         'DominoServer.ServerTasks.Add(ServerTask)
@@ -3832,13 +3832,13 @@ SkipTask:
             Dim listOfEntities As New List(Of VSNext.Mongo.Entities.DominoServerTask)()
 
             For Each ServerTask As MonitoredItems.ServerTask In MyServerTasks
-                WriteDeviceHistoryEntry("Domino", DominoServer.Name, vbCrLf)
-                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task name is: " & ServerTask.Name)
-                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task status summary is: " & ServerTask.StatusSummary)
-                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task status is: " & ServerTask.Status)
-                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task secondary is: " & ServerTask.SecondaryStatus)
-                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task is monitored: " & ServerTask.IsMonitored)
-                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task last updated: " & ServerTask.LastUpdated)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, vbCrLf, LogUtilities.LogUtils.LogLevel.Verbose)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task name is: " & ServerTask.Name, LogUtilities.LogUtils.LogLevel.Verbose)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task status summary is: " & ServerTask.StatusSummary, LogUtilities.LogUtils.LogLevel.Verbose)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task status is: " & ServerTask.Status, LogUtilities.LogUtils.LogLevel.Verbose)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task secondary is: " & ServerTask.SecondaryStatus, LogUtilities.LogUtils.LogLevel.Verbose)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task is monitored: " & ServerTask.IsMonitored, LogUtilities.LogUtils.LogLevel.Verbose)
+                WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & "  Server Task last updated: " & ServerTask.LastUpdated, LogUtilities.LogUtils.LogLevel.Verbose)
 
                 Try
                     listOfEntities.Add(New VSNext.Mongo.Entities.DominoServerTask With {
@@ -4939,91 +4939,44 @@ skipdrive2:
 #Region "Domino Mail Related"
 
 
-    Private Sub GetDeadandPendingMailWrapper(ByRef MyDominoServer As MonitoredItems.DominoServer)
+    Private Sub GetDeadandPendingMail(ByRef MyDominoServer As MonitoredItems.DominoServer)
+        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Begin task to count up dead/pending/held mail.", LogUtilities.LogUtils.LogLevel.Verbose)
         Dim start, done As Long
         Dim elapsed As TimeSpan
-        Dim span As System.TimeSpan
         start = Now.Ticks
 
-        'Domino Objects
-        Dim LocalNotesSession As New Domino.NotesSession
-        Dim db As Domino.NotesDatabase
-        Dim docMail As Domino.NotesDocument
-        Dim NotesView As Domino.NotesView
-
-        '6/22/2015 NS added for VSPLUS-1475
-        Dim NotesSystemMessageString As String = "Incorrect Notes Password."
-        Try
-            Dim myPassword = GetNotesPassword()
-            LocalNotesSession.Initialize(myPassword)
-            myPassword = ""
-            GetDeadandPendingMail(MyDominoServer, LocalNotesSession, db, docMail, NotesView)
-        Catch ex As Exception
-            '6/22/2015 NS added for VSPLUS-1475
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(LocalNotesSession)
-            myAlert.QueueSysMessage(NotesSystemMessageString)
-            WriteAuditEntry(Now.ToString & " Error Initializing NotesSession.  Many problems will follow....  " & ex.ToString)
-            WriteAuditEntry(Now.ToString & " *********** ERROR ************  Error initializing a session to Query Domino server. ")
-            WriteAuditEntry(Now.ToString & " Calling stopnotescl.exe then exiting in an attempt to recover.")
-            WriteAuditEntry(Now.ToString & " The VitalSigns Master service should restart the monitoring service in a few moments.")
-            KillNotes()
-            Exit Sub
-        End Try
-
-
-        Try
-            If Not (IsNothing(db)) Then
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            End If
-        Catch ex As Exception
-
-        End Try
-
-
-        Try
-            If Not (IsNothing(NotesView)) Then
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesView)
-            End If
-        Catch ex As Exception
-
-        End Try
-
-        Try
-            If Not (IsNothing(db)) Then
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            End If
-        Catch ex As Exception
-
-        End Try
-
-        Try
-            If Not (IsNothing(LocalNotesSession)) Then
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(LocalNotesSession)
-            End If
-        Catch ex As Exception
-
-        End Try
-
-        done = Now.Ticks
-        elapsed = New TimeSpan(done - start)
-
-
-        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + ": Time to calculate dead/pending/held mail = " & elapsed.TotalMilliseconds & " ms")
-        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + ": Time to calculate dead/pending/held mail = " & elapsed.TotalSeconds & " seconds")
-    End Sub
-
-    Private Sub GetDeadandPendingMail(ByRef MyDominoServer As MonitoredItems.DominoServer, ByRef Session As Domino.NotesSession, ByRef db As Domino.NotesDatabase, ByRef docMail As Domino.NotesDocument, ByRef NotesView As Domino.NotesView)
-
+        Dim searchStr As String = ""
         Dim boolMailError As Boolean = False
         ' boolMailError will track if there was an error getting mail values.
         ' if so, don't clear any existing mail alerts
+
+
+        'Domino Objects
+        Dim db As Domino.NotesDatabase
+        Dim allDocumentsCollection As Domino.NotesDocumentCollection
+        Dim deadCollection As Domino.NotesDocumentCollection
+        Dim heldCollection As Domino.NotesDocumentCollection
+        Dim dt As Domino.NotesDateTime
+        Dim oldestDocumentDate As DateTime = DateTime.MinValue
+
+
+        '6/22/2015 NS added for VSPLUS-1475
+        Dim NotesSystemMessageString As String = "Incorrect Notes Password."
+
+        Try
+            dt = NotesSession.CreateDateTime("Today")  'create a Notes DateTime object to use in the search
+            Call dt.AdjustDay(-30)
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Searching for messages older than: " & dt.DateOnly, LogUtilities.LogUtils.LogLevel.Verbose)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception creating Notes DateTime " & ex.ToString)
+        End Try
 
         Try
             If InStr(MyDominoServer.Statistics_Server, "Server.MailBoxes") > 0 Then
                 MyDominoServer.MailboxCount = ParseNumericStatValue("Server.MailBoxes", MyDominoServer.Statistics_Server)
             End If
         Catch ex As Exception
-
+            boolMailError = True
         End Try
 
 
@@ -5039,28 +4992,25 @@ skipdrive2:
 
         If MailBoxCount = 999 Then
             'Mailbox count is not set yet
+            boolMailError = True
             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + ": Error checking mail.box files.  Count is still set to startup value of 999.")
-            Exit Sub
+            GoTo Cleanup
         End If
-
-        'Set this value to true if you exit the loop to count the messages
-        Dim boolStoppedCounting As Boolean = False
 
         'The values we calculate
         Dim DeadCount As Integer = 0
         Dim PendingCount As Integer = 0
         Dim HeldCount As Integer = 0
 
-        'The values reported by the server stat table
+        'The values that are reported by the server's stat table, which are sometimes inaccurate but better than nothing
         Dim ServerDeadCount As Integer = 0
         Dim ServerPendingCount As Integer = 0
         Dim ServerHeldCount As Integer = 0
         Dim myAccessLevel As String = ""
 
+        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Checking for pending/dead/held mail.")
+        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This server has " & MailBoxCount & " mailbox(s)")
 
-        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " " & MyDominoServer.Name & " has " & MailBoxCount & " mailbox(s)")
-
-        Dim myRoutingState As String
         Dim Counter As Integer
         Dim MailboxName As String
 
@@ -5071,24 +5021,23 @@ skipdrive2:
                 MailboxName = "mail" & Counter.ToString & ".box"
             End If
 
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Attempting to open " & MailboxName & "  on " & MyDominoServer.Name)
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Attempting to open " & MailboxName, LogUtilities.LogUtils.LogLevel.Verbose)
 
 
             Try
                 db = NotesSession.GetDatabase(MyDominoServer.Name, MailboxName, False)
                 If String.IsNullOrWhiteSpace(db.Title) Then
-                    db.Title = "Untitled Database"
+                    db.Title = "Untitled Mailbox"
                 End If
             Catch ex As Exception
-                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception opening the mail box.  Error: " & ex.Message)
+                boolMailError = True
             End Try
 
             dtDominoLastUpdate = Now
             Try
                 If db.IsOpen Then
-                    If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " opened Mailbox named " & db.Title & " on " & MyDominoServer.Name)
-                    NotesView = db.GetView("Mail")
-                    ' If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " opened Mailbox 'inbox' named " & NotesView.Name)
+                    If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Successfully opened mailbox named " & db.Title)
                     Try
                         Select Case db.QueryAccess(NotesSession.UserName)
                             Case Domino.ACLLEVEL.ACLLEVEL_NOACCESS
@@ -5114,143 +5063,153 @@ skipdrive2:
                     End Try
 
                     If myAccessLevel = "Depositor" Or myAccessLevel = "No Access" Then
-
                         MyDominoServer.ResponseDetails = "Insufficient access to " & MailboxName & " file.  You have " & myAccessLevel & " but at least Reader required."
                         MyDominoServer.Description = "Insufficient access to " & MailboxName & " file.  You have " & myAccessLevel & " but at least Reader required."
-
-                        If InStr(MyDominoServer.Statistics_Mail.ToUpper, "MAIL.WAITING") > 0 Then
-                            Try
-                                MyDominoServer.PendingMail = ParseNumericStatValue("Mail.Waiting", MyDominoServer.Statistics_Mail)
-                                MyDominoServer.DeadMail = ParseNumericStatValue("Mail.Dead", MyDominoServer.Statistics_Mail)
-                                MyDominoServer.HeldMail = ParseNumericStatValue("Mail.Hold", MyDominoServer.Statistics_Mail)
-                            Catch ex2 As Exception
-                            End Try
-                        Else
-                            MyDominoServer.PendingMail = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Waiting")
-                            MyDominoServer.HeldMail = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Hold")
-                            MyDominoServer.DeadMail = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Dead")
-                        End If
-
+                        GoTo Cleanup
                     End If
 
                     Try
-                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Now examining the messages.... ")
-
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Now examining the messages.... ", LogUtilities.LogUtils.LogLevel.Verbose)
+                        'If you made it this far, then the mailbox is obviously not corrupt so clear that condition
                         myAlert.ResetAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, MyDominoServer.Location)
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception resetting mailbox access alert.")
+                    Catch ex As Exception
+                        'WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Has No document in " & MailboxName & ":  " & ex2.ToString)
+                    End Try
 
-                        docMail = NotesView.GetFirstDocument
-                        While Not (docMail Is Nothing)
-                            'Thread.Sleep(25)
-                            Try
-                                myRoutingState = ""
-                                If docMail.HasItem("RoutingState") Then
-                                    myRoutingState = docMail.GetItemValue("RoutingState")(0)  'read the value of the RoutingState field
-                                    If myRoutingState = "DEAD" Then
-                                        DeadCount += 1
-                                    ElseIf myRoutingState = "HOLD" Then
-                                        HeldCount += 1
-                                    Else
-                                        PendingCount += 1
-                                    End If
-                                Else
-                                    PendingCount += 1
-                                End If
-                                If MyDominoServer.MailChecking = 1 Then
-                                    If PendingCount > MyDominoServer.PendingThreshold Or HeldCount > MyDominoServer.HeldThreshold Then
-                                        boolStoppedCounting = True
-                                        Exit While
-                                    End If
+                    Try
+                        'Figure out the total number of documents
+                        allDocumentsCollection = db.AllDocuments
+                        PendingCount += allDocumentsCollection.Count
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " I found " & allDocumentsCollection.Count & " total messages in the mailbox.")
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception getting the total message collection: " & ex.ToString)
+                        boolMailError = True
+                    End Try
 
-                                End If
-                                docMail = NotesView.GetNextDocument(docMail)
+                    'Get the dead mail count
+                    searchStr = "@Contains( RoutingState; ""DEAD"")"
+                    Try
+                        deadCollection = db.Search(searchStr, dt, 0)
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " I found " & deadCollection.Count & " dead messages in the mailbox.")
+                        DeadCount += deadCollection.Count
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception getting the dead message collection: " & ex.ToString)
+                        boolMailError = True
+                    End Try
 
-                            Catch ex As Exception
-                                'Exception reading the Routing State 
-                                'Alert would be queued as 'Mailbox: mail2.box' for example
-                                If Not (InStr(ex.ToString, "Entry not found") > 0) And Not (InStr(ex.ToString, "Domino.IView.GetNextDocument")) Then
-                                    'if the error is that we cannot get from one document to another because the router is deleting them 
-                                    'so quickly, it is safe to assume that the router is OK, and no need to queue an alert
-                                    ' VSPLUS-3145
-                                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
-                                    MyDominoServer.Description = "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble."
-                                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception processing " & MailboxName & ":  " & ex.ToString)
-                                End If
-
-                            End Try
-
-                        End While
-                    Catch ex2 As Exception
-                        ' Error to see if there is not documents at all. 
-                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Has No document in " & MailboxName & ":  " & ex2.ToString)
+                    'Get the held mail count
+                    searchStr = "@Contains( RoutingState; ""HOLD"")"
+                    Try
+                        heldCollection = db.Search(searchStr, dt, 0)
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " I found " & heldCollection.Count & " held messages in the mailbox.")
+                        HeldCount += heldCollection.Count
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception getting the held message collection: " & ex.ToString)
+                        boolMailError = True
                     End Try
 
                 Else
-                    'Cannot Open the Database so log it and move on.
-                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Could not Open the database " & MailboxName & ":  ")
+                    'Cannot open the Database so let's use the server values instead
+                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Could not open the database " & MailboxName)
+                    boolMailError = True
+                    GoTo Cleanup
                 End If
-                'End Try
             Catch ex As Exception
-                'Exception reading the Routing State 
-                'Alert would be queued as 'Mailbox: mail2.box' for example
-                If Not (InStr(ex.ToString, "Entry not found") > 0) And Not (InStr(ex.ToString, "Domino.IView.GetNextDocument")) Then
-                    'if the error is that we cannot get from one document to another because the router is deleting them 
-                    'so quickly, it is safe to assume that the router is OK, and no need to queue an alert
-                    ' VSPLUS-3145
-                    myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Mailbox: " & MailboxName, "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble.", MyDominoServer.Location)
-                    MyDominoServer.Description = "VitalSigns is having trouble accessing " & MailboxName & ". This is sometimes an indication of trouble."
-                    WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception processing " & MailboxName & ":  " & ex.ToString)
-                End If
-
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Failed Processing Mail box count for  " & MailboxName & ": " & ex.ToString)
             End Try
             'move on to the next mailbox file, if any
         Next
 
+        'calculate the pending messages by subtracting out the dead and held
         Try
-            ' Here we ask the server what it thinks the values for dead, pending, and held are
-            If InStr(MyDominoServer.Statistics_Mail.ToUpper, "MAIL.WAITING") > 0 Then
-                Try
-                    ServerPendingCount = ParseNumericStatValue("Mail.Waiting", MyDominoServer.Statistics_Mail)
-                    ServerDeadCount = ParseNumericStatValue("Mail.Dead", MyDominoServer.Statistics_Mail)
-                    ServerHeldCount = ParseNumericStatValue("Mail.Hold", MyDominoServer.Statistics_Mail)
-                Catch ex2 As Exception
-                    boolMailError = True
-                End Try
-            Else
-                Try
-                    ServerPendingCount = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Waiting")
-                    ServerHeldCount = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Hold")
-                    ServerDeadCount = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Dead")
-                Catch ex2 As Exception
-                    boolMailError = True
-                End Try
-            End If
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & "*** Mail Routing Status ***")
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " I found " & DeadCount & " dead messages")
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " I found " & HeldCount & " held messages")
+            PendingCount = PendingCount - DeadCount - HeldCount
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " By subtracting the dead and held messages from the total, I calculate " & PendingCount & " pending messages")
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception calculating the pending message count: " & ex.ToString)
+        End Try
 
+
+        Try
+            MyDominoServer.PendingMail = PendingCount
+            MyDominoServer.HeldMail = HeldCount
+            MyDominoServer.DeadMail = DeadCount
         Catch ex2 As Exception
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Failed to get Mailbox Counts : " & ex2.ToString)
-        Finally
-            'If we have stopped counting AND if the server reports higher numbers than our counts, then take the server numbers
-            'If we have not stopped counting then we will use our own calculations over what the server reports
-            If boolStoppedCounting = True Then
-                If PendingCount < ServerPendingCount Then MyDominoServer.PendingMail = ServerPendingCount Else MyDominoServer.PendingMail = PendingCount
-                If HeldCount < ServerHeldCount Then MyDominoServer.HeldMail = ServerHeldCount Else MyDominoServer.HeldMail = HeldCount
-                If DeadCount < ServerDeadCount Then MyDominoServer.DeadMail = ServerDeadCount Else MyDominoServer.DeadMail = DeadCount
-            Else
-                MyDominoServer.PendingMail = PendingCount
-                MyDominoServer.HeldMail = HeldCount
-                MyDominoServer.DeadMail = DeadCount
-            End If
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Failed to assign mail counts : " & ex2.ToString)
 
         End Try
 
+Cleanup:
         Try
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Done analyzing mail boxes... ")
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Pending mail: " & MyDominoServer.PendingMail)
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Dead Mail: " & MyDominoServer.DeadMail)
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Held Mail: " & MyDominoServer.HeldMail)
+            If boolMailError = True Then
+                If InStr(MyDominoServer.Statistics_Mail.ToUpper, "MAIL.WAITING") > 0 Then
+                    Try
+                        ServerPendingCount = ParseNumericStatValue("Mail.Waiting", MyDominoServer.Statistics_Mail)
+                        ServerDeadCount = ParseNumericStatValue("Mail.Dead", MyDominoServer.Statistics_Mail)
+                        ServerHeldCount = ParseNumericStatValue("Mail.Hold", MyDominoServer.Statistics_Mail)
+                    Catch ex2 As Exception
+                        boolMailError = True
+                    End Try
+                Else
+                    Try
+                        ServerPendingCount = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Waiting")
+                        ServerHeldCount = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Hold")
+                        ServerDeadCount = GetDominoNumericStatistic(MyDominoServer.Name, "Mail", "Dead")
+                    Catch ex2 As Exception
+                        boolMailError = True
+                    End Try
+                End If
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " There was an error counting the messages, so we'll take the server self-reported values instead ")
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Server stat table (mail.waiting) reports " & ServerPendingCount & " pending messages")
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Server stat table (mail.dead) reports " & ServerDeadCount & " dead messages")
+                WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Server stat table (mail.hold) reports " & ServerDeadCount & " held messages")
+
+                MyDominoServer.PendingMail = ServerPendingCount
+                MyDominoServer.HeldMail = ServerHeldCount
+                MyDominoServer.DeadMail = ServerDeadCount
+            End If
         Catch ex As Exception
 
         End Try
+
+        Try
+            If Not (IsNothing(db)) Then
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+            End If
+        Catch ex As Exception
+
+        End Try
+
+
+        Try
+            If Not (IsNothing(allDocumentsCollection)) Then
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(allDocumentsCollection)
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(heldCollection)
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(deadCollection)
+            End If
+        Catch ex As Exception
+
+        End Try
+
+        Try
+            If Not (IsNothing(dt)) Then
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(dt)
+            End If
+        Catch ex As Exception
+
+        End Try
+
+        done = Now.Ticks
+        elapsed = New TimeSpan(done - start)
+
+
+        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + ": Time to calculate dead/pending/held mail = " & elapsed.TotalMilliseconds & " ms")
+        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + ": Time to calculate dead/pending/held mail = " & elapsed.TotalSeconds & " seconds")
     End Sub
+
 
     Private Sub CompareMailThresholds(ByRef MyDominoServer As MonitoredItems.DominoServer)
 
@@ -5298,12 +5257,22 @@ skipdrive2:
                     dtDominoLastUpdate = Now
                     Dim intMessagesDeleted As Integer = 0
                     Try
+                        Dim start, done As Long
+                        Dim elapsed As TimeSpan
+                        start = Now.Ticks
                         intMessagesDeleted = DeleteDeadMail(MyDominoServer)
                         If intMessagesDeleted > 0 Then
                             MyDominoServer.Status = "OK"
                             MyDominoServer.DeadMail = 0
                         End If
+                        Try
+                            done = Now.Ticks
+                            elapsed = New TimeSpan(done - start)
+                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + ": Time to delete dead mail = " & elapsed.TotalMilliseconds & " ms")
+                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString + ": Time to delete dead mail = " & elapsed.TotalSeconds & " seconds")
+                        Catch ex As Exception
 
+                        End Try
                     Catch ex As Exception
 
                     End Try
@@ -5378,25 +5347,25 @@ skipdrive2:
     Private Function DeleteDeadMail(ByRef server As MonitoredItems.DominoServer) As Integer
         Dim DeadCount As Integer = 0
         ' Dim PendingCount As Integer = 0
-
+        WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Attempting to clean up dead mail across all mailboxes.")
         Dim db As Domino.NotesDatabase
-        Dim docMail As Domino.NotesDocument
-        Dim PreviousDocMail As Domino.NotesDocument
-        Dim NotesView As Domino.NotesView
+        Dim coll As Domino.NotesDocumentCollection
+        Dim dt As Domino.NotesDateTime
+        Dim oldestDocumentDate As DateTime = DateTime.MinValue
+        dt = NotesSession.CreateDateTime(oldestDocumentDate)  'create a Notes DateTime object to use in the search
+        WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Searching messages older than: " & dt.ToString)
 
         Try
-
-            Dim myRoutingState As String
-            '   WriteAuditEntry("Entered dead and pending as " & Session.UserName)
             Dim MailBoxCount As Integer
             MailBoxCount = server.MailboxCount
+            Dim searchStr As String = "RoutingState=""Dead"""
+            searchStr = "@Contains( RoutingState; ""DEAD"")"
+            WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Attempting to clean up dead mail with query: " & searchStr)
 
-            ' WriteAuditEntry(server.Name & " has " & MailBoxCount & " mailbox(s)")
+            ' WiteAuditEntry(server.Name & " has " & MailBoxCount & " mailbox(s)")
             Select Case MailBoxCount
                 Case 1  '1 mailbox, open mail.box
                     WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Attempting to clean up dead mail in mail.box on " & server.Name)
-
-
                     Try
                         db = NotesSession.GetDatabase(server.Name, "mail.box", False)
                         If db.IsOpen Then
@@ -5407,47 +5376,15 @@ skipdrive2:
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
                             End Try
-                            WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " opened Mailbox named " & db.Title & " on " & server.Name)
-                            NotesView = db.GetView("Mail")
-                            WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " opened Mailbox 'inbox' named " & NotesView.Name)
-                            docMail = NotesView.GetFirstDocument
                             Try
-                                While Not (docMail Is Nothing)
-                                    myRoutingState = ""
-                                    If docMail.HasItem("RoutingState") Then
-                                        myRoutingState = docMail.GetItemValue("RoutingState")(0)
-
-                                        If myRoutingState = "DEAD" Or myRoutingState = "HOLD" Then
-                                            PreviousDocMail = docMail
-                                            DeadCount += 1
-                                        Else
-                                            PreviousDocMail = Nothing
-                                        End If
-                                    End If
-                                    docMail = NotesView.GetNextDocument(docMail)
-                                    If Not PreviousDocMail Is Nothing Then
-                                        Try
-                                            Call PreviousDocMail.Remove(True)
-                                        Catch ex As Exception
-                                            WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Error deleting dead mail message: " & ex.Message)
-                                        End Try
-
-                                    End If
-
-                                End While
-
+                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " opened Mailbox named " & db.Title & " on " & server.Name)
+                                coll = db.Search(searchStr, dt, 0)
+                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " I found " & coll.Count & " dead messages")
+                                coll.RemoveAll(False)
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Error deleting dead mail messages on " & db.Title & " on " & server.Name & ". Error is " & ex.Message)
-                                '   server.Status = "Insufficient Access"
-                                '   server.ResponseDetails = "Insufficient access to mail.box file.  Editor, Can Delete required to delete dead mail."
-                            Finally
-                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Deleted " & DeadCount & " Dead Mail messages from " & server.Name & ".")
-                                NotesView = Nothing
-                                docMail = Nothing
-                                PreviousDocMail = Nothing
-                                db = Nothing
-                                server.DeadMail = 0
+                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Exception deleting the collection: " & ex.ToString)
                             End Try
+
 
                         Else
                             WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " ERROR: Attempted to open mail.box" & server.Name & " failed.")
@@ -5457,9 +5394,8 @@ skipdrive2:
                     Catch ex As Exception
                         Try
                             System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-                            System.Runtime.InteropServices.Marshal.ReleaseComObject(docMail)
-                            System.Runtime.InteropServices.Marshal.ReleaseComObject(PreviousDocMail)
-                            System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesView)
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(coll)
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(dt)
                         Catch ex2 As Exception
 
                         End Try
@@ -5478,7 +5414,6 @@ skipdrive2:
 
                         Try
                             If db.IsOpen Then
-
                                 Try
                                     If String.IsNullOrWhiteSpace(db.Title) Then
                                         db.Title = "Untitled Database"
@@ -5486,53 +5421,20 @@ skipdrive2:
                                 Catch ex As Exception
                                     WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
                                 End Try
-
-                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " opened Mailbox named " & db.Title & " on " & server.Name)
-                                NotesView = db.GetView("Mail")
-                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " opened Mailbox 'Inbox' named " & NotesView.Name)
                                 Try
-                                    docMail = NotesView.GetFirstDocument
+                                    WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " opened Mailbox named " & db.Title & " on " & server.Name)
+                                    coll = db.Search(searchStr, dt, 0)
+                                    WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " I found " & coll.Count & " dead messages")
+                                    coll.RemoveAll(False)
                                 Catch ex As Exception
-
+                                    WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Exception deleting the collection: " & ex.ToString)
                                 End Try
 
-                                Try
-                                    While Not (docMail Is Nothing)
-                                        myRoutingState = ""
-                                        If docMail.HasItem("RoutingState") Then
-                                            myRoutingState = docMail.GetItemValue("RoutingState")(0)
 
-                                            If myRoutingState = "DEAD" Or myRoutingState = "HOLD" Then
-                                                PreviousDocMail = docMail
-                                                DeadCount += 1
-                                            Else
-                                                PreviousDocMail = Nothing
-                                            End If
-                                        End If
-                                        docMail = NotesView.GetNextDocument(docMail)
-                                        If Not PreviousDocMail Is Nothing Then
-                                            Try
-                                                Call PreviousDocMail.Remove(True)
-                                            Catch ex As Exception
-                                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Error deleting dead mail message: " & ex.Message)
-                                            End Try
-
-                                        End If
-
-                                    End While
-
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Error deleting dead mail messages on " & db.Title & " on " & server.Name & ". Error is " & ex.Message)
-                                    'server.Status = "Insufficient Access"
-                                    '          server.ResponseDetails = "Insufficient access to mail.box file.  Editor, Can Delete required to delete dead mail."
-                                Finally
-                                    WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Deleted " & DeadCount & " Dead Mail messages from " & server.Name & ".")
-                                    server.DeadMail = 0
-                                End Try
                             Else
-                                'could not open the database
-
-                                WriteAuditEntry("Attempt to clean up dead messages on server: " & server.Name & " failed.")
+                                WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " ERROR: Attempted to open mail.box" & server.Name & " failed.")
+                                server.Status = "Insufficient Access"
+                                server.ResponseDetails = "Insufficient access to mail.box file.  Editor, Can Delete required to delete dead mail."
                             End If
                         Catch ex As Exception
                             ' server.Status = "Insufficient Access"
@@ -5548,10 +5450,10 @@ skipdrive2:
         End Try
 
         Try
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(coll)
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(dt)
             System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(docMail)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(PreviousDocMail)
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesView)
+         
         Catch ex As Exception
 
         End Try
