@@ -4,7 +4,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../../core/services';
-
+import {AppComponentService} from '../../../core/services/app.component.service.ts';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/serverSettings/server-settings-locations-credentials-businesshours.component.html',
@@ -28,9 +28,11 @@ export class ServerLocations implements OnInit, AfterViewInit {
     selectedCredential: string = null;
     selectedBusinessHour: string = null;
     postData: any;
+    protected appComponentService: AppComponentService;
     constructor(    
         private dataProvider: RESTService,
-        private formBuilder: FormBuilder) {
+        private formBuilder: FormBuilder,
+        appComponentService: AppComponentService) {
 
         this.serverLocationsBusinessHoursCredentialsForm = this.formBuilder.group({
             'setting': [''],
@@ -39,6 +41,7 @@ export class ServerLocations implements OnInit, AfterViewInit {
            
 
         });
+        this.appComponentService = appComponentService;
    }
 
     ngOnInit() {
@@ -75,6 +78,14 @@ export class ServerLocations implements OnInit, AfterViewInit {
             .subscribe(
             response => {
 
+                if (response.status == "OK") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
        //alert(this.postData);
 
