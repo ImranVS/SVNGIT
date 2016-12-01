@@ -33,6 +33,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("consecutive_telnet")]
         public string ConsecutiveTelnet { get; set; }
 
-
+        [JsonProperty("is_modified")]
+        public bool IsModified { get; set; }
     }
 }
