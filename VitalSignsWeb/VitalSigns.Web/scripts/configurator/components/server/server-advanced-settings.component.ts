@@ -2,6 +2,7 @@
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {RESTService} from '../../../core/services';
 import {Router, ActivatedRoute} from '@angular/router';
+import {AppComponentService} from '../../../core/services';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/server/server-advanced-settings.component.html'
@@ -22,11 +23,13 @@ export class ServerAdvancedSettings implements OnInit {
     modal = true;
     addCredentialForm: FormGroup;
     serverType: string;
-    Type: string;
+    Types: string;
+     appComponentService: AppComponentService;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        appComponentService: AppComponentService
     ) {
 
         this.advancedSettingsForm = this.formBuilder.group({
@@ -68,6 +71,7 @@ export class ServerAdvancedSettings implements OnInit {
             'is_modified': ['']
 
         });
+        this.appComponentService = appComponentService;
     }
 
     ngOnInit() {
@@ -83,11 +87,14 @@ export class ServerAdvancedSettings implements OnInit {
 
                 this.advancedSettingsForm.setValue(response.data);
                 this.deviceType = response.data.device_type;
-                this.Type = response.data.database_settings_credentials_id;
+                //this.Type = response.data.database_settings_credentials_id;
                 console.log(this.deviceType);
             },
 
-            (error) => this.errorMessage = <any>error
+            (error) => {
+                this.errorMessage = <any>error
+                this.appComponentService.showErrorMessage(this.errorMessage);
+            }
 
             );
         // this.selectedTpe = this.advancedSettingsForm.memory_threshold;
@@ -110,6 +117,14 @@ export class ServerAdvancedSettings implements OnInit {
             .subscribe(
             response => {
 
+                if (response.status == "OK") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
 
 
@@ -144,10 +159,18 @@ export class ServerAdvancedSettings implements OnInit {
         addCrdential.is_modified = true;
         this.dataProvider.put('/Configurator/save_credentials', addCrdential)
             .subscribe(
-            response => {
-                this.addCredentialForm.reset();
-            });
 
+            response => {
+
+                if (response.status == "OK") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+                    this.addCredentialForm.reset();
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
         dialog.hide();
 
     }
