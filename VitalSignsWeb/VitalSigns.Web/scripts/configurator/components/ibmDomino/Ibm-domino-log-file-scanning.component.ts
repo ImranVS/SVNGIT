@@ -3,6 +3,7 @@ import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {Router} from '@angular/router';
 import {ActivatedRoute} from '@angular/router';
+import {AppComponentService} from '../../../core/services';
 
 
 @Component({
@@ -18,8 +19,8 @@ export class DominoLogFiles extends GridBase implements OnInit {
     isVisible: boolean = false;
     firstrowid: string;
 
-    constructor(service: RESTService, private route: ActivatedRoute, private router: Router) {
-        super(service);
+    constructor(service: RESTService, private route: ActivatedRoute, private router: Router, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.formName = "Domino Log File Scanning";
 
         this.service.get('/configurator/get_log_scaning')

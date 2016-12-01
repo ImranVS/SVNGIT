@@ -3,6 +3,7 @@ import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
+import {AppComponentService} from '../../../core/services';
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component.html',
@@ -19,11 +20,11 @@ export class AddLogFile extends GridBase implements OnInit {
     LogFileScan: FormGroup;
     serverLog: FormGroup;
     checkedDevices: any;
-    devices: string;
+    devices: string = "";
     currentDeviceType: string = "Domino";
 
-    constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder) {
-        super(service);
+    constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.formName = "Domino Event Log Scanning";
         this.LogFileScan = this.formBuilder.group({
             
@@ -76,7 +77,10 @@ export class AddLogFile extends GridBase implements OnInit {
 
 
     }
-    saveEventLog(dlg: wijmo.input.Popup) {      
+    saveEventLog(dlg: wijmo.input.Popup) {
+        console.log(this.results);
+        //if (this.results != null || this.results.count == 0)
+        
         this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
     }
     deleteEventLog() {
@@ -97,7 +101,7 @@ export class AddLogFile extends GridBase implements OnInit {
 
     }
     applySetting() {
-
+       
         var postData = {
             "setting": this.results,
             "value": this.sererNames,
