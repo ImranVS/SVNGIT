@@ -1,6 +1,8 @@
 ﻿import {Component, OnInit} from '@angular/core';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
+import {AppComponentService} from '../../../core/services';
+
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-notes-databases.component.html',
@@ -12,8 +14,8 @@ export class NotesDatabases extends GridBase implements OnInit {
     sererNames: any;   
     errorMessage: string;
 
-    constructor(service: RESTService) {
-        super(service);
+    constructor(service: RESTService, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.formName = "Notes Database";
 
 
