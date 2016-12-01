@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, AfterViewInit, ViewChild,Output, EventEmitter} from '@angular/core';
+﻿import {Component, OnInit, AfterViewInit, ViewChild, Output, EventEmitter} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
@@ -6,7 +6,6 @@ import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
 import {DiskSttingsValue} from '../../models/server-disk-settings';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
-import {AppComponentService} from '../../../core/services/app.component.service.ts';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/server/server-disk-settings.component.html',
@@ -16,7 +15,7 @@ import {AppComponentService} from '../../../core/services/app.component.service.
     ]
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
-export class DominoServerDiskSettings  implements OnInit {
+export class DominoServerDiskSettings implements OnInit {
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: any;
@@ -26,7 +25,7 @@ export class DominoServerDiskSettings  implements OnInit {
     diskSettingsForm: FormGroup;
     selectedDiskSetting: any;
     selectedDiskSettingValue: any;
-   
+
     diskByPercentage: string;
     diskByGB: string;
     selectedDisks: string;
@@ -37,16 +36,14 @@ export class DominoServerDiskSettings  implements OnInit {
     diskSettingsDataForm: FormGroup;
     disktype: any;
     diskThreshold: any;
-    protected appComponentService: AppComponentService;
-    constructor(    
+    constructor(
         private dataProvider: RESTService,
         private formBuilder: FormBuilder,
-       
-        private route: ActivatedRoute,
-        appComponentService: AppComponentService) {
-       
-      
-      
+
+        private route: ActivatedRoute) {
+
+
+
         this.diskSettingsForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
@@ -65,22 +62,21 @@ export class DominoServerDiskSettings  implements OnInit {
         //    'disk_free': [''],
 
         //});
-        this.appComponentService = appComponentService;
-   }
+    }
 
     ngOnInit() {
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
 
-        }); 
+        });
         this.dataProvider.get('/Configurator/get_server_disk_info/' + this.deviceId)
             .subscribe(
             response => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
                 this.data.pageSize = 10;
 
-            }); 
-     
+            });
+
         //this.dataProvider.get('/Configurator/get_server_disk_settings_data/' + this.deviceId)
         //    .subscribe(
         //    (data) => this.diskSettingsDataForm.setValue(data.data),
@@ -90,21 +86,18 @@ export class DominoServerDiskSettings  implements OnInit {
         this.dataProvider.get('/Configurator/get_server_disk_settings_data/' + this.deviceId)
             .subscribe(
             (response) => {
-            
-               
+
+
                 this.selectedDiskSetting = response.data.disk_name;
                 this.diskThreshold = response.data.freespace_threshold;
                 console.log(this.selectedDiskSetting);
             },
 
-            (error) => {
-                this.errorMessage = <any>error
-                this.appComponentService.showErrorMessage(this.errorMessage);
-            }
+            (error) => this.errorMessage = <any>error
 
             );
-       
-   
+
+
     }
     itemsSourceChangedHandler() {
 
@@ -127,18 +120,17 @@ export class DominoServerDiskSettings  implements OnInit {
             }
         }
     }
-    
-    applySetting(nameValue: any){
-     
-      
+
+    applySetting(nameValue: any) {
+
+
         if (this.selectedDiskSetting == "allDisksBypercentage") {
-          
+
             this.selectedDiskSettingValue = this.diskThreshold;
         }
         else if (this.selectedDiskSetting == "allDisksByGB")
             this.selectedDiskSettingValue = this.diskThreshold;
-        else if (this.selectedDiskSetting == "selectedDisks") 
-        {
+        else if (this.selectedDiskSetting == "selectedDisks") {
             this.selectedDiskSettingValue = this.selectedDisks;
             var slectedDiskSettingValues: DiskSttingsValue[] = [];
             for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
@@ -146,7 +138,7 @@ export class DominoServerDiskSettings  implements OnInit {
                 var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
 
                 if (item.is_selected) {
-                    
+
 
                     var dominoserverObject = new DiskSttingsValue();
                     dominoserverObject.is_selected = item.is_selected;
@@ -154,19 +146,19 @@ export class DominoServerDiskSettings  implements OnInit {
 
                     dominoserverObject.freespace_threshold = item.freespace_threshold;
                     dominoserverObject.threshold_type = item.threshold_type;
-                   // alert(item.is_selected)
+                    // alert(item.is_selected)
                     slectedDiskSettingValues.push(dominoserverObject);
                 }
             }
             this.diskValues = slectedDiskSettingValues;
-        
+
         }
-          
+
         else if (this.selectedDiskSetting == "noDiskAlerts")
             this.selectedDiskSettingValue = this.diskThreshold;
-       
 
-     
+
+
         if (this.selectedDiskSetting == "selectedDisks") {
 
             this.postData = {
@@ -174,10 +166,9 @@ export class DominoServerDiskSettings  implements OnInit {
                 "value": this.diskValues,
                 "devices": this.deviceId
             };
-           
+
         }
-        else if (this.selectedDiskSetting == "noDiskAlerts")
-        {
+        else if (this.selectedDiskSetting == "noDiskAlerts") {
             this.postData = {
                 "setting": this.selectedDiskSetting,
                 "value": null,
@@ -196,18 +187,10 @@ export class DominoServerDiskSettings  implements OnInit {
             .subscribe(
             response => {
 
-                if (response.status == "OK") {
-
-                    this.appComponentService.showSuccessMessage(response.message);
-
-                } else {
-
-                    this.appComponentService.showErrorMessage(response.message);
-                }
             });
     }
-   
-   
+
+
     get pageSize(): number {
         return this.data.pageSize;
     }

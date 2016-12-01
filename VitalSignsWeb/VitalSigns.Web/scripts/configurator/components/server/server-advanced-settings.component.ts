@@ -2,7 +2,6 @@
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {RESTService} from '../../../core/services';
 import {Router, ActivatedRoute} from '@angular/router';
-import {AppComponentService} from '../../../core/services/app.component.service.ts';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/server/server-advanced-settings.component.html'
@@ -23,13 +22,11 @@ export class ServerAdvancedSettings implements OnInit {
     modal = true;
     addCredentialForm: FormGroup;
     serverType: string;
-    Types: string;
-    protected appComponentService: AppComponentService;
+    Type: string;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
-        private route: ActivatedRoute,
-        appComponentService: AppComponentService
+        private route: ActivatedRoute
     ) {
 
         this.advancedSettingsForm = this.formBuilder.group({
@@ -71,7 +68,6 @@ export class ServerAdvancedSettings implements OnInit {
             'is_modified': ['']
 
         });
-        this.appComponentService = appComponentService;
     }
 
     ngOnInit() {
@@ -87,14 +83,11 @@ export class ServerAdvancedSettings implements OnInit {
 
                 this.advancedSettingsForm.setValue(response.data);
                 this.deviceType = response.data.device_type;
-                //this.Type = response.data.database_settings_credentials_id;
+                this.Type = response.data.database_settings_credentials_id;
                 console.log(this.deviceType);
             },
 
-            (error) => {
-                this.errorMessage = <any>error
-                this.appComponentService.showErrorMessage(this.errorMessage);
-            }
+            (error) => this.errorMessage = <any>error
 
             );
         // this.selectedTpe = this.advancedSettingsForm.memory_threshold;
@@ -108,29 +101,21 @@ export class ServerAdvancedSettings implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-    
+
     }
-  
+
     onSubmit(advancedSettings: any): void {
 
         this.dataProvider.put('/Configurator/save_advanced_settings/' + this.deviceId, advancedSettings)
             .subscribe(
             response => {
 
-                if (response.status == "OK") {
-
-                    this.appComponentService.showSuccessMessage(response.message);
-
-                } else {
-
-                    this.appComponentService.showErrorMessage(response.message);
-                }
             });
 
 
 
     }
-    
+
     addIbmCredentials(dlg: wijmo.input.Popup) {
         if (dlg) {
             dlg.modal = this.modal;
@@ -144,7 +129,7 @@ export class ServerAdvancedSettings implements OnInit {
             dlg.modal = this.modal;
             dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
             dlg.show();
-            
+
             this.serverType = "Sametime"
         }
     }
@@ -159,18 +144,10 @@ export class ServerAdvancedSettings implements OnInit {
         addCrdential.is_modified = true;
         this.dataProvider.put('/Configurator/save_credentials', addCrdential)
             .subscribe(
-          
-        response => {
-
-            if (response.status == "OK") {
-
-                this.appComponentService.showSuccessMessage(response.message);
+            response => {
                 this.addCredentialForm.reset();
-            } else {
+            });
 
-                this.appComponentService.showErrorMessage(response.message);
-            }
-        });
         dialog.hide();
 
     }
