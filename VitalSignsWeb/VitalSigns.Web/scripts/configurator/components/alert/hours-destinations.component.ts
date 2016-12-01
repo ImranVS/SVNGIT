@@ -10,6 +10,7 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
 import {GridBase} from '../../../core/gridBase';
+import {AppComponentService} from '../../../core/services';
 
 
 @Component({
@@ -53,8 +54,8 @@ export class HoursDestinations extends GridBase implements OnInit {
         return this.data.pageSize;
     }
 
-    constructor(service: RESTService) {
-        super(service);
+    constructor(service: RESTService, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.formName = "Hours and Destinations";
         this.sendvia = ["E-mail", "Script", "SMS", "SNMP Trap", "Windows Log"];
         this.isEmail = true;
