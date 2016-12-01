@@ -100,7 +100,7 @@ namespace VitalSigns.API.Controllers
 
 
                 var result = Common.SaveNameValues(preferencesSettings);
-                Response = Common.CreateResponse(true);
+                Response = Common.CreateResponse(result,"OK", " Settings were successully updated.");
             }
             catch (Exception exception)
             {
@@ -141,6 +141,7 @@ namespace VitalSigns.API.Controllers
                 userpreference.BingKey = result.FirstOrDefault(x => x.Name == "Bing Key").Value;
 
                 Response = Common.CreateResponse(userpreference);
+               
             }
             catch (Exception exception)
             {
@@ -4689,7 +4690,6 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
-
         #region Servers Import
         #region Domino
         // [FunctionAuthorize("DominoServerImport")]
@@ -5702,6 +5702,9 @@ namespace VitalSigns.API.Controllers
 
         }
         #endregion
+
+
+       
     }
 }
 
