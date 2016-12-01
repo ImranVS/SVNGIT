@@ -27,7 +27,7 @@ export class ProfilesList implements OnInit {
     }
 
     deleteProfile(email: string) {
-        this.service.delete(`http://localhost:1234/profiles/${email}`, () => {
+        this.service.deleteAndCallback(`http://localhost:1234/profiles/${email}`, () => {
             this.ngOnInit();
         });
     }
