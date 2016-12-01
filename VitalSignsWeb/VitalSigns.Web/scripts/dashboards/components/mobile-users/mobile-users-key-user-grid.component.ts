@@ -4,6 +4,8 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
+import * as helpers from '../../../core/services/helpers/helpers';
+
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
@@ -13,7 +15,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     templateUrl: './app/dashboards/components/mobile-users/mobile-users-key-user-grid.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.DateTimeHelper
     ]
 })
 export class MobileUsersKeyUserGrid implements WidgetComponent, OnInit {
@@ -22,7 +25,7 @@ export class MobileUsersKeyUserGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     
-    constructor(private service: RESTService) { }
+    constructor(private service: RESTService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -40,7 +43,7 @@ export class MobileUsersKeyUserGrid implements WidgetComponent, OnInit {
         this.service.get('/dashboard/mobile_user_devices?isKey=true')
             .subscribe(
             (data) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(data.data)));
                 this.data.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error

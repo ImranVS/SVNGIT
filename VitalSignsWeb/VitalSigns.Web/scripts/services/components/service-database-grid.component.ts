@@ -10,6 +10,8 @@ import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 
+import * as helpers from '../../core/services/helpers/helpers';
+
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
@@ -17,7 +19,8 @@ declare var bootstrapNavigator: any;
     templateUrl: '/app/services/components/service-database-grid.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.DateTimeHelper
     ]
 })
 export class ServiceDatabaseGrid implements OnInit {
@@ -26,7 +29,7 @@ export class ServiceDatabaseGrid implements OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
 
-    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -48,7 +51,7 @@ export class ServiceDatabaseGrid implements OnInit {
         this.service.get(`/dashboard/database?device_id=${this.deviceId}&order_by=FileName&order_type=asc`)
             .subscribe(
             (response) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error

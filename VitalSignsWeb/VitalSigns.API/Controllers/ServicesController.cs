@@ -707,10 +707,10 @@ namespace VitalSigns.API.Controllers
                                         var item = result.Where(x => x.Hour == hour).FirstOrDefault();
                                         var output = result.Where(x => x.Hour == hour && x.StatName == name).ToList();
                                         DateTime time = new DateTime();
-                                        time = DateTime.Now.AddHours(-hour);
-                                        time = time.AddMinutes(-1 * time.Minute);
+                                        time = DateTime.UtcNow.AddHours(-hour);
+                                        time = new DateTime(time.Year, time.Month, time.Day, time.Hour, 0, 0, time.Kind);
                                         string displayTime = "";
-                                        displayTime = time.ToString("hh:mm tt");
+                                        displayTime = time.ToString(DateFormat);
                                         if (item != null && statNames.Length == 1)
                                         {
 
@@ -858,10 +858,10 @@ namespace VitalSigns.API.Controllers
                                         var item = result.Where(x => x.Hour == hour).FirstOrDefault();
                                         var output = result.Where(x => x.Hour == hour && x.StatName == name).ToList();
                                         DateTime time = new DateTime();
-                                        time = DateTime.Now.AddHours(-hour);
-                                        time = time.AddMinutes(-1 * time.Minute);
+                                        time = DateTime.UtcNow.AddHours(-hour);
+                                        time = new DateTime(time.Year, time.Month, time.Day, time.Hour, 0, 0, time.Kind);
                                         string displayTime = "";
-                                        displayTime = time.ToString("hh:mm tt");
+                                        displayTime = time.ToString(DateFormat);
 
 
                                         if (item != null && statNames.Length == 1)

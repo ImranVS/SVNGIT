@@ -1392,11 +1392,6 @@ namespace VSNext.Mongo.Entities
         public double? PercentFree { get; set; }
 
         [DataMember]
-        [BsonElement("average_queue_length")]
-        [BsonIgnoreIfNullAttribute]
-        public double? AverageQueueLength { get; set; }
-
-        [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("threshold")]
         public double? Threshold { get; set; }
@@ -1451,7 +1446,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("last_updated")]
         [BsonIgnoreIfNullAttribute]
-        public string LastUpdated { get; set; }
+        public DateTime? LastUpdated { get; set; }
 
         [DataMember]
         [BsonElement("enabled")]

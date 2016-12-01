@@ -39,7 +39,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Location> locationRepository;
         private IRepository<NameValue> namevalueRepository;
 
-        private string DateFormat = "yyyy-MM-dd";
+        private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         /// <summary>
         /// 
         /// </summary>
@@ -424,7 +424,7 @@ namespace VitalSigns.API.Controllers
                     DeviceId = x.DeviceId,
                     Type = x.Type,
                     Category = x.category,
-                    LastScan = Convert.ToString(x.LastUpdate.Value),
+                    LastScan = Convert.ToString(x.LastUpdate.Value.ToString(DateFormat)),
                     TestName = x.TestName,
                     Result = x.Result,
                     Details = x.Details
@@ -549,7 +549,7 @@ namespace VitalSigns.API.Controllers
                                     FileSize = x.FileSize,
                                     Quota = x.Quota,
                                     InboxDocCount = x.InboxDocCount,
-                                    ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                    ScanDateTime = Convert.ToString(x.ScanDateTime.Value.ToString(DateFormat)),
                                     ReplicaId = x.ReplicaId,
                                     DocumentCount = x.DocumentCount,
                                     Categories = x.Categories,
@@ -574,7 +574,7 @@ namespace VitalSigns.API.Controllers
                                     FileSize = x.FileSize,
                                     Quota = x.Quota,
                                     InboxDocCount = x.InboxDocCount,
-                                    ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                    ScanDateTime = Convert.ToString(x.ScanDateTime.Value.ToString(DateFormat)),
                                     ReplicaId = x.ReplicaId,
                                     DocumentCount = x.DocumentCount,
                                     Categories = x.Categories,
@@ -602,7 +602,7 @@ namespace VitalSigns.API.Controllers
                                 FileSize = x.FileSize,
                                 Quota = x.Quota,
                                 InboxDocCount = x.InboxDocCount,
-                                ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                ScanDateTime = Convert.ToString(x.ScanDateTime.Value.ToString(DateFormat)),
                                 ReplicaId = x.ReplicaId,
                                 DocumentCount = x.DocumentCount,
                                 Categories = x.Categories,
@@ -671,7 +671,7 @@ namespace VitalSigns.API.Controllers
                                         FileSize = x.FileSize,
                                         Quota = x.Quota,
                                         InboxDocCount = x.InboxDocCount,
-                                        ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                        ScanDateTime = Convert.ToString(x.ScanDateTime.Value.ToString(DateFormat)),
                                         ReplicaId = x.ReplicaId,
                                         DocumentCount = x.DocumentCount,
                                         Categories = x.Categories,
@@ -695,7 +695,7 @@ namespace VitalSigns.API.Controllers
                                         FileSize = x.FileSize,
                                         Quota = x.Quota,
                                         InboxDocCount = x.InboxDocCount,
-                                        ScanDateTime = Convert.ToString(x.ScanDateTime.Value),
+                                        ScanDateTime = Convert.ToString(x.ScanDateTime.Value.ToString(DateFormat)),
                                         ReplicaId = x.ReplicaId,
                                         DocumentCount = x.DocumentCount,
                                         Categories = x.Categories,
@@ -848,8 +848,8 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceId = x.DeviceId,
                     DeviceName = x.DeviceName,
-                    DateTimeDown = Convert.ToString(x.DateTimeDown),
-                    DateTimeUp = Convert.ToString(x.DateTimeUp),
+                    DateTimeDown = Convert.ToString(x.DateTimeDown.ToString(DateFormat)),
+                    DateTimeUp = Convert.ToString(x.DateTimeUp.Value.ToString(DateFormat)),
                 }).ToList();
                 Response = Common.CreateResponse(result);
             }
@@ -884,7 +884,7 @@ namespace VitalSigns.API.Controllers
                         PrimaryStatus = monitored.PrimaryStatus,
                         SecondaryStatus = monitored.SecondaryStatus,
                         StatusSummary = monitored.StatusSummary,
-                        LastUpdated = Convert.ToString(monitored.LastUpdated)
+                        LastUpdated = Convert.ToString(monitored.LastUpdated.Value.ToString(DateFormat))
 
                     });
 
@@ -1514,7 +1514,7 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceName = x.DeviceName,
                     Category = x.Category,
-                    LastUpdated = Convert.ToString(x.LastUpdated),
+                    LastUpdated =Convert.ToString(x.LastUpdated.Value.ToString(DateFormat)),
                     PendingMail = x.PendingMail,
                     DeadMail = x.DeadMail,
                     HeldMail = x.HeldMail,

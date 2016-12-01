@@ -4,6 +4,8 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
+import * as helpers from '../../../core/services/helpers/helpers';
+
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
@@ -14,7 +16,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     templateUrl: '/app/dashboards/components/key-metrics/disk-health-grid.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.DateTimeHelper
     ]
 })
 export class DiskHealthGrid implements WidgetComponent, OnInit {
@@ -27,7 +30,7 @@ export class DiskHealthGrid implements WidgetComponent, OnInit {
     get serviceId(): string {
         return this._serviceId;
     }
-    constructor(private service: RESTService, private widgetService: WidgetService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -45,7 +48,7 @@ export class DiskHealthGrid implements WidgetComponent, OnInit {
         this.service.get(`/dashboard/disk_health`)
             .subscribe(
             (data) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(data.data)));
                 this.data.pageSize = 20;
                 //var tgd = new wijmo.collections.PropertyGroupDescription('device_name',
                 //    function (item, propName) {

@@ -31,6 +31,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statname=Server.Users&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'usersConnectionsDuringTheDay',
@@ -66,6 +67,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/disk_space?deviceid=${this.serviceId}`,
+                    dateformat: 'time',
                    
                     chart: {
                         chart: {
@@ -124,6 +126,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statname=Platform.System.PctCombinedCpuUtil&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'cpuUsage',
@@ -167,6 +170,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statname=Mem.PercentUsed&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'memoryUsage',
