@@ -498,7 +498,7 @@ namespace VitalSigns.API.Controllers
                     {
                         BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray(), UseType = Convert.ToInt32(businesshour.UseType) };
                         string id = businessHoursRepository.Insert(businessHours);
-                        Response = Common.CreateResponse(id, "OK", "Business hour inserted successfully");
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Business hour inserted successfully");
                     }
 
                     else
@@ -511,18 +511,18 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.Days, days.ToArray());
 
                         var result = businessHoursRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, "OK", "Business hour updated successfully");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Business hour updated successfully");
                     }
                 }
 
                 else
                 {
-                    Response = Common.CreateResponse(false, "duplicate", "This" + businesshour.Name +"already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This" + businesshour.Name +"already exists. Enter another one.");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save business hours falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save business hours falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -631,11 +631,21 @@ namespace VitalSigns.API.Controllers
             try
             {
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-                Expression<Func<Maintenance, bool>> filterExpression = (p => p.Name == maintenance.Name);
-                var existsData = maintenanceRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
-                //if (string.IsNullOrEmpty(existsData))
-                //{
+                Expression<Func<BusinessHours, bool>> filterExpression;
+                if (string.IsNullOrEmpty(maintenance.Id))
+                {
+                    filterExpression = (p => p.Name == maintenance.Name);
 
+                }
+                else
+                {
+                    filterExpression = (p => p.Name == maintenance.Name && p.Id != maintenance.Id);
+
+                }
+                var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+
+                if (string.IsNullOrEmpty(existsData))
+                { 
 
                     if (string.IsNullOrEmpty(maintenance.Id))
                     {
@@ -671,15 +681,15 @@ namespace VitalSigns.API.Controllers
                         var result = maintenanceRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
                     }
-                //}
-                //else
-                //{
-                //    Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
-                //}
+                }
+                else
+                {
+                    Response = Common.CreateResponse(false, "Error", "This Name already exists. Enter another one.");
+                }
 
 
-               
-                    serversRepository = new Repository<Server>(ConnectionString);
+
+                serversRepository = new Repository<Server>(ConnectionString);
                     UpdateDefinition<Server> updateDefinition = null;
                // var devicesList = ((Newtonsoft.Json.Linq.JArray)maintenance.DeviceList).ToObject<List<string>>();
                 var devicesList = maintenance.DeviceList;
@@ -2545,7 +2555,7 @@ namespace VitalSigns.API.Controllers
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
 
-
+                
 
                 if (string.IsNullOrEmpty(notesDatabaseReplica.Id))
                 {
@@ -2624,8 +2634,14 @@ namespace VitalSigns.API.Controllers
 
         #endregion
 
+
+
         #region Notes Databases
 
+        /// <summary>
+        ///get the notes databases data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpGet("get_notes_databases")]
         public APIResponse GetAllNotesDatabases()
         {
@@ -2659,22 +2675,34 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        ///saves the notes databases data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpPut("save_notes_databases")]
         public APIResponse UpdateNotesDatabase([FromBody]NotesDatabaseModel notesDatabase)
         {
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                Expression<Func<BusinessHours, bool>> filterExpression;
+                if (string.IsNullOrEmpty(notesDatabase.Id))
+                {
+                    filterExpression = (p => p.Name == notesDatabase.Name);
+                }
+                else
+                {
+                    filterExpression = (p => p.Name == notesDatabase.Name && p.Id != notesDatabase.Id);
 
-                Expression<Func<ServerOther, bool>> filterExpression = (p => p.Name == notesDatabase.Name);
+                }
+                var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
 
-                var existedData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
-               
+                if (string.IsNullOrEmpty(existsData))
+                { 
 
                     if (string.IsNullOrEmpty(notesDatabase.Id))
                     {
-                    if (string.IsNullOrEmpty(existedData))
-                    {
+                   
                         ServerOther notesDatabases = new ServerOther
                         {
 
@@ -2698,13 +2726,6 @@ namespace VitalSigns.API.Controllers
 
                     else
                     {
-                        Response = Common.CreateResponse(false, "duplicate", "This Name already exists. Enter another one.");
-                    }
-
-                }
-               
-                    else
-                    {
                         FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabase.Id);
                         var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerName, notesDatabase.DominoServerName)
                                                                    .Set(p => p.Name, notesDatabase.Name)
@@ -2719,6 +2740,16 @@ namespace VitalSigns.API.Controllers
                         var result = serverOtherRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
                     }
+
+
+
+                }
+                else
+                {
+                    Response = Common.CreateResponse(false, "Error", "This Name already exists. Enter another one.");
+                }
+               
+                    
                
             }
             catch (Exception exception)
@@ -2730,6 +2761,10 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        /// <summary>
+        ///delete  the notes databases data
+        /// </summary>
+        /// <author>Sowjanya</author>
         [HttpDelete("delete_notes_database/{Id}")]
         public void DeleteNotesDatabase(string Id)
         {
