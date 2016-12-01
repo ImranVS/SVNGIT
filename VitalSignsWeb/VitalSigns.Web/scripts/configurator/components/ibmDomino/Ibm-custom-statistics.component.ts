@@ -65,6 +65,7 @@ export class CustomStatistics extends GridBase implements OnInit {
     editCustomStat(dlg: wijmo.input.Popup) {
         this.editGridRow(dlg);        
         this.checkedDevices = this.currentEditItem.domino_servers;
+        this.devices = this.currentEditItem.domino_servers;
     }
 }
 
