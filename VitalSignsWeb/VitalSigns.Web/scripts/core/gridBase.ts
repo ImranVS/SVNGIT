@@ -7,6 +7,7 @@
 import { Component, EventEmitter, Inject, ViewChild, Input, AfterViewInit, NgModule,OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {RESTService} from './services';
+import {AppComponentService} from './services';
 
 // Base class for all components demonstrating FlexGrid control.
 @Component({
@@ -17,6 +18,7 @@ import {RESTService} from './services';
 export abstract class GridBase {
  
     protected service: RESTService;
+    protected appComponentService: AppComponentService;
     data: wijmo.collections.CollectionView;
     currentEditItem: any;
     key: string;
@@ -28,16 +30,26 @@ export abstract class GridBase {
     @ViewChild('mobileDeviceGrid') mobileDeviceGrid: wijmo.grid.FlexGrid;
     @ViewChild('attributeGrid') attributeGrid: wijmo.grid.FlexGrid;
 
-    constructor(service: RESTService) {  
+    constructor(service: RESTService, appComponentService: AppComponentService) {  
         this.service = service; 
+        this.appComponentService = appComponentService;
     }
     initialGridBind(dataURI: string) {
         this.service.get(dataURI)
             .subscribe(
             response => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                this.data.pageSize = 10;
-            }); 
+                if (response.status == "OK") {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                    this.data.pageSize = 10;
+                } else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+
+            }, error => {
+                var errorMessage = <any>error;
+                this.appComponentService.showErrorMessage(errorMessage);
+            });
+               
     }
        
     get pageSize(): number {
@@ -57,20 +69,42 @@ export abstract class GridBase {
             this.service.put(saveUrl, this.currentEditItem)
                 .subscribe(
                 response => {
-                    this.currentEditItem.id = response.data;
-                }); //, this.getResponse);
-            (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew()
+                    if (response.status == "OK") {
+                        this.currentEditItem.id = response.data;
+                        (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
+                        dlg.hide();
+                        this.appComponentService.showSuccessMessage(response.message);
+
+                    } else {
+
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
         }
         else {
             this.flex.collectionView.currentItem = this.currentEditItem;
             this.service.put(saveUrl, this.currentEditItem)
                 .subscribe(
                 response => {
-                    this.currentEditItem.id = response.data;
-                }); 
-            (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
+                    if (response.status == "OK") {
+                        (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
+                        dlg.hide();
+                        this.appComponentService.showSuccessMessage(response.message);
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
+
         }
-        dlg.hide();
+       
     }
   
     addGridRow(dlg: wijmo.input.Popup) {
@@ -94,7 +128,19 @@ export abstract class GridBase {
     delteGridRow(deleteUrl) {
         this.key = this.flex.collectionView.currentItem.id;
         if (confirm("Are you sure want to delete this record?")) {
-            this.service.delete(deleteUrl + this.key);//'/Configurator/' + this.businessHourId + '/delete_business_hours');
+            this.service.delete(deleteUrl + this.key)
+                .subscribe(
+                response => {
+                    if (response.status == "OK") {                       
+                        this.appComponentService.showSuccessMessage(response.message);
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
             (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
         }
     }

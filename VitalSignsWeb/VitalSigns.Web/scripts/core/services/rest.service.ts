@@ -8,8 +8,8 @@ export class RESTService {
   // serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
    // serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
     //serverUrl ='http://usdopvsdev11svc.jnittech.com';
-    //serverUrl = 'http://localhost:1234';
-    serverUrl = 'http://localhost:5000';
+   serverUrl = 'http://localhost:1234';
+   // serverUrl = 'http://localhost:5000';
     constructor(protected http: Http) { }
 
     get(path: string) {
@@ -49,12 +49,19 @@ export class RESTService {
 
     }
 
-    delete(path: string, callback?: () => void) {
+    deleteAndCallback(path: string, callback?: () => void) {
 
         let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
         
         this.http.delete(serviceUrl)
             .subscribe(res => { callback(); });
+    }
+
+    delete(path: string) {
+        let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
+        return this.http.delete(serviceUrl)
+            .map(res => res.json())
+            .catch(this.handleError);
     }
 
     private handleError(error: Response) {
