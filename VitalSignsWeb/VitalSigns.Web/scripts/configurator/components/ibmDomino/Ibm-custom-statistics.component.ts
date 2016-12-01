@@ -5,11 +5,7 @@ import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 
 import {AppNavigator} from '../../../navigation/app.navigator.component';
-import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
-import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
-import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
-import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
+import {AppComponentService} from '../../../core/services';
 
 
 @Component({
@@ -27,8 +23,8 @@ export class CustomStatistics extends GridBase implements OnInit {
     checkedDevices: any;
     currentDeviceType: string = "Domino";
 
-    constructor(service: RESTService) {
-        super(service);    
+    constructor(service: RESTService, appComponentService: AppComponentService) {
+        super(service, appComponentService);    
         this.formName = "Domino Custom Statistics";
         this.service.get('/Configurator/get_domino_servers')
             .subscribe(
