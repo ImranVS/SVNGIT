@@ -2,7 +2,7 @@
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-
+import {AppComponentService} from '../../../core/services';
 import {RESTService} from '../../../core/services';
 
 @Component({
@@ -22,11 +22,12 @@ export class PreferencesForm implements OnInit {
     errorMessage: string;
     profileEmail: string;
     licenceKey: string;   
+    appComponentService: AppComponentService;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute, appComponentService: AppComponentService) {
 
         this.preferencesForm = this.formBuilder.group({
             'company_name': ['', Validators.required],
@@ -36,6 +37,7 @@ export class PreferencesForm implements OnInit {
             'dashboardonly_exec_summary_buttons': [false],
             'bing_key': ['']
         });
+        this.appComponentService = appComponentService;
     }
 
     ngOnInit() {
@@ -45,15 +47,27 @@ export class PreferencesForm implements OnInit {
                 console.log(response.data);
                 this.preferencesForm.setValue(response.data);
             },
-            (error) => this.errorMessage = <any>error
-
+            (error) => {
+                this.errorMessage = <any>error
+                this.appComponentService.showErrorMessage(this.errorMessage);
+            }
             );
     }
 
     onSubmit(nameValue: any): void {
         this.dataProvider.put('/configurator/save_preferences', nameValue)
             .subscribe(
-            response => {});
+            response => {
+              
+                if (response.status == "Success") {
+                        
+                        this.appComponentService.showSuccessMessage(response.message);
+
+                    } else {
+
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+            }); 
     }
 
     saveLicence(dialog: wijmo.input.Popup) {
