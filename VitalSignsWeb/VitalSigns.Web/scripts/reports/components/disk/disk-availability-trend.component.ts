@@ -19,6 +19,15 @@ export class DiskAvailabilityTrendReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
+    currentHideDTControl: boolean = true;
+    currentHideSingleDTControl: boolean = false;
+    currentHideServerControl: boolean = true;
+    currentHideIntervalControl: boolean = true;
+    currentHideMailServerControl: boolean = true;
+    currentHideAllServerControl: boolean = false;
+    currentWidgetName: string = `diskTrendChart`;
+    currentWidgetURL: string;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);
@@ -32,14 +41,15 @@ export class DiskAvailabilityTrendReport extends WidgetController {
             (
             data => this.contextMenuSiteMap = data,
             error => console.log(error)
-            );
+        );
+        this.currentWidgetURL = `/reports/disk_availability_trend`;
         this.widgets = [
             {
                 id: 'diskTrendChart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/disk_availability_trend?year=2016`,
+                    url: this.currentWidgetURL,
                     chart: {
                         chart: {
                             renderTo: 'diskTrendChart',

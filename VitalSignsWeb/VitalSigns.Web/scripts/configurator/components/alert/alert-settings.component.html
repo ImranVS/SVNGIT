@@ -3,8 +3,8 @@
         <div class="widgetContent">
             <form [formGroup]="alertSettings" (ngSubmit)="onSubmit(alertSettings.value)">
                 <div class="row">
-                    <div class="widgetTitle col-xs-12 col-md-6 col-sm-12 col-lg-12">Alerting Options</div>
-                    <div class="col-xs-12 col-md-6 col-sm-12 col-lg-4">
+                    <div class="widgetTitle col-xs-12 col-md-12 col-sm-12 col-lg-12">Alerting Options</div>
+                    <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
                         <div class="panel panel-default">
                             <div class="panel-heading">Advanced Alerting</div>
                             <div class="panel-body">
@@ -20,22 +20,23 @@
                                 <div class="row" *ngIf="persistentChecked">
                                     &nbsp;
                                 </div>
-                                <div class="form-group" *ngIf="persistentChecked">
-                                    <label for="alert_interval" class="control-label col-sm-5">Alert Interval:</label>
-                                    <div class="form-group col-sm-7">
-                                        <input type="text" class="form-control" id="alert_interval" name="alert_interval" formControlName="alert_interval" />
+                                <div class="row" *ngIf="persistentChecked">
+                                    <label for="alert_interval" class="control-label col-sm-4">Alert Interval</label>
+                                    <div class="form-group col-sm-5">
+                                        <input type="text" class="form-control" id="alert_interval" name="alert_interval" formControlName="alert_interval"
+                                               onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                     </div>
                                 </div>
-                                <div class="form-group" *ngIf="persistentChecked">
-                                    <label for="alert_duration" class="control-label col-sm-5">Alert Duration:</label>
-                                    <div class="form-group col-sm-7">
-                                        <input type="text" class="form-control" id="alert_duration" name="alert_duration" formControlName="alert_duration" />
+                                <div class="row" *ngIf="persistentChecked">
+                                    <label for="alert_duration" class="control-label col-sm-4">Alert Duration</label>
+                                    <div class="form-group col-sm-5">
+                                        <input type="text" class="form-control" id="alert_duration" name="alert_duration" formControlName="alert_duration"
+                                               onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                     </div>
                                 </div>
-                            </div>
                         </div>
-                    </div>
-
+                        </div>
+                        </div>
                     <!--
                         <div class="col-xs-12 col-md-6 col-sm-12 col-lg-6">
                             <div class="panel panel-default">
@@ -113,7 +114,7 @@
                         -->
 
 
-                    <div class="col-xs-12 col-md-6 col-sm-12 col-lg-4">
+                    <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
                         <div class="panel panel-default">
                             <div class="panel-heading">Alert Limits</div>
                             <div class="panel-body">
@@ -129,23 +130,25 @@
                                 <div class="row" *ngIf="limitsChecked">
                                     &nbsp;
                                 </div>
-                                <div class="form-group" *ngIf="limitsChecked">
-                                    <label for="total_maximum_alerts_per_definition" class="control-label col-sm-9">Total Maximum Alerts per Definition:</label>
+                                <div class="row" *ngIf="limitsChecked">
+                                    <label for="total_maximum_alerts_per_definition" class="control-label col-sm-9">Total Maximum Alerts per Definition</label>
                                     <div class="form-group col-sm-3">
-                                        <input type="text" class="form-control" id="total_maximum_alerts_per_definition" name="total_maximum_alerts_per_definition" formControlName="total_maximum_alerts_per_definition" />
+                                        <input type="text" class="form-control" id="total_maximum_alerts_per_definition" name="total_maximum_alerts_per_definition" 
+                                               formControlName="total_maximum_alerts_per_definition" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                     </div>
                                 </div>
-                                <div class="form-group" *ngIf="limitsChecked">
-                                    <label for="total_maximum_alerts_per_day" class="control-label col-sm-9">Total Maximum Alerts per Day:</label>
+                                <div class="row" *ngIf="limitsChecked">
+                                    <label for="total_maximum_alerts_per_day" class="control-label col-sm-9">Total Maximum Alerts per Day</label>
                                     <div class="form-group col-sm-3">
-                                        <input type="text" class="form-control" id="total_maximum_alerts_per_day" name="total_maximum_alerts_per_day" formControlName="total_maximum_alerts_per_day" />
+                                        <input type="text" class="form-control" id="total_maximum_alerts_per_day" name="total_maximum_alerts_per_day" 
+                                               formControlName="total_maximum_alerts_per_day" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-xs-12 col-md-6 col-sm-12 col-lg-4">
+                    <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
                         <div class="panel panel-default">
                             <div class="panel-heading">SNMP Listener</div>
                             <div class="panel-body">
@@ -158,8 +161,8 @@
                                 <div class="row">
                                     &nbsp;
                                 </div>
-                                <div class="form-group">
-                                    <label class="control-label col-sm-4" for="host_name">Host Name:</label>
+                                <div class="row">
+                                    <label class="control-label col-sm-4" for="host_name">Host Name</label>
                                     <div class="form-group col-sm-8">
                                         <input type="text" class="form-control" id="host_name" name="host_name" formControlName="host_name" />
                                     </div>
@@ -169,64 +172,64 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="row">
-                    <div class="widgetTitle col-xs-12 col-md-6 col-sm-12 col-lg-12">E-mail Alerting</div>
-                    <div class="col-xs-12 col-md-6 col-sm-12 col-lg-12">
+                    <div class="widgetTitle col-xs-12 col-md-12 col-sm-12 col-lg-12">E-mail Alerting</div>
+                    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
                         <div class="panel panel-default">
                             <div class="panel-heading">Primary SMTP Server</div>
                             <div class="panel-body">
 
                                 <div class="row">
-                                    <div class="form-group col-sm-4">
-                                        <label for="primary_host_name" class="control-label col-sm-4">Host Name:</label>
+                                    <div class="form-group col-sm-12 col-lg-4">
+                                        <label for="primary_host_name" class="control-label col-sm-4">Host Name</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="primary_host_name" required name="primary_host_name" formControlName="primary_host_name" />
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-3">
-                                        <label for="primary_user_id" class="control-label col-sm-4">User ID:</label>
+                                    <div class="form-group col-sm-12 col-lg-3">
+                                        <label for="primary_user_id" class="control-label col-sm-4">User ID</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="primary_user_id" required name="primary_user_id" formControlName="primary_user_id" />
                                         </div>
                                     </div>
-                                    <div class="funkyradio col-sm-3">
+                                    <div class="funkyradio col-sm-12 col-lg-3">
                                         <div class="funkyradio-default">
                                             <input type="checkbox" id="primary_auth" formControlName="primary_auth" name="primary_auth" />
                                             <label for="primary_auth">Requires Authentication</label>
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-1">
+                                    <div class="form-group col-sm-12 col-lg-1">
                                         <button type="submit" class="btn btn-primary" style="display: none">Test Connection</button>
                                     </div>
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group col-sm-4">
-                                        <label for="primary_from" class="control-label col-sm-4">From:</label>
+                                    <div class="form-group col-sm-12 col-lg-4">
+                                        <label for="primary_from" class="control-label col-sm-4">From</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="primary_from" required name="primary_from" formControlName="primary_from" />
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-3">
-                                        <label for="primary_pwd" class="control-label col-sm-4">Password:</label>
+                                    <div class="form-group col-sm-12 col-lg-3">
+                                        <label for="primary_pwd" class="control-label col-sm-4">Password</label>
                                         <div class="col-sm-8">
                                             <input type="password" class="form-control" id="primary_pwd" name="primary_pwd" formControlName="primary_pwd" />
                                         </div>
                                     </div>
-                                    <div class="funkyradio col-sm-3">
+                                    <div class="funkyradio col-sm-12 col-lg-3">
                                         <div class="funkyradio-default">
                                             <input type="checkbox" id="primary_ssl" formControlName="primary_ssl" name="primary_ssl" />
                                             <label for="primary_ssl">Requires SSL</label>
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-1">
+                                    <div class="form-group col-sm-12 col-lg-1">
                                         <button type="submit" class="btn btn-primary" style="display: none">Test Message</button>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="form-group col-sm-4">
-                                        <label for="primary_port" class="control-label col-sm-4">Port:</label>
+                                    <div class="form-group col-sm-12 col-lg-4">
+                                        <label for="primary_port" class="control-label col-sm-4">Port</label>
                                         <div class="col-sm-4">
                                             <input type="text" class="form-control" id="primary_port" name="primary_port" formControlName="primary_port"
                                                    onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
@@ -237,59 +240,59 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-md-6 col-sm-12 col-lg-12">
+                    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
                         <div class="panel panel-default">
                             <div class="panel-heading">Secondary SMTP Server</div>
                             <div class="panel-body">
                                 <div class="row">
-                                    <div class="form-group col-sm-4">
-                                        <label for="secondary_host_name" class="control-label col-sm-4">Host Name:</label>
+                                    <div class="form-group col-sm-12 col-lg-4">
+                                        <label for="secondary_host_name" class="control-label col-sm-4">Host Name</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="secondary_host_name" name="secondary_host_name" formControlName="secondary_host_name" />
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-3">
-                                        <label for="secondary_user_id" class="control-label col-sm-4">User ID:</label>
+                                    <div class="form-group col-sm-12 col-lg-3">
+                                        <label for="secondary_user_id" class="control-label col-sm-4">User ID</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="secondary_user_id" name="secondary_user_id" formControlName="secondary_user_id" />
                                         </div>
                                     </div>
-                                    <div class="funkyradio col-sm-3">
+                                    <div class="funkyradio col-sm-12 col-lg-3">
                                         <div class="funkyradio-default">
                                             <input type="checkbox" id="secondary_auth" formControlName="secondary_auth" name="secondary_auth" />
                                             <label for="secondary_auth">Requires Authentication</label>
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-1">
+                                    <div class="form-group col-sm-12 col-lg-1">
                                         <button type="submit" class="btn btn-primary" style="display: none">Test Connection</button>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="form-group col-sm-4">
-                                        <label for="secondary_from" class="control-label col-sm-4">From:</label>
+                                    <div class="form-group col-sm-12 col-lg-4">
+                                        <label for="secondary_from" class="control-label col-sm-4">From</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="secondary_from" name="secondary_from" formControlName="secondary_from" />
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-3">
-                                        <label for="secondary_pwd" class="control-label col-sm-4">Password:</label>
+                                    <div class="form-group col-sm-12 col-lg-3">
+                                        <label for="secondary_pwd" class="control-label col-sm-4">Password</label>
                                         <div class="col-sm-8">
                                             <input type="password" class="form-control" id="secondary_pwd" name="secondary_pwd" formControlName="secondary_pwd" />
                                         </div>
                                     </div>
-                                    <div class="funkyradio col-sm-3">
+                                    <div class="funkyradio col-sm-12 col-lg-3">
                                         <div class="funkyradio-default">
                                             <input type="checkbox" id="secondary_ssl" formControlName="secondary_ssl" name="secondary_ssl" />
                                             <label for="secondary_ssl">Requires SSL</label>
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-1">
+                                    <div class="form-group col-sm-12 col-lg-1">
                                         <button type="submit" class="btn btn-primary" style="display: none">Test Message</button>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="form-group col-sm-4">
-                                        <label for="secondary_port" class="control-label col-sm-4">Port:</label>
+                                    <div class="form-group col-sm-12 col-lg-4">
+                                        <label for="secondary_port" class="control-label col-sm-4">Port</label>
                                         <div class="col-sm-4">
                                             <input type="text" class="form-control" id="secondary_port" name="secondary_port" formControlName="secondary_port" 
                                                    onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
@@ -302,8 +305,8 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="widgetTitle col-xs-12 col-md-6 col-sm-12 col-lg-12">SMS/Text Alerting</div>
-                    <div class="col-xs-12 col-md-6 col-sm-12 col-lg-12">
+                    <div class="widgetTitle col-xs-12 col-md-12 col-sm-12 col-lg-12">SMS/Text Alerting</div>
+                    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <div class="form-group">
@@ -312,15 +315,15 @@
                                     </div>
                                 </div>
                                 <div class="form-inline col-sm-4">
-                                    <label for="sms_account_sid" class="control-label">Account Sid:</label>
+                                    <label for="sms_account_sid" class="control-label">Account Sid</label>
                                     <input type="text" class="form-control" id="sms_account_sid" name="sms_account_sid" formControlName="sms_account_sid" />
                                 </div>
                                 <div class="form-inline col-sm-4">
-                                    <label for="sms_auth_token" class="control-label">Auth Token:</label>
+                                    <label for="sms_auth_token" class="control-label">Auth Token</label>
                                     <input type="text" class="form-control" id="sms_auth_token" name="sms_auth_token" formControlName="sms_auth_token" />
                                 </div>
                                 <div class="form-inline col-sm-4">
-                                    <label for="sms_from" class="control-label">Phone Number From:</label>
+                                    <label for="sms_from" class="control-label">Phone Number From</label>
                                     <input type="text" class="form-control" id="sms_from" name="sms_from" formControlName="sms_from" />
                                 </div>
                             </div>
@@ -329,8 +332,8 @@
                 </div>
 
                 <div class="row">
-                    <div class="widgetTitle col-xs-12 col-md-6 col-sm-12 col-lg-12">Recurring Alert Options</div>
-                    <div class="col-xs-12 col-md-6 col-sm-12 col-lg-12">
+                    <div class="widgetTitle col-xs-12 col-md-12 col-sm-12 col-lg-12">Recurring Alert Options</div>
+                    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <div class="row">
@@ -339,14 +342,14 @@
                                             Enable the flag 'Alert about recurrences only' when you want to be notified of events that happen on a frequent basis and are not considered critical. The alerting service will issue a notification when the number of recurrences of an event reaches the value specified in the 'Number of recurrences field' within the last hour of the service run time.
                                         </div>
                                     </div>
-                                    <div class="funkyradio col-sm-3">
+                                    <div class="funkyradio col-sm-12 col-lg-3">
                                         <div class="funkyradio-default">
                                             <input type="checkbox" id="alert_about_recurrences_only" formControlName="alert_about_recurrences_only" name="alert_about_recurrences_only" (change)="isChecked($event.target.checked)" />
                                             <label for="alert_about_recurrences_only">Alert about recurrences only</label>
                                         </div>
                                     </div>
-                                    <div class="form-inline col-sm-8" *ngIf="recurrencesChecked">
-                                        <label for="number_of_recurrences">Number of recurrences (per hour):</label>
+                                    <div class="form-inline col-sm-12 col-lg-8" *ngIf="recurrencesChecked">
+                                        <label for="number_of_recurrences">Number of recurrences (per hour)</label>
                                         <input type="text" class="form-control" id="number_of_recurrences" name="number_of_recurrences" formControlName="number_of_recurrences"
                                                onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                     </div>
@@ -355,7 +358,7 @@
                                     &nbsp;
                                 </div>
                                 <div class="row" *ngIf="recurrencesChecked">
-                                    <div class="form-group col-sm-8">
+                                    <div class="form-group col-sm-12 col-lg-8">
                                         <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" #flex>
                                             <wj-flex-grid-column [header]="'Alert about Event Recurrences'" [binding]="'NotificationOnRepeat'" [width]="280"></wj-flex-grid-column>
                                             <wj-flex-grid-column [header]="'Event Type'" [binding]="'EventType'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>

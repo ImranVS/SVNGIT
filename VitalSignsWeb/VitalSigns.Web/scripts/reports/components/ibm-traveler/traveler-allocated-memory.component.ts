@@ -23,6 +23,15 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
     widgets: WidgetContract[];
     param: string;
 
+    currentHideDTControl: boolean = false;
+    currentHideSingleDTControl: boolean = true;
+    currentHideServerControl: boolean = false;
+    currentHideIntervalControl: boolean = true;
+    currentHideMailServerControl: boolean = true;
+    currentHideAllServerControl: boolean = true;
+    currentWidgetName: string = `travelerMemoryChart`;
+    currentWidgetURL: string;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
 
@@ -41,6 +50,7 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
             error => console.log(error)
         );
 
+        this.currentWidgetURL = `/services/summarystats?statName=Traveler.Memory.${this.param}.Current&seriesTitle=DeviceName`;
         
         this.widgets = [
             {

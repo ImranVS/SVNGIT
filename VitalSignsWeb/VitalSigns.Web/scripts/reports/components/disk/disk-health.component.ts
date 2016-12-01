@@ -19,6 +19,15 @@ export class DiskHealthReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
+    currentHideDTControl: boolean = true;
+    currentHideSingleDTControl: boolean = true;
+    currentHideServerControl: boolean = true;
+    currentHideIntervalControl: boolean = true;
+    currentHideMailServerControl: boolean = true;
+    currentHideAllServerControl: boolean = false;
+    currentWidgetName: string = `diskHealthChart`;
+    currentWidgetURL: string;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);
@@ -32,14 +41,15 @@ export class DiskHealthReport extends WidgetController {
             (
             data => this.contextMenuSiteMap = data,
             error => console.log(error)
-            );
+        );
+        this.currentWidgetURL = `/services/disk_space`;
         this.widgets = [
             {
                 id: 'diskHealthChart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: '/services/disk_space',
+                    url: this.currentWidgetURL,
                     chart: {
                         chart: {
                             renderTo: 'diskHealthChart',

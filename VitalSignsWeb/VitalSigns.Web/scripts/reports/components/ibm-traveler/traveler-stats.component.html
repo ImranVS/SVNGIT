@@ -11,7 +11,10 @@
         </ul>
     </div>
     <div class="hidden-xs hidden-sm col-lg-9" style="padding-left: 30px">
-        <traveler-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideMailServerControl)]="currentHideAllServerControl" [(hideIntervalControl)]="currentHideIntervalControl"></traveler-filter>
+        <traveler-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" 
+                         [(hideMailServerControl)]="currentHideMailServerControl" [(hideIntervalControl)]="currentHideIntervalControl" 
+                         [(hideDatePanel)]="currentHideDTControl" [(hideAllServerControl)]="currentHideAllServerControl" 
+                         [(hideSingleDatePanel)]="currentHideSingleDTControl"></traveler-filter>
     </div>
 
         <div id="zeusContent" class="col-lg-9">

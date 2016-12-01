@@ -1,5 +1,17 @@
 ﻿<div class="widgetWrapper">
     <div class="widgetContent">
+        <div id="dtStart" style="display:inline-block">
+            <span class="headerBlock">Start Date:</span> 
+            <wj-input-date format="yyyy-MM-dd" [(value)]="startDate" style="width:125px;"></wj-input-date>
+        </div>
+        <div id="dtEnd" style="display:inline-block">
+            <span class="headerBlock">End Date:</span> 
+            <wj-input-date format="yyyy-MM-dd" [(value)]="endDate" style="width:125px;"></wj-input-date>
+        </div>
+        <div id="dtDate" style="display:inline-block">
+            <span class="headerBlock">Date:</span> 
+            <wj-input-date format="yyyy-MM-dd" [(value)]="currentDate" style="width:125px;"></wj-input-date>
+        </div>
         <div id="selInterval" style="display:inline-block">
             <span class="headerBlock">Interval:</span>
             <wj-combo-box name="interval_selector" [itemsSource]="intervals" #interval_selector>
@@ -10,13 +22,18 @@
             <wj-combo-box name="server_selector" [itemsSource]="servers" displayMemberPath="device_name" selectedValuePath="device_id" #server_selector>
             </wj-combo-box>
         </div>
-        <div id="dtAllServer" style="display:inline-block">
+        <div id="dtMailServer" style="display:inline-block">
             <span class="headerBlock">Mail Server:</span>
-            <wj-combo-box name="mail_server_selector" [itemsSource]="mail_servers" displayMemberPath="device_name" selectedValuePath="device_name" #mail_server_selector>
+            <wj-combo-box name="mail_server_selector" [itemsSource]="mail_servers" displayMemberPath="name" selectedValuePath="name" #mail_server_selector>
+            </wj-combo-box>
+        </div>
+        <div id="dtAllServer" style="display:inline-block">
+            <span class="headerBlock">Server:</span>
+            <wj-combo-box name="all_server_selector" [itemsSource]="all_servers" displayMemberPath="name" selectedValuePath="id" #all_server_selector>
             </wj-combo-box>
         </div>
         <div id="dtFilter" style="display:inline-block">
-            <button class="btn btn-success" (click)="applyFilters(server_selector,interval_selector,mail_server_selector)">Filter</button>
+            <button class="btn btn-success" (click)="applyFilters(server_selector,interval_selector,mail_server_selector,all_server_selector)">Filter</button>
         </div>
     </div>
 </div>

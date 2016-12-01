@@ -25,9 +25,12 @@ export class TravelerStatsReport extends WidgetController {
     paramvalue: string;
     selectedInterval: any;
 
+    currentHideDTControl: boolean = true;
+    currentHideSingleDTControl: boolean = true;
     currentHideServerControl: boolean = false;
     currentHideIntervalControl: boolean = false;
-    currentHideAllServerControl: boolean = false;
+    currentHideMailServerControl: boolean = false;
+    currentHideAllServerControl: boolean = true;
     currentWidgetName: string = `travelerStatsChart`;
     currentWidgetURL: string;
 
@@ -50,11 +53,11 @@ export class TravelerStatsReport extends WidgetController {
         );
         if (this.paramtype == "interval") {
             this.currentHideIntervalControl = false;
-            this.currentHideAllServerControl = true;
+            this.currentHideMailServerControl = true;
         }
         else {
             this.currentHideIntervalControl = true;
-            this.currentHideAllServerControl = false;
+            this.currentHideMailServerControl = false;
         }
         this.currentWidgetURL = `/reports/traveler_stats?paramtype=${this.paramtype}`;
         this.widgets = [
@@ -64,7 +67,7 @@ export class TravelerStatsReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: this.currentWidgetURL,
-                    //dateformat: 'time',
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'travelerStatsChart',

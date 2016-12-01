@@ -16,6 +16,7 @@ declare var bootstrapNavigator: any;
 @Component({
     templateUrl: '/app/configurator/components/alert/alerts-allalert-history.component.html',
     providers: [
+        WidgetService,
         HttpModule,
         RESTService
     ]
@@ -25,8 +26,9 @@ export class AlertHistory implements OnInit {
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+    filterDate: Date;
 
-    constructor(private service: RESTService, private route: ActivatedRoute) { }
+    constructor(private service: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -42,7 +44,9 @@ export class AlertHistory implements OnInit {
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
         });
-        this.service.get('/configurator/viewalerts')
+        var date = new Date();
+        var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
+        this.service.get('/configurator/viewalerts?statdate=' + displayDate)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
@@ -50,6 +54,18 @@ export class AlertHistory implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
+    }
+
+    filterAlerts() {
+        this.service.get('/configurator/viewalerts?statdate=' + this.filterDate)
+            .subscribe(
+            (response) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data.pageSize = 10;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+
     }
 }
 
