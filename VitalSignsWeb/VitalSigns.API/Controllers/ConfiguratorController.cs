@@ -97,14 +97,12 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
                                                                 new NameValue { Name = "Bing Key", Value = userpreference.BingKey }
                                                              };
-
-
                 var result = Common.SaveNameValues(preferencesSettings);
-                Response = Common.CreateResponse(result,"OK", " Settings were successully updated.");
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), " Settings were successully updated.");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save preferences falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -116,11 +114,11 @@ namespace VitalSigns.API.Controllers
             {
                 var preferencesSettings = new List<NameValue> { new NameValue { Name = "Licence Key", Value = licencekey}};
                 var result = Common.SaveNameValues(preferencesSettings);
-                Response = Common.CreateResponse(true);
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(),"Licence Key Saved Successfully Saved");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save preferences falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Licence Key falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -868,131 +866,71 @@ namespace VitalSigns.API.Controllers
             try
             {
                 maintainUsersRepository = new Repository<Users>(ConnectionString);
-
-
+                Expression<Func<Users, bool>> filterExpression;
                 if (string.IsNullOrEmpty(maintainuser.Id))
                 {
-                    Users maintainUsers = new Users { LoginName = maintainuser.LoginName, FullName = maintainuser.FullName, Email = maintainuser.Email, Status = maintainuser.Status, SuperAdmin = maintainuser.SuperAdmin, ConfiguratorAccess = maintainuser.ConfiguratorAccess, ConsoleCommandAccess = maintainuser.ConsoleCommandAccess };
-                    maintainUsersRepository.Insert(maintainUsers);
-                    Response = Common.CreateResponse(true, "OK", "Maintain Users inserted successfully");
+                    filterExpression = (p => p.LoginName == maintainuser.LoginName);
+
                 }
                 else
                 {
-                    FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(p => p.Id == maintainuser.Id);
-                    var updateDefination = maintainUsersRepository.Updater.Set(p => p.LoginName, maintainuser.LoginName)
-                                                             .Set(p => p.FullName, maintainuser.FullName)
-                                                             .Set(p => p.Email, maintainuser.Email)
-                                                             .Set(p => p.Status, maintainuser.Status)
-                                                             .Set(p => p.SuperAdmin, maintainuser.SuperAdmin)
-                                                             .Set(p => p.ConfiguratorAccess, maintainuser.ConfiguratorAccess)
-                                                             .Set(p => p.ConsoleCommandAccess, maintainuser.ConsoleCommandAccess);
+                    filterExpression = (p => p.LoginName == maintainuser.LoginName && p.Id != maintainuser.Id);
 
-                    var result = maintainUsersRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Maintain Users updated successfully");
+                }
+                var existsData = maintainUsersRepository.Find(filterExpression).Select(x => x.LoginName).FirstOrDefault();
+                if (string.IsNullOrEmpty(existsData))
+                {
+                    if (string.IsNullOrEmpty(maintainuser.Id))
+                    {
+                        Users maintainUsers = new Users { LoginName = maintainuser.LoginName, FullName = maintainuser.FullName, Email = maintainuser.Email, Status = maintainuser.Status, SuperAdmin = maintainuser.SuperAdmin, ConfiguratorAccess = maintainuser.ConfiguratorAccess, ConsoleCommandAccess = maintainuser.ConsoleCommandAccess };
+                        string id = maintainUsersRepository.Insert(maintainUsers);
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
+                    }
+                    else
+                    {
+                        FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(p => p.Id == maintainuser.Id);
+                        var updateDefination = maintainUsersRepository.Updater.Set(p => p.LoginName, maintainuser.LoginName)
+                                                                 .Set(p => p.FullName, maintainuser.FullName)
+                                                                 .Set(p => p.Email, maintainuser.Email)
+                                                                 .Set(p => p.Status, maintainuser.Status)
+                                                                 .Set(p => p.SuperAdmin, maintainuser.SuperAdmin)
+                                                                 .Set(p => p.ConfiguratorAccess, maintainuser.ConfiguratorAccess)
+                                                                 .Set(p => p.ConsoleCommandAccess, maintainuser.ConsoleCommandAccess);
+
+                        var result = maintainUsersRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Maintain Users updated successfully");
+                    }
+                }
+                else
+                {
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + maintainuser.LoginName  + "already exists. Enter another one.");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Maintain Users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Maintain Users falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
         }
 
         [HttpDelete("delete_maintain_users/{id}")]
-        public void DeleteMaintainUsers(string id)
-        {
-            maintainUsersRepository = new Repository<Users>(ConnectionString);
-            Expression<Func<Users, bool>> expression = (p => p.Id == id);
-            maintainUsersRepository.Delete(expression);
-        }
-        #endregion
-
-        #region Traveller Data Store
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <author>Sowmya</author>
-        /// <returns></returns>
-
-        [HttpGet("get_travelerdatastore")]
-        public APIResponse GetAllTravelerDataStore()
+        public APIResponse DeleteMaintainUsers(string id)
         {
             try
             {
-                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
-                var travellerData = travelerdatastoreRepository.All().Select(x => new TravelerDataStoresModel
-                {
-                    Id = x.Id,
-                    TravelerServicePoolName = x.TravelerServicePoolName,
-                    DeviceName = x.DeviceName,
-                    DataStore = x.DataStore,
-                    DatabaseName = x.DatabaseName,
-                    Port = x.Port,
-                    UserName = x.UserName,
-                    Password = x.Password,
-                    IntegratedSecurity = x.IntegratedSecurity,
-                    TestScanServer = x.TestScanServer
-                    //UsedByServers = x.UsedByServers
-
-                }).ToList();
-                statusRepository = new Repository<Status>(ConnectionString);
-                var travelerServers = statusRepository.Collection.AsQueryable().Where(x => x.SecondaryRole.Contains("Traveler")).Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
-                Response = Common.CreateResponse(new { travellerData= travellerData, travelerServers= travelerServers });
-            }
-
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Get traveler data falied .\n Error Message :" + exception.Message);
-            }
-            return Response;
-        }
-
-        [HttpPut("save_traveler_data_store")]
-        public APIResponse UpdateTravelerDataStore([FromBody]TravelerDataStoresModel travelerdatas)
-        {
-            try
-            {
-                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
-                if (string.IsNullOrEmpty(travelerdatas.Id))
-                {
-                    TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer };//, UsedByServers = travelerdatas.UsedByServers };
-                   string id= travelerdatastoreRepository.Insert(travelerds);
-                    Response = Common.CreateResponse(id, "OK", "traveler data inserted successfully");
-                }
-                else
-                {
-                    FilterDefinition<TravelerDTS> filterDefination = Builders<TravelerDTS>.Filter.Where(p => p.Id == travelerdatas.Id);
-                    var updateDefination = travelerdatastoreRepository.Updater.Set(p => p.TravelerServicePoolName, travelerdatas.TravelerServicePoolName)
-                                                             .Set(p => p.DeviceName, travelerdatas.DeviceName)
-                                                             .Set(p => p.DataStore, travelerdatas.DataStore)
-                                                             .Set(p => p.DatabaseName, travelerdatas.DatabaseName)
-                                                             .Set(p => p.Port, travelerdatas.Port)
-                                                             .Set(p => p.UserName, travelerdatas.UserName)
-                                                             .Set(p => p.Password, travelerdatas.Password)
-                                                             .Set(p => p.IntegratedSecurity, travelerdatas.IntegratedSecurity)
-                                                             .Set(p => p.TestScanServer, travelerdatas.TestScanServer);
-                                                             //.Set(p => p.UsedByServers, travelerdatas.UsedByServers);
-                    var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "traveler data updated successfully");
-                }
+                maintainUsersRepository = new Repository<Users>(ConnectionString);
+                Expression<Func<Users, bool>> expression = (p => p.Id == id);
+                maintainUsersRepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(),"Maintain User Deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save traveler data falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Maintain Users falied .\n Error Message :" + exception.Message);
             }
-
             return Response;
         }
-
-        [HttpDelete("delete_traveler_data_store/{id}")]
-        public void DeleteTravelerDataStore(string id)
-        {
-            travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
-            Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
-            travelerdatastoreRepository.Delete(expression);
-        }
-        #endregion
+    #endregion
 
         #region IBM Domino Settings
         /// <summary>
@@ -2448,9 +2386,8 @@ namespace VitalSigns.API.Controllers
                         ConsoleCommand = customstat.ConsoleCommand
                     
                     };
-
                     string id = serverOtherRepository.Insert(customstatistic);
-                    Response = Common.CreateResponse(id, "OK", "custom statistics inserted successfully");
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "custom statistics inserted successfully");
                 }
                 else
                 {
@@ -2462,31 +2399,31 @@ namespace VitalSigns.API.Controllers
                                                               .Set(p => p.GreaterThanOrLessThan, customstat.GreaterThanOrLessThan)
                                                                .Set(p => p.ConsoleCommand, customstat.ConsoleCommand);                                                            
                     var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "custom statistics updated successfully");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "custom statistics updated successfully");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save custom statistics falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save custom statistics falied .\n Error Message :" + exception.Message);
             }
-
             return Response;
-
         }
 
         [HttpDelete("delete_custom_statistics/{Id}")]
-        public void DeleteCustomStatistics(string Id)
+        public APIResponse DeleteCustomStatistics(string Id)
         {
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Custom Statistics Deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete custom statistics falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete custom statistics falied .\n Error Message :" + exception.Message);
             }
+            return Response;
         }
 
         #endregion
@@ -2633,8 +2570,6 @@ namespace VitalSigns.API.Controllers
         }
 
         #endregion
-
-
 
         #region Notes Databases
 
@@ -2823,8 +2758,8 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(servertask.Id))
                 {
                     DominoServerTasks servertaskDef = new DominoServerTasks { TaskName = servertask.TaskName, LoadString = servertask.LoadString, ConsoleString = servertask.ConsoleString, FreezeDetect = servertask.FreezeDetect, IdleString = servertask.IdleString, MaxBusyTime = servertask.MaxBusyTime, RetryCount = servertask.RetryCount };
-                    dominoservertasksRepository.Insert(servertaskDef);
-                    Response = Common.CreateResponse(true, "OK", "Maintain Users inserted successfully");
+                   string id = dominoservertasksRepository.Insert(servertaskDef);
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
                 }
                 else
                 {
@@ -2838,23 +2773,32 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.RetryCount, servertask.RetryCount);
 
                     var result = dominoservertasksRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Domino server task definition updated successfully");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Domino server task definition updated successfully");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Domino Server Task falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Domino Server Task falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
         }
 
         [HttpDelete("delete_server_task_definition/{id}")]
-        public void DeleteServerTaskDefinition(string id)
+        public APIResponse DeleteServerTaskDefinition(string id)
         {
-            dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
-            Expression<Func<DominoServerTasks, bool>> expression = (p => p.Id == id);
-            dominoservertasksRepository.Delete(expression);
+            try
+            {
+                dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
+                Expression<Func<DominoServerTasks, bool>> expression = (p => p.Id == id);
+                dominoservertasksRepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Task Deleted successfully");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Task falied .\n Error Message :" + exception.Message);
+            }     
+            return Response;
         }
 
         #endregion
@@ -3064,12 +3008,106 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+        #region Traveller Data Store
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author>Sowmya</author>
+        /// <returns></returns>
+
+        [HttpGet("get_travelerdatastore")]
+        public APIResponse GetAllTravelerDataStore()
+        {
+            try
+            {
+                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
+                var travellerData = travelerdatastoreRepository.All().Select(x => new TravelerDataStoresModel
+                {
+                    Id = x.Id,
+                    TravelerServicePoolName = x.TravelerServicePoolName,
+                    DeviceName = x.DeviceName,
+                    DataStore = x.DataStore,
+                    DatabaseName = x.DatabaseName,
+                    Port = x.Port,
+                    UserName = x.UserName,
+                    Password = x.Password,
+                    IntegratedSecurity = x.IntegratedSecurity,
+                    TestScanServer = x.TestScanServer
+                    //UsedByServers = x.UsedByServers
+
+                }).ToList();
+                statusRepository = new Repository<Status>(ConnectionString);
+                var travelerServers = statusRepository.Collection.AsQueryable().Where(x => x.SecondaryRole.Contains("Traveler")).Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
+                Response = Common.CreateResponse(new { travellerData = travellerData, travelerServers = travelerServers });
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Get traveler data falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_traveler_data_store")]
+        public APIResponse UpdateTravelerDataStore([FromBody]TravelerDataStoresModel travelerdatas)
+        {
+            try
+            {
+                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
+                if (string.IsNullOrEmpty(travelerdatas.Id))
+                {
+                    TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer };//, UsedByServers = travelerdatas.UsedByServers };
+                    string id = travelerdatastoreRepository.Insert(travelerds);
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "traveler data inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<TravelerDTS> filterDefination = Builders<TravelerDTS>.Filter.Where(p => p.Id == travelerdatas.Id);
+                    var updateDefination = travelerdatastoreRepository.Updater.Set(p => p.TravelerServicePoolName, travelerdatas.TravelerServicePoolName)
+                                                             .Set(p => p.DeviceName, travelerdatas.DeviceName)
+                                                             .Set(p => p.DataStore, travelerdatas.DataStore)
+                                                             .Set(p => p.DatabaseName, travelerdatas.DatabaseName)
+                                                             .Set(p => p.Port, travelerdatas.Port)
+                                                             .Set(p => p.UserName, travelerdatas.UserName)
+                                                             .Set(p => p.Password, travelerdatas.Password)
+                                                             .Set(p => p.IntegratedSecurity, travelerdatas.IntegratedSecurity)
+                                                             .Set(p => p.TestScanServer, travelerdatas.TestScanServer);
+                    //.Set(p => p.UsedByServers, travelerdatas.UsedByServers);
+                    var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "traveler data updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save traveler data falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpDelete("delete_traveler_data_store/{id}")]
+        public APIResponse DeleteTravelerDataStore(string id)
+        {
+            try
+            {
+                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
+                Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
+                travelerdatastoreRepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Traveler Data Store Deleted successfully");
+            }
+            catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Traveler Data falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
+
         #endregion
 
         #region Alerts
 
         #region Alert Settings
-        
+
         [HttpPut("save_alert_settings")]
         public APIResponse UpdateIbmAlertSettings([FromBody]RecurringEvents listAlertSettings)
         {
@@ -4311,7 +4349,13 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-
+        #region  Simulation Tests
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author>Sowmya</author>
+        /// <param name="ibmsimulations"></param>
+        /// <returns></returns>
         [HttpPut("save_simulationtests")]
         public APIResponse SaveSimulation([FromBody]SimulationModel ibmsimulations)
         {
@@ -4336,11 +4380,12 @@ namespace VitalSigns.API.Controllers
                 Server server = serversRepository.Get(ibmsimulations.Id);
                 var updateDefination = serversRepository.Updater.Set(p => p.SimulationTests, nameValuePairs);
                 var result = serversRepository.Update(server, updateDefination);
-                Response = Common.CreateResponse(result);
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Simulationtests updated successfully");
+
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save simulationtests falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save simulationtests falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -4401,7 +4446,8 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, "Error", " simulationtest falied .\n Error Message :" + exception.Message);
             }
             return Response;
-        }   
+        }
+        #endregion
 
         #region Node Health
 
@@ -5738,8 +5784,6 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
-
-       
     }
 }
 
