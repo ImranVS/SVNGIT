@@ -1,7 +1,7 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-
+import {AppComponentService} from '../../../core/services';
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-notes-database-replicas.component.html',
@@ -11,8 +11,8 @@ export class NotesDatabaseReplica extends GridBase implements OnInit {
     sererNames: any;
     errorMessage: any;
     currentEditItem: any;
-    constructor(service: RESTService) {
-        super(service);
+    constructor(service: RESTService, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.formName = "Notes Database Replica";
         this.service.get('/Configurator/get_domino_servers')
             .subscribe(
