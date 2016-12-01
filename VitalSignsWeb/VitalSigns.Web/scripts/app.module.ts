@@ -98,9 +98,6 @@ import {ServerConfigurationFilter} from './reports/filters/components/server-con
         DragulaModule,
         APP_ROUTES
     ],
-    providers: [
-        AlertService
-    ],
     declarations: [
         AppComponent,
         SuccessErrorMessageComponent,
