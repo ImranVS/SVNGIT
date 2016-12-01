@@ -11,6 +11,7 @@ import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
+import {AppComponentService} from '../../../core/services';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 
 
@@ -36,8 +37,8 @@ export class Nodes extends GridBase {
     isVisible: boolean = false;
     
 
-    constructor(service: RESTService, private formBuilder: FormBuilder) {
-        super(service);
+    constructor(service: RESTService, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.formName = "Nodes";
 
         this.nodesHealth = this.formBuilder.group({
