@@ -12,6 +12,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
+import {AppComponentService} from '../../../core/services';
 
 
 @Component({
@@ -31,8 +32,8 @@ export class ServerTasks extends GridBase implements OnInit {
     selectedSettingValue: any;
     selectedName: string;
 
-    constructor(service: RESTService, private formBuilder: FormBuilder, private route: ActivatedRoute) {      
-        super(service);
+    constructor(service: RESTService, private formBuilder: FormBuilder, private route: ActivatedRoute, appComponentService: AppComponentService) {      
+        super(service, appComponentService);
         this.formName = "Server Task";
         this.currentForm = this.formBuilder.group({
             'setting': [''],
