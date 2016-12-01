@@ -25,7 +25,7 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
     profileEmail: string;
     formTitle: string;
     isModified: boolean = false;
-    protected appComponentService: AppComponentService;
+   appComponentService: AppComponentService;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
