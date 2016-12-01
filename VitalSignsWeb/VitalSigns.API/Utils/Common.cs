@@ -8,13 +8,24 @@ using VSNext.Mongo.Repository;
 using MongoDB.Driver;
 using System;
 using System.Reflection;
-
+using System.ComponentModel;
 
 namespace VitalSigns.API
 {
     public class Common
     {
-
+        public enum ResponseStatus
+        {
+            [Description("Success")]
+            Success,
+            [Description("Error")]
+            Error,
+            [Description("Warning")]
+            Warning,
+            [Description("Info")]
+            Info
+        }
+        string success = ResponseStatus.Success.ToDescription();
         public static Dictionary<string, string> GetServerTypeIcons()
         {
             Dictionary<string, string> serverTypeIcons = new Dictionary<string, string>();
@@ -31,7 +42,7 @@ namespace VitalSigns.API
             var serverType = serverTypeList.Where(x => x.ServerTypeName.ToUpper() == serverTypeName.ToUpper()).FirstOrDefault();
             return serverType;
         }
-        public static APIResponse CreateResponse(object data,string status="OK",string message = "Success")
+        public static APIResponse CreateResponse(object data,string status= "Success", string message = "Success")
         {
             return new APIResponse {Data=data,Status=status,Message=message };
             
@@ -149,4 +160,75 @@ namespace VitalSigns.API
         }
 
     }
+
+
+    public class ApiEnums
+    {
+        /// <summary>
+        /// Server type enumerations
+        /// </summary>
+    
+
+    }
+    /// <summary>
+    /// To implement the extension methods from Enum class
+    /// </summary>
+    public static class EnumExtensions
+    {
+        public static T GetAttribute<T>(this Enum value) where T : Attribute
+        {
+            var type = value.GetType();
+            var memberInfo = type.GetMember(value.ToString());
+            var attributes = memberInfo[0].GetCustomAttributes(typeof(T), false);
+            return (T)attributes[0];
+        }
+
+        public static string ToDescription(this Enum value)
+        {
+            var attribute = value.GetAttribute<DescriptionAttribute>();
+            return attribute == null ? value.ToString() : attribute.Description;
+        }
+
+        /// <summary>
+        /// Returns the base server type for  server type
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetBaseServerType(this Enum value)
+        {
+            var attribute = value.GetAttribute<BaseServerTypeAttribute>();
+            return attribute == null ? string.Empty : attribute.Name;
+        }
+
+
+
+    }
+
+
+
+    /// <summary>
+    /// Attribute used to set the base server type for the servertype enum. By default, when this attribute
+    /// is not specified, the empty string will be set.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, Inherited = true)]
+    public class BaseServerTypeAttribute : Attribute
+    {
+        /// <summary>
+        /// Initializes a new instance of the base server typr field attribute with the desired name.
+        /// </summary>
+        /// <param name="value">Name of the base server type.</param>
+        public BaseServerTypeAttribute(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Empty Base server type is not allowed", "value");
+            Name = value;
+        }
+
+        /// <summary>
+        /// Gets the name of the base server type.
+        /// </summary>
+        /// <value>The name of the base server type.</value>
+        public virtual string Name { get; private set; }
+    }
+
 }
