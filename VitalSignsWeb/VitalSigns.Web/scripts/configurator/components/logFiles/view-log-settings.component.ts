@@ -4,6 +4,7 @@ import {GridBase} from '../../../core/gridBase';
 import {Router} from '@angular/router';
 import {ActivatedRoute} from '@angular/router';
 import {Component, OnInit, EventEmitter, Input, Output, ViewChild, AfterViewInit} from '@angular/core';
+import {AppComponentService} from '../../../core/services';
 
 
 @Component({
@@ -24,8 +25,8 @@ export class ViewLogs extends GridBase implements OnInit {
     logFile: any;
 
     id: string;
-    constructor(service: RESTService) {
-        super(service);
+    constructor(service: RESTService, appComponentService: AppComponentService) {
+        super(service,appComponentService);
         this.formName = "View Logs";
 
         this.service.get('/configurator/get_log_files')
