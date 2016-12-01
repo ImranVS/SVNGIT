@@ -5,7 +5,7 @@ import {HttpModule}    from '@angular/http';
 import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
 import {DiskSttingsValue} from '../../models/server-disk-settings';
-import {AppComponentService} from '../../../core/services/app.component.service.ts';
+import {AppComponentService} from '../../../core/services';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/serverSettings/server-settings-disk-settings.html',
