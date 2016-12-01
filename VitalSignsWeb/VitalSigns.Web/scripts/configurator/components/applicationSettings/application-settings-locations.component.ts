@@ -31,54 +31,113 @@ export class Location extends GridBase implements OnInit  {
     countries: any;
     states: any;
     cities: any;
-
+    state: any;
+    city: any;
+    mode: string;
+    setcountry: string;
+    setregion: string;
+    setcity: string;
     constructor(service: RESTService) {
         super(service);
-        this.formName = "Maintain Locations";
+        this.formName = "Locations";
 
         this.service.get('/Configurator/get_locations')
             .subscribe(
             (response) => {
                 this.countries = response.data.countryData;
+
             },
             (error) => this.errorMessage = <any>error
-        );
+            );
 
       
     }
 
 
     savelocations(dlg: wijmo.input.Popup) {
-        this.saveGridRow('/Configurator/save_locations',dlg);
+        this.saveGridRow('/Configurator/save_locations', dlg);
+      
     }
 
 
     ngOnInit() {
         this.initialGridBind('/Configurator/locations');
+       
         }
- 
+    editLocationsRow(dlg: wijmo.input.Popup) {
 
-    getstates(currentregion) {
-      
-        this.service.get('/Configurator/get_locations?country=' + currentregion)
+        this.editGridRow(dlg);
+        this.mode = "edit"; 
+        this.setcountry = this.currentEditItem.country;
+        this.setregion = this.currentEditItem.region;
+        this.setcity = this.currentEditItem.city; 
+    }
+
+    getstates() {
+        
+        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country)
+
+            .subscribe(
+            (response) => {             
+                this.states = response.data.stateData; 
+                this.currentEditItem.country = this.setcountry; 
+                this.currentEditItem.region = this.setregion;
+                this.currentEditItem.city = this.setcity;             
+                
+            },
+            (error) => this.errorMessage = <any>error
+        );
+       
+    }
+    getstate() {
+
+        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country)
 
             .subscribe(
             (response) => {
-                this.states = response.data.stateData;
-               // this.states.splice(0, 1);
+                this.state = response.data.stateData;
+               // this.currentEditItem.country = this.setcountry;
+               this.currentEditItem.region = this.setregion;
+                this.currentEditItem.city = this.setcity;
+
             },
             (error) => this.errorMessage = <any>error
             );
+
     }
-    getcities(currentitem) {
+
+  
+    getcities() {
        
-        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country + '&state=' + currentitem)
+        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country + '&state=' + this.currentEditItem.region)
             .subscribe(
-            (response) => {               
-                this.cities = response.data.cityData 
+            (response) => {   
+               //  this.currentEditItem.city = this.currentEditItem.city;
+                this.cities = response.data.cityData;
+                this.currentEditItem.country = this.setcountry;
+                this.currentEditItem.region = this.setregion;
+                this.currentEditItem.city = this.setcity;  
+               // this.currentEditItem.city = this.currentEditItem.city;
+            },
+            (error) => this.errorMessage = <any>error
+        );
+        
+    }
+    getcity() {
+
+        this.service.get('/Configurator/get_locations?country=' + this.currentEditItem.country + '&state=' + this.currentEditItem.region)
+            .subscribe(
+            (response) => {
+                //  this.currentEditItem.city = this.currentEditItem.city;
+                this.city = response.data.cityData;
+                this.currentEditItem.country = this.setcountry;
+             // this.currentEditItem.region = this.setregion;
+                this.currentEditItem.city = this.setcity;
+                // this.currentEditItem.city = this.currentEditItem.city;
             },
             (error) => this.errorMessage = <any>error
             );
+
     }
    
     deltelocations() {
@@ -89,9 +148,12 @@ export class Location extends GridBase implements OnInit  {
 
     addlocations(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
+        this.mode = "add";
         this.currentEditItem.location_name = "";
         this.currentEditItem.country = "";
         this.currentEditItem.region = "";
         this.currentEditItem.city = "";
+        console.log(this.mode);
+        console.log(this.currentEditItem.country);
     }
 }
