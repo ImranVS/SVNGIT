@@ -1,7 +1,7 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-
+import {AppComponentService} from '../../../core/services';
 
 @Component({
     templateUrl: '/app/configurator/components/mobileusers/mobile-users.component.html',
@@ -13,9 +13,9 @@ export class MobileUser extends GridBase implements OnInit {
     currentEditItem: any;
     mobileDeviceData: wijmo.collections.CollectionView;
     
-    constructor(service: RESTService) {
+    constructor(service: RESTService, appComponentService: AppComponentService) {
   
-        super(service);
+        super(service, appComponentService);
         this.formName = "Critical Devices";
         
       
