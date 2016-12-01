@@ -11,6 +11,7 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
 import {GridBase} from '../../../core/gridBase';
+import {AppComponentService} from '../../../core/services';
 
 
 
@@ -37,8 +38,8 @@ export class Location extends GridBase implements OnInit  {
     setcountry: string;
     setregion: string;
     setcity: string;
-    constructor(service: RESTService) {
-        super(service);
+    constructor(service: RESTService, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.formName = "Locations";
 
         this.service.get('/Configurator/get_locations')
