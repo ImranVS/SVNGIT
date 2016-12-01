@@ -180,7 +180,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Credentials falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -195,56 +195,76 @@ namespace VitalSigns.API.Controllers
             try
             {
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
-
-                byte[] password;
-              
-                password = tripleDes.Encrypt(serverCredential.Password);
-               
-                System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-                foreach (byte b in password)
-                {
-                    stringBuilder.AppendFormat("{0}, ", b);
-                }
-                string bytepwd = stringBuilder.ToString();
-                int n = bytepwd.LastIndexOf(", ");
-                bytepwd = bytepwd.Substring(0, n);
+                Expression<Func<Credentials, bool>> filterExpression;
                 if (string.IsNullOrEmpty(serverCredential.Id))
                 {
-                    Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = bytepwd, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
+                     filterExpression = (p => p.Alias == serverCredential.Alias);
 
-
-                    string id = credentialsRepository.Insert(serverCredentials);
-                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
+                   
                 }
                 else
                 {
-                   
-                    if (!serverCredential.IsModified)
-                    {
-                        FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
-                        var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
-                                                           .Set(p => p.DeviceType, serverCredential.DeviceType)
+                 filterExpression = (p => p.Alias == serverCredential.Alias && p.Id != serverCredential.Id);
 
-                                                           .Set(p => p.UserId, serverCredential.UserId);
-                        var result = credentialsRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                   
+                }
+                var existedData = credentialsRepository.Find(filterExpression).Select(x => x.Alias).FirstOrDefault();
+                if (existedData==null)
+                {
+                    byte[] password;
+
+                    password = tripleDes.Encrypt(serverCredential.Password);
+
+                    System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+                    foreach (byte b in password)
+                    {
+                        stringBuilder.AppendFormat("{0}, ", b);
+                    }
+                    string bytepwd = stringBuilder.ToString();
+                    int n = bytepwd.LastIndexOf(", ");
+                    bytepwd = bytepwd.Substring(0, n);
+                    if (string.IsNullOrEmpty(serverCredential.Id))
+                    {
+                        Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = bytepwd, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
+
+
+                        string id = credentialsRepository.Insert(serverCredentials);
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server Credential inserted successfully");
                     }
                     else
                     {
-                        FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
-                        var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
-                                                                 .Set(p => p.DeviceType, serverCredential.DeviceType)
-                                                                 .Set(p => p.Password, bytepwd)
-                                                                 .Set(p => p.UserId, serverCredential.UserId);
-                        var result = credentialsRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+
+                        if (!serverCredential.IsModified)
+                        {
+                            FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
+                            var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
+                                                               .Set(p => p.DeviceType, serverCredential.DeviceType)
+
+                                                               .Set(p => p.UserId, serverCredential.UserId);
+                            var result = credentialsRepository.Update(filterDefination, updateDefination);
+                            Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server Credential updated successfully");
+                        }
+                        else
+                        {
+                            FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
+                            var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
+                                                                     .Set(p => p.DeviceType, serverCredential.DeviceType)
+                                                                     .Set(p => p.Password, bytepwd)
+                                                                     .Set(p => p.UserId, serverCredential.UserId);
+                            var result = credentialsRepository.Update(filterDefination, updateDefination);
+                            Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server Credential updated successfully");
+                        }
+
                     }
-                    
+                }
+             else
+                {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This Alias name already exists.");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Server Credentials falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -256,20 +276,21 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpDelete("delete_credential/{Id}")]
-        public void DeleteCredential(string Id)
+        public APIResponse DeleteCredential(string Id)
         {
             try
             {
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
                 credentialsRepository.Delete(expression);
-
+                Response = Common.CreateResponse(true, "Error", "Deleted Server Credential Suvcessfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Delete Server Credential falied .\n Error Message :" + exception.Message);
             }
+            return Response;
         }
         #endregion
 
@@ -932,106 +953,7 @@ namespace VitalSigns.API.Controllers
         }
     #endregion
 
-        #region IBM Domino Settings
-        /// <summary>
-        /// Returns IBM Domino Settings
-        /// <author>Durga</author>
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("get_ibm_domino_settings")]
-        public APIResponse GetIbmDominoSettings()
-        {
-
-
-
-            nameValueRepository = new Repository<NameValue>(ConnectionString);
-            var result = nameValueRepository.All()
-                                          .Select(x => new
-                                          {
-                                              Name = x.Name,
-                                              Value = x.Value
-                                          }).ToList();
-
-            var notesProgramDirectory = result.Where(x => x.Name == "Notes Program Directory").Select(x => x.Value).FirstOrDefault();
-            var notesUserID = result.Where(x => x.Name == "Notes User ID").Select(x => x.Value).FirstOrDefault();
-            var notesIni = result.Where(x => x.Name == "Notes.ini").Select(x => x.Value).FirstOrDefault();
-            var password = result.Where(x => x.Name == "Password").Select(x => x.Value).FirstOrDefault();
-            var enableExJournal = result.Where(x => x.Name == "Enable ExJournal").Select(x => x.Value).FirstOrDefault();
-            var enableDominoConsoleCommands = result.Where(x => x.Name == "Enable Domino Console Commands").Select(x => x.Value).FirstOrDefault();
-            var exJournalthreshold = result.Where(x => x.Name == "ExJournal Threshold").Select(x => x.Value).FirstOrDefault();
-            var consecutiveTelnet = result.Where(x => x.Name == "ConsecutiveTelnet").Select(x => x.Value).FirstOrDefault();
-            return Common.CreateResponse(new DominoSettingsModel
-            {
-                NotesProgramDirectory = notesProgramDirectory,
-                NotesUserID = notesUserID,
-                NotesIni = notesIni,
-                NotesPassword = password,
-                EnableExJournal = Convert.ToBoolean(enableExJournal),
-                EnableDominoConsoleCommands = Convert.ToBoolean(enableDominoConsoleCommands),
-                ExJournalThreshold = exJournalthreshold,
-                ConsecutiveTelnet = consecutiveTelnet
-            });
-        }
-        /// <summary>
-        /// Updates IBM Domino Settings
-        /// <author>Durga</author>
-        /// </summary>
-        /// <returns></returns>
-        [HttpPut("save_ibm_domino_settings")]
-        public APIResponse UpdateIbmDominoSettings([FromBody]DominoSettingsModel dominoSettings)
-        {
-            try
-            {
-                FilterDefinition<NameValue> filterDefination;
-
-                try
-                {
-                    bool updated = false;
-                    byte[] MyPass;
-
-                    VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
-                    MyPass = mySecrets.Encrypt(dominoSettings.NotesPassword);
-
-                    System.Text.StringBuilder newstr = new System.Text.StringBuilder();
-                    foreach (byte b in MyPass)
-                    {
-                        newstr.AppendFormat("{0}, ", b);
-                    }
-                    string bytepwd = newstr.ToString();
-                    int n = bytepwd.LastIndexOf(", ");
-                    bytepwd = bytepwd.Substring(0, n);
-                    var ibmDominoSettings = new List<NameValue> { new NameValue { Name = "Notes Program Directory", Value = dominoSettings.NotesProgramDirectory },
-                                                                new NameValue { Name = "Notes User ID", Value = dominoSettings.NotesUserID },
-                                                                new NameValue { Name = "Notes.ini", Value = dominoSettings.NotesIni},
-                                                                new NameValue { Name = "Password", Value = bytepwd},
-                                                                new NameValue { Name = "Enable Domino Console Commands", Value = Convert.ToString(dominoSettings.EnableDominoConsoleCommands)},
-                                                                new NameValue { Name = "Enable ExJournal", Value =  Convert.ToString(dominoSettings.EnableExJournal)},
-                                                                 new NameValue { Name = "ExJournal Threshold", Value = dominoSettings.ExJournalThreshold},
-                                                                  new NameValue { Name = "ConsecutiveTelnet", Value = dominoSettings.ConsecutiveTelnet}
-                                                             };
-                    var result = Common.SaveNameValues(ibmDominoSettings);
-                  //  Response = Common.CreateResponse(result);
-                    Response = Common.CreateResponse(result, "OK", "IBM Domino settings are successfully updated.");
-
-                }
-                catch (Exception exception)
-                {
-                    Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
-                }
-
-                return Response;
-
-
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-
-        }
-        #endregion
+       
 
         #endregion
 
@@ -1434,7 +1356,7 @@ namespace VitalSigns.API.Controllers
                         }                      
                    
                     }
-                    Response = Common.CreateResponse(null, "OK", "Settings are not selected");
+                    Response = Common.CreateResponse(null, "OK", "Disk Settings Sucessfully updated.");
 
 
                 }
@@ -1447,7 +1369,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Disk Settings failed" + exception.Message);
             }
             return Response;
         }
@@ -1519,7 +1441,7 @@ namespace VitalSigns.API.Controllers
                         if (updateDefinition != null)
                         {
                             var result = serversRepository.Update(filterDefination, updateDefinition);
-                            Response = Common.CreateResponse(result, "OK", "Location updated successfully");
+                            Response = Common.CreateResponse(result, "OK", "Settings updated successfully");
                         }
                         else
                         {
@@ -1537,7 +1459,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Settings Failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -1807,6 +1729,11 @@ namespace VitalSigns.API.Controllers
 
 
         #region Disk Settings
+        /// <summary>
+        ///Returns Disk Information
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get_server_disk_info/{id}")]
         public APIResponse GetServerDiskInformation(string id)
 
@@ -1864,6 +1791,11 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+        /// <summary>
+        ///Getting Disk Data
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get_server_disk_settings_data/{id}")]
         public APIResponse GetServerDiskSettingsData(string id)
 
@@ -2441,7 +2373,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Fetching Domino servers failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2476,11 +2408,12 @@ namespace VitalSigns.API.Controllers
 
 
                 Response = Common.CreateResponse(result);
+               // Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Delete Server Credentials falied .\n Error Message :");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Notes Database Replica falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2518,7 +2451,7 @@ namespace VitalSigns.API.Controllers
 
 
                     string id = serverOtherRepository.Insert(notesDatabase);
-                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica inserted successfully.");
                 }
                 else
                 {
@@ -2540,12 +2473,12 @@ namespace VitalSigns.API.Controllers
                                                               .Set(p => p.DifferenceThreshold, notesDatabaseReplica.DifferenceThreshold)
                                                              ;
                     var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica updated successfully.");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Save Server Credentials falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -2553,7 +2486,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpDelete("notes_database_replica/{Id}")]
-        public void DeleteNotesDatabaseReplica(string Id)
+        public APIResponse DeleteNotesDatabaseReplica(string Id)
         {
             try
             {
@@ -2561,14 +2494,134 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
 
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica Deleted Sucessfully.");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        #endregion
+
+
+        #region IBM Domino Settings
+        /// <summary>
+        /// Returns IBM Domino Settings
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("get_ibm_domino_settings")]
+        public APIResponse GetIbmDominoSettings()
+        {
+            try
+            {
+
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+                var result = nameValueRepository.All()
+                                              .Select(x => new
+                                              {
+                                                  Name = x.Name,
+                                                  Value = x.Value
+                                              }).ToList();
+
+                var notesProgramDirectory = result.Where(x => x.Name == "Notes Program Directory").Select(x => x.Value).FirstOrDefault();
+                var notesUserID = result.Where(x => x.Name == "Notes User ID").Select(x => x.Value).FirstOrDefault();
+                var notesIni = result.Where(x => x.Name == "Notes.ini").Select(x => x.Value).FirstOrDefault();
+                var password = result.Where(x => x.Name == "Password").Select(x => x.Value).FirstOrDefault();
+
+                var enableExJournal = result.Where(x => x.Name == "Enable ExJournal").Select(x => x.Value).FirstOrDefault();
+                var enableDominoConsoleCommands = result.Where(x => x.Name == "Enable Domino Console Commands").Select(x => x.Value).FirstOrDefault();
+                var exJournalthreshold = result.Where(x => x.Name == "ExJournal Threshold").Select(x => x.Value).FirstOrDefault();
+                var consecutiveTelnet = result.Where(x => x.Name == "ConsecutiveTelnet").Select(x => x.Value).FirstOrDefault();
+                return Common.CreateResponse(new DominoSettingsModel
+                {
+                    NotesProgramDirectory = notesProgramDirectory,
+                    NotesUserID = notesUserID,
+                    NotesIni = notesIni,
+                    // NotesPassword = "****",
+                    EnableExJournal = Convert.ToBoolean(enableExJournal),
+                    EnableDominoConsoleCommands = Convert.ToBoolean(enableDominoConsoleCommands),
+                    ExJournalThreshold = exJournalthreshold,
+                    ConsecutiveTelnet = consecutiveTelnet
+                });
+            }
+            catch (Exception exception)
+            {
+
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting IBM Domino Settings falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+
+        }
+        /// <summary>
+        /// Updates IBM Domino Settings
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("save_ibm_domino_settings")]
+        public APIResponse UpdateIbmDominoSettings([FromBody]DominoSettingsModel dominoSettings)
+        {
+            try
+            {
+                FilterDefinition<NameValue> filterDefination;
+
+                try
+                {
+                    if (dominoSettings.IsModified)
+                    {
+                        bool updated = false;
+                        byte[] MyPass;
+
+                        VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+                        MyPass = mySecrets.Encrypt(dominoSettings.NotesPassword);
+
+                        System.Text.StringBuilder newstr = new System.Text.StringBuilder();
+                        foreach (byte b in MyPass)
+                        {
+                            newstr.AppendFormat("{0}, ", b);
+                        }
+                        string bytepwd = newstr.ToString();
+                        int n = bytepwd.LastIndexOf(", ");
+                        bytepwd = bytepwd.Substring(0, n);
+                        var password = new List<NameValue> {
+                                                                new NameValue { Name = "Password", Value = bytepwd}
+                                                             };
+                        var passwordResult = Common.SaveNameValues(password);
+                    }
+
+                    var ibmDominoSettings = new List<NameValue> { new NameValue { Name = "Notes Program Directory", Value = dominoSettings.NotesProgramDirectory },
+                                                                new NameValue { Name = "Notes User ID", Value = dominoSettings.NotesUserID },
+                                                                new NameValue { Name = "Notes.ini", Value = dominoSettings.NotesIni},
+
+                                                                new NameValue { Name = "Enable Domino Console Commands", Value = Convert.ToString(dominoSettings.EnableDominoConsoleCommands)},
+                                                                new NameValue { Name = "Enable ExJournal", Value =  Convert.ToString(dominoSettings.EnableExJournal)},
+                                                                 new NameValue { Name = "ExJournal Threshold", Value = dominoSettings.ExJournalThreshold},
+                                                                  new NameValue { Name = "ConsecutiveTelnet", Value = dominoSettings.ConsecutiveTelnet}
+                                                             };
+                    var result = Common.SaveNameValues(ibmDominoSettings);
+                    //  Response = Common.CreateResponse(result);
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "IBM Domino settings are successfully updated.");
+
+                }
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                }
+
+                return Response;
+
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
             }
-        }
 
+            return Response;
+
+        }
         #endregion
 
         #region Notes Databases
@@ -4638,9 +4691,14 @@ namespace VitalSigns.API.Controllers
 
 
         #endregion
+        #region Mobile Users
 
-        // Mobile Users
-
+        #endregion
+        /// <summary>
+        ///Get all Mobile Users
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get_mobile_users")]
         public APIResponse GetMobileUsers()
         {
@@ -4664,12 +4722,17 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Credentials falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
+        /// <summary>
+        ///Delete Mobile User
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete("delete_mobile_users/{Id}")]
-        public void DeleteMobileUser(string Id)
+        public APIResponse DeleteMobileUser(string Id)
         {
             try
             {
@@ -4678,15 +4741,21 @@ namespace VitalSigns.API.Controllers
                 FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id ==Id);
                 var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, null);
                 var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
-                Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Mobile User deleted successfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Mobile User .\n Error Message :" + exception.Message);
             }
+            return Response;
         }
-
+        #region Mobile Devices
+        /// <summary>
+        ///Save Mobile Users
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("save_mobileusers")]
         public APIResponse UpdateServerCredentials([FromBody]MobileUserDevice mobileUser)
         {
@@ -4695,25 +4764,34 @@ namespace VitalSigns.API.Controllers
                 mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
 
 
-                
+
                 if (!string.IsNullOrEmpty(mobileUser.Id))
                 {
-                  
+
                     FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id == mobileUser.Id);
                     var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, mobileUser.ThresholdSyncTime);
                     var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Server Credential updated successfully");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Error.ToDescription(), "Mobile users updated successfully");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Mobile users falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
 
         }
 
+        #endregion
+
+
+        #region Mobile Devices
+        /// <summary>
+        ///Returns all mobile devices
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get_all_mobile_devices")]
         public APIResponse GetALLMobileDevices()
         {
@@ -4737,12 +4815,18 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get all mobile devices failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
+        #endregion
 
         #region Issues
+        /// <summary>
+        ///Returns all open issues
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get_all_open_issues")]
         public APIResponse GetALLOpenIssues()
         {
@@ -4765,7 +4849,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get all open issues failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -5499,8 +5583,13 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Deleting Servers
+        /// <summary>
+        ///Delete Server
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete("delete_server/{Id}")]
-        public void DeleteServer(string Id)
+        public APIResponse DeleteServer(string Id)
         {
             try
             {
@@ -5544,12 +5633,14 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Server, bool>> serverExpression = (p => p.Id == Id);
                 serversRepository.Delete(serverExpression);
 
-
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Deleted Server  sucessfully.");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server  falied .\n Error Message :" + exception.Message);
             }
+
+            return Response;
         }
         #endregion 
 
@@ -5745,7 +5836,11 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Add Servers
-
+        /// <summary>
+        ///Updates Servers Collection
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("save_servers")]
         public APIResponse UpdateServers([FromBody]ServersNewModel serverData)
         {
@@ -5771,12 +5866,14 @@ namespace VitalSigns.API.Controllers
 
 
                     string id = serversRepository.Insert(servers);
-                    Response = Common.CreateResponse(id, "OK", "Server Credential inserted successfully");
-             
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server inserted successfully.");
+                
+
+
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server insert falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
