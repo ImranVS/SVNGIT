@@ -1676,7 +1676,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Get Overall Domino Statistics falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
