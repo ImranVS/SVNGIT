@@ -2,6 +2,8 @@
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
+import {AppComponentService} from '../../../core/services';
+
 
 
 @Component({
@@ -32,8 +34,8 @@ export class Maintenance extends GridBase implements OnInit  {
     
 
 
-    constructor(service: RESTService) {
-        super(service);
+  constructor(service: RESTService, appComponentService: AppComponentService) {
+      super(service, appComponentService);
         this.formName = "Maintenance";
         this.weekDays = [
             { weekday: "Sunday", dayNumber: "7", isChecked:false},
