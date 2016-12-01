@@ -2,7 +2,7 @@
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-
+import {AppComponentService} from '../../../core/services';
 @Component({
     templateUrl: '/app/configurator/components/applicationSettings/application-settings-servercredentials.component.html',
     providers: [
@@ -18,8 +18,8 @@ export class ServerCredentials extends GridBase implements OnInit {
     isVisible: boolean = false;
  
   
-    constructor(service: RESTService) {
-        super(service);
+    constructor(service: RESTService, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.formName = "Server Credentials";
         this.service.get('/Configurator/get_server_credentials_businesshours')
             .subscribe(
