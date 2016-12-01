@@ -6,6 +6,7 @@ import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
 import {DiskSttingsValue} from '../../models/server-disk-settings';
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
+import {AppComponentService} from '../../../core/services';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/server/server-disk-settings.component.html',
@@ -36,11 +37,13 @@ export class DominoServerDiskSettings implements OnInit {
     diskSettingsDataForm: FormGroup;
     disktype: any;
     diskThreshold: any;
+     appComponentService: AppComponentService;
     constructor(
         private dataProvider: RESTService,
         private formBuilder: FormBuilder,
 
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute,
+        appComponentService: AppComponentService) {
 
 
 
@@ -62,6 +65,7 @@ export class DominoServerDiskSettings implements OnInit {
         //    'disk_free': [''],
 
         //});
+        this.appComponentService = appComponentService;
     }
 
     ngOnInit() {
@@ -93,7 +97,10 @@ export class DominoServerDiskSettings implements OnInit {
                 console.log(this.selectedDiskSetting);
             },
 
-            (error) => this.errorMessage = <any>error
+            (error) => {
+                this.errorMessage = <any>error
+                this.appComponentService.showErrorMessage(this.errorMessage);
+            }
 
             );
 
@@ -187,6 +194,14 @@ export class DominoServerDiskSettings implements OnInit {
             .subscribe(
             response => {
 
+                if (response.status == "OK") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
     }
 
