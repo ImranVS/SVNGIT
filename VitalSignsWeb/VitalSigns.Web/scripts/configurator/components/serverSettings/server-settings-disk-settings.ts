@@ -5,7 +5,7 @@ import {HttpModule}    from '@angular/http';
 import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
 import {DiskSttingsValue} from '../../models/server-disk-settings';
-
+import {AppComponentService} from '../../../core/services/app.component.service.ts';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/serverSettings/server-settings-disk-settings.html',
@@ -32,11 +32,13 @@ export class ServerDiskSettings implements OnInit {
     noDiskAlerts: string;
     postData: any;
     diskValues: any;
+    protected appComponentService: AppComponentService;
     deviceTypes: string = "Domino,Exchange,Active Directory,Windows";
 
     constructor(    
         private dataProvider: RESTService,
-        private formBuilder: FormBuilder) {
+        private formBuilder: FormBuilder,
+        appComponentService: AppComponentService) {
 
         this.dataProvider.get('/Configurator/get_disk_names')
             .subscribe(
@@ -53,6 +55,7 @@ export class ServerDiskSettings implements OnInit {
 
 
         });
+        this.appComponentService = appComponentService;
     }
     ngOnInit() {
         
@@ -144,6 +147,14 @@ export class ServerDiskSettings implements OnInit {
             .subscribe(
             response => {
 
+                if (response.status == "OK") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
     }
     changeInDevices(server: string) {
