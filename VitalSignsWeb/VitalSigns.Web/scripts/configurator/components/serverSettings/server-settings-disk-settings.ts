@@ -147,7 +147,7 @@ export class ServerDiskSettings implements OnInit {
             .subscribe(
             response => {
 
-                if (response.status == "OK") {
+                if (response.status == "Success") {
 
                     this.appComponentService.showSuccessMessage(response.message);
 
