@@ -553,14 +553,14 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         [HttpDelete("delete_business_hours/{id}")]
-        public void DeleteBusinessHours(string id)
+        public APIResponse DeleteBusinessHours(string id)
         {
             try
             {
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
                 Expression<Func<BusinessHours, bool>> expression = (p => p.Id == id);
                 businessHoursRepository.Delete(expression);
-
+                Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Business hours deleted successfully");
             }
 
             catch (Exception exception)
@@ -568,7 +568,7 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
             }
 
-
+            return Response;
 
         }
 
@@ -630,11 +630,11 @@ namespace VitalSigns.API.Controllers
 
                 }
 
-                Response = Common.CreateResponse(maintainWindows,  "OK", "Maintenancedata inserted successfully");
+                Response = Common.CreateResponse(maintainWindows, Common.ResponseStatus.Success.ToDescription(), "Maintenancedata inserted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Fetching Maintenance failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -650,7 +650,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-                Expression<Func<BusinessHours, bool>> filterExpression;
+                Expression<Func<Maintenance, bool>> filterExpression;
                 if (string.IsNullOrEmpty(maintenance.Id))
                 {
                     filterExpression = (p => p.Name == maintenance.Name);
@@ -661,7 +661,7 @@ namespace VitalSigns.API.Controllers
                     filterExpression = (p => p.Name == maintenance.Name && p.Id != maintenance.Id);
 
                 }
-                var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+                var existsData = maintenanceRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
 
                 if (string.IsNullOrEmpty(existsData))
                 { 
@@ -682,7 +682,7 @@ namespace VitalSigns.API.Controllers
 
 
                         maintenance.Id = maintenanceRepository.Insert(maintenancedata);
-                        Response = Common.CreateResponse(maintenance.Id, "OK", "Maintenancedata inserted successfully");
+                        Response = Common.CreateResponse(maintenance.Id, Common.ResponseStatus.Success.ToDescription(), "Maintenance data inserted successfully");
 
 
                     }
@@ -698,20 +698,13 @@ namespace VitalSigns.API.Controllers
                                                                   .Set(p => p.DurationType, maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType))
                                                                  .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
                         var result = maintenanceRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, "OK", "Maintenancedata  updated successfully");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Maintenance data  updated successfully");
                     }
-                }
-                else
-                {
-                    Response = Common.CreateResponse(false, "Error", "This Name already exists. Enter another one.");
-                }
-
-
-
-                serversRepository = new Repository<Server>(ConnectionString);
+         
+                    serversRepository = new Repository<Server>(ConnectionString);
                     UpdateDefinition<Server> updateDefinition = null;
-               // var devicesList = ((Newtonsoft.Json.Linq.JArray)maintenance.DeviceList).ToObject<List<string>>();
-                var devicesList = maintenance.DeviceList;
+                     // var devicesList = ((Newtonsoft.Json.Linq.JArray)maintenance.DeviceList).ToObject<List<string>>();
+                     var devicesList = maintenance.DeviceList;
                     foreach (string id in devicesList)
                     {
 
@@ -768,16 +761,16 @@ namespace VitalSigns.API.Controllers
                     
 
                 }
-
-
-
-
-
+                }
+                else
+                {
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This "  + maintenance.Name + " already exists. Enter another one.");
+                }
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Maintenancedata falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Maintenancedata falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -789,19 +782,21 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         [HttpDelete("delete_maintenancedata/{id}")]
-        public void DeleteMaintenancedata(string id)
+        public APIResponse DeleteMaintenancedata(string id)
         {
             try
             {
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
                 Expression<Func<Maintenance, bool>> expression = (p => p.Id == id);
                 maintenanceRepository.Delete(expression);
+                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Maintenance data deleted succesfully.");
             }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Maintenancedata falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Maintenance data falied .\n Error Message :" + exception.Message);
             }
+            return Response;
         }
 
 
@@ -1161,7 +1156,7 @@ namespace VitalSigns.API.Controllers
 
                             if (name == "exists")
                             {
-                                Response = Common.CreateResponse(false, "duplicate", "This" + serverTask.TaskName + " name already exists. Enter another one.");
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + serverTask.TaskName + "  name already exists. Enter another one.");
                             }
                             else
                             {
@@ -1178,6 +1173,7 @@ namespace VitalSigns.API.Controllers
                                     dominoServerTask.SendRestartCmdOffhours = serverTask.IsRestartASAP;
                                     dominoServerTask.SendExitCmd = serverTask.IsDisallow;
                                     dominoServerTasks.Add(dominoServerTask);
+                                    Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks added Successfully.");
                                 }
                             }
                              if (setting.Equals("remove"))
@@ -1185,6 +1181,7 @@ namespace VitalSigns.API.Controllers
                                 var dominoServerTaskRemove = dominoServerTasks.Where(x => x.TaskId == serverTask.Id).ToList();
                                 foreach(var item in dominoServerTaskRemove)
                                 dominoServerTasks.Remove(item);
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Domino Server Tasks deleted Successfully.");
                             }
 
                         }
@@ -1196,19 +1193,19 @@ namespace VitalSigns.API.Controllers
                         
 
                     }
-                    Response = Common.CreateResponse(null, "OK", "Settings are not selected");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings are not selected");
 
 
                 }
                 else
                 {
-                    Response = Common.CreateResponse(null, "Error", "Devices were not selected");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Devices were not selected");
                 }
             }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get maintain users falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2015,7 +2012,7 @@ namespace VitalSigns.API.Controllers
                 }
                 if (name == "exists")
                 {
-                    Response = Common.CreateResponse(false, "duplicate", "This" + servertasks.TaskName + " name already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + servertasks.TaskName + " name already exists. Enter another one.");
                 }
                 else
                 {
@@ -2036,6 +2033,7 @@ namespace VitalSigns.API.Controllers
                         dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
                         serverTasks = server.ServerTasks;
                         serverTasks.Add(dominoServerTask);
+                        Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks inserted Successfully");
 
                     }
                     else
@@ -2055,6 +2053,7 @@ namespace VitalSigns.API.Controllers
                             }
                         }
                         serverTasks = server.ServerTasks;
+                        Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks updated Successfully");
                     }
 
 
@@ -2064,10 +2063,12 @@ namespace VitalSigns.API.Controllers
                     serversRepository.Update(filterDefination, updateDefinitaion);
 
                 }
+
+                
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Domino Server Tasks  falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Domino Server Tasks  falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -2079,7 +2080,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         [HttpDelete("delete_server_tasks/{deviceId}/{id}")]
-        public void DeleteServerTasks(string deviceId, string id)
+        public APIResponse DeleteServerTasks(string deviceId, string id)
         {
             serversRepository = new Repository<Server>(ConnectionString);
             try
@@ -2096,15 +2097,15 @@ namespace VitalSigns.API.Controllers
                     var result = serversRepository.Update(server, updateDefinition);
                 }
 
-
+                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Server Tasks deleted Successfully.");
             }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Tasks falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Tasks falied .\n Error Message :" + exception.Message);
             }
 
-
+            return Response;
 
         }
 
@@ -2658,7 +2659,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Delete Server Credentials falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2673,7 +2674,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-                Expression<Func<BusinessHours, bool>> filterExpression;
+                Expression<Func<ServerOther, bool>> filterExpression;
                 if (string.IsNullOrEmpty(notesDatabase.Id))
                 {
                     filterExpression = (p => p.Name == notesDatabase.Name);
@@ -2683,7 +2684,7 @@ namespace VitalSigns.API.Controllers
                     filterExpression = (p => p.Name == notesDatabase.Name && p.Id != notesDatabase.Id);
 
                 }
-                var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+                var existsData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
 
                 if (string.IsNullOrEmpty(existsData))
                 { 
@@ -2709,7 +2710,7 @@ namespace VitalSigns.API.Controllers
 
 
                         string id = serverOtherRepository.Insert(notesDatabases);
-                        Response = Common.CreateResponse(id, "OK", "Notes Database inserted successfully");
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes Database inserted successfully");
                     }
 
                     else
@@ -2726,7 +2727,7 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
 
                         var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, "OK", "Notes Database updated successfully");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes Database updated successfully");
                     }
 
 
@@ -2734,7 +2735,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    Response = Common.CreateResponse(false, "Error", "This Name already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + notesDatabase.Name + " already exists. Enter another one.");
                 }
                
                     
@@ -2742,7 +2743,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Notes Database falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Notes Database falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -2754,20 +2755,21 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         [HttpDelete("delete_notes_database/{Id}")]
-        public void DeleteNotesDatabase(string Id)
+        public APIResponse DeleteNotesDatabase(string Id)
         {
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
-
+                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Notes databases data deleted succesfully.");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Notes Database failed .\n Error Message :" + exception.Message);
             }
+            return Response;
         }
 
         #endregion
