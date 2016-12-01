@@ -11,6 +11,7 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
 import {DominoServerTasksValue} from '../../models/domino-server-tasks';
+import {AppComponentService} from '../../../core/services';
 
 
 @Component({
@@ -25,8 +26,8 @@ export class DominoServerTasks extends GridBase implements OnInit  {
     currentDeviceType:string="Domino"
    
     currentForm: FormGroup;
-    constructor(service: RESTService, private formBuilder: FormBuilder) {
-        super(service);
+    constructor(service: RESTService, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
