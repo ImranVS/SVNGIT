@@ -38,7 +38,7 @@ export abstract class GridBase {
         this.service.get(dataURI)
             .subscribe(
             response => {
-                if (response.status == "OK") {
+                if (response.status == "Success") {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
                     this.data.pageSize = 10;
                 } else {
@@ -69,7 +69,7 @@ export abstract class GridBase {
             this.service.put(saveUrl, this.currentEditItem)
                 .subscribe(
                 response => {
-                    if (response.status == "OK") {
+                    if (response.status == "Success") {
                         this.currentEditItem.id = response.data;
                         (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
                         dlg.hide();
@@ -90,7 +90,7 @@ export abstract class GridBase {
             this.service.put(saveUrl, this.currentEditItem)
                 .subscribe(
                 response => {
-                    if (response.status == "OK") {
+                    if (response.status == "Success") {
                         (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
                         dlg.hide();
                         this.appComponentService.showSuccessMessage(response.message);
@@ -131,7 +131,7 @@ export abstract class GridBase {
             this.service.delete(deleteUrl + this.key)
                 .subscribe(
                 response => {
-                    if (response.status == "OK") {                       
+                    if (response.status == "Success") {                       
                         this.appComponentService.showSuccessMessage(response.message);
                     } else {
                         this.appComponentService.showErrorMessage(response.message);
