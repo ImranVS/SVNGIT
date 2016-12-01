@@ -4,7 +4,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../../core/services';
-import {AppComponentService} from '../../../core/services/app.component.service.ts';
+import {AppComponentService} from '../../../core/services';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/serverSettings/server-settings-locations-credentials-businesshours.component.html',
