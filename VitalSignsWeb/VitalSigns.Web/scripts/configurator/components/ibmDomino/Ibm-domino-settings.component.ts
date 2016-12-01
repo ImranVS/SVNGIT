@@ -3,7 +3,7 @@ import {Component, OnInit, AfterViewInit, ViewChild, ViewChildren} from '@angula
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-import {AppComponentService} from '../../../core/services/app.component.service.ts';
+import {AppComponentService} from '../../../core/services';
 import {RESTService} from '../../../core/services';
 
 @Component({
