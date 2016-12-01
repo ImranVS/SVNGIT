@@ -5,6 +5,7 @@ import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {DeviceAttributeValue} from '../../models/device-attribute';
+import {AppComponentService} from '../../../core/services';
 
 
 import {AppNavigator} from '../../../navigation/app.navigator.component';
@@ -33,8 +34,8 @@ export class DeviceAttributes extends GridBase implements OnInit {
     currentForm: FormGroup;
     data: wijmo.collections.CollectionView;
     constructor(service: RESTService,
-        private formBuilder: FormBuilder) {
-        super(service);
+        private formBuilder: FormBuilder, appComponentService: AppComponentService) {
+        super(service, appComponentService);
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
