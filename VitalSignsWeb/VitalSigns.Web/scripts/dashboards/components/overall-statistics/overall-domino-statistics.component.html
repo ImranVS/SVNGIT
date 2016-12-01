@@ -33,6 +33,7 @@
                 <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (itemsSourceChanged)="onItemsSourceChanged()">
                     <wj-flex-grid-filter></wj-flex-grid-filter>
                     <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" [width]="120" align="right"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Total Mail Delivered'" [binding]="'total_mail_delivered'" [width]="150" align="right"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Avg Mail Delivery Time (ms)'" [binding]="'avg_mail_delivery'" [width]="150" align="right"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Avg Server Availability Index'" [binding]="'avg_server_availability_index'" [width]="150" align="right"></wj-flex-grid-column>
