@@ -2,7 +2,7 @@
 
 import {AppHeader} from './navigation/app.header.component';
 import {AppMainMenu} from './navigation/app.main-menu.component';
-import {AlertService} from './core/services/alert.service';
+import {AppComponentService} from './core/services';
 
 declare var bootstrapZeus: any;
 declare var injectSVG: any;
@@ -33,7 +33,7 @@ declare var injectSVG: any;
 </div>
 `,
     providers: [
-        AlertService
+        AppComponentService
     ]
 })
 
@@ -45,9 +45,9 @@ export class AppComponent implements OnInit {
      private closeable: boolean = true;
      private classes: string;  
      
-     constructor(private alertService: AlertService) {
+     constructor(private appComponentService: AppComponentService) {
 
-         this.alertService.registerAppComponentView(this);
+         this.appComponentService.registerAppComponentView(this);
      }
      showAlert(_type: string, _message: string, _dismissOnTimeout: number) {
          this.closed = false;
