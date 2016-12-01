@@ -1,8 +1,9 @@
-﻿import {Component, OnInit, AfterViewInit, ViewChild, ViewChildren} from '@angular/core';
+﻿
+import {Component, OnInit, AfterViewInit, ViewChild, ViewChildren} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-
+import {AppComponentService} from '../../../core/services/app.component.service.ts';
 import {RESTService} from '../../../core/services';
 
 @Component({
@@ -23,12 +24,14 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
     successMessage: string;
     profileEmail: string;
     formTitle: string;
-
+    isModified: boolean = false;
+    protected appComponentService: AppComponentService;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute,
+     appComponentService: AppComponentService) {
 
         this.ibmDominoSettingsForm = this.formBuilder.group({
             'notes_program_directory': [''],
@@ -38,10 +41,11 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
             'enableex_journal': [''],
             'enable_domino_console_commands': [''],
             'exjournal_threshold': [''],
-            'consecutive_telnet': ['']
-         
+            'consecutive_telnet': [''],
+             'is_modified':['']
 
         });
+        this.appComponentService = appComponentService;
 
     }
 
@@ -57,7 +61,10 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
             this.dataProvider.get('/Configurator/get_ibm_domino_settings')
                     .subscribe(
                     (data) => this.ibmDominoSettingsForm.setValue(data.data),
-                    (error) => this.errorMessage = <any>error
+                    (error) => {
+                        this.errorMessage = <any>error
+                        this.appComponentService.showErrorMessage(this.errorMessage);
+                    }
                    
                     );             
         });
@@ -71,14 +78,40 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
     onSubmit(nameValue: any): void {
         this.errorMessage = "";
         this.successMessage = "";
+        console.log(nameValue.is_modified);
+        nameValue.is_modified = this.isModified;
         this.dataProvider.put('/Configurator/save_ibm_domino_settings', nameValue)
             .subscribe(
             response => {
-                this.successMessage = response.message;
-                this.message.toggleVisibility(false, this.successMessage);
+              
+                   if (response.status == "OK") {
+                        
+                        this.appComponentService.showSuccessMessage(response.message);
+
+                    } else {
+
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
             });
       
 
+
+    }
+    valuechange(newValue, form) {
+    
+      //  console.log(ids);
+        console.log(form.notes_password);
+        if (form.notes_password== "****") {
+            console.log("**")
+            this.isModified = false;
+            console.log(this.isModified)
+        }
+        else {
+            console.log("yessss*")
+            this.isModified= true;
+            console.log(this.isModified)
+
+        }
 
     }
 }
