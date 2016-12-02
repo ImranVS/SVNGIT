@@ -83,7 +83,16 @@ export class DominoServerTasks extends GridBase implements OnInit  {
             .subscribe(
             response => {
 
+                if (response.status == "Success") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
+
     }
 }
 
