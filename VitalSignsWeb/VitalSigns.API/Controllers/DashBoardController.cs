@@ -1701,7 +1701,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get Overall Domino Statistics falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get Overall Domino Statistics falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -1811,7 +1811,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get sametime statistics falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get sametime statistics falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
