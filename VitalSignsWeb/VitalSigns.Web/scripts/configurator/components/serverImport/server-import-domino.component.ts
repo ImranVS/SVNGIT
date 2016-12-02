@@ -24,11 +24,16 @@ export class DominoServerImport implements OnInit{
     scanSettings: string = "Scan Settings";
     mailSettings: string = "Mail Settings";
     currentStep: string = "1";
+    public formData = new FormData();
+    public file: any;
+    public url: string;
+    selectedFiles: any;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
         private route: ActivatedRoute) {
+        this.url = '/configurator/upload_file';
     }
     ngOnInit() {
         this.dataProvider.get('/configurator/get_domino_import')
@@ -82,6 +87,44 @@ export class DominoServerImport implements OnInit{
          this.currentStep = "1";
          this.ngOnInit();
 
+     }
+     uploadFiles(fileInput: any): void {
+         //this.dataProvider.post(this.url, this.formData);
+         this.dataProvider.put(this.url, this.formData)
+             .subscribe(
+             response => {
+                 if (response.status != "OK") {
+                     this.errorMessage = response.message;
+                 }
+                 else {
+                     this.dominoServerImportData.servers = response.data.serverList;
+                     this.deviceLocationData = response.data.locationList;
+
+                 }
+
+             },
+             (error) => this.errorMessage = <any>error
+
+         );
+
+         this.formData = null;
+     }
+     changeListener(fileInput: any) {
+         console.log('uploading...');
+         this.postFile(fileInput);
+
+     }
+     //send post file to server 
+     postFile(inputValue: any): void {
+         console.log(this.url);
+         var formData = new FormData();
+         for (let i = 0; i < inputValue.target.files.length; i++) {
+             formData.append("file-" + i.toString(), inputValue.target.files[i]);
+             this.formData.append("file-" + i.toString(), inputValue.target.files[i]);
+             console.log(inputValue.target.files[i]);
+         }
+
+         // this.service.post(this.url, formData);
      }
 
    
