@@ -433,12 +433,18 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
 
             }
             return Response;
         }
 
+
+        /// <summary>
+        /// Get traveler health data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        /// <returns>List of traveler health  details</returns>
         [HttpGet("traveler-health")]
         public APIResponse GetTravelerHealth(string deviceid = "")
         {
@@ -488,7 +494,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
 
                 return Response;
             }
@@ -860,6 +866,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        /// <summary>
+        /// Get all monitored tasks data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        /// <returns>List of monitored tasks details</returns>
         [HttpGet("{deviceid}/monitoredtasks")]
         public APIResponse GetMonitoredTasks(string deviceid, bool is_monitored)
         {
@@ -885,6 +897,7 @@ namespace VitalSigns.API.Controllers
                         SecondaryStatus = monitored.SecondaryStatus,
                         StatusSummary = monitored.StatusSummary,
                         LastUpdated = Convert.ToString(monitored.LastUpdated.Value.ToString(DateFormat))
+                        
 
                     });
 
@@ -896,11 +909,17 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
 
             }
             return Response;
         }
+
+        /// <summary>
+        /// Get traveler mails tats data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        /// <returns>List of traveler mail stats details</returns>
 
         [HttpGet("{deviceid}/traveler_mailstats")]
         public APIResponse Travelerstats(string deviceid)
@@ -934,7 +953,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
             }
 
             return Response;
@@ -1503,6 +1522,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        /// <summary>
+        /// Get mail delivery status data
+        /// </summary>
+        /// <author>Sowjanya</author>
+        /// <returns>List of mail delivery status details</returns>
         [HttpGet("get_mail_delivery_status/{deviceType}")]
         public APIResponse GetMailDeliveryStatusData(string deviceType)
         {
@@ -1530,7 +1555,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get mail delivery status failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
