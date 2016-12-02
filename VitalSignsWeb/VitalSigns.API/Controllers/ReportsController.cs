@@ -245,47 +245,49 @@ namespace VitalSigns.API.Controllers
 
                 var results = summaryRepository.Find(filterDef).ToList();
 
-                double aggregatedValue = 0;
-                string aggregationDisplay = "";
-
-                switch (aggregationType.ToLower())
+                var list = new List<IDictionary<string, object>>();
+                foreach (var deviceId in results.Select(x => x.DeviceId).Distinct())
                 {
-                    case "sum":
-                        aggregatedValue = results.Sum(x => x.StatValue);
-                        aggregationDisplay = "Total";
-                        break;
-                    case "avg":
-                        aggregatedValue = results.Average(x => x.StatValue);
-                        aggregationDisplay = "Average";
-                        break;
-                    case "max":
-                        aggregatedValue = results.Max(x => x.StatValue);
-                        aggregationDisplay = "Max";
-                        break;
-                    case "min":
-                        aggregatedValue = results.Min(x => x.StatValue);
-                        aggregationDisplay = "Min";
-                        break;
-                    default:
-                        throw new Exception("No matching aggregation type.");
-                }
+                    double aggregatedValue = 0;
+                    string aggregationDisplay = "";
 
-                
-                var expandoObj = new ExpandoObject() as IDictionary<string, Object>;
-                if (results.Count > 0)
-                {
-                    expandoObj.Add("Device Name", results[0].DeviceName);
-                    foreach (var entity in results)
+                    switch (aggregationType.ToLower())
+                    {
+                        case "sum":
+                            aggregatedValue = results.Where(x => x.DeviceId == deviceId).Sum(x => x.StatValue);
+                            aggregationDisplay = "Total";
+                            break;
+                        case "avg":
+                            aggregatedValue = results.Where(x => x.DeviceId == deviceId).Average(x => x.StatValue);
+                            aggregationDisplay = "Average";
+                            break;
+                        case "max":
+                            aggregatedValue = results.Where(x => x.DeviceId == deviceId).Max(x => x.StatValue);
+                            aggregationDisplay = "Max";
+                            break;
+                        case "min":
+                            aggregatedValue = results.Where(x => x.DeviceId == deviceId).Min(x => x.StatValue);
+                            aggregationDisplay = "Min";
+                            break;
+                        default:
+                            throw new Exception("No matching aggregation type.");
+                    }
+
+
+                    var expandoObj = new ExpandoObject() as IDictionary<string, Object>;
+
+                    expandoObj.Add("Device Name", results.Where(x => x.DeviceId == deviceId).ToList()[0].DeviceName);
+                    foreach (var entity in results.Where(x => x.DeviceId == deviceId))
                     {
                         //expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
                         expandoObj.Add(entity.StatDate.Value.ToString(DateFormat), entity.StatValue);
                     }
                     expandoObj.Add(aggregationDisplay, aggregatedValue);
+                    
+
+                    
+                    list.Add(expandoObj);
                 }
-
-                var list = new List<IDictionary<string,object>>();
-                list.Add(expandoObj);
-
                 Response = Common.CreateResponse(list);
                 return Response;
 
@@ -996,7 +998,7 @@ namespace VitalSigns.API.Controllers
             try
             {
 
-                List<String> StatNames = new List<string>() { "TotalNWayChats", "Total2WayChats", "PeakLogins" };
+                List<String> StatNames = new List<string>() { "TotalnWayChats", "Total2WayChats", "PeakLogins" };
                 //StatNames = new List<string>() { "Platform.System.PctCombinedCpuUtil", "ResponseTime", "Mem.PercentUsed" };
                 if (startDate == "")
                     startDate = DateTime.UtcNow.AddDays(-7).ToUniversalTime().ToString(DateFormat);
@@ -1194,6 +1196,61 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("server_types_summary")]
+        public APIResponse GetServerTypesFromSumamry()
+        {
+
+            try
+            {
+
+                summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+
+
+                var list = summaryRepository.Collection.Distinct(x => x.DeviceType, x => true).ToList().Select(x => new NameValueModel()
+                {
+                    Name = x,
+                    Value = x
+                }).ToList().OrderBy(x => x.Name).ToList();
+
+                Response = Common.CreateResponse(list);
+
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("statistics_types_summary")]
+        public APIResponse GetStatisticsTypesFromSumamry(string type)
+        {
+
+            try
+            {
+
+                summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+
+
+                var list = summaryRepository.Collection.Distinct(x => x.StatName, x => x.DeviceType == type).ToList().Select(x => new NameValueModel()
+                {
+                    Name = x,
+                    Value = x
+                }).ToList().OrderBy(x => x.Name).ToList();
+
+                Response = Common.CreateResponse(list);
+
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
 
     }
 }

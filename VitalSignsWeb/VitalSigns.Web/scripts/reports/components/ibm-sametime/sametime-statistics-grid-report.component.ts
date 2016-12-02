@@ -8,6 +8,7 @@ declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
 
+
 @Component({
     templateUrl: '/app/reports/components/ibm-sametime/sametime-statistics-grid-report.component.html',
     providers: [
@@ -19,6 +20,11 @@ declare var bootstrapNavigator: any;
 export class SametimeStatisticsGridReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
+    url = `/reports/sametime_stats_grid`;
+
+    currentHideStatDropdown: boolean = true;
+    currentWidgetName: string = `sametimeStatisticsGrid`;
+    currentWidgetURL: string = this.url;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, 
         protected urlHelpers: helpers.UrlHelperService) {

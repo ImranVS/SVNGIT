@@ -24,6 +24,8 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
 
+    gridUrl: string = `/reports/summarystats_aggregation`
+
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
 
     data: wijmo.collections.CollectionView;
@@ -49,25 +51,22 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
         var displayDate = (new Date()).toISOString().slice(0, 10);
         var startDate = new Date(2016, 10, 5).toISOString();
         var endDate = new Date(2016, 10, 20).toISOString();
-        this.service.get(`/reports/summarystats_aggregation?type=IBM Connections&aggregationType=sum&statName=NUM_OF_FORUMS_FORUMS&startDate=${startDate}&endDate=${endDate}`)
+        this.service.get(`${this.gridUrl}?type=IBM Connections&aggregationType=sum&statName=NUM_OF_FORUMS_FORUMS&startDate=${startDate}&endDate=${endDate}`)
             .subscribe(
             (data) => {
                 var newData = this.datetimeHelpers.toLocalDate(data);
 
-
-
-
                 newData.data.forEach(function (entity) {
+
                     var colName = Object.keys(entity)[1];
+
                     var colValue = entity[colName];
                     var colDesc = Object.getOwnPropertyDescriptor(entity, colName);
 
                     delete entity[colName];
                     Object.defineProperty(entity, colName, colDesc);
-                    
+
                 });
-
-
 
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(newData.data));
                 //this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));
@@ -82,6 +81,36 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
     itemsSourceChangedHandler() {
         this.flex.autoSizeColumns();
     }
-    
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'gridUrl') {
+
+            this.gridUrl = value;
+
+            this.service.get(this.gridUrl)
+                .subscribe(
+                (data) => {
+                    var newData = this.datetimeHelpers.toLocalDate(data);
+
+                    newData.data.forEach(function (entity) {
+                        var colName = Object.keys(entity)[1];
+
+                        var colValue = entity[colName];
+                        var colDesc = Object.getOwnPropertyDescriptor(entity, colName);
+
+                        delete entity[colName];
+                        Object.defineProperty(entity, colName, colDesc);
+                    });
+
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(newData.data));
+                    //this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));
+                    this.data.pageSize = 10;
+                },
+                (error) => this.errorMessage = <any>error
+                );
+
+        }
+    }
 
 }

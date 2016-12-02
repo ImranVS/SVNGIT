@@ -23,6 +23,10 @@ export class ServerAvailabilityReport extends WidgetController {
     statname: string;
     title: string;
 
+    currentHideMinValuePanel: boolean = false;
+    currentWidgetURL: string = `/reports/server_availability?statName=${this.statname}`;
+    currentWidgetName: string = "report";
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute,
         protected urlHelpers: helpers.UrlHelperService) {
 
@@ -37,6 +41,8 @@ export class ServerAvailabilityReport extends WidgetController {
             this.title = params['title'];
         });
 
+        this.currentWidgetURL = `/reports/server_availability?statName=${this.statname}`;
+
         this.service.get('/navigation/sitemaps/server_reports')
             .subscribe
             (
@@ -45,7 +51,7 @@ export class ServerAvailabilityReport extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'blogs',
+                id: 'report',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {

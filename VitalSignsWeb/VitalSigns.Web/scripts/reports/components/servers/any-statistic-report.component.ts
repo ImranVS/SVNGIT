@@ -20,6 +20,11 @@ export class AnyStatisticReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
+    url: string = `/reports/summarystats_aggregation`;
+
+    currentWidgetName: string = `anyStatisticsGrid`;
+    currentWidgetURL: string = this.url;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         protected urlHelpers: helpers.UrlHelperService) {
 

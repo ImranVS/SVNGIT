@@ -19,12 +19,11 @@ declare var bootstrapNavigator: any;
 export class SametimeStatisticsChartReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
+    url: string = '/reports/summarystats_chart';
 
-    currentHideServerControl: boolean = false;
-    currentHideDatePanel: boolean = false;
-    currentDeviceType: string = "Sametime";
+    currentHideStatDropdown: boolean = false;
     currentWidgetName: string = `report`;
-    currentWidgetURL: string = `/reports/summarystats_chart?statName=Total n-Way Chats&deviceId=`;
+    currentWidgetURL: string = this.url;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         protected urlHelpers: helpers.UrlHelperService) {
@@ -51,7 +50,7 @@ export class SametimeStatisticsChartReport extends WidgetController {
                 //title: `${this.title}`,
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/summarystats_chart?statName=Total n-Way Chats`,
+                    url: `${this.url}?statName=TotalnWayChats`,
                     chart: {
                         chart: {
                             renderTo: 'report',

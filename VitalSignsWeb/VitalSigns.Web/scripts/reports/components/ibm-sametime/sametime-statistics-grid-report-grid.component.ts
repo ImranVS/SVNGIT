@@ -24,6 +24,8 @@ export class SametimeStatisticGridReportGrid implements WidgetComponent, OnInit 
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
 
+    gridUrl: string = '/reports/sametime_stats_grid';
+
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
 
     data: wijmo.collections.CollectionView;
@@ -48,7 +50,7 @@ export class SametimeStatisticGridReportGrid implements WidgetComponent, OnInit 
 
         var displayDate = (new Date()).toISOString().slice(0, 10);
 
-        this.service.get(`/reports/sametime_stats_grid`)
+        this.service.get(this.gridUrl)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));
@@ -62,9 +64,26 @@ export class SametimeStatisticGridReportGrid implements WidgetComponent, OnInit 
 
     itemsSourceChangedHandler() {
         this.flex.autoSizeColumns();
-        console.log(this.flex.columns.getColumn('device_name').dataMap.getDisplayValues().keys)
+        //console.log(this.flex.columns.getColumn('device_name').dataMap.getDisplayValues().keys)
        // this.flex.group
     }
     
 
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'gridUrl') {
+
+            this.gridUrl = value;
+
+            this.service.get(this.gridUrl)
+                .subscribe(
+                (data) => {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));
+                    this.data.pageSize = 10;
+                },
+                (error) => this.errorMessage = <any>error
+                );
+
+        }
+    }
 }

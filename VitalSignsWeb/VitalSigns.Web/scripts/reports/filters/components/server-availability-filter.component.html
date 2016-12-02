@@ -1,0 +1,26 @@
+﻿<div id="dtPanel3" style="display:inline-block">
+    <span class="headerBlock">Month/Year:</span> <wj-input-date format="yyyy-MM" [(value)]="currentDate" style="width:125px;" selectionMode="Month"></wj-input-date>
+</div>
+<div id="dtServer" style="display:inline-block">
+    <span class="headerBlock">Servers:</span> <wj-multi-select #multisel1
+                        [placeholder]="'Select Servers'"
+                        class="multiselect"
+                        [itemsSource]="deviceNameData"
+                        displayMemberPath="name" selectedValuePath="id"
+                        [headerFormat]="'{count} Servers selected'"
+                        [checkedMemberPath]="'selected'"
+                        [(ngModel)]="selectedServers" style="width:150px;">
+    </wj-multi-select>
+</div>
+<div id="dtMinValue" style="display:inline-block">
+    <span class="headerBlock">Minimum Value : </span> <input #searchBox type="text" [(ngModel)]="minValue" />
+</div>
+<div id="dtServer" style="display:inline-block">
+    <span class="headerBlock">Statistic Summary Type: </span> <select name="statTypeDropdown" [(ngModel)]="statTypeDropdown">
+        <option value="minutes" selected>Minutes</option>
+        <option value="percent">Percent</option>
+    </select>
+</div>
+<div id="dtFilter" style="display:inline-block"> 
+    <button (click)="applyFilters(multisel1)">Filter</button>
+</div>

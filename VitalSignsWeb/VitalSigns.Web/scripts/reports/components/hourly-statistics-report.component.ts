@@ -23,6 +23,13 @@ export class HourlyStatisticsReport extends WidgetController {
     statname: string;
     title: string;
 
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = true;
+    currentShowSingleDatePanel: boolean = true;
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `report`;
+    currentWidgetURL: string = `/reports/dailystats_hourly_chart?statName=${this.statname}`;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute,
         protected urlHelpers: helpers.UrlHelperService) {
 
@@ -36,8 +43,10 @@ export class HourlyStatisticsReport extends WidgetController {
             this.statname = params['statname'];
             this.title = params['title'];
         });
+        this.currentWidgetURL = `/reports/dailystats_hourly_chart?statName=${this.statname}`;
         console.log(this.statname);
-        var date = new Date(2016, 10, 17);
+        var localDate = new Date()
+        var date = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
         this.service.get('/navigation/sitemaps/server_reports')
             .subscribe
             (

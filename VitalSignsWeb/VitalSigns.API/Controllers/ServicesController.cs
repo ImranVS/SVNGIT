@@ -1569,14 +1569,23 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("server_list_dropdown")]
-        public APIResponse GetServersDropDown(string type)
+        public APIResponse GetServersDropDown(string type = "")
         {
 
             try
             {
                serverRepository = new Repository<Server>(ConnectionString);
-                var deviceNameData = serverRepository.All().Where(x => x.DeviceType == type).Select(x => x.DeviceName).Distinct().OrderBy(x => x).ToList();
-                var result = serverRepository.All().Where(x => x.DeviceType == type).Select(x => new NameValueModel
+                Func<Server, bool> expression;
+                if (type != "")
+                {
+                    expression = x => x.DeviceType == type;
+                }
+                else
+                {
+                    expression = x => true;    
+                }
+                //var deviceNameData = serverRepository.All().Where(x => x.DeviceType == type).Select(x => x.DeviceName).Distinct().OrderBy(x => x).ToList();
+                var result = serverRepository.All().Where(expression).Select(x => new NameValueModel
 
                 { Name = x.DeviceName, Id = x.Id }).ToList();
                 Response = Common.CreateResponse(result);

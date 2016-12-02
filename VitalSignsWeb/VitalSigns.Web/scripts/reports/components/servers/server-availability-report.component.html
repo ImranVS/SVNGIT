@@ -10,7 +10,8 @@
 
         </ul>
     </div>
-    <div id="zeusContent" class="container-fluid">
+    <div id="zeusContent" class="container-fluid"> 
+        <server-availability-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideMinValuePanel)]="currentHideMinValuePanel"></server-availability-filter>
         <div class="reportsPage">
             <h1>{{title}}</h1>
             <div *ngFor="let widget of widgets">

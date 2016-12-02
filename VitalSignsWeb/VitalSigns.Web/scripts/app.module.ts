@@ -89,6 +89,9 @@ import {ConnectionsTagsReport} from './reports/components/ibm-connections/connec
 import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
 import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
+import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
+import {AnyStatisticFilter} from './reports/filters/components/any-statistic-filter.component';
+import {ServerAvailabilityFilter} from './reports/filters/components/server-availability-filter.component'
 
 @NgModule({
     imports: [
@@ -165,6 +168,9 @@ import {FileUploadSample} from './configurator/components/serverImport/file-uplo
         ConnectionsWikiReport,
         ServerConfigurationFilter,
         FileUploadSample,
+        SametimeServerFilter,
+        AnyStatisticFilter,
+        ServerAvailabilityFilter,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -298,6 +304,9 @@ import {FileUploadSample} from './configurator/components/serverImport/file-uplo
         widgets.ServerFilter,
         widgets.TravelerFilter,
         widgets.ServerConfigurationFilter,
+        widgets.SametimeServerFilter,
+        widgets.AnyStatisticFilter,
+        widgets.ServerAvailabilityFilter,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -436,6 +445,9 @@ import {FileUploadSample} from './configurator/components/serverImport/file-uplo
         widgets.ServerFilter,
         widgets.TravelerFilter,
         widgets.ServerConfigurationFilter,
+        widgets.SametimeServerFilter,
+        widgets.AnyStatisticFilter,
+        widgets.ServerAvailabilityFilter,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,

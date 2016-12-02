@@ -32,7 +32,7 @@ export class DateTimeHelper {
                     obj = this.toLocalFormat(data[obj], format);
                 } else {
                     //obj is a property
-
+                    var dtNum = NaN;
 
                     //check to see if property value is a datetime
                     if (typeof data[obj] == "string") {

@@ -48,6 +48,8 @@ import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.
 import {ServerFilter} from './reports/filters/components/server-filter.component'
 import {ConnectionsServerFilter} from './reports/filters/components/connections-server-filter.component'
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component'
+import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component'
+import {ServerAvailabilityFilter} from './reports/filters/components/server-availability-filter.component'
 
 import { ReportsBrowser } from './reports/components/reports-browser.component';
 import { NoSelectedReport } from './reports/components/no-selected-report.component';
