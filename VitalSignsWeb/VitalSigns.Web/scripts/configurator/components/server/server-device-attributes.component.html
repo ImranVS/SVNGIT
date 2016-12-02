@@ -69,9 +69,9 @@
                                 <label>Platform:</label>
                                 <div class="funkyradio">
                                     <div class="funkyradio-default">
-                                        <input type="radio" name="serverAttributes.platform" id="dominoplatform"  [(ngModel)]="serverAttributes.platform">
-                                        <label for="dominoplatform" >Domino</label>
-                                        <input type="radio" name="serverAttributes.platform" id="websphereplatform"  [(ngModel)]="serverAttributes.platform">
+                                        <input type="radio" name="serverAttributes.platform" id="dominoplatform" [(ngModel)]="serverAttributes.platform">
+                                        <label for="dominoplatform">Domino</label>
+                                        <input type="radio" name="serverAttributes.platform" id="websphereplatform" [(ngModel)]="serverAttributes.platform">
                                         <label for="websphereplatform">Websphere</label>
                                     </div>
 
@@ -100,7 +100,7 @@
             </div>
         </div>
 
-
+    </div>
 
         <div *ngIf="serverAttributes" class="form-horizontal">
             <div class="panel panel-default">
@@ -198,7 +198,7 @@
                                         <div>
 
                                             <div>
-                                                <wj-combo-box name="attribute.default_value" [itemsSource]="deviceCredentialData" [(text)]="attribute.default_value"
+                                                <wj-combo-box name="attribute.default_value" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData" [(text)]="attribute.default_value"
                                                               [(ngModel)]="attribute.default_value">
                                                 </wj-combo-box>
                                             </div>
@@ -444,9 +444,9 @@
         </div>
 
         <div>
-            <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
+            <button type="button" class="btn btn-primary" (click)="applySetting()" >Save</button>
         </div>
 
    
-</div>
+
 </div>

@@ -6,6 +6,7 @@ import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 declare var injectSVG: any;
 import {DeviceAttributeValue} from '../../models/device-attribute';
+import {AppComponentService} from '../../../core/services';
 
 
 @Component({
@@ -45,7 +46,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
         private formBuilder: FormBuilder,
         private Attribute: RESTService,
         private router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute,
+        private appComponentService: AppComponentService) {
         this.ServerAttributeForm = this.formBuilder.group({
 
             'setting': [''],
@@ -96,7 +98,14 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
         this.Attribute.put('/configurator/save_servers_attributes/' + this.deviceId, postData)
             .subscribe(
             response => {
+                if (response.status == "Success") {
 
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
     }
 
