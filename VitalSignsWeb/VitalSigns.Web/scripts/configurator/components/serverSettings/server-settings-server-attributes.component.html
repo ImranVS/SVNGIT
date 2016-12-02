@@ -8,7 +8,7 @@
             </wj-combo-box>
         </div>
         <div class="widgetContent" *ngIf="selectedDeviceType != null">
-            <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1">
+            <wj-flex-grid #attributeGrid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1">
                 <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="150"> </wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Attribute Name'" [binding]="'attribute_name'" [width]="350" is-read-only="true"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Default Value'" [binding]="'default_value'" [width]="150"></wj-flex-grid-column>
@@ -57,8 +57,9 @@ data.pageIndex + 1 | number
 </div>
 <div class="widgetContent">
     <div>
-        <server-location-list (checkedDevices)="changeInDevices($event)" (deviceType)="currentDeviceType=$event"></server-location-list>
-        <button type="button" class="btn btn-success" (click)="applySetting()">Apply</button>
+        <div class="alert alert-danger" *ngIf="devices.length==0">Please select atleast on server</div>
+        <server-location-list (checkedDevices)="changeInDevices($event)" (deviceType)="currentDeviceType=$event" ></server-location-list>
+        <button type="button" class="btn btn-primary" (click)="applySetting()" [disabled]="!(devices.length>0)">Apply</button>
     </div>
 
 </div></div>

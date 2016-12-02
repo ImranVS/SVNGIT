@@ -24,15 +24,16 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     ]
 })
 export class DeviceAttributes extends GridBase implements OnInit {
+    @ViewChild('attributeGrid') attributeGrid: wijmo.grid.FlexGrid;
     @ViewChild('combo') combo: wijmo.input.ComboBox;
     @Output() type = new EventEmitter();  
     @Input() currentDeviceType: string;
-    devices: string;
+    devices: string="";
     deviceTypeData: any;
     errorMessage: any;
     selectedDeviceType: any;
     currentForm: FormGroup;
-    data: wijmo.collections.CollectionView;
+    //data: wijmo.collections.CollectionView;
     constructor(service: RESTService,
         private formBuilder: FormBuilder, appComponentService: AppComponentService) {
         super(service, appComponentService);
@@ -89,15 +90,19 @@ export class DeviceAttributes extends GridBase implements OnInit {
        // this.loadData();
     }
     applySetting() { 
-       var slectedAttributeValues: DeviceAttributeValue[] = [];
-        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
-            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+        var slectedAttributeValues: DeviceAttributeValue[] = [];
+      //  console.log(this.flex);
+        for (var _i = 0; _i < this.attributeGrid.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.attributeGrid.collectionView.sourceCollection)[_i];
             if (item.is_selected) {
                 var deviceAttrObject=new DeviceAttributeValue();
                 deviceAttrObject.value = item.default_value;
                 deviceAttrObject.field_name = item.field_name;
                 deviceAttrObject.datatype = item.datatype;
                 slectedAttributeValues.push(deviceAttrObject);
+                console.log(deviceAttrObject.value);
+                console.log(deviceAttrObject.field_name);
+                
             }
 
        }
@@ -114,6 +119,14 @@ export class DeviceAttributes extends GridBase implements OnInit {
         this.service.put('/Configurator/save_device_attributes', postData)
             .subscribe(
             response => {
+                if (response.status == "Success") {
+
+                    this.appComponentService.showSuccessMessage(response.message);                  
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
 
             });
     }
