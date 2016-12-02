@@ -180,7 +180,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting Server Credentials falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -283,12 +283,12 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
                 credentialsRepository.Delete(expression);
-                Response = Common.CreateResponse(true, "Error", "Deleted Server Credential Suvcessfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Deleted Server Credential Suvcessfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Server Credential delete falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Credential delete falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -4840,48 +4840,13 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Mobile User failed.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Mobile User delete failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
         #endregion
 
-        #region Mobile Devices
-        /// <summary>
-        ///Save Mobile Users
-        /// <author>Durga</author>
-        /// </summary>
-        /// <returns></returns>
-        [HttpPut("save_mobileusers")]
-        public APIResponse UpdateServerCredentials([FromBody]MobileUserDevice mobileUser)
-        {
-            try
-            {
-                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
-
-
-
-                if (!string.IsNullOrEmpty(mobileUser.Id))
-                {
-
-                    FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id == mobileUser.Id);
-                    var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, mobileUser.ThresholdSyncTime);
-                    var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Mobile users updated successfully");
-                }
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Mobile users falied .\n Error Message :" + exception.Message);
-            }
-
-            return Response;
-
-        }
-
-        #endregion
-
-
+      
         #region Mobile Devices
         /// <summary>
         ///Returns all mobile devices
@@ -4915,6 +4880,39 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        /// <summary>
+        ///Save Mobile Users
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("save_mobileusers")]
+        public APIResponse UpdateServerCredentials([FromBody]MobileUserDevice mobileUser)
+        {
+            try
+            {
+                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+
+
+
+                if (!string.IsNullOrEmpty(mobileUser.Id))
+                {
+
+                    FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id == mobileUser.Id);
+                    var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, mobileUser.ThresholdSyncTime);
+                    var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Mobile users updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Mobile users falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+
         #endregion
 
         #region Issues
