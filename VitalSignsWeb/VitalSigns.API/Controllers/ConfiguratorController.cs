@@ -2851,7 +2851,7 @@ namespace VitalSigns.API.Controllers
                 {
                     DominoServerTasks servertaskDef = new DominoServerTasks { TaskName = servertask.TaskName, LoadString = servertask.LoadString, ConsoleString = servertask.ConsoleString, FreezeDetect = servertask.FreezeDetect, IdleString = servertask.IdleString, MaxBusyTime = servertask.MaxBusyTime, RetryCount = servertask.RetryCount };
                    string id = dominoservertasksRepository.Insert(servertaskDef);
-                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Domino server task definition inserted successfully");
                 }
                 else
                 {
