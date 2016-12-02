@@ -1500,7 +1500,11 @@ namespace VitalSigns.API.Controllers
 
         #region Servers
 
-
+        /// <summary>
+        /// Get all Server attributes data
+        /// </summary>
+        /// <author>Swathi</author>
+        /// <returns>List of Server attributes data</returns>
         [HttpGet("{id}/servers_attributes")]
         public APIResponse GetAllServersAttributes(string id)
         {
@@ -1561,10 +1565,11 @@ namespace VitalSigns.API.Controllers
                     }).FirstOrDefault();
                     serverresult.NodeName = nodename.NodeName;
                 }
-                var credentialsData = credentialsRepository.All().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
+               // var credentialsData = credentialsRepository.All().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
                 serverresult.LocationId = locationname.LocationName;
+                var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
 
-
+             
                 Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == serverresult.Devicetype);
                 List<DeviceAttributesModel> deviceAttributes = new List<DeviceAttributesModel>();
 
@@ -1711,16 +1716,16 @@ namespace VitalSigns.API.Controllers
                                      .Set(field, outputvalue);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
-                            if (datatype == "bool")
-                            {
-                                bool booloutput = Convert.ToBoolean(value);
-                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                    .Set(field, booloutput);
-                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                            }
+                            //if (datatype == "bool")
+                            //{
+                            //    bool booloutput = Convert.ToBoolean(value);
+                            //    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                            //                                                                        .Set(field, booloutput);
+                            //    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                            //}
 
-                           
-                           if(datatype=="string")
+
+                            if (datatype=="string")
                             {
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                                                                                     .Set(field, value);
@@ -1730,8 +1735,9 @@ namespace VitalSigns.API.Controllers
                         }                       
 
                     }
-                   
-                  //  Response = Common.CreateResponse(result);
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes data Updated Successfully.");
+
+                    //  Response = Common.CreateResponse(result);
 
                     //var update = Builders<BsonDocument>.Update
                     //    .Set(field, value)
