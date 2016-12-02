@@ -92,6 +92,7 @@ import {ConnectionsForumsReport} from './reports/components/ibm-connections/conn
 import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
+import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -534,6 +535,10 @@ const appRoutes: Routes = [
      }, {
          path: 'configurator/serverImport',
          component: ServerImports
+     },
+     {
+         path: 'configurator/fileupload',
+         component: FileUploadSample
      }
 ];
 

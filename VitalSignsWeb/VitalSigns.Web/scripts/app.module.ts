@@ -88,6 +88,7 @@ import {ConnectionsProfilesReport} from './reports/components/ibm-connections/co
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
+import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
 
 @NgModule({
     imports: [
@@ -163,6 +164,7 @@ import {ServerConfigurationFilter} from './reports/filters/components/server-con
         ConnectionsTagsReport,
         ConnectionsWikiReport,
         ServerConfigurationFilter,
+        FileUploadSample,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,
@@ -206,7 +208,6 @@ import {ServerConfigurationFilter} from './reports/filters/components/server-con
         dashboards.SametimeStatistics,
         widgets.ServerListTypeReportGrid,
         widgets.ServerListLocationReportGrid,
-
         widgets.AppStatus,
         widgets.ChartComponent,
         widgets.DynamicGrid,
@@ -291,6 +292,7 @@ import {ServerConfigurationFilter} from './reports/filters/components/server-con
         widgets.DominoServerImport,
         widgets.WebSphereServerImport,
         widgets.CommunityUsersList,
+        widgets.FileUpload,
         widgets.SametimeStatisticGridReportGrid,
         widgets.DominoServerConfigurationReportGrid,
         widgets.ServerFilter,
@@ -426,6 +428,7 @@ import {ServerConfigurationFilter} from './reports/filters/components/server-con
         widgets.DominoServerImport,
         widgets.WebSphereServerImport,
         widgets.CommunityUsersList,
+        widgets.FileUpload,
         widgets.SametimeStatisticGridReportGrid,
         widgets.DominoServerConfigurationReportGrid,
         widgets.ServerListTypeReportGrid,

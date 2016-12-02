@@ -35,6 +35,7 @@ export * from './widgets/reports/components/mail-threshold-list.component';
 export * from './widgets/reports/components/notes-database-list.component';
 export * from './widgets/reports/components/domino-server-tasks-list.component';
 export * from './widgets/reports/components/community-users-list.component';
+export * from './widgets/file-upload/components/file-upload.component';
 
 export * from './widgets/mobile-users/components/console-commands-list.component';
 export * from './widgets/sample/sample-widget.component';
