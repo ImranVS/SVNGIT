@@ -352,12 +352,16 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
 
                 return Response;
             }
         }
-
+        /// <summary>
+        /// All Locations Collection
+        /// </summary>
+        /// <author>Swathi </author>       
+        /// <returns></returns>
         [HttpGet("locations")]
         public APIResponse GetAllLocations()
         {
@@ -380,6 +384,12 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        /// <summary>
+        /// Save Locations 
+        /// </summary>
+        /// <author>Swathi </author>
+        /// /// <param name="LocationsModel"></param>
+        /// <returns></returns>
         [HttpPut("save_locations")]
         public APIResponse UpdateLocation([FromBody]LocationsModel locations)
         {
@@ -390,7 +400,7 @@ namespace VitalSigns.API.Controllers
                 {
                     Location location = new Location { LocationName = locations.LocationName, Country = locations.Country, Region = locations.Region, City = locations.City };
                     locationRepository.Insert(location);
-                    Response = Common.CreateResponse(true, "OK", "Location inserted successfully");
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location inserted successfully");
                 }
                 else
                 {
@@ -400,23 +410,38 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.Country, locations.Country)
                                                              .Set(p => p.Region, locations.Region);
                     var result = locationRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Location updated successfully");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Location updated successfully");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save locations falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save locations falied .\n Error Message :" + exception.Message);
             }
 
             return Response;
         }
 
+        /// <summary>
+        /// Delete Locations 
+        /// </summary>
+        /// <author>Swathi </author>
+        /// /// <param name="Location Id"></param>
+        /// <returns></returns>
         [HttpDelete("delete_location/{id}")]
-        public void DeleteLocation(string id)
+        public APIResponse DeleteLocation(string id)
         {
-            locationRepository = new Repository<Location>(ConnectionString);
-            Expression<Func<Location, bool>> expression = (p => p.Id == id);
-            locationRepository.Delete(expression);
+            try
+            {
+                locationRepository = new Repository<Location>(ConnectionString);
+                Expression<Func<Location, bool>> expression = (p => p.Id == id);
+              locationRepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location Deleted successfully");
+            }
+            catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete locations falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
         }
         #endregion
 
@@ -1682,14 +1707,6 @@ namespace VitalSigns.API.Controllers
                             if (datatype == "bool")
                             {
                                 bool booloutput = Convert.ToBoolean(value);
-                               //if (value=="0")
-                               // {
-                               //     booloutput = false;
-                               // }
-                               //else
-                               // {
-                               //     booloutput = true;
-                               // }
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                                                                                     .Set(field, booloutput);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
@@ -2872,7 +2889,11 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Log File Scanning
-
+        /// <summary>
+        /// Get Log Scanning 
+        /// </summary>
+        /// <author>Swathi </author>     
+        /// <returns></returns>
         [HttpGet("get_log_scaning")]
         public APIResponse GetAllLogFileScanning()
         {
@@ -2897,6 +2918,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// Get Event Log Scanning 
+        /// </summary>
+        /// <author>Swathi </author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("get_event_log_scaning/{id}")]
         public APIResponse GetEventLogScanning(string id)
         {
@@ -2923,7 +2950,7 @@ namespace VitalSigns.API.Controllers
                                 OneAlertPerDay = task.OneAlertPerDay,
                                 ScanLog = task.ScanLog,
                                 ScanAgentLog = task.ScanAgentLog,
-                                EventId = task.EventId
+                                Id = task.EventId
 
 
                             });
@@ -2947,110 +2974,162 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-        
-     
 
+
+        /// <summary>
+        /// Save Event Log Scanning 
+        /// </summary>
+        /// <author>Swathi </author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPut("save_log_file_servers/{id}")]
         public APIResponse UpdateLogFileServers([FromBody] DeviceSettings devicesettings, [FromBody] VitalSigns.API.Models.Configurator.LogFile eventlog, string id)
         {
             try
             {
-                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-
-                string settingValue = Convert.ToString(devicesettings.Value);
-                
-                var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
-                var logfiles = ((Newtonsoft.Json.Linq.JArray)devicesettings.Setting).ToObject<List<Models.Configurator.LogFile>>();
-              //  var server = serverOtherRepository.Get(id);
-                UpdateDefinition<ServerOther> updateDefinition = null;
-                List<LogFileKeyword> logscannings = new List<LogFileKeyword>();
-                if (id==("-1"))
+                if (devicesettings.Setting == null && devicesettings.Devices == null && devicesettings.Value == null)
                 {
-                    foreach (var logfile in logfiles)
-                    {
-                        if (logfile.EventId != "-1")
-                        {
-                            logscannings.Add(new LogFileKeyword
-                            {
-                                EventId = logfile.EventId,
-                                Keyword = logfile.Keyword,
-                                Exclude = logfile.Exclude,
-                                OneAlertPerDay = logfile.OneAlertPerDay,
-                                ScanLog = logfile.ScanLog,
-                                ScanAgentLog = logfile.ScanAgentLog
-                            });
-                        }
-                    }
-
-
-
-                    ServerOther logscanserver = new ServerOther { Name = settingValue, Type = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
-                    string newid = serverOtherRepository.Insert(logscanserver);
-                    Response = Common.CreateResponse(newid, "OK", "Log Scan Servers  inserted successfully");
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "");
                 }
-                    if (!string.IsNullOrEmpty("-1"))
+                else
+                {
+                    serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+
+                    string settingValue = Convert.ToString(devicesettings.Value);
+
+                    var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
+                    var logfiles = ((Newtonsoft.Json.Linq.JArray)devicesettings.Setting).ToObject<List<Models.Configurator.LogFile>>();
+                    //  var server = serverOtherRepository.Get(id);
+                    Expression<Func<ServerOther, bool>> filterExpression;
+                    if (id == ("-1"))
                     {
-                        if (devicesList.Count() > 0)
-                        {
-                            if (!string.IsNullOrEmpty(settingValue))
-                            {
+                        filterExpression = (p => p.Name == settingValue);
 
-                            foreach (var logfile in logfiles)
-                            {
-
-                                logscannings.Add(new LogFileKeyword
-                                {
-                                    EventId = ObjectId.GenerateNewId().ToString(),
-                                    Keyword = logfile.Keyword,
-                                    Exclude = logfile.Exclude,
-                                    OneAlertPerDay = logfile.OneAlertPerDay,
-                                    ScanLog = logfile.ScanLog,
-                                    ScanAgentLog = logfile.ScanAgentLog
-                                });
-                            }
-                            FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
-                            var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
-                                                                     .Set(p => p.LogFileServers, devicesList)
-                                                                     .Set(p => p.LogFileKeywords, logscannings)
-                                                                      .Set(p => p.Type, "Domino Log Scanning");
-
-                                var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
-                            Response = Common.CreateResponse(result, "OK", "Log File Scanning updated successfully");
-
-                        }
-
-                        }
                     }
-            }
+                    else
+                    {
+                        filterExpression = (p => p.Name == settingValue && p.Id != id);
 
+                    }
+                    var existsData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+                   // var existEventlog = serverOtherRepository.Collection.AsQueryable().Where(x => x.Name == settingValue).FirstOrDefault();
+                    if (existsData != settingValue)
+                    {
+                       
+                            UpdateDefinition<ServerOther> updateDefinition = null;
+                            List<LogFileKeyword> logscannings = new List<LogFileKeyword>();
+                            if (id == ("-1"))
+                            {
+                                foreach (var logfile in logfiles)
+                                {
+                                    if (logfile.Id != "-1")
+                                    {
+                                        logscannings.Add(new LogFileKeyword
+                                        {
+                                            EventId = ObjectId.GenerateNewId().ToString(),
+                                            Keyword = logfile.Keyword,
+                                            Exclude = logfile.Exclude,
+                                            OneAlertPerDay = logfile.OneAlertPerDay,
+                                            ScanLog = logfile.ScanLog,
+                                            ScanAgentLog = logfile.ScanAgentLog
+                                        });
+                                    }
+                                }
+
+
+
+                                ServerOther logscanserver = new ServerOther { Name = settingValue, Type = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
+                                string newid = serverOtherRepository.Insert(logscanserver);
+                                Response = Common.CreateResponse(newid, Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition  inserted successfully");
+                            }
+                            if (id!=("-1"))
+                            {
+                                if (devicesList.Count() > 0)
+                                {
+                                    if (!string.IsNullOrEmpty(settingValue))
+                                    {
+
+                                        foreach (var logfile in logfiles)
+                                        {
+
+                                            logscannings.Add(new LogFileKeyword
+                                            {
+                                               // EventId = ObjectId.GenerateNewId().ToString(),
+                                                Keyword = logfile.Keyword,
+                                                Exclude = logfile.Exclude,
+                                                OneAlertPerDay = logfile.OneAlertPerDay,
+                                                ScanLog = logfile.ScanLog,
+                                                ScanAgentLog = logfile.ScanAgentLog
+                                            });
+                                        }
+                                        FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
+                                        var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
+                                                                                 .Set(p => p.LogFileServers, devicesList)
+                                                                                 .Set(p => p.LogFileKeywords, logscannings)
+                                                                                  .Set(p => p.Type, "Domino Log Scanning");
+
+                                        var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
+                                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Domino Event Log Scanning updated successfully");
+
+                                    }
+
+                                }
+                            }
+                        
+                       
+                    }
+                    else if (existsData == settingValue)
+                    {
+                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Event Definition " + "" + existsData + " " + "already exists. Please Enter another one.");
+                    }
+
+                    if (logfiles.Count==0)
+                    {
+                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please create at least one Domino Event Log entry.");
+                    }
+                }
+            }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Log Scan Servers falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Domino Event Definition falied .\n Error Message :" + exception.Message);
             }
             return Response;
 
         }
 
+        /// <summary>
+        /// Delete Domino Event Definition Scanning 
+        /// </summary>
+        /// <author>Swathi </author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("delete_log_file_scanning/{Id}")]
-        public void DeleteLogFileScanning(string Id)
+        public APIResponse DeleteLogFileScanning(string Id)
         {
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
-
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition Deleted successfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Domino Event Definition falied .\n Error Message :" + exception.Message);
             }
+            return Response;
         }
 
+        /// <summary>
+        /// Delete Event Log File Scanning 
+        /// </summary>
+        /// <author>Swathi </author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("delete_event_log_file_scanning/{deviceId}/{id}")]
-        public void DeleteEventLogFileScanning(string deviceId, string id)
+        public APIResponse DeleteEventLogFileScanning(string deviceId, string id)
         {
             try
             {
@@ -3065,14 +3144,16 @@ namespace VitalSigns.API.Controllers
                     dominoServerTasks.Remove(serverTaskDelete);
                     var updateDefinition = serverOtherRepository.Updater.Set(p => p.LogFileKeywords, dominoServerTasks);
                     var result = serverOtherRepository.Update(server, updateDefinition);
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino Event Log Scanning Deleted successfully");
                 }
 
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Notes Database falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Delete Event Log File falied .\n Error Message :" + exception.Message);
             }
+            return Response;
         }
         #endregion
 
