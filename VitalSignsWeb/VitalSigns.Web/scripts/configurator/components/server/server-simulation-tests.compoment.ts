@@ -2,8 +2,9 @@
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-
 import {RESTService} from '../../../core/services';
+import {AppComponentService} from '../../../core/services';
+
 @Component({
     selector: 'server-simulation-list',
     templateUrl: '/app/configurator/components/server/server-simulation-tests.compoment.html',
@@ -20,12 +21,13 @@ export class SimulationTests implements OnInit {
     errorMessage: string;
     profileEmail: string;
     formTitle: string;
+    appComponentService: AppComponentService;
 
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute, appComponentService: AppComponentService ) {
         this.simulationTests = this.formBuilder.group({
             'id':[],
             'create_activity_threshold': [],
@@ -42,8 +44,8 @@ export class SimulationTests implements OnInit {
             'create_file': [false],
             'create_wiki': [false],
             'search_profile': [false]
-
         });
+        this.appComponentService = appComponentService;
 }
 
     ngOnInit() {
@@ -53,16 +55,26 @@ export class SimulationTests implements OnInit {
         this.dataProvider.get('/configurator/' + this.deviceId + '/get_simulationtests')
             .subscribe(
             response => {
-                console.log(response.data);
                 this.simulationTests.setValue(response.data);
             },
-            (error) => this.errorMessage = <any>error
-            );
+            (error) => {
+                this.errorMessage = <any>error
+                this.appComponentService.showErrorMessage(this.errorMessage);
+            });
     }
     onSubmit(nameValue: any): void {
-        console.log(nameValue);
         this.dataProvider.put('/configurator/save_simulationtests', nameValue)
             .subscribe(
-            response => {});
+            response => {
+
+                if (response.status == "Success") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            }); 
     }
 }
