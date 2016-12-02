@@ -56,17 +56,17 @@ export class DominoLogFiles extends GridBase implements OnInit {
         if (!this.id)
             this.id = this.firstrowid
         else
-            this.id = this.id
-
+            this.id = this.id    
         this.router.navigateByUrl('ibmDomino/add/'+ this.id);
 
     }
     deleteLogFileScanning() {
-        if (!this.id)
-            this.id = this.firstrowid
-        else
-            this.id = this.id
-        this.delteGridRow('/configurator/delete_log_file_scanning/' + this.id);
+        //if (!this.id)
+        //    this.id = this.firstrowid
+        //else
+        //    this.id = this.id
+        this.delteGridRow('/configurator/delete_log_file_scanning/');
+        console.log(this.id);
         //this.service.delete(`/configurator/delete_log_file_scanning/`+this.id)
         //window.location.reload();
         //this.router.navigateByUrl('/configurator/ibmDomino?tab=1');

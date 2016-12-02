@@ -21,6 +21,7 @@ export class AddLogFile extends GridBase implements OnInit {
     serverLog: FormGroup;
     checkedDevices: any;
     devices: string = "";
+
     currentDeviceType: string = "Domino";
 
     constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
@@ -80,8 +81,9 @@ export class AddLogFile extends GridBase implements OnInit {
     saveEventLog(dlg: wijmo.input.Popup) {
         console.log(this.results);
         //if (this.results != null || this.results.count == 0)
-        
+       // dlg.hide();
         this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
+
     }
     deleteEventLog() {
         
@@ -91,7 +93,7 @@ export class AddLogFile extends GridBase implements OnInit {
     addlogScan(dlg: wijmo.input.Popup) {
         
         this.addGridRow(dlg);
-
+        
             this.currentEditItem.keyword = "";
             this.currentEditItem.exclude = "";
             this.currentEditItem.one_alert_per_day = false;
@@ -101,7 +103,7 @@ export class AddLogFile extends GridBase implements OnInit {
 
     }
     applySetting() {
-       
+      // this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
         var postData = {
             "setting": this.results,
             "value": this.sererNames,
@@ -113,9 +115,17 @@ export class AddLogFile extends GridBase implements OnInit {
         this.service.put('/configurator/save_log_file_servers/' + this.id, postData)
             .subscribe(
             response => {
+                if (response.status == "Success") {
 
+                    this.appComponentService.showSuccessMessage(response.message);
+                    this.router.navigateByUrl('/configurator/ibmDomino?tab=1');
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
-        this.router.navigateByUrl('/configurator/ibmDomino?tab=1');
+        
     }
     CancelSettings() {
 
