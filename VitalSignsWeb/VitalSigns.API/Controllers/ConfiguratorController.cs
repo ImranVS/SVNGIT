@@ -2230,7 +2230,8 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold)
                                                                  .Set(p=> p.ClusterReplicationQueueThreshold,advancedSettings.ClusterReplicationQueueThreshold);
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result);
+                      //  Response = Common.CreateResponse(result);
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
                     }
                    else if(advancedSettings.DeviceType == "Sametime")
                     {
@@ -2253,8 +2254,8 @@ namespace VitalSigns.API.Controllers
                                                                .Set(p=>p.Db2SettingsCredentialsId,advancedSettings.Db2SettingsCredentialsId);
 
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                       
-                        Response = Common.CreateResponse(result);
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
+                        //Response = Common.CreateResponse(result);
 
                     }
 
@@ -2266,7 +2267,8 @@ namespace VitalSigns.API.Controllers
                                                             
 
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result);
+                        //Response = Common.CreateResponse(result);
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
 
                     }
                   
@@ -2568,6 +2570,8 @@ namespace VitalSigns.API.Controllers
                 var notesUserID = result.Where(x => x.Name == "Notes User ID").Select(x => x.Value).FirstOrDefault();
                 var notesIni = result.Where(x => x.Name == "Notes.ini").Select(x => x.Value).FirstOrDefault();
                 var password = result.Where(x => x.Name == "Password").Select(x => x.Value).FirstOrDefault();
+                if (password != null)
+                    password = "****";
 
                 var enableExJournal = result.Where(x => x.Name == "Enable ExJournal").Select(x => x.Value).FirstOrDefault();
                 var enableDominoConsoleCommands = result.Where(x => x.Name == "Enable Domino Console Commands").Select(x => x.Value).FirstOrDefault();
@@ -2578,7 +2582,7 @@ namespace VitalSigns.API.Controllers
                     NotesProgramDirectory = notesProgramDirectory,
                     NotesUserID = notesUserID,
                     NotesIni = notesIni,
-                    // NotesPassword = "****",
+                    NotesPassword = password,
                     EnableExJournal = Convert.ToBoolean(enableExJournal),
                     EnableDominoConsoleCommands = Convert.ToBoolean(enableDominoConsoleCommands),
                     ExJournalThreshold = exJournalthreshold,
