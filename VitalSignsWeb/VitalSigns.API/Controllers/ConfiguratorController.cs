@@ -5992,6 +5992,59 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+        [HttpPut("upload_file")]
+        public APIResponse UploadFile()
+        {
+            try
+            {
+                string servers = "";
+                string filePath = "uploads/";
+                locationRepository = new Repository<Location>(ConnectionString);
+                var locationList = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+                //we are passig only one file currently, but in case we do multiple, POC here:
+                foreach (var fi in Request.Form.Files)
+                {
+                    System.IO.Stream f = fi.OpenReadStream();
+                    System.Net.Mime.ContentDisposition c = new System.Net.Mime.ContentDisposition();
+                    string fileName = fi.ContentDisposition.Substring(fi.ContentDisposition.IndexOf("filename=") + 10).Replace("\\", "");
+                    fileName = fileName.Substring(0, fileName.Length - 1);
+                    System.IO.FileStream fs = new System.IO.FileStream(filePath + fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+
+                    f.CopyTo(fs);
+                    fs.Dispose();
+
+                    //read the file back if it's csv and process the file 
+                    string logPath = filePath + fileName;
+                    List<ServersModel> serverList = new List<ServersModel>();
+                    if (fileName.ToLower().Contains (".csv"))
+                    {
+                        using (StreamReader sr = new StreamReader(logPath))
+                        {
+                            while (!sr.EndOfStream)
+                            {
+                                ServersModel server = new ServersModel();
+                                server.DeviceName = sr.ReadLine();
+                                server.DeviceType = "Domino";
+                                server.IpAddress = "dummyaddress.yourdomain.com";
+                                serverList.Add(server);
+                            }
+                            sr.Close();
+                        }
+                    }
+                    //delete the file after done?
+                    System.IO.File.Delete(logPath);
+                    Response = Common.CreateResponse(new { locationList = locationList, serverList = serverList }, "OK", servers);
+                }
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+                return Response;
+            }
+
+        }
+
     }
 }
 
