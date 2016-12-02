@@ -982,7 +982,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// Get all device attributes data
         /// </summary>
-        /// <author>Sowjanya</author>
+        /// <author>Swathi</author>
         /// <returns>List of device attributes data</returns>
         [HttpGet("get_device_attributes")]
         public APIResponse GetDeviceAttributes(string type)
@@ -1014,19 +1014,23 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         ///saves the device attributes data
         /// </summary>
-        /// <author>Sowjanya</author>
+        /// <author>Swathi</author>
         [HttpPut("save_device_attributes")]
         public APIResponse SaveDeviceAttributes([FromBody]DeviceSettings deviceSettings)
         {
             try
             {
                 var deviceAttributes = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<DeviceAttributeValue>>();
+
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
                 Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                 UpdateDefinition<BsonDocument> updateDefinition = null;
-                if (devicesList.Count() > 0 && deviceAttributes.Count()>0)
-                 {
-
+                if (deviceAttributes.Count() ==0)
+                {
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Error.ToDescription(), "Please select atleast one Attribute.");
+                }
+                else
+                {
                     foreach (string id in devicesList)
                     {
                         var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
@@ -1034,7 +1038,7 @@ namespace VitalSigns.API.Controllers
                         {
                             if (!string.IsNullOrEmpty(attribute.FieldName))
                             {
-                                
+
                                 //updateDefinition = Builders<BsonDocument>.Update
                                 //   .Set(attribute.FieldName, attribute.Value);
                                 string field = attribute.FieldName;
@@ -1043,15 +1047,15 @@ namespace VitalSigns.API.Controllers
                                 if (datatype == "int")
                                 {
                                     int outputvalue = Convert.ToInt32(value);
-                                   updateDefinition = Builders<BsonDocument>.Update
-                                         .Set(field, outputvalue);
+                                    updateDefinition = Builders<BsonDocument>.Update
+                                          .Set(field, outputvalue);
                                     var result = repository.Collection.UpdateMany(filter, updateDefinition);
                                 }
                                 if (datatype == "double")
                                 {
                                     double outputvalue = Convert.ToDouble(value);
-                                     updateDefinition = Builders<BsonDocument>.Update
-                                         .Set(field, outputvalue);
+                                    updateDefinition = Builders<BsonDocument>.Update
+                                        .Set(field, outputvalue);
                                     var result = repository.Collection.UpdateMany(filter, updateDefinition);
                                 }
                                 if (datatype == "bool")
@@ -1073,24 +1077,27 @@ namespace VitalSigns.API.Controllers
 
                                 if (datatype == "string")
                                 {
-                                     updateDefinition = Builders<BsonDocument>.Update
-                                                                                                        .Set(field, value);
+                                    updateDefinition = Builders<BsonDocument>.Update
+                                                                                                       .Set(field, value);
                                     var result = repository.Collection.UpdateMany(filter, updateDefinition);
                                 }
-
+                                //  Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes Updated Successfully.");
                             }
                         }
-                        }
-                       // var result = repository.Collection.UpdateMany(filter, updateDefinition);
-
                     }
-                    Response = Common.CreateResponse(null, "OK", "Settings are not selected");                 
-
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes Updated Successfully.");
+                }
+                    // var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                    
                 
-}
+            
+                    
+
+
+            }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get device attributes failed .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Attributes Updation failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
