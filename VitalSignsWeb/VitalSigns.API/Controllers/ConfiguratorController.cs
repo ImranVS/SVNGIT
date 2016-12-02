@@ -517,7 +517,7 @@ namespace VitalSigns.API.Controllers
                     {
                         BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray(), UseType = Convert.ToInt32(businesshour.UseType) };
                         string id = businessHoursRepository.Insert(businessHours);
-                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Business hour inserted successfully");
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Business hours inserted successfully");
                     }
 
                     else
@@ -530,18 +530,18 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.Days, days.ToArray());
 
                         var result = businessHoursRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Business hour updated successfully");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Business hours updated successfully");
                     }
                 }
 
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This" + businesshour.Name +"already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Name already exists. Enter another one.");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save business hours falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save business hours failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -565,7 +565,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Delete Business Hours failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -764,13 +764,13 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This "  + maintenance.Name + " already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Name  already exists. Enter another one.");
                 }
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Maintenancedata falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Maintenance data failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -832,7 +832,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
 
             }
             return Response;
@@ -982,7 +982,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get device attributes failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -1065,7 +1065,7 @@ namespace VitalSigns.API.Controllers
 }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get device attributes failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -1104,7 +1104,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get server tasks failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -1156,7 +1156,7 @@ namespace VitalSigns.API.Controllers
 
                             if (name == "exists")
                             {
-                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + serverTask.TaskName + "  name already exists. Enter another one.");
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Task Name  name already exists. Enter another one.");
                             }
                             else
                             {
@@ -1181,9 +1181,9 @@ namespace VitalSigns.API.Controllers
                                 var dominoServerTaskRemove = dominoServerTasks.Where(x => x.TaskId == serverTask.Id).ToList();
                                 foreach(var item in dominoServerTaskRemove)
                                 dominoServerTasks.Remove(item);
-                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Domino Server Tasks deleted Successfully.");
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks deleted Successfully.");
                             }
-
+                             
                         }
                        
 
@@ -1193,7 +1193,7 @@ namespace VitalSigns.API.Controllers
                         
 
                     }
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings are not selected");
+                   // Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings are not selected");
 
 
                 }
@@ -1205,7 +1205,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Domino Server Tasks falied .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -1969,7 +1969,7 @@ namespace VitalSigns.API.Controllers
             catch (Exception ex)
             {
 
-                Response = Common.CreateResponse(null, "Error", "Error in getting task names");
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error in getting task names");
             }
 
 
@@ -2012,7 +2012,7 @@ namespace VitalSigns.API.Controllers
                 }
                 if (name == "exists")
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + servertasks.TaskName + " name already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This  Task Name   already exists. Enter another one.");
                 }
                 else
                 {
@@ -2735,7 +2735,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + notesDatabase.Name + " already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Name already exists. Enter another one.");
                 }
                
                     
@@ -4279,7 +4279,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Fetching mobile users failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
