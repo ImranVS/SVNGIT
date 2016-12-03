@@ -21,9 +21,11 @@ export class UsersDashboard extends WidgetController implements OnInit  {
     ngOnInit() {
 
         var todaysDate = new Date();
-        var endDate = todaysDate.toISOString().slice(0, 10);
+        //var endDate = todaysDate.toISOString().slice(0, 10);
+        var endDate = todaysDate.toISOString();
         todaysDate.setMonth(todaysDate.getMonth() - 1);
-        var startDate = todaysDate.toISOString().slice(0, 10);
+        //var startDate = todaysDate.toISOString().slice(0, 10);
+        var startDate = todaysDate.toISOString();
         
         this.widgets = [
             {

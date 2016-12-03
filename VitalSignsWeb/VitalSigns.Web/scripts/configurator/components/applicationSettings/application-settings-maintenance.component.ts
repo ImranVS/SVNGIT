@@ -19,7 +19,9 @@ export class Maintenance extends GridBase implements OnInit  {
    errorMessage: string;
    dataMobileUsers: wijmo.collections.CollectionView;
    selectedSetting: string="1";
-    durationSetting: any;
+   durationSetting: any;
+   durationSetting1: any;
+   durationSetting2: any;
     selectedSettingValue: any;
     selectedDays: any;
     weekDays: any;
@@ -137,11 +139,11 @@ export class Maintenance extends GridBase implements OnInit  {
 
   
         this.selectedSetting = this.currentEditItem.maintain_type_value;
-       this.durationSetting = this.currentEditItem.duration_type;
-       this.keyUsers = this.currentEditItem.key_users;
-       console.log(this.currentEditItem.device_list +"serverslist");
-       this.checkedDevices = this.currentEditItem.device_list;
-       this.keyUsersGridBind();
+        this.durationSetting = this.currentEditItem.duration_type;
+        this.keyUsers = this.currentEditItem.key_users;
+        console.log(this.currentEditItem.device_list + "serverslist");
+        this.checkedDevices = this.currentEditItem.device_list;
+        this.keyUsersGridBind();
     }
     weeklyEditBinding()
     {
@@ -280,7 +282,6 @@ export class Maintenance extends GridBase implements OnInit  {
         
        
     }
-
 
     selectAllClick(index: any) {
        for (var i = 0; i < 7; i++) {
