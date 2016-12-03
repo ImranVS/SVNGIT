@@ -1417,7 +1417,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("disk_space")]
-        public APIResponse GetDiskSpace(string deviceid = "")
+        public APIResponse GetDiskSpace(string deviceId = "")
         {
             FilterDefinition<Status> filterDefStatus;
             List<dynamic> result = new List<dynamic>();
@@ -1425,10 +1425,10 @@ namespace VitalSigns.API.Controllers
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
-                if (!string.IsNullOrEmpty(deviceid))
+                if (!string.IsNullOrEmpty(deviceId))
                 {
                     filterDefStatus = statusRepository.Filter.And(statusRepository.Filter.Exists(x => x.Disks, true),
-                        statusRepository.Filter.Eq(x => x.DeviceId, deviceid));
+                        statusRepository.Filter.Eq(x => x.DeviceId, deviceId));
                 }
                 else
                 {

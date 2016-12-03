@@ -1531,7 +1531,7 @@ namespace VitalSigns.API.Controllers
                     IPAddress = s.IPAddress,
                     Category = s.Category,
                     IsEnabled=s.IsEnabled,
-                    Platform=s.Platform,
+                    //Platform=s.Platform,
                     LocationId = s.LocationId,
                     Devicetype = s.DeviceType,
                     CellId = s.CellId,
@@ -3334,13 +3334,13 @@ namespace VitalSigns.API.Controllers
                 }
                 catch (Exception exception)
                 {
-                    Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                    Response = Common.CreateResponse(null, "Error", "Saving Alert Settings failed .\n Error Message :" + exception.Message);
                 }
                 return Response;
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Saving Alert Settings failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3450,23 +3450,47 @@ namespace VitalSigns.API.Controllers
 
         #region View Alerts
         [HttpGet("viewalerts")]
-        public APIResponse GetViewalerts()
+        public APIResponse GetViewalerts(DateTime statdate)
         {
             try
             {
+                DateTime? nullDate = null;
                 eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
-                var result = eventsdetectedRepository.Collection.AsQueryable()
-                .Select(s => new AlertsModel
+                if (statdate == DateTime.MinValue || statdate.Date == DateTime.Now.Date)
                 {
-                    DeviceName = s.Device,
-                    DeviceType = s.DeviceType,
-                    AlertType = s.EventType,
-                    Details = s.Details,
-                    EventDetectedSent = (s.NotificationsSent[-1].EventDetectedSent.Value),
-                    EventDismissed = s.EventDismissed.Value,
-                    NotificationSentTo = s.NotificationsSent[-1].NotificationSentTo
-                }).OrderByDescending(x => x.EventDetectedSent).ToList();
-                Response = Common.CreateResponse(result);
+                    statdate = DateTime.Now;
+                    var resultList = eventsdetectedRepository.All().Where(x => x.EventDetected.HasValue && x.EventDetected.Value.Date == statdate.Date).ToList();
+                    var result = resultList                        
+                        .Select(s => new AlertsModel
+                        {
+                            DeviceName = s.Device,
+                            DeviceType = s.DeviceType,
+                            AlertType = s.EventType,
+                            Details = s.Details,
+                            EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count-1].EventDetectedSent.Value) : nullDate,
+                            EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
+                            NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
+                        }).OrderByDescending(x => x.EventDetected).ToList();
+
+                    Response = Common.CreateResponse(result);
+                }
+                else
+                {
+                    var resultList = eventsdetectedRepository.All().Where(x => x.EventDetected.HasValue && x.EventDetected.Value.Month == statdate.Month && x.EventDetected.Value.Year == statdate.Year).ToList();
+                    var result = resultList
+                        .Select(s => new AlertsModel
+                        {
+                            DeviceName = s.Device,
+                            DeviceType = s.DeviceType,
+                            AlertType = s.EventType,
+                            Details = s.Details,
+                            EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].EventDetectedSent.Value) : nullDate,
+                            EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
+                            NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
+                        }).OrderByDescending(x => x.EventDetected).ToList();
+
+                    Response = Common.CreateResponse(result);
+                }
             }
             catch (Exception ex)
             {

@@ -523,6 +523,7 @@ namespace VitalSigns.API.Controllers
             List<ServerDatabase> data = null;
             List<Segment> segments = new List<Segment>();
             List<BsonDocument> bsonDocs;
+            int charLimit = 50;
 
             try
             {
@@ -544,7 +545,7 @@ namespace VitalSigns.API.Controllers
                                 data = res.Select(x => new ServerDatabase
                                 {
                                     DeviceId = x.DeviceId,
-                                    Title = x.Title,
+                                    Title = x.Title.Length > charLimit ? x.Title.Substring(0, charLimit) + "..." : x.Title,
                                     DeviceName = x.DeviceName,
                                     Status = x.Status,
                                     Folder = x.Folder,
@@ -569,7 +570,7 @@ namespace VitalSigns.API.Controllers
                                 data = res.Select(x => new ServerDatabase
                                 {
                                     DeviceId = x.DeviceId,
-                                    Title = x.Title,
+                                    Title = x.Title.Length > charLimit ? x.Title.Substring(0, charLimit) + "..." : x.Title,
                                     DeviceName = x.DeviceName,
                                     Status = x.Status,
                                     Folder = x.Folder,
@@ -597,7 +598,7 @@ namespace VitalSigns.API.Controllers
                             data = res.Select(x => new ServerDatabase
                             {
                                 DeviceId = x.DeviceId,
-                                Title = x.Title,
+                                Title = x.Title.Length > charLimit ? x.Title.Substring(0, charLimit) + "..." : x.Title,
                                 DeviceName = x.DeviceName,
                                 Status = x.Status,
                                 Folder = x.Folder,
@@ -666,7 +667,7 @@ namespace VitalSigns.API.Controllers
                                     .Select(x => new ServerDatabase
                                     {
                                         DeviceId = x.DeviceId,
-                                        Title = x.Title,
+                                        Title = x.Title.Length > charLimit ? x.Title.Substring(0, charLimit) + "..." : x.Title,
                                         DeviceName = x.DeviceName,
                                         Status = x.Status,
                                         Folder = x.Folder,
@@ -690,7 +691,7 @@ namespace VitalSigns.API.Controllers
                                     .Select(x => new ServerDatabase
                                     {
                                         DeviceId = x.DeviceId,
-                                        Title = x.Title,
+                                        Title = x.Title.Length > charLimit ? x.Title.Substring(0, charLimit) + "..." : x.Title,
                                         DeviceName = x.DeviceName,
                                         Status = x.Status,
                                         Folder = x.Folder,
@@ -1324,23 +1325,33 @@ namespace VitalSigns.API.Controllers
                 serverlist = serverRepository.Collection.Aggregate().ToList();
                 foreach (var stats in summarylist)
                 {
+                    bool found = false;
                     var x = new ExpandoObject() as IDictionary<string, Object>;
                     x.Add("device_name", stats.Label);
                     foreach (Server server in serverlist)
                     {
                         if (stats.Id == server.Id)
                         {
+                            found = true;
                             var bson2 = server.ToBsonDocument();
-                            var fieldvalue = bson2[fieldName].ToDouble();
+                            var fieldvalue = 0.0;
+                            if (bson2[fieldName] != null)
+                            {
+                                fieldvalue = bson2[fieldName].ToDouble();
+                            }
                             if (stats.Value != 0)
                             {
                                 x.Add("cost_per_user", Math.Round(fieldvalue / stats.Value, 2));
                             }
                             else
                             {
-                                x.Add("cost_per_user", 0);
+                                x.Add("cost_per_user", 0.0);
                             }
                         }
+                    }
+                    if (!found)
+                    {
+                        x.Add("cost_per_user", 0.0);
                     }
                     result.Add(x);
                 }
@@ -1361,12 +1372,25 @@ namespace VitalSigns.API.Controllers
                     }
                     foreach (var doc in result)
                     {
-                        Segment segment = new Segment()
+                        if (doc.cost_per_user != null)
                         {
-                            Label = doc.device_name,
-                            Value = Convert.ToDouble(doc.cost_per_user)
-                        };
-                        segmentList.Add(segment);
+                            Segment segment = new Segment()
+                            {
+                                Label = doc.device_name,
+                                Value = Convert.ToDouble(doc.cost_per_user)
+                            };
+                            segmentList.Add(segment);
+                        }
+                        else
+                        {
+                            Segment segment = new Segment()
+                            {
+                                Label = doc.device_name,
+                                Value = 0.0
+                            };
+                            segmentList.Add(segment);
+                        }
+                        
                     }
 
                     Serie serie = new Serie();

@@ -39,6 +39,10 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetDiskAvailabilityTrend(string deviceId = "", int year = -1, bool isChart = true)
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
+            if (year == -1)
+            {
+                year = DateTime.Today.Year;
+            }
             DateTime dtStart = DateTime.Parse("01/01/" + year.ToString());
             year += 1;
             DateTime dtEnd = DateTime.Parse("01/01/" + year.ToString());
@@ -176,7 +180,7 @@ namespace VitalSigns.API.Controllers
                     var server = serverlist.Where(x => x.Id == deviceid).ToList();
                     foreach (var item in output)
                     {
-                        if (item.DeviceId == deviceid)
+                        if (item.DeviceId == deviceid && server.Count > 0)
                         {
                             if (server[0].IdealUserCount == null || server[0].IdealUserCount == 0)
                             {
@@ -616,7 +620,7 @@ namespace VitalSigns.API.Controllers
                         var server = serverlist.Where(x => x.Id == deviceid).ToList();
                         foreach (var item in output)
                         {
-                            if (item.DeviceId == deviceid)
+                            if (item.DeviceId == deviceid && server.Count > 0)
                             {
                                 if (server[0].MonthlyOperatingCost == null || server[0].MonthlyOperatingCost == 0 || item.Value == 0)
                                 {
@@ -762,7 +766,7 @@ namespace VitalSigns.API.Controllers
                             if (record.Interval == interval)
                             {
                                 foundInt = true;
-                                segments.Add(new Segment { Label = record.CreatedOn.TimeOfDay.ToString(), Value = Convert.ToDouble(record.OpenTimes) });
+                                segments.Add(new Segment { Label = record.CreatedOn.ToString(DateFormat), Value = Convert.ToDouble(record.OpenTimes) });
                                 serie.Title = interval;
                             }
                         }
