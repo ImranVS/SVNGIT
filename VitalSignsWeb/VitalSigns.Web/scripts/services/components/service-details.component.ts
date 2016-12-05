@@ -1,4 +1,5 @@
-﻿import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
+﻿/// <reference path="../../core/services/app.component.service.ts" />
+import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {Router} from '@angular/router';
@@ -11,7 +12,7 @@ import {ServiceTab} from '../models/service-tab.interface';
 
 import * as ServiceTabs from '../service-tab.collection';
 import {WidgetService} from '../../core/widgets';
-
+import {AppComponentService} from '../../core/services';
 @Component({
     templateUrl: '/app/services/components/service-details.component.html',
     providers: [
@@ -32,11 +33,13 @@ export class ServiceDetails implements OnInit {
     module: string;
     activeTabComponent: ComponentRef<{}>;
     services: any[];
+    data: string;
    // service: any
-
+    protected appComponentService: AppComponentService;
     constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute,
-        private datetimeHelpers: helpers.DateTimeHelper) {
+        private datetimeHelpers: helpers.DateTimeHelper, appComponentService: AppComponentService) {
         //.map(routeParams => routeParams.id);
+        this.appComponentService = appComponentService;
     }
     
     selectTab(tab: any) {
@@ -67,6 +70,7 @@ export class ServiceDetails implements OnInit {
                 .subscribe(
                 response => {
                     this.service = this.datetimeHelpers.toLocalDateTime(response.data);
+                  this.data=response.data
                     this.selectTab(this.service.tabs[0]);
                     console.log(this.service.tabs);
                 },
@@ -97,8 +101,25 @@ export class ServiceDetails implements OnInit {
     }
     deleteServer() {
        
-        this.dataProvider.delete('/configurator/delete_server/' + this.deviceId);
-    
+      //  this.dataProvider.delete('/configurator/delete_server/' + this.deviceId);
+        this.dataProvider.delete('/configurator/delete_server/' + this.deviceId)
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+                    this.appComponentService.showSuccessMessage(response.message);
+                   // this.router.navigate(['services', response.data]);
+                    console.log(this.module);
+                   
+                    console.log(response.data);
+                } else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+
+            }, error => {
+                var errorMessage = <any>error;
+                this.appComponentService.showErrorMessage(errorMessage);
+            });
+        this.router.navigate(['services/' + this.module]);
     }
 
 }
