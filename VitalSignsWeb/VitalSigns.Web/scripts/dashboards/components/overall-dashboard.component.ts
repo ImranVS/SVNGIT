@@ -51,19 +51,5 @@ export class OverallDashboard extends WidgetController implements OnInit {
         bootstrapNavigator();
 
     }
-<<<<<<< .mine
-    
-||||||| .r1638
 
-    showAlert() {
-
-        this.alerts.showAlertMessage('warning', 'Hello World!');
-
-    }
-
-=======
-
-   
-
->>>>>>> .r1734
 }

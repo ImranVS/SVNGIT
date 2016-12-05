@@ -534,6 +534,10 @@ const appRoutes: Routes = [
             {
                 path: 'configurator/serverImport',
                 component: ServerImports
+            },
+            {
+                path: 'configurator/fileupload',
+                component: FileUploadSample
             }
         ]
     },
@@ -543,51 +547,7 @@ const appRoutes: Routes = [
         path: '**',
         redirectTo: ''
     }
-
-<<<<<<< .mine
-||||||| .r1638
-     {
-        path: 'configurator/nodes',
-        component: Nodes
-    }
-    ,
-     {
-         path: 'configurator/logFiles',
-         component: LogsTabs
-     }
-    ,
-
-     {
-         path: 'configurator/mobileusers',
-         component: MobileUser
-     }, {
-         path: 'configurator/serverImport',
-         component: ServerImports
-     }
-=======
-     {
-        path: 'configurator/nodes',
-        component: Nodes
-    }
-    ,
-     {
-         path: 'configurator/logFiles',
-         component: LogsTabs
-     }
-    ,
-
-     {
-         path: 'configurator/mobileusers',
-         component: MobileUser
-     }, {
-         path: 'configurator/serverImport',
-         component: ServerImports
-     },
-     {
-         path: 'configurator/fileupload',
-         component: FileUploadSample
-     }
->>>>>>> .r1734
+    
 ];
 
 export const APP_ROUTES = RouterModule.forRoot(appRoutes);

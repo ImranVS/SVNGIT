@@ -109,7 +109,6 @@ import {ServerAvailabilityFilter} from './reports/filters/components/server-avai
         DragulaModule,
         APP_ROUTES
     ],
-<<<<<<< .mine
     providers: [
         AppConfig,
         {
@@ -122,12 +121,6 @@ import {ServerAvailabilityFilter} from './reports/filters/components/server-avai
         AuthenticationService,
         AlertService
     ],
-||||||| .r1638
-    providers: [
-        AlertService
-    ],
-=======
->>>>>>> .r1734
     declarations: [
         AppComponent,
         LoginForm,

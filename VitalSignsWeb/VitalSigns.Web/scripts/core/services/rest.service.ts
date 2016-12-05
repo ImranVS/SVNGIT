@@ -8,6 +8,13 @@ import {AuthenticationService} from '../../profiles/services/authentication.serv
 
 @Injectable()
 export class RESTService {
+<<<<<<< .mine
+
+||||||| .r1735
+
+<<<<<<< .mine
+=======
+>>>>>>> .r1738
     private serverUrl;
 
     private get requestOptions(): RequestOptions {
