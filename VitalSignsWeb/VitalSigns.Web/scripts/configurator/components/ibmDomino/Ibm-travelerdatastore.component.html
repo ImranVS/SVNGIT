@@ -4,16 +4,16 @@
             <div class="alert alert-info col-lg-12">
                 Traveler HA servers share a common backend data store, either SQL Server or DB2.
             </div>
-            <div class="grid-sort-group">
+            <div class="grid-sort-group"  *ngIf="data">
 
                 <!-- edit details in a popup -->
-                <button class="btn btn-success" (click)="editTravelerDataStore(frmDialog)">
+                <button class="btn btn-success" (click)="editTravelerDataStore(frmDialog)" [disabled]="data.itemCount==0">
                     Edit
                 </button>
                 <button class="btn btn-success" (click)="addTravelerData(frmDialog,usedByServers)">
                     Add
                 </button>
-                <button class="btn btn-success" (click)="delteTravelerDataStore();">
+                <button class="btn btn-success" (click)="delteTravelerDataStore();"  [disabled]="data.itemCount==0">
                     Delete
                 </button>
             </div>
