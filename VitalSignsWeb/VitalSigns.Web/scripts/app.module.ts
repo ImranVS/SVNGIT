@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 import { APP_ROUTES } from './app.routes';
 
 import {SuccessErrorMessageComponent} from './core/components/success-error-message-component';
+import {AlertService} from './core/services/alert.service';
 
 import { DragulaModule } from 'ng2-dragula/ng2-dragula';
 
