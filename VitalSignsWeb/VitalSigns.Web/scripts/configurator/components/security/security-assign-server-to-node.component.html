@@ -7,13 +7,13 @@
                     <div class="widgetTitle">
                         Node Health
                     </div>
-                    <div class="grid-sort-group">
+                    <div class="grid-sort-group"  *ngIf="nodeNames">
 
                         <!-- edit details in a popup -->
-                        <button class="btn btn-success" (click)="editGridRow(frmDialog)">
+                        <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="nodeNames.itemCount==0">
                             Edit
                         </button>
-                        <button class="btn btn-success" (click)="deleteNodesHealth();">
+                        <button class="btn btn-success" (click)="deleteNodesHealth();" [disabled]="nodeNames.itemCount==0">
                             Delete
                         </button>
                     </div>

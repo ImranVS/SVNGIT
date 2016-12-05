@@ -5,15 +5,15 @@
                 <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
                     The list of event notifications is displayed below. When an event matches a notification definition, a message will be sent out to the specified recipients. In order to add new definitions or configure existing definitions, please use the buttons below.
                 </div>
-                <div class="grid-sort-group">
+                <div class="grid-sort-group" *ngIf="data">
                     <!-- edit details in a popup -->
-                    <button class="btn btn-success" (click)="showEditForm(frmDialog)">
+                    <button class="btn btn-success" (click)="showEditForm(frmDialog)" [disabled]="data.itemCount==0">
                         Edit
                     </button>
                     <button class="btn btn-success" (click)="showAddForm(frmDialog)">
                         Add
                     </button>
-                    <button class="btn btn-success" (click)="deleteDefinition();">
+                    <button class="btn btn-success" (click)="deleteDefinition();" [disabled]="data.itemCount==0">
                         Delete
                     </button>
                 </div>

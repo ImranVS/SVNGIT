@@ -5,16 +5,16 @@
                 <div class="alert alert-info col-lg-12">
                     Tasks are programs that run on IBM Domino Servers. The table below lists various server tasks that could be monitored. You may define a server task here and associate it with a server using the Server Tasks tab on the Domino Server page.
                 </div>
-                    <div class="grid-sort-group">
+                    <div class="grid-sort-group"  *ngIf="data">
 
                     <!-- edit details in a popup -->
-                    <button class="btn btn-success" (click)="editGridRow(frmDialog)">
+                    <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="data.itemCount==0">
                         Edit
                     </button>
                     <button class="btn btn-success" (click)="addServerTask(frmDialog)">
                         Add
                     </button>
-                    <button class="btn btn-success" (click)="delteServerTaskDefinition();">
+                    <button class="btn btn-success" (click)="delteServerTaskDefinition();" [disabled]="data.itemCount==0">
                         Delete
                     </button>
                 </div>

@@ -1,13 +1,13 @@
 ﻿<div class="widgetWrapper">
     <div class="widgetContent">
-        <div class="grid-sort-group">
-            <button class="btn btn-success" (click)="showEditForm(frmDialogEscalate)">
+        <div class="grid-sort-group"  *ngIf="data">
+            <button class="btn btn-success" (click)="showEditForm(frmDialogEscalate)" [disabled]="data.itemCount==0">
                 Edit
             </button>
             <button class="btn btn-success" (click)="showAddForm(frmDialogEscalate)">
                 Add
             </button>
-            <button class="btn btn-success" (click)="deleteEscalate();">
+            <button class="btn btn-success" (click)="deleteEscalate();" [disabled]="data.itemCount==0">
                 Delete
             </button>
         </div>

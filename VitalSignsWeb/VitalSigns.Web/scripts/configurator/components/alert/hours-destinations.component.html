@@ -1,13 +1,13 @@
 ﻿<div class="widgetWrapper">
     <div class="widgetContent">
-        <div class="grid-sort-group">
-            <button class="btn btn-success" (click)="showEditForm(frmDialogSend)">
+        <div class="grid-sort-group"  *ngIf="data">
+            <button class="btn btn-success" (click)="showEditForm(frmDialogSend)" [disabled]="data.itemCount==0">
                 Edit
             </button>
             <button class="btn btn-success" (click)="showAddForm(frmDialogSend)">
                 Add
             </button>
-            <button class="btn btn-success" (click)="deleteHoursDestinations()">
+            <button class="btn btn-success" (click)="deleteHoursDestinations()" [disabled]="data.itemCount==0">
                 Delete
             </button>
         </div>
