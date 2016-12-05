@@ -2470,57 +2470,77 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-
-                
-
+                Expression<Func<ServerOther, bool>> filterExpression;
                 if (string.IsNullOrEmpty(notesDatabaseReplica.Id))
                 {
-                    ServerOther notesDatabase = new ServerOther
-                    {
-                        DominoServerA = notesDatabaseReplica.DominoServerA,
-                        DominoServerAFileMask = notesDatabaseReplica.DominoServerAFileMask,
-                        DominoServerAExcludeFolders = notesDatabaseReplica.DominoServerAExcludeFolders,
-                        DominoServerB = notesDatabaseReplica.DominoServerB,
-                        DominoServerBFileMask = notesDatabaseReplica.DominoServerBFileMask,
-                        DominoServerBExcludeFolders = notesDatabaseReplica.DominoServerBExcludeFolders,
-                        DominoServerC = notesDatabaseReplica.DominoServerC,
-                        DominoServerCFileMask = notesDatabaseReplica.DominoServerCFileMask,
-                        DominoServerCExcludeFolders = notesDatabaseReplica.DominoServerCExcludeFolders,
-                        DifferenceThreshold = notesDatabaseReplica.DifferenceThreshold,
-                        Type = "Notes Database Replica",
-                        Name = notesDatabaseReplica.Name,
-                        IsEnabled = notesDatabaseReplica.IsEnabled,
-                        Category = notesDatabaseReplica.Category,
-                        ScanInterval = notesDatabaseReplica.ScanInterval,
-                        OffHoursScanInterval = notesDatabaseReplica.OffHoursScanInterval
-                    };
+                    filterExpression = (p => p.Name == notesDatabaseReplica.Name);
 
 
-                    string id = serverOtherRepository.Insert(notesDatabase);
-                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica inserted successfully.");
                 }
                 else
                 {
-                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabaseReplica.Id);
-                    var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerA, notesDatabaseReplica.DominoServerA)
-                                                             .Set(p => p.DominoServerAFileMask, notesDatabaseReplica.DominoServerAFileMask)
-                                                             .Set(p => p.DominoServerAExcludeFolders, notesDatabaseReplica.DominoServerAExcludeFolders)
-                                                             .Set(p => p.DominoServerB, notesDatabaseReplica.DominoServerB)
-                                                              .Set(p => p.DominoServerBFileMask, notesDatabaseReplica.DominoServerBFileMask)
-                                                               .Set(p => p.DominoServerBExcludeFolders, notesDatabaseReplica.DominoServerBExcludeFolders)
-                                                               .Set(p => p.DominoServerC, notesDatabaseReplica.DominoServerC)
-                                                              .Set(p => p.DominoServerCFileMask, notesDatabaseReplica.DominoServerCFileMask)
-                                                               .Set(p => p.DominoServerCExcludeFolders, notesDatabaseReplica.DominoServerCExcludeFolders)
-                                                                .Set(p => p.Name, notesDatabaseReplica.Name)
-                                                                .Set(p => p.IsEnabled, notesDatabaseReplica.IsEnabled)
-                                                                .Set(p => p.Category, notesDatabaseReplica.Category)
-                                                                .Set(p => p.ScanInterval, notesDatabaseReplica.ScanInterval)
-                                                                .Set(p => p.OffHoursScanInterval, notesDatabaseReplica.OffHoursScanInterval)
-                                                              .Set(p => p.DifferenceThreshold, notesDatabaseReplica.DifferenceThreshold)
-                                                             ;
-                    var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica updated successfully.");
+                    filterExpression = (p => p.Name == notesDatabaseReplica.Name && p.Id != notesDatabaseReplica.Id);
+
+
                 }
+                var existedData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+                if(existedData==null)
+                {
+                    if (string.IsNullOrEmpty(notesDatabaseReplica.Id))
+                    {
+                        ServerOther notesDatabase = new ServerOther
+                        {
+                            DominoServerA = notesDatabaseReplica.DominoServerA,
+                            DominoServerAFileMask = notesDatabaseReplica.DominoServerAFileMask,
+                            DominoServerAExcludeFolders = notesDatabaseReplica.DominoServerAExcludeFolders,
+                            DominoServerB = notesDatabaseReplica.DominoServerB,
+                            DominoServerBFileMask = notesDatabaseReplica.DominoServerBFileMask,
+                            DominoServerBExcludeFolders = notesDatabaseReplica.DominoServerBExcludeFolders,
+                            DominoServerC = notesDatabaseReplica.DominoServerC,
+                            DominoServerCFileMask = notesDatabaseReplica.DominoServerCFileMask,
+                            DominoServerCExcludeFolders = notesDatabaseReplica.DominoServerCExcludeFolders,
+                            DifferenceThreshold = notesDatabaseReplica.DifferenceThreshold,
+                            Type = "Notes Database Replica",
+                            Name = notesDatabaseReplica.Name,
+                            IsEnabled = notesDatabaseReplica.IsEnabled,
+                            Category = notesDatabaseReplica.Category,
+                            ScanInterval = notesDatabaseReplica.ScanInterval,
+                            OffHoursScanInterval = notesDatabaseReplica.OffHoursScanInterval
+                        };
+
+
+                        string id = serverOtherRepository.Insert(notesDatabase);
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica inserted successfully.");
+                    }
+                    else
+                    {
+                        FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabaseReplica.Id);
+                        var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerA, notesDatabaseReplica.DominoServerA)
+                                                                 .Set(p => p.DominoServerAFileMask, notesDatabaseReplica.DominoServerAFileMask)
+                                                                 .Set(p => p.DominoServerAExcludeFolders, notesDatabaseReplica.DominoServerAExcludeFolders)
+                                                                 .Set(p => p.DominoServerB, notesDatabaseReplica.DominoServerB)
+                                                                  .Set(p => p.DominoServerBFileMask, notesDatabaseReplica.DominoServerBFileMask)
+                                                                   .Set(p => p.DominoServerBExcludeFolders, notesDatabaseReplica.DominoServerBExcludeFolders)
+                                                                   .Set(p => p.DominoServerC, notesDatabaseReplica.DominoServerC)
+                                                                  .Set(p => p.DominoServerCFileMask, notesDatabaseReplica.DominoServerCFileMask)
+                                                                   .Set(p => p.DominoServerCExcludeFolders, notesDatabaseReplica.DominoServerCExcludeFolders)
+                                                                    .Set(p => p.Name, notesDatabaseReplica.Name)
+                                                                    .Set(p => p.IsEnabled, notesDatabaseReplica.IsEnabled)
+                                                                    .Set(p => p.Category, notesDatabaseReplica.Category)
+                                                                    .Set(p => p.ScanInterval, notesDatabaseReplica.ScanInterval)
+                                                                    .Set(p => p.OffHoursScanInterval, notesDatabaseReplica.OffHoursScanInterval)
+                                                                  .Set(p => p.DifferenceThreshold, notesDatabaseReplica.DifferenceThreshold)
+                                                                 ;
+                        var result = serverOtherRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica updated successfully.");
+                    }
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This name already exists.");
+                }
+
+
             }
             catch (Exception exception)
             {
@@ -5775,7 +5795,7 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Delete falied .\n Error Message :" + exception.Message);
             }
 
-            return Response;
+           return Response;
         }
         #endregion 
 
