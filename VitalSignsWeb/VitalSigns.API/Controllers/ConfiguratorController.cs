@@ -1531,7 +1531,7 @@ namespace VitalSigns.API.Controllers
                     IPAddress = s.IPAddress,
                     Category = s.Category,
                     IsEnabled=s.IsEnabled,
-                    //Platform=s.Platform,
+                    Platform=s.Platform,
                     LocationId = s.LocationId,
                     Devicetype = s.DeviceType,
                     CellId = s.CellId,
@@ -1599,7 +1599,14 @@ namespace VitalSigns.API.Controllers
                        
                             var servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
                         attri.DefaultValue = servervalue.ToString();
-                       
+                        //if (attri.DataType == "bool" && attri.DefaultValue == "false")
+                        //{
+                        //    attri.DefaultValue = "0";
+                        //}
+                        //else
+                        //{
+                        //    attri.DefaultValue = "1";
+                        //}
 
                         if (attri.FieldName == "password")
                         {
@@ -1633,7 +1640,7 @@ namespace VitalSigns.API.Controllers
                
 
                 //Response = Common.CreateResponse(serverresult);
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult });
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult,platform=serverresult.Platform });
             }
             catch (Exception exception)
             {
@@ -1671,7 +1678,11 @@ namespace VitalSigns.API.Controllers
                                                                   .Set(p => p.IPAddress, deviceAttributes.IPAddress)
                                                                   .Set(p => p.LocationId, deviceAttributes.LocationId)
                                                                   .Set(p => p.Description, deviceAttributes.Description)
-                                                                  .Set(p => p.IsEnabled, deviceAttributes.IsEnabled);
+                                                                  .Set(p => p.IsEnabled, deviceAttributes.IsEnabled)
+                                                                  .Set(p => p.RequireSSL, deviceAttributes.RequireSSL)
+                                                                  .Set(p => p.CredentialsId, deviceAttributes.CredentialsId);
+
+
                 var serverresult = serversRepository.Update(filterDefination, updateDefination);
 
                 if (deviceAttributes.DeviceAttributes.Count() > 0)
@@ -1716,13 +1727,21 @@ namespace VitalSigns.API.Controllers
                                      .Set(field, outputvalue);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
-                            //if (datatype == "bool")
-                            //{
-                            //    bool booloutput = Convert.ToBoolean(value);
-                            //    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                            //                                                                        .Set(field, booloutput);
-                            //    var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                            //}
+                            if (datatype == "bool")
+                            {
+                                bool booloutput;
+                                if (value=="False" || value=="0")
+                                {
+                                     booloutput = false;
+                                }
+                                else
+                                {
+                                     booloutput = true;
+                                }                                
+                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                    .Set(field, booloutput);
+                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                            }
 
 
                             if (datatype=="string")
@@ -1731,19 +1750,17 @@ namespace VitalSigns.API.Controllers
                                                                                                     .Set(field, value);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
+                            if (datatype == "ObjectId")
+                            {
+                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                    .Set(field, ObjectId.Parse(value));
+                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                            }
 
                         }                       
 
                     }
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes data Updated Successfully.");
-
-                    //  Response = Common.CreateResponse(result);
-
-                    //var update = Builders<BsonDocument>.Update
-                    //    .Set(field, value)
-                    //    .CurrentDate("lastModified");
-                    // var result = repository.Collection.UpdateMany(filter, update);
-                    // Response = Common.CreateResponse(result);
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes data Updated Successfully.");   
                 }
             }
 

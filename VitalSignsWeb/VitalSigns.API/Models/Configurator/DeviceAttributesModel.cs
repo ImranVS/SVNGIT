@@ -46,6 +46,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("credentials_id")]
         public string CredentialsId { get; set; }
 
+        [JsonProperty("require_ssl")]
+        public bool? RequireSSL { get; set; }
+
 
         [JsonProperty("is_enabled")]
         public bool? IsEnabled { get; set; }
