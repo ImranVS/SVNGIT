@@ -6,16 +6,16 @@
             </div>
 
 
-            <div class="grid-sort-group">
+            <div class="grid-sort-group"  *ngIf="data">
 
                 <!-- edit details in a popup -->
-                <button class="btn btn-success" (click)="editBusinessHours(frmDialog)">
+                <button class="btn btn-success" (click)="editBusinessHours(frmDialog)" [disabled]="data.itemCount==0">
                     Edit
                 </button>
                 <button class="btn btn-success" (click)="addBusinessHours(frmDialog)">
                     Add
                 </button>
-                <button class="btn btn-success" (click)="delteBusinessHour();">
+                <button class="btn btn-success" (click)="delteBusinessHour();" [disabled]="data.itemCount==0">
                     Delete
                 </button>
             </div>
