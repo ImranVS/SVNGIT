@@ -8,24 +8,7 @@ import {AuthenticationService} from '../../profiles/services/authentication.serv
 
 @Injectable()
 export class RESTService {
-
-<<<<<<< .mine
     private serverUrl;
-||||||| .r1638
-  // serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
-   // serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
-    //serverUrl ='http://usdopvsdev11svc.jnittech.com';
-    //serverUrl = 'http://localhost:1234';
-    serverUrl = 'http://localhost:5000';
-    constructor(protected http: Http) { }
-=======
-  // serverUrl = 'http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com';
-   // serverUrl = 'http://private-ad10c-ibm.apiary-mock.com';
-    //serverUrl ='http://usdopvsdev11svc.jnittech.com';
-   serverUrl = 'http://localhost:1234';
-   // serverUrl = 'http://localhost:5000';
-    constructor(protected http: Http) { }
->>>>>>> .r1734
 
     private get requestOptions(): RequestOptions {
 
