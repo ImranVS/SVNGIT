@@ -5,12 +5,12 @@
     <a [routerLink]="['/']" id="headerLogo" class="headerBlock">
         <img src="/img/LogoVitalSigns.png" />
     </a>
-    <div id="searchWrapper" class="headerBlock">
+    <div id="searchWrapper" class="headerBlock" *ngIf="authService.isLoggedIn">
         <input type="text" value="" placeholder="Find servers..." id="searchInput"  [(ngModel)]="deviceName" (blur)="changeDeviceName()"/>      
         <span class="glyphicon glyphicon-search" aria-hidden="true" id="launchSearchBt" ></span>
     </div>
 </div>
-<div id="zeusHeaderRightWrapper">
+<div id="zeusHeaderRightWrapper" *ngIf="authService.isLoggedIn">
 
     <div id="noResponseNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
         <span class="notifVitalSignNumber badge">{{deviceSummary.notResponding}}</span>

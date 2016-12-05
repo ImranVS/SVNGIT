@@ -1,7 +1,9 @@
-﻿import { NgModule } from '@angular/core';
+﻿import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+
+import { AppConfig } from './app.config';
 
 import { AppComponent } from './app.component';
 import { APP_ROUTES } from './app.routes';
@@ -9,6 +11,11 @@ import { APP_ROUTES } from './app.routes';
 import {SuccessErrorMessageComponent} from './core/components/success-error-message-component';
 
 import { DragulaModule } from 'ng2-dragula/ng2-dragula';
+
+import { AuthenticationService } from './profiles/services/authentication.service';
+import { AuthGuard } from './profiles/services/authgard.service';
+
+import { LoginForm } from './profiles/components/login-form.component';
 
 import * as dashboards from './app.routes';
 import * as widgets from './app.widgets';
@@ -102,8 +109,28 @@ import {ServerAvailabilityFilter} from './reports/filters/components/server-avai
         DragulaModule,
         APP_ROUTES
     ],
+<<<<<<< .mine
+    providers: [
+        AppConfig,
+        {
+            provide: APP_INITIALIZER,
+            useFactory: (config: AppConfig) => () => config.load(),
+            deps: [AppConfig],
+            multi: true
+        },
+        AuthGuard,
+        AuthenticationService,
+        AlertService
+    ],
+||||||| .r1638
+    providers: [
+        AlertService
+    ],
+=======
+>>>>>>> .r1734
     declarations: [
         AppComponent,
+        LoginForm,
         SuccessErrorMessageComponent,
         WidgetContainer,
         AppHeader,

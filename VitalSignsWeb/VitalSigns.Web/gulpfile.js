@@ -53,7 +53,22 @@ gulp.task('copy:ng2-dragula', function () {
     ]).pipe(gulp.dest('wwwroot/lib/ng2-dragula'))
 });
 
-gulp.task("copy", ["copy:libs", "copy:angular", "copy:rxjs", "copy:angular2inmemorywebapi"]);
+gulp.task('copy:jwt', function () {
+    return gulp.src([
+        'node_modules/angular2-jwt/**/*.js',
+        'node_modules/angular2-jwt/**/*.js.map',
+    ]).pipe(gulp.dest('wwwroot/lib/angular2-jwt'))
+});
+
+gulp.task("copy", [
+    "copy:libs",
+    "copy:angular",
+    "copy:rxjs",
+    "copy:angular2inmemorywebapi",
+    "copy:dragula",
+    "copy:ng2-dragula",
+    "copy:jwt"
+]);
 
 gulp.task('views', function () {
     return gulp.src('./scripts/**/*.html').pipe(gulp.dest('./wwwroot/app/'));

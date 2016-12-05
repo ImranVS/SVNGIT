@@ -1,5 +1,8 @@
 ﻿import { Routes, RouterModule } from '@angular/router';
 
+import { LoginForm } from './profiles/components/login-form.component';
+import { AuthGuard } from './profiles/services/authgard.service';
+
 import { OverallDashboard } from './dashboards/components/overall-dashboard.component';
 
 import { IBMDominoDashboard } from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
@@ -9,11 +12,11 @@ import { MobileUsersDashboard } from './dashboards/components/mobile-users/mobil
 import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 
-import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component'; 
-import {OverallDatabaseDashboard} from './dashboards/components/key-metrics/overall-database-dashboard.component'; 
-import {HardwareStatsDashboard} from './dashboards/components/key-metrics/hardware-stats-dashboard.component'; 
-import {UsersDashboard} from './dashboards/components/key-metrics/users-dashboard.component'; 
-import {ServerDaysUp} from './dashboards/components/key-metrics/server-days-up-dashboard.component'; 
+import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component';
+import {OverallDatabaseDashboard} from './dashboards/components/key-metrics/overall-database-dashboard.component';
+import {HardwareStatsDashboard} from './dashboards/components/key-metrics/hardware-stats-dashboard.component';
+import {UsersDashboard} from './dashboards/components/key-metrics/users-dashboard.component';
+import {ServerDaysUp} from './dashboards/components/key-metrics/server-days-up-dashboard.component';
 
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -113,13 +116,6 @@ import { MobileUser } from './configurator/components/mobileusers/mobile-users.c
 import { ServerImports } from './configurator/components/serverImport/server-import-tabs-component';
 import { DominoMailDeliveryStatus } from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
 
-
-
-
-
-
-
-
 export * from './dashboards/components/overall-dashboard.component';
 
 export * from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
@@ -134,7 +130,7 @@ export * from './dashboards/components/overall-statistics/overall-domino-statist
 export * from './dashboards/components/overall-statistics/overall-sametime-statistics.component';
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
 export * from './dashboards/components/key-metrics/overall-database-dashboard.component'
-export * from './dashboards/components/key-metrics/hardware-stats-dashboard.component'; 
+export * from './dashboards/components/key-metrics/hardware-stats-dashboard.component';
 export * from './dashboards/components/key-metrics/users-dashboard.component';
 export * from './dashboards/components/key-metrics/server-days-up-dashboard.component';
 
@@ -162,10 +158,9 @@ export * from './not-yet-implemented.component';
 
 export * from './configurator/components/applicationSettings/application-settings-tabs.component';
 export * from './configurator/components/serverSettings/server-settings-tabs.component';
-export *from './configurator/components/alert/alert-tabs-component';
+export * from './configurator/components/alert/alert-tabs-component';
 
-
-export *from './configurator/components/security/security-assign-server-to-node.component';
+export * from './configurator/components/security/security-assign-server-to-node.component';
 
 export * from './configurator/components/logFiles/log-files-tabs-component';
 export * from './configurator/components/ibmDomino/ibmdomino-tabs-component';
@@ -174,352 +169,402 @@ export * from './configurator/components/mobileusers/mobile-users.component';
 export * from './configurator/components/serverImport/server-import-tabs-component';
 export * from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
 
-
-
-
 const appRoutes: Routes = [
     {
+        path: 'login',
+        component: LoginForm
+    },
+    {
         path: '',
-        component: OverallDashboard
-    },
-    {
-        path: 'dashboard',
-        component: OverallDashboard
-    },
-    {
-        path: 'dashboard/ibm/domino',
-        component: IBMDominoDashboard
-    },
-    {
-        path: 'dashboard/ibm/connections',
-        component: IBMConnectionsDashboard
-    },
-    {
-        path: 'dashboard/ibm/sametime',
-        component: IBMSametimeDashboard
-    },
-    {
-        path: 'dashboard/mobileusers',
-        component: MobileUsersDashboard
-    },
-    {
-        path: 'dashboard/ibm/websphere',
-        component: IBMWebsphereDashboard
-    },
-    {
-        path: 'dashboard/ibm/traveler',
-        component: IBMTravelerDashboard
-    },
-    {
-        path: 'dashboard/microsoft/active-directory',
-        component: MSActiveDirectoryDashboard
-    },
-    {
-        path: 'dashboard/microsoft/exchange',
-        component: MSExchangeDashboard
-    },
-    {
-        path: 'dashboard/microsoft/sharepoint',
-        component: MSSharePointDashboard
-    },
-    {
-        path: 'dashboard/office365',
-        component: Office365Dashboard,
-        children: [
+        canActivate: [AuthGuard],
+        children:
+        [
             {
                 path: '',
-                component: Office365Overall
+                component: OverallDashboard
             },
             {
-                path: 'mail-statistics',
-                component: OfficeMailStatistics
+                path: 'dashboard',
+                component: OverallDashboard
             },
             {
-                path: 'password-settings',
-                component: Office365PasswordSettings
+                path: 'dashboard/ibm/domino',
+                component: IBMDominoDashboard
+            },
+            {
+                path: 'dashboard/ibm/connections',
+                component: IBMConnectionsDashboard
+            },
+            {
+                path: 'dashboard/ibm/sametime',
+                component: IBMSametimeDashboard
+            },
+            {
+                path: 'dashboard/mobileusers',
+                component: MobileUsersDashboard
+            },
+            {
+                path: 'dashboard/ibm/websphere',
+                component: IBMWebsphereDashboard
+            },
+            {
+                path: 'dashboard/ibm/traveler',
+                component: IBMTravelerDashboard
+            },
+            {
+                path: 'dashboard/microsoft/active-directory',
+                component: MSActiveDirectoryDashboard
+            },
+            {
+                path: 'dashboard/microsoft/exchange',
+                component: MSExchangeDashboard
+            },
+            {
+                path: 'dashboard/microsoft/sharepoint',
+                component: MSSharePointDashboard
+            },
+            {
+                path: 'dashboard/office365',
+                component: Office365Dashboard,
+                children: [
+                    {
+                        path: '',
+                        component: Office365Overall
+                    },
+                    {
+                        path: 'mail-statistics',
+                        component: OfficeMailStatistics
+                    },
+                    {
+                        path: 'password-settings',
+                        component: Office365PasswordSettings
+                    }
+                ]
+            },
+            {
+                path: 'dashboard/cloud',
+                component: CloudServicesDashboard
+            },
+            {
+                path: 'dashboard/keymetrics',
+                component: KeyMetricsDashboard
+            },
+            {
+                path: 'dashboard/dominodatabases',
+                component: OverallDatabaseDashboard
+            },
+            {
+                path: 'dashboard/hardwarestats',
+                component: HardwareStatsDashboard
+            },
+            {
+                path: 'dashboard/users',
+                component: UsersDashboard
+            },
+            {
+                path: 'dashboard/serverdaysup',
+                component: ServerDaysUp
+            },
+            {
+                path: 'dashboard/financial',
+                component: FinancialDashboard
+            },
+            {
+                path: 'dashboard/mail-delivery-status',
+                component: DominoMailDeliveryStatus
+            },
+            {
+                path: 'dashboard/issues',
+                component: Issues
+            },
+
+            {
+                path: 'dashboard/domino-statistics',
+                component: DominoStatistics
+            },
+            {
+                path: 'dashboard/sametimestat',
+                component: SametimeStatistics
+            },
+
+            {
+                path: 'services/:module',
+                component: ServicesView,
+                children: [
+                    {
+                        path: '',
+                        component: NoSelectedService
+                    },
+                    {
+                        path: ':service',
+                        component: ServiceDetails
+                    },
+                ]
+            },
+            {
+                path: 'reports',
+                component: ReportsBrowser,
+                children: [
+                    {
+                        path: '',
+                        component: NoSelectedReport
+                    },
+                    {
+                        path: 'sample',
+                        component: SampleReport
+                    },
+                    {
+                        path: 'diskhealth',
+                        component: DiskHealthReport
+                    },
+                    {
+                        path: 'mailfilestats',
+                        component: MailFileStatisticsReport
+                    },
+                    {
+                        path: 'diskavailabilitytrend',
+                        component: DiskAvailabilityTrendReport
+                    },
+                    {
+                        path: 'serverutilization',
+                        component: ServerUtilizationReport
+                    },
+                    {
+                        path: 'anystatistic',
+                        component: AnyStatisticReport
+                    },
+                    {
+                        path: 'statistics',
+                        component: StatisticsReport
+                    },
+                    {
+                        path: 'responsetime',
+                        component: ResponseTimeReport
+                    },
+                    {
+                        path: 'consolecommand',
+                        component: ConsoleCommands
+                    },
+                    {
+                        path: 'avgcpuutil',
+                        component: AvgCPUUtil
+                    },
+                    {
+                        path: 'maxcpuutil',
+                        component: MaxCPUUtil
+                    },
+                    {
+                        path: 'dailyservertrans',
+                        component: DailyServerTrans
+                    },
+                    {
+                        path: 'clustersecqueue',
+                        component: ClusterSecQueue
+                    },
+                    {
+                        path: 'dominoresponsetimes',
+                        component: DominoResponseTimes
+                    },
+                    {
+                        path: 'costperuserchart',
+                        component: CostPerUserChartReport
+                    },
+                    {
+                        path: 'costperusergrid',
+                        component: CostPerUserGridReport
+                    },
+                    {
+                        path: 'travelermemory',
+                        component: TravelerAllocatedMemoryReport
+                    },
+                    {
+                        path: 'overallstatus',
+                        component: OverallStatusReport
+                    },
+                    {
+                        path: 'travelerstats',
+                        component: TravelerStatsReport
+                    },
+                    {
+                        path: 'databaseinventory',
+                        component: DatabaseInventoryReport
+                    },
+                    {
+                        path: 'logfile',
+                        component: LogFileReport
+                    },
+                    {
+                        path: 'dominomailthreshold',
+                        component: MailThresholdReport
+                    },
+                    {
+                        path: 'notesdatabase',
+                        component: NotesDatabaseReport
+                    },
+                    {
+                        path: 'dominoservertasks',
+                        component: DominoServerTasksReport
+                    },
+                    {
+                        path: 'serveraccessbrowser',
+                        component: ServerAccessBrowserReport
+                    },
+                    {
+                        path: 'serveravailabilityindex',
+                        component: ServerAvailabilityIndexReport
+                    },
+                    {
+                        path: 'communityusers',
+                        component: CommunityUsersReport
+                    },
+                    {
+                        path: 'connectionsactivity',
+                        component: ConnectionsActivityReport
+                    },
+                    {
+                        path: 'connectionsbookmark',
+                        component: ConnectionsBookmarkReport
+                    },
+                    {
+                        path: 'connectionsfiles',
+                        component: ConnectionsFilesReport
+                    },
+                    {
+                        path: 'connectionsforums',
+                        component: ConnectionsForumsReport
+                    },
+                    {
+                        path: 'connectionsprofiles',
+                        component: ConnectionsProfilesReport
+                    },
+                    {
+                        path: 'connectionstags',
+                        component: ConnectionsTagsReport
+                    },
+                    {
+                        path: 'connectionswiki',
+                        component: ConnectionsWikiReport
+                    },
+                    {
+                        path: 'hourlystatistics',
+                        component: HourlyStatisticsReport
+                    },
+                    {
+                        path: 'serveravailability',
+                        component: ServerAvailabilityReport
+                    },
+                    {
+                        path: 'sametimestatisticschart',
+                        component: SametimeStatisticsChartReport
+                    },
+                    {
+                        path: 'sametimestatisticsgrid',
+                        component: SametimeStatisticsGridReport
+                    },
+                    {
+                        path: 'dominoserverconfiguration',
+                        component: DominoServerConfigurationReport
+                    },
+                    {
+                        path: 'serverlisttype',
+                        component: ServerListTypeReport
+                    },
+                    {
+                        path: 'serverlistlocation',
+                        component: ServerListLocationReport
+                    }
+                ]
+            },
+            {
+                path: 'profiles',
+                component: ProfilesList
+            },
+            {
+                path: 'profiles/create',
+                component: ProfilesForm
+            },
+            {
+                path: 'profiles/:email',
+                component: ProfilesForm
+            },
+            {
+                path: 'configurator/applicationsettings',
+                component: ApplicationSettings
+            },
+            {
+                path: 'configurator/serversettings',
+                component: ServerSettings
+            },
+            {
+                path: 'configurator/alert',
+                component: Alerts
+            },
+            {
+                path: 'sitemaps',
+                component: SiteMapList
+            },
+            {
+                path: 'sitemaps/:sitemap',
+                component: SiteMapEditor
+            },
+            {
+                path: 'configurator/ibmDomino',
+                component: IBMDomino
+            },
+            {
+                path: 'ibmDomino/add',
+                component: AddLogFile
+            },
+            {
+                path: 'ibmDomino/add/:id',
+                component: AddLogFile
+            },
+            {
+                path: 'configurator/nodes',
+                component: Nodes
+            },
+            {
+                path: 'configurator/logFiles',
+                component: LogsTabs
+            },
+            {
+                path: 'configurator/mobileusers',
+                component: MobileUser
+            },
+            {
+                path: 'configurator/serverImport',
+                component: ServerImports
             }
         ]
     },
+
+    // /!\ otherwise clause, do not add route after this path /!\
     {
-        path: 'dashboard/cloud',
-        component: CloudServicesDashboard
-    },
-    {
-        path: 'dashboard/keymetrics',
-        component: KeyMetricsDashboard
-    },
-    {
-        path: 'dashboard/dominodatabases',
-        component: OverallDatabaseDashboard
-    },
-    {
-        path: 'dashboard/hardwarestats',
-        component: HardwareStatsDashboard
-    },
-    {
-        path: 'dashboard/users',
-        component: UsersDashboard
-    },
-    {
-        path: 'dashboard/serverdaysup',
-        component: ServerDaysUp
-    },
-    {
-        path: 'dashboard/financial',
-        component: FinancialDashboard
-    },
-    {
-        path: 'dashboard/mail-delivery-status',
-        component: DominoMailDeliveryStatus
-    },
-    {
-        path: 'dashboard/issues',
-        component: Issues
-    },
-    
-    {
-        path: 'dashboard/domino-statistics',
-        component: DominoStatistics
-    },
-    {
-        path: 'dashboard/sametimestat',
-        component: SametimeStatistics
-    },
-   
-    {
-        path: 'services/:module',
-        component: ServicesView,
-        children: [
-            {
-                path: '',
-                component: NoSelectedService
-            },
-            {
-                path: ':service',
-                component: ServiceDetails
-            },
-        ]
-    },
-    {
-        path: 'reports',
-        component: ReportsBrowser,
-        children: [
-            {
-                path: '',
-                component: NoSelectedReport
-            },
-            {
-                path: 'sample',
-                component: SampleReport
-            },
-            {
-                path: 'diskhealth',
-                component: DiskHealthReport
-            },
-            {
-                path: 'mailfilestats',
-                component: MailFileStatisticsReport
-            },
-            {
-                path: 'diskavailabilitytrend',
-                component: DiskAvailabilityTrendReport
-            },
-            {
-                path: 'serverutilization',
-                component: ServerUtilizationReport
-            },
-            {
-                path: 'anystatistic',
-                component: AnyStatisticReport
-            },
-            {
-                path: 'statistics',
-                component: StatisticsReport
-            },
-            {
-                path: 'responsetime',
-                component: ResponseTimeReport
-            },
-            {
-                path: 'consolecommand',
-                component: ConsoleCommands
-            },
-            {
-                path: 'avgcpuutil',
-                component: AvgCPUUtil
-            },
-            {
-                path: 'maxcpuutil',
-                component: MaxCPUUtil
-            },
-            {
-                path: 'dailyservertrans',
-                component: DailyServerTrans
-            },
-            {
-                path: 'clustersecqueue',
-                component: ClusterSecQueue
-            },
-            {
-                path: 'dominoresponsetimes',
-                component: DominoResponseTimes
-            },
-            {
-                path: 'costperuserchart',
-                component: CostPerUserChartReport
-            },
-            {
-                path: 'costperusergrid',
-                component: CostPerUserGridReport
-            },
-            {
-                path: 'travelermemory',
-                component: TravelerAllocatedMemoryReport
-            },
-            {
-                path: 'overallstatus',
-                component: OverallStatusReport
-            },
-            {
-                path: 'travelerstats',
-                component: TravelerStatsReport
-            },
-            {
-                path: 'databaseinventory',
-                component: DatabaseInventoryReport
-            },
-            {
-                path: 'logfile',
-                component: LogFileReport
-            },
-            {
-                path: 'dominomailthreshold',
-                component: MailThresholdReport
-            },
-            {
-                path: 'notesdatabase',
-                component: NotesDatabaseReport
-            },
-            {
-                path: 'dominoservertasks',
-                component: DominoServerTasksReport
-            },
-            {
-                path: 'serveraccessbrowser',
-                component: ServerAccessBrowserReport
-            },
-            {
-                path: 'serveravailabilityindex',
-                component: ServerAvailabilityIndexReport
-            },
-            {
-                path: 'communityusers',
-                component: CommunityUsersReport
-            },
-            {
-                path: 'connectionsactivity',
-                component: ConnectionsActivityReport
-            },
-            {
-                path: 'connectionsbookmark',
-                component: ConnectionsBookmarkReport
-            },
-            {
-                path: 'connectionsfiles',
-                component: ConnectionsFilesReport
-            },
-            {
-                path: 'connectionsforums',
-                component: ConnectionsForumsReport
-            },
-            {
-                path: 'connectionsprofiles',
-                component: ConnectionsProfilesReport
-            },
-            {
-                path: 'connectionstags',
-                component: ConnectionsTagsReport
-            },
-            {
-                path: 'connectionswiki',
-                component: ConnectionsWikiReport
-            },
-            {
-                path: 'hourlystatistics',
-                component: HourlyStatisticsReport
-            },
-            {
-                path: 'serveravailability',
-                component: ServerAvailabilityReport
-            },
-            {
-                path: 'sametimestatisticschart',
-                component: SametimeStatisticsChartReport
-            },
-            {
-                path: 'sametimestatisticsgrid',
-                component: SametimeStatisticsGridReport
-            },
-            {
-                path: 'dominoserverconfiguration',
-                component: DominoServerConfigurationReport
-            },
-            {
-                path: 'serverlisttype',
-                component: ServerListTypeReport
-            },
-            {
-                path: 'serverlistlocation',
-                component: ServerListLocationReport
-            }            
-        ]
-    },
-    {
-        path: 'profiles',
-        component: ProfilesList
-    },
-    {
-        path: 'profiles/create',
-        component: ProfilesForm
-    },
-    {
-        path: 'profiles/:email',
-        component: ProfilesForm
-    },
-    {
-        path: 'configurator/applicationsettings',
-        component: ApplicationSettings
-    },
-    {
-        path: 'configurator/serversettings',
-        component: ServerSettings
-    },
-    {
-        path: 'configurator/alert',
-        component: Alerts
-    },
-    {
-        path: 'sitemaps',
-        component: SiteMapList
-    },
-    {
-        path: 'sitemaps/:sitemap',
-        component: SiteMapEditor
-    },
-    {
-        path: 'configurator/ibmDomino',
-        component: IBMDomino
+        path: '**',
+        redirectTo: ''
+    }
+
+<<<<<<< .mine
+||||||| .r1638
+     {
+        path: 'configurator/nodes',
+        component: Nodes
     }
     ,
-    {
-        path: 'ibmDomino/add',
-        component: AddLogFile
-    },
-    {
-        path: 'ibmDomino/add/:id',
-        component: AddLogFile
-    },
+     {
+         path: 'configurator/logFiles',
+         component: LogsTabs
+     }
+    ,
 
+     {
+         path: 'configurator/mobileusers',
+         component: MobileUser
+     }, {
+         path: 'configurator/serverImport',
+         component: ServerImports
+     }
+=======
      {
         path: 'configurator/nodes',
         component: Nodes
@@ -542,6 +587,7 @@ const appRoutes: Routes = [
          path: 'configurator/fileupload',
          component: FileUploadSample
      }
+>>>>>>> .r1734
 ];
 
 export const APP_ROUTES = RouterModule.forRoot(appRoutes);

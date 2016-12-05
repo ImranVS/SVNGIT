@@ -1,8 +1,10 @@
-﻿import {Component, AfterViewChecked, OnInit} from '@angular/core';
+﻿import {Component, AfterViewChecked, OnChanges, SimpleChange, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../core/services';
+
+import {AuthenticationService} from '../profiles/services/authentication.service';
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
@@ -14,15 +16,22 @@ declare var bootstrapNavigator: any;
         RESTService
     ]
 })
-export class AppHeader implements OnInit {
+export class AppHeader implements OnChanges {
+
+    @Input() anonymous: boolean;
+
     errorMessage: string;
     deviceName: string;
     deviceSummary: any;
 
-    constructor(private service: RESTService, private router: Router) { }
+    constructor(
+        private service: RESTService,
+        private router: Router,
+        private authService: AuthenticationService) { }
     
-    loadData() {      
-        this.service.get('/Services/dashboard_summary')
+    loadData() {   
+       
+        this.service.get('/services/dashboard_summary')
             .subscribe(
             response => {
                 this.deviceSummary = response.data;
@@ -32,20 +41,27 @@ export class AppHeader implements OnInit {
                 console.log("in service Error");
             }
             );
+
     }
+
     changeDeviceName() {
-        console.log(this.deviceName);
+
         if (this.deviceName != "") {
             this.router.navigateByUrl('services/dashboard?devicename='+this.deviceName);
         }
-    }   
-    ngOnInit() {
-        this.loadData();
-        //alert(this.deviceSummary);
-        injectSVG();
-        bootstrapNavigator();
-        
-     
+
+    }
+       
+    ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
+
+        if (!this.anonymous) {
+
+            this.loadData();
+            injectSVG();
+            bootstrapNavigator();
+
+        }
+
     } 
 
 }

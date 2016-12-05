@@ -8,7 +8,8 @@
         //'npm:': 'https://unpkg.com/',
         'npm:': 'angular2/',
         'dragula': 'lib/dragula/dragula.js',
-        'ng2-dragula': 'lib/ng2-dragula/'
+        'ng2-dragula': 'lib/ng2-dragula/',
+        'angular2-jwt': 'lib/angular2-jwt/angular2-jwt.js'
     },
     map: {
 
@@ -25,7 +26,9 @@
 
         'rxjs': 'npm:rxjs',
 
-        'ng2-dragula': 'ng2-dragula'
+        'ng2-dragula': 'ng2-dragula',
+
+        'angular-jwt': 'angular2-jwt'
     },
     packages: {
         app: {
