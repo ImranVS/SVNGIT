@@ -5,16 +5,16 @@
                 <div class="alert alert-info col-md-12">
                     <p>IBM Notes Databases can be monitored for replication, response time, size, document count and existence.</p>
                 </div>
-                <div class="grid-sort-group">
+                <div class="grid-sort-group"  *ngIf="data">
 
                     <!-- edit details in a popup -->
-                    <button class="btn btn-success" (click)="editGridRow(frmDialog)">
+                    <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="data.itemCount==0">
                         Edit
                     </button>
                     <button class="btn btn-success" (click)="addNotesDatabase(frmDialog)">
                         Add
                     </button>
-                    <button class="btn btn-success" (click)="deleteNotesDatabase();">
+                    <button class="btn btn-success" (click)="deleteNotesDatabase();" [disabled]="data.itemCount==0">
                         Delete
                     </button>
                 </div>

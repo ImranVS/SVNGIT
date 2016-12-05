@@ -5,15 +5,15 @@
     <div class="widgetContent">
         <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
             <div class="row">
-                <div class="grid-sort-group">
+                <div class="grid-sort-group"  *ngIf="data">
 
                     <!-- edit details in a popup -->
-                    <button class="btn btn-success" (click)="editGrid()">
+                    <button class="btn btn-success" (click)="editGrid()" [disabled]="data.itemCount==0">
                         Edit
                     </button>
                     <a class="btn btn-success" [routerLink]="['/ibmDomino/add']" role="button">Add</a>
 
-                    <button class="btn btn-success" (click)="deleteLogFileScanning();">
+                    <button class="btn btn-success" (click)="deleteLogFileScanning();" [disabled]="data.itemCount==0">
                         Delete
                     </button>
                 </div>

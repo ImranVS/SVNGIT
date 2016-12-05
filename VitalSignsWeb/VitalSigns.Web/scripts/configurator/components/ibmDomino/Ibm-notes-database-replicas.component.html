@@ -5,16 +5,16 @@
                 <div class="alert alert-info col-lg-12">
                     <p>Notes Database Replicas are monitored to ensure that replicas of each database exist on all servers, and that document counts between replicas are consistent.</p>
                 </div>
-                    <div class="grid-sort-group">
+                    <div class="grid-sort-group"  *ngIf="data">
 
                         <!-- edit details in a popup -->
-                        <button class="btn btn-success" (click)="editGridRow(frmDialog)">
+                        <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="data.itemCount==0">
                             Edit
                         </button>
                         <button class="btn btn-success" (click)="addNotesDatabaseReplica(frmDialog)">
                             Add
                         </button>
-                        <button class="btn btn-success" (click)="delteNotesDatabaseReplica();">
+                        <button class="btn btn-success" (click)="delteNotesDatabaseReplica();" [disabled]="data.itemCount==0">
                             Delete
                         </button>
                     </div>

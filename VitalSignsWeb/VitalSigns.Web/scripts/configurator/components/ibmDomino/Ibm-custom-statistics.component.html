@@ -5,16 +5,16 @@
                 <div class="alert alert-info col-lg-12">
                     You may set an alert threshold on any Server Statistic that is maintained by Domino, such as servers, users or number of transactions per minute.
                 </div>
-                <div class="grid-sort-group">
+                <div class="grid-sort-group"  *ngIf="data">
 
                     <!-- edit details in a popup -->
-                    <button class="btn btn-success" (click)="editCustomStat(frmDialog)">
+                    <button class="btn btn-success" (click)="editCustomStat(frmDialog)" [disabled]="data.itemCount==0">
                         Edit
                     </button>
                     <button class="btn btn-success" (click)="addCustomStat(frmDialog)">
                         Add
                     </button>
-                    <button class="btn btn-success" (click)="delteCustomStatistics();">
+                    <button class="btn btn-success" (click)="delteCustomStatistics();" [disabled]="data.itemCount==0">
                         Delete
                     </button>
                 </div>
