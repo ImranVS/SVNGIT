@@ -12,10 +12,12 @@ using System.Linq.Expressions;
 using System.Globalization;
 using MongoDB.Bson;
 using System.Dynamic;
+using Microsoft.AspNet.Authorization;
 
 namespace VitalSigns.API.Controllers
 {
 
+    [Authorize("Bearer")]
     [Route("[controller]")]
     public class ServicesController : BaseController
     {

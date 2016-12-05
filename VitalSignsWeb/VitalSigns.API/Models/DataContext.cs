@@ -10,7 +10,7 @@ namespace VitalSigns.API.Models
     public class DataContext
     {
         public const string DAILY_STATISTICS_COLLECTION_NAME = "daily_statistics";
-        public const string PROFILES_COLLECTION_NAME = "profiles";
+        public const string PROFILES_COLLECTION_NAME = "users";
         public const string SITEMAP_COLLECTION_NAME = "sitemap";
 
         // TODO: put this into an IoC container

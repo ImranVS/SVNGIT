@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using VitalSigns.API.Models.Charts;
 using MongoDB.Bson.Serialization;
+using Microsoft.AspNet.Authorization;
 
 namespace VitalSigns.API.Controllers
 {
@@ -28,34 +29,17 @@ namespace VitalSigns.API.Controllers
         public Profile GetProfileFromEmail(string email)
         {
             var dataContext = new DataContext();
-
-            return dataContext.Profiles.Find(new BsonDocument("_id", email)).First();
+            
+            // TODO: retrieve tenant ID from configuration
+            return dataContext.Profiles.Find(p => p.TenantId == 5 && p.Email == email).First();
         }
-
-        #region more routing samples
-        //[HttpGet("byname/{name}")]
-        //public Profile GetProfileFromName(string name)
-        //{
-        //    var dataContext = new DataContext();
-
-        //    return dataContext.Profiles.Find(new BsonDocument("_id", name)).First();
-        //}
-
-        //[HttpGet("{id}")]
-        //public Profile GetProfileFromID(int id)
-        //{
-        //    var dataContext = new DataContext();
-
-        //    return dataContext.Profiles.Find(new BsonDocument("_id", id)).First();
-        //}
-        #endregion
-
+        
         [HttpDelete("{email}")]
         public object DeleteProfileFromEmail(string email)
         {
             var dataContext = new DataContext();
 
-            dataContext.Profiles.DeleteOne(new BsonDocument("_id", email));
+            dataContext.Profiles.DeleteOne(new BsonDocument("email", email));
 
             return new
             {
@@ -73,7 +57,7 @@ namespace VitalSigns.API.Controllers
             var dataContext = new DataContext();
 
             return dataContext.Profiles.FindOneAndReplace(
-                new BsonDocument("_id", email),
+                new BsonDocument("email", email),
                 profile,
                 new FindOneAndReplaceOptions<Profile>
                 {

@@ -9,7 +9,7 @@
     <ProjectGuid>c8c12ff3-e559-47d6-b289-a8183753ec0a</ProjectGuid>
     <RootNamespace>VitalSigns.API</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">..\artifacts\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
-    <OutputPath Condition="'$(OutputPath)'=='' ">..\artifacts\bin\$(MSBuildProjectName)\</OutputPath>
+    <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <SccProjectName>
     </SccProjectName>
     <SccProvider>

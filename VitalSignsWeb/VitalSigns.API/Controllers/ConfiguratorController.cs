@@ -20,9 +20,12 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Net.Mail;
 using Ionic.Zip;
+using Microsoft.AspNet.Authorization;
 
 namespace VitalSigns.API.Controllers
 {
+
+    [Authorize("Bearer", Roles = "Configurator")]
     [Route("[controller]")]
     public class ConfiguratorController : BaseController
     {
