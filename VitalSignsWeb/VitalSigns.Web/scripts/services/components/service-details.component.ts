@@ -60,10 +60,12 @@ export class ServiceDetails implements OnInit {
         
     }
     
-    ngOnInit() {      
-        const parentActivatedRoute = this.router.routerState.root.children[0].params;
-        parentActivatedRoute.subscribe(params => {
+    ngOnInit() { 
+
+        this.route.parent.params.subscribe(params => {
+
             this.module = params['module'];
+
         });
      
         this.route.params.subscribe(params => {
