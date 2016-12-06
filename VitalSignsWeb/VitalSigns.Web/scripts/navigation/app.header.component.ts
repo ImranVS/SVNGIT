@@ -7,7 +7,9 @@ import {RESTService} from '../core/services';
 import {AuthenticationService} from '../profiles/services/authentication.service';
 
 declare var injectSVG: any;
+declare var bootstrapZeus: any;
 declare var bootstrapNavigator: any;
+
 @Component({
     selector: 'app-header',
     templateUrl: '/app/navigation/app.header.component.html',
@@ -58,6 +60,7 @@ export class AppHeader implements OnChanges {
 
             this.loadData();
             injectSVG();
+            bootstrapZeus();
             bootstrapNavigator();
 
         }

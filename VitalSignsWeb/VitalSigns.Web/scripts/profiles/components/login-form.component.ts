@@ -3,9 +3,6 @@ import { Router } from '@angular/router';
 
 import { AuthenticationService } from '../services/authentication.service';
 
-declare var bootstrapZeus: any;
-declare var injectSVG: any;
-
 @Component({
     templateUrl: '/app/profiles/components/login-form.component.html'
 })
@@ -27,12 +24,7 @@ export class LoginForm {
 
                 if (result === true) {
 
-                    this.router.navigate(['/']).then(() => {
-
-                        bootstrapZeus();
-                        injectSVG();
-
-                    });
+                    this.router.navigate(['/']);
                     
                 } else {
 
