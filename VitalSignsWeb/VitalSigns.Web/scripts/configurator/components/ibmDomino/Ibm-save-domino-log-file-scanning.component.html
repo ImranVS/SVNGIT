@@ -155,7 +155,7 @@ data.pageIndex + 1 | number
                         </div>
                     </wj-popup>
                     <div>
-                        <div class="alert alert-danger" *ngIf="devices.length==0">Please select atleast on server</div>
+                        <div class="text-danger" ngIf="devices.length==0"><b> Please select at least one server</b></div>
                         <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType"></server-location-list>
 
                     </div><div>

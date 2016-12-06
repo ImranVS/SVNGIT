@@ -64,7 +64,7 @@ export class AddLogFile extends GridBase implements OnInit {
                 this.sererNames = response.data.devicename;
                 this.results = response.data.result;
                 this.checkedDevices = response.data.servers;
-               
+                this.devices = response.data.servers;
 
                 console.log(this.results);
                 console.log(this.checkedDevices);
