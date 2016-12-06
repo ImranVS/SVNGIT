@@ -57,7 +57,7 @@ data.pageIndex + 1 | number
 </div>
 <div class="widgetContent">
     <div>
-        <div class="alert alert-danger" *ngIf="devices.length==0">Please select atleast on server</div>
+        <div class="alert alert-danger" *ngIf="devices.length==0">Please select at least one server</div>
         <server-location-list (checkedDevices)="changeInDevices($event)" (deviceType)="currentDeviceType=$event" ></server-location-list>
         <button type="button" class="btn btn-primary" (click)="applySetting()" [disabled]="!(devices.length>0)">Apply</button>
     </div>
