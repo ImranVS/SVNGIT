@@ -6109,6 +6109,71 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author>Sowmya</author>
+        /// <param name="device_id"></param>
+        /// <returns></returns>
+        #region Events
+        [HttpGet("{device_id}/events")]
+        public APIResponse GetEvents(string device_id)
+        {
+            try
+            {
+                List<ServerEventsModel> eventresult = new List<ServerEventsModel>();
+                serversRepository = new Repository<Server>(ConnectionString);
+                var server = serversRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == device_id);
+                if (server != null)
+                {
+                    var severNotifications = server.NotificationList;
+                    if (server.NotificationList != null)
+                    {
+                        foreach (var notificationId in severNotifications)
+                        {
+                            ServerEventsModel eventModel = new ServerEventsModel();
+                            eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
+                            var eventMatser = eventsMasterRepository.Collection.AsQueryable().FirstOrDefault(x => x.NotificationList.Contains(notificationId));
+                            if (eventMatser != null)
+                                eventModel.EventType = eventMatser.EventType;
+                            notificationsRepository = new Repository<Notifications>(ConnectionString);
+                            var notifiname = notificationsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == notificationId);
+                            if (notifiname != null)
+                            {
+                                eventModel.NotificationName = notifiname.NotificationName;
+                                foreach (var nofityDestinationId in notifiname.SendList)
+                                {
+                                    notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
+                                    var destnames = notificationDestRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == nofityDestinationId);
+                                    if (!string.IsNullOrEmpty(destnames.BusinessHoursId))
+                                    {
+                                        businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                                        var business = businessHoursRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == destnames.BusinessHoursId);
+                                        if (business != null)
+                                        {
+                                            eventModel.SendTo = destnames.SendTo;
+                                            eventModel.CopyTo = destnames.CopyTo;
+                                            eventModel.BlindCopyTo = destnames.BlindCopyTo;
+                                            eventModel.StartTime = business.StartTime;
+                                            eventModel.Duration = business.Duration;
+                                            eventModel.Days = business.Days;
+                                        }
+                                    }
+                                }
+                                eventresult.Add(eventModel);
+                            }
+                        }
+                    }
+                }
+                Response = Common.CreateResponse(eventresult);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get Server Events falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
     }
 }
 
