@@ -11,10 +11,24 @@
                 <h2>{{service.name}}</h2>
                 <p>{{service.details}} - Last Updated: {{service.last_updated}}</p>
             </div>
-            <div class="form-group col-sm-3" >
-                <button class="btn btn-primary" (click)="deleteServer()" *ngIf="module=='Configurator'">
-                    Delete Server
-                </button>
+           
+            <div id="zeusContextActions">
+
+                <!-- Split button -->
+                <div class="btn-wrapper">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary">Action</button>
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a (click)="deleteServer()">Delete Server</a></li>
+                            <li><a (click)="scanNow()">Scan Now</a></li>
+                          
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
        

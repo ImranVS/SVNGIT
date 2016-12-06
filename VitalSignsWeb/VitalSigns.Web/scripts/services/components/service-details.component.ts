@@ -1,4 +1,4 @@
-﻿/// <reference path="../../core/services/app.component.service.ts" />
+﻿
 import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
@@ -13,6 +13,7 @@ import {ServiceTab} from '../models/service-tab.interface';
 import * as ServiceTabs from '../service-tab.collection';
 import {WidgetService} from '../../core/widgets';
 import {AppComponentService} from '../../core/services';
+import {ServicesViewService} from '../services/services-view.service';
 @Component({
     templateUrl: '/app/services/components/service-details.component.html',
     providers: [
@@ -36,10 +37,12 @@ export class ServiceDetails implements OnInit {
     data: string;
    // service: any
     protected appComponentService: AppComponentService;
+    public servicesViewService: ServicesViewService;
     constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute,
-        private datetimeHelpers: helpers.DateTimeHelper, appComponentService: AppComponentService) {
+        private datetimeHelpers: helpers.DateTimeHelper, appComponentService: AppComponentService, servicesViewService: ServicesViewService) {
         //.map(routeParams => routeParams.id);
         this.appComponentService = appComponentService;
+        this.servicesViewService = servicesViewService;
     }
     
     selectTab(tab: any) {
@@ -108,9 +111,8 @@ export class ServiceDetails implements OnInit {
                 if (response.status == "Success") {
                     this.appComponentService.showSuccessMessage(response.message);
                    // this.router.navigate(['services', response.data]);
-                    console.log(this.module);
-                   
-                    console.log(response.data);
+                    this.router.navigate(['services/' + this.module]);
+                    this.servicesViewService.refreshServicesList();
                 } else {
                     this.appComponentService.showErrorMessage(response.message);
                 }
@@ -119,7 +121,12 @@ export class ServiceDetails implements OnInit {
                 var errorMessage = <any>error;
                 this.appComponentService.showErrorMessage(errorMessage);
             });
-        this.router.navigate(['services/' + this.module]);
+       
+    }
+   
+    scanNow() {
+     //   alert("Disks");
+
     }
 
 }
