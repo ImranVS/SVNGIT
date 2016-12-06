@@ -119,8 +119,7 @@ import {ServerAvailabilityFilter} from './reports/filters/components/server-avai
             multi: true
         },
         AuthGuard,
-        AuthenticationService,
-        AlertService
+        AuthenticationService
     ],
     declarations: [
         AppComponent,
