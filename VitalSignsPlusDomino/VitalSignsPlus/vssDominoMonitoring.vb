@@ -5072,9 +5072,9 @@ skipdrive2:
                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Now examining the messages.... ", LogUtilities.LogUtils.LogLevel.Verbose)
                         'If you made it this far, then the mailbox is obviously not corrupt so clear that condition
                         myAlert.ResetAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, MyDominoServer.Location)
-                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception resetting mailbox access alert.")
                     Catch ex As Exception
                         'WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Has No document in " & MailboxName & ":  " & ex2.ToString)
+                        WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception resetting mailbox access alert.")
                     End Try
 
                     Try
@@ -5351,9 +5351,14 @@ Cleanup:
         Dim db As Domino.NotesDatabase
         Dim coll As Domino.NotesDocumentCollection
         Dim dt As Domino.NotesDateTime
-        Dim oldestDocumentDate As DateTime = DateTime.MinValue
-        dt = NotesSession.CreateDateTime(oldestDocumentDate)  'create a Notes DateTime object to use in the search
-        WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Searching messages older than: " & dt.ToString)
+
+        Try
+            dt = NotesSession.CreateDateTime("Today")  'create a Notes DateTime object to use in the search
+            Call dt.AdjustDay(-30)
+            WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Searching for messages older than: " & dt.DateOnly, LogUtilities.LogUtils.LogLevel.Verbose)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Domino", server.Name, Now.ToString & " Exception creating Notes DateTime " & ex.ToString)
+        End Try
 
         Try
             Dim MailBoxCount As Integer
