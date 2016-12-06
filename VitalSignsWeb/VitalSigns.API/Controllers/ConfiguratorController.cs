@@ -295,6 +295,28 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpGet("get_server_types")]
+
+        public APIResponse GetServerTypes()
+        {
+
+            try
+            {
+
+                serversRepository = new Repository<Server>(ConnectionString);
+                var serverTypeData = serversRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.DeviceType, Value = x.DeviceType }).Distinct().ToList().OrderBy(x => x.DisplayText);
+               
+                Response = Common.CreateResponse(new { serverTypeData = serverTypeData });
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
+
+                return Response;
+            }
+        }
         #endregion
 
         #region Locations
@@ -6108,6 +6130,41 @@ namespace VitalSigns.API.Controllers
             }
 
         }
+        #region Suspend Temporarly
+        [HttpPut("save_suspend_temporarly")]
+        public APIResponse SaveSuspendTemporarly([FromBody]SuspendTemporarilyModel maintenance)
+        {
+            try
+            {
+                Maintenance maintenancedata = new Maintenance
+                {
+                    Name = maintenance.Name,
+                    StartDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
+                    StartTime = Convert.ToDateTime(DateTime.Now.ToShortTimeString()),
+                    Duration = maintenance.Duration,
+                    EndDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
+                    MaintenanceDaysList ="",
+                    MaintainType =1,
+                   // DurationType = maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType)
+                };
+
+
+
+                maintenance.Id = maintenanceRepository.Insert(maintenancedata);
+                Response = Common.CreateResponse(maintenance.Id, Common.ResponseStatus.Success.ToDescription(), "Server suspend temporarly.");
+
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server suspend temporarly falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+        #endregion
 
         /// <summary>
         /// 
@@ -6174,6 +6231,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
+
     }
 }
 
