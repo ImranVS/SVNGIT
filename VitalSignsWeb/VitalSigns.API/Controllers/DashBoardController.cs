@@ -13,12 +13,14 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using System.Globalization;
 using System.Dynamic;
+using Microsoft.AspNet.Authorization;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace VitalSigns.API.Controllers
 {
     [Route("[controller]")]
+    [Authorize("Bearer")]
     public class DashBoardController : BaseController
     {
         private IRepository<MobileDevices> mobileDevicesRepository;

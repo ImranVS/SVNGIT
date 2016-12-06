@@ -13,10 +13,11 @@ using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using System.Globalization;
 using System.Dynamic;
+using Microsoft.AspNet.Authorization;
 
 namespace VitalSigns.API.Controllers
 {
-
+    [Authorize("Bearer")]
     [Route("services")]
     public class IBMServicesController : BaseController
     {

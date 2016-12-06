@@ -10,9 +10,10 @@ using VitalSigns.API.Models.Charts;
 using MongoDB.Bson.Serialization;
 using Microsoft.AspNet.Authorization;
 
+
 namespace VitalSigns.API.Controllers
 {
-
+    [Authorize("Bearer")]
     [Route("[controller]")]
     public class ProfilesController : Controller
     {
