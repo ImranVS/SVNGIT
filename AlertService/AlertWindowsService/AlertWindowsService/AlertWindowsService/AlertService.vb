@@ -1937,7 +1937,7 @@ Public Class VitalSignsAlertService
             ScriptCommand = ScriptCommand.Replace(ServerTypeParam, ServerType)
             ScriptCommand = ScriptCommand.Replace(EventTypeParam, AlertType)
             ScriptCommand = ScriptCommand.Replace(AlertDetailsParam, Details)
-            ScriptCommand = ScriptCommand.Replace(DTDParam, Now.ToLongDateString)
+            ScriptCommand = ScriptCommand.Replace(DTDParam, Now.ToShortDateString & " " & Now.ToShortTimeString)
             WriteServiceHistoryEntry(Now.ToString & " Attempting to execute script " & ScriptLocation & " " & ScriptCommand, LogLevel.Normal)
             Dim id As Integer = Shell(ScriptLocation & " " & ScriptCommand)
         Catch ex As Exception
