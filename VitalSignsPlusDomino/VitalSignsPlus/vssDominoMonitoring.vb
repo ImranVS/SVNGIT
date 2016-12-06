@@ -5277,7 +5277,9 @@ Cleanup:
 
                     End Try
                     '3/4/2016 NS modified for VSPLUS-2682
-                    myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Dead Mail Deletion", "The server " & MyDominoServer.Name & " had dead mail of " & MyDominoServer.DeadMail & " messages, which exceeded the automatic deletion threshold.  VitalSigns attempted to automatically delete the dead mail on this server. " & intMessagesDeleted & " messages were deleted.", MyDominoServer.Location)
+                    If intMessagesDeleted > 0 Then
+                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Dead Mail Deletion", "The server " & MyDominoServer.Name & " had dead mail of " & MyDominoServer.DeadMail & " messages, which exceeded the automatic deletion threshold.  VitalSigns attempted to automatically delete the dead mail on this server. " & intMessagesDeleted & " messages were deleted.", MyDominoServer.Location)
+                    End If
                 End If
             End If
 
