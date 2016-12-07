@@ -6131,11 +6131,18 @@ namespace VitalSigns.API.Controllers
 
         }
         #region Suspend Temporarly
+        /// <summary>
+        ///Suspended Server Temporarily
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+         #region Suspend Temporarly
         [HttpPut("save_suspend_temporarly")]
         public APIResponse SaveSuspendTemporarly([FromBody]SuspendTemporarilyModel maintenance)
         {
             try
             {
+                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
                 Maintenance maintenancedata = new Maintenance
                 {
                     Name = maintenance.Name,
@@ -6143,15 +6150,41 @@ namespace VitalSigns.API.Controllers
                     StartTime = Convert.ToDateTime(DateTime.Now.ToShortTimeString()),
                     Duration = maintenance.Duration,
                     EndDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
-                    MaintenanceDaysList ="",
-                    MaintainType =1,
-                   // DurationType = maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType)
+                    MaintenanceDaysList = "",
+                    MaintainType = 1,
+
                 };
 
 
 
                 maintenance.Id = maintenanceRepository.Insert(maintenancedata);
                 Response = Common.CreateResponse(maintenance.Id, Common.ResponseStatus.Success.ToDescription(), "Server suspend temporarly.");
+
+                serversRepository = new Repository<Server>(ConnectionString);
+                UpdateDefinition<Server> updateDefinition = null;
+                // var devicesList = ((Newtonsoft.Json.Linq.JArray)maintenance.DeviceList).ToObject<List<string>>();
+                var serverId = maintenance.DeviceId;
+
+
+                var server = serversRepository.Get(serverId);
+                if (server.MaintenanceWindows != null)
+                {
+                    if (!server.MaintenanceWindows.Contains(maintenance.Id))
+                    {
+                        server.MaintenanceWindows.Add(maintenance.Id);
+                        updateDefinition = serversRepository.Updater.Set(p => p.MaintenanceWindows, server.MaintenanceWindows);
+                        var result = serversRepository.Update(server, updateDefinition);
+
+                    }
+                }
+                else
+                {
+                    List<string> maintainanceWindow = new List<string>();
+                    maintainanceWindow.Add(maintenance.Id);
+                    updateDefinition = serversRepository.Updater.Set(p => p.MaintenanceWindows, maintainanceWindow);
+                    var result = serversRepository.Update(server, updateDefinition);
+                }
+
 
 
 
@@ -6164,6 +6197,7 @@ namespace VitalSigns.API.Controllers
             return Response;
 
         }
+        #endregion
         #endregion
 
         /// <summary>
