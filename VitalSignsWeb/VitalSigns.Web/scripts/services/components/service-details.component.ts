@@ -3,6 +3,7 @@ import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRe
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {Router} from '@angular/router';
+import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 
 import {RESTService} from '../../core/services';
 
@@ -35,12 +36,25 @@ export class ServiceDetails implements OnInit {
     activeTabComponent: ComponentRef<{}>;
     services: any[];
     data: string;
+    modal = true;
+    deviceName: any;
+    suspendTemporarilyForm: FormGroup;
    // service: any
     protected appComponentService: AppComponentService;
     public servicesViewService: ServicesViewService;
-    constructor(private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute,
+    constructor(private formBuilder: FormBuilder,private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute,
         private datetimeHelpers: helpers.DateTimeHelper, appComponentService: AppComponentService, servicesViewService: ServicesViewService) {
         //.map(routeParams => routeParams.id);
+
+        this.suspendTemporarilyForm = this.formBuilder.group({
+            'id': [''],
+            'name': [''],
+            'password': [''],
+            'device_id': [''],
+            'duration': [''],
+       
+
+        });
         this.appComponentService = appComponentService;
         this.servicesViewService = servicesViewService;
     }
@@ -77,7 +91,9 @@ export class ServiceDetails implements OnInit {
                     this.service = this.datetimeHelpers.toLocalDateTime(response.data);
                   this.data=response.data
                     this.selectTab(this.service.tabs[0]);
-                    console.log(this.service.tabs);
+                    this.deviceName = response.data.name;
+                    this.deviceId=response.data.id
+                 
                 },
                 error => this.errorMessage = <any>error
                 );
@@ -106,15 +122,14 @@ export class ServiceDetails implements OnInit {
     }
     deleteServer() {
        
-      //  this.dataProvider.delete('/configurator/delete_server/' + this.deviceId);
         this.dataProvider.delete('/configurator/delete_server/' + this.deviceId)
             .subscribe(
             response => {
                 if (response.status == "Success") {
-                    this.appComponentService.showSuccessMessage(response.message);
-                   // this.router.navigate(['services', response.data]);
                     this.router.navigate(['services/' + this.module]);
                     this.servicesViewService.refreshServicesList();
+                    this.appComponentService.showSuccessMessage(response.message);
+                  
                 } else {
                     this.appComponentService.showErrorMessage(response.message);
                 }
@@ -130,5 +145,35 @@ export class ServiceDetails implements OnInit {
      //   alert("Disks");
 
     }
+    suspendTemporarly(dlg: wijmo.input.Popup) {
+        if (dlg) {
+            dlg.modal = this.modal;
+            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
+            dlg.show();
 
+        }
+    }
+
+    SaveSuspendTemporarly(suspendTemporarily: any, dialog: wijmo.input.Popup) {
+        
+        suspendTemporarily.name = this.deviceName;
+        suspendTemporarily.device_id = this.deviceId;
+       
+        this.dataProvider.put('/Configurator/save_suspend_temporarly', suspendTemporarily)
+            .subscribe(
+
+            response => {
+
+                if (response.status == "Success") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+                  
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
+        dialog.hide();
+
+    }
 }

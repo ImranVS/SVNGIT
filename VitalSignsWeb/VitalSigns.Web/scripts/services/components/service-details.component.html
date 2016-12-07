@@ -25,7 +25,8 @@
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a (click)="deleteServer()">Delete Server</a></li>
                             <li><a (click)="scanNow()">Scan Now</a></li>
-                          
+                           
+                            <li><a (click)="suspendTemporarly(frmDialog)">Suspend Temporarily</a></li>
                         </ul>
                     </div>
                 </div>
@@ -42,7 +43,40 @@
         </li>
 
     </ul>
+    <wj-popup class="col-md-6 modal-content" #frmDialog>
+        <div class="panel panel-default">
 
+
+
+            <form (ngSubmit)="SaveSuspendTemporarly(suspendTemporarilyForm.value,frmDialog)" class="form-horizontal" [formGroup]="suspendTemporarilyForm">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <b>  Suspend Temporarily</b>
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                    </div>
+                   
+                    <div class="panel-body">
+
+                        <div class="form-group col-sm-12">
+                            <label for="duration" class="control-label col-sm-4">Duration (mins):</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" #duration required name="duration" formControlName="duration">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-12">
+                            <label for="duration">You may temporarily suspend monitoring for a maximum duration of two hours. If you need to suspend monitoring for more than two hours, please use the Maintenance Windows functionality in the VitalSigns Configurator.</label>
+
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button type="submit" class="btn btn-primary"> Save </button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </wj-popup>
 </div>
 <!-- Tab panes -->
 <div id="serverDetailContent" class="tab-content">
