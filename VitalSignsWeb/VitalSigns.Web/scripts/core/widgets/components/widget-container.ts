@@ -2,7 +2,8 @@
     Component,
     ElementRef,
     Input,
-    OnInit
+    OnInit,
+    ViewContainerRef
 } from '@angular/core';
 
 import {WidgetContract} from '../models/widget-contract';
@@ -22,7 +23,7 @@ export class WidgetContainer implements WidgetContract, OnInit {
     @Input() css: string;
     @Input() settings: any;
     
-    constructor(protected widgetService: WidgetService) { }
+    constructor(public viewContainerRef: ViewContainerRef, protected widgetService: WidgetService) { }
 
     ngOnInit() {
 

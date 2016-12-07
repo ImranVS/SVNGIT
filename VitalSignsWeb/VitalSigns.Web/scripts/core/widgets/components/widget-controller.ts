@@ -9,7 +9,7 @@ import * as widgets from '../../../app.widgets';
 
 export class WidgetController implements AfterViewInit, OnDestroy {
 
-    @ViewChildren(WidgetContainer, { read: ViewContainerRef }) containers: QueryList<ViewContainerRef>;
+    @ViewChildren(WidgetContainer) containers: QueryList<WidgetContainer>;
 
     constructor(
         protected factoryResolver: ComponentFactoryResolver,
@@ -21,13 +21,11 @@ export class WidgetController implements AfterViewInit, OnDestroy {
     ngAfterViewInit() {
 
         this.widgetService.loadController(this);
-
-        this.containers.forEach(containerRef => {
-
-            var container: WidgetContainer = <WidgetContainer>(<any>containerRef)._element.component;
-            
+        
+        this.containers.forEach(container => {
+        
             let factory = this.factoryResolver.resolveComponentFactory(widgets[container.name]);
-            let component = containerRef.createComponent(factory);
+            let component = container.viewContainerRef.createComponent(factory);
             let widget = <WidgetComponent>(component.instance);
 
             widget.settings = container.settings;

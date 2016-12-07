@@ -113,7 +113,7 @@ export class AlertSettings implements WidgetComponent, OnInit {
 
     refreshCheckedEvents() {
         if (this.flex.collectionView) {
-            (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).pageIndex = 0;
+            (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveCurrentToFirst();
             for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
                 var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
                 var val = this.selected_events.filter((record) => record == item.Id);

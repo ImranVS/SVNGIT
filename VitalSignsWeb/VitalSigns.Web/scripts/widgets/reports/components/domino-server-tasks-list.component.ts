@@ -4,7 +4,7 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
-import {DominoServerTasks} from '../models/domino-server-tasks.ts';
+import {DominoServerTasks} from '../models/domino-server-tasks';
 
 
 @Component({
