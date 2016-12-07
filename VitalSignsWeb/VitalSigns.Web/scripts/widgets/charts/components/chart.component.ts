@@ -63,7 +63,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
 
                 let chart = <Chart>data.data;
                 
-                let first = true;
+                let categories: string[] = []
                 
                 chart.series.map(serie => {
 
@@ -71,24 +71,41 @@ export class ChartComponent implements WidgetComponent, OnInit {
                         name: null,
                         data: []
                     });
-
+                    
                     this.settings.chart.series[length - 1].name = serie.title;
                     //NS added the line below this.settings.chart.xAxis.categories = []; - the categories array needs 
                     //to be cleared every time, otherwise, the chart does not redraw x axis values if the data is updated
                     this.settings.chart.xAxis.categories = [];
+
                     serie.segments.map(segment => {
 
-                        if (first && this.settings.chart.xAxis) {
-                            this.settings.chart.xAxis.categories.push(segment.label);
+                        if (this.settings.chart.xAxis) {
+                            if (categories.indexOf(segment.label) == -1)
+                                categories.push(segment.label);
                         }
-                        this.settings.chart.series[length - 1].data.push({
-                            name: segment.label,
-                            y: segment.value,
-                            color: segment.color
-                        });
 
                     });
 
+                    this.settings.chart.xAxis.categories = categories;
+
+                    categories.map(category => {
+
+                        let segment = serie.segments.find(s => s.label == category);
+
+                        if (segment)
+                            this.settings.chart.series[length - 1].data.push({
+                                name: category,
+                                y: segment.value,
+                                color: segment.color
+                            });
+                        else
+                            this.settings.chart.series[length - 1].data.push({
+                                name: category,
+                                y: null
+                            });
+
+                    });
+                    
                     // TODO: [OM] not obvious to hard code string value there and it introduces a strong dependency with business rules
                         if (this.settings.chart.xAxis.categories.length > 1 && serie.title == "Available" || serie.title == "Used") {
                            
@@ -98,9 +115,10 @@ export class ChartComponent implements WidgetComponent, OnInit {
                            
                             this.settings.chart.chart.type = 'pie';
                     }
-
-                        first = false;
+                    
                 });
+
+                console.log(categories);
 
                 this.chart = new Highcharts.Chart(this.settings.chart);
 
