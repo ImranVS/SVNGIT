@@ -18,7 +18,7 @@ export class MaintainUser extends GridBase implements OnInit {
     superadmin: any;
     constructor(service: RESTService, appComponentService:AppComponentService) {
         super(service, appComponentService);
-        this.formName = "Maintain Users";
+        this.formName = "User";
         this.status = ["Active", "Inactive"];
         this.superadmin = ["Yes", "No"];
 

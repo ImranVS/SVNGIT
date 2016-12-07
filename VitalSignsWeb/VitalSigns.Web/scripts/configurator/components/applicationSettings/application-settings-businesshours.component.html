@@ -71,10 +71,10 @@ data.pageIndex + 1 | number
                 </wj-menu>
             </div>
 
-            <wj-popup class="modal-content col-sm-10" #frmDialog>
+            <wj-popup style="height:80%;overflow:auto" class="modal-content col-sm-8" #frmDialog>
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <b> {{formTitle}}</b>
+                        {{formTitle}}
                         <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                     </div>
 
@@ -84,133 +84,81 @@ data.pageIndex + 1 | number
 
                             <div class="row">
                                 <div class="form-group col-sm-12">
-                                    <div class="col-sm-1">
+                                    <div class="radio radio-info radio-inline col-sm-12">
+                                        <div class="col-sm-3">
+                                            <input type="radio" id="use_type1" name="use_type" value="0" [(ngModel)]="currentEditItem.use_type"> 
+                                            <label for="use_type1">Use for Notifications Only</label>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <input type="radio" id="use_type2" name="use_type" value="1" [(ngModel)]="currentEditItem.use_type">
+                                            <label for="use_type2">Use for Devices Only</label>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <input type="radio" id="use_type3" name="use_type" value="2" [(ngModel)]="currentEditItem.use_type">
+                                            <label for="use_type3">Use for Both</label>
+                                        </div>
 
                                     </div>
-                                    <div class="col-sm-2">
-                                        <input type="radio" id="use_type" name="use_type" value= "0" [(ngModel)]="currentEditItem.use_type"> <label for="use_type">Use for Alerts Only</label>
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <input type="radio" id="use_type" name="use_type" value= "1" [(ngModel)]="currentEditItem.use_type"><label for="use_type">Use for Servers Only</label>
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <input type="radio" id="use_type" name="use_type" value= "2" [(ngModel)]="currentEditItem.use_type"><label for="use_type">Use for both</label>
-                                    </div>
-
                                 </div>
                             </div>
 
                             <div class="row">
-                                <div class="form-group col-sm-6">
-                                    <label for="name" class="control-label col-sm-5">Name</label>
+                                <div class="form-group col-sm-4">
+                                    <label for="name" class="control-label col-sm-2">Name</label>
                                     <div class="col-sm-7">
                                         <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
                                     </div>
                                 </div>
-                                <div class="form-group col-sm-6">
-                                    <label for="start_time" class="control-label col-sm-5">Start Time</label>
+                                <div class="form-group col-sm-4">
+                                    <label for="start_time" class="control-label col-sm-4">Start Time</label>
                                     <div class="col-sm-7">
                                         <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group col-sm-6">
-                                    <label for="duration" class="control-label col-sm-5">Duration</label>
+                                <div class="form-group col-sm-4">
+                                    <label for="duration" class="control-label col-sm-3">Duration</label>
                                     <div class="col-sm-5">
                                         <input type="number" min="1" class="form-control" id="duration" required name="duration" [(ngModel)]="currentEditItem.duration">
                                     </div>
-                                    <label for="duration" class="control-label col-sm-2">Minutes</label>
+                                    <label for="duration" class="control-label col-sm-2">minutes</label>
                                 </div>
-
                             </div>
+                            <div class="panel panel-default col-sm-6">
+                                <div class="panel-body">
 
 
-                            <div class="row">
-                                <div class="form-group col-sm-2"></div>
-                                <div class="form-group col-sm-6">
+                                    <div class="row">
+                                        <div class="form-group col-sm-1">
+                                        </div>
+                                        <div class="form-group col-sm-4">
+                                            <button class="btn btn-primary" type="button" name="submit" (click)="selectAllClick(this);">Select All</button>
+                                        </div>
+                                        <div class="form-group col-sm-8">
+                                            <button class="btn btn-primary" type="button" name="submit" (click)="deselectAllClick(this);">Clear All</button>
+                                        </div>
 
-                                    <div class="panel panel-default">
-                                        <div class="panel-body">
-
-
-                                            <div class="row">
-                                                <div class="form-group col-sm-2">
-                                                </div>
-                                                <div class="form-group col-sm-3">
-                                                    <button class="btn btn-primary" type="button" name="submit" (click)="selectAllClick(this);">Select All</button>
-                                                </div>
-                                                <div class="form-group col-sm-8">
-                                                    <button class="btn btn-primary" type="button" name="submit" (click)="deselectAllClick(this);">Clear All</button>
-                                                </div>
-
+                                    </div>
+                                    <div class="row">
+                                        <div class="funkyradio">
+                                            <div class="funkyradio-default">
+                                                <input type="checkbox" class="checkbox-inline " id="sunday" name="sunday" [(ngModel)]="currentEditItem.sunday">
+                                                <label for="sunday">Sunday</label>
+                                                <input type="checkbox" class="checkbox-inline" id="monday" name="monday" [(ngModel)]="currentEditItem.monday">
+                                                <label for="monday">Monday</label>
+                                                <input type="checkbox" class="checkbox-inline" id="tuesday" name="tuesday" [(ngModel)]="currentEditItem.tuesday">
+                                                <label for="tuesday">Tuesday</label>
+                                                <input type="checkbox" class="checkbox-inline" id="wednesday" name="wednesday" [(ngModel)]="currentEditItem.wednesday">
+                                                <label for="wednesday">Wednesday</label>
+                                                <input type="checkbox" class="checkbox-inline" id="thursday" name="thursday" [(ngModel)]="currentEditItem.thursday">
+                                                <label for="thursday">Thursday</label>
+                                                <input type="checkbox" class="checkbox-inline" id="friday" name="friday" [(ngModel)]="currentEditItem.friday">
+                                                <label for="friday">Friday</label>
+                                                <input type="checkbox" class="checkbox-inline" id="saturday" name="saturday" [(ngModel)]="currentEditItem.saturday">
+                                                <label for="saturday">Saturday</label>
                                             </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-3">
-                                                    <label for="sunday" class="control-label col-sm-8">Sunday</label>
-                                                    <div class="col-sm-2">
-                                                        <input type="checkbox" class="checkbox-inline " id="sunday" name="sunday" [(ngModel)]="currentEditItem.sunday">
-                                                    </div>
-
-
-                                                </div>
-                                                <div class="form-group col-sm-3">
-                                                    <label for="monday" class="control-label col-sm-8">Monday</label>
-                                                    <div class="col-sm-2">
-                                                        <input type="checkbox" class="checkbox-inline" id="monday" name="monday" [(ngModel)]="currentEditItem.monday">
-                                                    </div>
-
-                                                </div>
-                                                <div class="form-group col-sm-3">
-                                                    <label for="tuesday" class="control-label col-sm-8">Tuesday</label>
-                                                    <div class="col-sm-2">
-                                                        <input type="checkbox" class="checkbox-inline" id="tuesday" name="tuesday" [(ngModel)]="currentEditItem.tuesday">
-                                                    </div>
-
-                                                </div>
-                                                <div class="form-group col-sm-3">
-                                                    <label for="wednesday" class="control-label col-sm-8">Wednesday</label>
-                                                    <div class="col-sm-2">
-                                                        <input type="checkbox" class="checkbox-inline" id="wednesday" name="wednesday" [(ngModel)]="currentEditItem.wednesday">
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                            <div class="row">
-
-                                                <div class="form-group col-sm-3">
-                                                    <label for="thursday" class="control-label col-sm-8">Thursday</label>
-                                                    <div class="col-sm-2">
-                                                        <input type="checkbox" class="checkbox-inline" id="thursday" name="thursday" [(ngModel)]="currentEditItem.thursday">
-                                                    </div>
-
-                                                </div>
-
-                                                <div class="form-group col-sm-3">
-                                                    <label for="friday" class="control-label col-sm-8">Friday</label>
-                                                    <div class="col-sm-2">
-                                                        <input type="checkbox" class="checkbox-inline" id="friday" name="friday" [(ngModel)]="currentEditItem.friday">
-                                                    </div>
-
-                                                </div>
-
-                                                <div class="form-group col-sm-3">
-                                                    <label for="saturday" class="control-label col-sm-8">Saturday</label>
-                                                    <div class="col-sm-2">
-                                                        <input type="checkbox" class="checkbox-inline" id="saturday" name="saturday" [(ngModel)]="currentEditItem.saturday">
-                                                    </div>
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="row">
-
-                                            </div>
-
-
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>

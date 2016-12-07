@@ -20,7 +20,7 @@ export class DominoStatistics implements OnInit {
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-    filterDate: Date;
+    filterDate: string;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     constructor(private service: RESTService, private route: ActivatedRoute) { }
 
@@ -38,18 +38,23 @@ export class DominoStatistics implements OnInit {
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                this.data.pageSize = 10;
+                this.data.pageSize = 50;
             },
             (error) => this.errorMessage = <any>error
-            );
+        );
+        var today = new Date();
+        this.filterDate = today.toISOString().substr(0, 10);
+
     }
 
     filterStats() {
-        this.service.get('/DashBoard/get_domino_statistics?statdate='+this.filterDate)
+        //console.log(this.filterDate);
+        var dt = new Date(this.filterDate);
+        this.service.get('/DashBoard/get_domino_statistics?statdate=' + dt.toISOString().substr(0, 10))
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                this.data.pageSize = 10;
+                this.data.pageSize = 50;
             },
             (error) => this.errorMessage = <any>error
             );

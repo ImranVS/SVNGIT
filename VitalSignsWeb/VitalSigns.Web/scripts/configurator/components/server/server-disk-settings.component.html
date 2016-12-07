@@ -29,33 +29,30 @@
         </div>
     <div class="col-xs-12 col-md-8 col-sm-12 col-lg-8">
         <div class="row">&nbsp;</div>
-        <div class="input-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
-            <div class="row">
-                <label for="currentThresholdByPercentage" class="control-label col-sm-3">Current threshold:</label>
-                <div class="col-sm-4">
+        <div class="form-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
+            <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
+                Disk Space notifications will trigger if any of the drives on the Domino server fall below the threshold.
+            </div>
+            <div class="form-group col-sm-11">
+                <label for="currentThresholdByPercentage" class="control-label col-sm-3">Current Threshold</label>
+                <div class="col-sm-2">
                     <input type="text" class="form-control" name="currentThresholdByPercentage" [(ngModel)]="diskThreshold">
                 </div>
-                <label for="currentThresholdByGB" class="control-label col-sm-4">% free space</label>
+                <div class="col-sm-3">% free space</div>
             </div>
 
-            <div class="row">
-                <label for="currentThresholdByPercentage">
-                    Disk Space alerts will trigger if any of the drives on the Domino server fall below the threshold set.
-                </label>
-            </div>
+            
         </div>
-            <div class="input-group" *ngIf="selectedDiskSetting=='allDisksByGB'">
-                <div class="row">
-                    <label for="currentThresholdByGB" class="control-label col-sm-3">Current threshold:</label>
-                    <div class="col-sm-4">
+            <div class="form-group" *ngIf="selectedDiskSetting=='allDisksByGB'">
+                <div id="infoDiv2" class="alert alert-info col-md-12" align="left">
+                    Disk Space notifications will trigger if any of the drives on the Domino server fall below the threshold.
+                </div>
+                <div class="form-group col-sm-11">
+                    <label for="currentThresholdByGB" class="control-label col-sm-3">Current Threshold</label>
+                    <div class="col-sm-2">
                         <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskThreshold">
                     </div>
-                    <label for="currentThresholdByGB" class="control-label col-sm-4">GB free space</label>
-                   </div>
-                <div class="row">
-                    <label for="currentThresholdByGB">
-                        Disk Space alerts will trigger if any of the drives on the Domino server fall below the threshold set.
-                    </label>
+                    <div class="col-sm-3">GB free space</div>
                 </div>
                 </div>
 
@@ -68,11 +65,11 @@
                 <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" (itemsSourceChanged)="itemsSourceChangedHandler()">
 
                     <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Disk Name'" is-read-only="true" [binding]="'disk_name'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Disk Size'" is-read-only="true" [binding]="'disk_size'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Disk Free Space'" is-read-only="true" [binding]="'disk_free'"> </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Percent Free'" is-read-only="true" [binding]="'percent_free'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Disk Name'" is-read-only="true" [binding]="'disk_name'" [isReadOnly]="true"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Disk Size'" is-read-only="true" [binding]="'disk_size'" [isReadOnly]="true"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Disk Free Space'" is-read-only="true" [binding]="'disk_free'" [isReadOnly]="true"> </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Percent Free'" is-read-only="true" [binding]="'percent_free'" [isReadOnly]="true"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'" [width]="150"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'threshold_type'"></wj-flex-grid-column>
 
 

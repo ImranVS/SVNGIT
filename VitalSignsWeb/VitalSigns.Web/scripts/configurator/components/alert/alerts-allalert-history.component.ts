@@ -26,7 +26,7 @@ export class AlertHistory implements OnInit {
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-    filterDate: Date;
+    filterDate: string;
 
     constructor(private service: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService) { }
 
@@ -53,11 +53,14 @@ export class AlertHistory implements OnInit {
                 this.data.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
-            );
+        );
+        var today = new Date();
+        this.filterDate = today.toISOString().substr(0, 10);
     }
 
     filterAlerts() {
-        this.service.get('/configurator/viewalerts?statdate=' + this.filterDate)
+        var dt = new Date(this.filterDate);
+        this.service.get('/configurator/viewalerts?statdate=' + dt.toISOString().substr(0, 10))
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));

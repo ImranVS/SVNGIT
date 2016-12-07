@@ -21,10 +21,11 @@ import {AppComponentService} from '../../../core/services';
     ]
 })
 export class BusinessHours extends GridBase implements OnInit {  
-     selectedServers:string;
+    selectedServers: string;
+
      constructor(service: RESTService, appComponentService: AppComponentService) {
          super(service, appComponentService);
-        this.formName = "Business Hours";
+         this.formName = "Business Hours";
      }  
 
     addBusinessHours(dlg: wijmo.input.Popup) {
@@ -70,7 +71,7 @@ export class BusinessHours extends GridBase implements OnInit {
 
     editBusinessHours(dlg: wijmo.input.Popup) {
         this.editGridRow(dlg);
-        console.log(this.currentEditItem.use_type);
+        //console.log(this.currentEditItem.use_type);
     }
 
     selectAllClick(index: any) {
@@ -81,7 +82,7 @@ export class BusinessHours extends GridBase implements OnInit {
         this.currentEditItem.thursday = true;
         this.currentEditItem.friday = true;
         this.currentEditItem.saturday = true;
-       
+        
     }
 
     deselectAllClick(index: any) {
@@ -93,6 +94,7 @@ export class BusinessHours extends GridBase implements OnInit {
         this.currentEditItem.thursday = false;
         this.currentEditItem.friday = false;
         this.currentEditItem.saturday = false;
+        
     }
 }
 

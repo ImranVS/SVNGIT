@@ -255,7 +255,7 @@ export class Maintenance extends GridBase implements OnInit  {
         }
         else {
 
-            alert("Please Select atleast one Key User or One Server");
+            alert("Please select at least one Key User or one Server");
         }
         if (this.selectedSetting == "1") {
             this.currentEditItem.maintain_type = "One Time";
@@ -278,8 +278,9 @@ export class Maintenance extends GridBase implements OnInit  {
       
         this.selectedSetting = "1";
         this.durationSetting = "1";
-        
-        
+
+        this.devices = "";
+        this.keyUsers = [];
        
     }
 

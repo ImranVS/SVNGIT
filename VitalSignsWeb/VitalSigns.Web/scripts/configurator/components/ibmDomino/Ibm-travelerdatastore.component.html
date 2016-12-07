@@ -63,7 +63,7 @@ data.pageIndex + 1 | number
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <b> {{formTitle}}</b>
+                        {{formTitle}}
                         <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                     </div>
                     <form (ngSubmit)="saveTravelerDataStore(frmDialog)" #frmUser="ngForm" class="form-horizontal">
@@ -132,7 +132,7 @@ data.pageIndex + 1 | number
                             </div>
                             <div class="row">
                                 <div class="form-group col-sm-6">
-                                    <label for="test_scan_server" class="control-label col-sm-5">Test when scanning Traveler Server</label>
+                                    <label for="test_scan_server" class="control-label col-sm-5">Test when scanning traveler server</label>
                                     <div class="col-sm-7">
                                         <wj-combo-box name="test_scan_server" [itemsSource]="testTravelerServers" displayMemberPath="text" selectedValuePath="value"
                                                       [(ngModel)]="currentEditItem.test_scan_server" placeholder="Select Server" [isEditable]="true">
@@ -140,7 +140,7 @@ data.pageIndex + 1 | number
                                     </div>
                                 </div>
                                 <div class="form-group col-sm-6">
-                                    <label for="used_by_servers" class="control-label col-sm-5">Used by Servers</label>
+                                    <label for="used_by_servers" class="control-label col-sm-5">Used by servers</label>
                                     <div class="col-sm-7">
 
                                         <wj-multi-select name="used_by_servers" [itemsSource]="travelerServers" displayMemberPath="text" selectedValuePath="value"

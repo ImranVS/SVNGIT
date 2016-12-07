@@ -40,7 +40,7 @@ export class Location extends GridBase implements OnInit  {
     setcity: string;
     constructor(service: RESTService, appComponentService: AppComponentService) {
         super(service, appComponentService);
-        this.formName = "Locations";
+        this.formName = "Location";
 
         this.service.get('/Configurator/get_locations')
             .subscribe(

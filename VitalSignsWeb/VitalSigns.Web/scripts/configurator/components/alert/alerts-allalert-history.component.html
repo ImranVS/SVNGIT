@@ -3,10 +3,10 @@
         <div class="widgetContent">
             <div>&nbsp;</div>
             <div class="row">
-                <div class="form-group col-sm-8">
-                    <label for="start_date" class="control-label col-sm-2">Month/Year:</label>
+                <div class="form-group col-sm-5">
+                    <label for="start_date" class="control-label col-sm-2">Month/Year</label>
                     <div class="col-sm-3">
-                        <input type="date" class="form-control" id="start_date" required name="start_date" [(ngModel)]="filterDate">
+                        <wj-input-date format="yyyy-MM" [(value)]="filterDate" style="width:125px;" id="start_date" required selectionMode="Month"></wj-input-date>
                     </div>      
                     <div class="col-sm-3">
                         <button type="button" class="btn btn-primary" (click)="filterAlerts()">Filter</button>

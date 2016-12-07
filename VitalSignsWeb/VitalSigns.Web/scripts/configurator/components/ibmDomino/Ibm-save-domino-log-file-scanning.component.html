@@ -26,13 +26,13 @@
                     <div class="grid-sort-group"  *ngIf="results">
                         {{results.itemCount}}
                         <!-- edit details in a popup -->
-                        <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="results.itemCount==0">
+                        <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="results.length==0">
                             Edit
                         </button>
                         <button class="btn btn-success" (click)="addlogScan(frmDialog)">
                             Add
                         </button>
-                        <button class="btn btn-success" (click)="deleteEventLog();" [disabled]="results.itemCount==0">
+                        <button class="btn btn-success" (click)="deleteEventLog();" [disabled]="results.length==0">
                             Delete
                         </button>
                     </div>
@@ -85,13 +85,17 @@ data.pageIndex + 1 | number
                     <wj-popup class="modal-content col-sm-10" #frmDialog>
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <b> {{formTitle}}</b>
+                                {{formTitle}}
                                 <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                             </div>
                             <form (ngSubmit)="saveEventLog(frmDialog)" #frmUser="ngForm" class="form-horizontal">
                                 <div class="panel panel-default">
-                                    <p class="alert alert-info col-lg-12">	VitalSigns will search the selected logs for the word or phrase in the Keywords field. If you would like to be alerted every time the word/phrase is found, do not check the limit box.</p>
                                     <div class="panel-body" *ngIf="currentEditItem">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="alert alert-info col-lg-12">VitalSigns will search the selected logs for the word or phrase in the Keywords field. If you would like to be alerted every time the word/phrase is found, do not check the limit box.</div>
+                                            </div>
+                                            </div>
                                         <div class="row">
                                             <div class="form-group col-sm-6">
                                                 <label for="keyword" class="control-label col-sm-5">Keyword</label>
@@ -99,44 +103,46 @@ data.pageIndex + 1 | number
                                                     <input type="text" class="form-control" id="keyword" required name="keyword" [(ngModel)]="currentEditItem.keyword" />
                                                 </div>
                                             </div>
+                                            <div class="col-sm-4">
+                                                <div class="funkyradio">
+                                                    <div class="funkyradio-default">
+                                                        <input type="checkbox" id="one_alert_per_day" name="one_alert_per_day" [(ngModel)]="currentEditItem.one_alert_per_day" />
+                                                        <label for="one_alert_per_day">Limit to one notification per day</label>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
                                             <div class="form-group col-sm-6">
                                                 <label for="exclude" class="control-label col-sm-5">Exclude scanning for</label>
                                                 <div class="col-sm-7">
                                                     <input type="text" class="form-control" id="exclude" name="exclude" [(ngModel)]="currentEditItem.exclude" />
                                                 </div>
                                             </div>
+                                            <div class="col-sm-4">
+                                                <div class="funkyradio">
+                                                    <div class="funkyradio-default">
+                                                        <input type="checkbox" id="scan_log" name="scan_log" [(ngModel)]="currentEditItem.scan_log" />
+                                                        <label for="scan_log">Scan log.nsf</label>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
                                         </div>
                                         <div class="row">
-                                            <div class="funkyradio col-sm-6">
-                                                <div class="funkyradio-default">
-
-                                                    <input type="checkbox" id="one_alert_per_day" name="one_alert_per_day" [(ngModel)]="currentEditItem.one_alert_per_day" />
-                                                    <label for="one_alert_per_day">Limit to one Alert per day</label>
-
+                                            <div class="form-group col-sm-6">
+                                                &nbsp;
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="funkyradio">
+                                                    <div class="funkyradio-default">
+                                                        <input type="checkbox" id="scan_agent_log" name="scan_agent_log" [(ngModel)]="currentEditItem.scan_agent_log" />
+                                                        <label for="scan_agent_log">Scan AgentLog.nsf</label>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="funkyradio col-sm-6">
-                                                <div class="funkyradio-default">
-
-                                                    <input type="checkbox" id="scan_log" name="scan_log" [(ngModel)]="currentEditItem.scan_log" />
-                                                    <label for="scan_log">Scan log.nsf</label>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="funkyradio col-sm-6">
-
-                                                <div class="funkyradio-default">
-                                                    <input type="checkbox" id="scan_agent_log" name="scan_agent_log" [(ngModel)]="currentEditItem.scan_agent_log" />
-                                                    <label for="scan_agent_log">Scan AgentLog.nsf</label>
-
-                                                </div>
-
-                                            </div>
-
-
-
                                         </div>
 
                                     </div>
@@ -155,7 +161,7 @@ data.pageIndex + 1 | number
                         </div>
                     </wj-popup>
                     <div>
-                        <div class="alert alert-danger" *ngIf="devices.length==0">Please select at least one server</div>
+                        <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
                         <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType"></server-location-list>
 
                     </div><div>

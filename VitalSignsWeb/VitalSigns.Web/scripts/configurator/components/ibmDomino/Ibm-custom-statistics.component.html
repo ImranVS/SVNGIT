@@ -86,11 +86,14 @@ data.pageIndex + 1 | number
                                         <div class="row">
                                             <div class="form-group col-sm-12">
                                                 <label class="control-label col-sm-4">...has a value that is</label>
-                                                <div class="col-sm-7">
-                                                    <input type="radio" name="greater_than_or_less_than" value="Greater Than" [(ngModel)]="currentEditItem.greater_than_or_less_than" />
-                                                    <label for="greater_than_or_less_than" class="control-label">Greater Than</label>
-                                                    <input type="radio" name="greater_than_or_less_than" value="Less Than" [(ngModel)]="currentEditItem.greater_than_or_less_than" />
-                                                    <label for="greater_than_or_less_than" class="control-label">Less Than</label>
+                                                <div class="col-sm-8">
+                                                    <div class="radio radio-info radio-inline col-sm-12">
+                                                        <input type="radio" id="greater_than" name="greater_than_or_less_than" value="Greater Than" [(ngModel)]="currentEditItem.greater_than_or_less_than" />
+                                                        <label for="greater_than" class="col-sm-3">Greater Than</label>
+                                                        <input type="radio" id="less_than" name="greater_than_or_less_than" value="Less Than" [(ngModel)]="currentEditItem.greater_than_or_less_than" />
+                                                        <label for="less_than" class="col-sm-3">Less Than</label>
+                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -109,11 +112,11 @@ data.pageIndex + 1 | number
                                     </div>
                                 </div>
                                 <div class="panel panel-default">
-                                    <div class="panel-heading">Action</div>
+                                    <div class="panel-heading">Action (optional)</div>
                                     <div class="panel-body">
                                         <div class="row">
                                             <div class="form-group col-sm-12">
-                                                <label for="console_command" class="control-label col-sm-4">Console Command:</label>
+                                                <label for="console_command" class="control-label col-sm-4">Console Command</label>
                                                 <div class="col-sm-4">
                                                     <input type="text" class="form-control" id="console_command" name="console_command" [(ngModel)]="currentEditItem.console_command">
                                                 </div>

@@ -70,33 +70,35 @@ data.pageIndex + 1 | number
 
                         <div class="panel panel-default" style="height:60%;">
                             <div class="panel-heading">
-                                <b> {{formTitle}}</b>
+                                {{formTitle}}
 
                                 <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                             </div>
                             <form (ngSubmit)="saveNotesDatabaseReplica(frmDialog)" #frmDatabaseReplica="ngForm" class="form-horizontal">
-
                                 <div class="panel-body" *ngIf="currentEditItem" style="height:70%;overflow:auto">
                                     <div class="row">
-                                        <div class="form-group col-sm-offset-1 col-sm-6">
+                                        <div class="col-sm-6">
                                             <div class="panel panel-default">
                                                 <div class="panel-heading">Replica Attributes</div>
                                                 <div class="panel-body">
                                                     <div class="row">
-                                                        <div class="form-group col-sm-6">
-                                                            <label for="name" class="control-label col-sm-4">Name:</label>
-                                                            <div class="col-sm-8">
+                                                        <div class="form-group col-sm-12">
+                                                            <label for="name" class="control-label col-sm-2">Name</label>
+                                                            <div class="col-sm-4">
                                                                 <input type="text" class="form-control" name="name" [(ngModel)]="currentEditItem.name" required>
 
                                                             </div>
-
+                                                            <div class="funkyradio col-sm-5">
+                                                                <div class="funkyradio-default">
+                                                                    <input type="checkbox" id="is_enabled" name="is_enabled" [(ngModel)]="currentEditItem.is_enabled" />
+                                                                    <label for="is_enabled">Enabled for scanning</label>
+                                                                </div>
+                                                            </div>
                                                         </div>
-
-
                                                     </div>
                                                     <div class="row">
                                                         <div class="form-group col-sm-12">
-                                                            <label for="category" class="control-label col-sm-2">Category:</label>
+                                                            <label for="category" class="control-label col-sm-2">Category</label>
                                                             <div class="col-sm-4">
                                                                 <select name="category" class="form-control" [(ngModel)]="currentEditItem.category" id="category" required>
                                                                     <option value="" disabled selected hidden>Please Choose...</option>
@@ -123,48 +125,35 @@ data.pageIndex + 1 | number
                                                                     <option value="Other">Other</option>
                                                                 </select>
                                                             </div>
-                                                        </div>
+                                                            <div class="col-sm-5">&nbsp;</div>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="form-group col-sm-6">
-
-                                                            <div class="funkyradio col-sm-offset-1 col-sm-12">
-                                                                <div class="funkyradio-default">
-                                                                    <input type="checkbox" id="is_enabled" name="is_enabled" [(ngModel)]="currentEditItem.is_enabled" />
-                                                                    <label for="is_enabled">Enabled for scanning</label>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group col-sm-6">
+                                        <div class="col-sm-6">
                                             <div class="panel panel-default">
                                                 <div class="panel-heading">Scan Settings</div>
-                                                <div class="panel-body" style="width:600px;height:185px">
+                                                <div class="panel-body">
                                                     <div class="row">
                                                         <div class="form-group col-sm-12">
-                                                            <label for="scan_interval" class="control-label col-sm-4">Scan Interval:</label>
+                                                            <label for="scan_interval" class="control-label col-sm-4">Scan Interval</label>
                                                             <div class="col-sm-4">
                                                                 <input type="number" class="form-control" name="scan_interval" [(ngModel)]="currentEditItem.scan_interval" required>
 
                                                             </div>
-                                                            <label for="scan_interval" class="control-label col-sm-1">minutes</label>
+                                                            <div class="control-label col-sm-1">minutes</div>
                                                         </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="form-group col-sm-12">
+                                                            <label for="off_hours_scan_interval" class="control-label col-sm-4">Off-Hours Scan Interval</label>
+                                                            <div class="col-sm-4">
+                                                                <input type="number" class="form-control" name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval" required>
 
-                                                        <div class="row">
-                                                            <div class="form-group col-sm-12">
-                                                                <label for="off_hours_scan_interval" class="control-label col-sm-4">Off-Hours Scan Interval:</label>
-                                                                <div class="col-sm-4">
-                                                                    <input type="number" class="form-control" name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval" required>
-
-                                                                </div>
-                                                                <label for="off_hours_scan_interval" class="control-label col-sm-1">minutes</label>
                                                             </div>
+                                                            <div class="control-label col-sm-1">minutes</div>
                                                         </div>
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -174,7 +163,7 @@ data.pageIndex + 1 | number
 
                         </div>-->
                                     <div class="row">
-                                        <div class="form-group col-sm-12">
+                                        <div class="col-sm-12">
                                             <div class="panel panel-default">
                                                 <div class="panel-heading">Servers</div>
                                                 <div class="panel-body">
@@ -188,12 +177,12 @@ data.pageIndex + 1 | number
 
                                                         </div>
                                                    
-                                                    <div class="form-group col-sm-4">
+                                                    <div class="col-sm-4">
                                                         <div class="panel panel-default">
                                                             <div class="panel-heading">Server A</div>
                                                             <div class="panel-body">
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_a" class="control-label col-sm-5"> Domino Server:</label>
+                                                                    <label for="domino_server_a" class="control-label col-sm-5"> Domino Server</label>
                                                                     <div class="col-sm-7">
                                                                         <wj-combo-box name="domino_server_a" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value" [(ngModel)]="currentEditItem.domino_server_a" placeholder="Select Server" [isEditable]="true" required>
 
@@ -201,13 +190,13 @@ data.pageIndex + 1 | number
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_a_file_mask" class="control-label col-sm-5">File Mask:</label>
+                                                                    <label for="domino_server_a_file_mask" class="control-label col-sm-5">File Mask</label>
                                                                     <div class="col-sm-7">
                                                                         <input type="text" class="form-control" name="domino_server_a_file_mask" [(ngModel)]="currentEditItem.domino_server_a_file_mask" required>
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_a_exclude_folders" class="control-label col-sm-5">Exclude Folder(s):</label>
+                                                                    <label for="domino_server_a_exclude_folders" class="control-label col-sm-5">Exclude Folder(s)</label>
                                                                     <div class="col-sm-7">
                                                                         <input type="text" class="form-control" name="domino_server_a_exclude_folders" [(ngModel)]="currentEditItem.domino_server_a_exclude_folders">
                                                                     </div>
@@ -216,12 +205,12 @@ data.pageIndex + 1 | number
                                                         </div>
 
                                                     </div>
-                                                    <div class="form-group col-sm-4">
+                                                    <div class="col-sm-4">
                                                         <div class="panel panel-default">
                                                             <div class="panel-heading">Server B</div>
                                                             <div class="panel-body">
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_b" class="control-label col-sm-5"> Domino Server:</label>
+                                                                    <label for="domino_server_b" class="control-label col-sm-5">Domino Server</label>
                                                                     <div class="col-sm-7">
                                                                         <wj-combo-box name="domino_server_b" [itemsSource]="sererNames" displayMemberPath="text" [(ngModel)]="currentEditItem.domino_server_b" selectedValuePath="value" placeholder="Select Server" [isEditable]="true" required>
 
@@ -229,13 +218,13 @@ data.pageIndex + 1 | number
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_b_file_mask" class="control-label col-sm-5">File Mask:</label>
+                                                                    <label for="domino_server_b_file_mask" class="control-label col-sm-5">File Mask</label>
                                                                     <div class="col-sm-7">
                                                                         <input type="text" class="form-control" name="domino_server_b_file_mask" [(ngModel)]="currentEditItem.domino_server_b_file_mask" required>
                                                                     </div> 
                                                                 </div>
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_b_exclude_folders" class="control-label col-sm-5">Exclude Folder(s):</label>
+                                                                    <label for="domino_server_b_exclude_folders" class="control-label col-sm-5">Exclude Folder(s)</label>
                                                                     <div class="col-sm-7">
                                                                         <input type="text" class="form-control" name="domino_server_b_exclude_folders" [(ngModel)]="currentEditItem.domino_server_b_exclude_folders">
                                                                     </div>
@@ -244,12 +233,12 @@ data.pageIndex + 1 | number
                                                         </div>
 
                                                     </div>
-                                                    <div class="form-group col-sm-4">
+                                                    <div class="col-sm-4">
                                                         <div class="panel panel-default">
                                                             <div class="panel-heading">Server C</div>
                                                             <div class="panel-body">
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_c" class="control-label col-sm-5"> Domino Server:</label>
+                                                                    <label for="domino_server_c" class="control-label col-sm-5">Domino Server</label>
                                                                     <div class="col-sm-7">
                                                                         <wj-combo-box name="domino_server_c" [itemsSource]="sererNames" displayMemberPath="text" selectedValuePath="value"
                                                                                        [(ngModel)]="currentEditItem.domino_server_c" placeholder="Select Server" 
@@ -260,13 +249,13 @@ data.pageIndex + 1 | number
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_c_file_mask" class="control-label col-sm-5">File Mask:</label>
+                                                                    <label for="domino_server_c_file_mask" class="control-label col-sm-5">File Mask</label>
                                                                     <div class="col-sm-7">
                                                                         <input type="text" class="form-control" name="domino_server_c_file_mask" [(ngModel)]="currentEditItem.domino_server_c_file_mask">
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group col-sm-12">
-                                                                    <label for="domino_server_c_exclude_folders" class="control-label col-sm-5">Exclude Folder(s):</label>
+                                                                    <label for="domino_server_c_exclude_folders" class="control-label col-sm-5">Exclude Folder(s)</label>
                                                                     <div class="col-sm-7">
                                                                         <input type="text" class="form-control" name="domino_server_c_exclude_folders" [(ngModel)]="currentEditItem.domino_server_c_exclude_folders">
                                                                     </div>
@@ -280,7 +269,7 @@ data.pageIndex + 1 | number
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="form-group col-sm-12">
+                                        <div class="col-sm-12">
                                             <div class="panel panel-default">
                                                 <div class="panel-heading">Alert Settings</div>
                                                 <div class="panel-body">
@@ -290,21 +279,23 @@ data.pageIndex + 1 | number
 
                                                         </div>
                                                     
-                                                    <div class="form-group col-sm-12">
-                                                        <label for="difference_threshold" class="control-label col-sm-5">Difference Threshold(%):</label>
+                                                    <div class="form-group col-sm-4">
+                                                        <label for="difference_threshold" class="control-label col-sm-5">Difference Threshold</label>
                                                         <div class="col-sm-2">
                                                             <input type="number" class="form-control" name="difference_threshold" [(ngModel)]="currentEditItem.difference_threshold">
 
                                                         </div>
-                                                    </div>
+                                                        <div class="control-label col-sm-1">%</div>
+                                                        </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="panel-footer">
-                                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmDatabaseReplica.form.valid">Save</button>
-                                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                                    </div>
+                                    
+                                </div>
+                                <div class="panel-footer">
+                                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmDatabaseReplica.form.valid">Save</button>
+                                    <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
                                 </div>
                             </form>
                         </div>

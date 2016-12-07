@@ -88,63 +88,76 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">General Settings</div>
                         <div class="panel-body">
-                            <div class="alert alert-info col-md-12">
-                                <p>
-                                    Set your preferences below:<br />
-                                    - Monitoring Delay - time delay in minutes between scans. When the interval between the previous scan and the next scan exceeds the specified value, VitalSigns will trigger a delay notification. I.e., if the last VitalSigns scan occurred at 7:30 AM, the monitoring delay parameter is set to 10 minutes, and the current time is 7:45 AM, VitalSigns will trigger a notification since the target scan time was 7:40 AM.<br/>
-                                    - Disk Space Alert Threshold - preferred alert threshold for Disk Space (Yellow area).
-                                </p>
-                            </div>
-                            <div class="form-group">
-                                <label for="company_name" class="control-label col-sm-3">Company Name:</label>
-                                <div class="form-group col-sm-7">
-                                    <input type="text" class="form-control" id="company_name" name="company_name" formControlName="company_name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="currency_symbol" class="control-label col-sm-3">Currency Symbol:</label>
-                                <div class="form-group col-sm-7">
-                                    <input type="text" class="form-control" maxlength="1" name="currency_symbol" id="currency_symbol" formControlName="currency_symbol" >
-                                   
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="monitoring_delay" class="control-label col-sm-3">Monitoring Delay:</label>
-                                <div class="form-group col-sm-7">
-                                    <input type="number" class="form-control" id="monitoring_delay" name="monitoring_delay" formControlName="monitoring_delay">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="threshold_show" class="control-label col-sm-3">Disk Space Alert Threshold:</label>
-                                <div class="form-group col-sm-7">
-                                    <input type="number" class="form-control" id="threshold_show" name="threshold_show" formControlName="threshold_show">
-                                </div>
-                            </div>
-                            <!--<div class="form-group">
-                                <label for="bing_key" class="control-label col-sm-3">Bing Key:</label>
-                                <div class="form-group col-sm-7">
-                                    <input type="number" class="form-control" name="bing_key" formControlName="bing_key">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-sm-3">&nbsp;</div>
-                                <div class="col-sm-7">
-                                    <div class="funkyradio">
-                                        <div class="funkyradio-default">
-                                            <input type="checkbox" id="dashboardonly_exec_summary_buttons" name="dashboardonly_exec_summary_buttons" formControlName="dashboardonly_exec_summary_buttons" />
-                                            <label for="dashboardonly_exec_summary_buttons">Dashboard Only/Executive Summary Buttons</label>
-                                        </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <div class="alert alert-info">
+                                        <p>
+                                            Set your preferences below:<br />
+                                            - Monitoring Delay - time delay in minutes between scans. When the interval between the previous scan and the next scan exceeds the specified value, VitalSigns will trigger a delay notification. I.e., if the last VitalSigns scan occurred at 7:30 AM, the monitoring delay parameter is set to 10 minutes, and the current time is 7:45 AM, VitalSigns will trigger a notification since the target scan time was 7:40 AM.<br />
+                                            - Disk Space Alert Threshold - preferred alert threshold for Disk Space (Yellow area).
+                                        </p>
                                     </div>
                                 </div>
-                            </div>-->
-                            <div>&nbsp;</div>
-                            <div class="form-group">
-                                <div class="col-sm-7">
-                                    <button type="submit" class="btn btn-primary" name="submit" [disabled]="!frmPreferences.form.valid">Submit</button>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="company_name" class="control-label col-sm-3">Company Name</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="company_name" name="company_name" formControlName="company_name">
+                                    </div>
                                 </div>
-                            </div>   
-                        </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="currency_symbol" class="control-label col-sm-3">Currency Symbol</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" maxlength="1" name="currency_symbol" id="currency_symbol" formControlName="currency_symbol">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="monitoring_delay" class="control-label col-sm-3">Monitoring Delay</label>
+                                    <div class="col-sm-7">
+                                        <input type="number" class="form-control" id="monitoring_delay" name="monitoring_delay" formControlName="monitoring_delay">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="threshold_show" class="control-label col-sm-3">Disk Space Alert Threshold</label>
+                                    <div class="col-sm-7">
+                                        <input type="number" class="form-control" id="threshold_show" name="threshold_show" formControlName="threshold_show">
+                                    </div>
+                                </div>
+                            </div>
+                                <!--<div class="form-group">
+            <label for="bing_key" class="control-label col-sm-3">Bing Key:</label>
+            <div class="form-group col-sm-7">
+                <input type="number" class="form-control" name="bing_key" formControlName="bing_key">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-3">&nbsp;</div>
+            <div class="col-sm-7">
+                <div class="funkyradio">
+                    <div class="funkyradio-default">
+                        <input type="checkbox" id="dashboardonly_exec_summary_buttons" name="dashboardonly_exec_summary_buttons" formControlName="dashboardonly_exec_summary_buttons" />
+                        <label for="dashboardonly_exec_summary_buttons">Dashboard Only/Executive Summary Buttons</label>
                     </div>
+                </div>
+            </div>
+        </div>-->
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <div class="col-sm-7">
+                                        <button type="submit" class="btn btn-primary" name="submit" [disabled]="!frmPreferences.form.valid">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            </div>
                     
                 </form>
             </div>

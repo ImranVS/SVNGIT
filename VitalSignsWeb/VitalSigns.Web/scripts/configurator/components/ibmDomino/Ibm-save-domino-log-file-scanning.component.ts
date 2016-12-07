@@ -26,7 +26,7 @@ export class AddLogFile extends GridBase implements OnInit {
 
     constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
         super(service, appComponentService);
-        this.formName = "Domino Event Log Scanning";
+        this.formName = "Keyword";
         this.LogFileScan = this.formBuilder.group({
             
             'log_file':['']
@@ -65,7 +65,6 @@ export class AddLogFile extends GridBase implements OnInit {
                 this.results = response.data.result;
                 this.checkedDevices = response.data.servers;
                 this.devices = response.data.servers;
-
                 console.log(this.results);
                 console.log(this.checkedDevices);
                 //this.attributes = response.data.device_attributes;

@@ -1,18 +1,19 @@
-﻿
-<div class="container">
+﻿<div class="widgetWrapper">
+    <div class="form-group col-sm-12">
+        <div class="col-sm-12">&nbsp;</div>
+        <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
+            Maintenance Windows are times when you do not want the server monitored. You can define maintenance windows using the Hours & Maintenance\Maintenance menu option. Use the Actions column to modify maintenance windows information.
+        </div>
 
-    
-    <div class="form-group">
-        <label >Maintenance Windows are times when you do not want the server monitored. You can define maintenance windows using the Hours & Maintenance\Maintenance menu option. Use the Actions column to modify maintenance windows information</label>
-        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row"  headersVisibility ="Column" [frozenColumns]="2" [isReadOnly]="true">
+        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="2" [isReadOnly]="true">
 
             <wj-flex-grid-filter></wj-flex-grid-filter>
             <wj-flex-grid-column [header]="'Name'" [binding]="'Name'" [width]="200"> </wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Start Date'" [binding]="'StartDate'" [width]="150"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Start Time'" [binding]="'StartTime'" [width]="150"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'End Date'" [binding]="'EndDate'" [width]="150"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Duration'" [binding]="'Duration'" [width]="160"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Maintain Type'" [binding]="'MaintainType'" [width]="160"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Duration'" [binding]="'Duration'" [width]="160" align="right"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Maintenance Type'" [binding]="'MaintainType'" [width]="200"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Maintenance Frequency'" [binding]="'MaintenanceFrequency'" [width]="200"></wj-flex-grid-column>
 
 
@@ -53,5 +54,4 @@ data.pageIndex + 1 | number
             </wj-menu>
         </div>
     </div>
-    
 </div>
