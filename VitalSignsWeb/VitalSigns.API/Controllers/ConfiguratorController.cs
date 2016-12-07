@@ -6145,8 +6145,8 @@ namespace VitalSigns.API.Controllers
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
                 Maintenance maintenancedata = new Maintenance
                 {
-                    Name = maintenance.Name,
-                    StartDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
+                    Name = maintenance.Name + "-Temp-" + DateTime.Now.ToString(),
+                StartDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
                     StartTime = Convert.ToDateTime(DateTime.Now.ToShortTimeString()),
                     Duration = maintenance.Duration,
                     EndDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
