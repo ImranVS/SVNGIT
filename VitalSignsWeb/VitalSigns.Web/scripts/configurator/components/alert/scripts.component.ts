@@ -21,7 +21,7 @@ import {AppComponentService} from '../../../core/services';
         RESTService
     ]
 })
-export class Scripts extends GridBase implements OnInit  {    
+export class Scripts extends GridBase implements OnInit {
     errorMessage: string;
     formObject: any = {
         id: null,
@@ -29,6 +29,7 @@ export class Scripts extends GridBase implements OnInit  {
         script_command: null,
         script_location: null
     };
+    public formData = new FormData();
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -40,7 +41,7 @@ export class Scripts extends GridBase implements OnInit  {
     }
 
     saveScript(dlg: wijmo.input.Popup) {
-        this.saveGridRow('/configurator/save_script',dlg);
+        this.saveGridRow('/configurator/save_script', dlg);
     }
 
 
@@ -53,7 +54,7 @@ export class Scripts extends GridBase implements OnInit  {
             (error) => this.errorMessage = <any>error
             );
     }
-   
+
     deleteScript() {
         this.delteGridRow('/configurator/delete_script/');
     }
@@ -91,8 +92,8 @@ export class Scripts extends GridBase implements OnInit  {
                 response => {
                     this.data = response.data;
                 }
-            );
-            (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew(); 
+                );
+            (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
         }
         else {
             this.service.put(saveUrl, this.formObject)
@@ -107,6 +108,54 @@ export class Scripts extends GridBase implements OnInit  {
         dlg.hide();
     }
 
-    uploadScript() { }
+    uploadScript(fileInput: any): void {
+        //this.formObject.script_location = "~/uploads/" + fileInput.target.files[0].name;
+        //var location = <HTMLSpanElement>document.getElementById("scriptLocation");
+        //location.innerHTML = this.formObject.script_location + "<br/>";
+        //this.service.put('/configurator/upload_script', this.formData)
+        //    .subscribe(
+        //    response => {
+        //        console.log('uploading..3...');
+        //        this.formObject.script_location = response.data;
+        //        var location = <HTMLSpanElement>document.getElementById("scriptLocation");
+        //        location.innerHTML = response.data;
 
+        //    },
+        //    (error) => this.errorMessage = <any>error
+
+        //    );
+        //this.formData = null;
+    }
+
+    changeListener(fileInput: any) {
+        console.log('uploading...');
+        this.postFile(fileInput);
+        this.formObject.script_location = "~/uploads/" + fileInput.target.files[0].name;
+        var location = <HTMLSpanElement>document.getElementById("scriptLocation");
+        location.innerHTML = this.formObject.script_location + "<br/>";
+        this.service.put('/configurator/upload_script', this.formData)
+            .subscribe(
+            response => {
+                console.log('uploading..3...');
+                this.formObject.script_location = response.data;
+                var location = <HTMLSpanElement>document.getElementById("scriptLocation");
+                location.innerHTML = response.data;
+
+            },
+            (error) => this.errorMessage = <any>error
+
+            );
+        this.formData = null;
+
+    }
+    //send post file to server 
+    postFile(inputValue: any): void {
+        console.log('uploading..2...');
+        console.log(inputValue.target.files);
+        for (let i = 0; i < inputValue.target.files.length; i++) {
+            this.formData.append("file-" + i.toString(), inputValue.target.files[i]);
+            console.log(inputValue.target.files[i]);
+        }
+
+    }
 }

@@ -41,15 +41,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="script_name">Upload Script:</label>
-                                <input type="file" class="form-control" required name="script_location" [(ngModel)]="formObject.script_location">
-                                <button class="btn btn-success" (click)="uploadScript()">
-                                    Upload
-                                </button>
+                                <input type="file" class="form-control" required name="script_location"  (change)="changeListener($event)">
+                                <!--<button class="btn btn-primary" name="upload_script" (click)="uploadScript($event)">Upload</button>-->
                             </div>
                             <div class="form-group">
                                 <label for="script_name">Location:</label>
                                 <!--<input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">-->
-                                <label id="scriptLocation"></label>
+                                <span id="scriptLocation"></span>
                             </div>
                         </div>
 
