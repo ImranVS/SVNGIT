@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
@@ -17,6 +17,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     ]
 })
 export class IBMWebsphereServerGrid implements WidgetComponent, OnInit {
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
     serviceId: string;
     data: wijmo.collections.CollectionView;
@@ -92,6 +93,14 @@ export class IBMWebsphereServerGrid implements WidgetComponent, OnInit {
         }
 
         //super.onPropertyChanged(key, value);
+
+    }
+
+    onItemsSourceChanged() {
+        var row = this.flex.columnHeaders.rows[0];
+        row.wordWrap = true;
+        // autosize first header row
+        this.flex.autoSizeRow(0, true);
 
     }
 }

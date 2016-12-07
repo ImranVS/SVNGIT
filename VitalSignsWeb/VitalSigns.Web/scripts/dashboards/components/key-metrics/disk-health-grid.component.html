@@ -3,8 +3,8 @@
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" [width]="280" [visible]="false"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Disk Name'" [binding]="'disk_name'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Disk Size (GB)'" [binding]="'disk_size'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Disk Free (GB)'" [binding]="'disk_free'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Disk Size (GB)'" [binding]="'disk_size'" [width]="200" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Disk Free (GB)'" [binding]="'disk_free'" [width]="200" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Percent Free'" [binding]="'percent_free'" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="180">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">

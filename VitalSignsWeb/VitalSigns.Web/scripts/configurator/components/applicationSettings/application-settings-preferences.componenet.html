@@ -84,12 +84,12 @@
                 </div>
             </div>
             <div class="col-xs-12 col-md-8 col-sm-12 col-lg-8">
-                <form [formGroup]="preferencesForm" (ngSubmit)="onSubmit(preferencesForm.value)" #frmPreferences="ngForm" >
+                <form [formGroup]="preferencesForm" (ngSubmit)="onSubmit(preferencesForm.value)" #frmPreferences="ngForm"  class="form-horizontal">
                     <div class="panel panel-default">
                         <div class="panel-heading">General Settings</div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="form-group col-sm-12">
+                                <div class="col-sm-12">
                                     <div class="alert alert-info">
                                         <p>
                                             Set your preferences below:<br />

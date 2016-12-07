@@ -73,5 +73,13 @@ export class IBMDominoGrid implements WidgetComponent, OnInit {
             if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
         }
     }
+
+    onItemsSourceChanged() {
+        var row = this.flex.columnHeaders.rows[0];
+        row.wordWrap = true;
+        // autosize first header row
+        this.flex.autoSizeRow(0, true);
+
+    }
     
 }

@@ -26,7 +26,7 @@ export class UsersDashboard extends WidgetController implements OnInit  {
         todaysDate.setMonth(todaysDate.getMonth() - 1);
         //var startDate = todaysDate.toISOString().slice(0, 10);
         var startDate = todaysDate.toISOString();
-        
+        //console.log(startDate);
         this.widgets = [
             {
                 id: 'userCount',
@@ -150,9 +150,9 @@ export class UsersDashboard extends WidgetController implements OnInit  {
     setSort2(byCost: boolean) {
         //console.log(byCount);
         var todaysDate = new Date();
-        var endDate = todaysDate.toISOString().slice(0, 10);
+        var endDate = todaysDate.toISOString();
         todaysDate.setMonth(todaysDate.getMonth() - 1);
-        var startDate = todaysDate.toISOString().slice(0, 10);
+        var startDate = todaysDate.toISOString();
 
         if (byCost) {
             //console.log(`/dashboard/users/cost_per_user?sortby=cost_per_user&startDate=${startDate}&endDate=${endDate}&isChart=true`);

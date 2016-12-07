@@ -1,4 +1,4 @@
-﻿import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
+﻿import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
@@ -18,6 +18,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 })
 export class IBMWebsphereGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
 
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
 
@@ -97,5 +98,12 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
         console.log(this.serviceId);
 
     }
-    
+
+    onItemsSourceChanged() {
+        var row = this.flex.columnHeaders.rows[0];
+        row.wordWrap = true;
+        // autosize first header row
+        this.flex.autoSizeRow(0, true);
+
+    }
 }

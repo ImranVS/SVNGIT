@@ -25,7 +25,7 @@
             <div class="form-group col-sm-7">
                 <div class="row">
                     <div class="form-group col-sm-9" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
-                        <label for="currentThresholdByPercentage" class="control-label col-sm-3">Current Threshold:</label>
+                        <label for="currentThresholdByPercentage" class="control-label col-sm-3">Current Threshold</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="currentThresholdByPercentage" [(ngModel)]="diskByPercentage">
                         </div>
@@ -34,7 +34,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-9" *ngIf="selectedDiskSetting=='allDisksByGB'">
-                        <label for="currentThresholdByGB" class="control-label col-sm-3">Current Threshold:</label>
+                        <label for="currentThresholdByGB" class="control-label col-sm-3">Current Threshold</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskByGB">
                         </div>

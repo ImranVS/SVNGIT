@@ -7,7 +7,7 @@
         <div id="zeusContextNavigationText">
             <h2>
                 Domino Servers
-                <app-navigator></app-navigator>
+                <!--<app-navigator></app-navigator>-->
             </h2>
             <p>Consecutive Days of Operation</p>
         </div>
@@ -19,13 +19,14 @@
     <div class="row">
         <div class="aZeusFilter col-md-6 col-lg-6">
             <div class="radio radio-info radio-inline">
-                <input type="radio" [checked]="false" (click)="setSort1($event.target.checked)" id="sortchoice11" name="sortchoice1">
-                <label for="sortchoice11">By Server</label>
-            </div>
-            <div class="radio radio-info radio-inline">
-                <input type="radio" [checked]="true" (click)="setSort1(!$event.target.checked)" id="sortchoice12" name="sortchoice1">
+                <input type="radio" [checked]="false" (click)="setSort1(!$event.target.checked)" id="sortchoice12" name="sortchoice1">
                 <label for="sortchoice12">By Duration</label>
             </div>
+            <div class="radio radio-info radio-inline">
+                <input type="radio" [checked]="true" (click)="setSort1($event.target.checked)" id="sortchoice11" name="sortchoice1">
+                <label for="sortchoice11">By Server</label>
+            </div>
+
         </div>
     </div>
     <div class="row">

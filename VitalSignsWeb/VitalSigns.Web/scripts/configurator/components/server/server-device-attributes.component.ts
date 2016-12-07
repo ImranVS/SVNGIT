@@ -30,6 +30,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     serverAttributes: any[];
     selectedIbmDb2Credential: string;
     selectedCredential: string;
+    selectedPlatform: string;
     deviceCredentialData: any;
     attributes: any[];
     scanSettings: string = "Scan Settings"
@@ -74,6 +75,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
             response => {
                 this.serverAttributes = response.data.serverresult;
                 this.deviceCredentialData = response.data.credentialsData;
+                this.selectedPlatform = response.data.platform;
+                //console.log('platform: ' + this.selectedPlatform);
                 //this.attributes = response.data.device_attributes;
 
             },

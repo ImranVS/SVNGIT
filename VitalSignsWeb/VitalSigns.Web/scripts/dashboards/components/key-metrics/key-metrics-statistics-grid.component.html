@@ -1,5 +1,5 @@
 ﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (selectionChanged)="refreshChart($event)" #flex>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (itemsSourceChanged)="onItemsSourceChanged()" (selectionChanged)="refreshChart($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'DeviceName'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Total Routed'" [binding]="'TotalRouted'" align="right"></wj-flex-grid-column>
