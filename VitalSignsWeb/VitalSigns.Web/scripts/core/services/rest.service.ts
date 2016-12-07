@@ -76,7 +76,7 @@ export class RESTService {
 
     delete(path: string) {
         let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
-        return this.http.delete(serviceUrl)
+        return this.http.delete(serviceUrl, this.requestOptions)
             .map(res => res.json())
             .catch(this.handleError);
     }
