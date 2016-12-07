@@ -6200,6 +6200,34 @@ namespace VitalSigns.API.Controllers
         #endregion
         #endregion
 
+        [HttpPut("upload_script")]
+        public string uploadScripts()
+        {
+            string uploadedFile = "";
+            try
+            {
+                string filePath = "uploads/";
+                locationRepository = new Repository<Location>(ConnectionString);
+                //we are passig only one file currently, but in case we do multiple, POC here:
+                foreach (var fi in Request.Form.Files)
+                {
+                    System.IO.Stream f = fi.OpenReadStream();
+                    System.Net.Mime.ContentDisposition c = new System.Net.Mime.ContentDisposition();
+                    string fileName = fi.ContentDisposition.Substring(fi.ContentDisposition.IndexOf("filename=") + 10).Replace("\\", "");
+                    fileName = fileName.Substring(0, fileName.Length - 1);
+                    System.IO.FileStream fs = new System.IO.FileStream(filePath + fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+
+                    f.CopyTo(fs);
+                    fs.Dispose();
+                    uploadedFile = "~/" + filePath + fileName;
+                    //uploadedFile = System.Web.Hosting.HostingEnvironment.MapPath(filePath + fileName);
+                }
+            }
+            catch
+            {
+            }
+            return uploadedFile;
+        }
         /// <summary>
         /// 
         /// </summary>
