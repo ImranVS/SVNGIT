@@ -1052,7 +1052,7 @@ namespace VitalSigns.API.Controllers
                 UpdateDefinition<BsonDocument> updateDefinition = null;
                 if (deviceAttributes.Count() ==0)
                 {
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Error.ToDescription(), "Please select atleast one Attribute.");
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Error.ToDescription(), "Please select at least one Attribute.");
                 }
                 else
                 {
