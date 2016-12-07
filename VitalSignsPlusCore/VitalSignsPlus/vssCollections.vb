@@ -3590,24 +3590,30 @@ Partial Public Class VitalSignsPlusCore
 
                                 Case "Create Activity"
                                     .CreateActivityThreshold = test.Threshold
+                                    .TestCreateActivity = True
 
                                 Case "Create Blog"
                                     .CreateBlogThreshold = test.Threshold
-
+                                    .TestCreateBlog = True
                                 Case "Create Bookmark"
                                     .CreateBookmarkThreshold = test.Threshold
+                                    .TestCreateBookmarks = True
 
                                 Case "Create Community"
                                     .CreateCommunitiesThreshold = test.Threshold
+                                    .TestCreateCommunities = True
 
                                 Case "Create File"
                                     .CreateFilesThreshold = test.Threshold
+                                    .TestCreateFiles = True
 
                                 Case "Create Wiki"
                                     .CreateWikisThreshold = test.Threshold
+                                    .TestCreateWikis = True
 
                                 Case "Search Profile"
                                     .SearchProfilesThreshold = test.Threshold
+                                    .SearchProfilesThreshold = True
 
                             End Select
                         Next

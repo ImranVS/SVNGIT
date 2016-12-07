@@ -2001,7 +2001,7 @@ WaitHere:
 
                     Try
                         '  myCPU = CType(myCPUString, Double)
-                        MyDominoServer.CPU_Utilization = myCPU / 100
+                        MyDominoServer.CPU_Utilization = myCPU
                     Catch ex As Exception
                         MyDominoServer.CPU_Utilization = 0
                     End Try
@@ -3692,7 +3692,7 @@ WaitHere:
                     'Not supposed to be running and not running so do nothing
                     Try
                         ' myAlert.ResetAlert("Server Task", DominoServer.Name, ConfiguredTask.Name, DominoServer.Location)
-                        myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, DominoServer.Location)
+                        myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Server Task: " & ConfiguredTask.Name, DominoServer.Location, "Task should not be running and it is not")
 
                     Catch ex As Exception
 
@@ -3707,7 +3707,7 @@ WaitHere:
 SkipTask:
             Next
         Catch ex As Exception
-            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error looping through monitored tasks: " & ex.Message)
+            WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error looping through monitored tasks:  " & ex.Message)
         End Try
 
         If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Now summarizing server task status...")
@@ -5460,7 +5460,7 @@ Cleanup:
             System.Runtime.InteropServices.Marshal.ReleaseComObject(coll)
             System.Runtime.InteropServices.Marshal.ReleaseComObject(dt)
             System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-         
+
         Catch ex As Exception
 
         End Try
