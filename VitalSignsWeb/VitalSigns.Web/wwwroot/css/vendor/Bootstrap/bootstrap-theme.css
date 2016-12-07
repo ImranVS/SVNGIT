@@ -190,7 +190,8 @@ fieldset[disabled] .btn-success:active,
 .btn-success.disabled.active,
 .btn-success[disabled].active,
 fieldset[disabled] .btn-success.active {
-  background-color: #419641;
+  /* background-color: #419641; */
+  background-color: #e0e0e0;
   background-image: none;
 }
 
