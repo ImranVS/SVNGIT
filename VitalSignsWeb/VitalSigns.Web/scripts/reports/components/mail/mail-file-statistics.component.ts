@@ -27,7 +27,7 @@ export class MailFileStatisticsReport extends WidgetController {
 
     ngOnInit() {
 
-        this.service.get('/navigation/sitemaps/domino_reports')
+        this.service.get('/navigation/sitemaps/mail_reports')
             .subscribe
             (
             data => this.contextMenuSiteMap = data,

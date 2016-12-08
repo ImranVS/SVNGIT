@@ -13,15 +13,20 @@
     <div class="clearfix"></div>
 </div>
 
-<div id="zeusContent" class="noPadding">
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of tabsData">
-            <a href="javascript:void(0);">{{tab.title}}</a>
-        </li>
-    </ul>
-</div>
-<div class="tab-content" style="padding: 20px 30px 20px 20px ;">
+<div id="zeusContent">
+    <div class="widgetWrapper">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of tabsData">
+                <a href="javascript:void(0);">{{tab.title}}</a>
+            </li>
+        </ul>
+        <div class="widgetContent">
+            <div class="tab-content">
 
-    <div #tab></div>
+                <div #tab></div>
 
+            </div>
+        </div>
+    </div>
+    
 </div>
