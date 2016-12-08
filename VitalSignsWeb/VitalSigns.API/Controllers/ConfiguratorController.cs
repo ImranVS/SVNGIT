@@ -4509,7 +4509,7 @@ namespace VitalSigns.API.Controllers
                     }
                     serverLocations.Add(serverLocation);
                 }
-                Response = Common.CreateResponse(serverLocations.OrderBy(x => x.LocationName));
+                Response = Common.CreateResponse(serverLocations.OrderBy(x => x.DeviceName));
             }
             catch (Exception exception)
             {

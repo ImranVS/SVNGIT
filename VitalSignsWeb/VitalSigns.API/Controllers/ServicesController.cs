@@ -211,7 +211,7 @@ namespace VitalSigns.API.Controllers
 
                 }
                 
-                Response = Common.CreateResponse(servers);
+                Response = Common.CreateResponse(servers.OrderBy(x=>x.Name));
             }
             catch (Exception exception)
             {
