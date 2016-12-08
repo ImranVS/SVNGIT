@@ -2822,7 +2822,7 @@ Partial Public Class VitalSignsPlusCore
 
                         Try
                             WriteAuditEntry(Now.ToString & " Getting server credentials.", LogLevel.Verbose)
-                            If entity.CredentialsId Is Nothing Then
+                            If cell.CredentialsId Is Nothing Then
                                 .UserName = ""
                                 .Password = ""
                             Else
