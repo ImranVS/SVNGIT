@@ -4,13 +4,14 @@ import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {AppComponentService} from '../../../core/services';
 
-
+import * as helpers from '../../../core/services/helpers/helpers';
 
 @Component({
     templateUrl: '/app/configurator/components/applicationsettings/application-settings-maintenance.component.html', 
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.DateTimeHelper
     ]
 })
 export class Maintenance extends GridBase implements OnInit  {  
@@ -36,7 +37,7 @@ export class Maintenance extends GridBase implements OnInit  {
     
 
 
-  constructor(service: RESTService, appComponentService: AppComponentService) {
+  constructor(service: RESTService, appComponentService: AppComponentService, private datetimeHelpers: helpers.DateTimeHelper) {
       super(service, appComponentService);
         this.formName = "Maintenance";
         this.weekDays = [
@@ -65,7 +66,28 @@ export class Maintenance extends GridBase implements OnInit  {
     }
 
     ngOnInit() {
-        this.initialGridBind('/Configurator/get_maintenance');
+
+        this.service.get('/Configurator/get_maintenance')
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+
+                    this.datetimeHelpers.nameToFormat['start_date'] = "date";
+                    this.datetimeHelpers.nameToFormat['start_time'] = "time";
+                    this.datetimeHelpers.nameToFormat['end_date'] = "date";
+                    this.datetimeHelpers.nameToFormat['end_time'] = "time";
+
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocal(response.data)));
+                    this.data.pageSize = 10;
+                } else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+
+            }, error => {
+                var errorMessage = <any>error;
+                this.appComponentService.showErrorMessage(errorMessage);
+            });
+        //this.initialGridBind('/Configurator/get_maintenance');
         this.keyUsersGridBind();
         
     }

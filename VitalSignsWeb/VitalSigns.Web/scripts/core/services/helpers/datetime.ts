@@ -22,8 +22,14 @@ export class DateTimeHelper {
     toLocalHour(data) {
 
         return this.toLocalFormat(data, "hour");
-        
+
     }
+
+    toLocal(data) {
+        return this.toLocalFormat(data, "datetime")
+    }
+
+    public nameToFormat: any[] = [];
 
     private toLocalFormat(data, format) {
         for (var obj in data) {
@@ -42,15 +48,8 @@ export class DateTimeHelper {
                     
                     if (isNaN(dtNum) == false) {
                         var dt = new Date(dtNum);
-                        data[obj] = this.toLocal(dt, format);
+                        data[obj] = this.toLocalValue(dt, format, obj);
 
-                        //if (format == "date") {
-                        //    data[obj] = dt.toLocaleDateString()
-                        //} else if (format == "datetime") {
-                        //    data[obj] = dt.toLocaleDateString() + " " + dt.toLocaleTimeString();
-                        //} else if (format == "hour") {
-                        //    data[obj] = dt.getHours().toString();
-                        //}
                     }
 
                     //check to see if property key is a datetime 
@@ -59,14 +58,7 @@ export class DateTimeHelper {
                         var dt = new Date(dtNum);
                         var newField; //= dt.toLocaleDateString();
 
-                        newField = this.toLocal(dt, format);
-                        //if (format == "date") {
-                        //    newField = dt.toLocaleDateString()
-                        //} else if (format == "datetime") {
-                        //    newField = dt.toLocaleDateString() + " " + dt.toLocaleTimeString();
-                        //} else if (format == "hour") {
-                        //    newField = dt.getHours().toString();
-                        //}
+                        newField = this.toLocalValue(dt, format, obj);
 
                         Object.defineProperty(data, newField, Object.getOwnPropertyDescriptor(data, obj));
                         delete data[obj];
@@ -79,8 +71,10 @@ export class DateTimeHelper {
         return data
     }
 
-    private toLocal(dt, format) {
-        //var dt2 = new Date();
+    private toLocalValue(dt, format, obj) {
+        if (obj in this.nameToFormat)
+            format = this.nameToFormat[obj];
+
         if (format == "date") {
             return  dt.toLocaleDateString()
         } else if (format == "datetime") {

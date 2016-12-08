@@ -10,6 +10,8 @@ import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 
+import * as helpers from '../../../core/services/helpers/helpers';
+
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
@@ -18,7 +20,8 @@ declare var bootstrapNavigator: any;
     providers: [
         WidgetService,
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.DateTimeHelper
     ]
 })
 export class AlertHistory implements OnInit {
@@ -28,7 +31,7 @@ export class AlertHistory implements OnInit {
     errorMessage: string;
     filterDate: string;
 
-    constructor(private service: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService) { }
+    constructor(private service: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -49,7 +52,7 @@ export class AlertHistory implements OnInit {
         this.service.get('/configurator/viewalerts?statdate=' + displayDate)
             .subscribe(
             (response) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
@@ -63,7 +66,7 @@ export class AlertHistory implements OnInit {
         this.service.get('/configurator/viewalerts?statdate=' + dt.toISOString().substr(0, 10))
             .subscribe(
             (response) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
