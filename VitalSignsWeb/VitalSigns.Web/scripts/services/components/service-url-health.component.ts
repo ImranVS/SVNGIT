@@ -31,6 +31,7 @@ export class URLHealthTab extends WidgetController implements OnInit, ServiceTab
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statname= ResponseTime&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'responseTime',
@@ -74,7 +75,7 @@ export class URLHealthTab extends WidgetController implements OnInit, ServiceTab
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statname= HourlyUpTimePercent&deviceId=${this.serviceId}&operation=hourly`,
-                   
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'hourlyupPercent',
