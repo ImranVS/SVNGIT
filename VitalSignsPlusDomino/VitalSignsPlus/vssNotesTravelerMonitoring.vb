@@ -3567,7 +3567,7 @@ Alerts:
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The Traveler Servlet is functioning. ")  ', LogLevel.Verbose)
 
                 updateDef = repository.Updater _
-                    .Set(Function(x) x.TravelerServlet, "TravelerServlet")
+                    .Set(Function(x) x.TravelerServlet, TravelerServlet)
 
                 If MyDominoServer.Traveler_Server_HA = False Then
                     updateDef = updateDef.Set(Function(x) x.TravelerHeartBeat, Now.ToString())
