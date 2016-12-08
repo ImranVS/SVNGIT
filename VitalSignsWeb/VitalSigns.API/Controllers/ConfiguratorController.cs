@@ -110,13 +110,59 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
-        [HttpGet("save_licence/{licencekey}")]
-        public APIResponse SaveLicence(string licencekey)
+        [HttpPut("save_licence")]
+        public APIResponse SaveLicence()
         {
             try
             {
-                var preferencesSettings = new List<NameValue> { new NameValue { Name = "Licence Key", Value = licencekey}};
+                string licenseKey = Request.Form["licKey"].ToString();
+                var preferencesSettings = new List<NameValue> { new NameValue { Name = "Licence Key", Value = licenseKey } };
                 var result = Common.SaveNameValues(preferencesSettings);
+                VSFramework.TripleDES licKey = new VSFramework.TripleDES();
+
+                string mykey;
+                string[] words;
+                mykey = licenseKey;
+                string Decriptkey = "";
+                //Byte[] inputInBytes;
+                byte[] Mylicensekey;
+                string[] MyEnkey;
+
+                MyEnkey = mykey.Split(',');
+                Mylicensekey = new byte[MyEnkey.Length];
+                for (int j = 0; j < MyEnkey.Length; j++)
+                {
+                    Mylicensekey[j] = Byte.Parse(MyEnkey[j]);
+                }
+                // Decriptkey = VSWebBL.SettingBL.TripleDES.Ins.Decrypt(Mylicensekey);
+                Decriptkey = licKey.Decrypt(Mylicensekey);
+
+                if (Decriptkey != null)
+                {
+                    if (Decriptkey.Contains("#"))
+                        words = Decriptkey.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
+                    else
+                        words = null;
+
+                    if (words != null)
+                    {
+                        License lic = new License();
+                        lic.LicenseKey = mykey;
+                        lic.units = Convert.ToInt32(words[0]);
+                        lic.InstallType = words[1];
+                        lic.CompanyName = words[2];
+                        lic.LicenseType = words[3];
+                        lic.ExpirationDate = Convert.ToDateTime(words[4]);
+                        VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(ConnectionString);
+                        List<License> licenseList = repoLic.All().ToList();
+                        foreach (License l in licenseList)
+                            repoLic.Delete(l);
+
+                            repoLic.Insert(lic);
+                        VitalSignsLicensing.Licensing licCollection = new VitalSignsLicensing.Licensing();
+                        licCollection.refreshServerCollectionWrapper();
+                    }
+                }
                 Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(),"Licence Key Saved Successfully Saved");
             }
             catch (Exception exception)
@@ -134,6 +180,8 @@ namespace VitalSigns.API.Controllers
                 var preferencesSettings = new List<string> { "Company Name", "Currency Symbol", "Monitoring Delay", "Threshold Show", "Dashboard Only", "Bing Key" };
                 PreferencesModel userpreference = new PreferencesModel();              
                 var result = Common.GetNameValues(preferencesSettings);
+                VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(ConnectionString);
+                License licenseItem = repoLic.Find(i => i.LicenseKey != "").FirstOrDefault();
                 userpreference.CompanyName = result.FirstOrDefault(x => x.Name == "Company Name").Value;
                 userpreference.CurrencySymbol = result.FirstOrDefault(x => x.Name == "Currency Symbol").Value;
                 userpreference.MonitoringDelay =Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Monitoring Delay").Value);
@@ -141,7 +189,7 @@ namespace VitalSigns.API.Controllers
                 userpreference.DashboardonlyExecSummaryButtons = Convert.ToBoolean(result.FirstOrDefault(x => x.Name == "Dashboard Only").Value);
                 userpreference.BingKey = result.FirstOrDefault(x => x.Name == "Bing Key").Value;
 
-                Response = Common.CreateResponse(userpreference);
+                Response = Common.CreateResponse(new { userpreference = userpreference, licenseitem = licenseItem } );
                
             }
             catch (Exception exception)
