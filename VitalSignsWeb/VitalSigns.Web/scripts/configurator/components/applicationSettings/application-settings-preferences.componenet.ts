@@ -22,6 +22,13 @@ export class PreferencesForm implements OnInit {
     errorMessage: string;
     profileEmail: string;
     licenceKey: string;   
+    expirationDate: any;
+    units: any;
+    companyName: any;
+    installType: any;
+    licenseType: any;
+    public formData = new FormData();
+
     appComponentService: AppComponentService;
     constructor(
         private formBuilder: FormBuilder,
@@ -37,6 +44,7 @@ export class PreferencesForm implements OnInit {
             'dashboardonly_exec_summary_buttons': [false],
             'bing_key': ['']
         });
+       
         this.appComponentService = appComponentService;
     }
 
@@ -45,7 +53,18 @@ export class PreferencesForm implements OnInit {
             .subscribe(
             response => {
                 console.log(response.data);
-                this.preferencesForm.setValue(response.data);
+                console.log(response.data.licenseitem.ExpirationDate);
+                console.log(response.data.licenseitem.units);
+                console.log(response.data.licenseitem.CompanyName);
+                this.expirationDate = response.data.licenseitem.ExpirationDate;
+                this.units = response.data.licenseitem.units;
+                this.companyName = response.data.licenseitem.CompanyName;
+                this.licenseType = response.data.licenseitem.LicenseType;
+                this.installType = response.data.licenseitem.InstallType;
+                this.preferencesForm.setValue(response.data.userpreference);
+                
+
+                //this.licenseForm.setValue(response.data.licenseInfo);
             },
             (error) => {
                 this.errorMessage = <any>error
@@ -76,11 +95,33 @@ export class PreferencesForm implements OnInit {
             alert("error");
         } else
         {
-            this.dataProvider.get('/configurator/save_licence/' + licencekey)
+            this.formData = null;
+            this.formData = new FormData();
+            this.formData.append("licKey", licencekey);
+            this.dataProvider.put('/configurator/save_licence', this.formData)
                 .subscribe(
                 response => {
-                    this.licencekey.first.nativeElement.value = "";
+                    this.dataProvider.get('/configurator/get_preferences')
+                        .subscribe(
+                        response => {
+                            console.log(response.data);
+                            console.log(response.data.licenseitem.ExpirationDate);
+                            console.log(response.data.licenseitem.units);
+                            console.log(response.data.licenseitem.CompanyName);
+                            this.expirationDate = response.data.licenseitem.ExpirationDate;
+                            this.units = response.data.licenseitem.units;
+                            this.companyName = response.data.licenseitem.CompanyName;
+                            this.licenseType = response.data.licenseitem.LicenseType;
+                            this.installType = response.data.licenseitem.InstallType;
+                            //this.preferencesForm.setValue(response.data.userpreference);
+                        },
+                        (error) => {
+                            this.errorMessage = <any>error
+                            this.appComponentService.showErrorMessage(this.errorMessage);
+                        }
+                        );
                 });
+            
             dialog.hide();
         }
     }

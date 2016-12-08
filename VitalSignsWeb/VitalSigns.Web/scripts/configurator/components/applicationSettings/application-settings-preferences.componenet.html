@@ -10,7 +10,51 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">License Information</div>
                     <div class="panel-body">
-                        <label for="subscription_version">Subscription version expires on</label><br />
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="companyName" class="control-label col-sm-3">Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="companyName" name="companyName" [(ngModel)]="companyName">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="expirationDate" class="control-label col-sm-3">Expiry Date</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="expirationDate" name="expirationDate" [(ngModel)]="expirationDate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="units" class="control-label col-sm-3">Units</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="units" name="units" [(ngModel)]="units">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="installType" class="control-label col-sm-3">Install Type</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="installType" name="installType" [(ngModel)]="installType">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="licenseType" class="control-label col-sm-3">Lic Type</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="licenseType" name="licenseType" [(ngModel)]="licenseType">
+                                </div>
+                            </div>
+                        </div>
+
                         <button #licence type="button" class="btn btn-primary">
                             Enter License Key
                         </button>
