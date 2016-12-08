@@ -1,33 +1,48 @@
 ﻿<div>
-    <div class="hidden-xs hidden-sm dashboard-menu" id="zeusContext">
-        <ul class="list-group" *ngIf="contextMenuSiteMap">
-
-            <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
-                [routerLinkActive]="['selected']"
-                [routerLinkActiveOptions]="{exact: true}">
-                <a [routerLink]="[node.url]">{{node.title}}</a>
-            </li>
-
-        </ul>
-    </div>
     <div id="zeusContent" class="container-fluid">
 
-        <sample-filters-bar></sample-filters-bar>
+        <div class="reportsPage disk-space-consumption">
+            <h1>Repeatable controls</h1>
+            
+            <div *ngFor="let server of data; let l = last;">
 
-        <div class="reportsPage">
-            <h1>Mobile users</h1>
-            <div *ngFor="let widget of widgets">
-                <h3>{{widget.title}}</h3>
-                <div id="{{widget.id}}">
-                    <my-widget [contract]="widget"></my-widget>
+                <h2>{{server.server_name}}</h2>
+
+                <div *ngFor="let drive of server.drives">
+
+                    <h3>{{drive.name}}</h3>
+
+                    <div class="properties">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Size:</td>
+                                    <td>{{drive.size}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Free Space:</td>
+                                    <td>{{drive.free_space}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Percent Free Space:</td>
+                                    <td>{{drive.percent_free_space}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Average Daily Growth:</td>
+                                    <td>{{drive.avg_daily_growth}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <repeatable-chart [prefix]="'disk-space-consumption'" [id]="drive.id" (render)="renderChart($event)"></repeatable-chart>
+
                 </div>
+
             </div>
+
         </div>
 
     </div>
-
-    <button class="visible-xs visible-sm showMbtn" onclick="$('.dashboard-menu').toggle();">
-        <img class="svgInject" src="img/dashboard/SubLevelsMenu.svg" title="Dashboard Sub Levels" alt="Dashboard Sub Levels" />
-    </button>
 
 </div>

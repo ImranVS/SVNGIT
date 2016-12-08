@@ -1,126 +1,103 @@
-﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
+﻿import { Component, ComponentFactoryResolver, OnInit } from '@angular/core';
 
-import {WidgetController, WidgetContract, WidgetService} from '../../core/widgets';
+import { RESTService } from '../../core/services/rest.service';
 
-import {RESTService} from '../../core/services/rest.service';
+declare var Highcharts: any;
 
 declare var injectSVG: any;
 declare var bootstrapNavigator: any;
 
-
 @Component({
     templateUrl: '/app/reports/components/sample-report.component.html',
     providers: [
-        WidgetService,
         RESTService
     ]
 })
-export class SampleReport extends WidgetController {
+export class SampleReport implements OnInit {
 
-    contextMenuSiteMap: any;
-    widgets: WidgetContract[];
+    private data: any[];
+    
+    private chartTpl: any = {
+        chart: {
+            renderTo: null,
+            type: 'pie',
+            height: 200
+        },
+        title: { text: '' },
+        subtitle: { text: '' },
+        xAxis: {
+            categories: []
+        },
+        yAxis: {
+            min: 0,
+            endOnTick: false,
+            allowDecimals: false,
+            title: {
+                enabled: false
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        credits: {
+            enabled: false
+        },
+        exporting: {
+            enabled: false
+        },
+        series: []
+    };
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
+    constructor(private service: RESTService) { }
 
-        super(resolver, widgetService);
+    renderChart(ref: any) {
+    
+        this.data.forEach(server => server.drives.forEach(drive => {
+
+            let driveChart = Object.assign({}, this.chartTpl);
+
+            driveChart.chart.renderTo = ref.clientId;
+            
+            driveChart.series = [{
+                name: drive.name,
+                data: [
+                    {
+                        name: 'Percent Free',
+                        y: drive.percent_free_space,
+                        color: '#008000'
+                    },
+                    {
+                        name: "Percent Used",
+                        y: 1 - drive.percent_free_space,
+                        color: '#f80000'
+                    }
+                ]
+            }];
+
+            new Highcharts.Chart(driveChart);
+
+        }));
 
     }
 
     ngOnInit() {
 
-        this.service.get('/navigation/sitemaps/domino_reports')
-            .subscribe(
-            data => this.contextMenuSiteMap = data,
-            error => console.log(error)
-            );
+        let i = 0;
 
-        this.widgets = [
-            {
-                id: 'mobileDevicesChart',
-                title: 'Mobile devices',
-                name: 'ChartComponent',
-                settings: {
-                    url: '/DashBoard/mobile_user_devices/count_by_type',
-                    chart: {
-                        chart: {
-                            renderTo: 'mobileDevicesChart',
-                            type: 'pie',
-                            height: 300
-                        },
-                        title: { text: '' },
-                        subtitle: { text: '' },
-                        xAxis: {
-                            categories: []
-                        },
-                        yAxis: {
-                            min: 0,
-                            endOnTick: false,
-                            allowDecimals: false,
-                            title: {
-                                enabled: false
-                            }
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        },
-                        series: []
-                    }
-                }
-            },
-            {
-                id: 'mobileDevicesOSChart',
-                title: 'Mobile devices OS for all Servers',
-                name: 'ChartComponent',
-                settings: {
-                    url: '/DashBoard/mobile_user_devices/count_by_os',
-                    chart: {
-                        chart: {
-                            renderTo: 'mobileDevicesOSChart',
-                            type: 'pie',
-                            height: 300
-                        },
-                        title: { text: '' },
-                        subtitle: { text: '' },
-                        xAxis: {
-                            categories: []
-                        },
-                        yAxis: {
-                            min: 0,
-                            endOnTick: false,
-                            allowDecimals: false,
-                            title: {
-                                enabled: false
-                            }
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        },
-                        series: []
-                    }
-                }
-            },
-            {
-                id: 'mobileUsersTable',
-                title: 'Mobile users',
-                name: 'MobileUsers',
-                settings: {}
-            }
-        ];
+        this.service.get('http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/reports/disk-space-consumption')
+            .subscribe((data: any[]) => {
+
+                data.forEach(server => server.drives.forEach(drive => {
+
+                    drive.id = i++;
+
+                }));
+
+                this.data = data;
+                
+            });
 
         injectSVG();
-
         bootstrapNavigator();
 
     }

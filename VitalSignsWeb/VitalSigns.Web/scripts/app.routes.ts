@@ -37,6 +37,8 @@ import { Issues } from './dashboards/components/issues/issues.component';
 import { DominoStatistics } from './dashboards/components/overall-statistics/overall-domino-statistics.component';
 import { SametimeStatistics } from './dashboards/components/overall-statistics/overall-sametime-statistics.component';
 
+import { SampleDashboard } from './dashboards/components/sample-dashboard.component';
+
 import {SiteMapList} from './navigation/editor/components/sitemap-list.component';
 import {SiteMapEditor} from './navigation/editor/components/sitemap-editor.component';
 
@@ -147,6 +149,8 @@ export * from './dashboards/components/cloud-services-dashboard.component';
 export * from './dashboards/components/financial-dashboard.component';
 export * from './dashboards/components/status-map-dashboard.component';
 
+export * from './dashboards/components/sample-dashboard.component';
+
 export * from './services/components/services-view.component';
 export * from './services/components/service-details.component';
 export * from './services/components/no-selected-service.component';
@@ -186,6 +190,10 @@ const appRoutes: Routes = [
             {
                 path: 'dashboard',
                 component: OverallDashboard
+            },
+            {
+                path: 'dashboard/sample',
+                component: SampleDashboard
             },
             {
                 path: 'dashboard/ibm/domino',

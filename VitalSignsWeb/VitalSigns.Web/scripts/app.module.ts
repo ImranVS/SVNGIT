@@ -26,6 +26,7 @@ import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
+import * as wjOlap from 'wijmo/wijmo.angular2.olap';
 
 import {WidgetContainer} from './core/widgets';
 
@@ -100,6 +101,8 @@ import {FileUploadSample} from './configurator/components/serverImport/file-uplo
 import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
 import {AnyStatisticFilter} from './reports/filters/components/any-statistic-filter.component';
 import {ServerAvailabilityFilter} from './reports/filters/components/server-availability-filter.component'
+
+import {RepeatableChart} from './reports/components/repeatable-chart.component';
 
 @NgModule({
     imports: [
@@ -191,6 +194,8 @@ import {ServerAvailabilityFilter} from './reports/filters/components/server-avai
         SametimeServerFilter,
         AnyStatisticFilter,
         ServerAvailabilityFilter,
+        RepeatableChart,
+        dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
         dashboards.IBMDominoDashboard,

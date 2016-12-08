@@ -1,12 +1,12 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
-import {HttpModule}    from '@angular/http';
+﻿import { Component, Input, OnInit } from '@angular/core';
+import { HttpModule } from '@angular/http';
 
-import {WidgetComponent, WidgetController, WidgetService} from '../../../core/widgets';
-import {RESTService} from '../../../core/services';
+import { WidgetComponent, WidgetController, WidgetService } from '../../../core/widgets';
+import { RESTService } from '../../../core/services';
 
 import * as helpers from '../../../core/services/helpers/helpers';
 
-import {Chart} from '../models/chart';
+import { Chart } from '../models/chart';
 
 declare var Highcharts: any;
 
@@ -20,7 +20,7 @@ declare var Highcharts: any;
 })
 export class ChartComponent implements WidgetComponent, OnInit {
     @Input() settings: any;
-
+    
     errorMessage: string;
     chart: any;
 
@@ -29,16 +29,16 @@ export class ChartComponent implements WidgetComponent, OnInit {
     refresh(serviceUrl?: string) {
 
         this.loadData(serviceUrl);
-        
+
     }
-    
+
     ngOnInit() {
 
         this.loadData();
 
     }
 
-    private loadData(serviceUrl? : string) {
+    private loadData(serviceUrl?: string) {
 
         this.service.get(serviceUrl || this.settings.url)
             .subscribe(data => {
@@ -62,21 +62,22 @@ export class ChartComponent implements WidgetComponent, OnInit {
                 }
 
                 let chart = <Chart>data.data;
-                
+
                 let categories: string[] = []
-                
+
                 chart.series.map(serie => {
 
                     let length = this.settings.chart.series.push({
                         name: null,
                         data: []
                     });
-                    
+
                     this.settings.chart.series[length - 1].name = serie.title;
                     //NS added the line below this.settings.chart.xAxis.categories = []; - the categories array needs 
                     //to be cleared every time, otherwise, the chart does not redraw x axis values if the data is updated
                     this.settings.chart.xAxis.categories = [];
 
+                    // First loop to gather all data points labels
                     serie.segments.map(segment => {
 
                         if (this.settings.chart.xAxis) {
@@ -85,9 +86,10 @@ export class ChartComponent implements WidgetComponent, OnInit {
                         }
 
                     });
-
+                    
                     this.settings.chart.xAxis.categories = categories;
 
+                    // Second loop to build data points with actual value or null if missing 
                     categories.map(category => {
 
                         let segment = serie.segments.find(s => s.label == category);
@@ -105,21 +107,19 @@ export class ChartComponent implements WidgetComponent, OnInit {
                             });
 
                     });
-                    
+
                     // TODO: [OM] not obvious to hard code string value there and it introduces a strong dependency with business rules
-                        if (this.settings.chart.xAxis.categories.length > 1 && serie.title == "Available" || serie.title == "Used") {
-                           
-                            this.settings.chart.chart.type = 'bar';
-                        }
-                        else if (serie.title.startsWith("Disk")) {
-                           
-                            this.settings.chart.chart.type = 'pie';
+                    if (this.settings.chart.xAxis.categories.length > 1 && serie.title == "Available" || serie.title == "Used") {
+
+                        this.settings.chart.chart.type = 'bar';
                     }
-                    
+                    else if (serie.title.startsWith("Disk")) {
+
+                        this.settings.chart.chart.type = 'pie';
+                    }
+
                 });
-
-                console.log(categories);
-
+                
                 this.chart = new Highcharts.Chart(this.settings.chart);
 
                 if (this.settings.callback)
