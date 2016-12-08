@@ -859,7 +859,7 @@ namespace VitalSigns.API.Controllers
                     DeviceName = x.DeviceName,
                     DateTimeDown = Convert.ToString(x.DateTimeDown.ToString(DateFormat)),
                     DateTimeUp = Convert.ToString(x.DateTimeUp.Value.ToString(DateFormat)),
-                }).ToList();
+                }).ToList().OrderBy(x=>x.DeviceName);
                 Response = Common.CreateResponse(result);
             }
             catch (Exception exception)

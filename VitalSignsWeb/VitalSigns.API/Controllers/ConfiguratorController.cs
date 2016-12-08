@@ -2468,7 +2468,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type== "Notes Database Replica").Select(x => new NotesDatabaseReplicaModel
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Notes Database Replica").Select(x => new NotesDatabaseReplicaModel
                 {
                     Name = x.Name,
                     IsEnabled = x.IsEnabled,
@@ -2488,8 +2488,7 @@ namespace VitalSigns.API.Controllers
                     DifferenceThreshold = x.DifferenceThreshold
 
 
-                }).ToList().OrderBy(x => x.Name);
-
+                }).ToList().OrderBy(x => x.DominoServerA).OrderBy(x=>x.DominoServerB);
 
                 Response = Common.CreateResponse(result);
                // Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Delete Server Credentials falied .\n Error Message :");
@@ -2762,7 +2761,7 @@ namespace VitalSigns.API.Controllers
 
                     TriggerValue = x.TriggerValue
 
-                }).ToList().OrderBy(x => x.Name);
+                }).ToList().OrderBy(x => x.DominoServerName);
 
                 Response = Common.CreateResponse(result);
             }
@@ -3263,7 +3262,7 @@ namespace VitalSigns.API.Controllers
                     TestScanServer = x.TestScanServer
                     //UsedByServers = x.UsedByServers
 
-                }).ToList();
+                }).ToList().OrderBy(x => x.DeviceName);
                 statusRepository = new Repository<Status>(ConnectionString);
                 var travelerServers = statusRepository.Collection.AsQueryable().Where(x => x.SecondaryRole.Contains("Traveler")).Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
                 Response = Common.CreateResponse(new { travellerData = travellerData, travelerServers = travelerServers });
@@ -3532,7 +3531,7 @@ namespace VitalSigns.API.Controllers
                             EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count-1].EventDetectedSent.Value) : nullDate,
                             EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
                             NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
-                        }).OrderByDescending(x => x.EventDetected).ToList();
+                        }).OrderBy(x=>x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
 
                     Response = Common.CreateResponse(result);
                 }
@@ -3549,7 +3548,7 @@ namespace VitalSigns.API.Controllers
                             EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].EventDetectedSent.Value) : nullDate,
                             EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
                             NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
-                        }).OrderByDescending(x => x.EventDetected).ToList();
+                        }).OrderBy(x=>x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
 
                     Response = Common.CreateResponse(result);
                 }
