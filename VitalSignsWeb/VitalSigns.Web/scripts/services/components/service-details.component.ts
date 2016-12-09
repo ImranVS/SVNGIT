@@ -142,7 +142,21 @@ export class ServiceDetails implements OnInit {
     }
    
     scanNow() {
-     //   alert("Disks");
+       
+        this.dataProvider.put('/Configurator/save_scan_now/' + this.deviceId, this.deviceId)
+            .subscribe(
+
+            response => {
+
+                if (response.status == "Success") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
 
     }
     suspendTemporarly(dlg: wijmo.input.Popup) {
@@ -174,6 +188,6 @@ export class ServiceDetails implements OnInit {
                 }
             });
         dialog.hide();
-
+        //
     }
 }
