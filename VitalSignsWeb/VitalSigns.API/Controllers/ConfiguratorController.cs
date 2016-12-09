@@ -1713,7 +1713,7 @@ namespace VitalSigns.API.Controllers
                
 
                 //Response = Common.CreateResponse(serverresult);
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult,platform=serverresult.Platform });
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult });
             }
             catch (Exception exception)
             {
@@ -1753,6 +1753,7 @@ namespace VitalSigns.API.Controllers
                                                                   .Set(p => p.Description, deviceAttributes.Description)
                                                                   .Set(p => p.IsEnabled, deviceAttributes.IsEnabled)
                                                                   .Set(p => p.RequireSSL, deviceAttributes.RequireSSL)
+                                                                  .Set(p => p.Platform, deviceAttributes.Platform)
                                                                   .Set(p => p.CredentialsId, deviceAttributes.CredentialsId);
 
 
@@ -2246,6 +2247,7 @@ namespace VitalSigns.API.Controllers
                 serversRepository = new Repository<Server>(ConnectionString);
                 Expression<Func<Server, bool>> expression = (p => p.Id == id);
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
+                var platform = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.Platform).FirstOrDefault();
                 var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
                             .Select(x => new AdvancedSettingsModel
                             {
@@ -2290,7 +2292,8 @@ namespace VitalSigns.API.Controllers
                 //    }).FirstOrDefault();
                 //    results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
                 //}
-                Response = Common.CreateResponse(results);
+                Response = Common.CreateResponse(new { results = results, platform = platform });
+               // Response = Common.CreateResponse(results);
             }
             catch (Exception ex)
             {
@@ -4490,7 +4493,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
-                var result = serversRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.DeviceType, Value = x.DeviceType }).Distinct().ToList().OrderBy(x => x.DisplayText);
+                var result = serversRepository.Collection.AsQueryable().Where(x=>x.DeviceType!="URL" && x.DeviceType!= "WebSphereCell" && x.DeviceType!= "WebSphereNode").Select(x => new ComboBoxListItem { DisplayText = x.DeviceType, Value = x.DeviceType }).Distinct().ToList().OrderBy(x => x.DisplayText);
 
 
                 Response = Common.CreateResponse(result);
@@ -4773,8 +4776,8 @@ namespace VitalSigns.API.Controllers
 
                 }).ToList().OrderBy(x => x.Name);
                 // var servicesresult =  nodesRepository.Collection.AsQueryable().Select(x => x.ServiceStatus).ToList();
-               
-                var nodesData = nodesRepository.All().Select(x => x.Name).Distinct().OrderBy(x => x).ToList();
+                var nodesData = nodesRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+                //var nodesData = nodesRepository.All().Select(x => x.Name).Distinct().OrderBy(x => x).ToList();
                 //  Response = Common.CreateResponse(result);
 
                 // var serviceresult = nodesRepository.Collection.AsQueryable().Where(x => x.Id == servernodes.id).Select(x => x.ServiceStatus).FirstOrDefault();
@@ -4798,19 +4801,20 @@ namespace VitalSigns.API.Controllers
             {
                 nodesRepository = new Repository<Nodes>(ConnectionString);
                 Expression<Func<Nodes, bool>> expression = (p => p.Id == id);
-
-                var serviceresult = nodesRepository.Find(expression).Select(x => x.ServiceStatus).FirstOrDefault();
+                var result= nodesRepository.Collection.AsQueryable().Where(x=>x.Id==id).FirstOrDefault();
+              //  var serviceresult = nodesRepository.Find(expression).Select(x => x.ServiceStatus).FirstOrDefault();
                 //   var distinctData = summaryStats.Select(x => new { DeviceId = x.DeviceID, DeviceName = x.DeviceName }).Distinct().OrderBy(x => x.DeviceName).ToList();
                 List<ServiceStatusModel> service = new List<ServiceStatusModel>();
                 List<NodesServices> nodesServicesStatus = new List<NodesServices>();
-               
+                var serviceresult = result.ServiceStatus;
                     if (serviceresult != null)
                     {
 
                         NodesServices nodesservices = new NodesServices();
+               
 
 
-                        var dominoService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Domino");
+                    var dominoService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Domino");
                         nodesservices.VSServicDomino = dominoService.State;
 
                     
@@ -4819,7 +4823,15 @@ namespace VitalSigns.API.Controllers
                         nodesservices.VSServiceCore = coreService.State;
 
                         var vsAlert = serviceresult.FirstOrDefault(x => x.Name == "VSService_Alerting");
+                    if(result.IsPrimary==false)
+                    {
+                        nodesservices.VSServiceAlerting = "N/A";
+                    }
+                    else
+                    {
                         nodesservices.VSServiceAlerting = vsAlert.State;
+                    }
+                        
 
                         var clusterHealth = serviceresult.FirstOrDefault(x => x.Name == "VSService_Cluster Health");
                         nodesservices.VSServiceCluster = clusterHealth.State;
@@ -4845,6 +4857,7 @@ namespace VitalSigns.API.Controllers
                         var core64Bit = serviceresult.FirstOrDefault(x => x.Name == "VSService_Core 64-bit");
                         nodesservices.VSService_Core64 = core64Bit.State;
 
+                    //if()
                         nodesServicesStatus.Add(nodesservices);
                     }
                     Response = Common.CreateResponse(nodesServicesStatus);
