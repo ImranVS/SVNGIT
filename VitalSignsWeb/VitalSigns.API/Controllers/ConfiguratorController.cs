@@ -993,6 +993,7 @@ namespace VitalSigns.API.Controllers
                         string hashedPassword = Startup.SignData(password);
                         maintainUsers.Hash = hashedPassword;
                         string id = maintainUsersRepository.Insert(maintainUsers);
+                        //Implement email functionality
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
                     }
                     else
@@ -1052,6 +1053,8 @@ namespace VitalSigns.API.Controllers
                     var updatePassword = maintainUsersRepository.Updater.Set(y => y.Hash, hashedPassword)
                                                                         .Set(y => y.IsPasswordResetRequired, true);
                     var result = maintainUsersRepository.Update(filterDefination, updatePassword);
+
+                    //Implement email functionality
                     Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Password Reset done successfully and check your email");
                 }
                 else
