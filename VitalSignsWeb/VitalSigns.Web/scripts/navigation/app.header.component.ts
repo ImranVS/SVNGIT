@@ -1,4 +1,4 @@
-﻿import {Component, AfterViewChecked, OnChanges, SimpleChange, Input} from '@angular/core';
+﻿import {Component, AfterViewChecked, OnChanges, SimpleChange, Input, ViewChildren} from '@angular/core';
 import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
@@ -19,7 +19,7 @@ declare var bootstrapNavigator: any;
     ]
 })
 export class AppHeader implements OnChanges {
-
+    @ViewChildren('password') password;
     @Input() anonymous: boolean;
 
     errorMessage: string;
@@ -32,7 +32,7 @@ export class AppHeader implements OnChanges {
         private authService: AuthenticationService) { }
     
     loadData() {   
-       
+        
         this.service.get('/services/dashboard_summary')
             .subscribe(
             response => {
@@ -66,5 +66,19 @@ export class AppHeader implements OnChanges {
         }
 
     } 
+    changePassword(dialog: wijmo.input.Popup) {
+        var passwordVal = this.password.first.nativeElement.value;
+        if (passwordVal == "") {
+           
+        } else {
+            this.service.get('/configurator/reset_password?emailId=' + this.authService.CurrentUser.email + '&password=' + passwordVal)
+                .subscribe(
+                response => {
+                    
+                });
+            dialog.hide();
+        }
 
+
+    }
 }
