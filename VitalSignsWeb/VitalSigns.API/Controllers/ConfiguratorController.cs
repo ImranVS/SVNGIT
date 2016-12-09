@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
 using VitalSigns.API.Models;
 using VitalSigns.API.Models.Configurator;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using VitalSigns.API.Models.Charts;
 using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using System.Linq.Expressions;
-using System.Linq;
-using MongoDB.Bson;
 using System.Runtime.Serialization.Json;
-using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Net.Mail;
 using Ionic.Zip;
 using Microsoft.AspNet.Authorization;
+using System.Web.Security;
 
 namespace VitalSigns.API.Controllers
 {
@@ -953,18 +949,14 @@ namespace VitalSigns.API.Controllers
                 maintainUsersRepository = new Repository<Users>(ConnectionString);
                 var result = maintainUsersRepository.All().Select(x => new MaintainUsersModel
                 {
-
                     Id = x.Id,
-                    LoginName = x.LoginName,
-                    FullName = x.FullName,
                     Email = x.Email,
-                    Status = x.Status,
-                    SuperAdmin = x.SuperAdmin,
-                    ConfiguratorAccess = x.ConfiguratorAccess,
-                    ConsoleCommandAccess = x.ConsoleCommandAccess
-
+                    FullName = x.FullName,
+                    Roles = x.Roles,
+                    Status = x.Status,                 
                 }).ToList();
-                Response = Common.CreateResponse(result);
+               // var maintainRoles = maintainUsersRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Roles , Value = x.Id}).ToList().OrderBy(x => x.DisplayText);
+                Response = Common.CreateResponse(result);          
             }
 
             catch (Exception exception)
@@ -983,41 +975,40 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Users, bool>> filterExpression;
                 if (string.IsNullOrEmpty(maintainuser.Id))
                 {
-                    filterExpression = (p => p.LoginName == maintainuser.LoginName);
+                    filterExpression = (p => p.Email == maintainuser.Email);
 
                 }
                 else
                 {
-                    filterExpression = (p => p.LoginName == maintainuser.LoginName && p.Id != maintainuser.Id);
+                    filterExpression = (p => p.Email == maintainuser.Email && p.Id != maintainuser.Id);
 
                 }
-                var existsData = maintainUsersRepository.Find(filterExpression).Select(x => x.LoginName).FirstOrDefault();
+                var existsData = maintainUsersRepository.Find(filterExpression).Select(x => x.Email).FirstOrDefault();
                 if (string.IsNullOrEmpty(existsData))
                 {
                     if (string.IsNullOrEmpty(maintainuser.Id))
                     {
-                        Users maintainUsers = new Users { LoginName = maintainuser.LoginName, FullName = maintainuser.FullName, Email = maintainuser.Email, Status = maintainuser.Status, SuperAdmin = maintainuser.SuperAdmin, ConfiguratorAccess = maintainuser.ConfiguratorAccess, ConsoleCommandAccess = maintainuser.ConsoleCommandAccess };
+                        Users maintainUsers = new Users {FullName = maintainuser.FullName, Email = maintainuser.Email,Roles = maintainuser.Roles, Status = maintainuser.Status};
+                       string  password = Membership.GeneratePassword(6, 2);
+                        string hashedPassword = Startup.SignData(password);
+                        maintainUsers.Hash = hashedPassword;
                         string id = maintainUsersRepository.Insert(maintainUsers);
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
                     }
                     else
                     {
                         FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(p => p.Id == maintainuser.Id);
-                        var updateDefination = maintainUsersRepository.Updater.Set(p => p.LoginName, maintainuser.LoginName)
-                                                                 .Set(p => p.FullName, maintainuser.FullName)
+                        var updateDefination = maintainUsersRepository.Updater.Set(p => p.FullName, maintainuser.FullName)
                                                                  .Set(p => p.Email, maintainuser.Email)
                                                                  .Set(p => p.Status, maintainuser.Status)
-                                                                 .Set(p => p.SuperAdmin, maintainuser.SuperAdmin)
-                                                                 .Set(p => p.ConfiguratorAccess, maintainuser.ConfiguratorAccess)
-                                                                 .Set(p => p.ConsoleCommandAccess, maintainuser.ConsoleCommandAccess);
-
+                                                                 .Set(p => p.Roles, maintainuser.Roles);                                                             
                         var result = maintainUsersRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Maintain Users updated successfully");
                     }
                 }
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + maintainuser.LoginName  + "already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + maintainuser.Email + "already exists. Enter another one.");
                 }
             }
             catch (Exception exception)
@@ -1027,7 +1018,6 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
-
         [HttpDelete("delete_maintain_users/{id}")]
         public APIResponse DeleteMaintainUsers(string id)
         {
@@ -1041,6 +1031,37 @@ namespace VitalSigns.API.Controllers
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Maintain Users falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("reset_password")]
+        public APIResponse ResetPassword(string emailId,string password)
+        {
+            try
+            {
+                maintainUsersRepository = new Repository<Users>(ConnectionString);
+                var user= maintainUsersRepository.Collection.AsQueryable().FirstOrDefault(x => x.Email == emailId);
+                if (user != null)
+                {
+                    if (string.IsNullOrEmpty(password))
+                        password = Membership.GeneratePassword(6, 2);
+                    string hashedPassword = Startup.SignData(password);
+                    maintainUsersRepository = new Repository<Users>(ConnectionString);
+                    FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(x => x.Email == emailId);
+                    var updatePassword = maintainUsersRepository.Updater.Set(y => y.Hash, hashedPassword)
+                                                                        .Set(y => y.IsPasswordResetRequired, true);
+                    var result = maintainUsersRepository.Update(filterDefination, updatePassword);
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Password Reset done successfully and check your email");
+                }
+                else
+                {
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "User is not available in the database");
+                }
+            }
+            catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error occured value reset the password:" + exception);
             }
             return Response;
         }
