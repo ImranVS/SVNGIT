@@ -616,7 +616,10 @@ Public Class VitalSignsAlertService
                                     dr("ScriptCommand") = ""
                                     dr("ScriptLocation") = ""
                                     dr("SendSNMPTrap") = False
-                                    dr("EnablePersistentAlert") = sendlist.PersistentNotification
+                                    dr("EnablePersistentAlert") = False
+                                    If Not IsNothing(sendlist.PersistentNotification) Then
+                                        dr("EnablePersistentAlert") = sendlist.PersistentNotification
+                                    End If
                                     If sendlist.SendVia = "email" Then
                                         dr("SendTo") = sendlist.SendTo
                                     ElseIf sendlist.SendVia = "sms" Then
@@ -632,7 +635,7 @@ Public Class VitalSignsAlertService
                                     dr("StartTime") = ""
                                     dr("Duration") = 0
                                     dr("Day") = ""
-                                    filterBusHrs = repoBusHrs.Filter.Eq(Of String)("_id", sendlist.BusinessHoursId)
+                                    filterBusHrs = repoBusHrs.Filter.Eq(Of ObjectId)("_id", New ObjectId(sendlist.BusinessHoursId))
                                     bushrsEntity = repoBusHrs.Find(filterBusHrs).ToArray()
                                     If bushrsEntity.Length > 0 Then
                                         dr("StartTime") = bushrsEntity(0).StartTime
@@ -1396,8 +1399,14 @@ Public Class VitalSignsAlertService
                                     dr("ID") = eventsCreated(i).ObjectId.ToString() 'notificationsSent(k).ObjectId.ToString()
                                     dr("sentid") = eventsCreated(i).ObjectId.ToString()
                                     dr("sentto") = notificationsSent(k).NotificationSentTo
-                                    dr("ccdto") = notificationsSent(k).NotificationCcdTo
-                                    dr("bccdto") = notificationsSent(k).NotificationBccdTo
+                                    dr("ccdto") = ""
+                                    If Not notificationsSent(k).NotificationCcdTo Is Nothing Then
+                                        dr("ccdto") = notificationsSent(k).NotificationCcdTo
+                                    End If
+                                    dr("bccdto") = ""
+                                    If Not notificationsSent(k).NotificationBccdTo Is Nothing Then
+                                        dr("bccdto") = notificationsSent(k).NotificationBccdTo
+                                    End If
                                     dr("DeviceName") = eventsCreated(i).Device
                                     dr("DeviceType") = eventsCreated(i).DeviceType
                                     dr("AlertType") = eventsCreated(i).EventType
@@ -1722,16 +1731,16 @@ Public Class VitalSignsAlertService
 
         Try
             PHostName = getSettings("PrimaryHostName")
-            Pport = getSettings("primaryport")
-            PEmail = getSettings("primaryUserID")
-            Ppwd = getSettings("primarypwd")
-            PFrom = getSettings("primaryFrom")
-            tempVal = getSettings("primaryAuth").ToString()
+            Pport = getSettings("PrimaryPort")
+            PEmail = getSettings("PrimaryUserId")
+            Ppwd = getSettings("Primarypwd")
+            PFrom = getSettings("PrimaryFrom")
+            tempVal = getSettings("PrimaryAuth").ToString()
             If tempVal <> "" Then
                 PAuth = Convert.ToBoolean(tempVal)
             End If
             '4/15/2014 NS added
-            tempVal = getSettings("primarySSL").ToString()
+            tempVal = getSettings("PrimarySSL").ToString()
             If tempVal <> "" Then
                 PSSL = Convert.ToBoolean(tempVal)
             End If
@@ -1752,9 +1761,9 @@ Public Class VitalSignsAlertService
             Try
                 '3/31/2014 NS modified for VSPLUS-489
                 PHostName2 = getSettings("SecondaryHostName")
-                Pport2 = getSettings("Secondaryport")
-                PEmail2 = getSettings("SecondaryUserID")
-                Ppwd2 = getSettings("Secondarypwd")
+                Pport2 = getSettings("SecondaryPort")
+                PEmail2 = getSettings("SecondaryUserId")
+                Ppwd2 = getSettings("SecondaryPwd")
                 PFrom2 = getSettings("SecondaryFrom")
                 tempVal = getSettings("SecondaryAuth").ToString()
                 If tempVal <> "" Then
