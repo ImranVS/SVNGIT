@@ -15,11 +15,7 @@ namespace VSNext.Mongo.Entities
     [CollectionName("users")]
     public class Users : Entity
     {
-        [DataMember]
-        [BsonElement("login_name")]
-        [BsonIgnoreIfNull]
-        public string LoginName { get; set; }
-
+     
         [DataMember]
         [BsonElement("full_name")]
         [BsonIgnoreIfNull]
@@ -33,22 +29,22 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("status")]
         [BsonIgnoreIfNull]
-        public string Status { get; set; }
+        public bool Status { get; set; }
 
         [DataMember]
-        [BsonElement("super_admin")]
+        [BsonElement("roles")]
         [BsonIgnoreIfNull]
-        public string SuperAdmin { get; set; }
+        public List<string> Roles { get; set; }
 
         [DataMember]
-        [BsonElement("configurator_access")]
+        [BsonElement("hash")]
         [BsonIgnoreIfNull]
-        public bool ConfiguratorAccess { get; set; }
+        public string Hash { get; set; }
 
         [DataMember]
-        [BsonElement("console_command_access")]
+        [BsonElement("is_password_reset_required")]
         [BsonIgnoreIfNull]
-        public bool ConsoleCommandAccess { get; set; }
+        public bool IsPasswordResetRequired { get; set; }
 
     }
 }
