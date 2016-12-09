@@ -43,7 +43,7 @@ export class ServersLocation implements OnInit {
         console.log(this._deviceList);
         if (this.flex.collectionView) {
             if (this.flex.collectionView.items.length > 0) {
-                //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveCurrentToFirst();
+                (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).pageIndex = 0;
                 for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
                     //console.log(item.is_selected);
