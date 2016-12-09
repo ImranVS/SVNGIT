@@ -26,7 +26,6 @@ import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-import * as wjOlap from 'wijmo/wijmo.angular2.olap';
 
 import {WidgetContainer} from './core/widgets';
 
