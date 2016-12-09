@@ -16,7 +16,8 @@ declare var bootstrapNavigator: any;
 export class SampleReport implements OnInit {
 
     private data: any[];
-    
+    private drives: any[] = [];
+
     private chartTpl: any = {
         chart: {
             renderTo: null,
@@ -51,32 +52,30 @@ export class SampleReport implements OnInit {
     constructor(private service: RESTService) { }
 
     renderChart(ref: any) {
-    
-        this.data.forEach(server => server.drives.forEach(drive => {
 
-            let driveChart = Object.assign({}, this.chartTpl);
+        let drive = this.drives[ref.id];
 
-            driveChart.chart.renderTo = ref.clientId;
-            
-            driveChart.series = [{
-                name: drive.name,
-                data: [
-                    {
-                        name: 'Percent Free',
-                        y: drive.percent_free_space,
-                        color: '#008000'
-                    },
-                    {
-                        name: "Percent Used",
-                        y: 1 - drive.percent_free_space,
-                        color: '#f80000'
-                    }
-                ]
-            }];
+        let driveChart = Object.assign({}, this.chartTpl);
 
-            new Highcharts.Chart(driveChart);
+        driveChart.chart.renderTo = ref.clientId;
 
-        }));
+        driveChart.series = [{
+            name: drive.name,
+            data: [
+                {
+                    name: 'Percent Free',
+                    y: drive.percent_free_space,
+                    color: '#008000'
+                },
+                {
+                    name: "Percent Used",
+                    y: 1 - drive.percent_free_space,
+                    color: '#f80000'
+                }
+            ]
+        }];
+
+        new Highcharts.Chart(driveChart);
 
     }
 
@@ -91,10 +90,12 @@ export class SampleReport implements OnInit {
 
                     drive.id = i++;
 
+                    this.drives.push(drive);
+
                 }));
 
                 this.data = data;
-                
+
             });
 
         injectSVG();
