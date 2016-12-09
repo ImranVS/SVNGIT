@@ -8,14 +8,17 @@ namespace VitalSigns.API.Models
 {
     public class WebShpereServerImport
     {
-        
-        [JsonProperty("cells_data")]
-        public List<CellInfo> CellsData { get; set; }
+              
 
         [JsonProperty("device_attributes")]
-        public List<DeviceAttributesModel> DeviceAttributes { get; set; }
-        [JsonProperty("credentials_list")]
-        public List<ComboBoxListItem> CredentialsData { get; set; }
+        public List<DeviceAttributesModel> DeviceAttributes { get; set; }       
+        [JsonProperty("selected_servers")]
+        public List<NodeInfo> SelectedServers { get; set; }
+        [JsonProperty("memory_threshold")]
+        public double? MemoryThreshold { get; set; }
+
+        [JsonProperty("cpu_threshold")]
+        public double? CpuThreshold { get; set; }
 
     }
 
@@ -61,6 +64,35 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("password")]
         public string Password { get; set; }
+
+        [JsonProperty("nodes_data")]
+        public List<NodeInfo> NodesData { get; set; }
+
+    }
+
+    public class NodeInfo
+    {
+        [JsonProperty("cell_id")]
+        public string CellId { get; set; }
+
+        [JsonProperty("node_id")]
+        public string NodeId { get; set; }
+
+        [JsonProperty("server_id")]
+        public string ServerId { get; set; }
+
+        [JsonProperty("node_name")]
+        public string NodeName { get; set; }
+        [JsonProperty("server_name")]
+        public string ServerName { get; set; }
+
+        [JsonProperty("host_name")]
+        public string HostName { get; set; }
+
+
+        [JsonProperty("is_selected")]
+        public string IsSelected { get; set; }
+
 
     }
 
