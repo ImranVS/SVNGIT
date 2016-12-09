@@ -26,6 +26,7 @@ import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
+import * as wjInputTime from 'wijmo/wijmo.angular2.input';
 
 import {WidgetContainer} from './core/widgets';
 
@@ -374,7 +375,8 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         wjFlexInput.WjCalendar,
         wjFlexInput.WjInputDate,
         wjFlexInput.WjListBox,
-        wjFlexInput.WjMultiSelect
+        wjFlexInput.WjMultiSelect,
+        wjInputTime.WjInputTime
     ],
     entryComponents: [
         widgets.AppStatus,

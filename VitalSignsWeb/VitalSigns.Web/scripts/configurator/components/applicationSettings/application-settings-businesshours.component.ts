@@ -6,10 +6,12 @@ import {GridBase} from '../../../core/gridBase';
 
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
+import * as wjInputTime from 'wijmo/wijmo.angular2.input';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
+
 import {AppComponentService} from '../../../core/services';
 
 
@@ -22,7 +24,7 @@ import {AppComponentService} from '../../../core/services';
 })
 export class BusinessHours extends GridBase implements OnInit {  
     selectedServers: string;
-
+    displayDate: Date;
      constructor(service: RESTService, appComponentService: AppComponentService) {
          super(service, appComponentService);
          this.formName = "Business Hours";
@@ -42,16 +44,22 @@ export class BusinessHours extends GridBase implements OnInit {
         this.currentEditItem.saturday = false;
         this.currentEditItem.use_type = "2";
 
-    }
+     }
+
     ngOnInit() {
         this.initialGridBind('/Configurator/get_business_hours');
     } 
     saveBusinessHour(dlg: wijmo.input.Popup) {    
         console.log(this.currentEditItem.name);
         console.log(this.currentEditItem.start_time);
-        console.log(this.currentEditItem.duration);
-        console.log(this.currentEditItem.use_type);
-        console.log(this.currentEditItem.sunday);
+        this.displayDate = new Date(Date.parse(this.currentEditItem.start_time));
+        this.currentEditItem.start_time = this.displayDate.getHours() + ':' + this.displayDate.getMinutes();
+        
+        //console.log(this.displayDate.getHours());
+        //console.log(this.displayDate.getMinutes());
+        //console.log(this.currentEditItem.duration);
+        //console.log(this.currentEditItem.use_type);
+        //console.log(this.currentEditItem.sunday);
 
         //if (this.currentEditItem.sunday == false && this.currentEditItem.monday == false && this.currentEditItem.tuesday == false &&
         //    this.currentEditItem.wednesday == false && this.currentEditItem.thursday == false && this.currentEditItem.friday == false &&
@@ -60,7 +68,8 @@ export class BusinessHours extends GridBase implements OnInit {
         //}
         //else {
 
-            this.saveGridRow('/Configurator/save_business_hours', dlg);
+        this.saveGridRow('/Configurator/save_business_hours', dlg);
+        
         //}
 
     }
@@ -70,7 +79,12 @@ export class BusinessHours extends GridBase implements OnInit {
     }
 
     editBusinessHours(dlg: wijmo.input.Popup) {
-        this.editGridRow(dlg);
+        //this.editGridRow(dlg);
+        this.formTitle = "Edit " + this.formName;
+
+        (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
+        this.currentEditItem = this.flex.collectionView.currentItem;
+        this.showDialog(dlg);
         //console.log(this.currentEditItem.use_type);
     }
 
@@ -96,6 +110,7 @@ export class BusinessHours extends GridBase implements OnInit {
         this.currentEditItem.saturday = false;
         
     }
+
 }
 
 

@@ -119,7 +119,7 @@ export abstract class GridBase {
        
         (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
         this.currentEditItem = this.flex.collectionView.currentItem;
-        //console.log(this.currentEditItem);        
+        console.log(this.currentEditItem);        
         this.showDialog(dlg);
     }
    

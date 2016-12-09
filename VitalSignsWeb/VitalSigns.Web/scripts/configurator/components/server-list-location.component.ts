@@ -42,28 +42,29 @@ export class ServersLocation implements OnInit {
     refreshCheckedDevices() {
         console.log(this._deviceList);
         if (this.flex.collectionView) {
-            (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveCurrentToFirst();
-            for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
-                var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
-                //console.log(item.is_selected);
-                if (this._deviceList) {
-                    //var value = this._deviceList.filter((record) => record.indexOf(item.id) !== -1);
-                    var value = this._deviceList.filter((record) => record == item.id);
-                    if (value.length > 0) {
-                        item.is_selected = true;
-                        this.devices.push(item.id)
+            if (this.flex.collectionView.items.length > 0) {
+                //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveCurrentToFirst();
+                for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+                    var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+                    //console.log(item.is_selected);
+                    if (this._deviceList) {
+                        //var value = this._deviceList.filter((record) => record.indexOf(item.id) !== -1);
+                        var value = this._deviceList.filter((record) => record == item.id);
+                        if (value.length > 0) {
+                            item.is_selected = true;
+                            this.devices.push(item.id)
+                        }
+                        else {
+                            //this.devices.splice(this.devices.indexOf(value[0]), 1);
+                            item.is_selected = false;
+                        }
                     }
                     else {
-                        //this.devices.splice(this.devices.indexOf(value[0]), 1);
                         item.is_selected = false;
                     }
-                }
-                else {
-                    item.is_selected = false;
-                }
 
+                }
             }
-            
         }
     }
     constructor(private service: RESTService) {
