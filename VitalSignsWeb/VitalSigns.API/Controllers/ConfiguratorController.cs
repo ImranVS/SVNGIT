@@ -5433,11 +5433,12 @@ namespace VitalSigns.API.Controllers
 
             try
             {
+                BusinessHours bh = new BusinessHours();                
                 byte[] password;
                 string decryptedPassword = string.Empty;
                 string errorMessage = string.Empty;
 
-
+                serversRepository = new Repository<Server>(ConnectionString);
                 //Get user name and password from credentials
 
                 try
@@ -5459,7 +5460,33 @@ namespace VitalSigns.API.Controllers
                             cellInfo.Password = mySecrets.Decrypt(password);
                             cellInfo.UserName = credential.UserId;
 
-                            var result = getServerList(cellInfo);
+                            var cells = getServerList(cellInfo);
+                            foreach (var cell in cells.Cell)
+                            {
+                                List<WebSphereNode> nodes = new List<WebSphereNode>();
+                                Server server= serversRepository.Get(cellInfo.DeviceId);
+                                                            
+                                foreach (var cellNode in cell.Nodes.Node)
+                                {
+                                    WebSphereNode node = new WebSphereNode();
+                                    node.NodeId= ObjectId.GenerateNewId().ToString();
+                                    node.NodeName = cellNode.Name;
+                                    node.HostName = cellNode.HostName;
+                                    node.WebSphereServers = new List<WebSphereServer>();
+                                    foreach (var nodeServer in cellNode.Servers.Server)
+                                    {
+                                        WebSphereServer webSphereServer = new WebSphereServer();
+                                        webSphereServer.ServerId= ObjectId.GenerateNewId().ToString();
+                                        webSphereServer.ServerName = nodeServer;
+                                        node.WebSphereServers.Add(webSphereServer);
+
+                                    }
+                                    nodes.Add(node);
+                                }
+                                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                                var updateDefination = serversRepository.Updater.Set(p => p.CellName, cell.Name).Set(p => p.Nodes, nodes);
+                              //  var result = serversRepository.Update(filterDefination, updateDefination);
+                            }
                         }
                         else
                         {
@@ -5621,24 +5648,46 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetWebSphereImportData()
         {
             WebShpereServerImport model = new WebShpereServerImport();
-            serversRepository = new Repository<Server>(ConnectionString);
-            model.CellsData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "WebSphere" && x.CellName != null)
-                                                                        .Select(x => new CellInfo
-                                                                        {
-                                                                            DeviceId = x.Id,
+            var cellsData = new List<CellInfo>();
+           serversRepository = new Repository<Server>(ConnectionString);
+           var servers = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == Enums.ServerType.WebSphereCell.ToDescription()).ToList();
 
-                                                                            CellId = x.CellId,
-                                                                            CellName = x.CellName,
-                                                                            Name = x.DeviceName,
-                                                                            HostName = x.CellHostName,
-                                                                            PortNo = x.PortNumber,
-                                                                            ConnectionType = x.ConnectionType,
-                                                                            GlobalSecurity = x.GlobalSecurity,
-                                                                            CredentialsId = x.CredentialsId,
-                                                                            Realm = x.Realm
-                                                                        }).ToList();
+            foreach (var server in servers)
+            {
+                CellInfo cell = new CellInfo();
+                cell.CellId = server.Id;
+                cell.CellName = server.CellName;
+                cell.Name = server.DeviceName;
+                cell.HostName = server.CellHostName;
+                cell.PortNo = server.PortNumber;
+                cell.ConnectionType = server.ConnectionType;
+                cell.GlobalSecurity = server.GlobalSecurity;
+                cell.CredentialsId = server.CredentialsId;
+                cell.Realm = server.Realm;
+                cell.NodesData = new List<NodeInfo>();
+                foreach(var webSphereNode in server.Nodes)
+                {
+                    foreach (var webSphereServer in webSphereNode.WebSphereServers)
+                    {
+                        if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                        {
+                            NodeInfo node = new NodeInfo();
+                            node.NodeId = webSphereNode.NodeId;
+                            node.NodeName = webSphereNode.NodeName;
+                            node.ServerId = webSphereServer.ServerId;
+                            node.ServerName = webSphereServer.ServerName;
+                            node.HostName = webSphereNode.HostName;
+                            node.CellId = cell.CellId;
+                            cell.NodesData.Add(node);
+                        }
+                    }
+                }
+                cellsData.Add(cell);
+            }
+
+          
             deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-            model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == "WebSphere")).Select(x => new DeviceAttributesModel
+            model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == Enums.ServerType.WebSphere.ToDescription())).Select(x => new DeviceAttributesModel
             {
                 Id = x.Id,
                 AttributeName = x.AttributeName,
@@ -5654,19 +5703,20 @@ namespace VitalSigns.API.Controllers
 
             credentialsRepository = new Repository<Credentials>(ConnectionString);
 
-            model.CredentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
-            foreach (var item in model.CellsData)
+            var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+            foreach (var item in cellsData)
             {
-                var credential = model.CredentialsData.FirstOrDefault(x => x.Value == item.CredentialsId);
+                var credential = credentialsData.FirstOrDefault(x => x.Value == item.CredentialsId);
                 if(credential!=null)
                 item.CredentialsName = credential.DisplayText;
             }
-            return Common.CreateResponse(model);
+            model.SelectedServers = new List<NodeInfo>();
+            return Common.CreateResponse(new { websphereData = model, cellData = cellsData, credentialsData = credentialsData });
         }
 
 
-        [HttpPut("save_websphere_servers")]
-        public APIResponse SaveWebSphereServers([FromBody]DominoServerImportModel serverImport)
+        [HttpPut("save_webspherecell_nodes")]
+        public APIResponse SaveWebSphereCellNodes([FromBody]DominoServerImportModel serverImport)
         {
 
             try
@@ -5788,8 +5838,9 @@ namespace VitalSigns.API.Controllers
                     server.GlobalSecurity = cellInfo.GlobalSecurity;
                     server.CredentialsId = cellInfo.CredentialsId;
                     server.Realm = cellInfo.Realm;
-                    server.DeviceType = "WebSphere";                   
-                    serversRepository.Insert(server);
+                    server.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();                   
+                   var serverId= serversRepository.Insert(server);
+                    Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell inserted successfully");
                 }
             else
                 {
@@ -5805,36 +5856,120 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.CredentialsId, cellInfo.CredentialsId)
                                                              .Set(p => p.Realm, cellInfo.Realm);
                     var result = serversRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, "OK", "Cell information updated successfully");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell updated successfully");
                 }
 
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
             }
             return Response;
 
         }
         [HttpDelete("delete_cellInfo/{id}")]
-        public void DeleteCellInfo(string id)
+        public APIResponse DeleteCellInfo(string id)
         {
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
                 Expression<Func<Server, bool>> expression = (p => p.Id == id);
-                serversRepository.Delete(expression);
-
+               serversRepository.Delete(expression);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell deleted successfully");
             }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(),  exception.Message);
             }
 
+            return Response;
+
+        }
+        [HttpPut("save_websphere_servers")]
+        public APIResponse SaveWebSphereServers([FromBody]WebShpereServerImport serverImport)
+        {
+
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+
+                foreach (var serverModel in serverImport.SelectedServers)
+                {
+                    //if (serverModel.IsSelected)
+                    {
+                        Server server = new Server();
+                        server.Id = serverModel.ServerId;
+                        server.NodeId = serverModel.NodeId;
+                        server.DeviceName = serverModel.ServerName;
+                        server.DeviceType = "WebSphere";
+                       // server.LocationId = serverImport.Location;                       
+                        serversRepository.Insert(server);
+
+                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
+
+                        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
+                        foreach (var attribute in serverImport.DeviceAttributes)
+                        {
+                            if (!string.IsNullOrEmpty(attribute.FieldName))
+                            {
+                                string field = attribute.FieldName;
+                                string value = attribute.DefaultValue;
+                                string datatype = attribute.DataType;
+                                if (datatype == "int")
+                                {
+                                    int outputvalue = Convert.ToInt32(value);
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "double")
+                                {
+                                    double outputvalue = Convert.ToDouble(value);
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "bool")
+                                {
+                                    bool booloutput;
+                                    if (value == "0")
+                                    {
+                                        booloutput = false;
+                                    }
+                                    else
+                                    {
+                                        booloutput = true;
+                                    }
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                        .Set(field, booloutput);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
 
 
+                                if (datatype == "string")
+                                {
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                                                                                        .Set(field, value);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+
+
+                            }
+
+                        }
+
+                        // serversRepository.Insert(server);
+                    }
+                }
+                Response = Common.CreateResponse("Success");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
         }
         #endregion
         #endregion
