@@ -12,9 +12,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonProperty("login_name")]
-        public string LoginName { get; set; }
-
+       
         [JsonProperty("full_name")]
         public string FullName { get; set; }
 
@@ -22,16 +20,17 @@ namespace VitalSigns.API.Models
         public string Email { get; set; }
 
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public bool Status { get; set; }
 
-        [JsonProperty("super_admin")]
-        public string SuperAdmin { get; set; }
+        [JsonProperty("roles")]
+        public List<string> Roles { get; set; }
 
-        [JsonProperty("configurator_access")]
-        public bool ConfiguratorAccess { get; set; }
+        [JsonProperty("hash")]
+        public string Hash { get; set; }
 
-        [JsonProperty("console_command_access")]
-        public bool ConsoleCommandAccess { get; set; }
+        [JsonProperty("is_password_reset_required")]
+        public bool IsPasswordResetRequired { get; set; }
+
 
     }
 }
