@@ -993,7 +993,7 @@ namespace VitalSigns.API.Controllers
                         string hashedPassword = Startup.SignData(password);
                         maintainUsers.Hash = hashedPassword;
                         string id = maintainUsersRepository.Insert(maintainUsers);
-                        //Implement email functionality
+                        SendPasswordEmail(maintainuser.Email, password);
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
                     }
                     else
@@ -1054,7 +1054,7 @@ namespace VitalSigns.API.Controllers
                                                                         .Set(y => y.IsPasswordResetRequired, true);
                     var result = maintainUsersRepository.Update(filterDefination, updatePassword);
 
-                    //Implement email functionality
+                    SendPasswordEmail(emailId, password);
                     Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Password Reset done successfully and check your email");
                 }
                 else
@@ -1068,9 +1068,71 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-    #endregion
 
-       
+        public bool SendPasswordEmail(string emailId, string password)
+        {
+
+            try
+            {
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+                var filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "PrimaryHostName", "PrimaryUserId", "Primarypwd", "PrimaryPort", "PrimarySSL" });
+                List<NameValue> list = nameValueRepository.Find(filterDef).ToList();
+
+                System.Net.Mail.MailMessage mailMessage = new MailMessage();
+                SmtpClient client = new SmtpClient();
+                client.Port = Convert.ToInt32(list.Where(x => x.Name == "PrimaryPort").First().Value);
+                client.EnableSsl = Convert.ToBoolean(list.Where(x => x.Name == "PrimarySSL").First().Value);
+                client.Host = list.Where(x => x.Name == "PrimaryHostName").First().Value;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new System.Net.NetworkCredential(list.Where(x => x.Name == "PrimaryUserId").First().Value, list.Where(x => x.Name == "Primarypwd").First().Value);
+
+                mailMessage.To.Add(emailId);
+                mailMessage.From = new MailAddress(list.Where(x => x.Name == "PrimaryUserId").First().Value);
+
+                mailMessage.IsBodyHtml = false;
+                mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
+                mailMessage.Subject = "Your VitalSigns Account Information Update";
+
+                try
+                {
+                    client.Send(mailMessage);
+
+                    return true;
+                }
+                catch(Exception ex)
+                {
+
+                }
+
+                nameValueRepository = new Repository<NameValue>(ConnectionString);
+                filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "SecondaryHostName", "SecondaryUserId", "SecondaryPwd", "SecondaryPort", "SecondarySSL" });
+                list = nameValueRepository.Find(filterDef).ToList();
+
+                mailMessage = new MailMessage();
+                client = new SmtpClient();
+                client.Port = Convert.ToInt32(list.Where(x => x.Name == "SecondaryPort").First().Value);
+                client.EnableSsl = Convert.ToBoolean(list.Where(x => x.Name == "SecondarySSL").First().Value);
+                client.Host = list.Where(x => x.Name == "SecondaryHostName").First().Value;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new System.Net.NetworkCredential(list.Where(x => x.Name == "SecondaryUserId").First().Value, list.Where(x => x.Name == "SecondaryPwd").First().Value);
+
+                mailMessage.To.Add(emailId);
+                mailMessage.From = new MailAddress(list.Where(x => x.Name == "SecondaryUserId").First().Value);
+
+                mailMessage.IsBodyHtml = false;
+                mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
+                mailMessage.Subject = "Your VitalSigns Account Information Update";
+
+                client.Send(mailMessage);
+
+                return true;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
 
         #endregion
 
