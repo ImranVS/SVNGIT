@@ -95,11 +95,11 @@ namespace VSNext.Mongo.Entities
             [LicenseCost(1)]
             [Description("IBM Connections")]
             IBMConnections,
-            [LicenseCost(0)]
+            [LicenseCost(1)]
             [BaseServerType("WebSphere")]
             [Description("WebSphereNode")]
             WebSphereNode,
-            [LicenseCost(1)]
+            [LicenseCost(0)]
             [BaseServerType("WebSphere")]
             [Description("WebSphereCell")]
             WebSphereCell,
