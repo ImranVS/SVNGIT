@@ -6362,7 +6362,7 @@ namespace VitalSigns.API.Controllers
 
                 var statusResult = statusRepository.Update(statusFilterDefination, statusUpdateDefination);
 
-                Response = Common.CreateResponse(statusResult, Common.ResponseStatus.Success.ToDescription(), "Server scan now successfully.");
+               // Response = Common.CreateResponse(statusResult, Common.ResponseStatus.Success.ToDescription(), "Server scan now successfully.");
 
                 FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
                 serversRepository = new Repository<Server>(ConnectionString);
