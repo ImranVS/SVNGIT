@@ -11,82 +11,115 @@ namespace VSNext.Mongo.Entities
         public enum ServerType
         {
             [Description("Domino")]
+            [LicenseCost(1)]
             Domino,
+            [LicenseCost(1)]
             [Description("BES")]
             BES,
+            [LicenseCost(1)]
             [Description("Sametime")]
             Sametime,
+            [LicenseCost(0.5)]
             [BaseServerType("Microsoft")]
             [Description("SharePoint")]
             SharePoint,
+            [LicenseCost(0.5)]
             [BaseServerType("Microsoft")]
             [Description("Exchange")]
             Exchange,
+            [LicenseCost(0)]
             [Description("Mail")]
             Mail,
+            [LicenseCost(0)]
             [Description("URL")]
             URL,
+            [LicenseCost(0)]
             [Description("Network Device")]
             NetworkDevice,
+            [LicenseCost(0)]
             [Description("Notes Database")]
             NotesDatabase,
+            [LicenseCost(0)]
             [Description("General")]
             General,
+            [LicenseCost(0)]
             [Description("Mobile Users")]
             MobileUsers,
+            [LicenseCost(0)]
             [Description("Domino Cluster Database")]
             DominoClusterDatabase,
+            [LicenseCost(0)]
             [Description("NotesMail Probe")]
             NotesMailProbe,
+            [LicenseCost(0)]
             [Description("Exchange Mail Flow")]
             ExchangeMailFlow,
+            [LicenseCost(0.33)]
             [BaseServerType("Microsoft")]
             [Description("Skype For Business")]
             SkypeForBusiness,
+            [LicenseCost(0.33)]
             [BaseServerType("Microsoft")]
             [Description("Windows")]
             Windows,
+            [LicenseCost(0.16)]
             [Description("Cloud")]
             Cloud,
+            [LicenseCost(0.16)]
             [BaseServerType("Microsoft")]
             [Description("Active Directory")]
             ActiveDirectory,
+            [LicenseCost(1)]
             [BaseServerType("Microsoft")]
             [Description("Database Availability Group")]
             DatabaseAvailabilityGroup,
+            [LicenseCost(0.13)]
             [Description("SNMP Devices")]
             SNMPDevices,
+            [LicenseCost(1)]
             [Description("Office365")]
             Office365,
+            [LicenseCost(1.33)]
             [BaseServerType("WebSphere")]
             [Description("WebSphere")]
             WebSphere,
+            [LicenseCost(0)]
             [Description("Network Latency")]
             NetworkLatency,
+            [LicenseCost(0)]
             [Description("Notes Database Replica")]
             NotesDatabaseReplica,
+            [LicenseCost(0)]
             [Description("ExchangeMail Probe")]
             ExchangeMailProbe,
+            [LicenseCost(1)]
             [Description("IBM Connections")]
             IBMConnections,
+            [LicenseCost(0)]
             [BaseServerType("WebSphere")]
             [Description("WebSphereNode")]
             WebSphereNode,
+            [LicenseCost(1)]
             [BaseServerType("WebSphere")]
             [Description("WebSphereCell")]
             WebSphereCell,
+            [LicenseCost(0)]
             [BaseServerType("Domino")]
             [Description("Domino Log Scanning")]
             DominoLogScanning,
+            [LicenseCost(1)]
             [BaseServerType("Domino")]
             [Description("Traveler")]
             Traveler,
+            [LicenseCost(0)]
             [BaseServerType("Domino")]
             [Description("Traveler HA Datastore")]
             TravelerHaDatastore,
+            [LicenseCost(0)]
             [BaseServerType("Domino")]
             [Description("EXJournal")]
             EXJournal,
+            [LicenseCost(0)]
             [BaseServerType("Domino")]
             [Description("Domino Custom Statistic")]
             DominoCustomStatistic
@@ -123,7 +156,11 @@ namespace VSNext.Mongo.Entities
             return attribute == null ? string.Empty : attribute.Name;
         }
 
-
+        public static double getLicenseCost(this Enum value)
+        {
+            var attribute = value.GetAttribute<LicenseCost>();
+            return attribute == null ? 0 : attribute.Cost;
+        }
         
     }
 
@@ -152,6 +189,28 @@ namespace VSNext.Mongo.Entities
         /// </summary>
         /// <value>The name of the base server type.</value>
         public virtual string Name { get; private set; }
+    }
+
+    /// <summary>
+    /// Attribute used to set the cost
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, Inherited = true)]
+    public class LicenseCost : Attribute
+    {
+        /// <summary>
+        /// Initializes a new instance of the base server typr field attribute with the desired name.
+        /// </summary>
+        /// <param name="value">Name of the base server type.</param>
+        public LicenseCost(double value)
+        {
+            Cost = value;
+        }
+
+        /// <summary>
+        /// Gets the name of the base server type.
+        /// </summary>
+        /// <value>The name of the base server type.</value>
+        public virtual double Cost { get; private set; }
     }
 
 
