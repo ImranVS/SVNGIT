@@ -149,6 +149,11 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> MaintenanceWindows { get; set; }
 
+        [DataMember]
+        [BsonElement("scan_now")]
+        [BsonIgnoreIfNull]
+        public Boolean? ScanNow { get; set; }
+
         #region Domino
 
         [DataMember]
