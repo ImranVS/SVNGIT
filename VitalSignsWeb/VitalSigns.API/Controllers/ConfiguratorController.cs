@@ -6340,7 +6340,54 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
+        #region Scan Now
+        /// <summary>
+        ///Suspended Server Temporarily
+        /// <author>Durga</author>
+        /// </summary>
+        /// <returns></returns>
+     
+        [HttpPut("save_scan_now/{id}")]
+        public APIResponse SaveScanNow(string id)
+        {
+            try
+            {
 
+                FilterDefinition<Status> statusFilterDefination = Builders<Status>.Filter.Where(p => p.DeviceId == id);
+                statusRepository = new Repository<Status>(ConnectionString);
+
+
+                var statusUpdateDefination = statusRepository.Updater.Set(p => p.Description, "Queued for immediate scanning...")
+                                                                     .Set(p => p.Details, "Queued for immediate scanning...");
+
+                var statusResult = statusRepository.Update(statusFilterDefination, statusUpdateDefination);
+
+                Response = Common.CreateResponse(statusResult, Common.ResponseStatus.Success.ToDescription(), "Server scan now successfully.");
+
+                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
+                serversRepository = new Repository<Server>(ConnectionString);
+
+
+                var updateDefination = serversRepository.Updater.Set(p => p.ScanNow, true);
+                                                             
+                var result = serversRepository.Update(filterDefination, updateDefination);
+              
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server scan now successfully.");
+
+
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server scan now falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+
+        }
+       
+        #endregion
     }
 }
 
