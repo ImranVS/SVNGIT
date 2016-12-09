@@ -1132,7 +1132,8 @@ namespace VitalSigns.API.Controllers
                 throw ex;
             }
         }
-        
+
+        #endregion
 
         #endregion
 
