@@ -14,8 +14,10 @@ namespace VitalSigns.API.Models
             Drives = new List<DiskDriveStatus>();
         }
        public string Id { get; set; }
-       public string Name { get; set; }
-       public List<DiskDriveStatus> Drives { get; set; }
+        [JsonProperty("server_name")]
+        public string Name { get; set; }
+        [JsonProperty("drives")]
+        public List<DiskDriveStatus> Drives { get; set; }
     }
     public class DiskDriveStatus
     {
@@ -54,5 +56,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("location")]
         public string Location { get; set; }
+
+        [JsonProperty("avg_daily_growth")]
+        public double? AvgDailyGrowth { get; set; }
     }
 }

@@ -383,34 +383,150 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpGet("{id}/overall/disk-space-v2")]
+        [HttpGet("overall/disk-space")]
 
-        public ServerDiskStatus GetStatusOfServerDiskDrives(string id)
+        public APIResponse GetStatusOfServerDiskDrives(string id = "")
         {
-            diskHealthRepository = new Repository<DiskHealth>(ConnectionString);
-
-            Expression<Func<DiskHealth, bool>> expression = (p => p.Id == id);
-            var result = diskHealthRepository.Find(expression).FirstOrDefault();
-
-
-            ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
-            serverDiskStatus.Id = result.Id;
-            foreach (Drive drive in result.Drives)
+            //List<dynamic> disksizes = new List<dynamic>();
+            DateTime maxDt = new DateTime();
+            double valueDiff = 0;
+            double prevValue = 0;
+            double currValue = 0;
+            int count = 0;
+            double avgDailyGrowth = 0;
+            
+            try
             {
-                serverDiskStatus.Drives.Add(new DiskDriveStatus
-                {
-                    DiskFree = drive.DiskFree,
-                    DiskSize = drive.DiskSize,
-                    DiskName = drive.DiskName,
-                    DiskUsed = drive.DiskSize - drive.DiskFree,
-                    Status = drive.Status,
-                    PercentFree = drive.PercentFree,
-                    Threshold = drive.Threshold,
-                    LastUpdated = drive.LastUpdated
-                });
-            }
+                ServerDiskStatus serverDiskStatus = new ServerDiskStatus();
+                List<ServerDiskStatus> serverDiskStatusList = new List<ServerDiskStatus>();
+                summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
+                statusRepository = new Repository<Status>(ConnectionString);
 
-            return serverDiskStatus;
+                if (id != "")
+                {
+                    Expression<Func<Status, bool>> expression = (p => p.Disks != null && p.DeviceId == id);
+                    var results = statusRepository.Find(expression).AsQueryable().ToList();
+                    if (results.Count > 0)
+                    {
+                        foreach(var result in results)
+                        {
+                            serverDiskStatus = new ServerDiskStatus();
+                            serverDiskStatus.Id = result.Id;
+                            serverDiskStatus.Name = result.DeviceName;
+                            foreach (DiskStatus drive in result.Disks)
+                            {
+                                avgDailyGrowth = 0;
+                                var disksizes = summaryStatisticsRepository.Collection.AsQueryable()
+                                    .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == id)
+                                    .OrderByDescending(x => x.StatDate).ToList();
+                                if (disksizes.Count > 0)
+                                {
+                                    if (maxDt == DateTime.MinValue)
+                                    {
+                                        maxDt = Convert.ToDateTime(disksizes[0].StatDate);
+                                    }
+                                    prevValue = disksizes[0].StatValue / 1024 / 1024;
+                                    currValue = disksizes[0].StatValue / 1024 / 1024;
+                                    foreach (var disksize in disksizes)
+                                    {
+                                        if (disksize.StatDate >= maxDt.AddDays(-30))
+                                        {
+                                            valueDiff += prevValue - currValue;
+                                            prevValue = currValue;
+                                            currValue = disksize.StatValue /1024/1024;
+                                            count += 1;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    avgDailyGrowth = Math.Round(valueDiff / (count - 1), 1);
+                                }
+                                serverDiskStatus.Drives.Add(new DiskDriveStatus
+                                {
+                                    DiskFree = Math.Round(Convert.ToDouble(drive.DiskFree),1),
+                                    DiskSize = Math.Round(Convert.ToDouble(drive.DiskSize),1),
+                                    DiskName = drive.DiskName,
+                                    DiskUsed = Math.Round(Convert.ToDouble(drive.DiskSize) - Convert.ToDouble(drive.DiskFree),1),
+                                    PercentFree = Math.Round(Convert.ToDouble(drive.PercentFree*100),1),
+                                    Threshold = drive.Threshold,
+                                    AvgDailyGrowth = avgDailyGrowth
+                                });
+                            }
+                            serverDiskStatusList.Add(serverDiskStatus);
+                        }
+                        
+                    }
+                }
+                else
+                {
+                    Expression<Func<Status, bool>> expression = (p => p.Disks != null);
+                    var results = statusRepository.Find(expression).AsQueryable().ToList();
+                    if (results.Count > 0)
+                    {
+                        foreach (var result in results)
+                        {
+                            serverDiskStatus = new ServerDiskStatus();
+                            serverDiskStatus.Id = result.Id;
+                            serverDiskStatus.Name = result.DeviceName;
+                            foreach (DiskStatus drive in result.Disks)
+                            {
+                                avgDailyGrowth = 0;
+                                var disksizes = summaryStatisticsRepository.Collection.AsQueryable()
+                                    .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == result.DeviceId)
+                                    .OrderByDescending(x => x.StatDate).ToList();
+                                if (disksizes.Count > 0)
+                                {
+                                    if (maxDt == DateTime.MinValue)
+                                    {
+                                        maxDt = Convert.ToDateTime(disksizes[0].StatDate);
+                                    }
+                                    prevValue = disksizes[0].StatValue / 1024 / 1024;
+                                    currValue = disksizes[0].StatValue / 1024 / 1024;
+                                    foreach (var disksize in disksizes)
+                                    {
+                                        if (disksize.StatDate >= maxDt.AddDays(-30))
+                                        {
+                                            valueDiff += prevValue - currValue;
+                                            prevValue = currValue;
+                                            currValue = disksize.StatValue / 1024 / 1024;
+                                            count += 1;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    avgDailyGrowth = Math.Round(valueDiff / (count - 1), 1);
+                                }
+                                serverDiskStatus.Drives.Add(new DiskDriveStatus
+                                {
+                                    DiskFree = Math.Round(Convert.ToDouble(drive.DiskFree), 1),
+                                    DiskSize = Math.Round(Convert.ToDouble(drive.DiskSize), 1),
+                                    DiskName = drive.DiskName,
+                                    DiskUsed = Math.Round(Convert.ToDouble(drive.DiskSize) - Convert.ToDouble(drive.DiskFree), 1),
+                                    PercentFree = Math.Round(Convert.ToDouble(drive.PercentFree), 1),
+                                    Threshold = drive.Threshold,
+                                    AvgDailyGrowth = avgDailyGrowth
+                                });
+                            }
+                            serverDiskStatusList.Add(serverDiskStatus);
+                        }
+
+                    }
+                }
+
+                Response = Common.CreateResponse(serverDiskStatusList);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+            
         }
 
         [HttpGet("{device_id}/health-assessment")]
