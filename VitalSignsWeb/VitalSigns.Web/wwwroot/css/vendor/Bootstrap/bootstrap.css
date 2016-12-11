@@ -4250,7 +4250,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .nav-tabs > li.active > a:focus {
   color: #000000;
   cursor: default;
-  background-color: #fff;
+  /*background-color: #fff;*/
+  background-color: #a1ddaf;
   border-bottom: 4px solid #5fbe7f;
 }
 .nav-tabs.nav-justified {
