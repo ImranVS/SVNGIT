@@ -1,0 +1,60 @@
+﻿<div>
+    <div id="zeusContent" class="container-fluid">
+        <!--<server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel"></server-filter>-->
+        <div class="reportsPage disk-space-consumption">
+            <h1>Disk Space Consumption</h1>
+            
+            <div *ngFor="let server of data; let l = last;">
+
+                <h2>{{server.server_name}}</h2>
+
+                <div *ngFor="let drive of server.drives">
+
+                    <h3>{{drive.disk_name}}</h3>
+
+                    <div class="properties">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Size:</td>
+                                    <td>&nbsp;</td>
+                                    <td align="right">{{drive.disk_size}}</td>
+                                    <td>&nbsp;</td>
+                                    <td>GB</td>
+                                </tr>
+                                <tr>
+                                    <td>Free Space:</td>
+                                    <td>&nbsp;</td>
+                                    <td align="right">{{drive.disk_free}}</td>
+                                    <td>&nbsp;</td>
+                                    <td>GB</td>
+                                </tr>
+                                <tr>
+                                    <td>Percent Free Space:</td>
+                                    <td>&nbsp;</td>
+                                    <td align="right">{{drive.percent_free*100}}</td>
+                                    <td>&nbsp;</td>
+                                    <td>%</td>
+                                </tr>
+                                <tr>
+                                    <td>Average Daily Growth:</td>
+                                    <td>&nbsp;</td>
+                                    <td align="right">{{drive.avg_daily_growth}}</td>
+                                    <td>&nbsp;</td>
+                                    <td>MB</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <repeatable-chart [prefix]="'disk-space-consumption'" [id]="drive.id" (render)="renderChart($event)"></repeatable-chart>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -101,6 +101,7 @@ import {FileUploadSample} from './configurator/components/serverImport/file-uplo
 import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
 import {AnyStatisticFilter} from './reports/filters/components/any-statistic-filter.component';
 import {ServerAvailabilityFilter} from './reports/filters/components/server-availability-filter.component'
+import {DiskSpaceConsumptionReport} from './reports/components/disk/disk-space-consumption.component';
 
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 
@@ -194,6 +195,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         SametimeServerFilter,
         AnyStatisticFilter,
         ServerAvailabilityFilter,
+        DiskSpaceConsumptionReport,
         RepeatableChart,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,

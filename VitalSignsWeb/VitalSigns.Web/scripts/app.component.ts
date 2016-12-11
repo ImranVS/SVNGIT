@@ -23,7 +23,7 @@ declare var injectSVG: any;
     <div id="zeusWrapper">
         <router-outlet></router-outlet>
     </div>
-    <div class="topCorner">
+    <div style="position: fixed; top: 100px; right: 0; width: 600px; z-index: 100100;">
         <div class="alert" role="alert" [class]="classes" *ngIf="!closed">
             <button *ngIf="closeable" type="button" class="close" (click)="onClose($event)">
                 <span aria-hidden="true">&times;</span>

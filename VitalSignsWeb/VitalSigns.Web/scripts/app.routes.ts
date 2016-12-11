@@ -117,6 +117,7 @@ import { MobileUser } from './configurator/components/mobileusers/mobile-users.c
 
 import { ServerImports } from './configurator/components/serverImport/server-import-tabs-component';
 import { DominoMailDeliveryStatus } from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
+import { DiskSpaceConsumptionReport } from './reports/components/disk/disk-space-consumption.component';
 
 export * from './dashboards/components/overall-dashboard.component';
 
@@ -480,6 +481,10 @@ const appRoutes: Routes = [
                     {
                         path: 'serverlistlocation',
                         component: ServerListLocationReport
+                    },
+                    {
+                        path: 'diskspaceconsumption',
+                        component: DiskSpaceConsumptionReport
                     }
                 ]
             },
