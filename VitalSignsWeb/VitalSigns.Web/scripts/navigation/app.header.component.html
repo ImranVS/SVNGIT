@@ -12,20 +12,28 @@
 </div>
 <div id="zeusHeaderRightWrapper" *ngIf="authService.isLoggedIn">  
     <div id="noResponseNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
-        <span class="notifVitalSignNumber badge">{{deviceSummary.notResponding}}</span>
-        <span class="notifVitalSignLabel">Not resp. </span>
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Not Responding'}" class="widgetFooter zeusColorReactBg">
+            <span class="notifVitalSignNumber badge">{{deviceSummary.notResponding}}</span>
+            <span class="notifVitalSignLabel">Not resp. </span>
+        </a>      
     </div>
     <div id="noIssuesNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
-        <span class="notifVitalSignNumber badge">{{deviceSummary.ok}}</span>
-        <span class="notifVitalSignLabel">No iss.</span>
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'OK'}" class="widgetFooter zeusColorReactBg">
+            <span class="notifVitalSignNumber badge">{{deviceSummary.ok}}</span>
+            <span class="notifVitalSignLabel">No iss.</span>
+        </a>
     </div>
     <div id="issuesNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
-        <span class="notifVitalSignNumber badge">{{deviceSummary.issue}}</span>
-        <span class="notifVitalSignLabel">Issues</span>
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Issue'}" class="widgetFooter zeusColorReactBg">
+            <span class="notifVitalSignNumber badge">{{deviceSummary.issue}}</span>
+            <span class="notifVitalSignLabel">Issues</span>
+        </a>      
     </div>
     <div id="maintenanceNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
-        <span class="notifVitalSignNumber badge">{{deviceSummary.maintenance}}</span>
-        <span class="notifVitalSignLabel">Mainten.</span>
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Maintenance'}" class="widgetFooter zeusColorReactBg">
+            <span class="notifVitalSignNumber badge">{{deviceSummary.maintenance}}</span>
+            <span class="notifVitalSignLabel">Mainten.</span>
+        </a>
     </div>
     <div id="notificationBtWrapper" class="headerBlock" *ngIf="deviceSummary">
         <span aria-hidden="true" class="glyphicon glyphicon-bell"></span>

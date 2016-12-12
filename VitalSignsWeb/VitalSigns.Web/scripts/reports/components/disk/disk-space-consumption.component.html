@@ -1,5 +1,16 @@
 ﻿<div>
-    <div id="zeusContent" class="container-fluid">
+    <div class="hidden-xs hidden-sm dashboard-menu col-lg-3" id="zeusContext">
+        <ul class="list-group" *ngIf="contextMenuSiteMap">
+
+            <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
+                [routerLinkActive]="['selected']"
+                [routerLinkActiveOptions]="{exact: true}">
+                <a [routerLink]="[node.url]">{{node.title}}</a>
+            </li>
+
+        </ul>
+    </div>
+    <div id="zeusContent" class="col-lg-9">
         <!--<server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel"></server-filter>-->
         <div class="reportsPage disk-space-consumption">
             <h1>Disk Space Consumption</h1>

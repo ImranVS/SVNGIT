@@ -14,7 +14,7 @@ declare var bootstrapNavigator: any;
     ]
 })
 export class DiskSpaceConsumptionReport implements OnInit {
-
+    contextMenuSiteMap: any;
     private data: any[];
     private drives: any[] = [];
 
@@ -86,6 +86,12 @@ export class DiskSpaceConsumptionReport implements OnInit {
     }
 
     ngOnInit() {
+        this.service.get('/navigation/sitemaps/disk_reports')
+            .subscribe
+            (
+            data => this.contextMenuSiteMap = data,
+            error => console.log(error)
+            );
 
         let i = 0;
         
