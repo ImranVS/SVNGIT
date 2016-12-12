@@ -27,6 +27,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<NameValue> nameValueRepository;
+        private IRepository<EventsDetected> eventsDetectedRepository;
         // private IRepository<DominoSettingsModel> dominoSettingsRepository;
 
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
@@ -44,6 +45,7 @@ namespace VitalSigns.API.Controllers
                 List<string> statusCode = new List<string>();
                 serverRepository = new Repository<Server>(ConnectionString);
                 statusRepository = new Repository<Status>(ConnectionString);
+                eventsDetectedRepository= new Repository<EventsDetected>(ConnectionString);
                 var servers = serverRepository.Collection.AsQueryable().Where(x => x.IsEnabled == true)
                                                         .Select(x => new ServerStatus
                                                         {
@@ -64,7 +66,9 @@ namespace VitalSigns.API.Controllers
                 var ok = statusCode.Where(item => item == "OK").Count();
                 var notResponding = statusCode.Where(item => item == "Not Responding").Count();
                 var maintenance = statusCode.Where(item => item == "Maintenance").Count();
-                Response = Common.CreateResponse(new { issue = issue, ok = ok, notResponding = notResponding, maintenance = maintenance });
+                var systemMessages = eventsDetectedRepository.Collection.AsQueryable().Where(x => x.IsSystemMessage == true).ToList(); ;
+
+                Response = Common.CreateResponse(new { issue = issue, ok = ok, notResponding = notResponding, maintenance = maintenance, systemMessages= systemMessages==null?0: systemMessages.Count });
             }
             catch (Exception exception)
             {
