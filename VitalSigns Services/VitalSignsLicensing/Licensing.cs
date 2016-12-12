@@ -42,7 +42,7 @@ namespace VitalSignsLicensing
                 int validUnits = checkLicenseValidity(licenseList);
                 if (validUnits > 0)
                     isHAMode = getLicenseType(licenseList);
-
+                
                 revokeNodeFromAllServers();
                 string msg = "Insufficient Licenses";
                 AlertLibrary.Alertdll myAlert = new AlertLibrary.Alertdll();
@@ -259,10 +259,13 @@ namespace VitalSignsLicensing
                 double totalCost = 0;
                 try
                 {
-                    VSNext.Mongo.Entities.Enums.ServerType myServerType = (VSNext.Mongo.Entities.Enums.ServerType)Enum.Parse(typeof(VSNext.Mongo.Entities.Enums.ServerType), deviceType, true);
-                    tempCost = myServerType.getLicenseCost();
+
+                VSNext.Mongo.Entities.Enums.ServerType t = Enum.GetValues(typeof(VSNext.Mongo.Entities.Enums.ServerType))
+                .Cast<VSNext.Mongo.Entities.Enums.ServerType>()
+                .FirstOrDefault(v => v.ToDescription() == deviceType);
+                 tempCost = t.getLicenseCost();
                 }
-                catch
+                catch(Exception ex)
                 {
                     tempCost = 0;
                 }
