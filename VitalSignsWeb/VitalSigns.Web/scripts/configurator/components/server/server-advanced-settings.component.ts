@@ -24,6 +24,7 @@ export class ServerAdvancedSettings implements OnInit {
     addCredentialForm: FormGroup;
     serverType: string;
     Types: string;
+    platform: string;
      appComponentService: AppComponentService;
     constructor(
         private formBuilder: FormBuilder,
@@ -85,10 +86,11 @@ export class ServerAdvancedSettings implements OnInit {
             (response) => {
                 console.log(response.data);
 
-                this.advancedSettingsForm.setValue(response.data);
-                this.deviceType = response.data.device_type;
+                this.advancedSettingsForm.setValue(response.data.results);
+                this.deviceType = response.data.results.device_type;
+                this.platform = response.data.platform;
                 //this.Type = response.data.database_settings_credentials_id;
-                console.log(this.deviceType);
+               
             },
 
             (error) => {
