@@ -6,6 +6,10 @@ using System.Security.Principal;
 using VitalSigns.API.Security;
 using VitalSigns.API.Models;
 using MongoDB.Driver;
+using System.Web.Security;
+using VSNext.Mongo.Repository;
+using VSNext.Mongo.Entities;
+using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,9 +17,11 @@ namespace VitalSigns.API.Controllers
 {
 
     [Route("[controller]")]
-    public class TokenController : Controller
+    public class TokenController : BaseController
     {
         private readonly TokenAuthOptions tokenOptions;
+
+        private IRepository<Users> maintainUsersRepository;
 
         public TokenController(TokenAuthOptions tokenOptions)
         {
@@ -71,6 +77,39 @@ namespace VitalSigns.API.Controllers
                 token = jwtTokenHandler.WriteToken(securityToken),
                 tokenExpires = expires
             };
+        }
+
+        [HttpGet("reset_password")]
+        public APIResponse ResetPassword(string emailId, string password)
+        {
+            try
+            {
+                maintainUsersRepository = new Repository<Users>(ConnectionString);
+                var user = maintainUsersRepository.Collection.AsQueryable().FirstOrDefault(x => x.Email == emailId);
+                if (user != null)
+                {
+                    if (string.IsNullOrEmpty(password))
+                        password = Membership.GeneratePassword(6, 2);
+                    string hashedPassword = Startup.SignData(password);
+                    maintainUsersRepository = new Repository<Users>(ConnectionString);
+                    FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(x => x.Email == emailId);
+                    var updatePassword = maintainUsersRepository.Updater.Set(y => y.Hash, hashedPassword)
+                                                                        .Set(y => y.IsPasswordResetRequired, true);
+                    var result = maintainUsersRepository.Update(filterDefination, updatePassword);
+
+                  (new Common()).SendPasswordEmail(emailId, password);
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Password Reset done successfully and check your email");
+                }
+                else
+                {
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "User is not available in the database");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error occured value reset the password:" + exception);
+            }
+            return Response;
         }
     }
 }

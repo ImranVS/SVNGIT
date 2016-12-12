@@ -991,7 +991,7 @@ namespace VitalSigns.API.Controllers
                         string hashedPassword = Startup.SignData(password);
                         maintainUsers.Hash = hashedPassword;
                         string id = maintainUsersRepository.Insert(maintainUsers);
-                        SendPasswordEmail(maintainuser.Email, password);
+                   (new Common()).SendPasswordEmail(maintainuser.Email, password);
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
                     }
                     else
@@ -1034,106 +1034,8 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpGet("reset_password")]
-        public APIResponse ResetPassword(string emailId,string password)
-        {
-            try
-            {
-                maintainUsersRepository = new Repository<Users>(ConnectionString);
-                var user= maintainUsersRepository.Collection.AsQueryable().FirstOrDefault(x => x.Email == emailId);
-                if (user != null)
-                {
-                    if (string.IsNullOrEmpty(password))
-                        password = Membership.GeneratePassword(6, 2);
-                    string hashedPassword = Startup.SignData(password);
-                    maintainUsersRepository = new Repository<Users>(ConnectionString);
-                    FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(x => x.Email == emailId);
-                    var updatePassword = maintainUsersRepository.Updater.Set(y => y.Hash, hashedPassword)
-                                                                        .Set(y => y.IsPasswordResetRequired, true);
-                    var result = maintainUsersRepository.Update(filterDefination, updatePassword);
-
-                    SendPasswordEmail(emailId, password);
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Password Reset done successfully and check your email");
-                }
-                else
-                {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "User is not available in the database");
-                }
-            }
-            catch(Exception exception)
-            {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error occured value reset the password:" + exception);
-            }
-            return Response;
-        }
-        public APIResponse SendPasswordEmail(string emailId, string password)
-        {
-            try
-            {
-                nameValueRepository = new Repository<NameValue>(ConnectionString);
-                var filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "PrimaryHostName", "PrimaryUserId", "Primarypwd", "PrimaryPort", "PrimarySSL" });
-                List<NameValue> list = nameValueRepository.Find(filterDef).ToList();
-                System.Net.Mail.MailMessage mailMessage = new MailMessage();
-                SmtpClient client = new SmtpClient();
-                client.Port = Convert.ToInt32(list.Where(x => x.Name == "PrimaryPort").First().Value);
-                client.EnableSsl = Convert.ToBoolean(list.Where(x => x.Name == "PrimarySSL").First().Value);
-                client.Host = list.Where(x => x.Name == "PrimaryHostName").First().Value;
-                client.UseDefaultCredentials = false;
-                client.Credentials = new System.Net.NetworkCredential(list.Where(x => x.Name == "PrimaryUserId").First().Value, list.Where(x => x.Name == "Primarypwd").First().Value);
-                mailMessage.To.Add(emailId);
-                mailMessage.From = new MailAddress(list.Where(x => x.Name == "PrimaryUserId").First().Value);
-                mailMessage.IsBodyHtml = false;
-                mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
-                mailMessage.Subject = "Your VitalSigns Account Information Update";
-
-                try
-                {
-                    client.Send(mailMessage);                
-                    Response = Common.CreateResponse(true ,Common.ResponseStatus.Success.ToDescription(), "Password Successfully send to mailid");
-                    return Response;
-                }
-                catch(Exception exception)
-                {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "password doesnot send to mail:" + exception);
-
-                }
-
-                nameValueRepository = new Repository<NameValue>(ConnectionString);
-                filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "SecondaryHostName", "SecondaryUserId", "SecondaryPwd", "SecondaryPort", "SecondarySSL" });
-                list = nameValueRepository.Find(filterDef).ToList();
-
-                mailMessage = new MailMessage();
-                client = new SmtpClient();
-                client.Port = Convert.ToInt32(list.Where(x => x.Name == "SecondaryPort").First().Value);
-                client.EnableSsl = Convert.ToBoolean(list.Where(x => x.Name == "SecondarySSL").First().Value);
-                client.Host = list.Where(x => x.Name == "SecondaryHostName").First().Value;
-                client.UseDefaultCredentials = false;
-                client.Credentials = new System.Net.NetworkCredential(list.Where(x => x.Name == "SecondaryUserId").First().Value, list.Where(x => x.Name == "SecondaryPwd").First().Value);
-
-                mailMessage.To.Add(emailId);
-                mailMessage.From = new MailAddress(list.Where(x => x.Name == "SecondaryUserId").First().Value);
-
-                mailMessage.IsBodyHtml = false;
-                mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
-                mailMessage.Subject = "Your VitalSigns Account Information Update";
-
-                try
-                {
-                    client.Send(mailMessage);
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Error.ToDescription(), "passwod send succefully");
-                    return Response;
-                }
-                catch (Exception exception)
-                {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "password doesnot send to mail:" + exception);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw ex;
-            }
-            return Response;
-        }
+        
+     
 
         #endregion
 
