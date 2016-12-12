@@ -49,18 +49,18 @@ export class BusinessHours extends GridBase implements OnInit {
 
     addBusinessHours(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
-        this.currentEditItem.name = "";
-        this.currentEditItem.start_time = "";
-        this.currentEditItem.duration = "";
-        this.currentEditItem.sunday = false;
-        this.currentEditItem.monday = false;
-        this.currentEditItem.tuesday = false;
-        this.currentEditItem.wednesday = false;
-        this.currentEditItem.thursday = false;
-        this.currentEditItem.friday = false;
-        this.currentEditItem.saturday = false;
-        this.currentEditItem.use_type = "2";
-
+        this.formObject.id = "";
+        this.formObject.name = "";
+        this.formObject.use_type = "2";
+        this.formObject.start_time = "12:00 PM";
+        this.formObject.duration = "0";
+        this.formObject.sunday = false;
+        this.formObject.monday = false;
+        this.formObject.tuesday = false;
+        this.formObject.wednesday = false;
+        this.formObject.thursday = false;
+        this.formObject.friday = false;
+        this.formObject.saturday = false;
      }
 
     ngOnInit() {
@@ -82,13 +82,12 @@ export class BusinessHours extends GridBase implements OnInit {
             });
     } 
     saveBusinessHour(dlg: wijmo.input.Popup) {  
-        //this.displayDate = new Date(Date.parse(this.formObject.start_time));
-        //this.formObject.start_time = this.displayDate.getHours() + ':' + this.displayDate.getMinutes();
         this.formObject.start_time = this.wjTimeCtrl.selectedValue;
         this.errorMessage = ""; 
         if (!this.formObject.sunday && !this.formObject.monday && !this.formObject.tuesday && !this.formObject.wednesday && !this.formObject.thursday
             && !this.formObject.friday && !this.formObject.saturday) {
             this.errorMessage = "No selection made. Please select at least one day.";
+            this.appComponentService.showErrorMessage(this.errorMessage);
         }
         if (!this.errorMessage) {
             if (this.formObject.id == "") {
@@ -121,12 +120,7 @@ export class BusinessHours extends GridBase implements OnInit {
                         }
                     });
             }
-            //this.flex.refresh();
-            
         }
-        //this.displayDate = new Date(Date.parse(this.currentEditItem.start_time));
-        //this.currentEditItem.start_time = this.displayDate.getHours() + ':' + this.displayDate.getMinutes();
-       
         //this.saveGridRow('/Configurator/save_business_hours', dlg);
     }
     

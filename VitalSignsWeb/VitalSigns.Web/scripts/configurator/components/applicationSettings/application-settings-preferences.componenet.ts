@@ -56,7 +56,7 @@ export class PreferencesForm implements OnInit {
                 //console.log(response.data.licenseitem.ExpirationDate);
                 //console.log(response.data.licenseitem.units);
                 //console.log(response.data.licenseitem.CompanyName);
-                this.expirationDate = response.data.licenseitem.ExpirationDate;
+                this.expirationDate = new Date(response.data.licenseitem.ExpirationDate).toDateString();
                 this.units = response.data.licenseitem.units;
                 this.companyName = response.data.licenseitem.CompanyName;
                 this.licenseType = response.data.licenseitem.LicenseType;
