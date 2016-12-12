@@ -78,9 +78,10 @@ export class AppHeader implements OnChanges,OnInit {
         if (passwordVal == "") {
            
         } else {
-            this.service.get('/configurator/reset_password?emailId=' + this.authService.CurrentUser.email + '&password=' + passwordVal)
+            this.service.get('/Token/reset_password?emailId=' + this.authService.CurrentUser.email + '&password=' + passwordVal)
                 .subscribe(
                 response => {
+
                     
                 });
             dialog.hide();
