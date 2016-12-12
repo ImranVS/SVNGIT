@@ -1,4 +1,4 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, OnInit, ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -23,8 +23,25 @@ import {AppComponentService} from '../../../core/services';
     ]
 })
 export class BusinessHours extends GridBase implements OnInit {  
-    selectedServers: string;
     displayDate: Date;
+    errorMessage: string;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    @ViewChild('wjTimeCtrl') wjTimeCtrl: wijmo.input.InputTime;
+    formObject: any = {
+        id: null,
+        name: null,
+        use_type: null,
+        start_time: null,
+        duration: null,
+        sunday: null,
+        monday: null,
+        tuesday: null,
+        wednesday: null,
+        thursday: null,
+        friday: null,
+        saturday: null
+    };
+
      constructor(service: RESTService, appComponentService: AppComponentService) {
          super(service, appComponentService);
          this.formName = "Business Hours";
@@ -47,31 +64,70 @@ export class BusinessHours extends GridBase implements OnInit {
      }
 
     ngOnInit() {
-        this.initialGridBind('/Configurator/get_business_hours');
+        //this.initialGridBind('/Configurator/get_business_hours');
+        this.service.get('/Configurator/get_business_hours')
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[0]));
+                    this.data.pageSize = 10;
+                    //this.formObject.start_time = wijmo.changeType(this.data., wijmo.DataType.Date);
+                } else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+
+            }, error => {
+                var errorMessage = <any>error;
+                this.appComponentService.showErrorMessage(errorMessage);
+            });
     } 
-    saveBusinessHour(dlg: wijmo.input.Popup) {    
-        console.log(this.currentEditItem.name);
-        console.log(this.currentEditItem.start_time);
-        this.displayDate = new Date(Date.parse(this.currentEditItem.start_time));
-        this.currentEditItem.start_time = this.displayDate.getHours() + ':' + this.displayDate.getMinutes();
-        
-        //console.log(this.displayDate.getHours());
-        //console.log(this.displayDate.getMinutes());
-        //console.log(this.currentEditItem.duration);
-        //console.log(this.currentEditItem.use_type);
-        //console.log(this.currentEditItem.sunday);
-
-        //if (this.currentEditItem.sunday == false && this.currentEditItem.monday == false && this.currentEditItem.tuesday == false &&
-        //    this.currentEditItem.wednesday == false && this.currentEditItem.thursday == false && this.currentEditItem.friday == false &&
-        //    this.currentEditItem.saturday == false) {
-        //    alert("Please select at least one day");
-        //}
-        //else {
-
-        this.saveGridRow('/Configurator/save_business_hours', dlg);
-        
-        //}
-
+    saveBusinessHour(dlg: wijmo.input.Popup) {  
+        //this.displayDate = new Date(Date.parse(this.formObject.start_time));
+        //this.formObject.start_time = this.displayDate.getHours() + ':' + this.displayDate.getMinutes();
+        this.formObject.start_time = this.wjTimeCtrl.selectedValue;
+        this.errorMessage = ""; 
+        if (!this.formObject.sunday && !this.formObject.monday && !this.formObject.tuesday && !this.formObject.wednesday && !this.formObject.thursday
+            && !this.formObject.friday && !this.formObject.saturday) {
+            this.errorMessage = "No selection made. Please select at least one day.";
+        }
+        if (!this.errorMessage) {
+            if (this.formObject.id == "") {
+                this.service.put('/configurator/save_business_hours', this.formObject)
+                    .subscribe(
+                    response => {
+                        if (response.status == "Success") {
+                            this.data = response.data[0];
+                            (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
+                            dlg.hide();
+                            this.appComponentService.showSuccessMessage(response.message);
+                        }
+                        else {
+                            this.appComponentService.showErrorMessage(response.message);
+                        }
+                    });  
+            }
+            else {
+                this.service.put('/configurator/save_business_hours', this.formObject)
+                    .subscribe(
+                    response => {
+                        if (response.status == "Success") {
+                            this.data = response.data[0];
+                            (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
+                            dlg.hide();
+                            this.appComponentService.showSuccessMessage(response.message);
+                        }
+                        else {
+                            this.appComponentService.showErrorMessage(response.message);
+                        }
+                    });
+            }
+            //this.flex.refresh();
+            
+        }
+        //this.displayDate = new Date(Date.parse(this.currentEditItem.start_time));
+        //this.currentEditItem.start_time = this.displayDate.getHours() + ':' + this.displayDate.getMinutes();
+       
+        //this.saveGridRow('/Configurator/save_business_hours', dlg);
     }
     
     delteBusinessHour() {      
@@ -79,13 +135,24 @@ export class BusinessHours extends GridBase implements OnInit {
     }
 
     editBusinessHours(dlg: wijmo.input.Popup) {
-        //this.editGridRow(dlg);
         this.formTitle = "Edit " + this.formName;
-
-        (<wijmo.collections.CollectionView>this.flex.collectionView).editItem(this.flex.collectionView.currentItem);
-        this.currentEditItem = this.flex.collectionView.currentItem;
+        this.formObject.id = this.flex.collectionView.currentItem.id;
+        this.formObject.name = this.flex.collectionView.currentItem.name;
+        this.formObject.use_type = this.flex.collectionView.currentItem.use_type;
+        this.convertTimeformat("24", this.flex.collectionView.currentItem.start_time);
+        if (this.wjTimeCtrl != null) {
+            this.wjTimeCtrl.value = this.formObject.start_time;
+        }
+        this.formObject.duration = this.flex.collectionView.currentItem.duration;
+        this.formObject.sunday = this.flex.collectionView.currentItem.sunday;
+        this.formObject.monday = this.flex.collectionView.currentItem.monday;
+        this.formObject.tuesday = this.flex.collectionView.currentItem.tuesday;
+        this.formObject.wednesday = this.flex.collectionView.currentItem.wednesday;
+        this.formObject.thursday = this.flex.collectionView.currentItem.thursday;
+        this.formObject.friday = this.flex.collectionView.currentItem.friday;
+        this.formObject.saturday = this.flex.collectionView.currentItem.saturday;
+        
         this.showDialog(dlg);
-        //console.log(this.currentEditItem.use_type);
     }
 
     selectAllClick(index: any) {
@@ -111,6 +178,19 @@ export class BusinessHours extends GridBase implements OnInit {
         
     }
 
+    convertTimeformat(format, str) {
+        var time = str;
+        var hours = Number(time.match(/^(\d+)/)[1]);
+        var minutes = Number(time.match(/:(\d+)/)[1]);
+        var AMPM = time.match(/\s(.*)$/)[1];
+        if (AMPM == "PM" && hours < 12) hours = hours + 12;
+        if (AMPM == "AM" && hours == 12) hours = hours - 12;
+        var sHours = hours.toString();
+        var sMinutes = minutes.toString();
+        if (hours < 10) sHours = "0" + sHours;
+        if (minutes < 10) sMinutes = "0" + sMinutes;
+        this.formObject.start_time = sHours + ":" + sMinutes;
+    }
 }
 
 

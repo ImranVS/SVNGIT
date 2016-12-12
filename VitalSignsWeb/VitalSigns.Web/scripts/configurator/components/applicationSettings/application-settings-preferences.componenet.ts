@@ -52,10 +52,10 @@ export class PreferencesForm implements OnInit {
         this.dataProvider.get('/configurator/get_preferences')
             .subscribe(
             response => {
-                console.log(response.data);
-                console.log(response.data.licenseitem.ExpirationDate);
-                console.log(response.data.licenseitem.units);
-                console.log(response.data.licenseitem.CompanyName);
+                //console.log(response.data);
+                //console.log(response.data.licenseitem.ExpirationDate);
+                //console.log(response.data.licenseitem.units);
+                //console.log(response.data.licenseitem.CompanyName);
                 this.expirationDate = response.data.licenseitem.ExpirationDate;
                 this.units = response.data.licenseitem.units;
                 this.companyName = response.data.licenseitem.CompanyName;

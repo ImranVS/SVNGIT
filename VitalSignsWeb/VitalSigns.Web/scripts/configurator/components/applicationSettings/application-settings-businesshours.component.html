@@ -23,7 +23,7 @@
             <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [isReadOnly]="true">
                 <wj-flex-grid-filter></wj-flex-grid-filter>
                 <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="180"> </wj-flex-grid-column>
-                <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" format="h:mm tt" [width]="100"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="100"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="100"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Sunday'" [binding]="'sunday'" [width]="100"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Monday'" [binding]="'monday'" [width]="100"></wj-flex-grid-column>
@@ -80,21 +80,21 @@ data.pageIndex + 1 | number
 
                     <form (ngSubmit)="saveBusinessHour(frmDialog)" #frmUser="ngForm" class="form-horizontal">
 
-                        <div class="panel-body" *ngIf="currentEditItem">
+                        <div class="panel-body">
 
                             <div class="row">
                                 <div class="form-group col-sm-12">
                                     <div class="radio radio-info radio-inline col-sm-12">
                                         <div class="col-sm-3">
-                                            <input type="radio" id="use_type1" name="use_type" value="0" [(ngModel)]="currentEditItem.use_type"> 
+                                            <input type="radio" id="use_type1" name="use_type" value="0" [(ngModel)]="formObject.use_type"> 
                                             <label for="use_type1">Use for Notifications Only</label>
                                         </div>
                                         <div class="col-sm-3">
-                                            <input type="radio" id="use_type2" name="use_type" value="1" [(ngModel)]="currentEditItem.use_type">
+                                            <input type="radio" id="use_type2" name="use_type" value="1" [(ngModel)]="formObject.use_type">
                                             <label for="use_type2">Use for Devices Only</label>
                                         </div>
                                         <div class="col-sm-3">
-                                            <input type="radio" id="use_type3" name="use_type" value="2" [(ngModel)]="currentEditItem.use_type">
+                                            <input type="radio" id="use_type3" name="use_type" value="2" [(ngModel)]="formObject.use_type">
                                             <label for="use_type3">Use for Both</label>
                                         </div>
 
@@ -106,20 +106,20 @@ data.pageIndex + 1 | number
                                 <div class="form-group col-sm-4">
                                     <label for="name" class="control-label col-sm-2">Name</label>
                                     <div class="col-sm-7">
-                                        <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                                        <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="formObject.name">
                                     </div>
                                 </div>
                                 <div class="form-group col-sm-4">
                                     <label for="start_time" class="control-label col-sm-4">Start Time</label>
-                                    <div class="col-sm-7">
-                                        <wj-input-time [isEditable]="true" [(ngModel)]="currentEditItem.start_time" id="start_time" name="start_time"></wj-input-time>
-                                            <!--<input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">-->
-</div>
+                                    <div class="col-sm-7" *ngIf="formObject.start_time != null">
+                                        <wj-input-time [isEditable]="true" [(value)]="formObject.start_time" format="h:mm tt" id="start_time" name="start_time" #wjTimeCtrl></wj-input-time>
+                                        <!--<input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">-->
+                                    </div>
                                 </div>
                                 <div class="form-group col-sm-4">
                                     <label for="duration" class="control-label col-sm-3">Duration</label>
                                     <div class="col-sm-5">
-                                        <input type="number" min="1" class="form-control" id="duration" required name="duration" [(ngModel)]="currentEditItem.duration">
+                                        <input type="number" min="1" class="form-control" id="duration" required name="duration" [(ngModel)]="formObject.duration">
                                     </div>
                                     <div class="control-label col-sm-1">minutes</div>
                                 </div>
@@ -142,31 +142,31 @@ data.pageIndex + 1 | number
                                     <div class="row">
                                         <div class="funkyradio">
                                             <div class="funkyradio-default">
-                                                <input type="checkbox" class="checkbox-inline " id="sunday" name="sunday" [(ngModel)]="currentEditItem.sunday">
+                                                <input type="checkbox" class="checkbox-inline " id="sunday" name="sunday" [(ngModel)]="formObject.sunday">
                                                 <label for="sunday">Sunday</label>
                                             </div>
                                             <div class="funkyradio-default">
-                                                <input type="checkbox" class="checkbox-inline" id="monday" name="monday" [(ngModel)]="currentEditItem.monday">
+                                                <input type="checkbox" class="checkbox-inline" id="monday" name="monday" [(ngModel)]="formObject.monday">
                                                 <label for="monday">Monday</label>
                                             </div>
                                             <div class="funkyradio-default">
-                                                <input type="checkbox" class="checkbox-inline" id="tuesday" name="tuesday" [(ngModel)]="currentEditItem.tuesday">
+                                                <input type="checkbox" class="checkbox-inline" id="tuesday" name="tuesday" [(ngModel)]="formObject.tuesday">
                                                 <label for="tuesday">Tuesday</label>
                                             </div>
                                             <div class="funkyradio-default">
-                                                <input type="checkbox" class="checkbox-inline" id="wednesday" name="wednesday" [(ngModel)]="currentEditItem.wednesday">
+                                                <input type="checkbox" class="checkbox-inline" id="wednesday" name="wednesday" [(ngModel)]="formObject.wednesday">
                                                 <label for="wednesday">Wednesday</label>
                                             </div>
                                             <div class="funkyradio-default">
-                                                <input type="checkbox" class="checkbox-inline" id="thursday" name="thursday" [(ngModel)]="currentEditItem.thursday">
+                                                <input type="checkbox" class="checkbox-inline" id="thursday" name="thursday" [(ngModel)]="formObject.thursday">
                                                 <label for="thursday">Thursday</label>
                                             </div>
                                             <div class="funkyradio-default">
-                                                <input type="checkbox" class="checkbox-inline" id="friday" name="friday" [(ngModel)]="currentEditItem.friday">
+                                                <input type="checkbox" class="checkbox-inline" id="friday" name="friday" [(ngModel)]="formObject.friday">
                                                 <label for="friday">Friday</label>
                                             </div>
                                             <div class="funkyradio-default">
-                                                <input type="checkbox" class="checkbox-inline" id="saturday" name="saturday" [(ngModel)]="currentEditItem.saturday">
+                                                <input type="checkbox" class="checkbox-inline" id="saturday" name="saturday" [(ngModel)]="formObject.saturday">
                                                 <label for="saturday">Saturday</label>
                                             </div>
                                         </div>
