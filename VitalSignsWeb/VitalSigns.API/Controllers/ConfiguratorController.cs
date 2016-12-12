@@ -1694,11 +1694,12 @@ namespace VitalSigns.API.Controllers
                             }
                         }
 
-                       
-                        serverresult.DeviceAttributes.Add(attri);
-                    
-
                     }
+                    else
+                    {
+                        attri.DefaultValue = attri.DefaultValue; ;
+                    }
+                    serverresult.DeviceAttributes.Add(attri);
                 }
                    
                
