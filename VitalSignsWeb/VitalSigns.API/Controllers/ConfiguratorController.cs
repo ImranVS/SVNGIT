@@ -953,12 +953,10 @@ namespace VitalSigns.API.Controllers
                     Email = x.Email,
                     FullName = x.FullName,
                     Roles = x.Roles,
-                    Status = x.Status,                 
+                    Status = x.Status,
                 }).ToList();
-               // var maintainRoles = maintainUsersRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Roles , Value = x.Id}).ToList().OrderBy(x => x.DisplayText);
-                Response = Common.CreateResponse(result);          
+                Response = Common.CreateResponse(result);
             }
-
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get maintain users falied .\n Error Message :" + exception.Message);
@@ -1055,7 +1053,7 @@ namespace VitalSigns.API.Controllers
                     var result = maintainUsersRepository.Update(filterDefination, updatePassword);
 
                     SendPasswordEmail(emailId, password);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Password Reset done successfully and check your email");
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Password Reset done successfully and check your email");
                 }
                 else
                 {
@@ -1068,16 +1066,13 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-
-        public bool SendPasswordEmail(string emailId, string password)
+        public APIResponse SendPasswordEmail(string emailId, string password)
         {
-
             try
             {
                 nameValueRepository = new Repository<NameValue>(ConnectionString);
                 var filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "PrimaryHostName", "PrimaryUserId", "Primarypwd", "PrimaryPort", "PrimarySSL" });
                 List<NameValue> list = nameValueRepository.Find(filterDef).ToList();
-
                 System.Net.Mail.MailMessage mailMessage = new MailMessage();
                 SmtpClient client = new SmtpClient();
                 client.Port = Convert.ToInt32(list.Where(x => x.Name == "PrimaryPort").First().Value);
@@ -1085,22 +1080,21 @@ namespace VitalSigns.API.Controllers
                 client.Host = list.Where(x => x.Name == "PrimaryHostName").First().Value;
                 client.UseDefaultCredentials = false;
                 client.Credentials = new System.Net.NetworkCredential(list.Where(x => x.Name == "PrimaryUserId").First().Value, list.Where(x => x.Name == "Primarypwd").First().Value);
-
                 mailMessage.To.Add(emailId);
                 mailMessage.From = new MailAddress(list.Where(x => x.Name == "PrimaryUserId").First().Value);
-
                 mailMessage.IsBodyHtml = false;
                 mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
                 mailMessage.Subject = "Your VitalSigns Account Information Update";
 
                 try
                 {
-                    client.Send(mailMessage);
-
-                    return true;
+                    client.Send(mailMessage);                
+                    Response = Common.CreateResponse(true ,Common.ResponseStatus.Success.ToDescription(), "Password Successfully send to mailid");
+                    return Response;
                 }
-                catch(Exception ex)
+                catch(Exception exception)
                 {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "password doesnot send to mail:" + exception);
 
                 }
 
@@ -1123,14 +1117,22 @@ namespace VitalSigns.API.Controllers
                 mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
                 mailMessage.Subject = "Your VitalSigns Account Information Update";
 
-                client.Send(mailMessage);
-
-                return true;
+                try
+                {
+                    client.Send(mailMessage);
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Error.ToDescription(), "passwod send succefully");
+                    return Response;
+                }
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "password doesnot send to mail:" + exception);
+                }
             }
             catch(Exception ex)
             {
                 throw ex;
             }
+            return Response;
         }
 
         #endregion
