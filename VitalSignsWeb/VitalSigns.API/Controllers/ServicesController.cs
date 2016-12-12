@@ -183,6 +183,7 @@ namespace VitalSigns.API.Controllers
                         server.Status = serverStatus.StatusCode;// Holds the formated status code for displaying colors in UI
                         server.StatusCode = serverStatus.StatusCode;//Holds actual server code data
                         server.Location = serverStatus.Location;
+                        server.Details = serverStatus.Details;
                         if (server.LastUpdated.HasValue)
                             server.Description = "Last Updated: " + server.LastUpdated.Value.ToShortDateString();
                         else

@@ -21,9 +21,9 @@ Partial Class VitalSignsCore
 			Do While boolTimeToStop <> True
 				Try
 					If MyNetworkDevices.Count > 0 Then
-						myDevice = Nothing
-						myDevice = SelectDeviceToMonitor()
-						If Not myDevice Is Nothing Then
+                        myDevice = Nothing
+                        myDevice = CType(SelectServerToMonitor(MyNetworkDevices), MonitoredItems.NetworkDevice)
+                        If Not myDevice Is Nothing Then
 							WriteAuditEntry(Now.ToString & " ^^^ End Loop for Network Device Monitoring - no devices due ^^^")
 							myDevice.PreviousKeyValue = myDevice.ResponseTime
 							MonitorNetworkDevice(myDevice)
@@ -57,137 +57,138 @@ Partial Class VitalSignsCore
 
 	End Sub
 
-	Private Function SelectDeviceToMonitor() As MonitoredItems.NetworkDevice
-		'    WriteAuditEntry(Now.ToString & " >>> Selecting a Network Device for monitoring >>>>")
-		Dim tNow As DateTime
-		tNow = Now
-		Dim tScheduled As DateTime
+    '12/12/16 WS Moved to VSServices
+    'Private Function SelectDeviceToMonitor() As MonitoredItems.NetworkDevice
+    '	'    WriteAuditEntry(Now.ToString & " >>> Selecting a Network Device for monitoring >>>>")
+    '	Dim tNow As DateTime
+    '	tNow = Now
+    '	Dim tScheduled As DateTime
 
-		Dim timeOne, timeTwo As DateTime
+    '	Dim timeOne, timeTwo As DateTime
 
-		Dim myDevice As MonitoredItems.NetworkDevice
-		Dim SelectedServer As MonitoredItems.NetworkDevice
+    '	Dim myDevice As MonitoredItems.NetworkDevice
+    '	Dim SelectedServer As MonitoredItems.NetworkDevice
 
-		Dim ServerOne As MonitoredItems.NetworkDevice
-		Dim ServerTwo As MonitoredItems.NetworkDevice
-		Dim myRegistry As New RegistryHandler
+    '	Dim ServerOne As MonitoredItems.NetworkDevice
+    '	Dim ServerTwo As MonitoredItems.NetworkDevice
+    '	Dim myRegistry As New RegistryHandler
 
-		Dim n As Integer
-		Dim strSQL As String = ""
-		Dim ServerType As String = "NetworkDevice"
-		Dim serverName As String = ""
+    '	Dim n As Integer
+    '	Dim strSQL As String = ""
+    '	Dim ServerType As String = "NetworkDevice"
+    '	Dim serverName As String = ""
 
-		Try
-			strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-			Dim ds As New DataSet()
-			ds.Tables.Add("ScanASAP")
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+    '	Try
+    '		strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '		Dim ds As New DataSet()
+    '		ds.Tables.Add("ScanASAP")
+    '		Dim objVSAdaptor As New VSAdaptor
+    '		objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-			For Each row As DataRow In ds.Tables("ScanASAP").Rows
-				Try
-					serverName = row(0).ToString()
-				Catch ex As Exception
-					Continue For
-				End Try
+    '		For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '			Try
+    '				serverName = row(0).ToString()
+    '			Catch ex As Exception
+    '				Continue For
+    '			End Try
 
-				For n = 0 To MyNetworkDevices.Count - 1
-					ServerOne = MyNetworkDevices.Item(n)
+    '			For n = 0 To MyNetworkDevices.Count - 1
+    '				ServerOne = MyNetworkDevices.Item(n)
 
-					If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-						'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-						strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-						objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+    '				If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '					'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '					strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '					objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-						Return ServerOne
-						Exit Function
+    '					Return ServerOne
+    '					Exit Function
 
-					End If
-				Next
-			Next
+    '				End If
+    '			Next
+    '		Next
 
-		Catch ex As Exception
+    '	Catch ex As Exception
 
-		End Try
+    '	End Try
 
 
 
-		'Any db Not Scanned should be scanned right away.  Select the first one you encounter
-		For n = 0 To MyNetworkDevices.Count - 1
-			ServerOne = MyNetworkDevices.Item(n)
+    '	'Any db Not Scanned should be scanned right away.  Select the first one you encounter
+    '	For n = 0 To MyNetworkDevices.Count - 1
+    '		ServerOne = MyNetworkDevices.Item(n)
 
-			If ServerOne.Status = "Not Scanned" Then
-				'WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-				Return ServerOne
-				Exit Function
-			End If
-		Next
+    '		If ServerOne.Status = "Not Scanned" Then
+    '			'WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '			Return ServerOne
+    '			Exit Function
+    '		End If
+    '	Next
 
-		'start with the first two servers
-		ServerOne = MyNetworkDevices.Item(0)
-		If MyNetworkDevices.Count > 1 Then ServerTwo = MyNetworkDevices.Item(1)
+    '	'start with the first two servers
+    '	ServerOne = MyNetworkDevices.Item(0)
+    '	If MyNetworkDevices.Count > 1 Then ServerTwo = MyNetworkDevices.Item(1)
 
-		'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-		If MyNetworkDevices.Count > 2 Then
-			Try
-				For n = 2 To MyNetworkDevices.Count - 1
-					'     WriteAuditEntry(Now.ToString & " N is " & n)
-					timeOne = CDate(ServerOne.NextScan)
-					timeTwo = CDate(ServerTwo.NextScan)
-					If DateTime.Compare(timeOne, timeTwo) < 0 Then
-						'time one is earlier than time two, so keep server 1
-						ServerTwo = MyNetworkDevices.Item(n)
-					Else
-						'time two is later than time one, so keep server 2
-						ServerOne = MyNetworkDevices.Item(n)
-					End If
-				Next
-			Catch ex As Exception
-				WriteAuditEntry(Now.ToString & " >>> Error selecting a Network Device... " & ex.Message)
-			End Try
-		Else
-			'There were only two server, so use those going forward
-		End If
+    '	'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '	If MyNetworkDevices.Count > 2 Then
+    '		Try
+    '			For n = 2 To MyNetworkDevices.Count - 1
+    '				'     WriteAuditEntry(Now.ToString & " N is " & n)
+    '				timeOne = CDate(ServerOne.NextScan)
+    '				timeTwo = CDate(ServerTwo.NextScan)
+    '				If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '					'time one is earlier than time two, so keep server 1
+    '					ServerTwo = MyNetworkDevices.Item(n)
+    '				Else
+    '					'time two is later than time one, so keep server 2
+    '					ServerOne = MyNetworkDevices.Item(n)
+    '				End If
+    '			Next
+    '		Catch ex As Exception
+    '			WriteAuditEntry(Now.ToString & " >>> Error selecting a Network Device... " & ex.Message)
+    '		End Try
+    '	Else
+    '		'There were only two server, so use those going forward
+    '	End If
 
-		'    WriteAuditEntry(Now.ToString & " >>> Down to two network devices... " & ServerOne.Name & " and " & ServerTwo.Name)
+    '	'    WriteAuditEntry(Now.ToString & " >>> Down to two network devices... " & ServerOne.Name & " and " & ServerTwo.Name)
 
-		'Of the two remaining devices, pick the one with earliest scheduled time for next scan
-		If Not (ServerTwo Is Nothing) Then
-			timeOne = CDate(ServerOne.NextScan)
-			timeTwo = CDate(ServerTwo.NextScan)
+    '	'Of the two remaining devices, pick the one with earliest scheduled time for next scan
+    '	If Not (ServerTwo Is Nothing) Then
+    '		timeOne = CDate(ServerOne.NextScan)
+    '		timeTwo = CDate(ServerTwo.NextScan)
 
-			If DateTime.Compare(timeOne, timeTwo) < 0 Then
-				'time one is earlier than time two, so keep server 1
-				SelectedServer = ServerOne
-				tScheduled = CDate(ServerOne.NextScan)
-			Else
-				SelectedServer = ServerTwo
-				tScheduled = CDate(ServerTwo.NextScan)
-			End If
-			tNow = Now
-			'     WriteAuditEntry(Now.ToString & " >>> Down to one Network Device... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
-		Else
-			SelectedServer = ServerOne
-			tScheduled = CDate(ServerOne.NextScan)
-		End If
-		tScheduled = CDate(SelectedServer.NextScan)
-		If DateTime.Compare(tNow, tScheduled) < 0 Then
-			If SelectedServer.Status <> "Not Scanned" Then
-				'    WriteAuditEntry(Now.ToString & " No Network Devices are scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-				SelectedServer = Nothing
-			Else
-				'     WriteAuditEntry(Now.ToString & " selected Network Device: " & SelectedServer.Name & " because it has not been scanned yet.")
-			End If
-		Else
-			'     WriteAuditEntry(Now.ToString & " selected Network Device: " & SelectedServer.Name)
-		End If
+    '		If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '			'time one is earlier than time two, so keep server 1
+    '			SelectedServer = ServerOne
+    '			tScheduled = CDate(ServerOne.NextScan)
+    '		Else
+    '			SelectedServer = ServerTwo
+    '			tScheduled = CDate(ServerTwo.NextScan)
+    '		End If
+    '		tNow = Now
+    '		'     WriteAuditEntry(Now.ToString & " >>> Down to one Network Device... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
+    '	Else
+    '		SelectedServer = ServerOne
+    '		tScheduled = CDate(ServerOne.NextScan)
+    '	End If
+    '	tScheduled = CDate(SelectedServer.NextScan)
+    '	If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '		If SelectedServer.Status <> "Not Scanned" Then
+    '			'    WriteAuditEntry(Now.ToString & " No Network Devices are scheduled for monitoring, next scan after " & SelectedServer.NextScan)
+    '			SelectedServer = Nothing
+    '		Else
+    '			'     WriteAuditEntry(Now.ToString & " selected Network Device: " & SelectedServer.Name & " because it has not been scanned yet.")
+    '		End If
+    '	Else
+    '		'     WriteAuditEntry(Now.ToString & " selected Network Device: " & SelectedServer.Name)
+    '	End If
 
-		Return SelectedServer
-		Exit Function
+    '	Return SelectedServer
+    '	Exit Function
 
-	End Function
+    'End Function
 
-	Private Sub MonitorNetworkDevice(ByRef MyDevice As MonitoredItems.NetworkDevice)
+    Private Sub MonitorNetworkDevice(ByRef MyDevice As MonitoredItems.NetworkDevice)
 		'  Dim dtLastScan As DateTime = MyDevice.LastScan
 		Dim strResponse, StatusDetails As String
 

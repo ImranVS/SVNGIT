@@ -4042,6 +4042,15 @@ Public Class MonitoredDevicesCollection
         Return Nothing
     End Function
 
+    Public Function FindByObjectId(ByVal objId As String) As MonitoredDevice
+        For Each device As MonitoredDevice In Me.List
+            If device.ServerObjectID = objId Then
+                Return device
+                Exit Function
+            End If
+        Next
+        Return Nothing
+    End Function
 End Class
 
 Public Class ExchangeServersCollection

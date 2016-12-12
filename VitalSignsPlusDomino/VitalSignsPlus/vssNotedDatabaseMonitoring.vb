@@ -16,8 +16,8 @@ Partial Public Class VitalSignsPlusDomino
 	Private Sub MonitorNotesDatabases()	'This is the main sub that calls all the other ones
 		Dim MyNotesDatabase As MonitoredItems.NotesDatabase
 		WriteAuditEntry(Now.ToString & " Selecting a Notes database to monitor.", LogLevel.Verbose)
-		MyNotesDatabase = SelectNotesDBToMonitor()
-		If MyNotesDatabase Is Nothing Then
+        MyNotesDatabase = CType(SelectServerToMonitor(MyNotesDatabases), MonitoredItems.NotesDatabase)
+        If MyNotesDatabase Is Nothing Then
 			Exit Sub
 		End If
 
@@ -65,155 +65,156 @@ Partial Public Class VitalSignsPlusDomino
 		GC.Collect()
 	End Sub
 
-	Private Function SelectNotesDBToMonitor() As MonitoredItems.NotesDatabase
-		If MyNotesDatabases.Count = 0 Then
-			Return Nothing
-			Exit Function
-		End If
+    '12/12/16 WS Moved to VSServices
+    'Private Function SelectNotesDBToMonitor() As MonitoredItems.NotesDatabase
+    '	If MyNotesDatabases.Count = 0 Then
+    '		Return Nothing
+    '		Exit Function
+    '	End If
 
-		Dim tNow As DateTime
-		tNow = Now
-		Dim tScheduled As DateTime
+    '	Dim tNow As DateTime
+    '	tNow = Now
+    '	Dim tScheduled As DateTime
 
-		Dim timeOne, timeTwo As DateTime
+    '	Dim timeOne, timeTwo As DateTime
 
-		Dim myDevice As MonitoredItems.NotesDatabase
-		Dim SelectedServer As MonitoredItems.NotesDatabase
+    '	Dim myDevice As MonitoredItems.NotesDatabase
+    '	Dim SelectedServer As MonitoredItems.NotesDatabase
 
-		Dim ServerOne As MonitoredItems.NotesDatabase
-		Dim ServerTwo As MonitoredItems.NotesDatabase
+    '	Dim ServerOne As MonitoredItems.NotesDatabase
+    '	Dim ServerTwo As MonitoredItems.NotesDatabase
 
-		Dim n As Integer
-		Dim myRegistry As New RegistryHandler
+    '	Dim n As Integer
+    '	Dim myRegistry As New RegistryHandler
 
-		Dim strSQL As String = ""
-		Dim ServerType As String = "NotesDatabase"
-		Dim serverName As String = ""
+    '	Dim strSQL As String = ""
+    '	Dim ServerType As String = "NotesDatabase"
+    '	Dim serverName As String = ""
 
-		Try
-			strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-			Dim ds As New DataSet()
-			ds.Tables.Add("ScanASAP")
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+    '	Try
+    '		strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '		Dim ds As New DataSet()
+    '		ds.Tables.Add("ScanASAP")
+    '		Dim objVSAdaptor As New VSAdaptor
+    '		objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-			For Each row As DataRow In ds.Tables("ScanASAP").Rows
-				Try
-					serverName = row(0).ToString()
-				Catch ex As Exception
-					Continue For
-				End Try
+    '		For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '			Try
+    '				serverName = row(0).ToString()
+    '			Catch ex As Exception
+    '				Continue For
+    '			End Try
 
-				For n = 0 To MyNotesDatabases.Count - 1
-					ServerOne = MyNotesDatabases.Item(n)
+    '			For n = 0 To MyNotesDatabases.Count - 1
+    '				ServerOne = MyNotesDatabases.Item(n)
 
-					If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-						WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-						strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-						objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+    '				If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '					WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '					strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '					objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-						Return ServerOne
-						Exit Function
+    '					Return ServerOne
+    '					Exit Function
 
-					End If
-				Next
-			Next
+    '				End If
+    '			Next
+    '		Next
 
-		Catch ex As Exception
+    '	Catch ex As Exception
 
-		End Try
-
-
-
+    '	End Try
 
 
-		'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-		For n = 0 To MyNotesDatabases.Count - 1
-			ServerOne = MyNotesDatabases.Item(n)
-			If ServerOne.Status = "Not Scanned" Then
-				'If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-				Return ServerOne
-				Exit Function
-			End If
-		Next
-
-		'start with the first two servers
-		ServerOne = MyNotesDatabases.Item(0)
-		If MyNotesDatabases.Count > 1 Then ServerTwo = MyNotesDatabases.Item(1)
-
-		'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-		If MyNotesDatabases.Count > 2 Then
-			Try
-				For n = 2 To MyNotesDatabases.Count - 1
-					'     WriteAuditEntry(Now.ToString & " N is " & n)
-					timeOne = CDate(ServerOne.NextScan)
-					timeTwo = CDate(ServerTwo.NextScan)
-					If DateTime.Compare(timeOne, timeTwo) < 0 Then
-						'time one is earlier than time two, so keep server 1
-						ServerTwo = MyNotesDatabases.Item(n)
-					Else
-						'time two is later than time one, so keep server 2
-						ServerOne = MyNotesDatabases.Item(n)
-					End If
-				Next
-			Catch ex As Exception
-				WriteAuditEntry(Now.ToString & " >>> Error selecting a Notes Database... " & ex.Message)
-			End Try
-		Else
-			'There were only two dbs, so use those going forward
-		End If
 
 
-		'Of the two remaining devices, pick the one with earliest scheduled time for next scan
-		If Not (ServerTwo Is Nothing) Then
-			timeOne = CDate(ServerOne.NextScan)
-			timeTwo = CDate(ServerTwo.NextScan)
 
-			If DateTime.Compare(timeOne, timeTwo) < 0 Then
-				'time one is earlier than time two, so keep server 1
-				SelectedServer = ServerOne
-				tScheduled = CDate(ServerOne.NextScan)
-			Else
-				SelectedServer = ServerTwo
-				tScheduled = CDate(ServerTwo.NextScan)
-			End If
-			tNow = Now
-			'     WriteAuditEntry(Now.ToString & " >>> Down to one Notes Database... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
-		Else
-			SelectedServer = ServerOne
-			tScheduled = CDate(ServerOne.NextScan)
-		End If
-		tScheduled = CDate(SelectedServer.NextScan)
-		If DateTime.Compare(tNow, tScheduled) < 0 Then
-			If SelectedServer.Status <> "Not Scanned" Then
-				WriteAuditEntry(Now.ToString & " No Notes DB are scheduled for monitoring, next scan after " & SelectedServer.NextScan, LogLevel.Verbose)
-				SelectedServer = Nothing
-			Else
-				WriteAuditEntry(Now.ToString & " selected Notes DB: " & SelectedServer.Name & " because it has not been scanned yet.", LogLevel.Verbose)
-			End If
-		Else
-			WriteAuditEntry(Now.ToString & " selected Notes DB: " & SelectedServer.Name, LogLevel.Verbose)
-		End If
+    '	'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '	For n = 0 To MyNotesDatabases.Count - 1
+    '		ServerOne = MyNotesDatabases.Item(n)
+    '		If ServerOne.Status = "Not Scanned" Then
+    '			'If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '			Return ServerOne
+    '			Exit Function
+    '		End If
+    '	Next
 
-		'Release Memory
-		tNow = Nothing
-		tScheduled = Nothing
-		n = Nothing
+    '	'start with the first two servers
+    '	ServerOne = MyNotesDatabases.Item(0)
+    '	If MyNotesDatabases.Count > 1 Then ServerTwo = MyNotesDatabases.Item(1)
 
-		timeOne = Nothing
-		timeTwo = Nothing
-
-		myDevice = Nothing
-		ServerOne = Nothing
-		ServerTwo = Nothing
+    '	'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '	If MyNotesDatabases.Count > 2 Then
+    '		Try
+    '			For n = 2 To MyNotesDatabases.Count - 1
+    '				'     WriteAuditEntry(Now.ToString & " N is " & n)
+    '				timeOne = CDate(ServerOne.NextScan)
+    '				timeTwo = CDate(ServerTwo.NextScan)
+    '				If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '					'time one is earlier than time two, so keep server 1
+    '					ServerTwo = MyNotesDatabases.Item(n)
+    '				Else
+    '					'time two is later than time one, so keep server 2
+    '					ServerOne = MyNotesDatabases.Item(n)
+    '				End If
+    '			Next
+    '		Catch ex As Exception
+    '			WriteAuditEntry(Now.ToString & " >>> Error selecting a Notes Database... " & ex.Message)
+    '		End Try
+    '	Else
+    '		'There were only two dbs, so use those going forward
+    '	End If
 
 
-		Return SelectedServer
-		Exit Function
+    '	'Of the two remaining devices, pick the one with earliest scheduled time for next scan
+    '	If Not (ServerTwo Is Nothing) Then
+    '		timeOne = CDate(ServerOne.NextScan)
+    '		timeTwo = CDate(ServerTwo.NextScan)
 
-	End Function
+    '		If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '			'time one is earlier than time two, so keep server 1
+    '			SelectedServer = ServerOne
+    '			tScheduled = CDate(ServerOne.NextScan)
+    '		Else
+    '			SelectedServer = ServerTwo
+    '			tScheduled = CDate(ServerTwo.NextScan)
+    '		End If
+    '		tNow = Now
+    '		'     WriteAuditEntry(Now.ToString & " >>> Down to one Notes Database... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
+    '	Else
+    '		SelectedServer = ServerOne
+    '		tScheduled = CDate(ServerOne.NextScan)
+    '	End If
+    '	tScheduled = CDate(SelectedServer.NextScan)
+    '	If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '		If SelectedServer.Status <> "Not Scanned" Then
+    '			WriteAuditEntry(Now.ToString & " No Notes DB are scheduled for monitoring, next scan after " & SelectedServer.NextScan, LogLevel.Verbose)
+    '			SelectedServer = Nothing
+    '		Else
+    '			WriteAuditEntry(Now.ToString & " selected Notes DB: " & SelectedServer.Name & " because it has not been scanned yet.", LogLevel.Verbose)
+    '		End If
+    '	Else
+    '		WriteAuditEntry(Now.ToString & " selected Notes DB: " & SelectedServer.Name, LogLevel.Verbose)
+    '	End If
 
-	Private Sub MonitorNotesDatabase(ByRef MyNotesDatabase As MonitoredItems.NotesDatabase)
+    '	'Release Memory
+    '	tNow = Nothing
+    '	tScheduled = Nothing
+    '	n = Nothing
+
+    '	timeOne = Nothing
+    '	timeTwo = Nothing
+
+    '	myDevice = Nothing
+    '	ServerOne = Nothing
+    '	ServerTwo = Nothing
+
+
+    '	Return SelectedServer
+    '	Exit Function
+
+    'End Function
+
+    Private Sub MonitorNotesDatabase(ByRef MyNotesDatabase As MonitoredItems.NotesDatabase)
 		'this sub checks on Notes databases and compares against threshold of size, count, or performance
 		'  Dim s As New Domino.NotesSession
 

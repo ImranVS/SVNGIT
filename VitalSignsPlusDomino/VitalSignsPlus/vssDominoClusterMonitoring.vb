@@ -22,7 +22,7 @@ Partial Public Class VitalSignsPlusDomino
                 '   dtDominoClusterLastUpdate = Now
                 Dim myCluster As MonitoredItems.DominoMailCluster
                 Try
-                    myCluster = SelectDominoClusterToMonitor()
+                    myCluster = CType(SelectServerToMonitor(myDominoClusters), MonitoredItems.DominoMailCluster)
                 Catch ex As Exception
                     '    WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " Error initializing cluster monitoring " & ex.ToString)
                     myCluster = Nothing
@@ -102,170 +102,171 @@ ThreadSleep:
         End Try
     End Sub
 
-    Private Function SelectDominoClusterToMonitor() As MonitoredItems.DominoMailCluster
-        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Selecting a Domino Cluster for monitoring >>>>")
-        If myDominoClusters.Count = 0 Then
-            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " No clusters found. Exiting SelectDominoClusterToMonitor...")
-            Return Nothing
-            Exit Function
-        Else
-            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " Found " & myDominoClusters.Count.ToString() & " clusters", LogUtilities.LogUtils.LogLevel.Verbose)
-        End If
+    '12/12/16 WS Moved to VSServices
+    'Private Function SelectDominoClusterToMonitor() As MonitoredItems.DominoMailCluster
+    '    WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Selecting a Domino Cluster for monitoring >>>>")
+    '    If myDominoClusters.Count = 0 Then
+    '        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " No clusters found. Exiting SelectDominoClusterToMonitor...")
+    '        Return Nothing
+    '        Exit Function
+    '    Else
+    '        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " Found " & myDominoClusters.Count.ToString() & " clusters", LogUtilities.LogUtils.LogLevel.Verbose)
+    '    End If
 
-        Dim tNow As DateTime
-        tNow = Now
-        Dim tScheduled As DateTime
+    '    Dim tNow As DateTime
+    '    tNow = Now
+    '    Dim tScheduled As DateTime
 
-        Dim timeOne, timeTwo As DateTime
+    '    Dim timeOne, timeTwo As DateTime
 
-        Dim SelectedServer As MonitoredItems.DominoMailCluster
+    '    Dim SelectedServer As MonitoredItems.DominoMailCluster
 
-        Dim ServerOne As MonitoredItems.DominoMailCluster
-        Dim ServerTwo As MonitoredItems.DominoMailCluster
+    '    Dim ServerOne As MonitoredItems.DominoMailCluster
+    '    Dim ServerTwo As MonitoredItems.DominoMailCluster
 
-        Dim n As Integer
+    '    Dim n As Integer
 
-        'this for/next loop is for debug, disable later
-        '  For n = 0 To myDominoClusters.Count - 1
-        'ServerOne = myDominoClusters.Item(n)
-        '   WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " >>> " & ServerOne.Name & " scheduled for " & ServerOne.NextScan & " and status is " & ServerOne.Status)
-        '  Next
-
-
-        Dim strSQL As String = ""
-        Dim ServerType As String = "DominoCluster"
-        Dim serverName As String = ""
-
-        Try
-            strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-            Dim ds As New DataSet()
-            ds.Tables.Add("ScanASAP")
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
-
-            For Each row As DataRow In ds.Tables("ScanASAP").Rows
-                WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Found clusters to scan immediately. ", LogUtilities.LogUtils.LogLevel.Verbose)
-                Try
-                    serverName = row(0).ToString()
-                Catch ex As Exception
-                    Continue For
-                End Try
-
-                For n = 0 To myDominoClusters.Count - 1
-                    ServerOne = myDominoClusters.Item(n)
-
-                    If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-                        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-                        strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
-
-                        Return ServerOne
-                        Exit Function
-
-                    End If
-                Next
-            Next
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error executing a SQL query while selecting a Domino server... " & ex.Message)
-        End Try
+    '    'this for/next loop is for debug, disable later
+    '    '  For n = 0 To myDominoClusters.Count - 1
+    '    'ServerOne = myDominoClusters.Item(n)
+    '    '   WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " >>> " & ServerOne.Name & " scheduled for " & ServerOne.NextScan & " and status is " & ServerOne.Status)
+    '    '  Next
 
 
+    '    Dim strSQL As String = ""
+    '    Dim ServerType As String = "DominoCluster"
+    '    Dim serverName As String = ""
 
-        'Any server Not Scanned can be scanned right away.  Select the first one you encounter
-        For n = 0 To myDominoClusters.Count - 1
-            Try
-                ServerOne = myDominoClusters.Item(n)
-                If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
-                    WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                    Return ServerOne
-                    Exit Function
-                Else
-                    WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> " & ServerOne.Name & " - " & ServerOne.Status, LogUtilities.LogUtils.LogLevel.Verbose)
-                End If
-            Catch ex As Exception
-                WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error Selecting Domino server... " & ex.Message)
-            End Try
+    '    Try
+    '        strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '        Dim ds As New DataSet()
+    '        ds.Tables.Add("ScanASAP")
+    '        Dim objVSAdaptor As New VSAdaptor
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-        Next
+    '        For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Found clusters to scan immediately. ", LogUtilities.LogUtils.LogLevel.Verbose)
+    '            Try
+    '                serverName = row(0).ToString()
+    '            Catch ex As Exception
+    '                Continue For
+    '            End Try
 
-        'start with the first two servers
-        ServerOne = myDominoClusters.Item(0)
-        If myDominoClusters.Count > 1 Then ServerTwo = myDominoClusters.Item(1)
+    '            For n = 0 To myDominoClusters.Count - 1
+    '                ServerOne = myDominoClusters.Item(n)
 
-        'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-        If myDominoClusters.Count > 2 Then
-            Try
-                For n = 2 To myDominoClusters.Count - 1
-                    '             WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " N is " & n)
-                    timeOne = CDate(ServerOne.NextScan)
-                    timeTwo = CDate(ServerTwo.NextScan)
-                    If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                        'time one is earlier than time two, so keep server 1
-                        ServerTwo = myDominoClusters.Item(n)
-                    Else
-                        'time two is later than time one, so keep server 2
-                        ServerOne = myDominoClusters.Item(n)
-                    End If
-                Next
-            Catch ex As Exception
-                WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error Selecting Domino server... " & ex.Message)
-            End Try
-        Else
-            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> There are only two servers, proceeding ... ", LogUtilities.LogUtils.LogLevel.Verbose)
-        End If
+    '                If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '                    WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '                    strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-        'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+    '                    Return ServerOne
+    '                    Exit Function
 
-        'Of the two remaining servers, pick the one with earliest scheduled time for next scan
-        If Not (ServerTwo Is Nothing) Then
-            timeOne = CDate(ServerOne.NextScan)
-            timeTwo = CDate(ServerTwo.NextScan)
-            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Time 1: " & timeOne.ToShortTimeString() & ", Time 2: " & timeTwo.ToShortTimeString(), LogUtilities.LogUtils.LogLevel.Verbose)
-            If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                'time one is earlier than time two, so keep server 1
-                SelectedServer = ServerOne
-                tScheduled = CDate(ServerOne.NextScan)
-            Else
-                SelectedServer = ServerTwo
-                tScheduled = CDate(ServerTwo.NextScan)
-            End If
-            tNow = Now
-            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status, LogUtilities.LogUtils.LogLevel.Verbose)
-        Else
-            SelectedServer = ServerOne
-            tScheduled = CDate(ServerOne.NextScan)
-        End If
+    '                End If
+    '            Next
+    '        Next
 
-        tScheduled = CDate(SelectedServer.NextScan)
-        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> tScheduled: " & tScheduled.ToShortTimeString(), LogUtilities.LogUtils.LogLevel.Verbose)
-        If DateTime.Compare(tNow, tScheduled) < 0 Then
-            If SelectedServer.Status <> "Not Scanned" Then
-                WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " No Domino clusters scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-                SelectedServer = Nothing
-            Else
-                WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " selected Domino cluster: " & SelectedServer.Name & " because it has not been scanned yet.")
-            End If
-        Else
-            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " selected Domino cluster: " & SelectedServer.Name)
-        End If
+    '    Catch ex As Exception
+    '        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error executing a SQL query while selecting a Domino server... " & ex.Message)
+    '    End Try
 
-        'Release Memory
-        tNow = Nothing
-        tScheduled = Nothing
-        n = Nothing
 
-        timeOne = Nothing
-        timeTwo = Nothing
 
-        ServerOne = Nothing
-        ServerTwo = Nothing
+    '    'Any server Not Scanned can be scanned right away.  Select the first one you encounter
+    '    For n = 0 To myDominoClusters.Count - 1
+    '        Try
+    '            ServerOne = myDominoClusters.Item(n)
+    '            If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
+    '                WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '                Return ServerOne
+    '                Exit Function
+    '            Else
+    '                WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> " & ServerOne.Name & " - " & ServerOne.Status, LogUtilities.LogUtils.LogLevel.Verbose)
+    '            End If
+    '        Catch ex As Exception
+    '            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error Selecting Domino server... " & ex.Message)
+    '        End Try
 
-        'return selected server
-        SelectDominoClusterToMonitor = SelectedServer
-        'Exit Function
-        SelectedServer = Nothing
-    End Function
+    '    Next
+
+    '    'start with the first two servers
+    '    ServerOne = myDominoClusters.Item(0)
+    '    If myDominoClusters.Count > 1 Then ServerTwo = myDominoClusters.Item(1)
+
+    '    'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '    If myDominoClusters.Count > 2 Then
+    '        Try
+    '            For n = 2 To myDominoClusters.Count - 1
+    '                '             WriteDeviceHistoryEntry("All", "Domino Cluster", Now.ToString &  " N is " & n)
+    '                timeOne = CDate(ServerOne.NextScan)
+    '                timeTwo = CDate(ServerTwo.NextScan)
+    '                If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '                    'time one is earlier than time two, so keep server 1
+    '                    ServerTwo = myDominoClusters.Item(n)
+    '                Else
+    '                    'time two is later than time one, so keep server 2
+    '                    ServerOne = myDominoClusters.Item(n)
+    '                End If
+    '            Next
+    '        Catch ex As Exception
+    '            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Error Selecting Domino server... " & ex.Message)
+    '        End Try
+    '    Else
+    '        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> There are only two servers, proceeding ... ", LogUtilities.LogUtils.LogLevel.Verbose)
+    '    End If
+
+    '    'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+
+    '    'Of the two remaining servers, pick the one with earliest scheduled time for next scan
+    '    If Not (ServerTwo Is Nothing) Then
+    '        timeOne = CDate(ServerOne.NextScan)
+    '        timeTwo = CDate(ServerTwo.NextScan)
+    '        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Time 1: " & timeOne.ToShortTimeString() & ", Time 2: " & timeTwo.ToShortTimeString(), LogUtilities.LogUtils.LogLevel.Verbose)
+    '        If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '            'time one is earlier than time two, so keep server 1
+    '            SelectedServer = ServerOne
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '        Else
+    '            SelectedServer = ServerTwo
+    '            tScheduled = CDate(ServerTwo.NextScan)
+    '        End If
+    '        tNow = Now
+    '        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status, LogUtilities.LogUtils.LogLevel.Verbose)
+    '    Else
+    '        SelectedServer = ServerOne
+    '        tScheduled = CDate(ServerOne.NextScan)
+    '    End If
+
+    '    tScheduled = CDate(SelectedServer.NextScan)
+    '    WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> tScheduled: " & tScheduled.ToShortTimeString(), LogUtilities.LogUtils.LogLevel.Verbose)
+    '    If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '        If SelectedServer.Status <> "Not Scanned" Then
+    '            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " No Domino clusters scheduled for monitoring, next scan after " & SelectedServer.NextScan)
+    '            SelectedServer = Nothing
+    '        Else
+    '            WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " selected Domino cluster: " & SelectedServer.Name & " because it has not been scanned yet.")
+    '        End If
+    '    Else
+    '        WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " selected Domino cluster: " & SelectedServer.Name)
+    '    End If
+
+    '    'Release Memory
+    '    tNow = Nothing
+    '    tScheduled = Nothing
+    '    n = Nothing
+
+    '    timeOne = Nothing
+    '    timeTwo = Nothing
+
+    '    ServerOne = Nothing
+    '    ServerTwo = Nothing
+
+    '    'return selected server
+    '    SelectDominoClusterToMonitor = SelectedServer
+    '    'Exit Function
+    '    SelectedServer = Nothing
+    'End Function
 
     Private Function LockOrReleaseDominoServerForScan(ByRef ServerName As String, ByRef ClusterName As String, ByVal Release As Boolean) As Boolean
         Dim myDominoServer As MonitoredItems.DominoServer

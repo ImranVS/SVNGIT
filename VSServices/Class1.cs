@@ -25,10 +25,6 @@ namespace RPRWyatt.VitalSigns.Services
 
 		protected override void OnStart(string[] args)
 		{
-            
-            LogUtils utils = new LogUtils();
-			ServiceOnStart(args);
-
             try
             {
                 connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
@@ -37,6 +33,11 @@ namespace RPRWyatt.VitalSigns.Services
             {
                 LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + " Error getting the conneciton string. Error : " + ex.Message, "VSServices.txt", LogUtils.LogLevel.Normal);
             }
+
+            LogUtils utils = new LogUtils();
+			ServiceOnStart(args);
+
+            
 
         }
 
@@ -244,9 +245,105 @@ namespace RPRWyatt.VitalSigns.Services
             }
 		}
 
+        public static MonitoredItems.MonitoredDevice SelectServerToMonitor(MonitoredItems.MonitoredDevicesCollection collection)
+        {
+            DateTime tNow = DateTime.Now;
+            MonitoredItems.MonitoredDevice SelectedServer = null;
+            VSFramework.RegistryHandler myRegistry = new VSFramework.RegistryHandler();
 
+            //Look for ScanNow's
+            try
+            {
 
-    
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(connectionString);
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.ScanNow, true) &
+                    repository.Filter.Eq(x => x.DeviceType, collection.get_Item(0).ServerType);
+                List<VSNext.Mongo.Entities.Server> list = repository.Find(filterDef).ToList();
+                if (list.Count > 0)
+                {
+                    for (int i = 0; i < list.Count(); i++)
+                    {
+                        SelectedServer = collection.FindByObjectId(list[i].Id);
+                        if (SelectedServer != null)
+                            break;
+                    }
+                    if (SelectedServer != null)
+                    {
+                        filterDef = repository.Filter.Eq(x => x.Id, list[0].Id);
+                        UpdateDefinition<VSNext.Mongo.Entities.Server> updateDef = repository.Updater.Set(x => x.ScanNow, false);
+                        repository.Update(filterDef, updateDef);
+                        return SelectedServer;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            //Scans not scanned servers
+            try
+            {
+                foreach (MonitoredItems.MonitoredDevice server in collection)
+                {
+                    if (server.Status == "Not Scanned" && server.Enabled == true && server.IsBeingScanned == false)
+                    {
+                        LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " >>> Selecting " + server.Name + " because the status is " + server.Status, LogUtils.LogLevel.Verbose);
+                        return server;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            //Scans not responding server
+            try
+            {
+                foreach (MonitoredItems.MonitoredDevice server in collection)
+                {
+                    if (server.Status == "Not Responding" && server.Enabled == true && server.IsBeingScanned == false)
+                    {
+                        if(DateTime.Compare(tNow, server.NextScan) > 0)
+                        {
+                            LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " >>> Selecting " + server.Name + " because status is " + server.Status + ".  Next scheduled scan is " + server.NextScan.ToShortTimeString());
+                            return server;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            MonitoredItems.MonitoredDevicesCollection ScanCanidates = new MonitoredItems.MonitoredDevicesCollection();
+            foreach(MonitoredItems.MonitoredDevice server in collection)
+            {
+                if(server.IsBeingScanned == false && server.Enabled == true)
+                {
+                    tNow = DateTime.Now;
+                    if(DateTime.Compare(tNow, server.NextScan) > 0)
+                    {
+                        ScanCanidates.Add(server);
+                    }
+                }
+            }
+
+            if(ScanCanidates.Count == 0)
+            {
+                Thread.Sleep(10000);
+                return null;
+            }
+
+            //Returns the server that is the most overdue
+            tNow = DateTime.Now;
+            return ScanCanidates.Cast<MonitoredItems.MonitoredDevice>().OrderBy(x => x.NextScan).ToList()[0];
+
+        }
+
         public static Boolean UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType ServerType, String NodeName)
         {
 

@@ -936,7 +936,7 @@ Cleanup:
 
             Try
                 DominoSelector_Mutex.WaitOne()
-                myServer = SelectDominoServerToMonitor()
+                myServer = CType(SelectServerToMonitor(MyDominoServers), MonitoredItems.DominoServer)
                 If Not (myServer Is Nothing) Then
                     myServer.IsBeingScanned = True
                     myServer.LastScan = Now
@@ -1253,231 +1253,231 @@ WaitHere:
         dll.W32_NotesTermThread()
     End Sub
 
+    '12/12/16 WS Moved to VSServices
+    'Private Function SelectDominoServerToMonitor() As MonitoredItems.DominoServer
+    '    ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Selecting a Domino Server for monitoring >>>>")
+    '    Dim tNow As DateTime
+    '    tNow = Now
+    '    Dim tScheduled As DateTime
 
-    Private Function SelectDominoServerToMonitor() As MonitoredItems.DominoServer
-        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Selecting a Domino Server for monitoring >>>>")
-        Dim tNow As DateTime
-        tNow = Now
-        Dim tScheduled As DateTime
+    '    Dim timeOne, timeTwo As DateTime
 
-        Dim timeOne, timeTwo As DateTime
+    '    Dim SelectedServer As MonitoredItems.DominoServer
 
-        Dim SelectedServer As MonitoredItems.DominoServer
+    '    Dim ServerOne As MonitoredItems.DominoServer
+    '    Dim ServerTwo As MonitoredItems.DominoServer
+    '    Dim myRegistry As New RegistryHandler
 
-        Dim ServerOne As MonitoredItems.DominoServer
-        Dim ServerTwo As MonitoredItems.DominoServer
-        Dim myRegistry As New RegistryHandler
+    '    Dim strSQL As String = ""
+    '    Dim ServerType As String = "Domino"
+    '    Dim serverName As String = ""
+    '    Dim n As Integer
 
-        Dim strSQL As String = ""
-        Dim ServerType As String = "Domino"
-        Dim serverName As String = ""
-        Dim n As Integer
+    '    Try
+    '        strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '        Dim ds As New DataSet()
+    '        ds.Tables.Add("ScanASAP")
+    '        Dim objVSAdaptor As New VSAdaptor
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-        Try
-            strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-            Dim ds As New DataSet()
-            ds.Tables.Add("ScanASAP")
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+    '        For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '            Try
+    '                serverName = row(0).ToString()
+    '            Catch ex As Exception
+    '                Continue For
+    '            End Try
 
-            For Each row As DataRow In ds.Tables("ScanASAP").Rows
-                Try
-                    serverName = row(0).ToString()
-                Catch ex As Exception
-                    Continue For
-                End Try
+    '            For n = 0 To MyDominoServers.Count - 1
+    '                ServerOne = MyDominoServers.Item(n)
 
-                For n = 0 To MyDominoServers.Count - 1
-                    ServerOne = MyDominoServers.Item(n)
+    '                If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '                    WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '                    strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-                    If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-                        WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-                        strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+    '                    Return ServerOne
+    '                    Exit Function
 
-                        Return ServerOne
-                        Exit Function
+    '                End If
+    '            Next
+    '        Next
 
-                    End If
-                Next
-            Next
+    '    Catch ex As Exception
 
-        Catch ex As Exception
-
-        End Try
-
-
-        'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-        For n = 0 To MyDominoServers.Count - 1
-            ServerOne = MyDominoServers.Item(n)
-            If ServerOne.Status = "Not Scanned" And ServerOne.Enabled = True And ServerOne.Traveler_Server = True And ServerOne.IsBeingScanned = False Then
-                WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because it is a Traveler server and the status is " & ServerOne.Status)
-                ' ServerOne.IsBeingScanned = True
-                Return ServerOne
-                Exit Function
-            End If
-        Next
+    '    End Try
 
 
-        'Any server Not Responding that is due for a scan should be scanned right away.  Select the first one you encounter
-        For n = 0 To MyDominoServers.Count - 1
-            ServerOne = MyDominoServers.Item(n)
-            If ServerOne.Status = "Not Responding" And ServerOne.Enabled = True And ServerOne.IsBeingScanned = False Then
-                tScheduled = CDate(ServerOne.NextScan)
-                If DateTime.Compare(tNow, tScheduled) > 0 Then
-                    WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status & ".  Next scheduled scan is " & tScheduled.ToShortTimeString)
-                    ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                    'ServerOne.IsBeingScanned = True
-                    Return ServerOne
-                    Exit Function
-                Else
-                    ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & ServerOne.Name & " is down, but not yet due to be re-scanned until " & ServerOne.NextScan)
-                End If
-            End If
-        Next
-
-        'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-        For n = 0 To MyDominoServers.Count - 1
-            ServerOne = MyDominoServers.Item(n)
-            If ServerOne.Status = "Not Scanned" And ServerOne.Enabled = True And ServerOne.IsBeingScanned = False Then
-                WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                ' ServerOne.IsBeingScanned = True
-                Return ServerOne
-                Exit Function
-            End If
-        Next
+    '    'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To MyDominoServers.Count - 1
+    '        ServerOne = MyDominoServers.Item(n)
+    '        If ServerOne.Status = "Not Scanned" And ServerOne.Enabled = True And ServerOne.Traveler_Server = True And ServerOne.IsBeingScanned = False Then
+    '            WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because it is a Traveler server and the status is " & ServerOne.Status)
+    '            ' ServerOne.IsBeingScanned = True
+    '            Return ServerOne
+    '            Exit Function
+    '        End If
+    '    Next
 
 
-        Dim ScanCandidates As New MonitoredItems.DominoCollection
-        For Each srv As MonitoredItems.DominoServer In MyDominoServers
-            'WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & srv.Name & " scan status: " & srv.IsBeingScanned)
-            If srv.IsBeingScanned = False And srv.Enabled = True Then
-                tNow = Now
-                tScheduled = srv.NextScan
-                If DateTime.Compare(tNow, tScheduled) > 0 Then
-                    ScanCandidates.Add(srv)
-                End If
+    '    'Any server Not Responding that is due for a scan should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To MyDominoServers.Count - 1
+    '        ServerOne = MyDominoServers.Item(n)
+    '        If ServerOne.Status = "Not Responding" And ServerOne.Enabled = True And ServerOne.IsBeingScanned = False Then
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '            If DateTime.Compare(tNow, tScheduled) > 0 Then
+    '                WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status & ".  Next scheduled scan is " & tScheduled.ToShortTimeString)
+    '                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '                'ServerOne.IsBeingScanned = True
+    '                Return ServerOne
+    '                Exit Function
+    '            Else
+    '                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & ServerOne.Name & " is down, but not yet due to be re-scanned until " & ServerOne.NextScan)
+    '            End If
+    '        End If
+    '    Next
 
-                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & srv.Name & " is not being scanned.")
-            End If
-        Next
-        ' WriteDeviceHistoryEntry("All", "Selection", vbCrLf & vbCrLf)
-
-
-        If ScanCandidates.Count = 0 Then
-            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " No servers are due to be scanned exiting sub.")
-            ' WriteDeviceHistoryEntry("All", "Selection", " ")
-            Thread.Sleep(10000)
-            Return Nothing
-        Else
-            ' WriteDeviceHistoryEntry("All", "Selection", vbCrLf & vbCrLf)
-            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " *********** Scan Candidates *************")
-            For Each srv As MonitoredItems.DominoServer In ScanCandidates
-                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & srv.Name & " was last scanned at " & srv.LastScan & "   Scheduled Scan: " & srv.NextScan)
-            Next
-        End If
-
-        '*****************
-
-        'start with the first two servers
-        ServerOne = ScanCandidates.Item(0)
-        ServerTwo = ScanCandidates.Item(0)
-        If ScanCandidates.Count > 1 Then ServerTwo = ScanCandidates.Item(1)
-
-        Try
-            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Finding which server is the most overdue to be monitored.")
-            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Server One is  " & ServerOne.Name & ", due to be scanned " & ServerOne.NextScan)
-            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Server Two " & ServerTwo.Name & ", due to be scanned " & ServerTwo.NextScan)
-        Catch ex As Exception
-        End Try
+    '    'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To MyDominoServers.Count - 1
+    '        ServerOne = MyDominoServers.Item(n)
+    '        If ServerOne.Status = "Not Scanned" And ServerOne.Enabled = True And ServerOne.IsBeingScanned = False Then
+    '            WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '            ' ServerOne.IsBeingScanned = True
+    '            Return ServerOne
+    '            Exit Function
+    '        End If
+    '    Next
 
 
-        'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-        If ScanCandidates.Count > 2 Then
-            Try
-                For n = 2 To ScanCandidates.Count - 1
-                    '           WriteAuditEntry(Now.ToString & " N is " & n)
-                    timeOne = CDate(ServerOne.NextScan)
-                    timeTwo = CDate(ServerTwo.NextScan)
-                    If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                        'time one is earlier than time two, so keep server 1
-                        WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & ServerOne.Name & " is more overdue ")
-                        ServerTwo = ScanCandidates.Item(n)
-                    Else
-                        'time two is later than time one, so keep server 2
-                        ServerOne = ScanCandidates.Item(n)
-                        WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & ServerTwo.Name & " is more overdue ")
-                    End If
+    '    Dim ScanCandidates As New MonitoredItems.DominoCollection
+    '    For Each srv As MonitoredItems.DominoServer In MyDominoServers
+    '        'WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & srv.Name & " scan status: " & srv.IsBeingScanned)
+    '        If srv.IsBeingScanned = False And srv.Enabled = True Then
+    '            tNow = Now
+    '            tScheduled = srv.NextScan
+    '            If DateTime.Compare(tNow, tScheduled) > 0 Then
+    '                ScanCandidates.Add(srv)
+    '            End If
 
-                    ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Server One is  " & ServerOne.Name & ", due to be scanned " & ServerOne.NextScan)
-                    ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Server Two " & ServerTwo.Name & ", due to be scanned " & ServerTwo.NextScan)
-
-                Next
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " >>> Error Selecting Domino server... " & ex.Message)
-            End Try
-        Else
-            'There were only two server, so use those going forward
-        End If
-
-        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
-
-        'Of the two remaining servers, pick the one with earliest scheduled time for next scan
-        If Not (ServerTwo Is Nothing) Then
-            timeOne = CDate(ServerOne.NextScan)
-            timeTwo = CDate(ServerTwo.NextScan)
-
-            If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                'time one is earlier than time two, so keep server 1
-                SelectedServer = ServerOne
-                tScheduled = CDate(ServerOne.NextScan)
-            Else
-                SelectedServer = ServerTwo
-                tScheduled = CDate(ServerTwo.NextScan)
-            End If
-            tNow = Now
-            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " due to be scanned at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
-        Else
-            SelectedServer = ServerOne
-            tScheduled = CDate(ServerOne.NextScan)
-        End If
-
-        tScheduled = CDate(SelectedServer.NextScan)
-        If DateTime.Compare(tNow, tScheduled) < 0 Then
-            If SelectedServer.Status <> "Not Scanned" Then
-                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-                SelectedServer = Nothing
-            Else
-                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Selected Domino server: " & SelectedServer.Name & " because it has not been scanned yet.")
-            End If
-        Else
-            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Selected Domino server: " & SelectedServer.Name)
-            Dim mySpan As TimeSpan = tNow - tScheduled
-            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & mySpan.TotalSeconds & " seconds after schedule.")
-        End If
-
-        '**************
-
-        'Release Memory
-        tNow = Nothing
-        tScheduled = Nothing
-        n = Nothing
-
-        timeOne = Nothing
-        timeTwo = Nothing
-
-        ServerOne = Nothing
-        ServerTwo = Nothing
-
-        'return selected server
-        ' SelectedServer.IsBeingScanned = True
-        SelectDominoServerToMonitor = SelectedServer
+    '            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & srv.Name & " is not being scanned.")
+    '        End If
+    '    Next
+    '    ' WriteDeviceHistoryEntry("All", "Selection", vbCrLf & vbCrLf)
 
 
-        'Exit Function
-        SelectedServer = Nothing
-    End Function
+    '    If ScanCandidates.Count = 0 Then
+    '        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " No servers are due to be scanned exiting sub.")
+    '        ' WriteDeviceHistoryEntry("All", "Selection", " ")
+    '        Thread.Sleep(10000)
+    '        Return Nothing
+    '    Else
+    '        ' WriteDeviceHistoryEntry("All", "Selection", vbCrLf & vbCrLf)
+    '        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " *********** Scan Candidates *************")
+    '        For Each srv As MonitoredItems.DominoServer In ScanCandidates
+    '            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & srv.Name & " was last scanned at " & srv.LastScan & "   Scheduled Scan: " & srv.NextScan)
+    '        Next
+    '    End If
+
+    '    '*****************
+
+    '    'start with the first two servers
+    '    ServerOne = ScanCandidates.Item(0)
+    '    ServerTwo = ScanCandidates.Item(0)
+    '    If ScanCandidates.Count > 1 Then ServerTwo = ScanCandidates.Item(1)
+
+    '    Try
+    '        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Finding which server is the most overdue to be monitored.")
+    '        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Server One is  " & ServerOne.Name & ", due to be scanned " & ServerOne.NextScan)
+    '        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Server Two " & ServerTwo.Name & ", due to be scanned " & ServerTwo.NextScan)
+    '    Catch ex As Exception
+    '    End Try
+
+
+    '    'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '    If ScanCandidates.Count > 2 Then
+    '        Try
+    '            For n = 2 To ScanCandidates.Count - 1
+    '                '           WriteAuditEntry(Now.ToString & " N is " & n)
+    '                timeOne = CDate(ServerOne.NextScan)
+    '                timeTwo = CDate(ServerTwo.NextScan)
+    '                If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '                    'time one is earlier than time two, so keep server 1
+    '                    WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & ServerOne.Name & " is more overdue ")
+    '                    ServerTwo = ScanCandidates.Item(n)
+    '                Else
+    '                    'time two is later than time one, so keep server 2
+    '                    ServerOne = ScanCandidates.Item(n)
+    '                    WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & ServerTwo.Name & " is more overdue ")
+    '                End If
+
+    '                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Server One is  " & ServerOne.Name & ", due to be scanned " & ServerOne.NextScan)
+    '                ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Server Two " & ServerTwo.Name & ", due to be scanned " & ServerTwo.NextScan)
+
+    '            Next
+    '        Catch ex As Exception
+    '            WriteAuditEntry(Now.ToString & " >>> Error Selecting Domino server... " & ex.Message)
+    '        End Try
+    '    Else
+    '        'There were only two server, so use those going forward
+    '    End If
+
+    '    ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+
+    '    'Of the two remaining servers, pick the one with earliest scheduled time for next scan
+    '    If Not (ServerTwo Is Nothing) Then
+    '        timeOne = CDate(ServerOne.NextScan)
+    '        timeTwo = CDate(ServerTwo.NextScan)
+
+    '        If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '            'time one is earlier than time two, so keep server 1
+    '            SelectedServer = ServerOne
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '        Else
+    '            SelectedServer = ServerTwo
+    '            tScheduled = CDate(ServerTwo.NextScan)
+    '        End If
+    '        tNow = Now
+    '        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " due to be scanned at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
+    '    Else
+    '        SelectedServer = ServerOne
+    '        tScheduled = CDate(ServerOne.NextScan)
+    '    End If
+
+    '    tScheduled = CDate(SelectedServer.NextScan)
+    '    If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '        If SelectedServer.Status <> "Not Scanned" Then
+    '            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
+    '            SelectedServer = Nothing
+    '        Else
+    '            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Selected Domino server: " & SelectedServer.Name & " because it has not been scanned yet.")
+    '        End If
+    '    Else
+    '        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " Selected Domino server: " & SelectedServer.Name)
+    '        Dim mySpan As TimeSpan = tNow - tScheduled
+    '        ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & mySpan.TotalSeconds & " seconds after schedule.")
+    '    End If
+
+    '    '**************
+
+    '    'Release Memory
+    '    tNow = Nothing
+    '    tScheduled = Nothing
+    '    n = Nothing
+
+    '    timeOne = Nothing
+    '    timeTwo = Nothing
+
+    '    ServerOne = Nothing
+    '    ServerTwo = Nothing
+
+    '    'return selected server
+    '    ' SelectedServer.IsBeingScanned = True
+    '    SelectDominoServerToMonitor = SelectedServer
+
+
+    '    'Exit Function
+    '    SelectedServer = Nothing
+    'End Function
 
     Private Sub QueryDominoServer(ByRef MyDominoServer As MonitoredItems.DominoServer)
         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, vbCrLf & Now.ToString & " -------------------------------------------------")

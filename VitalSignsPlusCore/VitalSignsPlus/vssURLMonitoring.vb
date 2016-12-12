@@ -19,7 +19,7 @@ Partial Public Class VitalSignsPlusCore
             WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " >>> Top of URL monitoring loop.")
             Try
                 URLSelector_Mutex.WaitOne()
-                myURL = SelectURLToMonitor()
+                myURL = CType(SelectServerToMonitor(MyURLs), MonitoredItems.URL)
 
             Catch ex As Exception
                 myURL = Nothing
@@ -381,208 +381,208 @@ Update:
 
     End Sub
 
+    '12/12/16WS Moved to VSServices
+    'Private Function SelectURLToMonitor() As MonitoredItems.URL
+    '    ' WriteDeviceHistoryEntry("All", "URL_Performance", " Selecting a URL to monitor.")
+    '    Dim tNow As DateTime
+    '    tNow = Now
+    '    Dim tScheduled As DateTime
 
-    Private Function SelectURLToMonitor() As MonitoredItems.URL
-        ' WriteDeviceHistoryEntry("All", "URL_Performance", " Selecting a URL to monitor.")
-        Dim tNow As DateTime
-        tNow = Now
-        Dim tScheduled As DateTime
+    '    Dim timeOne, timeTwo As DateTime
 
-        Dim timeOne, timeTwo As DateTime
+    '    Dim SelectedServer As MonitoredItems.URL
 
-        Dim SelectedServer As MonitoredItems.URL
+    '    Dim ServerOne As MonitoredItems.URL
+    '    Dim ServerTwo As MonitoredItems.URL
+    '    Dim myRegistry As New RegistryHandler
 
-        Dim ServerOne As MonitoredItems.URL
-        Dim ServerTwo As MonitoredItems.URL
-        Dim myRegistry As New RegistryHandler
+    '    Dim n As Integer
+    '    Dim strSQL As String = ""
+    '    Dim ServerType As String = "URL"
+    '    Dim serverName As String = ""
 
-        Dim n As Integer
-        Dim strSQL As String = ""
-        Dim ServerType As String = "URL"
-        Dim serverName As String = ""
+    '    Try
+    '        strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '        Dim ds As New DataSet()
+    '        ds.Tables.Add("ScanASAP")
+    '        Dim objVSAdaptor As New VSAdaptor
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-        Try
-            strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-            Dim ds As New DataSet()
-            ds.Tables.Add("ScanASAP")
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+    '        For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '            Try
+    '                serverName = row(0).ToString()
+    '            Catch ex As Exception
+    '                Continue For
+    '            End Try
 
-            For Each row As DataRow In ds.Tables("ScanASAP").Rows
-                Try
-                    serverName = row(0).ToString()
-                Catch ex As Exception
-                    Continue For
-                End Try
+    '            For n = 0 To MyURLs.Count - 1
+    '                ServerOne = MyURLs.Item(n)
 
-                For n = 0 To MyURLs.Count - 1
-                    ServerOne = MyURLs.Item(n)
+    '                If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '                    'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '                    strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-                    If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-                        'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-                        strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+    '                    Return ServerOne
+    '                    Exit Function
 
-                        Return ServerOne
-                        Exit Function
+    '                End If
+    '            Next
+    '        Next
 
-                    End If
-                Next
-            Next
+    '    Catch ex As Exception
 
-        Catch ex As Exception
-
-        End Try
-
-
-
-        'Any server Not Responding that is due for a scan should be scanned right away.  Select the first one you encounter
-        For n = 0 To MyURLs.Count - 1
-            ServerOne = MyURLs.Item(n)
-            If ServerOne.Status = "Not Responding" And ServerOne.Enabled = True And ServerOne.IsBeingScanned = False Then
-                tScheduled = CDate(ServerOne.NextScan)
-                If DateTime.Compare(tNow, tScheduled) > 0 Then
-                    WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status & ".  Next scheduled scan is " & tScheduled.ToShortTimeString)
-                    'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                    'ServerOne.IsBeingScanned = True
-                    Return ServerOne
-                    Exit Function
-                Else
-                    'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " " & ServerOne.Name & " is down, but not yet due to be re-scanned.")
-                End If
-            End If
-        Next
-
-        'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-        For n = 0 To MyURLs.Count - 1
-            ServerOne = MyURLs.Item(n)
-            If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." And ServerOne.Enabled = True And ServerOne.IsBeingScanned = False Then
-                ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                ' ServerOne.IsBeingScanned = True
-                Return ServerOne
-                Exit Function
-            End If
-        Next
+    '    End Try
 
 
-        Dim ScanCandidates As New MonitoredItems.URLCollection
-        For Each srv As MonitoredItems.URL In MyURLs
-            If srv.IsBeingScanned = False And srv.Enabled = True Then
-                ScanCandidates.Add(srv)
-                ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " " & srv.Name & " is not being scanned.")
-            Else
-                ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " " & srv.Name & " is being scanned.")
-            End If
-        Next
-        ' WriteDeviceHistoryEntry("All", "URL_Performance", vbCrLf & vbCrLf)
-        ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " *********** Scan Candidates *************")
-        For Each srv As MonitoredItems.URL In ScanCandidates
-            ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " " & srv.Name & " is a candidate to be scanned.  Last scan: " & srv.LastScan)
-        Next
 
-        If ScanCandidates.Count = 0 Then
-            ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " All servers are already being scanned, exiting sub.")
-            Return Nothing
-        End If
+    '    'Any server Not Responding that is due for a scan should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To MyURLs.Count - 1
+    '        ServerOne = MyURLs.Item(n)
+    '        If ServerOne.Status = "Not Responding" And ServerOne.Enabled = True And ServerOne.IsBeingScanned = False Then
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '            If DateTime.Compare(tNow, tScheduled) > 0 Then
+    '                WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status & ".  Next scheduled scan is " & tScheduled.ToShortTimeString)
+    '                'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '                'ServerOne.IsBeingScanned = True
+    '                Return ServerOne
+    '                Exit Function
+    '            Else
+    '                'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " " & ServerOne.Name & " is down, but not yet due to be re-scanned.")
+    '            End If
+    '        End If
+    '    Next
 
-        '*****************
-
-        'start with the first two servers
-        ServerOne = ScanCandidates.Item(0)
-        ServerOne = ScanCandidates.Item(0)
-        If ScanCandidates.Count > 1 Then ServerTwo = ScanCandidates.Item(1)
-
-        Try
-            'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Finding which server is the most overdue to be monitored.")
-            'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Server One is  " & ServerOne.Name & ", due to be scanned " & ServerOne.NextScan)
-            'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Server Two " & ServerTwo.Name & ", due to be scanned " & ServerTwo.NextScan)
-        Catch ex As Exception
-        End Try
+    '    'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To MyURLs.Count - 1
+    '        ServerOne = MyURLs.Item(n)
+    '        If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." And ServerOne.Enabled = True And ServerOne.IsBeingScanned = False Then
+    '            ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '            ' ServerOne.IsBeingScanned = True
+    '            Return ServerOne
+    '            Exit Function
+    '        End If
+    '    Next
 
 
-        'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-        If ScanCandidates.Count > 2 Then
-            Try
-                For n = 2 To ScanCandidates.Count - 1
-                    '           WriteAuditEntry(Now.ToString & " N is " & n)
-                    timeOne = CDate(ServerOne.NextScan)
-                    timeTwo = CDate(ServerTwo.NextScan)
-                    If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                        'time one is earlier than time two, so keep server 1
-                        'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " " & ServerOne.Name & " is more overdue ")
-                        ServerTwo = ScanCandidates.Item(n)
-                    Else
-                        'time two is later than time one, so keep server 2
-                        ServerOne = ScanCandidates.Item(n)
-                        'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " " & ServerTwo.Name & " is more overdue ")
-                    End If
+    '    Dim ScanCandidates As New MonitoredItems.URLCollection
+    '    For Each srv As MonitoredItems.URL In MyURLs
+    '        If srv.IsBeingScanned = False And srv.Enabled = True Then
+    '            ScanCandidates.Add(srv)
+    '            ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " " & srv.Name & " is not being scanned.")
+    '        Else
+    '            ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " " & srv.Name & " is being scanned.")
+    '        End If
+    '    Next
+    '    ' WriteDeviceHistoryEntry("All", "URL_Performance", vbCrLf & vbCrLf)
+    '    ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " *********** Scan Candidates *************")
+    '    For Each srv As MonitoredItems.URL In ScanCandidates
+    '        ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " " & srv.Name & " is a candidate to be scanned.  Last scan: " & srv.LastScan)
+    '    Next
 
-                    'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Server One is  " & ServerOne.Name & ", due to be scanned " & ServerOne.NextScan)
-                    'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Server Two " & ServerTwo.Name & ", due to be scanned " & ServerTwo.NextScan)
+    '    If ScanCandidates.Count = 0 Then
+    '        ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " All servers are already being scanned, exiting sub.")
+    '        Return Nothing
+    '    End If
 
-                Next
-            Catch ex As Exception
-                ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " >>> Error Selecting URL server... " & ex.Message)
-            End Try
-        Else
-            'There were only two server, so use those going forward
-        End If
+    '    '*****************
 
-        'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+    '    'start with the first two servers
+    '    ServerOne = ScanCandidates.Item(0)
+    '    ServerOne = ScanCandidates.Item(0)
+    '    If ScanCandidates.Count > 1 Then ServerTwo = ScanCandidates.Item(1)
 
-        'Of the two remaining servers, pick the one with earliest scheduled time for next scan
-        If Not (ServerTwo Is Nothing) Then
-            timeOne = CDate(ServerOne.NextScan)
-            timeTwo = CDate(ServerTwo.NextScan)
-
-            If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                'time one is earlier than time two, so keep server 1
-                SelectedServer = ServerOne
-                tScheduled = CDate(ServerOne.NextScan)
-            Else
-                SelectedServer = ServerTwo
-                tScheduled = CDate(ServerTwo.NextScan)
-            End If
-            tNow = Now
-            'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
-        Else
-            SelectedServer = ServerOne
-            tScheduled = CDate(ServerOne.NextScan)
-        End If
-
-        tScheduled = CDate(SelectedServer.NextScan)
-        If DateTime.Compare(tNow, tScheduled) < 0 Then
-            If SelectedServer.Status <> "Not Scanned" Then
-                'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-                SelectedServer = Nothing
-            Else
-                ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " selected URL server: " & SelectedServer.Name & " because it has not been scanned yet.")
-            End If
-        Else
-            'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " selected Domino server: " & SelectedServer.Name)
-        End If
-
-        '**************
-
-        'Release Memory
-        tNow = Nothing
-        tScheduled = Nothing
-        n = Nothing
-
-        timeOne = Nothing
-        timeTwo = Nothing
-
-        ServerOne = Nothing
-        ServerTwo = Nothing
-
-        'return selected server
-        ' SelectedServer.IsBeingScanned = True
-        SelectURLToMonitor = SelectedServer
+    '    Try
+    '        'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Finding which server is the most overdue to be monitored.")
+    '        'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Server One is  " & ServerOne.Name & ", due to be scanned " & ServerOne.NextScan)
+    '        'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Server Two " & ServerTwo.Name & ", due to be scanned " & ServerTwo.NextScan)
+    '    Catch ex As Exception
+    '    End Try
 
 
-        'Exit Function
-        SelectedServer = Nothing
-    End Function
+    '    'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '    If ScanCandidates.Count > 2 Then
+    '        Try
+    '            For n = 2 To ScanCandidates.Count - 1
+    '                '           WriteAuditEntry(Now.ToString & " N is " & n)
+    '                timeOne = CDate(ServerOne.NextScan)
+    '                timeTwo = CDate(ServerTwo.NextScan)
+    '                If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '                    'time one is earlier than time two, so keep server 1
+    '                    'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " " & ServerOne.Name & " is more overdue ")
+    '                    ServerTwo = ScanCandidates.Item(n)
+    '                Else
+    '                    'time two is later than time one, so keep server 2
+    '                    ServerOne = ScanCandidates.Item(n)
+    '                    'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " " & ServerTwo.Name & " is more overdue ")
+    '                End If
+
+    '                'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Server One is  " & ServerOne.Name & ", due to be scanned " & ServerOne.NextScan)
+    '                'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " Server Two " & ServerTwo.Name & ", due to be scanned " & ServerTwo.NextScan)
+
+    '            Next
+    '        Catch ex As Exception
+    '            ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " >>> Error Selecting URL server... " & ex.Message)
+    '        End Try
+    '    Else
+    '        'There were only two server, so use those going forward
+    '    End If
+
+    '    'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+
+    '    'Of the two remaining servers, pick the one with earliest scheduled time for next scan
+    '    If Not (ServerTwo Is Nothing) Then
+    '        timeOne = CDate(ServerOne.NextScan)
+    '        timeTwo = CDate(ServerTwo.NextScan)
+
+    '        If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '            'time one is earlier than time two, so keep server 1
+    '            SelectedServer = ServerOne
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '        Else
+    '            SelectedServer = ServerTwo
+    '            tScheduled = CDate(ServerTwo.NextScan)
+    '        End If
+    '        tNow = Now
+    '        'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
+    '    Else
+    '        SelectedServer = ServerOne
+    '        tScheduled = CDate(ServerOne.NextScan)
+    '    End If
+
+    '    tScheduled = CDate(SelectedServer.NextScan)
+    '    If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '        If SelectedServer.Status <> "Not Scanned" Then
+    '            'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
+    '            SelectedServer = Nothing
+    '        Else
+    '            ' WriteDeviceHistoryEntry("All", "URL_Performance", Now.ToString & " selected URL server: " & SelectedServer.Name & " because it has not been scanned yet.")
+    '        End If
+    '    Else
+    '        'WriteDeviceHistoryEntry("All", "Selection",Now.ToString & " selected Domino server: " & SelectedServer.Name)
+    '    End If
+
+    '    '**************
+
+    '    'Release Memory
+    '    tNow = Nothing
+    '    tScheduled = Nothing
+    '    n = Nothing
+
+    '    timeOne = Nothing
+    '    timeTwo = Nothing
+
+    '    ServerOne = Nothing
+    '    ServerTwo = Nothing
+
+    '    'return selected server
+    '    ' SelectedServer.IsBeingScanned = True
+    '    SelectURLToMonitor = SelectedServer
+
+
+    '    'Exit Function
+    '    SelectedServer = Nothing
+    'End Function
 
 
     Public Sub URLResponseTimeChilkat(ByRef myURL As MonitoredItems.URL)

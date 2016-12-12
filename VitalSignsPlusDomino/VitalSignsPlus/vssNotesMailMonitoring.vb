@@ -32,7 +32,7 @@ Partial Public Class VitalSignsPlusDomino
         WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Selecting a NotesMail Probe to monitor ***")
 
         Try
-            MyNotesMailProbe = SelectNotesMailToMonitor()
+            MyNotesMailProbe = CType(SelectServerToMonitor(MyNotesMailProbes), MonitoredItems.DominoMailProbe)
             WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Selected " & MyNotesMailProbe.Name)
         Catch ex As Exception
             ' WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Exception selecting NotesMail Probe " & ex.ToString)
@@ -149,194 +149,195 @@ Partial Public Class VitalSignsPlusDomino
 		GC.Collect()
 	End Sub
 
-	Private Function SelectNotesMailToMonitor() As MonitoredItems.DominoMailProbe
-		WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Selecting a NotesMail Probe for monitoring >>>>", LogLevel.Verbose)
-		Dim tNow As DateTime
-		tNow = Now
-		Dim tScheduled As DateTime
+    '12/12/16 WS Moved to VSServices
+    'Private Function SelectNotesMailToMonitor() As MonitoredItems.DominoMailProbe
+    '	WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Selecting a NotesMail Probe for monitoring >>>>", LogLevel.Verbose)
+    '	Dim tNow As DateTime
+    '	tNow = Now
+    '	Dim tScheduled As DateTime
 
-		Dim timeOne, timeTwo As DateTime
+    '	Dim timeOne, timeTwo As DateTime
 
-		' Dim myDevice As MonitoredItems.DominoMailProbe
-		Dim SelectedMailProbe As MonitoredItems.DominoMailProbe
+    '	' Dim myDevice As MonitoredItems.DominoMailProbe
+    '	Dim SelectedMailProbe As MonitoredItems.DominoMailProbe
 
-		Dim MailProbeOne As MonitoredItems.DominoMailProbe
-		Dim MailProbeTwo As MonitoredItems.DominoMailProbe
+    '	Dim MailProbeOne As MonitoredItems.DominoMailProbe
+    '	Dim MailProbeTwo As MonitoredItems.DominoMailProbe
 
-		Dim myRegistry As New RegistryHandler
-		Dim n As Integer
+    '	Dim myRegistry As New RegistryHandler
+    '	Dim n As Integer
 
-		'this for/next loop is for debug, disable later
-		WriteDeviceHistoryEntry("All", "NotesMail Probes", vbCrLf & vbCrLf)
-        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " ********  Scan candidates ********")
+    '	'this for/next loop is for debug, disable later
+    '	WriteDeviceHistoryEntry("All", "NotesMail Probes", vbCrLf & vbCrLf)
+    '       WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " ********  Scan candidates ********")
 
-        Try
-            For n = 0 To MyNotesMailProbes.Count - 1
-                MailProbeOne = MyNotesMailProbes.Item(n)
-                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> " & MailProbeOne.Name & " scheduled for " & MailProbeOne.NextScan & " and status is " & MailProbeOne.Status, LogLevel.Verbose)
-            Next
-        Catch ex As Exception
+    '       Try
+    '           For n = 0 To MyNotesMailProbes.Count - 1
+    '               MailProbeOne = MyNotesMailProbes.Item(n)
+    '               WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> " & MailProbeOne.Name & " scheduled for " & MailProbeOne.NextScan & " and status is " & MailProbeOne.Status, LogLevel.Verbose)
+    '           Next
+    '       Catch ex As Exception
 
-		End Try
-
-
-		Dim strSQL As String = ""
-		Dim ServerType As String = "NotesMailProbe"
-		Dim serverName As String = ""
-
-		Try
-			strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-			Dim ds As New DataSet()
-			ds.Tables.Add("ScanASAP")
-			Dim objVSAdaptor As New VSAdaptor
-			objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
-
-			For Each row As DataRow In ds.Tables("ScanASAP").Rows
-				Try
-					serverName = row(0).ToString()
-				Catch ex As Exception
-					Continue For
-				End Try
-
-				For n = 0 To MyNotesMailProbes.Count - 1
-					MailProbeOne = MyNotesMailProbes.Item(n)
-
-					If MailProbeOne.Name = serverName And MailProbeOne.IsBeingScanned = False And MailProbeOne.Enabled Then
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-						strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-						objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
-
-						Return MailProbeOne
-						Exit Function
-
-					End If
-				Next
-			Next
-
-		Catch ex As Exception
-
-		End Try
+    '	End Try
 
 
-        Try
-            'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-            For n = 0 To MyNotesMailProbes.Count - 1
-                MailProbeOne = MyNotesMailProbes.Item(n)
+    '	Dim strSQL As String = ""
+    '	Dim ServerType As String = "NotesMailProbe"
+    '	Dim serverName As String = ""
 
-                If MailProbeOne.Status = "Not Scanned" Or MailProbeOne.Status = "Master Service Stopped." & MailProbeOne.Enabled = True Then
-                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Selecting NotesMail Probe " & MailProbeOne.Name & " because its status is not yet scanned.")
-                    Return MailProbeOne
-                    Exit Function
-                End If
-            Next
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Exception selecting an un scanned probe " & ex.ToString)
-        End Try
+    '	Try
+    '		strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '		Dim ds As New DataSet()
+    '		ds.Tables.Add("ScanASAP")
+    '		Dim objVSAdaptor As New VSAdaptor
+    '		objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
+    '		For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '			Try
+    '				serverName = row(0).ToString()
+    '			Catch ex As Exception
+    '				Continue For
+    '			End Try
 
-        Try
-            'start with the first two servers
-            MailProbeOne = MyNotesMailProbes.Item(0)
-            If MyNotesMailProbes.Count > 1 Then MailProbeTwo = MyNotesMailProbes.Item(1)
-        Catch ex As Exception
+    '			For n = 0 To MyNotesMailProbes.Count - 1
+    '				MailProbeOne = MyNotesMailProbes.Item(n)
 
-        End Try
+    '				If MailProbeOne.Name = serverName And MailProbeOne.IsBeingScanned = False And MailProbeOne.Enabled Then
+    '					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '					strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '					objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
+    '					Return MailProbeOne
+    '					Exit Function
 
+    '				End If
+    '			Next
+    '		Next
 
-		'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-		If MyNotesMailProbes.Count > 2 Then
-			Try
-				For n = 2 To MyNotesMailProbes.Count - 1
-					'   WriteAuditEntry(Now.ToString & " N is " & n)
-					timeOne = CDate(MailProbeOne.NextScan)
-					timeTwo = CDate(MailProbeTwo.NextScan)
-					If DateTime.Compare(timeOne, timeTwo) < 0 Then
-						'time one is earlier than time two, so keep server 1
-						MailProbeTwo = MyNotesMailProbes.Item(n)
-					Else
-						'time two is later than time one, so keep server 2
-						MailProbeOne = MyNotesMailProbes.Item(n)
-					End If
-				Next
-			Catch ex As Exception
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Error selecting a NotesMail Probe... " & ex.Message)
-			End Try
-		Else
-			'There were only two servers, so use those going forward
-		End If
+    '	Catch ex As Exception
 
-        Try
-            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Down to two NotesMail Probes... " & MailProbeOne.Name & " and " & MailProbeTwo.Name)
-        Catch ex As Exception
-
-        End Try
-
-        Try
-            'Of the two remaining devices, pick the one with earliest scheduled time for next scan
-            If Not (MailProbeTwo Is Nothing) Then
-                timeOne = CDate(MailProbeOne.NextScan)
-                timeTwo = CDate(MailProbeTwo.NextScan)
-
-                If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                    'time one is earlier than time two, so keep server 1
-                    SelectedMailProbe = MailProbeOne
-                    tScheduled = CDate(MailProbeOne.NextScan)
-                Else
-                    SelectedMailProbe = MailProbeTwo
-                    tScheduled = CDate(MailProbeTwo.NextScan)
-                End If
-
-                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Down to one NotesMail Probe... " & SelectedMailProbe.Name & " to scan at " & SelectedMailProbe.NextScan & ". Status is " & SelectedMailProbe.Status)
-            Else
-                SelectedMailProbe = MailProbeOne
-                tScheduled = CDate(MailProbeOne.NextScan)
-            End If
-        Catch ex As Exception
-
-        End Try
+    '	End Try
 
 
-        Try
-            tNow = Now
-            tScheduled = CDate(SelectedMailProbe.NextScan)
-            If DateTime.Compare(tNow, tScheduled) < 0 Then
-                If SelectedMailProbe.Status <> "Not Scanned" Then
-                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " No NotesMail Probes are scheduled for monitoring, next scan is not due until " & SelectedMailProbe.NextScan)
-                    SelectedMailProbe = Nothing
-                ElseIf SelectedMailProbe.Status = "Not Scanned" Then
-                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " selected NotesMail Probe: " & SelectedMailProbe.Name & " because it is not scanned.")
-                End If
-            Else
-                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " selected NotesMail Probe: " & SelectedMailProbe.Name & " due to be scanned at " & SelectedMailProbe.NextScan & ".")
-            End If
-        Catch ex As Exception
+    '       Try
+    '           'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '           For n = 0 To MyNotesMailProbes.Count - 1
+    '               MailProbeOne = MyNotesMailProbes.Item(n)
 
-        End Try
+    '               If MailProbeOne.Status = "Not Scanned" Or MailProbeOne.Status = "Master Service Stopped." & MailProbeOne.Enabled = True Then
+    '                   WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Selecting NotesMail Probe " & MailProbeOne.Name & " because its status is not yet scanned.")
+    '                   Return MailProbeOne
+    '                   Exit Function
+    '               End If
+    '           Next
+    '       Catch ex As Exception
+    '           WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Exception selecting an un scanned probe " & ex.ToString)
+    '       End Try
+
+
+    '       Try
+    '           'start with the first two servers
+    '           MailProbeOne = MyNotesMailProbes.Item(0)
+    '           If MyNotesMailProbes.Count > 1 Then MailProbeTwo = MyNotesMailProbes.Item(1)
+    '       Catch ex As Exception
+
+    '       End Try
 
 
 
-		'Release Memory
-		tNow = Nothing
-		tScheduled = Nothing
-		n = Nothing
+    '	'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '	If MyNotesMailProbes.Count > 2 Then
+    '		Try
+    '			For n = 2 To MyNotesMailProbes.Count - 1
+    '				'   WriteAuditEntry(Now.ToString & " N is " & n)
+    '				timeOne = CDate(MailProbeOne.NextScan)
+    '				timeTwo = CDate(MailProbeTwo.NextScan)
+    '				If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '					'time one is earlier than time two, so keep server 1
+    '					MailProbeTwo = MyNotesMailProbes.Item(n)
+    '				Else
+    '					'time two is later than time one, so keep server 2
+    '					MailProbeOne = MyNotesMailProbes.Item(n)
+    '				End If
+    '			Next
+    '		Catch ex As Exception
+    '			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Error selecting a NotesMail Probe... " & ex.Message)
+    '		End Try
+    '	Else
+    '		'There were only two servers, so use those going forward
+    '	End If
 
-		timeOne = Nothing
-		timeTwo = Nothing
+    '       Try
+    '           WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Down to two NotesMail Probes... " & MailProbeOne.Name & " and " & MailProbeTwo.Name)
+    '       Catch ex As Exception
 
-		MailProbeOne = Nothing
-		MailProbeTwo = Nothing
+    '       End Try
 
-		'return selectedserver
-		'SelectNotesMailToMonitor = SelectedMailProbe
-		'Exit Function
-		Return SelectedMailProbe
+    '       Try
+    '           'Of the two remaining devices, pick the one with earliest scheduled time for next scan
+    '           If Not (MailProbeTwo Is Nothing) Then
+    '               timeOne = CDate(MailProbeOne.NextScan)
+    '               timeTwo = CDate(MailProbeTwo.NextScan)
 
-		Exit Function
+    '               If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '                   'time one is earlier than time two, so keep server 1
+    '                   SelectedMailProbe = MailProbeOne
+    '                   tScheduled = CDate(MailProbeOne.NextScan)
+    '               Else
+    '                   SelectedMailProbe = MailProbeTwo
+    '                   tScheduled = CDate(MailProbeTwo.NextScan)
+    '               End If
 
-	End Function
+    '               WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Down to one NotesMail Probe... " & SelectedMailProbe.Name & " to scan at " & SelectedMailProbe.NextScan & ". Status is " & SelectedMailProbe.Status)
+    '           Else
+    '               SelectedMailProbe = MailProbeOne
+    '               tScheduled = CDate(MailProbeOne.NextScan)
+    '           End If
+    '       Catch ex As Exception
 
-	Private Sub SendNotesMailProbe(ByRef MyNotesMailProbe As MonitoredItems.DominoMailProbe)
+    '       End Try
+
+
+    '       Try
+    '           tNow = Now
+    '           tScheduled = CDate(SelectedMailProbe.NextScan)
+    '           If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '               If SelectedMailProbe.Status <> "Not Scanned" Then
+    '                   WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " No NotesMail Probes are scheduled for monitoring, next scan is not due until " & SelectedMailProbe.NextScan)
+    '                   SelectedMailProbe = Nothing
+    '               ElseIf SelectedMailProbe.Status = "Not Scanned" Then
+    '                   WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " selected NotesMail Probe: " & SelectedMailProbe.Name & " because it is not scanned.")
+    '               End If
+    '           Else
+    '               WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " selected NotesMail Probe: " & SelectedMailProbe.Name & " due to be scanned at " & SelectedMailProbe.NextScan & ".")
+    '           End If
+    '       Catch ex As Exception
+
+    '       End Try
+
+
+
+    '	'Release Memory
+    '	tNow = Nothing
+    '	tScheduled = Nothing
+    '	n = Nothing
+
+    '	timeOne = Nothing
+    '	timeTwo = Nothing
+
+    '	MailProbeOne = Nothing
+    '	MailProbeTwo = Nothing
+
+    '	'return selectedserver
+    '	'SelectNotesMailToMonitor = SelectedMailProbe
+    '	'Exit Function
+    '	Return SelectedMailProbe
+
+    '	Exit Function
+
+    'End Function
+
+    Private Sub SendNotesMailProbe(ByRef MyNotesMailProbe As MonitoredItems.DominoMailProbe)
 		'This function sends a NotesMail message to a test mailbox
 		Dim strResponse, StatusDetails As String
 		Dim Percent As Double = 100

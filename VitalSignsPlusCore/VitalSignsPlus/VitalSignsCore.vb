@@ -1660,7 +1660,7 @@ Public Class VitalSignsPlusCore
             Do While boolTimeToStop <> True
                 'If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " %%% Begin Loop for Mail Service Monitoring %%%")
                 If MyMailServices.Count > 0 Then
-                    MyMailService = SelectMailServiceToMonitor()
+                    MyMailService = CType(SelectServerToMonitor(MyMailServices), MonitoredItems.MailService)
                     If Not MyMailService Is Nothing Then
                         QueryMailService(MyMailService)
                         MyMailService.LastScan = Date.Now
@@ -1693,136 +1693,137 @@ Public Class VitalSignsPlusCore
 
     End Sub
 
-    Private Function SelectMailServiceToMonitor() As MonitoredItems.MailService
-        ' If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " >>> Selecting a Mail Service for monitoring >>>>")
-        Dim tNow As DateTime
-        tNow = Now
-        Dim tScheduled As DateTime
+    ' 12/12/16 WS Moved to VSServices
+    'Private Function SelectMailServiceToMonitor() As MonitoredItems.MailService
+    '    ' If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " >>> Selecting a Mail Service for monitoring >>>>")
+    '    Dim tNow As DateTime
+    '    tNow = Now
+    '    Dim tScheduled As DateTime
 
-        Dim timeOne, timeTwo As DateTime
+    '    Dim timeOne, timeTwo As DateTime
 
-        Dim myDevice As MonitoredItems.MailService
-        Dim SelectedServer As MonitoredItems.MailService
+    '    Dim myDevice As MonitoredItems.MailService
+    '    Dim SelectedServer As MonitoredItems.MailService
 
-        Dim ServerOne As MonitoredItems.MailService
-        Dim ServerTwo As MonitoredItems.MailService
+    '    Dim ServerOne As MonitoredItems.MailService
+    '    Dim ServerTwo As MonitoredItems.MailService
 
-        Dim myRegistry As New RegistryHandler
+    '    Dim myRegistry As New RegistryHandler
 
-        Dim n As Integer
-        Dim strSQL As String = ""
-        Dim ServerType As String = "MailService"
-        Dim serverName As String = ""
+    '    Dim n As Integer
+    '    Dim strSQL As String = ""
+    '    Dim ServerType As String = "MailService"
+    '    Dim serverName As String = ""
 
-        Try
-            strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-            Dim ds As New DataSet()
-            ds.Tables.Add("ScanASAP")
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+    '    Try
+    '        strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '        Dim ds As New DataSet()
+    '        ds.Tables.Add("ScanASAP")
+    '        Dim objVSAdaptor As New VSAdaptor
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-            For Each row As DataRow In ds.Tables("ScanASAP").Rows
-                Try
-                    serverName = row(0).ToString()
-                Catch ex As Exception
-                    Continue For
-                End Try
+    '        For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '            Try
+    '                serverName = row(0).ToString()
+    '            Catch ex As Exception
+    '                Continue For
+    '            End Try
 
-                For n = 0 To MyMailServices.Count - 1
-                    ServerOne = MyMailServices.Item(n)
+    '            For n = 0 To MyMailServices.Count - 1
+    '                ServerOne = MyMailServices.Item(n)
 
-                    If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-                        'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-                        strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+    '                If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '                    'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '                    strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-                        Return ServerOne
-                        Exit Function
+    '                    Return ServerOne
+    '                    Exit Function
 
-                    End If
-                Next
-            Next
+    '                End If
+    '            Next
+    '        Next
 
-        Catch ex As Exception
+    '    Catch ex As Exception
 
-        End Try
+    '    End Try
 
-        'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-        For n = 0 To MyMailServices.Count - 1
-            ServerOne = MyMailServices.Item(n)
-            '       WriteAuditEntry(Now.ToString & " >>>  Mail Service " & ServerOne.Name & " status is " & ServerOne.Status)
-            If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
-                '   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " >>> Selecting Mail Service " & ServerOne.Name & " because status is " & ServerOne.Status)
-                Return ServerOne
-                Exit Function
-            End If
-        Next
+    '    'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To MyMailServices.Count - 1
+    '        ServerOne = MyMailServices.Item(n)
+    '        '       WriteAuditEntry(Now.ToString & " >>>  Mail Service " & ServerOne.Name & " status is " & ServerOne.Status)
+    '        If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
+    '            '   If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " >>> Selecting Mail Service " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '            Return ServerOne
+    '            Exit Function
+    '        End If
+    '    Next
 
-        'start with the first two servers
-        ServerOne = MyMailServices.Item(0)
-        If MyMailServices.Count > 1 Then ServerTwo = MyMailServices.Item(1)
+    '    'start with the first two servers
+    '    ServerOne = MyMailServices.Item(0)
+    '    If MyMailServices.Count > 1 Then ServerTwo = MyMailServices.Item(1)
 
-        'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-        If MyMailServices.Count > 2 Then
-            Try
-                For n = 2 To MyMailServices.Count - 1
-                    '    WriteAuditEntry(Now.ToString & " N is " & n)
-                    timeOne = CDate(ServerOne.NextScan)
-                    timeTwo = CDate(ServerTwo.NextScan)
-                    If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                        'time one is earlier than time two, so keep server 1
-                        ServerTwo = MyMailServices.Item(n)
-                    Else
-                        'time two is later than time one, so keep server 2
-                        ServerOne = MyMailServices.Item(n)
-                    End If
-                Next
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " >>> Error selecting a Mail Service... " & ex.Message)
-            End Try
-        Else
-            'There were only two server, so use those going forward
-        End If
+    '    'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '    If MyMailServices.Count > 2 Then
+    '        Try
+    '            For n = 2 To MyMailServices.Count - 1
+    '                '    WriteAuditEntry(Now.ToString & " N is " & n)
+    '                timeOne = CDate(ServerOne.NextScan)
+    '                timeTwo = CDate(ServerTwo.NextScan)
+    '                If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '                    'time one is earlier than time two, so keep server 1
+    '                    ServerTwo = MyMailServices.Item(n)
+    '                Else
+    '                    'time two is later than time one, so keep server 2
+    '                    ServerOne = MyMailServices.Item(n)
+    '                End If
+    '            Next
+    '        Catch ex As Exception
+    '            WriteAuditEntry(Now.ToString & " >>> Error selecting a Mail Service... " & ex.Message)
+    '        End Try
+    '    Else
+    '        'There were only two server, so use those going forward
+    '    End If
 
-        '     WriteAuditEntry(Now.ToString & " >>> Down to two services... " & ServerOne.Name & " and " & ServerTwo.Name)
+    '    '     WriteAuditEntry(Now.ToString & " >>> Down to two services... " & ServerOne.Name & " and " & ServerTwo.Name)
 
-        'Of the two remaining devices, pick the one with earliest scheduled time for next scan
-        If Not (ServerTwo Is Nothing) Then
-            timeOne = CDate(ServerOne.NextScan)
-            timeTwo = CDate(ServerTwo.NextScan)
+    '    'Of the two remaining devices, pick the one with earliest scheduled time for next scan
+    '    If Not (ServerTwo Is Nothing) Then
+    '        timeOne = CDate(ServerOne.NextScan)
+    '        timeTwo = CDate(ServerTwo.NextScan)
 
-            If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                'time one is earlier than time two, so keep server 1
-                SelectedServer = ServerOne
-                tScheduled = CDate(ServerOne.NextScan)
-            Else
-                SelectedServer = ServerTwo
-                tScheduled = CDate(ServerTwo.NextScan)
-            End If
-            tNow = Now
-            '     WriteAuditEntry(Now.ToString & " >>> Down to one Mail Service... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
-        Else
-            SelectedServer = ServerOne
-            tScheduled = CDate(ServerOne.NextScan)
-        End If
-        tScheduled = CDate(SelectedServer.NextScan)
-        If DateTime.Compare(tNow, tScheduled) < 0 Then
-            If SelectedServer.Status <> "Not Scanned" And SelectedServer.Status <> "Disabled" Then
-                If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " No Mail Service are scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-                SelectedServer = Nothing
-            Else
-                If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " selected Mail Service: " & SelectedServer.Name & " because it has not been scanned yet.")
-            End If
-        Else
-            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " selected Mail Service: " & SelectedServer.Name)
-        End If
+    '        If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '            'time one is earlier than time two, so keep server 1
+    '            SelectedServer = ServerOne
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '        Else
+    '            SelectedServer = ServerTwo
+    '            tScheduled = CDate(ServerTwo.NextScan)
+    '        End If
+    '        tNow = Now
+    '        '     WriteAuditEntry(Now.ToString & " >>> Down to one Mail Service... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
+    '    Else
+    '        SelectedServer = ServerOne
+    '        tScheduled = CDate(ServerOne.NextScan)
+    '    End If
+    '    tScheduled = CDate(SelectedServer.NextScan)
+    '    If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '        If SelectedServer.Status <> "Not Scanned" And SelectedServer.Status <> "Disabled" Then
+    '            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " No Mail Service are scheduled for monitoring, next scan after " & SelectedServer.NextScan)
+    '            SelectedServer = Nothing
+    '        Else
+    '            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " selected Mail Service: " & SelectedServer.Name & " because it has not been scanned yet.")
+    '        End If
+    '    Else
+    '        If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " selected Mail Service: " & SelectedServer.Name)
+    '    End If
 
-        Return SelectedServer
-        Exit Function
+    '    Return SelectedServer
+    '    Exit Function
 
 
 
-    End Function
+    'End Function
 
     Private Sub QueryMailService(ByRef myMailService As MonitoredItems.MailService)
         ' Dim dtLastScan As DateTime = myMailService.LastScan
@@ -2745,7 +2746,7 @@ Public Class VitalSignsPlusCore
 
             Try
                 Dim myServer As MonitoredItems.WebSphere
-                myServer = SelectWebSphereServerToMonitor()
+                myServer = CType(SelectServerToMonitor(MyWebSphereServers), MonitoredItems.WebSphere)
 
                 If myServer Is Nothing Then
                     '    WriteAuditEntry(Now.ToString & " >>> No ST servers are due for monitoring now.  >>>>")
@@ -2763,6 +2764,7 @@ Public Class VitalSignsPlusCore
                     Cells = WsDll.getServerStats(myServer)
                 Catch ex As Exception
                     WriteAuditEntryWebSphere(Now.ToString & " Exception thrown while getting stats: " & ex.Message.ToString())
+                    WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while getting stats: " & ex.Message.ToString())
                     myServer.ResponseDetails = "The server never sent a response back.  Check the status of the server."
                     myServer.Status = "Issue"
                     myServer.StatusCode = "Issue"
@@ -3054,146 +3056,147 @@ CleanUp:
         Return list
     End Function
 
-    Private Function SelectWebSphereServerToMonitor() As MonitoredItems.WebSphere
-        'WriteAuditEntry(Now.ToString & " >>> Selecting a Domino Server for monitoring >>>>")
-        Dim tNow As DateTime
-        tNow = Now
-        Dim tScheduled As DateTime
+    '12/12/16 WS Moved to VSServices
+    'Private Function SelectWebSphereServerToMonitor() As MonitoredItems.WebSphere
+    '    'WriteAuditEntry(Now.ToString & " >>> Selecting a Domino Server for monitoring >>>>")
+    '    Dim tNow As DateTime
+    '    tNow = Now
+    '    Dim tScheduled As DateTime
 
-        Dim timeOne, timeTwo As DateTime
+    '    Dim timeOne, timeTwo As DateTime
 
-        Dim SelectedServer As MonitoredItems.WebSphere
+    '    Dim SelectedServer As MonitoredItems.WebSphere
 
-        Dim ServerOne As MonitoredItems.WebSphere
-        Dim ServerTwo As MonitoredItems.WebSphere
+    '    Dim ServerOne As MonitoredItems.WebSphere
+    '    Dim ServerTwo As MonitoredItems.WebSphere
 
-        Dim myRegistry As New RegistryHandler
+    '    Dim myRegistry As New RegistryHandler
 
-        Dim n As Integer
-        Dim strSQL As String = ""
-        Dim ServerType As String = "WebSphere"
-        Dim serverName As String = ""
+    '    Dim n As Integer
+    '    Dim strSQL As String = ""
+    '    Dim ServerType As String = "WebSphere"
+    '    Dim serverName As String = ""
 
-        Try
-            strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-            Dim ds As New DataSet()
-            ds.Tables.Add("ScanASAP")
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+    '    Try
+    '        strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '        Dim ds As New DataSet()
+    '        ds.Tables.Add("ScanASAP")
+    '        Dim objVSAdaptor As New VSAdaptor
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-            For Each row As DataRow In ds.Tables("ScanASAP").Rows
-                Try
-                    serverName = row(0).ToString()
-                Catch ex As Exception
-                    Continue For
-                End Try
+    '        For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '            Try
+    '                serverName = row(0).ToString()
+    '            Catch ex As Exception
+    '                Continue For
+    '            End Try
 
-                For n = 0 To MyWebSphereServers.Count - 1
-                    ServerOne = MyWebSphereServers.Item(n)
+    '            For n = 0 To MyWebSphereServers.Count - 1
+    '                ServerOne = MyWebSphereServers.Item(n)
 
-                    If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-                        'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-                        strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+    '                If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '                    'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '                    strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-                        Return ServerOne
-                        Exit Function
+    '                    Return ServerOne
+    '                    Exit Function
 
-                    End If
-                Next
-            Next
+    '                End If
+    '            Next
+    '        Next
 
-        Catch ex As Exception
+    '    Catch ex As Exception
 
-        End Try
+    '    End Try
 
-        'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-        For n = 0 To MyWebSphereServers.Count - 1
-            ServerOne = MyWebSphereServers.Item(n)
+    '    'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To MyWebSphereServers.Count - 1
+    '        ServerOne = MyWebSphereServers.Item(n)
 
-            If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
-                '        WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                Return ServerOne
-                Exit Function
-            End If
-        Next
+    '        If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
+    '            '        WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '            Return ServerOne
+    '            Exit Function
+    '        End If
+    '    Next
 
-        'start with the first two servers
-        ServerOne = MyWebSphereServers.Item(0)
-        If MyWebSphereServers.Count > 1 Then ServerTwo = MyWebSphereServers.Item(1)
+    '    'start with the first two servers
+    '    ServerOne = MyWebSphereServers.Item(0)
+    '    If MyWebSphereServers.Count > 1 Then ServerTwo = MyWebSphereServers.Item(1)
 
-        'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-        If MyWebSphereServers.Count > 2 Then
-            Try
-                For n = 2 To MyWebSphereServers.Count - 1
-                    '           WriteAuditEntry(Now.ToString & " N is " & n)
-                    timeOne = CDate(ServerOne.NextScan)
-                    timeTwo = CDate(ServerTwo.NextScan)
-                    If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                        'time one is earlier than time two, so keep server 1
-                        ServerTwo = MyWebSphereServers.Item(n)
-                    Else
-                        'time two is later than time one, so keep server 2
-                        ServerOne = MyWebSphereServers.Item(n)
-                    End If
-                Next
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " >>> Error Selecting WebSphere server... " & ex.Message)
-            End Try
-        Else
-            'There were only two server, so use those going forward
-        End If
+    '    'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '    If MyWebSphereServers.Count > 2 Then
+    '        Try
+    '            For n = 2 To MyWebSphereServers.Count - 1
+    '                '           WriteAuditEntry(Now.ToString & " N is " & n)
+    '                timeOne = CDate(ServerOne.NextScan)
+    '                timeTwo = CDate(ServerTwo.NextScan)
+    '                If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '                    'time one is earlier than time two, so keep server 1
+    '                    ServerTwo = MyWebSphereServers.Item(n)
+    '                Else
+    '                    'time two is later than time one, so keep server 2
+    '                    ServerOne = MyWebSphereServers.Item(n)
+    '                End If
+    '            Next
+    '        Catch ex As Exception
+    '            WriteAuditEntry(Now.ToString & " >>> Error Selecting WebSphere server... " & ex.Message)
+    '        End Try
+    '    Else
+    '        'There were only two server, so use those going forward
+    '    End If
 
-        'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+    '    'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
 
-        'Of the two remaining servers, pick the one with earliest scheduled time for next scan
-        If Not (ServerTwo Is Nothing) Then
-            timeOne = CDate(ServerOne.NextScan)
-            timeTwo = CDate(ServerTwo.NextScan)
+    '    'Of the two remaining servers, pick the one with earliest scheduled time for next scan
+    '    If Not (ServerTwo Is Nothing) Then
+    '        timeOne = CDate(ServerOne.NextScan)
+    '        timeTwo = CDate(ServerTwo.NextScan)
 
-            If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                'time one is earlier than time two, so keep server 1
-                SelectedServer = ServerOne
-                tScheduled = CDate(ServerOne.NextScan)
-            Else
-                SelectedServer = ServerTwo
-                tScheduled = CDate(ServerTwo.NextScan)
-            End If
-            tNow = Now
-            '   WriteAuditEntry(Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
-        Else
-            SelectedServer = ServerOne
-            tScheduled = CDate(ServerOne.NextScan)
-        End If
+    '        If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '            'time one is earlier than time two, so keep server 1
+    '            SelectedServer = ServerOne
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '        Else
+    '            SelectedServer = ServerTwo
+    '            tScheduled = CDate(ServerTwo.NextScan)
+    '        End If
+    '        tNow = Now
+    '        '   WriteAuditEntry(Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
+    '    Else
+    '        SelectedServer = ServerOne
+    '        tScheduled = CDate(ServerOne.NextScan)
+    '    End If
 
-        tScheduled = CDate(SelectedServer.NextScan)
-        If DateTime.Compare(tNow, tScheduled) < 0 Then
-            If SelectedServer.Status <> "Not Scanned" Then
-                '  WriteAuditEntry(Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-                SelectedServer = Nothing
-            Else
-                WriteAuditEntry(Now.ToString & " selected WebSphere server: " & SelectedServer.Name & " because it has not been scanned yet.")
-            End If
-        Else
-            WriteAuditEntry(Now.ToString & " selected WebSphere server: " & SelectedServer.Name)
-        End If
+    '    tScheduled = CDate(SelectedServer.NextScan)
+    '    If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '        If SelectedServer.Status <> "Not Scanned" Then
+    '            '  WriteAuditEntry(Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
+    '            SelectedServer = Nothing
+    '        Else
+    '            WriteAuditEntry(Now.ToString & " selected WebSphere server: " & SelectedServer.Name & " because it has not been scanned yet.")
+    '        End If
+    '    Else
+    '        WriteAuditEntry(Now.ToString & " selected WebSphere server: " & SelectedServer.Name)
+    '    End If
 
-        'Release Memory
-        tNow = Nothing
-        tScheduled = Nothing
-        n = Nothing
+    '    'Release Memory
+    '    tNow = Nothing
+    '    tScheduled = Nothing
+    '    n = Nothing
 
-        timeOne = Nothing
-        timeTwo = Nothing
+    '    timeOne = Nothing
+    '    timeTwo = Nothing
 
-        ServerOne = Nothing
-        ServerTwo = Nothing
+    '    ServerOne = Nothing
+    '    ServerTwo = Nothing
 
-        'return selectedserver
-        SelectWebSphereServerToMonitor = SelectedServer
-        'Exit Function
-        SelectedServer = Nothing
-    End Function
+    '    'return selectedserver
+    '    SelectWebSphereServerToMonitor = SelectedServer
+    '    'Exit Function
+    '    SelectedServer = Nothing
+    'End Function
 
     'Private Sub ScanWebSphereServer(Server As MonitoredItems.WebSphere)
 
@@ -3310,7 +3313,7 @@ CleanUp:
 
             Try
                 Dim myServer As MonitoredItems.IBMConnect
-                myServer = SelectIBMConnectServerToMonitor()
+                myServer = CType(SelectServerToMonitor(MyIBMConnectServers), MonitoredItems.IBMConnect)
 
                 If myServer Is Nothing Then
                     CurrentIBMConnect = ""
@@ -3422,146 +3425,147 @@ CleanUp:
 
     End Sub
 
-    Private Function SelectIBMConnectServerToMonitor() As MonitoredItems.IBMConnect
-        'WriteAuditEntry(Now.ToString & " >>> Selecting a Domino Server for monitoring >>>>")
-        Dim tNow As DateTime
-        tNow = Now
-        Dim tScheduled As DateTime
+    '12/12/16 WS Moved to VSServices
+    'Private Function SelectIBMConnectServerToMonitor() As MonitoredItems.IBMConnect
+    '    'WriteAuditEntry(Now.ToString & " >>> Selecting a Domino Server for monitoring >>>>")
+    '    Dim tNow As DateTime
+    '    tNow = Now
+    '    Dim tScheduled As DateTime
 
-        Dim timeOne, timeTwo As DateTime
+    '    Dim timeOne, timeTwo As DateTime
 
-        Dim SelectedServer As MonitoredItems.IBMConnect
+    '    Dim SelectedServer As MonitoredItems.IBMConnect
 
-        Dim ServerOne As MonitoredItems.IBMConnect
-        Dim ServerTwo As MonitoredItems.IBMConnect
+    '    Dim ServerOne As MonitoredItems.IBMConnect
+    '    Dim ServerTwo As MonitoredItems.IBMConnect
 
-        Dim myRegistry As New RegistryHandler
+    '    Dim myRegistry As New RegistryHandler
 
-        Dim n As Integer
-        Dim strSQL As String = ""
-        Dim ServerType As String = "IBMConnections"
-        Dim serverName As String = ""
+    '    Dim n As Integer
+    '    Dim strSQL As String = ""
+    '    Dim ServerType As String = "IBMConnections"
+    '    Dim serverName As String = ""
 
-        Try
-            strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-            Dim ds As New DataSet()
-            ds.Tables.Add("ScanASAP")
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+    '    Try
+    '        strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '        Dim ds As New DataSet()
+    '        ds.Tables.Add("ScanASAP")
+    '        Dim objVSAdaptor As New VSAdaptor
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-            For Each row As DataRow In ds.Tables("ScanASAP").Rows
-                Try
-                    serverName = row(0).ToString()
-                Catch ex As Exception
-                    Continue For
-                End Try
+    '        For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '            Try
+    '                serverName = row(0).ToString()
+    '            Catch ex As Exception
+    '                Continue For
+    '            End Try
 
-                For n = 0 To MyIBMConnectServers.Count - 1
-                    ServerOne = MyIBMConnectServers.Item(n)
+    '            For n = 0 To MyIBMConnectServers.Count - 1
+    '                ServerOne = MyIBMConnectServers.Item(n)
 
-                    If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-                        'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-                        strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+    '                If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '                    'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '                    strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-                        Return ServerOne
-                        Exit Function
+    '                    Return ServerOne
+    '                    Exit Function
 
-                    End If
-                Next
-            Next
+    '                End If
+    '            Next
+    '        Next
 
-        Catch ex As Exception
+    '    Catch ex As Exception
 
-        End Try
+    '    End Try
 
-        'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-        For n = 0 To MyIBMConnectServers.Count - 1
-            ServerOne = MyIBMConnectServers.Item(n)
+    '    'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To MyIBMConnectServers.Count - 1
+    '        ServerOne = MyIBMConnectServers.Item(n)
 
-            If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
-                '        WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                Return ServerOne
-                Exit Function
-            End If
-        Next
+    '        If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
+    '            '        WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '            Return ServerOne
+    '            Exit Function
+    '        End If
+    '    Next
 
-        'start with the first two servers
-        ServerOne = MyIBMConnectServers.Item(0)
-        If MyIBMConnectServers.Count > 1 Then ServerTwo = MyIBMConnectServers.Item(1)
+    '    'start with the first two servers
+    '    ServerOne = MyIBMConnectServers.Item(0)
+    '    If MyIBMConnectServers.Count > 1 Then ServerTwo = MyIBMConnectServers.Item(1)
 
-        'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-        If MyIBMConnectServers.Count > 2 Then
-            Try
-                For n = 2 To MyIBMConnectServers.Count - 1
-                    '           WriteAuditEntry(Now.ToString & " N is " & n)
-                    timeOne = CDate(ServerOne.NextScan)
-                    timeTwo = CDate(ServerTwo.NextScan)
-                    If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                        'time one is earlier than time two, so keep server 1
-                        ServerTwo = MyIBMConnectServers.Item(n)
-                    Else
-                        'time two is later than time one, so keep server 2
-                        ServerOne = MyIBMConnectServers.Item(n)
-                    End If
-                Next
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " >>> Error Selecting IBM Connect server... " & ex.Message)
-            End Try
-        Else
-            'There were only two server, so use those going forward
-        End If
+    '    'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '    If MyIBMConnectServers.Count > 2 Then
+    '        Try
+    '            For n = 2 To MyIBMConnectServers.Count - 1
+    '                '           WriteAuditEntry(Now.ToString & " N is " & n)
+    '                timeOne = CDate(ServerOne.NextScan)
+    '                timeTwo = CDate(ServerTwo.NextScan)
+    '                If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '                    'time one is earlier than time two, so keep server 1
+    '                    ServerTwo = MyIBMConnectServers.Item(n)
+    '                Else
+    '                    'time two is later than time one, so keep server 2
+    '                    ServerOne = MyIBMConnectServers.Item(n)
+    '                End If
+    '            Next
+    '        Catch ex As Exception
+    '            WriteAuditEntry(Now.ToString & " >>> Error Selecting IBM Connect server... " & ex.Message)
+    '        End Try
+    '    Else
+    '        'There were only two server, so use those going forward
+    '    End If
 
-        'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+    '    'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
 
-        'Of the two remaining servers, pick the one with earliest scheduled time for next scan
-        If Not (ServerTwo Is Nothing) Then
-            timeOne = CDate(ServerOne.NextScan)
-            timeTwo = CDate(ServerTwo.NextScan)
+    '    'Of the two remaining servers, pick the one with earliest scheduled time for next scan
+    '    If Not (ServerTwo Is Nothing) Then
+    '        timeOne = CDate(ServerOne.NextScan)
+    '        timeTwo = CDate(ServerTwo.NextScan)
 
-            If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                'time one is earlier than time two, so keep server 1
-                SelectedServer = ServerOne
-                tScheduled = CDate(ServerOne.NextScan)
-            Else
-                SelectedServer = ServerTwo
-                tScheduled = CDate(ServerTwo.NextScan)
-            End If
-            tNow = Now
-            '   WriteAuditEntry(Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
-        Else
-            SelectedServer = ServerOne
-            tScheduled = CDate(ServerOne.NextScan)
-        End If
+    '        If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '            'time one is earlier than time two, so keep server 1
+    '            SelectedServer = ServerOne
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '        Else
+    '            SelectedServer = ServerTwo
+    '            tScheduled = CDate(ServerTwo.NextScan)
+    '        End If
+    '        tNow = Now
+    '        '   WriteAuditEntry(Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
+    '    Else
+    '        SelectedServer = ServerOne
+    '        tScheduled = CDate(ServerOne.NextScan)
+    '    End If
 
-        tScheduled = CDate(SelectedServer.NextScan)
-        If DateTime.Compare(tNow, tScheduled) < 0 Then
-            If SelectedServer.Status <> "Not Scanned" Then
-                '  WriteAuditEntry(Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-                SelectedServer = Nothing
-            Else
-                WriteAuditEntry(Now.ToString & " selected IBM Connect server: " & SelectedServer.Name & " because it has not been scanned yet.")
-            End If
-        Else
-            WriteAuditEntry(Now.ToString & " selected IBM Connect server: " & SelectedServer.Name)
-        End If
+    '    tScheduled = CDate(SelectedServer.NextScan)
+    '    If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '        If SelectedServer.Status <> "Not Scanned" Then
+    '            '  WriteAuditEntry(Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
+    '            SelectedServer = Nothing
+    '        Else
+    '            WriteAuditEntry(Now.ToString & " selected IBM Connect server: " & SelectedServer.Name & " because it has not been scanned yet.")
+    '        End If
+    '    Else
+    '        WriteAuditEntry(Now.ToString & " selected IBM Connect server: " & SelectedServer.Name)
+    '    End If
 
-        'Release Memory
-        tNow = Nothing
-        tScheduled = Nothing
-        n = Nothing
+    '    'Release Memory
+    '    tNow = Nothing
+    '    tScheduled = Nothing
+    '    n = Nothing
 
-        timeOne = Nothing
-        timeTwo = Nothing
+    '    timeOne = Nothing
+    '    timeTwo = Nothing
 
-        ServerOne = Nothing
-        ServerTwo = Nothing
+    '    ServerOne = Nothing
+    '    ServerTwo = Nothing
 
-        'return selectedserver
-        SelectIBMConnectServerToMonitor = SelectedServer
-        'Exit Function
-        SelectedServer = Nothing
-    End Function
+    '    'return selectedserver
+    '    SelectIBMConnectServerToMonitor = SelectedServer
+    '    'Exit Function
+    '    SelectedServer = Nothing
+    'End Function
 
     Public Function Base64Encode(ByVal str As String)
         Dim bytes As Byte() = System.Text.Encoding.UTF8.GetBytes(str)
@@ -7808,7 +7812,7 @@ CleanUp:
             Dim exitLoop As Boolean = False
             Try
                 Dim myServer As MonitoredItems.SametimeServer
-                myServer = SelectSametimeServerToMonitor()
+                myServer = CType(SelectServerToMonitor(mySametimeServers), MonitoredItems.SametimeServer)
 
                 If myServer Is Nothing Then
                     WriteAuditEntry(Now.ToString & " >>> No ST servers are due for monitoring now.  >>>>")
@@ -7891,146 +7895,147 @@ CleanUp:
 
     End Sub
 
-    Private Function SelectSametimeServerToMonitor() As MonitoredItems.SametimeServer
-        'WriteAuditEntry(Now.ToString & " >>> Selecting a Domino Server for monitoring >>>>")
-        Dim tNow As DateTime
-        tNow = Now
-        Dim tScheduled As DateTime
+    '12/12/16 WS Moved to VSServices
+    'Private Function SelectSametimeServerToMonitor() As MonitoredItems.SametimeServer
+    '    'WriteAuditEntry(Now.ToString & " >>> Selecting a Domino Server for monitoring >>>>")
+    '    Dim tNow As DateTime
+    '    tNow = Now
+    '    Dim tScheduled As DateTime
 
-        Dim timeOne, timeTwo As DateTime
+    '    Dim timeOne, timeTwo As DateTime
 
-        Dim SelectedServer As MonitoredItems.SametimeServer
+    '    Dim SelectedServer As MonitoredItems.SametimeServer
 
-        Dim ServerOne As MonitoredItems.SametimeServer
-        Dim ServerTwo As MonitoredItems.SametimeServer
+    '    Dim ServerOne As MonitoredItems.SametimeServer
+    '    Dim ServerTwo As MonitoredItems.SametimeServer
 
-        Dim myRegistry As New RegistryHandler
+    '    Dim myRegistry As New RegistryHandler
 
-        Dim n As Integer
-        Dim strSQL As String = ""
-        Dim ServerType As String = "Sametime"
-        Dim serverName As String = ""
+    '    Dim n As Integer
+    '    Dim strSQL As String = ""
+    '    Dim ServerType As String = "Sametime"
+    '    Dim serverName As String = ""
 
-        Try
-            strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-            Dim ds As New DataSet()
-            ds.Tables.Add("ScanASAP")
-            Dim objVSAdaptor As New VSAdaptor
-            objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
+    '    Try
+    '        strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
+    '        Dim ds As New DataSet()
+    '        ds.Tables.Add("ScanASAP")
+    '        Dim objVSAdaptor As New VSAdaptor
+    '        objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
 
-            For Each row As DataRow In ds.Tables("ScanASAP").Rows
-                Try
-                    serverName = row(0).ToString()
-                Catch ex As Exception
-                    Continue For
-                End Try
+    '        For Each row As DataRow In ds.Tables("ScanASAP").Rows
+    '            Try
+    '                serverName = row(0).ToString()
+    '            Catch ex As Exception
+    '                Continue For
+    '            End Try
 
-                For n = 0 To mySametimeServers.Count - 1
-                    ServerOne = mySametimeServers.Item(n)
+    '            For n = 0 To mySametimeServers.Count - 1
+    '                ServerOne = mySametimeServers.Item(n)
 
-                    If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
-                        'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-                        strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-                        objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
+    '                If ServerOne.Name = serverName And ServerOne.IsBeingScanned = False And ServerOne.Enabled Then
+    '                    'WriteAuditEntry(Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
+    '                    strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
+    '                    objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
 
-                        Return ServerOne
-                        Exit Function
+    '                    Return ServerOne
+    '                    Exit Function
 
-                    End If
-                Next
-            Next
+    '                End If
+    '            Next
+    '        Next
 
-        Catch ex As Exception
+    '    Catch ex As Exception
 
-        End Try
+    '    End Try
 
-        'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-        For n = 0 To mySametimeServers.Count - 1
-            ServerOne = mySametimeServers.Item(n)
+    '    'Any server Not Scanned should be scanned right away.  Select the first one you encounter
+    '    For n = 0 To mySametimeServers.Count - 1
+    '        ServerOne = mySametimeServers.Item(n)
 
-            If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
-                '        WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
-                Return ServerOne
-                Exit Function
-            End If
-        Next
+    '        If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
+    '            '        WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
+    '            Return ServerOne
+    '            Exit Function
+    '        End If
+    '    Next
 
-        'start with the first two servers
-        ServerOne = mySametimeServers.Item(0)
-        If mySametimeServers.Count > 1 Then ServerTwo = mySametimeServers.Item(1)
+    '    'start with the first two servers
+    '    ServerOne = mySametimeServers.Item(0)
+    '    If mySametimeServers.Count > 1 Then ServerTwo = mySametimeServers.Item(1)
 
-        'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-        If mySametimeServers.Count > 2 Then
-            Try
-                For n = 2 To mySametimeServers.Count - 1
-                    '           WriteAuditEntry(Now.ToString & " N is " & n)
-                    timeOne = CDate(ServerOne.NextScan)
-                    timeTwo = CDate(ServerTwo.NextScan)
-                    If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                        'time one is earlier than time two, so keep server 1
-                        ServerTwo = mySametimeServers.Item(n)
-                    Else
-                        'time two is later than time one, so keep server 2
-                        ServerOne = mySametimeServers.Item(n)
-                    End If
-                Next
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " >>> Error Selecting Sametime server... " & ex.Message)
-            End Try
-        Else
-            'There were only two server, so use those going forward
-        End If
+    '    'go through the remaining servers, see which one has the oldest (earliest) scheduled time
+    '    If mySametimeServers.Count > 2 Then
+    '        Try
+    '            For n = 2 To mySametimeServers.Count - 1
+    '                '           WriteAuditEntry(Now.ToString & " N is " & n)
+    '                timeOne = CDate(ServerOne.NextScan)
+    '                timeTwo = CDate(ServerTwo.NextScan)
+    '                If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '                    'time one is earlier than time two, so keep server 1
+    '                    ServerTwo = mySametimeServers.Item(n)
+    '                Else
+    '                    'time two is later than time one, so keep server 2
+    '                    ServerOne = mySametimeServers.Item(n)
+    '                End If
+    '            Next
+    '        Catch ex As Exception
+    '            WriteAuditEntry(Now.ToString & " >>> Error Selecting Sametime server... " & ex.Message)
+    '        End Try
+    '    Else
+    '        'There were only two server, so use those going forward
+    '    End If
 
-        'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
+    '    'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
 
-        'Of the two remaining servers, pick the one with earliest scheduled time for next scan
-        If Not (ServerTwo Is Nothing) Then
-            timeOne = CDate(ServerOne.NextScan)
-            timeTwo = CDate(ServerTwo.NextScan)
+    '    'Of the two remaining servers, pick the one with earliest scheduled time for next scan
+    '    If Not (ServerTwo Is Nothing) Then
+    '        timeOne = CDate(ServerOne.NextScan)
+    '        timeTwo = CDate(ServerTwo.NextScan)
 
-            If DateTime.Compare(timeOne, timeTwo) < 0 Then
-                'time one is earlier than time two, so keep server 1
-                SelectedServer = ServerOne
-                tScheduled = CDate(ServerOne.NextScan)
-            Else
-                SelectedServer = ServerTwo
-                tScheduled = CDate(ServerTwo.NextScan)
-            End If
-            tNow = Now
-            '   WriteAuditEntry(Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
-        Else
-            SelectedServer = ServerOne
-            tScheduled = CDate(ServerOne.NextScan)
-        End If
+    '        If DateTime.Compare(timeOne, timeTwo) < 0 Then
+    '            'time one is earlier than time two, so keep server 1
+    '            SelectedServer = ServerOne
+    '            tScheduled = CDate(ServerOne.NextScan)
+    '        Else
+    '            SelectedServer = ServerTwo
+    '            tScheduled = CDate(ServerTwo.NextScan)
+    '        End If
+    '        tNow = Now
+    '        '   WriteAuditEntry(Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
+    '    Else
+    '        SelectedServer = ServerOne
+    '        tScheduled = CDate(ServerOne.NextScan)
+    '    End If
 
-        tScheduled = CDate(SelectedServer.NextScan)
-        If DateTime.Compare(tNow, tScheduled) < 0 Then
-            If SelectedServer.Status <> "Not Scanned" Then
-                '  WriteAuditEntry(Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
-                SelectedServer = Nothing
-            Else
-                WriteAuditEntry(Now.ToString & " selected Sametime server: " & SelectedServer.Name & " because it has not been scanned yet.")
-            End If
-        Else
-            WriteAuditEntry(Now.ToString & " selected Sametime server: " & SelectedServer.Name)
-        End If
+    '    tScheduled = CDate(SelectedServer.NextScan)
+    '    If DateTime.Compare(tNow, tScheduled) < 0 Then
+    '        If SelectedServer.Status <> "Not Scanned" Then
+    '            '  WriteAuditEntry(Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
+    '            SelectedServer = Nothing
+    '        Else
+    '            WriteAuditEntry(Now.ToString & " selected Sametime server: " & SelectedServer.Name & " because it has not been scanned yet.")
+    '        End If
+    '    Else
+    '        WriteAuditEntry(Now.ToString & " selected Sametime server: " & SelectedServer.Name)
+    '    End If
 
-        'Release Memory
-        tNow = Nothing
-        tScheduled = Nothing
-        n = Nothing
+    '    'Release Memory
+    '    tNow = Nothing
+    '    tScheduled = Nothing
+    '    n = Nothing
 
-        timeOne = Nothing
-        timeTwo = Nothing
+    '    timeOne = Nothing
+    '    timeTwo = Nothing
 
-        ServerOne = Nothing
-        ServerTwo = Nothing
+    '    ServerOne = Nothing
+    '    ServerTwo = Nothing
 
-        'return selectedserver
-        SelectSametimeServerToMonitor = SelectedServer
-        'Exit Function
-        SelectedServer = Nothing
-    End Function
+    '    'return selectedserver
+    '    SelectSametimeServerToMonitor = SelectedServer
+    '    'Exit Function
+    '    SelectedServer = Nothing
+    'End Function
 
 
     Private Sub QuerySametimeServer(ByRef Server As MonitoredItems.SametimeServer)
