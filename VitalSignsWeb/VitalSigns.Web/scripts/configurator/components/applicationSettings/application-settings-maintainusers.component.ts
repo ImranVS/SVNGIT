@@ -45,10 +45,11 @@ export class MaintainUser extends GridBase implements OnInit {
     resetPassWord() {
     
 
-        this.service.get(`/configurator/reset_password/?emailId=${this.flex.collectionView.currentItem.email}`)
+        this.service.get(`/Token/reset_password/?emailId=${this.flex.collectionView.currentItem.email}`)
             .subscribe(
             response => {
-
+                
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
 
             },
             error => this.errorMessage = <any>error
@@ -65,13 +66,9 @@ export class MaintainUser extends GridBase implements OnInit {
         this.editGridRow(dlg);
         this.checkedItems = [];
         var roles = this.currentEditItem.roles;
-        console.log(roles);
         if (roles) {
             for (var userItem of (<wijmo.collections.CollectionView>this.maintainRoles).sourceCollection) {
-                console.log(userItem);
                 var urole = roles.filter((item) => item == userItem);
-
-                console.log("role: "+urole);
                 if (urole.length > 0)
                     this.checkedItems.push(userItem);
             }
