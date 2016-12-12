@@ -212,35 +212,46 @@ CleanUp:
 
 	Private Function IsAuthorized(Submitter As String) As Boolean
 
-		'Check to see if the user is authorized to submit remote console commands via VitalSigns
-		Dim vsAdapter As New VSFramework.VSAdaptor
-		Dim strSQL As String = "SELECT FullName FROM Users WHERE IsConsoleComm = 1"
-		Dim Result As Boolean = False
-		Dim dsConsoleUsers As New Data.DataSet
-		dsConsoleUsers.Tables.Add("Users")
+        'Check to see if the user is authorized to submit remote console commands via VitalSigns
+        Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Users)(connectionString)
+        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Users) = (repository.Filter.Eq(Function(x) x.Email, Submitter) Or repository.Filter.Eq(Function(x) x.FullName, Submitter)) _
+            And repository.Filter.AnyEq(Function(x) x.Roles, "RemoteConsole")
+        Dim list As List(Of VSNext.Mongo.Entities.Users) = repository.Find(filterDef).ToList()
 
-		dsConsoleUsers.Clear()
-		vsAdapter.FillDatasetAny("VitalSigns", "servers", strSQL, dsConsoleUsers, "Users")
-		WriteHistoryEntry(Now.ToString & " I found " & dsConsoleUsers.Tables("Users").Rows.Count & " authorized console users.")
-		If dsConsoleUsers.Tables("Users").Rows.Count > 0 Then
-			Dim myView As New Data.DataView(dsConsoleUsers.Tables("Users"))
-			myView.Sort = "FullName ASC"
-			Dim drv As DataRowView
-			For Each drv In myView
-				If InStr(drv("FullName"), Submitter) Or drv("FullName") = Submitter Then
-					Result = True
-				End If
-			Next
-		End If
+        If list.Count > 0 Or Submitter = "VitalSigns Domino Service" Then
+            Return True
+        End If
+
+        Return False
+
+        '      Dim vsAdapter As New VSFramework.VSAdaptor
+        'Dim strSQL As String = "SELECT FullName FROM Users WHERE IsConsoleComm = 1"
+        'Dim Result As Boolean = False
+        'Dim dsConsoleUsers As New Data.DataSet
+        'dsConsoleUsers.Tables.Add("Users")
+
+        'dsConsoleUsers.Clear()
+        'vsAdapter.FillDatasetAny("VitalSigns", "servers", strSQL, dsConsoleUsers, "Users")
+        'WriteHistoryEntry(Now.ToString & " I found " & dsConsoleUsers.Tables("Users").Rows.Count & " authorized console users.")
+        'If dsConsoleUsers.Tables("Users").Rows.Count > 0 Then
+        '	Dim myView As New Data.DataView(dsConsoleUsers.Tables("Users"))
+        '	myView.Sort = "FullName ASC"
+        '	Dim drv As DataRowView
+        '	For Each drv In myView
+        '		If InStr(drv("FullName"), Submitter) Or drv("FullName") = Submitter Then
+        '			Result = True
+        '		End If
+        '	Next
+        'End If
 
 
-		If Submitter = "VitalSigns Domino Service" Then
-			Result = True
-		End If
+        'If Submitter = "VitalSigns Domino Service" Then
+        '	Result = True
+        'End If
 
-		Return Result
+        'Return Result
 
-	End Function
+    End Function
 
 
 
