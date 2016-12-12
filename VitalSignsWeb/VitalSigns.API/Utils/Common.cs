@@ -9,10 +9,12 @@ using MongoDB.Driver;
 using System;
 using System.Reflection;
 using System.ComponentModel;
+using VSNext.Mongo.Entities;
+using System.Net.Mail;
 
 namespace VitalSigns.API
 {
-    public class Common
+    public class Common 
     {
         public enum ResponseStatus
         {
@@ -25,6 +27,7 @@ namespace VitalSigns.API
             [Description("Info")]
             Info
         }
+        private IRepository<NameValue> nameValueRepository;
         string success = ResponseStatus.Success.ToDescription();
         public static Dictionary<string, string> GetServerTypeIcons()
         {
@@ -159,6 +162,71 @@ namespace VitalSigns.API
             propertyInfo.SetValue(propertyInfo, value, null);
         }
 
+        public bool SendPasswordEmail(string emailId, string password)
+        {
+            try
+            {
+                Repository<VSNext.Mongo.Entities.NameValue> nameValueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
+                var filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "PrimaryHostName", "PrimaryUserId", "Primarypwd", "PrimaryPort", "PrimarySSL" });
+                List<NameValue> list = nameValueRepository.Find(filterDef).ToList();
+                System.Net.Mail.MailMessage mailMessage = new MailMessage();
+                SmtpClient client = new SmtpClient();
+                client.Port = Convert.ToInt32(list.Where(x => x.Name == "PrimaryPort").First().Value);
+                client.EnableSsl = Convert.ToBoolean(list.Where(x => x.Name == "PrimarySSL").First().Value);
+                client.Host = list.Where(x => x.Name == "PrimaryHostName").First().Value;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new System.Net.NetworkCredential(list.Where(x => x.Name == "PrimaryUserId").First().Value, list.Where(x => x.Name == "Primarypwd").First().Value);
+                mailMessage.To.Add(emailId);
+                mailMessage.From = new MailAddress(list.Where(x => x.Name == "PrimaryUserId").First().Value);
+                mailMessage.IsBodyHtml = false;
+                mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
+                mailMessage.Subject = "Your VitalSigns Account Information Update";
+
+                try
+                {
+                    client.Send(mailMessage);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+
+                }
+              
+               // nameValueRepository = new Repository<NameValue>(ConnectionString);
+                filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "SecondaryHostName", "SecondaryUserId", "SecondaryPwd", "SecondaryPort", "SecondarySSL" });
+                list = nameValueRepository.Find(filterDef).ToList();
+
+                mailMessage = new MailMessage();
+                client = new SmtpClient();
+                client.Port = Convert.ToInt32(list.Where(x => x.Name == "SecondaryPort").First().Value);
+                client.EnableSsl = Convert.ToBoolean(list.Where(x => x.Name == "SecondarySSL").First().Value);
+                client.Host = list.Where(x => x.Name == "SecondaryHostName").First().Value;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new System.Net.NetworkCredential(list.Where(x => x.Name == "SecondaryUserId").First().Value, list.Where(x => x.Name == "SecondaryPwd").First().Value);
+
+                mailMessage.To.Add(emailId);
+                mailMessage.From = new MailAddress(list.Where(x => x.Name == "SecondaryUserId").First().Value);
+
+                mailMessage.IsBodyHtml = false;
+                mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
+                mailMessage.Subject = "Your VitalSigns Account Information Update";
+
+                try
+                {
+                    client.Send(mailMessage);
+                    return true;
+                }
+                catch (Exception exception)
+                {
+                    throw exception;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
 
