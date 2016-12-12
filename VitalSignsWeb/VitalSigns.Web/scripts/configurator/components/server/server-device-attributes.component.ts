@@ -9,6 +9,7 @@ import {DeviceAttributeValue} from '../../models/device-attribute';
 import {AppComponentService} from '../../../core/services';
 
 
+
 @Component({
     selector: 'server-device-attribute',
     templateUrl: '/app/configurator/components/server/server-device-attributes.component.html',
@@ -28,11 +29,17 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     defaultvalue: string;
     fieldName: string;
     serverAttributes: any[];
+    selectedplatform: any;
     selectedIbmDb2Credential: string;
     selectedCredential: string;
     selectedPlatform: string;
     deviceCredentialData: any;
     attributes: any[];
+    modal = true;
+    addCredentialForm: FormGroup;
+    serverType: string;
+    Types: string;
+    platform: string;
     scanSettings: string = "Scan Settings"
     mailSettings: string = "Mail Settings"
     travelerSettings: string = "Traveler Settings"
@@ -41,8 +48,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     chatSettings: string = "Chat Settings"
     searchText: string = "Optional Search Text"
     usernameorPassword: string = "Optional Username/Password"
-
-
+    visiblity: boolean;
+ 
     constructor(
         private formBuilder: FormBuilder,
         private Attribute: RESTService,
@@ -56,8 +63,20 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
             'devices': ['']
 
         });
+        this.addCredentialForm = this.formBuilder.group({
+            'alias': ['', Validators.required],
+            'user_id': ['', Validators.required],
+            'password': ['', Validators.required],
+            'device_type': [''],
+            'confirm_password': [''],
+            'id': [''],
+            'is_modified': ['']
 
+        });
+        this.appComponentService = appComponentService;
     }
+
+
 
     ngOnInit() {
 
@@ -75,10 +94,11 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
             response => {
                 this.serverAttributes = response.data.serverresult;
                 this.deviceCredentialData = response.data.credentialsData;
-                this.selectedPlatform = response.data.platform;
-                //console.log('platform: ' + this.selectedPlatform);
-                //this.attributes = response.data.device_attributes;
+                this.platform = response.data.serverresult.platform;
+                //  this.selectedplatform = response.data.platform;
 
+                //this.attributes = response.data.device_attributes;
+               // console.log(this.serverAttributes);
             },
             error => this.errorMessage = <any>error
 
@@ -87,6 +107,58 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
 
     }
+    addSametimeCredentials(dlg: wijmo.input.Popup) {
+        if (dlg) {
+            dlg.modal = this.modal;
+            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
+            dlg.show();
+
+            //this.serverType = "Domino"
+        }
+    }
+
+    SaveCredential(addCrdential: any, dialog: wijmo.input.Popup) {
+        addCrdential.device_type = "Domino";
+
+        addCrdential.confirm_password = "";
+        addCrdential.id = null;
+        addCrdential.is_modified = true;
+        this.Attribute.put('/Configurator/save_credentials', addCrdential)
+            .subscribe(
+
+            response => {
+
+                if (response.status == "Success") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+                    this.addCredentialForm.reset();
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
+        dialog.hide();
+
+    }
+
+
+
+    handleClick(index: any) {
+
+        this.platform = index;
+        if (index == "WebSphere") {
+           // this.servicesViewService.refreshTabData();
+           // this.serverdetail.ngOnInit();
+           // this.serverdetail.service.tabs[1].visible = false;
+            
+        }
+        else {
+          //  this.servicesViewService.refreshTabData();
+          //  this.serverdetail.service.tabs[1].visible = false;
+        }
+
+    }
+
 
     applySetting() {
 
@@ -97,7 +169,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
         };
 
         this.ServerAttributeForm.setValue(postData);
-        console.log(postData);
+       // console.log(postData);
         this.Attribute.put('/configurator/save_servers_attributes/' + this.deviceId, postData)
             .subscribe(
             response => {
