@@ -10,8 +10,7 @@
         <span class="glyphicon glyphicon-search" aria-hidden="true" id="launchSearchBt" ></span>
     </div>
 </div>
-<div id="zeusHeaderRightWrapper" *ngIf="authService.isLoggedIn">
-
+<div id="zeusHeaderRightWrapper" *ngIf="authService.isLoggedIn">  
     <div id="noResponseNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
         <span class="notifVitalSignNumber badge">{{deviceSummary.notResponding}}</span>
         <span class="notifVitalSignLabel">Not resp. </span>
@@ -28,9 +27,9 @@
         <span class="notifVitalSignNumber badge">{{deviceSummary.maintenance}}</span>
         <span class="notifVitalSignLabel">Mainten.</span>
     </div>
-    <div id="notificationBtWrapper" class="headerBlock">
+    <div id="notificationBtWrapper" class="headerBlock" *ngIf="deviceSummary">
         <span aria-hidden="true" class="glyphicon glyphicon-bell"></span>
-        <span class="badge">3</span>
+        <span class="badge">{{deviceSummary.systemMessages}}</span>
     </div>
 
     <div id="userWrapper" class="headerBlock">

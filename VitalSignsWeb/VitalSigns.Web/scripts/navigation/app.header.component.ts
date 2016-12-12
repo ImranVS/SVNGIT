@@ -1,11 +1,11 @@
-﻿import {Component, AfterViewChecked, OnChanges, SimpleChange, Input, ViewChildren} from '@angular/core';
+﻿import {Component, AfterViewChecked, OnChanges, SimpleChange, Input, ViewChildren,OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../core/services';
 
 import {AuthenticationService} from '../profiles/services/authentication.service';
-
+import {Observable} from 'rxjs/Observable';
 declare var injectSVG: any;
 declare var bootstrapZeus: any;
 declare var bootstrapNavigator: any;
@@ -18,7 +18,7 @@ declare var bootstrapNavigator: any;
         RESTService
     ]
 })
-export class AppHeader implements OnChanges {
+export class AppHeader implements OnChanges,OnInit {
     @ViewChildren('password') password;
     @Input() anonymous: boolean;
 
@@ -45,6 +45,12 @@ export class AppHeader implements OnChanges {
             );
 
     }
+    ngOnInit() {
+        window.setInterval(() => {
+            this.loadData();
+        }, 30000);
+    }
+
 
     changeDeviceName() {
 
@@ -66,6 +72,7 @@ export class AppHeader implements OnChanges {
         }
 
     } 
+
     changePassword(dialog: wijmo.input.Popup) {
         var passwordVal = this.password.first.nativeElement.value;
         if (passwordVal == "") {
