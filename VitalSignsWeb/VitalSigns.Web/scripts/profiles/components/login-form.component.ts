@@ -44,12 +44,12 @@ export class LoginForm {
     changePassword(dialog: wijmo.input.Popup) {
         var email = this.emailid.first.nativeElement.value;
         if (email == "") {
-            this.error="Email is empty"
+            this.error = "Email is empty"
         } else {
-            this.service.get(`/configurator/reset_password/?emailId=${email}`)
+            this.service.get(`/configurator/reset_password?emailId=${email}`)
                 .subscribe(
                 response => {
-                    this.success="Password sent to your email..."
+                    this.success = "Password sent to your email..."
                     this.emailid.first.nativeElement.value = "";
                 });
             dialog.hide();
