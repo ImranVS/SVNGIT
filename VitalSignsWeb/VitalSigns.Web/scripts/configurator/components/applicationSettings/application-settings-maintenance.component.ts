@@ -98,7 +98,7 @@ export class Maintenance extends GridBase implements OnInit  {
                     this.datetimeHelpers.nameToFormat['end_time'] = "time";
 
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocal(response.data)));
-                    this.data.pageSize = 10;
+                    //this.data.pageSize = 10;
                 } else {
                     this.appComponentService.showErrorMessage(response.message);
                 }
@@ -350,11 +350,8 @@ export class Maintenance extends GridBase implements OnInit  {
                     .subscribe(
                     response => {
                         if (response.status == "Success") {
-                            //this.datetimeHelpers.nameToFormat['start_date'] = "date";
-                            //this.datetimeHelpers.nameToFormat['start_time'] = "time";
-                            //this.datetimeHelpers.nameToFormat['end_date'] = "date";
-                            //this.datetimeHelpers.nameToFormat['end_time'] = "time";
-                            this.data = response.data;
+                            this.data = this.datetimeHelpers.toLocal(response.data);
+                            //this.data.pageSize = 10;
                             (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
                             (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).pageIndex = 0;    
                             dlg.hide();
@@ -370,11 +367,8 @@ export class Maintenance extends GridBase implements OnInit  {
                     .subscribe(
                     response => {
                         if (response.status == "Success") {
-                            //this.datetimeHelpers.nameToFormat['start_date'] = "date";
-                            //this.datetimeHelpers.nameToFormat['start_time'] = "time";
-                            //this.datetimeHelpers.nameToFormat['end_date'] = "date";
-                            //this.datetimeHelpers.nameToFormat['end_time'] = "time";
-                            this.data = response.data;
+                            this.data = this.datetimeHelpers.toLocal(response.data);
+                            //this.data.pageSize = 10;
                             (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
                             (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).pageIndex = 0;    
                             dlg.hide();
@@ -395,9 +389,12 @@ export class Maintenance extends GridBase implements OnInit  {
         this.formTitle = "Add " + this.formName;
         this.formObject.id = "";
         this.formObject.name = "";
-        this.formObject.start_date = "";
+        this.formObject.start_date = new Date();
         this.formObject.start_time = "12:00 AM";
-        this.formObject.end_date = "";
+        if (this.wjStartTimeCtrl != null) {
+            this.wjStartTimeCtrl.value = this.formObject.start_time;
+        }
+        this.formObject.end_date = new Date();
         this.formObject.end_time = "12:00";
         this.formObject.duration = "0";
         this.formObject.key_users = [];
