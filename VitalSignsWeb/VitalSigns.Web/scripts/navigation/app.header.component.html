@@ -41,26 +41,34 @@
     </div>
 
     <div id="userWrapper" class="headerBlock">
-        <div id="userName">{{authService.CurrentUser.email}}<span aria-hidden="true" class="glyphicon glyphicon-chevron-down"></span></div>
+        <div id="userName">
+            
+            <a class="dropdown-toggle" data-toggle="dropdown" id="openContextNavigation" aria-hidden="true">{{authService.CurrentUser.email}}<span class="glyphicon glyphicon-chevron-down"></span></a>
+            <ul class="dropdown-menu" style="white-space:nowrap; right: 0 !important; left:unset">
+                <li style="display:table">
+                    <a #forgot2>Change password</a>
+                </li>
+                <li style="display:table"><a [routerLink]="['/login']" (click)="logout();">Log out</a></li>
+            </ul>
+            <wj-popup #frmDialog class="popover" [owner]="forgot2" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                <h3 class="popover-title">
+                    Change Password
+                    <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                </h3>
+                <div class="popover-content">
+                    <div class="input-group">
+                        <label for="password" class="control-label">Please Enter New Password</label>
+                        <input #password class="form-control" name="password" type="text" required />
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" name="save" (click)="changePassword(frmDialog);">OK</button>
+                    </div>
+                </div>
+            </wj-popup>
+        </div>
         <!--<a [routerLink]="['/profiles']">
             <img src="/img/JohnDoeAvatar.png" id="userAvatar" />
         </a>-->
-        <a #forgot>Change Password</a>        
-        <wj-popup #frmDialog class="popover" [owner]="forgot" [showTrigger]="'Click'" [hideTrigger]="'None'">
-            <h3 class="popover-title">
-                Change Password
-                <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
-            </h3>
-            <div class="popover-content">
-                <div class="input-group">
-                    <label for="password" class="control-label">Please Enter New Password</label>
-                    <input #password class="form-control" name="password" type="text" required />
-                </div>
-                <div>&nbsp;</div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-primary" name="save" (click)="changePassword(frmDialog);">OK</button>
-                </div>
-            </div>
-        </wj-popup>
     </div>
 </div>

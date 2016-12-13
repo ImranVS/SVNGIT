@@ -89,4 +89,8 @@ export class AppHeader implements OnChanges,OnInit {
 
 
     }
+
+    logout() {
+        this.authService.logout();
+    }
 }
