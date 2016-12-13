@@ -1303,8 +1303,8 @@ namespace VitalSigns.API.Controllers
                             if (bson2.Contains(docfield) && bson2.Contains("device_name"))
                             {
                                 var statname = bson2["device_name"].ToString();
-                                var statvalue = bson2[docfield].ToString();
-
+                                var statvalue =Convert.ToInt32(bson2[docfield]).ToString();
+                                
                                 if (!isChart)
                                 {
                                     x.Add(statname, statvalue);
@@ -1314,7 +1314,7 @@ namespace VitalSigns.API.Controllers
                                 {
                                     segment = new Segment();
                                     segment.Label = bson2["device_name"].ToString();
-                                    segment.Value = bson2[docfield].ToDouble();
+                                    segment.Value = Convert.ToInt32(bson2[docfield].ToDouble());
                                     segments.Add(segment);
                                 }
                             }
