@@ -1160,10 +1160,10 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If entity.OffHoursScanInterval Is Nothing Then
+                        If entity.ResponseTime Is Nothing Then
                             .ResponseThreshold = 100
                         Else
-                            .ResponseThreshold = entity.OffHoursScanInterval
+                            .ResponseThreshold = entity.ResponseTime
                         End If
                     Catch ex As Exception
                         .ResponseThreshold = 100
