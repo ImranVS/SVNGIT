@@ -81,6 +81,7 @@ export class BusinessHours extends GridBase implements OnInit {
                 this.appComponentService.showErrorMessage(errorMessage);
             });
     } 
+
     saveBusinessHour(dlg: wijmo.input.Popup) {  
         this.formObject.start_time = this.wjTimeCtrl.selectedValue;
         this.errorMessage = ""; 

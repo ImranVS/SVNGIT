@@ -17,12 +17,20 @@
         <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
             <wj-flex-grid-filter></wj-flex-grid-filter>
             <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"> </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Start Date'" [format]="MM-dd-yyyy" [binding]="'start_date'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Start Date'" [binding]="'start_date'" [width]="150"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="150"></wj-flex-grid-column>
-
-            <wj-flex-grid-column [header]="'End Date'" [format]="d" [binding]="'end_date'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'End Date'" [binding]="'end_date'" [width]="150"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="160"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Maintenance Type'" [binding]="'maintain_type'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Maintenance Type'" [binding]="'maintain_type'" [width]="200">
+                <!--<template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                    <div [ngSwitch]="cell.item.maintain_type">
+                        <span *ngSwitchCase="'1'">One Time</span>
+                        <span *ngSwitchCase="'2'">Daily</span>
+                        <span *ngSwitchCase="'3'">Weekly</span>
+                        <span *ngSwitchCase="'4'">Monthly</span>
+                    </div>
+                </template>-->
+            </wj-flex-grid-column>
 
         </wj-flex-grid>
         <div class="btn-group" *ngIf="data != null">
@@ -74,13 +82,13 @@ data.pageIndex + 1 | number
                         <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                     </h4>-->
 
-                    <div class="panel-body" *ngIf="currentEditItem">
+                    <div class="panel-body">
                         
                         <div class="row">
                             <div class="form-group col-sm-6">
                                 <label for="name" class="control-label col-sm-4">Name</label>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="formObject.name">
                                 </div>
                             </div>
                             <div class="form-group col-sm-6">
@@ -105,13 +113,13 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="start_date" class="control-label col-sm-4">Start Date</label>
                                 <div class="col-sm-6">
-                                    <input type="text" [value]="currentEditItem.start_date | date:'yyyy-MM-dd'" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="currentEditItem.start_date">
+                                    <input type="text" [value]="formObject.start_date" class="form-control col-sm-7" id="start_date" required name="start_date" [(ngModel)]="formObject.start_date">
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" *ngIf="durationSetting=='1'">
                                 <label for="end_date" class="control-label col-sm-4">End Date</label>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="currentEditItem.end_date">
+                                    <input type="text" class="form-control" id="end_date" name="end_date" [(ngModel)]="formObject.end_date">
                                 </div>
                             </div>
 
@@ -119,14 +127,17 @@ data.pageIndex + 1 | number
                         <div class="row">
                             <div class="form-group col-sm-6">
                                 <label for="start_time" class="control-label col-sm-4">Start Time</label>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">
+                                <div class="col-sm-6" *ngIf="formObject.start_time != null">
+                                    <!--<input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="formObject.start_time">-->
+                                    <wj-input-time [isEditable]="true" [(value)]="formObject.start_time" format="h:mm tt" id="start_time" name="start_time" #wjStartTimeCtrl></wj-input-time>
                                 </div>
                             </div>
                             <div class="form-group col-sm-6">
                                 <label for="end_time" class="control-label col-sm-4">End Time</label>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="end_time" name="end_time" [(ngModel)]="currentEditItem.end_time">
+                                <div class="col-sm-6" *ngIf="formObject.end_time != null">
+                                    <!--<input type="text" class="form-control" id="end_time" name="end_time" [(ngModel)]="formObject.end_time">-->
+                                    <!--<wj-input-time [isEditable]="false" [(value)]="formObject.end_time" format="h:mm tt" id="end_time" name="end_time" #wjEndTimeCtrl></wj-input-time>-->
+                                    <div class="col-sm-2" style="padding-top: 7px;">{{formObject.end_time}}</div>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +145,7 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="duration" class="control-label col-sm-4">Duration</label>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="duration" name="duration" [(ngModel)]="currentEditItem.duration">
+                                    <input type="text" class="form-control" id="duration" name="duration" [(ngModel)]="formObject.duration">
                                 </div>
                                 <div class="col-sm-2">minutes</div>
                             </div>
@@ -235,18 +246,18 @@ data.pageIndex + 1 | number
                             <label for="flex1">Key Users</label>
                             <br />
                         </div>
-                        <div class="form-group" style="width:auto; padding-left:15px; padding-right: 15px;">
-                                <wj-flex-grid #flex1 [itemsSource]="dataMobileUsers" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" [isReadOnly]="true">
+                        <div class="form-group" style="width:auto; padding-left:15px; padding-right: 15px;" *ngIf="dataMobileUsers != null">
+                                <wj-flex-grid #flex1 [itemsSource]="dataMobileUsers" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column">
                                     <wj-flex-grid-filter></wj-flex-grid-filter>
-                                    <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true">
-                                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                    <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
+                                        <!--<template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="keyUsersCheck(cell.item.id,$event)" name="{{cell.item.id}}" />
-                                        </template>
+                                        </template>-->
                                     </wj-flex-grid-column>
 
-                                    <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="280"> </wj-flex-grid-column>
-                                    <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'" [width]="200"></wj-flex-grid-column>
-                                    <wj-flex-grid-column [header]="'Last Sync Time'" [binding]="'last_sync_time'" [width]="180"></wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="280" [isReadOnly]="true"> </wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'Last Sync Time'" [binding]="'last_sync_time'" [width]="180" [isReadOnly]="true"></wj-flex-grid-column>
                                 </wj-flex-grid>
                                 <div class="btn-group" *ngIf="dataMobileUsers != null">
                                     <button type="button" class="btn btn-default"
@@ -263,7 +274,7 @@ data.pageIndex + 1 | number
                                     <button type="button" class="btn btn-default" disabled style="width:100px">
                                         {{
                                                dataMobileUsers.pageIndex + 1 | number
-                                        }} / {{data.pageCount | number}}
+                                        }} / {{dataMobileUsers.pageCount | number}}
                                     </button>
                                     <button type="button" class="btn btn-default"
                                             (click)="dataMobileUsers.moveToNextPage()"

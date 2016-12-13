@@ -53,7 +53,12 @@ export class DateTimeHelper {
                     }
 
                     //check to see if property key is a datetime 
-                    var dtNum = Date.parse(obj);
+                    dtNum = NaN;
+                    if (typeof obj == "string") {
+                        if (obj.endsWith("Z"))
+                            dtNum = Date.parse(obj);
+                    }
+                    //var dtNum = Date.parse(obj);
                     if (isNaN(dtNum) == false) {
                         var dt = new Date(dtNum);
                         var newField; //= dt.toLocaleDateString();
