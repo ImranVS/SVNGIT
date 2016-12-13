@@ -3,6 +3,8 @@
 import { LoginForm } from './profiles/components/login-form.component';
 import { AuthGuard } from './profiles/services/authgard.service';
 
+import { ForwardPage } from './core/components/forward-page.component';
+
 import { OverallDashboard } from './dashboards/components/overall-dashboard.component';
 
 import { IBMDominoDashboard } from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
@@ -12,11 +14,11 @@ import { MobileUsersDashboard } from './dashboards/components/mobile-users/mobil
 import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
 
-import {KeyMetricsDashboard} from './dashboards/components/key-metrics/key-metrics-dashboard.component';
-import {OverallDatabaseDashboard} from './dashboards/components/key-metrics/overall-database-dashboard.component';
-import {HardwareStatsDashboard} from './dashboards/components/key-metrics/hardware-stats-dashboard.component';
-import {UsersDashboard} from './dashboards/components/key-metrics/users-dashboard.component';
-import {ServerDaysUp} from './dashboards/components/key-metrics/server-days-up-dashboard.component';
+import { KeyMetricsDashboard } from './dashboards/components/key-metrics/key-metrics-dashboard.component';
+import { OverallDatabaseDashboard } from './dashboards/components/key-metrics/overall-database-dashboard.component';
+import { HardwareStatsDashboard } from './dashboards/components/key-metrics/hardware-stats-dashboard.component';
+import { UsersDashboard } from './dashboards/components/key-metrics/users-dashboard.component';
+import { ServerDaysUp } from './dashboards/components/key-metrics/server-days-up-dashboard.component';
 
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -39,8 +41,8 @@ import { SametimeStatistics } from './dashboards/components/overall-statistics/o
 
 import { SampleDashboard } from './dashboards/components/sample-dashboard.component';
 
-import {SiteMapList} from './navigation/editor/components/sitemap-list.component';
-import {SiteMapEditor} from './navigation/editor/components/sitemap-editor.component';
+import { SiteMapList } from './navigation/editor/components/sitemap-list.component';
+import { SiteMapEditor } from './navigation/editor/components/sitemap-editor.component';
 
 import { ServicesView } from './services/components/services-view.component';
 import { ServiceDetails } from './services/components/service-details.component';
@@ -49,12 +51,12 @@ import { NoSelectedService } from './services/components/no-selected-service.com
 import { ProfilesList } from './profiles/components/profiles-list.component';
 import { ProfilesForm } from './profiles/components/profiles-form.component';
 
-import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
-import {ServerFilter} from './reports/filters/components/server-filter.component'
-import {ConnectionsServerFilter} from './reports/filters/components/connections-server-filter.component'
-import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component'
-import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component'
-import {ServerAvailabilityFilter} from './reports/filters/components/server-availability-filter.component'
+import { SampleFiltersBar } from './reports/filters/components/sample-filters-bar.component'
+import { ServerFilter } from './reports/filters/components/server-filter.component'
+import { ConnectionsServerFilter } from './reports/filters/components/connections-server-filter.component'
+import { ServerConfigurationFilter } from './reports/filters/components/server-configuration-filter.component'
+import { SametimeServerFilter } from './reports/filters/components/sametime-server-filter.component'
+import { ServerAvailabilityFilter } from './reports/filters/components/server-availability-filter.component'
 
 import { ReportsBrowser } from './reports/components/reports-browser.component';
 import { NoSelectedReport } from './reports/components/no-selected-report.component';
@@ -64,42 +66,42 @@ import { MailFileStatisticsReport } from './reports/components/mail/mail-file-st
 import { DiskAvailabilityTrendReport } from './reports/components/disk/disk-availability-trend.component';
 import { ServerUtilizationReport } from './reports/components/financial/server-utilization.component';
 import { AnyStatisticReport } from './reports/components/servers/any-statistic-report.component';
-import {StatisticsReport} from './reports/components/statistics-report.component';
-import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
-import {ConsoleCommands} from './reports/components/ibm-domino/console-commands-report.component';
-import {AvgCPUUtil} from './reports/components/ibm-domino/avg-cpu-util.component';
-import {MaxCPUUtil} from './reports/components/ibm-domino/max-cpu-util.component';
-import {DailyServerTrans} from './reports/components/ibm-domino/daily-server-trans.component';
-import {ClusterSecQueue} from './reports/components/ibm-domino/cluster-sec-queue.component';
-import {DominoResponseTimes} from './reports/components/ibm-domino/domino-response-times.component';
+import { StatisticsReport } from './reports/components/statistics-report.component';
+import { ResponseTimeReport } from './reports/components/servers/response-time-report.component';
+import { ConsoleCommands } from './reports/components/ibm-domino/console-commands-report.component';
+import { AvgCPUUtil } from './reports/components/ibm-domino/avg-cpu-util.component';
+import { MaxCPUUtil } from './reports/components/ibm-domino/max-cpu-util.component';
+import { DailyServerTrans } from './reports/components/ibm-domino/daily-server-trans.component';
+import { ClusterSecQueue } from './reports/components/ibm-domino/cluster-sec-queue.component';
+import { DominoResponseTimes } from './reports/components/ibm-domino/domino-response-times.component';
 import { CostPerUserChartReport } from './reports/components/financial/cost-per-user-chart.component';
 import { CostPerUserGridReport } from './reports/components/financial/cost-per-user-grid.component';
 import { TravelerAllocatedMemoryReport } from './reports/components/ibm-traveler/traveler-allocated-memory.component';
 import { TravelerStatsReport } from './reports/components/ibm-traveler/traveler-stats.component';
-import {OverallStatusReport} from './reports/components/servers/overall-status-report.component';
-import {DatabaseInventoryReport} from './reports/components/ibm-domino/database-inventory-report.component';
-import {LogFileReport} from './reports/components/ibm-domino/log-file-report.component';
-import {MailThresholdReport} from './reports/components/ibm-domino/mail-threshold-report.component';
-import {NotesDatabaseReport} from './reports/components/ibm-domino/notes-database-report.component';
-import {DominoServerTasksReport} from './reports/components/ibm-domino/domino-server-tasks-report.component';
-import {ServerAccessBrowserReport} from './reports/components/ibm-domino/server-access-browser-report.component';
-import {ServerAvailabilityIndexReport} from './reports/components/ibm-domino/server-availability-index-report.component';
-import {CommunityUsersReport} from './reports/components/ibm-connections/community-users-report.component';
-import {HourlyStatisticsReport} from './reports/components/hourly-statistics-report.component';
-import {ServerAvailabilityReport} from './reports/components/servers/server-availability-report.component';
-import {SametimeStatisticsChartReport} from './reports/components/ibm-sametime/sametime-statistics-chart-report.component';
-import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sametime-statistics-grid-report.component';
-import {DominoServerConfigurationReport} from './reports/components/configuration/domino-server-configuration-report.component';
-import {ServerListTypeReport} from './reports/components/configuration/server-list-type-report.component';
-import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
-import {ConnectionsActivityReport} from './reports/components/ibm-connections/connections-activity-report.component';
-import {ConnectionsBookmarkReport} from './reports/components/ibm-connections/connections-bookmark-report.component';
-import {ConnectionsFilesReport} from './reports/components/ibm-connections/connections-files-report.component';
-import {ConnectionsForumsReport} from './reports/components/ibm-connections/connections-forums-report.component';
-import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
-import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
-import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
-import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
+import { OverallStatusReport } from './reports/components/servers/overall-status-report.component';
+import { DatabaseInventoryReport } from './reports/components/ibm-domino/database-inventory-report.component';
+import { LogFileReport } from './reports/components/ibm-domino/log-file-report.component';
+import { MailThresholdReport } from './reports/components/ibm-domino/mail-threshold-report.component';
+import { NotesDatabaseReport } from './reports/components/ibm-domino/notes-database-report.component';
+import { DominoServerTasksReport } from './reports/components/ibm-domino/domino-server-tasks-report.component';
+import { ServerAccessBrowserReport } from './reports/components/ibm-domino/server-access-browser-report.component';
+import { ServerAvailabilityIndexReport } from './reports/components/ibm-domino/server-availability-index-report.component';
+import { CommunityUsersReport } from './reports/components/ibm-connections/community-users-report.component';
+import { HourlyStatisticsReport } from './reports/components/hourly-statistics-report.component';
+import { ServerAvailabilityReport } from './reports/components/servers/server-availability-report.component';
+import { SametimeStatisticsChartReport } from './reports/components/ibm-sametime/sametime-statistics-chart-report.component';
+import { SametimeStatisticsGridReport } from './reports/components/ibm-sametime/sametime-statistics-grid-report.component';
+import { DominoServerConfigurationReport } from './reports/components/configuration/domino-server-configuration-report.component';
+import { ServerListTypeReport } from './reports/components/configuration/server-list-type-report.component';
+import { ServerListLocationReport } from './reports/components/configuration/server-list-location-report.component';
+import { ConnectionsActivityReport } from './reports/components/ibm-connections/connections-activity-report.component';
+import { ConnectionsBookmarkReport } from './reports/components/ibm-connections/connections-bookmark-report.component';
+import { ConnectionsFilesReport } from './reports/components/ibm-connections/connections-files-report.component';
+import { ConnectionsForumsReport } from './reports/components/ibm-connections/connections-forums-report.component';
+import { ConnectionsProfilesReport } from './reports/components/ibm-connections/connections-profiles-report.component';
+import { ConnectionsTagsReport } from './reports/components/ibm-connections/connections-tags-report.component';
+import { ConnectionsWikiReport } from './reports/components/ibm-connections/connections-wiki-report.component';
+import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
@@ -187,6 +189,10 @@ const appRoutes: Routes = [
             {
                 path: '',
                 component: OverallDashboard
+            },
+            {
+                path: 'forward',
+                component: ForwardPage
             },
             {
                 path: 'dashboard',
@@ -560,7 +566,7 @@ const appRoutes: Routes = [
         path: '**',
         redirectTo: ''
     }
-    
+
 ];
 
 export const APP_ROUTES = RouterModule.forRoot(appRoutes);

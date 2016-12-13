@@ -28,7 +28,9 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjInputTime from 'wijmo/wijmo.angular2.input';
 
-import {WidgetContainer} from './core/widgets';
+import { WidgetContainer } from './core/widgets';
+
+import { ForwardPage } from './core/components/forward-page.component';
 
 import {AppHeader} from './navigation/app.header.component';
 import {AppMainMenu} from './navigation/app.main-menu.component';
@@ -127,6 +129,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
     ],
     declarations: [
         AppComponent,
+        ForwardPage,
         LoginForm,
         SuccessErrorMessageComponent,
         WidgetContainer,

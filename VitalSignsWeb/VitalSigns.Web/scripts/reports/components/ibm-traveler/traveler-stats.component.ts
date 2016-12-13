@@ -1,8 +1,8 @@
-﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
+﻿import { Component, ComponentFactoryResolver, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
+import { WidgetController, WidgetContract, WidgetService } from '../../../core/widgets';
 
-import {RESTService} from '../../../core/services/rest.service';
+import { RESTService } from '../../../core/services/rest.service';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as helpers from '../../../core/services/helpers/helpers';
 
@@ -34,23 +34,33 @@ export class TravelerStatsReport extends WidgetController {
     currentWidgetName: string = `travelerStatsChart`;
     currentWidgetURL: string;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
-        private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
+    constructor(
+        protected resolver: ComponentFactoryResolver,
+        protected widgetService: WidgetService,
+        private service: RESTService,
+        private router: Router,
+        private route: ActivatedRoute,
+        protected urlHelpers: helpers.UrlHelperService) {
 
-        super(resolver, widgetService);
+        super(resolver, widgetService, true, router, route);
     }
 
     ngOnInit() {
-        let paramstring = null;
-        this.route.queryParams.subscribe(params => paramstring = [ params['type'], params['value'] ]);
-        this.paramtype = paramstring[0];
-        this.paramvalue = paramstring[1];
+
+        super.ngOnInit();
+
         this.service.get('/navigation/sitemaps/traveler_reports')
             .subscribe
             (
-            data => this.contextMenuSiteMap = data ,
+            data => this.contextMenuSiteMap = data,
             error => console.log(error)
-        );
+            );
+
+        this.route.queryParams.subscribe(params => {
+            this.paramtype = params['type'];
+            this.paramvalue = params['value']; 
+        });
+
         if (this.paramtype == "interval") {
             this.currentHideIntervalControl = false;
             this.currentHideMailServerControl = true;
@@ -59,7 +69,9 @@ export class TravelerStatsReport extends WidgetController {
             this.currentHideIntervalControl = true;
             this.currentHideMailServerControl = false;
         }
+
         this.currentWidgetURL = `/reports/traveler_stats?paramtype=${this.paramtype}`;
+        
         this.widgets = [
             {
                 id: 'travelerStatsChart',
@@ -114,6 +126,7 @@ export class TravelerStatsReport extends WidgetController {
                 }
             }
         ];
+        
         injectSVG();
         bootstrapNavigator();
 
