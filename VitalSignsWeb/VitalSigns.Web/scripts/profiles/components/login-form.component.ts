@@ -1,6 +1,6 @@
 ﻿import { Component, ViewChildren } from '@angular/core';
-import { Router } from '@angular/router';
-import {RESTService} from '../../core/services';
+import { Router, ActivatedRoute } from '@angular/router';
+import { RESTService } from '../../core/services';
 import { AuthenticationService } from '../services/authentication.service';
 
 @Component({
@@ -18,7 +18,8 @@ export class LoginForm {
 
     constructor(
         private router: Router,
-        private authenticationService: AuthenticationService,private service: RESTService) { }
+        private route: ActivatedRoute,
+        private authenticationService: AuthenticationService, private service: RESTService) { }
 
     login() {
 
@@ -28,8 +29,13 @@ export class LoginForm {
 
                 if (result === true) {
 
-                    this.router.navigate(['/']);
-                    
+                    let referrer = this.route.snapshot.params['ref'];
+
+                    if (referrer)
+                        this.router.navigateByUrl(referrer);
+                    else
+                        this.router.navigate(['/']);
+
                 } else {
 
                     this.error = 'Username or password is incorrect';
@@ -50,7 +56,7 @@ export class LoginForm {
                     this.emailid.first.nativeElement.value = "";
                 });
             dialog.hide();
-        }          
+        }
     }
 
 }

@@ -1,29 +1,27 @@
 ﻿import { Injectable } from '@angular/core';
-import { Router, CanActivate, CanActivateChild } from '@angular/router';
+import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
 import { AuthenticationService } from './authentication.service';
 
 @Injectable()
-export class AuthGuard implements CanActivate, CanActivateChild {
+export class AuthGuard implements CanActivate {
 
     constructor(
         private router: Router,
         private authService: AuthenticationService) { }
 
-    canActivate() {
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
 
         if (this.authService.isLoggedIn)
             return true;
-        
-        this.router.navigate(['/login']);
+            
+        this.router.navigate(
+            ['/login', {
+                ref: state.url
+            }]);
 
         return false;
 
     }
 
-    canActivateChild() {
-
-        return this.canActivate();
-
-    }
 }
