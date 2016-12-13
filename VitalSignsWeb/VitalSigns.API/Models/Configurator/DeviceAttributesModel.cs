@@ -70,6 +70,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("default_value")]
         public string DefaultValue { get; set; }
 
+        [JsonProperty("default_bool_values")]
+        public bool DefaultboolValues { get; set; }
+
         [JsonProperty("device_type")]
         public string DeviceType { get; set; }
 
@@ -104,6 +107,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("datatype")]
         public string DataType { get; set; }
 
+        [JsonProperty("default_bool_values")]
+        public bool DefaultboolValues { get; set; }
 
     }
 }

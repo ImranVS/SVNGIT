@@ -1227,6 +1227,7 @@ namespace VitalSigns.API.Controllers
                                 //   .Set(attribute.FieldName, attribute.Value);
                                 string field = attribute.FieldName;
                                 string value = attribute.Value;
+                                bool defaultvalues = attribute.DefaultboolValues;
                                 string datatype = attribute.DataType;
                                 if (datatype == "int")
                                 {
@@ -1783,14 +1784,14 @@ namespace VitalSigns.API.Controllers
                        
                             var servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
                         attri.DefaultValue = servervalue.ToString();
-                        //if (attri.DataType == "bool" && attri.DefaultValue == "false")
-                        //{
-                        //    attri.DefaultValue = "0";
-                        //}
-                        //else
-                        //{
-                        //    attri.DefaultValue = "1";
-                        //}
+                        if (attri.DataType == "bool" && attri.DefaultValue == "false")
+                        {
+                            attri.DefaultboolValues = false;
+                        }
+                        else
+                        {
+                            attri.DefaultboolValues = true;
+                        }
 
                         if (attri.FieldName == "password")
                         {
@@ -1817,7 +1818,15 @@ namespace VitalSigns.API.Controllers
                     }
                     else
                     {
-                        attri.DefaultValue = attri.DefaultValue; ;
+                        attri.DefaultValue = attri.DefaultValue;
+                        if (attri.DataType == "bool" && attri.DefaultValue == "false")
+                        {
+                            attri.DefaultboolValues = false;
+                        }
+                        else
+                        {
+                            attri.DefaultboolValues = true;
+                        }
                     }
                     serverresult.DeviceAttributes.Add(attri);
                 }
@@ -1833,6 +1842,92 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        /// <summary>
+        ///Get Sametime Websphere data
+        /// </summary>
+        /// <author>Swathi</author>
+        [HttpGet("get_sametime_websphere/{id}")]
+        public APIResponse GetWebSphereSametimeData(string id)
+        {
+            try
+            {
+
+                WebShpereServerImport model = new WebShpereServerImport();
+                var cellsData = new List<CellInfo>();
+                serversRepository = new Repository<Server>(ConnectionString);
+                //  var servers = serversRepository.Collection.AsQueryable().FirstOrDefault(x => x.SametimeId == id);
+                // CellInfo cell = new CellInfo();
+                List<NodeInfo> NodesData = new List<NodeInfo>();
+                var websphereserver = serversRepository.All().Where(x => x.SametimeId == id && x.DeviceType == "WebSphereCell").FirstOrDefault();
+                //  cellsData.Add(websphereserver);
+                CellInfo cell = new CellInfo();
+                cell.DeviceId = websphereserver.CellId;
+              cell.CellId = websphereserver.Id;
+               cell.CellName = websphereserver.CellName;
+                cell.Name = websphereserver.DeviceName;
+                cell.HostName = websphereserver.CellHostName;
+                cell.PortNo = websphereserver.PortNumber;
+                cell.ConnectionType = websphereserver.ConnectionType;
+                cell.GlobalSecurity = websphereserver.GlobalSecurity;
+                cell.CredentialsId = websphereserver.CredentialsId;
+                cell.Realm = websphereserver.Realm;
+                cell.NodesData = new List<NodeInfo>();
+                foreach (var webSphereNode in websphereserver.Nodes)
+                {
+                    foreach (var webSphereServer in webSphereNode.WebSphereServers)
+                    {
+                        if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                        {
+                            NodeInfo node = new NodeInfo();
+                            node.NodeId = webSphereNode.NodeId;
+                            node.NodeName = webSphereNode.NodeName;
+                            node.ServerId = webSphereServer.ServerId;
+                            node.ServerName = webSphereServer.ServerName;
+                            node.HostName = webSphereNode.HostName;
+                            node.CellId = cell.CellId;
+                            cell.NodesData.Add(node);
+                        }
+                    }
+                }
+                cellsData.Add(cell);
+
+
+
+                //deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+                //model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == Enums.ServerType.WebSphere.ToDescription())).Select(x => new DeviceAttributesModel
+                //{
+                //    Id = x.Id,
+                //    AttributeName = x.AttributeName,
+                //    DefaultValue = x.DefaultValue,
+                //    DeviceType = x.DeviceType,
+                //    FieldName = x.FieldName,
+                //    Category = x.Category,
+                //    DataType = x.DataType,
+                //    Type = x.Type,
+                //    Unitofmeasurement = x.Unitofmeasurement,
+                //    IsSelected = false
+                //}).OrderBy(x => x.AttributeName).ToList();
+
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+
+                var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+                foreach (var item in cellsData)
+                {
+                    var credential = credentialsData.FirstOrDefault(x => x.Value == item.CredentialsId);
+                    if (credential != null)
+                        item.CredentialsName = credential.DisplayText;
+                }
+                model.SelectedServers = new List<NodeInfo>();
+                Response = Common.CreateResponse(new { websphereData = model, cellData = cellsData[0], credentialsData = credentialsData });
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Save Server Attributes falied .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
 
         /// <summary>
         ///saves the Server device attributes data
@@ -1879,6 +1974,7 @@ namespace VitalSigns.API.Controllers
                         {
                             string field = attribute.FieldName;
                             string value = attribute.DefaultValue;
+                            bool defaultvalues = attribute.DefaultboolValues;
                             string datatype = attribute.DataType;
                             if(field == "password")
                             {
@@ -1915,15 +2011,16 @@ namespace VitalSigns.API.Controllers
                             }
                             if (datatype == "bool")
                             {
-                                bool booloutput;
-                                if (value=="False" || value=="0")
-                                {
-                                     booloutput = false;
-                                }
-                                else
-                                {
-                                     booloutput = true;
-                                }                                
+                                string booloutput = (attribute.DefaultboolValues == false ? "false" : "true");
+                                //string booloutput;
+                                //if (defaultvalues == false)
+                                //{
+                                //    booloutput = "false";
+                                //}
+                                //else
+                                //{
+                                //    booloutput = "true";
+                                //}
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                                                                                     .Set(field, booloutput);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
