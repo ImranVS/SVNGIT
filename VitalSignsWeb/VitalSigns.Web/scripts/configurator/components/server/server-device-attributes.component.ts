@@ -49,6 +49,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     searchText: string = "Optional Search Text"
     usernameorPassword: string = "Optional Username/Password"
     visiblity: boolean;
+    documentschecked: boolean;
  
     constructor(
         private formBuilder: FormBuilder,
@@ -141,7 +142,10 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
     }
 
-
+    isChecked(ischecked: boolean) {
+        this.documentschecked = ischecked;
+        console.log(this.documentschecked);
+    }
 
     handleClick(index: any) {
 

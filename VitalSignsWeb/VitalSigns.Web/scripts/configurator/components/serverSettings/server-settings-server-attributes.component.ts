@@ -99,6 +99,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
                 deviceAttrObject.value = item.default_value;
                 deviceAttrObject.field_name = item.field_name;
                 deviceAttrObject.datatype = item.datatype;
+                deviceAttrObject.defaultboolvalue = item.defaultboolvalue;
                 slectedAttributeValues.push(deviceAttrObject);
                 console.log(deviceAttrObject.value);
                 console.log(deviceAttrObject.field_name);
