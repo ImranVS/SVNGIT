@@ -37,12 +37,17 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("start_time")]
         [BsonIgnoreIfNullAttribute]
-        public DateTime StartTime { get; set; }
+        public string StartTime { get; set; }
 
         [DataMember]
         [BsonElement("end_date")]
         [BsonIgnoreIfNullAttribute]
         public DateTime EndDate { get; set; }
+
+        [DataMember]
+        [BsonElement("end_time")]
+        [BsonIgnoreIfNullAttribute]
+        public string EndTime { get; set; }
 
         [DataMember]
         [BsonElement("duration")]
