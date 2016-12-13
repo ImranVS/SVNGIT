@@ -52,8 +52,8 @@
             "tab_id": 7,
             "title": "Maintenance",
             "type": "Dashboard",
-            "component": "NotYetImplemented",
-            "path": "/app/not-yet-implemented.component"
+            "component": "MaintenanceWindows",
+            "path": "/app/configurator/components/server/server-maintenance-windows.component"
           },
           {
             "tab_id": 8,
@@ -126,8 +126,8 @@
         "tab_id": 7,
         "title": "Maintenance",
         "type": "Dashboard",
-        "component": "NotYetImplemented",
-        "path": "/app/not-yet-implemented.component"
+        "component": "MaintenanceWindows",
+        "path": "/app/configurator/components/server/server-maintenance-windows.component"
       },
       {
         "tab_id": 8,
