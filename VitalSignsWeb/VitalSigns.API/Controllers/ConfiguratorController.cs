@@ -35,11 +35,11 @@ namespace VitalSigns.API.Controllers
         private IRepository<Maintenance> maintenanceRepository;
 
         private IRepository<NameValue> nameValueRepository;
-       
+
 
         private IRepository<Server> serversRepository;
 
-       private IRepository<MobileDevices> mobiledevicesRepository;
+        private IRepository<MobileDevices> mobiledevicesRepository;
 
 
         private IRepository<Users> maintainUsersRepository;
@@ -60,7 +60,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<Notifications> notificationsRepository;
         private IRepository<NotificationDestinations> notificationDestRepository;
-       private IRepository<Scripts> scriptsRepository;
+        private IRepository<Scripts> scriptsRepository;
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<IbmConnectionsObjects> ibmConnectionsObjectsRepository;
@@ -154,12 +154,12 @@ namespace VitalSigns.API.Controllers
                         foreach (License l in licenseList)
                             repoLic.Delete(l);
 
-                            repoLic.Insert(lic);
+                        repoLic.Insert(lic);
                         VitalSignsLicensing.Licensing licCollection = new VitalSignsLicensing.Licensing();
                         licCollection.refreshServerCollectionWrapper();
                     }
                 }
-                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(),"Licence Key Saved Successfully Saved");
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Licence Key Saved Successfully Saved");
             }
             catch (Exception exception)
             {
@@ -174,19 +174,19 @@ namespace VitalSigns.API.Controllers
             try
             {
                 var preferencesSettings = new List<string> { "Company Name", "Currency Symbol", "Monitoring Delay", "Threshold Show", "Dashboard Only", "Bing Key" };
-                PreferencesModel userpreference = new PreferencesModel();              
+                PreferencesModel userpreference = new PreferencesModel();
                 var result = Common.GetNameValues(preferencesSettings);
                 VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(ConnectionString);
                 License licenseItem = repoLic.Find(i => i.LicenseKey != "").FirstOrDefault();
                 userpreference.CompanyName = result.FirstOrDefault(x => x.Name == "Company Name").Value;
                 userpreference.CurrencySymbol = result.FirstOrDefault(x => x.Name == "Currency Symbol").Value;
-                userpreference.MonitoringDelay =Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Monitoring Delay").Value);
+                userpreference.MonitoringDelay = Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Monitoring Delay").Value);
                 userpreference.ThresholdShow = Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Threshold Show").Value);
                 userpreference.DashboardonlyExecSummaryButtons = Convert.ToBoolean(result.FirstOrDefault(x => x.Name == "Dashboard Only").Value);
                 userpreference.BingKey = result.FirstOrDefault(x => x.Name == "Bing Key").Value;
 
-                Response = Common.CreateResponse(new { userpreference = userpreference, licenseitem = licenseItem } );
-               
+                Response = Common.CreateResponse(new { userpreference = userpreference, licenseitem = licenseItem });
+
             }
             catch (Exception exception)
             {
@@ -212,15 +212,15 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 var result = credentialsRepository.All().Select(x => new ServerCredentialsModel
                 {
-                   Alias=x.Alias,
-                   UserId=x.UserId,
-                   DeviceType=x.DeviceType,
-                   Id=x.Id
-                
-                  
+                    Alias = x.Alias,
+                    UserId = x.UserId,
+                    DeviceType = x.DeviceType,
+                    Id = x.Id
+
+
 
                 }).ToList();
-             
+
 
                 Response = Common.CreateResponse(result);
 
@@ -245,18 +245,18 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Credentials, bool>> filterExpression;
                 if (string.IsNullOrEmpty(serverCredential.Id))
                 {
-                     filterExpression = (p => p.Alias == serverCredential.Alias);
+                    filterExpression = (p => p.Alias == serverCredential.Alias);
 
-                   
+
                 }
                 else
                 {
-                 filterExpression = (p => p.Alias == serverCredential.Alias && p.Id != serverCredential.Id);
+                    filterExpression = (p => p.Alias == serverCredential.Alias && p.Id != serverCredential.Id);
 
-                   
+
                 }
                 var existedData = credentialsRepository.Find(filterExpression).Select(x => x.Alias).FirstOrDefault();
-                if (existedData==null)
+                if (existedData == null)
                 {
                     byte[] password;
 
@@ -304,7 +304,7 @@ namespace VitalSigns.API.Controllers
 
                     }
                 }
-             else
+                else
                 {
                     Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This Alias name already exists.");
                 }
@@ -350,7 +350,7 @@ namespace VitalSigns.API.Controllers
 
                 serversRepository = new Repository<Server>(ConnectionString);
                 var serverTypeData = serversRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.DeviceType, Value = x.DeviceType }).Distinct().ToList().OrderBy(x => x.DisplayText);
-               
+
                 Response = Common.CreateResponse(new { serverTypeData = serverTypeData });
                 return Response;
             }
@@ -383,12 +383,12 @@ namespace VitalSigns.API.Controllers
                 {
                     var countryData = validLocationsRepository.All().Where(x => x.Country != null).Select(x => x.Country).Distinct().OrderBy(x => x).ToList();
                     Response = Common.CreateResponse(new { countryData = countryData });
-                   // countryData.Insert(0, "-All-");
+                    // countryData.Insert(0, "-All-");
                 }
                 if (!string.IsNullOrEmpty(country))
                 {
                     var stateData = validLocationsRepository.All().FirstOrDefault(x => x.Country == country).States;
-                   // var countryData = validLocationsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.States, Value = x.Id }.OrderBy(x => x.DisplayText);
+                    // var countryData = validLocationsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.States, Value = x.Id }.OrderBy(x => x.DisplayText);
                     Response = Common.CreateResponse(new { stateData = stateData });
 
                 }
@@ -503,10 +503,10 @@ namespace VitalSigns.API.Controllers
             {
                 locationRepository = new Repository<Location>(ConnectionString);
                 Expression<Func<Location, bool>> expression = (p => p.Id == id);
-              locationRepository.Delete(expression);
+                locationRepository.Delete(expression);
                 Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location Deleted successfully");
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete locations falied .\n Error Message :" + exception.Message);
             }
@@ -520,10 +520,23 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         /// <returns>List of business hours details</returns>
-
         [HttpGet("get_business_hours")]
-        public APIResponse GetAllBusinessHours(bool nameonly = false)
+        public APIResponse GetBusinessHours(bool nameonly = false)
         {
+            try
+            {
+                var result = GetAllBusinessHours(nameonly);
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Fetching business hours failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        public List<dynamic> GetAllBusinessHours(bool nameonly = false)
+        {
+            List<dynamic> resultList = new List<dynamic>();
             try
             {
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
@@ -544,7 +557,8 @@ namespace VitalSigns.API.Controllers
                         Saturday = x.Days.Contains("Saturday"),
                         UseType = Convert.ToString(x.UseType)
                     }).ToList();
-                    Response = Common.CreateResponse(result);
+                    resultList.Add(result);
+                    return resultList;
                 }
                 else
                 {
@@ -552,14 +566,14 @@ namespace VitalSigns.API.Controllers
                         .OrderBy(y => y.Name)
                         .Select(x => x.Name)
                         .ToList();
-                    Response = Common.CreateResponse(result);
+                    resultList.Add(result);
+                    return resultList;
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Fetching business hours failed .\n Error Message :" + exception.Message);
+                return null;
             }
-            return Response;
         }
 
 
@@ -567,10 +581,11 @@ namespace VitalSigns.API.Controllers
         ///saves the  business hours data
         /// </summary>
         /// <author>Sowjanya</author>
-       
+
         [HttpPut("save_business_hours")]
         public APIResponse UpdateBusinessHours([FromBody]BusinessHourModel businesshour)
         {
+            List<dynamic> business_hours = new List<dynamic>();
             try
             {
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
@@ -595,12 +610,12 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(businesshour.Id))
                 {
                     filterExpression = (p => p.Name == businesshour.Name);
-                    
+
                 }
                 else
                 {
-                     filterExpression = (p => p.Name == businesshour.Name && p.Id != businesshour.Id );
-                    
+                    filterExpression = (p => p.Name == businesshour.Name && p.Id != businesshour.Id);
+
                 }
                 var existsData = businessHoursRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
 
@@ -611,7 +626,8 @@ namespace VitalSigns.API.Controllers
                     {
                         BusinessHours businessHours = new BusinessHours { Name = businesshour.Name, StartTime = businesshour.StartTime, Duration = businesshour.Duration, Days = days.ToArray(), UseType = Convert.ToInt32(businesshour.UseType) };
                         string id = businessHoursRepository.Insert(businessHours);
-                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Business hours inserted successfully");
+                        business_hours = GetAllBusinessHours();
+                        Response = Common.CreateResponse(business_hours, Common.ResponseStatus.Success.ToDescription(), "Business hours record inserted successfully");
                     }
 
                     else
@@ -624,22 +640,20 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.Days, days.ToArray());
 
                         var result = businessHoursRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Business hours updated successfully");
+                        business_hours = GetAllBusinessHours();
+                        Response = Common.CreateResponse(business_hours, Common.ResponseStatus.Success.ToDescription(), "Business hours record updated successfully");
                     }
                 }
-
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Name already exists. Enter another one.");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This name already exists. Please enter another one.");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save business hours failed .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save business hours failed. \n Error Message :" + exception.Message);
             }
-
             return Response;
-
         }
 
         /// <summary>
@@ -677,63 +691,84 @@ namespace VitalSigns.API.Controllers
         /// <returns>List of maintenance data</returns>
         public APIResponse GetAllMaintenance()
         {
+            List<dynamic> result = new List<dynamic>();
+
             try
             {
-                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-                var maintainWindows = maintenanceRepository.All().Select(x => new MaintenanceModel
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    StartDate = x.StartDate,
-                    StartTime = x.StartTime,
-                    EndDate = x.EndDate,
-                    Duration = x.Duration,
-                    DurationType = Convert.ToString(x.DurationType),
-
-                    MaintenanceDaysList = x.MaintenanceDaysList,
-                    ContinueForever = x.ContinueForever,
-                    MaintainType = Convert.ToString(x.MaintainType )== "1" ? "OneTime" :
-                                   Convert.ToString(x.MaintainType) == "2" ? "Daily" :
-                                    Convert.ToString(x.MaintainType) == "3" ? "Weekly" :
-                                     Convert.ToString(x.MaintainType) == "4" ? "Monthly" : "-",
-
-                    MaintainTypeValue = Convert.ToString(x.MaintainType)
-
-                }).ToList();
-
-                serversRepository = new Repository<Server>(ConnectionString);
-                var servers = serversRepository.Collection.AsQueryable().Select(x => new { ServerID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
-                foreach (var maintainWindow in maintainWindows)
-                {
-                    var innerServers = servers.Where(x => x.MaintenanceWindows.Contains(maintainWindow.Id)).ToList();
-                    foreach (var server in innerServers)
-                    {
-                        maintainWindow.DeviceList.Add(server.ServerID);
-                    }
-                }
-
-                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
-                var keyUsers = mobileDevicesRepository.Collection.AsQueryable().Select(x => new { KeyuserID = x.Id, MaintenanceWindows = x.MaintenanceWindows});
-                foreach(var maintenaceWindow in maintainWindows)
-                {
-                    var innerkeyUsers = keyUsers.Where(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id)).ToList();
-                  foreach(var keyUser in innerkeyUsers)
-                    {
-                        maintenaceWindow.KeyUsers.Add(keyUser.KeyuserID);
-                    }
-
-                }
-
-                Response = Common.CreateResponse(maintainWindows, Common.ResponseStatus.Success.ToDescription(), "Maintenancedata inserted successfully");
+                result = GetMaintenanceList();
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Maintenancedata inserted successfully");
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Fetching Maintenance failed .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Fetching maintenance information has failed .\n Error Message :" + ex.Message);
             }
             return Response;
         }
 
+        public List<dynamic> GetMaintenanceList()
+        {
+            List<dynamic> result_disp = new List<dynamic>();
+            List<string> serverList = new List<string>();
+            List<string> userList = new List<string>();
+            try
+            {
+                maintenanceRepository = new Repository<Maintenance>(ConnectionString);
+                var maintainWindows = maintenanceRepository.All().ToList();
 
+                serversRepository = new Repository<Server>(ConnectionString);
+                var servers = serversRepository.Collection.AsQueryable().Select(x => new { ServerID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
+                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                var keyUsers = mobileDevicesRepository.Collection.AsQueryable()
+                    .Where(x => x.ThresholdSyncTime != null)
+                    .Select(x => new { KeyuserID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
+                foreach (var maintainWindow in maintainWindows)
+                {
+                    serverList = new List<string>();
+                    var innerServers = servers.Where(x => x.MaintenanceWindows.Contains(maintainWindow.Id)).ToList();
+                    foreach (var server in innerServers)
+                    {
+                        serverList.Add(server.ServerID);
+                    }
+                    userList = new List<string>();
+                    var innerkeyUsers = keyUsers.Where(x => x.MaintenanceWindows.Contains(maintainWindow.Id)).ToList();
+                    foreach (var keyUser in innerkeyUsers)
+                    {
+                        userList.Add(keyUser.KeyuserID);
+                    }
+
+                    result_disp.Add(new MaintenanceModel
+                    {
+                        Id = maintainWindow.Id,
+                        Name = maintainWindow.Name,
+                        StartDate = maintainWindow.StartDate,
+                        StartTime = maintainWindow.StartTime,
+                        EndDate = maintainWindow.EndDate,
+                        EndTime = maintainWindow.EndTime,
+                        Duration = maintainWindow.Duration,
+                        DurationType = Convert.ToString(maintainWindow.DurationType),
+
+                        MaintenanceDaysList = maintainWindow.MaintenanceDaysList,
+                        ContinueForever = maintainWindow.ContinueForever,
+                        MaintainType = Convert.ToString(maintainWindow.MaintainType) == "1" ? "One Time" :
+                        Convert.ToString(maintainWindow.MaintainType) == "2" ? "Daily" :
+                        Convert.ToString(maintainWindow.MaintainType) == "3" ? "Weekly" :
+                        Convert.ToString(maintainWindow.MaintainType) == "4" ? "Monthly" : "-",
+
+                        MaintainTypeValue = Convert.ToString(maintainWindow.MaintainType),
+                        KeyUsers = userList,
+                        DeviceList = serverList
+
+                    });
+                }
+
+                return result_disp;
+            }
+            catch (Exception exception)
+            {                
+                return result_disp;
+            }     
+            
+        }
         /// <summary>
         ///saves the  maintenance data
         /// </summary>
@@ -741,6 +776,10 @@ namespace VitalSigns.API.Controllers
         [HttpPut("save_maintenancedata")]
         public APIResponse UpdateMaintenancedata([FromBody]MaintenanceModel maintenance)
         {
+            List<string> tempList = new List<string>();
+            List<dynamic> result_disp = new List<dynamic>();
+            FilterDefinition<Server> filterServerDef;
+            FilterDefinition<MobileDevices> filterUserDef;
             try
             {
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
@@ -748,7 +787,6 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(maintenance.Id))
                 {
                     filterExpression = (p => p.Name == maintenance.Name);
-
                 }
                 else
                 {
@@ -758,8 +796,7 @@ namespace VitalSigns.API.Controllers
                 var existsData = maintenanceRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
 
                 if (string.IsNullOrEmpty(existsData))
-                { 
-
+                {
                     if (string.IsNullOrEmpty(maintenance.Id))
                     {
                         Maintenance maintenancedata = new Maintenance
@@ -769,98 +806,182 @@ namespace VitalSigns.API.Controllers
                             StartTime = maintenance.StartTime,
                             Duration = maintenance.Duration,
                             EndDate = maintenance.EndDate,
+                            EndTime = maintenance.EndTime,
                             MaintenanceDaysList = maintenance.MaintenanceDaysList,
                             MaintainType = maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType),
                             DurationType = maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType)
                         };
-
-
                         maintenance.Id = maintenanceRepository.Insert(maintenancedata);
-                        Response = Common.CreateResponse(maintenance.Id, Common.ResponseStatus.Success.ToDescription(), "Maintenance data inserted successfully");
 
+                        serversRepository = new Repository<Server>(ConnectionString);
+                        UpdateDefinition<Server> updateDefinition = null;
+                        var devicesList = maintenance.DeviceList;
+                        foreach (string id in devicesList)
+                        {
+                            var server = serversRepository.Get(id);
+                            if (server.MaintenanceWindows != null)
+                            {
+                                if (!server.MaintenanceWindows.Contains(maintenance.Id))
+                                {
+                                    server.MaintenanceWindows.Add(maintenance.Id);
+                                    updateDefinition = serversRepository.Updater.Set(p => p.MaintenanceWindows, server.MaintenanceWindows);
+                                    var result = serversRepository.Update(server, updateDefinition);
+                                }
+                            }
+                            else
+                            {
+                                List<string> maintainanceWindow = new List<string>();
+                                maintainanceWindow.Add(maintenance.Id);
+                                updateDefinition = serversRepository.Updater.Set(p => p.MaintenanceWindows, maintainanceWindow);
+                                var result = serversRepository.Update(server, updateDefinition);
+                            }
+                        }
 
+                        mobiledevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                        UpdateDefinition<MobileDevices> mupdateDefinition = null;
+
+                        var keyusersList = maintenance.KeyUsers;
+                        foreach (string id in keyusersList)
+                        {
+                            var keyUser = mobiledevicesRepository.Get(id);
+                            if (keyUser.MaintenanceWindows != null)
+                            {
+                                if (!keyUser.MaintenanceWindows.Contains(maintenance.Id))
+                                {
+                                    keyUser.MaintenanceWindows.Add(maintenance.Id);
+                                    mupdateDefinition = mobiledevicesRepository.Updater.Set(p => p.MaintenanceWindows, keyUser.MaintenanceWindows);
+                                    var result = mobiledevicesRepository.Update(keyUser, mupdateDefinition);
+                                }
+                            }
+                            else
+                            {
+                                List<string> maintainanceWindow = new List<string>();
+                                maintainanceWindow.Add(maintenance.Id);
+                                mupdateDefinition = mobiledevicesRepository.Updater.Set(p => p.MaintenanceWindows, maintainanceWindow);
+                                var result = mobiledevicesRepository.Update(keyUser, mupdateDefinition);
+                            }
+                        }
+                        result_disp = GetMaintenanceList();
+                        Response = Common.CreateResponse(result_disp, Common.ResponseStatus.Success.ToDescription(), "Maintenance data inserted successfully");
                     }
                     else
                     {
                         FilterDefinition<Maintenance> filterDefination = Builders<Maintenance>.Filter.Where(p => p.Id == maintenance.Id);
                         var updateDefination = maintenanceRepository.Updater.Set(p => p.Name, maintenance.Name)
-                                                                 .Set(p => p.StartDate, maintenance.StartDate)
-                                                                 .Set(p => p.StartTime, maintenance.StartTime)
-                                                                 .Set(p => p.Duration, maintenance.Duration)
-                                                                 .Set(p => p.EndDate, maintenance.EndDate)
-                                                                  .Set(p => p.MaintainType, maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType))
-                                                                  .Set(p => p.DurationType, maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType))
-                                                                 .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
+                            .Set(p => p.StartDate, maintenance.StartDate)
+                            .Set(p => p.StartTime, maintenance.StartTime)
+                            .Set(p => p.Duration, maintenance.Duration)
+                            .Set(p => p.EndDate, maintenance.EndDate)
+                            .Set(p => p.EndTime, maintenance.EndTime)
+                            .Set(p => p.MaintainType, maintenance.MaintainType == "" ? 0 : Convert.ToInt32(maintenance.MaintainType))
+                            .Set(p => p.DurationType, maintenance.DurationType == "" ? 0 : Convert.ToInt32(maintenance.DurationType))
+                            .Set(p => p.MaintenanceDaysList, maintenance.MaintenanceDaysList);
                         var result = maintenanceRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Maintenance data  updated successfully");
-                    }
-         
-                    serversRepository = new Repository<Server>(ConnectionString);
-                    UpdateDefinition<Server> updateDefinition = null;
-                     // var devicesList = ((Newtonsoft.Json.Linq.JArray)maintenance.DeviceList).ToObject<List<string>>();
-                     var devicesList = maintenance.DeviceList;
-                    foreach (string id in devicesList)
-                    {
 
-                        var server = serversRepository.Get(id);
-                        if (server.MaintenanceWindows != null)
+                        serversRepository = new Repository<Server>(ConnectionString);
+                        filterServerDef = serversRepository.Filter.AnyEq(x => x.MaintenanceWindows, maintenance.Id);
+                        var serversList = serversRepository.Find(filterServerDef).ToList();
+
+                        if (serversList.Count > 0)
                         {
-                            if (!server.MaintenanceWindows.Contains(maintenance.Id))
+                            foreach (var serverDef in serversList)
                             {
-                                server.MaintenanceWindows.Add(maintenance.Id);
-                                updateDefinition = serversRepository.Updater.Set(p => p.MaintenanceWindows, server.MaintenanceWindows);
-                                var result = serversRepository.Update(server, updateDefinition);
+                                if (!maintenance.DeviceList.Contains(serverDef.Id))
+                                {
+                                    if (serverDef.MaintenanceWindows != null)
+                                    {
+                                        var maintList = serverDef.MaintenanceWindows.ToList();
+                                        var itemToRemove = maintList.Single(r => r == maintenance.Id);
+                                        serverDef.MaintenanceWindows.Remove(itemToRemove);
+                                        serversRepository.Replace(serverDef);
+                                    }
 
+                                }
                             }
                         }
-                        else
+
+                        filterServerDef = serversRepository.Filter.In(x => x.Id, maintenance.DeviceList);
+                        serversList = serversRepository.Find(filterServerDef).ToList();
+
+                        if (serversList.Count > 0)
                         {
-                            List<string> maintainanceWindow = new List<string>();
-                            maintainanceWindow.Add(maintenance.Id);
-                            updateDefinition = serversRepository.Updater.Set(p => p.MaintenanceWindows, maintainanceWindow);
-                            var result = serversRepository.Update(server, updateDefinition);
-                        }
-                       
-
-                    }
-
-                mobiledevicesRepository = new Repository<MobileDevices>(ConnectionString);
-                UpdateDefinition<MobileDevices> mupdateDefinition = null;
-
-
-                //var keyusersList = ((Newtonsoft.Json.Linq.JArray)maintenance.KeyUsers).ToObject<string[]>();
-                var keyusersList = maintenance.KeyUsers;
-                foreach (string id in keyusersList)
-                {
-                   var keyUser = mobiledevicesRepository.Get(id);
-                    if (keyUser.MaintenanceWindows != null)
-                    {
-                        if (!keyUser.MaintenanceWindows.Contains(maintenance.Id))
-                        {
-                            keyUser.MaintenanceWindows.Add(maintenance.Id);
-                            mupdateDefinition = mobiledevicesRepository.Updater.Set(p => p.MaintenanceWindows, keyUser.MaintenanceWindows);
-                            var result = mobiledevicesRepository.Update(keyUser, mupdateDefinition);
-
+                            foreach (var serverDef in serversList)
+                            {
+                                tempList = new List<string>();
+                                if (serverDef.MaintenanceWindows != null)
+                                {
+                                    var maintList = serverDef.MaintenanceWindows.ToList();
+                                    int ind = maintList.FindIndex(x => x == maintenance.Id);
+                                    if (ind < 0)
+                                    {
+                                        serverDef.MaintenanceWindows.Add(maintenance.Id);
+                                    }
+                                }
+                                else
+                                {
+                                    tempList.Add(maintenance.Id);
+                                    serverDef.MaintenanceWindows = tempList;
+                                }
+                                serversRepository.Replace(serverDef);
+                            }
                         }
 
-                    }
-                    else
-                    {
-                        List<string> maintainanceWindow = new List<string>();
-                        maintainanceWindow.Add(maintenance.Id);
-                        mupdateDefinition = mobiledevicesRepository.Updater.Set(p => p.MaintenanceWindows, maintainanceWindow);
-                        var result = mobiledevicesRepository.Update(keyUser, mupdateDefinition);
-                    }
 
-                    
+                        mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                        filterUserDef = mobileDevicesRepository.Filter.AnyEq(x => x.MaintenanceWindows, maintenance.Id);
+                        var userList = mobileDevicesRepository.Find(filterUserDef).ToList();
 
-                }
+                        if (userList.Count > 0)
+                        {
+                            foreach (var userDef in userList)
+                            {
+                                if (!maintenance.KeyUsers.Contains(userDef.Id))
+                                {
+                                    if (userDef.MaintenanceWindows != null)
+                                    {
+                                        var maintList = userDef.MaintenanceWindows.ToList();
+                                        var itemToRemove = maintList.Single(r => r == maintenance.Id);
+                                        userDef.MaintenanceWindows.Remove(itemToRemove);
+                                        mobileDevicesRepository.Replace(userDef);
+                                    }
+
+                                }
+                            }
+                        }
+
+                        filterUserDef = mobileDevicesRepository.Filter.In(x => x.Id, maintenance.KeyUsers);
+                        userList = mobileDevicesRepository.Find(filterUserDef).ToList();
+
+                        if (userList.Count > 0)
+                        {
+                            foreach (var userDef in userList)
+                            {
+                                tempList = new List<string>();
+                                if (userDef.MaintenanceWindows != null)
+                                {
+                                    var maintList = userDef.MaintenanceWindows.ToList();
+                                    int ind = maintList.FindIndex(x => x == maintenance.Id);
+                                    if (ind < 0)
+                                    {
+                                        userDef.MaintenanceWindows.Add(maintenance.Id);
+                                    }
+                                }
+                                else
+                                {
+                                    tempList.Add(maintenance.Id);
+                                    userDef.MaintenanceWindows = tempList;
+                                }
+                                mobileDevicesRepository.Replace(userDef);
+                            }
+                        }
+                        result_disp = GetMaintenanceList();
+                        Response = Common.CreateResponse(result_disp, Common.ResponseStatus.Success.ToDescription(), "Maintenance data  updated successfully");
+                    }           
                 }
                 else
                 {
                     Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Name  already exists. Enter another one.");
                 }
-
             }
             catch (Exception exception)
             {
@@ -868,7 +989,6 @@ namespace VitalSigns.API.Controllers
             }
 
             return Response;
-
         }
 
         /// <summary>
@@ -883,7 +1003,7 @@ namespace VitalSigns.API.Controllers
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
                 Expression<Func<Maintenance, bool>> expression = (p => p.Id == id);
                 maintenanceRepository.Delete(expression);
-                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Maintenance data deleted succesfully.");
+                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Maintenance data deleted succesfully.");
             }
 
             catch (Exception exception)
@@ -6334,7 +6454,7 @@ namespace VitalSigns.API.Controllers
                 {
                     Name = maintenance.Name + "-Temp-" + DateTime.Now.ToString(),
                 StartDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
-                    StartTime = Convert.ToDateTime(DateTime.Now.ToShortTimeString()),
+                    StartTime = DateTime.Now.ToShortTimeString(),
                     Duration = maintenance.Duration,
                     EndDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
                     MaintenanceDaysList = "",

@@ -159,6 +159,7 @@ namespace VitalSigns.API.Controllers
         [HttpGet("mobile_user_devices")]
         public APIResponse GetAllMobileUserDevices(bool isKey = false)
         {
+            List<string> keyUsersList = new List<string>();
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             List<MobileUserDevice> result = null;
             if (!isKey)
@@ -210,12 +211,13 @@ namespace VitalSigns.API.Controllers
             var keyUsers = mobileDevicesRepository.Collection.AsQueryable().Select(x => new { KeyuserID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
             foreach (var maintenaceWindow in maintainWindows)
             {
+                keyUsersList = new List<string>();
                 var innerkeyUsers = keyUsers.Where(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id)).ToList();
                 foreach (var keyUser in innerkeyUsers)
                 {
-                    maintenaceWindow.KeyUsers.Add(keyUser.KeyuserID);
+                    keyUsersList.Add(keyUser.KeyuserID);
                 }
-
+                maintenaceWindow.KeyUsers = keyUsersList;
             }
 
             Response = Common.CreateResponse(result.OrderBy(x => x.UserName));

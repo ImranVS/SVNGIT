@@ -989,8 +989,9 @@ namespace VitalSigns.API.Controllers
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
-                        filterDefTemp = filterDef &
-                            summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
+                        filterDefTemp = filterDef & summaryRepository.Filter.And(
+                            summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i")),
+                            summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("_YESTERDAY")))));
 
                         if (!string.IsNullOrEmpty(deviceId))
                         {
@@ -1045,8 +1046,9 @@ namespace VitalSigns.API.Controllers
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
-                        filterDefTemp = filterDef & 
-                            summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i"));
+                        filterDefTemp = filterDef & summaryRepository.Filter.And(
+                            summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression(currString.Replace("*", ".*"), "i")),
+                            summaryRepository.Filter.In(p => p.StatName, statNames.Where(i => !(i.Contains("_YESTERDAY")))));
 
                         result.AddRange(
                             summaryRepository.Find(filterDefTemp)
