@@ -843,6 +843,12 @@ namespace VSNext.Mongo.Entities
         [BsonElement("nodes")]
         public List<WebSphereNode> Nodes { get; set; }
 
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("sametime_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string SametimeId { get; set; }
+
         #endregion
 
         #region WebSphereNode
