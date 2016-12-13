@@ -50,6 +50,7 @@ export class Maintenance extends GridBase implements OnInit  {
         end_time: null,
         duration: null,
         maintain_type: null,
+        maintain_type_value: null,
         maintenance_days_list: null,
         repeat_every: null,
         repeat_monthly: null,
@@ -113,12 +114,12 @@ export class Maintenance extends GridBase implements OnInit  {
     }
 
     handleClickMonthly(index: any) {
-        if (this.currentEditItem.maintain_type_value != "4") {
+        if (this.formObject.maintain_type_value != "4") {
             for (var i = 0; i < 7; i++) {
                 this.weekDays[i].isChecked = false;
             }
         }
-        else if (this.currentEditItem.maintain_type_value == "4") {
+        else if (this.formObject.maintain_type_value == "4") {
             this.monthlyEditBinding();
         }
 
@@ -126,12 +127,12 @@ export class Maintenance extends GridBase implements OnInit  {
 
     handleClickWeekly(index: any) {
 
-        if (this.currentEditItem.maintain_type_value != "3") {
+        if (this.formObject.maintain_type_value != "3") {
             for (var i = 0; i < 7; i++) {
                 this.weekDays[i].isChecked = false;
             }
         }
-        else if (this.currentEditItem.maintain_type_value == "3") {
+        else if (this.formObject.maintain_type_value == "3") {
             this.weeklyEditBinding();
         }
     }
@@ -186,6 +187,7 @@ export class Maintenance extends GridBase implements OnInit  {
         }
         this.formObject.duration = this.flex.collectionView.currentItem.duration;
         this.formObject.maintain_type = this.flex.collectionView.currentItem.maintain_type;
+        this.formObject.maintain_type_value = this.flex.collectionView.currentItem.maintain_type_value;
         this.selectedSetting = this.flex.collectionView.currentItem.maintain_type_value;
 
         //this.editGridRow(dlg);
