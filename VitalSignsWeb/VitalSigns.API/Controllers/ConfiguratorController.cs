@@ -2578,13 +2578,12 @@ namespace VitalSigns.API.Controllers
         [HttpGet("get_advanced_settings/{id}")]
         public APIResponse GetAdvancedSettings(string id)
         {
-
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
                 Expression<Func<Server, bool>> expression = (p => p.Id == id);
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
-                var platform = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.Platform).FirstOrDefault();
+                var platform = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.Platform).FirstOrDefault();               
                 var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
                             .Select(x => new AdvancedSettingsModel
                             {
@@ -2613,11 +2612,8 @@ namespace VitalSigns.API.Controllers
                                 DeviceType = x.DeviceType,
                                 CollectConferenceStatistics=x.CollectConferenceStatistics,
                                 ClusterReplicationQueueThreshold=x.ClusterReplicationQueueThreshold,
-                              
-                                
-                                
-
                             }).FirstOrDefault();
+                var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == results.DeviceType).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
 
                 //if (results.DeviceType == "IBM Connections")
                 //{
@@ -2629,17 +2625,12 @@ namespace VitalSigns.API.Controllers
                 //    }).FirstOrDefault();
                 //    results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
                 //}
-                Response = Common.CreateResponse(new { results = results, platform = platform });
-               // Response = Common.CreateResponse(results);
+                Response = Common.CreateResponse(new { results = results, platform = platform , credentialsData = credentialsData });             
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error in getting Advanced Settings.");
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error in getting Advanced Settings.:" + exception.Message);
             }
-
-
-
             return Response;
         }
         /// <summary>
@@ -2648,28 +2639,25 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPut("save_advanced_settings/{id}")]
-        public APIResponse UpdateAdvancedSettings([FromBody]AdvancedSettingsModel advancedSettings,string id)
+        public APIResponse UpdateAdvancedSettings([FromBody]AdvancedSettingsModel advancedSettings, string id)
         {
             try
             {
                 FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
                 serversRepository = new Repository<Server>(ConnectionString);
-               
                 try
                 {
-                   if(advancedSettings.DeviceType=="Domino")
+                    if (advancedSettings.DeviceType == "Domino")
                     {
-                       
                         var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold)
                                                                  .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold)
                                                                  .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
                                                                  .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold)
-                                                                 .Set(p=> p.ClusterReplicationQueueThreshold,advancedSettings.ClusterReplicationQueueThreshold);
+                                                                 .Set(p => p.ClusterReplicationQueueThreshold, advancedSettings.ClusterReplicationQueueThreshold);
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                      //  Response = Common.CreateResponse(result);
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
                     }
-                   else if(advancedSettings.DeviceType == "Sametime")
+                    else if (advancedSettings.DeviceType == "Sametime")
                     {
                         var updateDefination = serversRepository.Updater.Set(p => p.ProxyServerType, advancedSettings.ProxyServerType)
                                                               .Set(p => p.ProxyServerprotocol, advancedSettings.ProxyServerprotocol)
@@ -2686,48 +2674,33 @@ namespace VitalSigns.API.Controllers
                                                               .Set(p => p.ConferenceHostName, advancedSettings.ConferenceHostName)
                                                               .Set(p => p.ConferencePort, advancedSettings.ConferencePort)
                                                                .Set(p => p.ConferenceRequireSSL, advancedSettings.ConferenceRequireSSL)
-                                                               .Set(p=>p.CollectConferenceStatistics,advancedSettings.CollectConferenceStatistics)
-                                                               .Set(p=>p.Db2SettingsCredentialsId,advancedSettings.Db2SettingsCredentialsId);
+                                                               .Set(p => p.CollectConferenceStatistics, advancedSettings.CollectConferenceStatistics)
+                                                               .Set(p => p.Db2SettingsCredentialsId, advancedSettings.Db2SettingsCredentialsId);
 
-                        var result = serversRepository.Update(filterDefination, updateDefination);
+                        var result = serversRepository.Update(filterDefination, updateDefination, new UpdateOptions { IsUpsert = true });
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
-                        //Response = Common.CreateResponse(result);
-
                     }
-
-                   else if (advancedSettings.DeviceType == "IBM Connections")
+                    else if (advancedSettings.DeviceType == "IBM Connections")
                     {
                         var updateDefination = serversRepository.Updater.Set(p => p.DatabaseSettingsHostName, advancedSettings.DatabaseSettingsHostName)
                                                              .Set(p => p.DatabaseSettingsPort, advancedSettings.DatabaseSettingsPort)
-                                                             .Set(p=>p.DatabaseSettingsCredentialsId,advancedSettings.DatabaseSettingsCredentialsId);
-                                                            
-
+                                                             .Set(p => p.DatabaseSettingsCredentialsId, advancedSettings.DatabaseSettingsCredentialsId);
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                        //Response = Common.CreateResponse(result);
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
-
                     }
-                  
-                   
                 }
                 catch (Exception exception)
                 {
                     Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Advanced Settings falied .\n Error Message :" + exception.Message);
                 }
-
                 return Response;
-
-
             }
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Advanced Settings falied .\n Error Message :" + exception.Message);
             }
-
             return Response;
-
-        }
-       
+        }      
         #endregion
         #endregion
 
