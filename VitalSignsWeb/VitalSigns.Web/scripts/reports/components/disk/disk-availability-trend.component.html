@@ -10,13 +10,11 @@
 
         </ul>
     </div>
-    <div class="hidden-xs hidden-sm col-lg-9" style="padding-left: 30px">
+    <div class="container-fluid">
         <traveler-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl"
                          [(hideMailServerControl)]="currentHideMailServerControl" [(hideIntervalControl)]="currentHideIntervalControl"
                          [(hideDatePanel)]="currentHideDTControl" [(hideAllServerControl)]="currentHideAllServerControl"
                          [(hideSingleDatePanel)]="currentHideSingleDTControl"></traveler-filter>
-    </div>
-    <div id="zeusContent" class="col-lg-9">
         <div class="reportsPage">
             <h1>Disk Availability - Annual Trend</h1>
             <div *ngFor="let widget of widgets">
@@ -26,9 +24,7 @@
                 </div>
             </div>
         </div>
-
     </div>
-
     <button class="visible-xs visible-sm showMbtn" onclick="$('.dashboard-menu').toggle();">
         <img class="svgInject" src="img/dashboard/SubLevelsMenu.svg" title="Dashboard Sub Levels" alt="Dashboard Sub Levels" />
     </button>
