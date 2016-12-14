@@ -3,19 +3,18 @@ import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {RESTService} from '../../../core/services';
 import {Router, ActivatedRoute} from '@angular/router';
 import {AppComponentService} from '../../../core/services';
+
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/server/server-advanced-settings.component.html'
 
 })
-//export class ServerDiskSettings implements OnInit, AfterViewInit {
 export class ServerAdvancedSettings implements OnInit {
     advancedSettingsForm: FormGroup;
     errorMessage: string;
     deviceId: any;
     deviceCredentialData: any;
     ConnectionsCredentialData: any;
-    // selectedCredential: string;
     selectedTpe: string;
     deviceType: any;
     selectedIbmDb2Credential: string;
@@ -25,14 +24,16 @@ export class ServerAdvancedSettings implements OnInit {
     serverType: string;
     Types: string;
     platform: string;
-     appComponentService: AppComponentService;
+    db2CredentialsId : any;
+  
+
+    appComponentService: AppComponentService;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private route: ActivatedRoute,
-        appComponentService: AppComponentService
-    ) {
-
+        appComponentService: AppComponentService)
+        { 
         this.advancedSettingsForm = this.formBuilder.group({
             'memory_threshold': [''],
             'cpu_threshold': [''],
@@ -84,37 +85,22 @@ export class ServerAdvancedSettings implements OnInit {
         this.dataProvider.get('/Configurator/get_advanced_settings/' + this.deviceId)
             .subscribe(
             (response) => {
-                console.log(response.data);
-
+               
                 this.advancedSettingsForm.setValue(response.data.results);
+                this.db2CredentialsId = response.data.results.db2_settings_credentials_id;
                 this.deviceType = response.data.results.device_type;
                 this.platform = response.data.platform;
-                //this.Type = response.data.database_settings_credentials_id;
-               
+                this.deviceCredentialData = response.data.credentialsData;
+                this.ConnectionsCredentialData = response.data.credentialsData;
             },
-
             (error) => {
                 this.errorMessage = <any>error
                 this.appComponentService.showErrorMessage(this.errorMessage);
             }
 
             );
-        // this.selectedTpe = this.advancedSettingsForm.memory_threshold;
-
-        this.dataProvider.get('/Configurator/get_server_credentials_businesshours')
-            .subscribe(
-            (response) => {
-
-                this.deviceCredentialData = response.data.credentialsData;
-                this.ConnectionsCredentialData = response.data.credentialsData;
-            },
-            (error) => this.errorMessage = <any>error
-            );
-
     }
-
     onSubmit(advancedSettings: any): void {
-
         this.dataProvider.put('/Configurator/save_advanced_settings/' + this.deviceId, advancedSettings)
             .subscribe(
             response => {
@@ -128,11 +114,7 @@ export class ServerAdvancedSettings implements OnInit {
                     this.appComponentService.showErrorMessage(response.message);
                 }
             });
-
-
-
     }
-
     addIbmCredentials(dlg: wijmo.input.Popup) {
         if (dlg) {
             dlg.modal = this.modal;
@@ -146,14 +128,13 @@ export class ServerAdvancedSettings implements OnInit {
             dlg.modal = this.modal;
             dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
             dlg.show();
-
             this.serverType = "Sametime"
         }
     }
     SaveCredential(addCrdential: any, dialog: wijmo.input.Popup) {
         if (this.serverType == "IBM Connections")
             addCrdential.device_type = "IBM Connections";
-        else if (addCrdential.device_type = "Sametime")
+        else if (this.serverType = "Sametime")
             addCrdential.device_type = "Sametime";
 
         addCrdential.confirm_password = "";
@@ -174,6 +155,7 @@ export class ServerAdvancedSettings implements OnInit {
                 }
             });
         dialog.hide();
-
     }
 }
+
+    

@@ -130,7 +130,7 @@
                     <div class="col-sm-3">
 
                         <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                      placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_settings_credentials_id" [isEditable]="true" gotFocus="valuechange($event)">
+                                      placeholder="Select Credential" [(ngModel)]="db2CredentialsId"  formControlName="db2_settings_credentials_id" name="db2_settings_credentials_id" [isEditable]="true">
                         </wj-combo-box>
                     </div>
                     <div class="col-sm-2">
