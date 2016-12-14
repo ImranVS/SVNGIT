@@ -1019,30 +1019,99 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         [HttpGet("get_server_maintenancedata/{id}")]
-        public APIResponse GetServerMaintenanceData(string id)
+        public APIResponse GetServerMaintenanceData(string id, string fromdate, string fromtime, string todate, string totime)
         {
             serversRepository = new Repository<Server>(ConnectionString);
             maintenanceRepository = new Repository<Maintenance>(ConnectionString);
             List<MaintenanceModel> maintenanceWindows = new List<MaintenanceModel>();
+            //try
+            //{
+
+            //Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
+          
+
+
+            //    var result = serversRepository.Find(attributeexpression).Select(x => x.MaintenanceWindows).FirstOrDefault();
+
+            //var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id) && (!string.IsNullOrEmpty(fromdate) ? s.StartDate == Convert.ToDateTime(fromdate) : true) && (!string.IsNullOrEmpty(todate) ? s.EndDate == Convert.ToDateTime(todate) : true)
+            //&& (!string.IsNullOrEmpty(fromdate) && !string.IsNullOrEmpty(todate) && !string.IsNullOrEmpty(totime) && !string.IsNullOrEmpty(fromtime) ?
+            //s.StartDate >= Convert.ToDateTime(fromdate) && s.EndDate <= Convert.ToDateTime(todate) : true))
+
+
+            //var results = maintenanceRepository.Collection.AsQueryable().Where(s=> result.Contains(s.Id) &&  s.StartDate == Convert.ToDateTime(fromdate)) 
+            //                                              .Select(m => new
+            //                                              {
+            //                                                  id = m.Id,
+            //                                                  Name = m.Name,
+            //                                                  StartDate = m.StartDate,
+            //                                                  StartTime = m.StartTime,
+            //                                                  EndDate = m.EndDate,
+            //                                                  Duration = m.Duration,
+            //                                                  MaintainType = m.MaintainType,
+            //                                                  MaintenanceFrequency = m.MaintenanceFrequency,
+            //                                                  MaintenanceDaysList = m.MaintenanceDaysList
+            //                                                  //DeviceName = serversRepository.Find(attributeexpression).FirstOrDefault().DeviceName,
+            //                                                  //DeviceType = serversRepository.Find(attributeexpression).FirstOrDefault().DeviceType
+            //                                                  //DeviceName = serverResult.DeviceName,
+            //                                                  //DeviceType = serverResult.DeviceType
+            //                                              }).ToList();
+            //results.Add(serverResult);
+
+            //    Response = Common.CreateResponse(results);
+            //}
+
             try
             {
 
                 Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
+                var serverResult = serversRepository.Find(attributeexpression).Select(x => new
+                {
+                    DeviceName = x.DeviceName,
+                    DeviceType = x.DeviceType
+                }).FirstOrDefault();
+
 
                 var result = serversRepository.Find(attributeexpression).Select(x => x.MaintenanceWindows).FirstOrDefault();
-                var results = maintenanceRepository.Collection.AsQueryable().Where(s=> result.Contains(s.Id))
-                                                              .Select(m => new
-                                                              {
-                                                                  id = m.Id,
-                                                                  Name = m.Name,
-                                                                  StartDate = m.StartDate,
-                                                                  StartTime = m.StartTime,
-                                                                  EndDate = m.EndDate,
-                                                                  Duration = m.Duration,
-                                                                   MaintainType = m.MaintainType,
-                                                                  MaintenanceFrequency = m.MaintenanceFrequency
-                                                              }).ToList();
-                Response = Common.CreateResponse(results);
+                if (!string.IsNullOrEmpty(fromdate) && !string.IsNullOrEmpty(todate)&& !string.IsNullOrEmpty(fromtime) && !string.IsNullOrEmpty(totime))
+                {
+                    var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id) && s.StartDate == Convert.ToDateTime("11/1/2016 12:30 PM"))
+                                                                  .Select(m => new
+                                                                  {
+                                                                      id = m.Id,
+                                                                      Name = m.Name,
+                                                                      StartDate = m.StartDate,
+                                                                      StartTime = m.StartTime,
+                                                                      EndDate = m.EndDate,
+                                                                      Duration = m.Duration,
+                                                                      MaintainType = m.MaintainType,
+                                                                      MaintenanceFrequency = m.MaintenanceFrequency,
+                                                                      DeviceName = serverResult.DeviceName,
+                                                                                                                       DeviceType = serverResult.DeviceType
+
+                                                                  }).ToList();
+
+                    Response = Common.CreateResponse(results);
+                }
+                else 
+                {
+                    var d = Convert.ToDateTime("10/31/2016 6:30:00 PM");
+                    var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id))
+                                                                 .Select(m => new
+                                                                 {
+                                                                     id = m.Id,
+                                                                     Name = m.Name,
+                                                                     StartDate = m.StartDate,
+                                                                    // StartTime = m.StartTime,
+                                                                     EndDate = m.EndDate,
+                                                                     Duration = m.Duration,
+                                                                     MaintainType = m.MaintainType,
+                                                                     MaintenanceFrequency = m.MaintenanceFrequency,
+                                                                     DeviceName = serverResult.DeviceName,
+                                                                     DeviceType = serverResult.DeviceType
+                                                                 }).ToList();
+
+                    //Response = Common.CreateResponse(results);
+                }
             }
             catch (Exception exception)
             {
@@ -3119,8 +3188,10 @@ namespace VitalSigns.API.Controllers
                     DominoServerName = x.DominoServerName,
                     DatabaseFileName = x.DatabaseFileName,
                     TriggerType = x.TriggerType,
+                    TriggerValue = x.TriggerValue,
+                    InitiateReplication = x.InitiateReplication,
+                    ReplicationDestination = x.ReplicationDestination
 
-                    TriggerValue = x.TriggerValue
 
                 }).ToList().OrderBy(x => x.DominoServerName);
 
@@ -3174,6 +3245,8 @@ namespace VitalSigns.API.Controllers
                             IsEnabled = notesDatabase.IsEnabled,
                             RetryInterval = notesDatabase.RetryInterval,
                             TriggerValue = notesDatabase.TriggerValue,
+                            InitiateReplication = notesDatabase.InitiateReplication,
+                            ReplicationDestination = notesDatabase.ReplicationDestination
                             //DominoServerId = notesDatabase.DominoServerId
                         };
 
@@ -3193,7 +3266,9 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
                                                                 .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
                                                                 .Set(p => p.TriggerValue, notesDatabase.TriggerValue)
-                                                                 .Set(p => p.RetryInterval, notesDatabase.RetryInterval);
+                                                                 .Set(p => p.RetryInterval, notesDatabase.RetryInterval)
+                                                                  .Set(p => p.InitiateReplication, notesDatabase.InitiateReplication)
+                                                                 .Set(p => p.ReplicationDestination, notesDatabase.ReplicationDestination);
 
                         var result = serverOtherRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes Database updated successfully");
@@ -6661,8 +6736,8 @@ namespace VitalSigns.API.Controllers
                 Maintenance maintenancedata = new Maintenance
                 {
                     Name = maintenance.Name + "-Temp-" + DateTime.Now.ToString(),
-                StartDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
-                    StartTime = DateTime.Now.ToShortTimeString(),
+                    StartDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
+                    //StartTime = Convert.ToDateTime(DateTime.Now.ToShortTimeString()),
                     Duration = maintenance.Duration,
                     EndDate = Convert.ToDateTime(DateTime.Now.ToShortDateString()),
                     MaintenanceDaysList = "",
