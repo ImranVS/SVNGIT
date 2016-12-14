@@ -1854,45 +1854,56 @@ namespace VitalSigns.API.Controllers
             {
 
                 WebShpereServerImport model = new WebShpereServerImport();
-                var cellsData = new List<CellInfo>();
+                // var cellsData = new List<CellInfo>();
+                CellInfo cell = new CellInfo();
                 serversRepository = new Repository<Server>(ConnectionString);
                 //  var servers = serversRepository.Collection.AsQueryable().FirstOrDefault(x => x.SametimeId == id);
                 // CellInfo cell = new CellInfo();
                 List<NodeInfo> NodesData = new List<NodeInfo>();
-                var websphereserver = serversRepository.All().Where(x => x.SametimeId == id && x.DeviceType == "WebSphereCell").FirstOrDefault();
-                //  cellsData.Add(websphereserver);
-                CellInfo cell = new CellInfo();
-                cell.DeviceId = websphereserver.CellId;
-              cell.CellId = websphereserver.Id;
-               cell.CellName = websphereserver.CellName;
-                cell.Name = websphereserver.DeviceName;
-                cell.HostName = websphereserver.CellHostName;
-                cell.PortNo = websphereserver.PortNumber;
-                cell.ConnectionType = websphereserver.ConnectionType;
-                cell.GlobalSecurity = websphereserver.GlobalSecurity;
-                cell.CredentialsId = websphereserver.CredentialsId;
-                cell.Realm = websphereserver.Realm;
-                cell.NodesData = new List<NodeInfo>();
-                foreach (var webSphereNode in websphereserver.Nodes)
+              
+                    var websphereserver = serversRepository.All().Where(x => x.SametimeId == id && x.DeviceType == "WebSphereCell").FirstOrDefault();
+                if (websphereserver!=null)
                 {
-                    foreach (var webSphereServer in webSphereNode.WebSphereServers)
+                    //  cellsData.Add(websphereserver);
+
+                    cell.DeviceId = websphereserver.CellId;
+                    cell.CellId = websphereserver.Id;
+                    cell.CellName = websphereserver.CellName;
+                    cell.Name = websphereserver.DeviceName;
+                    cell.HostName = websphereserver.CellHostName;
+                    cell.PortNo = websphereserver.PortNumber;
+                    cell.ConnectionType = websphereserver.ConnectionType;
+                    cell.GlobalSecurity = websphereserver.GlobalSecurity;
+                    cell.CredentialsId = websphereserver.CredentialsId;
+                    cell.Realm = websphereserver.Realm;
+                    
+                    cell.NodesData = new List<NodeInfo>();
+                    if(cell.NodesData!=null)
                     {
-                        if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                        foreach (var webSphereNode in websphereserver.Nodes)
                         {
-                            NodeInfo node = new NodeInfo();
-                            node.NodeId = webSphereNode.NodeId;
-                            node.NodeName = webSphereNode.NodeName;
-                            node.ServerId = webSphereServer.ServerId;
-                            node.ServerName = webSphereServer.ServerName;
-                            node.HostName = webSphereNode.HostName;
-                            node.CellId = cell.CellId;
-                            cell.NodesData.Add(node);
+                            foreach (var webSphereServer in webSphereNode.WebSphereServers)
+                            {
+                                if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                                {
+                                    NodeInfo node = new NodeInfo();
+                                    node.NodeId = webSphereNode.NodeId;
+                                    node.NodeName = webSphereNode.NodeName;
+                                    node.ServerId = webSphereServer.ServerId;
+                                    node.ServerName = webSphereServer.ServerName;
+                                    node.HostName = webSphereNode.HostName;
+                                    node.CellId = cell.CellId;
+                                    cell.NodesData.Add(node);
+                                }
+                            }
                         }
                     }
+                   
+                  
+
+
+
                 }
-                cellsData.Add(cell);
-
-
 
                 //deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
                 //model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == Enums.ServerType.WebSphere.ToDescription())).Select(x => new DeviceAttributesModel
@@ -1912,14 +1923,13 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
 
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
-                foreach (var item in cellsData)
-                {
-                    var credential = credentialsData.FirstOrDefault(x => x.Value == item.CredentialsId);
+               
+                    var credential = credentialsData.FirstOrDefault(x => x.Value == cell.CredentialsId);
                     if (credential != null)
-                        item.CredentialsName = credential.DisplayText;
-                }
+                        cell.CredentialsName = credential.DisplayText;
+                
                 model.SelectedServers = new List<NodeInfo>();
-                Response = Common.CreateResponse(new { websphereData = model, cellData = cellsData[0], credentialsData = credentialsData });
+                Response = Common.CreateResponse(new { websphereData = model, cellData = cell, credentialsData = credentialsData });
             }
             catch (Exception exception)
             {
@@ -1928,7 +1938,125 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpPut("get_sametime_websphere_nodes/{id}")]
+        public APIResponse LoadSametimeWebSphereNodes([FromBody]CellInfo cellInfo,string id)
+        {
 
+            try
+            {
+                BusinessHours bh = new BusinessHours();
+                byte[] password;
+                string decryptedPassword = string.Empty;
+                string errorMessage = string.Empty;
+
+                serversRepository = new Repository<Server>(ConnectionString);
+                //Get user name and password from credentials
+
+                try
+                {
+                    credentialsRepository = new Repository<Credentials>(ConnectionString);
+
+                    var credential = credentialsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == cellInfo.CredentialsId);
+                    if (credential != null)
+                    {
+                        if (!string.IsNullOrEmpty(credential.Password))
+                        {
+                            var passwordArray = credential.Password.Split(',');
+                            password = new byte[passwordArray.Length];
+                            for (int i = 0; i < passwordArray.Length; i++)
+                            {
+                                password[i] = Byte.Parse(passwordArray[i]);
+                            }
+                            VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+                            cellInfo.Password = mySecrets.Decrypt(password);
+                            cellInfo.UserName = credential.UserId;
+
+                            var cells = getServerList(cellInfo);
+                            foreach (var cell in cells.Cell)
+                            {
+                                List<WebSphereNode> nodes = new List<WebSphereNode>();
+                                Server server = serversRepository.Get(cellInfo.DeviceId);
+
+                                foreach (var cellNode in cell.Nodes.Node)
+                                {
+                                    if (string.IsNullOrEmpty(cellInfo.DeviceId))
+                                    {
+                                        Server sametimeserver = new Server();
+                                        sametimeserver.CellId = ObjectId.GenerateNewId().ToString();
+                                        sametimeserver.CellName = cellInfo.CellName;
+                                        sametimeserver.DeviceName = cellInfo.Name;
+                                        sametimeserver.CellHostName = cellInfo.HostName;
+                                        sametimeserver.ConnectionType = cellInfo.ConnectionType;
+                                        sametimeserver.PortNumber = cellInfo.PortNo;
+                                        sametimeserver.GlobalSecurity = cellInfo.GlobalSecurity;
+                                        sametimeserver.CredentialsId = cellInfo.CredentialsId;
+                                        sametimeserver.Realm = cellInfo.Realm;
+                                        sametimeserver.SametimeId = id;
+
+                                        server.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();
+                                        var serverId = serversRepository.Insert(server);
+                                        Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell inserted successfully");
+                                    }
+                                    else
+                                    {
+
+                                        FilterDefinition<Server> sametimefilterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                                        var updateSametimeDefination = serversRepository.Updater.Set(p => p.CellId, cellInfo.CellId)
+                                                                                 .Set(p => p.CellName, cellInfo.CellName)
+                                                                                 .Set(p => p.DeviceName, cellInfo.Name)
+                                                                                 .Set(p => p.CellHostName, cellInfo.HostName)
+                                                                                 .Set(p => p.ConnectionType, cellInfo.ConnectionType)
+                                                                                 .Set(p => p.PortNumber, cellInfo.PortNo)
+                                                                                 .Set(p => p.GlobalSecurity, cellInfo.GlobalSecurity)
+                                                                                 .Set(p => p.CredentialsId, cellInfo.CredentialsId)
+                                                                                 .Set(p => p.Realm, cellInfo.Realm);
+                                        var result = serversRepository.Update(sametimefilterDefination, updateSametimeDefination);
+                                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell updated successfully");
+                                    }
+                                
+
+                                    WebSphereNode node = new WebSphereNode();
+                                    node.NodeId = ObjectId.GenerateNewId().ToString();
+                                    node.NodeName = cellNode.Name;
+                                    node.HostName = cellNode.HostName;
+                                    node.WebSphereServers = new List<WebSphereServer>();
+                                    foreach (var nodeServer in cellNode.Servers.Server)
+                                    {
+                                        WebSphereServer webSphereServer = new WebSphereServer();
+                                        webSphereServer.ServerId = ObjectId.GenerateNewId().ToString();
+                                        webSphereServer.ServerName = nodeServer;
+                                        node.WebSphereServers.Add(webSphereServer);
+
+                                    }
+                                    nodes.Add(node);
+                                }
+                                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                                var updateDefination = serversRepository.Updater.Set(p => p.CellName, cell.Name).Set(p => p.Nodes, nodes);
+                                //  var result = serversRepository.Update(filterDefination, updateDefination);
+                            }
+                        }
+                        else
+                        {
+                            errorMessage = "Notes password may not be empty. Please update the password under Stored Passwords & Options\\IBM Domino Settings.";
+                            throw new Exception(errorMessage);
+                        }
+
+                    }
+
+                }
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                }
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
         /// <summary>
         ///saves the Server device attributes data
         /// </summary>
@@ -5856,71 +5984,79 @@ namespace VitalSigns.API.Controllers
         [HttpGet("get_websohere_import")]
         public APIResponse GetWebSphereImportData()
         {
-            WebShpereServerImport model = new WebShpereServerImport();
-            var cellsData = new List<CellInfo>();
-           serversRepository = new Repository<Server>(ConnectionString);
-           var servers = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == Enums.ServerType.WebSphereCell.ToDescription()).ToList();
+            try {
+                WebShpereServerImport model = new WebShpereServerImport();
+                var cellsData = new List<CellInfo>();
+                serversRepository = new Repository<Server>(ConnectionString);
+                var servers = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == Enums.ServerType.WebSphereCell.ToDescription()).ToList();
 
-            foreach (var server in servers)
-            {
-                CellInfo cell = new CellInfo();
-                cell.CellId = server.Id;
-                cell.CellName = server.CellName;
-                cell.Name = server.DeviceName;
-                cell.HostName = server.CellHostName;
-                cell.PortNo = server.PortNumber;
-                cell.ConnectionType = server.ConnectionType;
-                cell.GlobalSecurity = server.GlobalSecurity;
-                cell.CredentialsId = server.CredentialsId;
-                cell.Realm = server.Realm;
-                cell.NodesData = new List<NodeInfo>();
-                foreach(var webSphereNode in server.Nodes)
+                foreach (var server in servers)
                 {
-                    foreach (var webSphereServer in webSphereNode.WebSphereServers)
+                    CellInfo cell = new CellInfo();
+                    cell.CellId = server.Id;
+                    cell.CellName = server.CellName;
+                    cell.Name = server.DeviceName;
+                    cell.HostName = server.CellHostName;
+                    cell.PortNo = server.PortNumber;
+                    cell.ConnectionType = server.ConnectionType;
+                    cell.GlobalSecurity = server.GlobalSecurity;
+                    cell.CredentialsId = server.CredentialsId;
+                    cell.Realm = server.Realm;
+                    cell.NodesData = new List<NodeInfo>();
+                    foreach (var webSphereNode in server.Nodes)
                     {
-                        if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                        foreach (var webSphereServer in webSphereNode.WebSphereServers)
                         {
-                            NodeInfo node = new NodeInfo();
-                            node.NodeId = webSphereNode.NodeId;
-                            node.NodeName = webSphereNode.NodeName;
-                            node.ServerId = webSphereServer.ServerId;
-                            node.ServerName = webSphereServer.ServerName;
-                            node.HostName = webSphereNode.HostName;
-                            node.CellId = cell.CellId;
-                            cell.NodesData.Add(node);
+                            if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                            {
+                                NodeInfo node = new NodeInfo();
+                                node.NodeId = webSphereNode.NodeId;
+                                node.NodeName = webSphereNode.NodeName;
+                                node.ServerId = webSphereServer.ServerId;
+                                node.ServerName = webSphereServer.ServerName;
+                                node.HostName = webSphereNode.HostName;
+                                node.CellId = cell.CellId;
+                                cell.NodesData.Add(node);
+                            }
                         }
                     }
+                    cellsData.Add(cell);
                 }
-                cellsData.Add(cell);
+
+
+                deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+                model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == Enums.ServerType.WebSphere.ToDescription())).Select(x => new DeviceAttributesModel
+                {
+                    Id = x.Id,
+                    AttributeName = x.AttributeName,
+                    DefaultValue = x.DefaultValue,
+                    DeviceType = x.DeviceType,
+                    FieldName = x.FieldName,
+                    Category = x.Category,
+                    DataType = x.DataType,
+                    Type = x.Type,
+                    Unitofmeasurement = x.Unitofmeasurement,
+                    IsSelected = false
+                }).OrderBy(x => x.AttributeName).ToList();
+
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+
+                var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+                foreach (var item in cellsData)
+                {
+                    var credential = credentialsData.FirstOrDefault(x => x.Value == item.CredentialsId);
+                    if (credential != null)
+                        item.CredentialsName = credential.DisplayText;
+                }
+                model.SelectedServers = new List<NodeInfo>();
+                Response= Common.CreateResponse(new { websphereData = model, cellData = cellsData, credentialsData = credentialsData });
             }
-
-          
-            deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-            model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == Enums.ServerType.WebSphere.ToDescription())).Select(x => new DeviceAttributesModel
+            catch (Exception exception)
             {
-                Id = x.Id,
-                AttributeName = x.AttributeName,
-                DefaultValue = x.DefaultValue,
-                DeviceType = x.DeviceType,
-                FieldName = x.FieldName,
-                Category = x.Category,
-                DataType = x.DataType,
-                Type = x.Type,
-                Unitofmeasurement = x.Unitofmeasurement,
-                IsSelected = false
-            }).OrderBy(x => x.AttributeName).ToList();
-
-            credentialsRepository = new Repository<Credentials>(ConnectionString);
-
-            var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
-            foreach (var item in cellsData)
-            {
-                var credential = credentialsData.FirstOrDefault(x => x.Value == item.CredentialsId);
-                if(credential!=null)
-                item.CredentialsName = credential.DisplayText;
+                Response = Common.CreateResponse(null, "Error", exception.Message);
             }
-            model.SelectedServers = new List<NodeInfo>();
-            return Common.CreateResponse(new { websphereData = model, cellData = cellsData, credentialsData = credentialsData });
+            return Response;
+
         }
 
 
@@ -6030,7 +6166,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpPut("save_websphere_cell")]
-        public APIResponse SaveWebsphereCellInfo([FromBody]CellInfo cellInfo)
+        public APIResponse SaveWebsphereCellInfo([FromBody]CellInfo cellInfo,string id)
         {
             serversRepository = new Repository<Server>(ConnectionString);
             try
@@ -6047,6 +6183,8 @@ namespace VitalSigns.API.Controllers
                     server.GlobalSecurity = cellInfo.GlobalSecurity;
                     server.CredentialsId = cellInfo.CredentialsId;
                     server.Realm = cellInfo.Realm;
+                    server.SametimeId = id;
+                    
                     server.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();                   
                    var serverId= serversRepository.Insert(server);
                     Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell inserted successfully");

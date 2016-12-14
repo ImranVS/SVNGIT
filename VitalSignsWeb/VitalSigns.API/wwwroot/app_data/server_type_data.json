@@ -499,24 +499,36 @@
             "component": "ServerAttribute",
             "path": "/app/configurator/components/server/server-device-attributes.component"
           },
+
           {
+
             "tab_id": 2,
-            "title": "Advanced Settings",
+            "title": "WebSphere Settings",
             "type": "Configurator",
-            "component": "ServerAdvancedSettings",
-            "path": "/app/configurator/components/server/server-advanced-settings.component"
+            "component": "WebSphereServerSettings",
+            "path": "/app/configurator/components/server/server-websphere-settings.component"
 
 
           },
           {
             "tab_id": 3,
-            "title": "Maintenance Window",
+
+            "title": "Advanced Settings",
             "type": "Configurator",
-             "component": "MaintenanceWindows",
-            "path": "/app/configurator/components/server/server-maintenance-windows.component"
+            "component": "ServerAdvancedSettings",
+            "path": "/app/configurator/components/server/server-advanced-settings.component"
+             
+
           },
           {
             "tab_id": 4,
+            "title": "Maintenance Window",
+            "type": "Configurator",
+            "component": "MaintenanceWindows",
+            "path": "/app/configurator/components/server/server-maintenance-windows.component"
+          },
+          {
+            "tab_id": 5,
             "title": "Events",
             "type": "Configurator",
             "component": "ServerEvents",
