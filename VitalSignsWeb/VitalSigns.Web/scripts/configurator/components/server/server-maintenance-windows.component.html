@@ -2,16 +2,16 @@
     <div class="form-group col-sm-12">
         <div class="col-sm-12">&nbsp;</div>
         <div id="infoDiv1"  *ngIf="module == 'Configurator'"  class="alert alert-info col-md-12" align="left">
-            Maintenance Windows are times when you do not want the server monitored. You can define maintenance windows using the Hours & Maintenance\Maintenance menu option. Use the Actions column to modify maintenance windows information.
+            Maintenance Windows are times when you do not want the server monitored. You can define maintenance windows using the Configurator -> Application Settings -> Maintenance tab.
         </div>
-        <form [formGroup]="maintenanceForm" (ngSubmit)="onSubmit(maintenanceForm.value)">
+       
             <div class="panel panel-default" *ngIf="module == 'dashboard'">
                 <div class="panel-body">
                     <div class="row">
                         <div class="form-group col-sm-5">
                             <label for="from_date" class="control-label col-sm-4">From Date</label>
                             <div class="col-sm-6">
-                                <input type="date" class="form-control col-sm-7" id="from_date" name="from_date" formControlName="from_date">
+                                <input type="date" class="form-control col-sm-7" id="from_date" name="from_date" [(ngModel)]="from_date">
                                
                             </div>
                         </div>
@@ -47,7 +47,7 @@
 
                 </div>
             </div>
-            </form>
+           
 
             <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="2" [isReadOnly]="true">
 
