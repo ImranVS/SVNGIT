@@ -37,7 +37,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("title")]
         public string Title { get; set; }
 
-        [JsonProperty("fle_name_path")]
+        [JsonProperty("file_name_path")]
         public string FileNamePath { get; set; }
 
         [JsonProperty("status")]

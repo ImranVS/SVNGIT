@@ -855,21 +855,22 @@ namespace VitalSigns.API.Controllers
         [HttpGet("database_inventory")]
         public APIResponse getDatabaseInventory(string deviceId)
         {
+            int charLimit = 40;
             databaseRepository = new Repository<Database>(ConnectionString);
             List<DatabaseInventoryList> result = null;
+            var res = databaseRepository.Collection.Aggregate()
+                                    .Match(_ => true).ToList();
+            result = res.Select(x => new DatabaseInventoryList
+            {
+                Folder = x.Folder,
+                FileNamePath = x.FileNamePath != null ? (x.FileNamePath.Length > charLimit ? x.FileNamePath.Substring(0, charLimit) + "..." : x.FileNamePath) : "",
+                Server = x.DeviceName,
+                Title = x.Title.Length > charLimit ? x.Title.Substring(0, charLimit) + "..." : x.Title,
+                Status = x.Status,
+                DesignTemplateName = x.DesignTemplateName,
+                IsMailFile = x.IsMailFile
+            }).ToList();
 
-            result = databaseRepository.Collection
-                             .AsQueryable()
-                             .Select(x => new DatabaseInventoryList
-                             {
-                                 Folder = x.Folder,
-                                 FileNamePath = x.FileNamePath,
-                                 Server = x.DeviceName,
-                                 Title = x.Title,
-                                 Status = x.Status,
-                                 DesignTemplateName = x.DesignTemplateName,
-                                 IsMailFile = x.IsMailFile
-                             }).ToList();
 
             Response = Common.CreateResponse(result.OrderBy(x => x.Server));
             return Response;
