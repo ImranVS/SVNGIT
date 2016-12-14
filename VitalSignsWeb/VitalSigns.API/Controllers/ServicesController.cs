@@ -66,7 +66,7 @@ namespace VitalSigns.API.Controllers
                 var ok = statusCode.Where(item => item == "OK").Count();
                 var notResponding = statusCode.Where(item => item == "Not Responding").Count();
                 var maintenance = statusCode.Where(item => item == "Maintenance").Count();
-                var systemMessages = eventsDetectedRepository.Collection.AsQueryable().Where(x => x.IsSystemMessage == true).ToList(); ;
+                var systemMessages = eventsDetectedRepository.Collection.AsQueryable().Where(x => x.IsSystemMessage == true && x.EventDismissed==null).ToList(); ;
 
                 Response = Common.CreateResponse(new { issue = issue, ok = ok, notResponding = notResponding, maintenance = maintenance, systemMessages= systemMessages==null?0: systemMessages.Count });
             }
@@ -78,6 +78,29 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        [HttpGet("get_system_messages")]
+        public APIResponse GetSystemMessages()
+        {
+            try
+            {
+                eventsDetectedRepository = new Repository<EventsDetected>(ConnectionString);
+                var systemMessages = eventsDetectedRepository.Collection.AsQueryable().Where(x => x.IsSystemMessage == true && x.EventDismissed == null)
+                                                                                       .Select(x => new
+                                                                                       {
+                                                                                           CreatedDate = x.CreatedOn,
+                                                                                           Details = x.Details
+                                                                                       }).ToList();
+                Response = Common.CreateResponse(systemMessages);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
         [HttpGet("status_summary_by_type")]
         public APIResponse GetStatusSummaryByType()
         {
