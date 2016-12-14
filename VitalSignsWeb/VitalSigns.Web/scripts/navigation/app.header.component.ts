@@ -25,7 +25,7 @@ export class AppHeader implements OnChanges,OnInit {
     errorMessage: string;
     deviceName: string;
     deviceSummary: any;
-
+    systemMessages: any;
     constructor(
         private service: RESTService,
         private router: Router,
@@ -89,7 +89,13 @@ export class AppHeader implements OnChanges,OnInit {
 
 
     }
-
+    showSystemMessages() {
+        this.service.get('/services/get_system_messages')
+            .subscribe(
+            response => {
+                this.systemMessages = response.data;
+            });
+    }
     logout() {
         this.authService.logout();
     }
