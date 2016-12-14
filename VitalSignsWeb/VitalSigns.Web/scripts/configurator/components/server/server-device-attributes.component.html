@@ -327,7 +327,7 @@
             <div class="panel-heading">Chat Settings</div>
             <div class="panel-body">
                 <div class="alert alert-info col-lg-12">
-                    <p>Two User Credentials are required to simulate a chat session between two users. ST User1 and ST User2 reflect existing users that were previously configured to gather Sametime Statistics. To edit or view these users, please go to Stored Passwords & Options -> Server credentials.</p>
+                    <p>Two User Credentials are required to simulate a chat session between two users. ST User1 and ST User2 reflect existing users that were previously configured to gather Sametime Statistics. To edit or view these users, please go to Configurator -> Application Settings -> Credentials.</p>
                 </div>
                 <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:chatSettings">
                     <div class="form-group" *ngIf="attribute.type!='CheckBox'">
