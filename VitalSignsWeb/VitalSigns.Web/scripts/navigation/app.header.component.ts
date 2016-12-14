@@ -89,6 +89,15 @@ export class AppHeader implements OnChanges,OnInit {
 
 
     }
+    dismissSystemMessages(dialog: wijmo.input.Popup) {
+        this.service.get('/services/dismiss_system_messages')
+            .subscribe(
+            response => {
+                this.systemMessages = null;
+            });
+            dialog.hide();    
+
+    }
     showSystemMessages() {
         this.service.get('/services/get_system_messages')
             .subscribe(

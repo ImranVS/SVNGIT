@@ -41,7 +41,7 @@
             <span class="badge" (click)="showSystemMessages()">{{deviceSummary.systemMessages}}</span>
         </a>
 
-        <wj-popup #frmDialogSysMsg class="popover" [owner]="sysMsg" [showTrigger]="'Click'" [hideTrigger]="'None'">
+        <wj-popup #frmDialogSysMsg class="model-content col-sm-4"  [owner]="sysMsg" [showTrigger]="'Click'" [hideTrigger]="'None'">
             <h3 class="popover-title">
                 System Messages
                 <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
@@ -54,7 +54,11 @@
                 </tbody>
             </table>-->
                 <div class="aServer" *ngFor="let message of systemMessages">
-                    <p>{{message.Details}}</p>
+                    <p><b>{{message.CreatedDate}}#</b> {{message.Details}}</p>
+                </div>
+                <div>&nbsp;</div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" name="Dismiss" (click)="dismissSystemMessages(frmDialogSysMsg);">Dismiss</button>
                 </div>
             </div>
         </wj-popup>
