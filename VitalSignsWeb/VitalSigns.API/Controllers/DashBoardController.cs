@@ -488,12 +488,19 @@ namespace VitalSigns.API.Controllers
                                     currValue = disksizes[0].StatValue / 1024 / 1024;
                                     foreach (var disksize in disksizes)
                                     {
-                                        if (disksize.StatDate >= maxDt.AddDays(-30))
+                                        if (disksize.StatDate != null)
                                         {
-                                            valueDiff += prevValue - currValue;
-                                            prevValue = currValue;
-                                            currValue = disksize.StatValue / 1024 / 1024;
-                                            count += 1;
+                                            if (disksize.StatDate >= maxDt.AddDays(-30))
+                                            {
+                                                valueDiff += prevValue - currValue;
+                                                prevValue = currValue;
+                                                currValue = disksize.StatValue / 1024 / 1024;
+                                                count += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
                                         }
                                         else
                                         {
