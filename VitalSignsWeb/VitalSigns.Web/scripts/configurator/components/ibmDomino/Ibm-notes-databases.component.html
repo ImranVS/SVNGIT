@@ -8,10 +8,10 @@
                 <div class="grid-sort-group"  *ngIf="data">
 
                     <!-- edit details in a popup -->
-                    <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="data.itemCount==0">
+                    <button class="btn btn-success" (click)="editNotesDatabase(frmDialog,replicationdestination)" [disabled]="data.itemCount==0">
                         Edit
                     </button>
-                    <button class="btn btn-success" (click)="addNotesDatabase(frmDialog)">
+                    <button class="btn btn-success" (click)="addNotesDatabase(frmDialog,replicationdestination)">
                         Add
                     </button>
                     <button class="btn btn-success" (click)="deleteNotesDatabase();" [disabled]="data.itemCount==0">
@@ -179,7 +179,7 @@ data.pageIndex + 1 | number
                                                 <div class="form-group col-sm-6">
                                                     <label for="trigger_type" class="control-label col-sm-5">Type</label>
                                                     <div class="col-sm-7">
-                                                        <select name="trigger_type" class="form-control" [(ngModel)]="currentEditItem.trigger_type" id="trigger_type">
+                                                        <select name="trigger_type" class="form-control" [(ngModel)]="currentEditItem.trigger_type" id="trigger_type"  >
                                                             <option value="Document Count">Document Count</option>
                                                             <option value="Database Size">Database Size</option>
                                                             <option value="Replication">Replication</option>
@@ -191,12 +191,53 @@ data.pageIndex + 1 | number
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="form-group col-sm-6">
-                                                    <div>
+                                                <div class="form-group col-sm-6"  >
+                                                    <!--<div>
                                                         <label for="trigger_type" class="control-label col-sm-5">Trigger Value</label>
-                                                    </div>
-                                                    <div class="col-sm-7">
+                                                    </div>-->
+                                                    <div class="col-sm-5"></div>
+                                                    <div class="col-sm-2" *ngIf="currentEditItem.trigger_type == 'Document Count' || currentEditItem.trigger_type == 'Database Size' || currentEditItem.trigger_type == 'Database Response Time'  ">
                                                         <input type="number" class="form-control" id="trigger_value" required name="trigger_value" [(ngModel)]="currentEditItem.trigger_value">
+                                                    </div>
+                                                    <div  *ngIf="currentEditItem.trigger_type == 'Document Count'">
+                                                   <label for="trigger_type" class="control-label col-sm-5">documents</label>
+                                                     </div>
+                                                    <div *ngIf="currentEditItem.trigger_type == 'Database Size'">
+                                                        <label for="trigger_type" class="control-label col-sm-5">MB</label>
+                                                    </div>
+                                                    <div *ngIf="currentEditItem.trigger_type == 'Database Response Time'">
+                                                        <label for="trigger_type" class="control-label col-sm-5">ms</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row" >
+                                                <div class="form-group col-sm-6"  >
+                                                   
+                                                    <div class="col-sm-5"></div>
+                                                    <div class="funkyradio col-sm-4">
+                                                        <div class="funkyradio-default" *ngIf="currentEditItem.trigger_type == 'Replication'">
+                                                            <input type="checkbox" id="initiate_replication" name="initiate_replication" [(ngModel)]="currentEditItem.initiate_replication">
+                                                            <label for="initiate_replication">Initiate Replication</label>
+
+                                                        </div>
+                                                    </div>
+
+
+                                                   
+                                                </div>
+                                            </div>
+
+                                            <div class="row" >
+                                               
+                                                <div class="form-group col-sm-6" *ngIf="currentEditItem.trigger_type == 'Replication'">
+                                                    <label for="replication_destination" class="control-label col-sm-5">Select target servers</label>
+                                                    <div class="col-sm-7">
+
+                                                        <wj-multi-select name="replication_destination" [itemsSource]="dominoServers" displayMemberPath="text" selectedValuePath="value"
+                                                                         [(checkedItems)]="checkedItems" placeholder="Select Server" [isEditable]="true" #replicationdestination
+                                                                         (lostFocus)="serversChecked(replicationdestination)">
+                                                        </wj-multi-select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -204,11 +245,12 @@ data.pageIndex + 1 | number
                                     </div>
                                 </div>
                             </div>
+                            <div class="panel-footer">
+                                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                                <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                            </div>
 </form>
-                        <div class="panel-footer">
-                            <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                            <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                        </div>
+                       
                     </div>
                 </wj-popup>
             </div>
