@@ -68,8 +68,8 @@ export class IBMConnectionsUsersGrid implements WidgetComponent, OnInit {
         });
 
         var displayDate = (new Date()).toISOString().slice(0, 10);
-        console.log(`/services/summarystats?statName=NUM_OF_ACTIVITIES_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
-        this.service.get(`/services/summarystats?statName=NUM_OF_ACTIVITIES_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
+        console.log(`/services/summarystats?statName=NUM_OF_ACTIVITIES_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`)
+        this.service.get(`/services/summarystats?statName=NUM_OF_ACTIVITIES_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));

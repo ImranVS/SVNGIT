@@ -71,10 +71,10 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
         var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
         if (this.widgetService.getProperty("tabname") != "OVERVIEW") {
-            this.url = `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`;
+            this.url = `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`;
         }
         else {
-            this.url = `/services/summarystats?statName=NUM_OF_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`;
+            this.url = `/services/summarystats?statName=NUM_OF_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`;
         }
         this.service.get(this.url)
             .subscribe(
@@ -92,7 +92,7 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
         var date = new Date();
         var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
-        this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
+        this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
