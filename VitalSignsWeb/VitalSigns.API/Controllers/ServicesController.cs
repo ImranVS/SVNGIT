@@ -101,6 +101,25 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpGet("dismiss_system_messages")]
+        public APIResponse DismissSystemMessages()
+        {
+            try
+            {
+                eventsDetectedRepository = new Repository<EventsDetected>(ConnectionString);
+                FilterDefinition<EventsDetected> filterDefination = Builders<EventsDetected>.Filter.Where(x => x.IsSystemMessage == true && x.EventDismissed == null);
+                var updateDefination = eventsDetectedRepository.Updater.Set(p => p.EventDismissed, DateTime.Now);
+                var result = eventsDetectedRepository.Update(filterDefination, updateDefination);
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
         [HttpGet("status_summary_by_type")]
         public APIResponse GetStatusSummaryByType()
         {
