@@ -73,7 +73,7 @@ export class HoursDestinations extends GridBase implements OnInit {
         this.service.get('/configurator/get_business_hours?nameonly=true')
             .subscribe(
             (response) => {
-                this.businesshours = response.data;
+                this.businesshours = response.data[0];
             },
             (error) => this.errorMessage = <any>error
         );
@@ -173,7 +173,7 @@ export class HoursDestinations extends GridBase implements OnInit {
         this.formTitle = "Add " + this.formName;
 
         this.formObject.id = "";
-        this.formObject.business_hours_type = "";
+        this.formObject.business_hours_type = this.businesshours[0];
         this.formObject.send_to = "";
         this.formObject.script_name = "";
         this.formObject.send_via = "E-mail";

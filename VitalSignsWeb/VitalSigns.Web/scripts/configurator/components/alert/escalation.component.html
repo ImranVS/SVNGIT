@@ -26,29 +26,29 @@
                     {{formTitle}}
                     <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                 </div>
-                <form (ngSubmit)="saveEscalation(frmDialogEscalate)" #frmUser="ngForm">
+                <form (ngSubmit)="saveEscalation(frmDialogEscalate)" #frmUser="ngForm" class="form-horizontal">
                     <div class="modal-body">
                         <div class="row">
                             <div class="form-group col-sm-6">
-                                <label for="business_hour" class="control-label col-sm-5">Alerting Mechanism:</label>
+                                <label for="business_hour" class="control-label col-sm-5">Alerting Mechanism</label>
                                 <wj-combo-box name="send_via" [itemsSource]="sendvia" [(text)]="formObject.send_via" #send_via
                                               [(ngModel)]="formObject.send_via" (selectedIndexChanged)="onSendViaSelectedIndexChanged($event)">
                                 </wj-combo-box>
                             </div>
                             <div class="form-group col-sm-6" *ngIf="isEmail">
-                                <label for="send_to" class="control-label col-sm-3">Send To:</label>
+                                <label for="send_to" class="control-label col-sm-3">Send To</label>
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" id="send_to" name="send_to" [(ngModel)]="formObject.send_to" />
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" *ngIf="isSMS">
-                                <label for="sms_to" class="control-label col-sm-3">SMS To:</label>
+                                <label for="sms_to" class="control-label col-sm-3">SMS To</label>
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" id="sms_to" name="sms_to" [(ngModel)]="formObject.send_to" />
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" *ngIf="isScript">
-                                <label for="script_name" class="control-label col-sm-3">Script:</label>
+                                <label for="script_name" class="control-label col-sm-3">Script</label>
                                 <wj-combo-box name="script_name" [itemsSource]="scripts" [(text)]="formObject.script_name"
                                               [(ngModel)]="formObject.script_name">
                                 </wj-combo-box>
@@ -56,8 +56,8 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-6">
-                                <label for="interval" class="control-label col-sm-5">Escalation Interval (min):</label>
-                                <div class="col-sm-3">
+                                <label for="interval" class="control-label col-sm-5">Escalation Interval (min)</label>
+                                <div class="row col-sm-3">
                                     <input type="text" class="form-control" id="interval" name="interval" [(ngModel)]="formObject.interval" />
                                 </div>
                             </div>
