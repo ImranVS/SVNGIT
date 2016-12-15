@@ -95,8 +95,7 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
     onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {
 
         this.serviceId = event.panel.grid.selectedItems[0].device_id;
-        console.log(this.serviceId);
-
+       
     }
 
     onItemsSourceChanged() {
