@@ -60,8 +60,6 @@ export class ServerFilter {
         //this.deviceStatus = paramstatus;
     }
     applyFilters(multisel1: wijmo.input.MultiSelect) {
-        console.log(multisel1.checkedItems);
-       
         //var v = multisel1.checkedItems;
         var selectedServers = "";
         for (var item of multisel1.checkedItems) {
@@ -104,7 +102,6 @@ export class ServerFilter {
             URL += "&date=" + newCurrentDate.toISOString();
         //if (this.statName != "")
         //    URL += "&statName=" + this.statName;
-        console.log(URL);
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
         //    .catch(error => console.log(error));
