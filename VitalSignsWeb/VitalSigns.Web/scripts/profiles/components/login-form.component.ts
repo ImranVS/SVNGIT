@@ -2,6 +2,7 @@
 import { Router, ActivatedRoute } from '@angular/router';
 import { RESTService } from '../../core/services';
 import { AuthenticationService } from '../services/authentication.service';
+import {AppComponentService} from '../../core/services';
 
 @Component({
     templateUrl: '/app/profiles/components/login-form.component.html',
@@ -15,11 +16,12 @@ export class LoginForm {
     loading = false;
     error = '';
     success = '';
+    appComponentService: AppComponentService;
 
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private authenticationService: AuthenticationService, private service: RESTService) { }
+        private authenticationService: AuthenticationService, private service: RESTService, appComponentService: AppComponentService) { this.appComponentService = appComponentService; }
 
     login() {
         this.emailid = "";
@@ -47,17 +49,16 @@ export class LoginForm {
     changePassword(dialog: wijmo.input.Popup) {
         var email = this.emailid.first.nativeElement.value;
         if (email == "") {
-           this.error = 'Email is empty';
+            this.appComponentService.showErrorMessage("Email is Empty");
         }
         else {
             this.service.get(`/Token/reset_password?emailId=${email}`)
                 .subscribe(
                 response => {
-                    this.success = 'Password sent to your email';
+                    this.appComponentService.showSuccessMessage("Password sent to your email");
                     this.emailid.first.nativeElement.value = "";
                 });
             dialog.hide();
         }
     }
-
 }

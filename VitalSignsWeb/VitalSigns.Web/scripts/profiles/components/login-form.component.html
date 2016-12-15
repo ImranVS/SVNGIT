@@ -19,7 +19,6 @@
         <div *ngIf="error" class="alert alert-danger">{{error}}</div>
     </form>
     <a #forgot >Forgot Password</a>
-    <div *ngIf="success" class="alert alert-success">{{success}}</div>
     <wj-popup #frmDialog class="popover" [owner]="forgot" [showTrigger]="'Click'" [hideTrigger]="'None'">
         <h3 class="popover-title">
             Forgot Password
