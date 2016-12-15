@@ -30,17 +30,12 @@ export class ServerCredentials extends GridBase implements OnInit {
 
             },
             (error) => this.errorMessage = <any>error
-            );
-       
-    } 
-  
+            );     
+    }  
     ngOnInit() {
-        this.initialGridBind('/Configurator/get_credentials');
-      
-
+        this.initialGridBind('/Configurator/get_credentials');   
     }
-    saveServerCredential(dlg: wijmo.input.Popup) {
-      
+    saveServerCredential(dlg: wijmo.input.Popup) { 
         this.saveGridRow('/Configurator/save_credentials',dlg);
     }
     
@@ -62,21 +57,16 @@ export class ServerCredentials extends GridBase implements OnInit {
         this.editGridRow(dlg);
         this.currentEditItem.is_modified = false;
         this.currentEditItem.password = "****";
-      //  this.currentEditItem.confirm_password = "****";
-
-      
+      //  this.currentEditItem.confirm_password = "****";   
     }
     valuechange(newValue) {
 
         if (this.currentEditItem.password == "****") {
-
             this.currentEditItem.is_modified = false;
-
         }
         else {
             this.currentEditItem.is_modified = true;
         }
-
     }
 }
 

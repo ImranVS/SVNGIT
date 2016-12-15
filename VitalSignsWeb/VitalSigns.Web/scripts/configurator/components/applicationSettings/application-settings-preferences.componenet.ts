@@ -16,7 +16,6 @@ import {RESTService} from '../../../core/services';
 export class PreferencesForm implements OnInit {
 
     @ViewChildren('licencekey') licencekey;
-
     insertMode: boolean = false;
     preferencesForm: FormGroup;
     errorMessage: string;
@@ -43,8 +42,7 @@ export class PreferencesForm implements OnInit {
             'threshold_show': ['', Validators.required],
             'dashboardonly_exec_summary_buttons': [false],
             'bing_key': ['']
-        });
-       
+        });     
         this.appComponentService = appComponentService;
     }
 
@@ -52,18 +50,12 @@ export class PreferencesForm implements OnInit {
         this.dataProvider.get('/configurator/get_preferences')
             .subscribe(
             response => {
-                //console.log(response.data);
-                //console.log(response.data.licenseitem.ExpirationDate);
-                //console.log(response.data.licenseitem.units);
-                //console.log(response.data.licenseitem.CompanyName);
                 this.expirationDate = new Date(response.data.licenseitem.ExpirationDate).toDateString();
                 this.units = response.data.licenseitem.units;
                 this.companyName = response.data.licenseitem.CompanyName;
                 this.licenseType = response.data.licenseitem.LicenseType;
                 this.installType = response.data.licenseitem.InstallType;
                 this.preferencesForm.setValue(response.data.userpreference);
-                
-
                 //this.licenseForm.setValue(response.data.licenseInfo);
             },
             (error) => {
@@ -72,23 +64,18 @@ export class PreferencesForm implements OnInit {
             }
             );
     }
-
     onSubmit(nameValue: any): void {
         this.dataProvider.put('/configurator/save_preferences', nameValue)
             .subscribe(
             response => {
-              
                 if (response.status == "Success") {
-                        
-                        this.appComponentService.showSuccessMessage(response.message);
-
-                    } else {
-
-                        this.appComponentService.showErrorMessage(response.message);
-                    }
-            }); 
+                    this.appComponentService.showSuccessMessage(response.message);
+                }
+                else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
     }
-
     saveLicence(dialog: wijmo.input.Popup) {
         var licencekey=this.licencekey.first.nativeElement.value;
         if (licencekey == "") {
@@ -104,10 +91,6 @@ export class PreferencesForm implements OnInit {
                     this.dataProvider.get('/configurator/get_preferences')
                         .subscribe(
                         response => {
-                            console.log(response.data);
-                            console.log(response.data.licenseitem.ExpirationDate);
-                            console.log(response.data.licenseitem.units);
-                            console.log(response.data.licenseitem.CompanyName);
                             this.expirationDate = response.data.licenseitem.ExpirationDate;
                             this.units = response.data.licenseitem.units;
                             this.companyName = response.data.licenseitem.CompanyName;
@@ -118,10 +101,8 @@ export class PreferencesForm implements OnInit {
                         (error) => {
                             this.errorMessage = <any>error
                             this.appComponentService.showErrorMessage(this.errorMessage);
-                        }
-                        );
-                });
-            
+                        });
+                });          
             dialog.hide();
         }
     }
