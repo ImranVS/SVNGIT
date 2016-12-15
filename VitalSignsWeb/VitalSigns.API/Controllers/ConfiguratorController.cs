@@ -1018,100 +1018,108 @@ namespace VitalSigns.API.Controllers
         ///get the maintenance data for configurator
         /// </summary>
         /// <author>Sowjanya</author>
-        [HttpGet("get_server_maintenancedata/{id}")]
-        public APIResponse GetServerMaintenanceData(string id, string fromdate, string fromtime, string todate, string totime)
+        [HttpGet("get_server_maintenancedata")]
+        public APIResponse GetServerMaintenanceData( string id, string fromDate, string fromTime, string toDate, string toTime)
         {
             serversRepository = new Repository<Server>(ConnectionString);
             maintenanceRepository = new Repository<Maintenance>(ConnectionString);
             List<MaintenanceModel> maintenanceWindows = new List<MaintenanceModel>();
-            //try
-            //{
-
+          
             //Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
           
-
-
-            //    var result = serversRepository.Find(attributeexpression).Select(x => x.MaintenanceWindows).FirstOrDefault();
+            // var result = serversRepository.Find(attributeexpression).Select(x => x.MaintenanceWindows).FirstOrDefault();
 
             //var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id) && (!string.IsNullOrEmpty(fromdate) ? s.StartDate == Convert.ToDateTime(fromdate) : true) && (!string.IsNullOrEmpty(todate) ? s.EndDate == Convert.ToDateTime(todate) : true)
             //&& (!string.IsNullOrEmpty(fromdate) && !string.IsNullOrEmpty(todate) && !string.IsNullOrEmpty(totime) && !string.IsNullOrEmpty(fromtime) ?
             //s.StartDate >= Convert.ToDateTime(fromdate) && s.EndDate <= Convert.ToDateTime(todate) : true))
 
-
-            //var results = maintenanceRepository.Collection.AsQueryable().Where(s=> result.Contains(s.Id) &&  s.StartDate == Convert.ToDateTime(fromdate)) 
-            //                                              .Select(m => new
-            //                                              {
-            //                                                  id = m.Id,
-            //                                                  Name = m.Name,
-            //                                                  StartDate = m.StartDate,
-            //                                                  StartTime = m.StartTime,
-            //                                                  EndDate = m.EndDate,
-            //                                                  Duration = m.Duration,
-            //                                                  MaintainType = m.MaintainType,
-            //                                                  MaintenanceFrequency = m.MaintenanceFrequency,
-            //                                                  MaintenanceDaysList = m.MaintenanceDaysList
-            //                                                  //DeviceName = serversRepository.Find(attributeexpression).FirstOrDefault().DeviceName,
-            //                                                  //DeviceType = serversRepository.Find(attributeexpression).FirstOrDefault().DeviceType
-            //                                                  //DeviceName = serverResult.DeviceName,
-            //                                                  //DeviceType = serverResult.DeviceType
-            //                                              }).ToList();
-            //results.Add(serverResult);
-
-            //    Response = Common.CreateResponse(results);
-            //}
-
             try
             {
-
                 Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
-                var serverResult = serversRepository.Find(attributeexpression).Select(x => new
-                {
-                    DeviceName = x.DeviceName,
-                    DeviceType = x.DeviceType
-                }).FirstOrDefault();
+                var serverResult = serversRepository.Find(attributeexpression).ToList();
 
+                List<dynamic>finalResult = new List<dynamic>();
 
                 var result = serversRepository.Find(attributeexpression).Select(x => x.MaintenanceWindows).FirstOrDefault();
-                if (!string.IsNullOrEmpty(fromdate) && !string.IsNullOrEmpty(todate)&& !string.IsNullOrEmpty(fromtime) && !string.IsNullOrEmpty(totime))
+
+                if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate) && !string.IsNullOrEmpty(fromTime) && !string.IsNullOrEmpty(toTime))
                 {
-                    var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id) && s.StartDate == Convert.ToDateTime("11/1/2016 12:30 PM"))
-                                                                  .Select(m => new
-                                                                  {
-                                                                      id = m.Id,
-                                                                      Name = m.Name,
-                                                                      StartDate = m.StartDate,
-                                                                      StartTime = m.StartTime,
-                                                                      EndDate = m.EndDate,
-                                                                      Duration = m.Duration,
-                                                                      MaintainType = m.MaintainType,
-                                                                      MaintenanceFrequency = m.MaintenanceFrequency,
-                                                                      DeviceName = serverResult.DeviceName,
-                                                                                                                       DeviceType = serverResult.DeviceType
+                    var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id) &&  s.StartDate == Convert.ToDateTime(fromDate))
+                                                                   .Select(m => new 
+                                                                   {
+                                                                       id = m.Id,
+                                                                       Name = m.Name,
+                                                                       StartDate = m.StartDate,
+                                                                       StartTime = m.StartTime,
+                                                                       EndDate = m.EndDate,
+                                                                       Duration = m.Duration,
+                                                                       MaintainType = m.MaintainType,
+                                                                       MaintenanceFrequency = m.MaintenanceFrequency,
+                                                                       MaintenanceDaysList = m.MaintenanceDaysList
+                                                                   }).ToList();
 
-                                                                  }).ToList();
-
-                    Response = Common.CreateResponse(results);
+                    foreach (var serverItem in serverResult)
+                    {
+                        foreach (var m in results)
+                        {
+                            finalResult.Add(new
+                            {
+                                id = m.id,
+                                Name = m.Name,
+                                StartDate = m.StartDate,
+                                StartTime = m.StartTime,
+                                EndDate = m.EndDate,
+                                Duration = m.Duration,
+                                MaintainType = m.MaintainType,
+                                MaintenanceFrequency = m.MaintenanceFrequency,
+                                MaintenanceDaysList = m.MaintenanceDaysList,
+                                DeviceType = serverItem.DeviceType,
+                                DeviceName = serverItem.DeviceName
+                            });
+                        }
+                    }
                 }
-                else 
-                {
-                    var d = Convert.ToDateTime("10/31/2016 6:30:00 PM");
+                else {
                     var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id))
-                                                                 .Select(m => new
-                                                                 {
-                                                                     id = m.Id,
-                                                                     Name = m.Name,
-                                                                     StartDate = m.StartDate,
-                                                                    // StartTime = m.StartTime,
-                                                                     EndDate = m.EndDate,
-                                                                     Duration = m.Duration,
-                                                                     MaintainType = m.MaintainType,
-                                                                     MaintenanceFrequency = m.MaintenanceFrequency,
-                                                                     DeviceName = serverResult.DeviceName,
-                                                                     DeviceType = serverResult.DeviceType
-                                                                 }).ToList();
+                                                            .Select(m => new
+                                                            {
+                                                                id = m.Id,
+                                                                Name = m.Name,
+                                                                StartDate = m.StartDate,
+                                                                StartTime = m.StartTime,
+                                                                EndDate = m.EndDate,
+                                                                Duration = m.Duration,
+                                                                MaintainType = m.MaintainType,
+                                                                MaintenanceFrequency = m.MaintenanceFrequency,
+                                                                MaintenanceDaysList = m.MaintenanceDaysList
 
-                    //Response = Common.CreateResponse(results);
+                                                            }).ToList();
+
+                    foreach (var serverItem in serverResult)
+                    {
+                        foreach (var m in results)
+                        {
+                            finalResult.Add(new
+                            {
+                                id = m.id,
+                                Name = m.Name,
+                                StartDate = m.StartDate,
+                                StartTime = m.StartTime,
+                                EndDate = m.EndDate,
+                                Duration = m.Duration,
+                                MaintainType = m.MaintainType,
+                                MaintenanceFrequency = m.MaintenanceFrequency,
+                                MaintenanceDaysList = m.MaintenanceDaysList,
+                                DeviceType = serverItem.DeviceType,
+                                DeviceName = serverItem.DeviceName
+                            });
+                        }
+                    }
                 }
+               
+
+                Response = Common.CreateResponse(finalResult);
+
             }
             catch (Exception exception)
             {
