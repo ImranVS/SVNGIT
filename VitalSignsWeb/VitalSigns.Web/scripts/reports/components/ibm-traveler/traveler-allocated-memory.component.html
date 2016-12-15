@@ -16,7 +16,7 @@
                          [(hideDatePanel)]="currentHideDTControl" [(hideAllServerControl)]="currentHideAllServerControl"
                          [(hideSingleDatePanel)]="currentHideSingleDTControl"></traveler-filter>
         <div class="reportsPage">
-            <h1>Traveler Allocated Memory - {{param}}</h1>
+            <h1>Traveler Allocated Memory - {{paramtype}}</h1>
             <div *ngFor="let widget of widgets">
                 <h3>{{widget.title}}</h3>
                 <div id="{{widget.id}}">

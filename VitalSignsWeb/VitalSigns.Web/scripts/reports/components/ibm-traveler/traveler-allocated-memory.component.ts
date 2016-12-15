@@ -1,5 +1,5 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router, UrlSegment} from '@angular/router';
 import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
 
 import {RESTService} from '../../../core/services/rest.service';
@@ -21,7 +21,7 @@ declare var bootstrapNavigator: any;
 export class TravelerAllocatedMemoryReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-    param: string;
+    paramtype: string;
 
     currentHideDTControl: boolean = false;
     currentHideSingleDTControl: boolean = true;
@@ -32,17 +32,22 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
     currentWidgetName: string = `travelerMemoryChart`;
     currentWidgetURL: string;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
-        private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
+    constructor(
+        protected resolver: ComponentFactoryResolver,
+        protected widgetService: WidgetService,
+        private service: RESTService,
+        private router: Router,
+        private route: ActivatedRoute,
+        protected urlHelpers: helpers.UrlHelperService) {
 
-        super(resolver, widgetService);
+        super(resolver, widgetService, true, router, route);
 
     }
 
     ngOnInit() {
-        let paramtype = null;
-        this.route.queryParams.subscribe(params => paramtype = params['type']);
-        this.param = paramtype;
+
+        super.ngOnInit();
+
         this.service.get('/navigation/sitemaps/traveler_reports')
             .subscribe
             (
@@ -50,7 +55,11 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
             error => console.log(error)
         );
 
-        this.currentWidgetURL = `/services/summarystats?statName=Traveler.Memory.${this.param}.Current&seriesTitle=DeviceName`;
+        this.route.queryParams.subscribe(params => {
+            this.paramtype = params['type'];
+        });
+
+        this.currentWidgetURL = `/services/summarystats?statName=Traveler.Memory.${this.paramtype}.Current&seriesTitle=DeviceName`;
         
         this.widgets = [
             {
@@ -58,7 +67,7 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/services/summarystats?statName=Traveler.Memory.${this.param}.Current&seriesTitle=DeviceName`,
+                    url: this.currentWidgetURL,
                     dateformat: 'date',
                     chart: {
                         chart: {
