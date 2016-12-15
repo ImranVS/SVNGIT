@@ -61,13 +61,10 @@ export class Nodes extends GridBase {
     }
 
     refreshGrid(event: wijmo.grid.CellRangeEventArgs) {
-        console.log(`/configurator/get_nodes_services?id=${event.panel.grid.selectedItems[0].Id}`);
         this.service.get(`/configurator/get_nodes_services?id=${event.panel.grid.selectedItems[0].Id}`)
             .subscribe(
             (response) => {
                 this.services = response.data;
-                console.log(this.services)
-
             },
             (error) => this.errorMessage = <any>error
         );
@@ -89,7 +86,6 @@ export class Nodes extends GridBase {
         };
 
         this.nodesHealth.setValue(postData);
-        console.log(postData);
         this.service.put('/configurator/save_nodes_servers', postData)
             .subscribe(
             response => {
