@@ -353,7 +353,6 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                     .subscribe(
                     response => {
                         this.data = response.data[0];
-                        //console.log(response.data);
                     });
                 (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
             }

@@ -115,7 +115,6 @@ export class Scripts extends GridBase implements OnInit {
         //this.service.put('/configurator/upload_script', this.formData)
         //    .subscribe(
         //    response => {
-        //        console.log('uploading..3...');
         //        this.formObject.script_location = response.data;
         //        var location = <HTMLSpanElement>document.getElementById("scriptLocation");
         //        location.innerHTML = response.data;
@@ -128,7 +127,6 @@ export class Scripts extends GridBase implements OnInit {
     }
 
     changeListener(fileInput: any) {
-        console.log('uploading...');
         this.postFile(fileInput);
         this.formObject.script_location = "~/uploads/" + fileInput.target.files[0].name;
         var location = <HTMLSpanElement>document.getElementById("scriptLocation");
@@ -136,7 +134,6 @@ export class Scripts extends GridBase implements OnInit {
         this.service.put('/configurator/upload_script', this.formData)
             .subscribe(
             response => {
-                console.log('uploading..3...');
                 this.formObject.script_location = response.data;
                 var location = <HTMLSpanElement>document.getElementById("scriptLocation");
                 location.innerHTML = response.data;
@@ -150,11 +147,8 @@ export class Scripts extends GridBase implements OnInit {
     }
     //send post file to server 
     postFile(inputValue: any): void {
-        console.log('uploading..2...');
-        console.log(inputValue.target.files);
         for (let i = 0; i < inputValue.target.files.length; i++) {
             this.formData.append("file-" + i.toString(), inputValue.target.files[i]);
-            console.log(inputValue.target.files[i]);
         }
 
     }

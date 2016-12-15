@@ -138,7 +138,6 @@ export class Escalation extends GridBase implements OnInit  {
 
     
     getSendVia(combotxt: string) {
-        //console.log(src);
         if (combotxt == "E-mail") {
             this.isEmail = true;
             this.isScript = false;
@@ -159,7 +158,6 @@ export class Escalation extends GridBase implements OnInit  {
     deleteEscalate() {
         let deleteUrl = '/configurator/delete_hours_destinations/';
         this.key = this.flex.collectionView.currentItem.id;
-        console.log(this.key);
         if (confirm("Are you sure want to delete this record?")) {
             this.service.delete(deleteUrl + this.key);
             (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
