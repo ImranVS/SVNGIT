@@ -19,7 +19,7 @@
         <div *ngIf="error" class="alert alert-danger">{{error}}</div>
     </form>
     <a #forgot >Forgot Password</a>
-    <div *ngIf="success" class="alert alert-success">{{error}}</div>
+    <div *ngIf="success" class="alert alert-success">{{success}}</div>
     <wj-popup #frmDialog class="popover" [owner]="forgot" [showTrigger]="'Click'" [hideTrigger]="'None'">
         <h3 class="popover-title">
             Forgot Password
@@ -28,7 +28,7 @@
         <div class="popover-content">
             <div class="input-group">
                 <label for="emailid" class="control-label">Please Enter User Emailid</label>
-                <input #emailid class="form-control" name="emailid" type="text" required />
+                <input #emailid class="form-control" name="emailid" type="email" required [(ngModel)]="model.emailid" />
             </div>
             <div>&nbsp;</div>
             <div class="form-actions">

@@ -22,7 +22,7 @@ export class LoginForm {
         private authenticationService: AuthenticationService, private service: RESTService) { }
 
     login() {
-
+        this.emailid = "";
         this.loading = true;
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(result => {
@@ -47,12 +47,13 @@ export class LoginForm {
     changePassword(dialog: wijmo.input.Popup) {
         var email = this.emailid.first.nativeElement.value;
         if (email == "") {
-            this.error = "Email is empty"
-        } else {
+           this.error = 'Email is empty';
+        }
+        else {
             this.service.get(`/Token/reset_password?emailId=${email}`)
                 .subscribe(
                 response => {
-                    this.success = "Password sent to your email..."
+                    this.success = 'Password sent to your email';
                     this.emailid.first.nativeElement.value = "";
                 });
             dialog.hide();
