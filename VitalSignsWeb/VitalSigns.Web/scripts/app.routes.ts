@@ -101,6 +101,7 @@ import { ConnectionsForumsReport } from './reports/components/ibm-connections/co
 import { ConnectionsProfilesReport } from './reports/components/ibm-connections/connections-profiles-report.component';
 import { ConnectionsTagsReport } from './reports/components/ibm-connections/connections-tags-report.component';
 import { ConnectionsWikiReport } from './reports/components/ibm-connections/connections-wiki-report.component';
+import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
@@ -459,6 +460,10 @@ const appRoutes: Routes = [
                     {
                         path: 'connectionswiki',
                         component: ConnectionsWikiReport
+                    },
+                    {
+                        path: 'connectionscommunityactivity',
+                        component: ConnectionsCommunityActivityReport
                     },
                     {
                         path: 'hourlystatistics',

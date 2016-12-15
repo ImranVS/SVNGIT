@@ -98,6 +98,7 @@ import {ConnectionsForumsReport} from './reports/components/ibm-connections/conn
 import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
+import {ConnectionsCommunityActivityReport} from './reports/components/ibm-connections/connections-community-activity-report.component';
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
 import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
 import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
@@ -193,6 +194,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         ConnectionsProfilesReport,
         ConnectionsTagsReport,
         ConnectionsWikiReport,
+        ConnectionsCommunityActivityReport,
         ServerConfigurationFilter,
         FileUploadSample,
         SametimeServerFilter,
@@ -338,6 +340,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.SametimeServerFilter,
         widgets.AnyStatisticFilter,
         widgets.ServerAvailabilityFilter,
+        widgets.CommunityActivityList,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -481,6 +484,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.SametimeServerFilter,
         widgets.AnyStatisticFilter,
         widgets.ServerAvailabilityFilter,
+        widgets.CommunityActivityList,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
