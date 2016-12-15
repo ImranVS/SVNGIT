@@ -1,5 +1,5 @@
 ﻿<template ngFor let-item="$implicit" [ngForOf]="onPremApps">
-    <h3>{{item.type}}</h3>
+    <a [routerLink]="['/services/dashboard']" [queryParams]="{type: item.type}"><h3>{{item.type}}</h3></a>
     <div class="widgetOnPremisesApps-statusCountWrapper">
         <a *ngIf="item.not_responding > 0" [style.-webkit-flex-grow]="item.not_responding" [style.flex-grow]="item.not_responding" [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Not Responding', type: item.type}">
             <div *ngIf="item.not_responding > 0" class="zeusColorReact-danger zeusColorReactBg" [style.-webkit-flex-grow]="item.not_responding" [style.flex-grow]="item.not_responding">{{item.not_responding}}</div>
