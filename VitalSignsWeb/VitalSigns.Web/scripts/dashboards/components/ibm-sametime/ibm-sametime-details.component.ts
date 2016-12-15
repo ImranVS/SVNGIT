@@ -63,7 +63,6 @@ export class IBMSametimeDetails implements OnInit {
                 data => {
                     this.service = data.data;
                     this.selectTab(this.service.tabs[0]);
-                    console.log(this.service.tabs[0]);
                 },
                 error => this.errorMessage = <any>error
                 );
