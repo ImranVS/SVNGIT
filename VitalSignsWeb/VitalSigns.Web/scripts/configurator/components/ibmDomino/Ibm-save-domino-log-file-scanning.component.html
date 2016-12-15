@@ -161,11 +161,15 @@ data.pageIndex + 1 | number
                         </div>
                     </wj-popup>
                     <div>
+
+
                         <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
+                        <div>&nbsp;</div>                      
                         <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType"></server-location-list>
 
+
                     </div><div>
-                       
+                     
                         <button type="button" class="btn btn-primary" (click)="applySetting()" [disabled]="!(frmUser.form.valid && devices.length>0)">Save</button>
 
                         <button type="button" class="btn btn-primary" (click)="CancelSettings()">Cancel</button>

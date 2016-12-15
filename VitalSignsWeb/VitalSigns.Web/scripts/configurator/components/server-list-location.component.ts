@@ -34,10 +34,13 @@ export class ServersLocation implements OnInit {
     @Input() isVisible: boolean = false;
 
     @Input() public set deviceList(val: string[]) {
-        this._deviceList = val;
-        this.devices = [];
-        this.refreshCheckedDevices();  
-             
+        if (val) {
+            if (val.length > 0) {             
+                this._deviceList = val;
+                this.devices = [];
+                this.refreshCheckedDevices();
+            }
+        }
     }
     refreshCheckedDevices() {
         if (this.flex.collectionView) {
@@ -73,11 +76,11 @@ export class ServersLocation implements OnInit {
         if (event.target.checked)
         {
             this.devices.push(value);
-            this.flex.collectionView.currentItem.is_selected = true;
+         //   this.flex.collectionView.currentItem.is_selected = true;
         }
         else {          
             this.devices.splice(this.devices.indexOf(value), 1);
-            this.flex.collectionView.currentItem.is_selected = false;
+           // this.flex.collectionView.currentItem.is_selected = false;
         }
         this.checkedDevices.emit(this.devices);
     }
@@ -93,7 +96,6 @@ export class ServersLocation implements OnInit {
     }
     onDeviceListChange() {
     }
-
     ngOnInit() {
         this.service.get("/Configurator/device_list")
             .subscribe(
@@ -124,9 +126,7 @@ export class ServersLocation implements OnInit {
                                 }
                         resultData = resultDataNew;
                     }
-
-                }
-           
+                }           
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
                 this.data.pageSize = 10;               

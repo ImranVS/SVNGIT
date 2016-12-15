@@ -29,12 +29,14 @@ export class AddLogFile extends GridBase implements OnInit {
         this.formName = "Keyword";
         this.LogFileScan = this.formBuilder.group({
             
-            'log_file':['']
+            'log_file': ['']
+           
          
 
         });
 
         this.serverLog = this.formBuilder.group({
+            
             'setting': [''],
             'value': [''],
             'devices': ['']
@@ -63,17 +65,14 @@ export class AddLogFile extends GridBase implements OnInit {
             response => {
                 this.sererNames = response.data.devicename;
                 this.results = response.data.result;
-                this.checkedDevices = response.data.servers;
+               this.checkedDevices = response.data.servers;
                 this.devices = response.data.servers;
-                //this.attributes = response.data.device_attributes;
 
             },
             error => this.errorMessage = <any>error
             );
     }
     saveEventLog(dlg: wijmo.input.Popup) {
-        //if (this.results != null || this.results.count == 0)
-       // dlg.hide();
         this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
 
     }
@@ -95,13 +94,15 @@ export class AddLogFile extends GridBase implements OnInit {
 
     }
     applySetting() {
+        this.checkedDevices = this.devices;
+        this.devices = this.devices;
       // this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
         var postData = {
             "setting": this.results,
             "value": this.sererNames,
             "devices": this.devices,
         };
-
+        
         this.serverLog.setValue(postData);
         this.service.put('/configurator/save_log_file_servers/' + this.id, postData)
             .subscribe(
@@ -122,9 +123,8 @@ export class AddLogFile extends GridBase implements OnInit {
 
         this.router.navigateByUrl('/configurator/ibmDomino?tab=1');
     }
-    changeInDevices(server: string) {
-       
-        this.devices = server;
+    changeInDevices(devices: string) {
+        this.devices = devices;        
     }
   
 
