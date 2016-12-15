@@ -63,8 +63,7 @@ export class AnyStatisticFilter {
         
     }
     applyFilters() {
-        console.log(this.statisticDropdown);
-       
+      
         //var v = multisel1.checkedItems;
        
         var selStartDate = (this.startDate.getDate()).toString();
@@ -102,7 +101,7 @@ export class AnyStatisticFilter {
         //if (this.statName != "")
         //    URL += "&statName=" + this.statName;
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString() + `&aggregationType=` + this.aggregationDropdown + `&statName=` + this.statisticDropdown.value + `&type=` + this.statisticTypeDropdown.value;
-        console.log(URL);
+  
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
         //    .catch(error => console.log(error));
@@ -121,7 +120,7 @@ export class AnyStatisticFilter {
     }
 
     setStatisticDropdown() {
-        //console.log("wes");
+       
         this.service.get(`/reports/statistics_types_summary?type=${this.statisticTypeDropdown.value}`)
             .subscribe(
             (response) => {
