@@ -3,7 +3,9 @@
         <div class="grid-sort-group"  *ngIf="data">
 
             <!-- edit details in a popup -->
-            <button class="btn btn-success" (click)="editLocationsRow(frmDialog)" [disabled]="data.itemCount==0">
+
+            <button class="btn btn-success" (click)="editGridRow(frmDialog)">
+
                 Edit
             </button>
             <button class="btn btn-success" (click)="addlocations(frmDialog)">
@@ -58,7 +60,7 @@ data.pageIndex + 1 | number
                 </wj-menu>
             </div>
            
-            <wj-popup class="col-md-6 modal-content" #frmDialog>
+            <wj-popup class="modal-content col-sm-4" #frmDialog>
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -80,25 +82,25 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-12" *ngIf="countries">
                                 <label for="country" class="control-label col-sm-5">Country</label>
                                 <div class="col-sm-7">
-                                    <wj-combo-box name="country" [itemsSource]="countries" [(text)]="currentEditItem.country"  required placeholder="Select Country" [isEditable]="true"
-                                                  [(ngModel)]="currentEditItem.country"  isDroppedDownChanging="getstates()" (ngModelChange)="getstate()">
+                                    <wj-combo-box name="country" [itemsSource]="countries" [(text)]="currentEditItem.country" required placeholder="Select Country" [isEditable]="true"
+                                                  [(ngModel)]="currentEditItem.country" (lostFocus)="getstates(currentEditItem.country)">
                                     </wj-combo-box>
                                 </div>
- 
                             </div>
                             <div class="form-group col-sm-12">
                                 <label for="region" class="control-label col-sm-5">Region</label>
                                 <div class="col-sm-7">
-                                    <wj-combo-box name="region" [itemsSource]="state" [(text)]="currentEditItem.region" required placeholder="Select Region" [isEditable]="true"
-                                                  [(ngModel)]="currentEditItem.region"  isDroppedDownChanging="getcities()" (ngModelChange)="getcity()" >
+                                    <wj-combo-box name="region" [itemsSource]="states" [(text)]="currentEditItem.region" required placeholder="Select Region" [isEditable]="true"
+                                                  [(ngModel)]="currentEditItem.region" (lostFocus)="getcities(currentEditItem.region)">
                                     </wj-combo-box>
                                 </div>
+
                             </div>
                             <div class="form-group col-sm-12">
                                 <label for="city" class="control-label col-sm-5">City</label>
                                 <div class="col-sm-7">
-                                    <wj-combo-box name="city" [itemsSource]="city" [(text)]="currentEditItem.city" required placeholder="Select City" [isEditable]="true"
-                                                  [(ngModel)]="currentEditItem.city" >
+                                    <wj-combo-box name="city" [itemsSource]="cities" [(text)]="currentEditItem.city" required placeholder="Select City" [isEditable]="true"
+                                                  [(ngModel)]="currentEditItem.city">
                                     </wj-combo-box>
                                 </div>
 
