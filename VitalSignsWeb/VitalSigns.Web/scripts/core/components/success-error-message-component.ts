@@ -34,7 +34,6 @@ export class SuccessErrorMessageComponent {
     error_visibility: string = 'hidden';
 
     toggleVisibility(isError: boolean, msg) {
-        //console.log(msg);
         if (!isError) {
             this.showDiv = "success";
             this.message = msg;
