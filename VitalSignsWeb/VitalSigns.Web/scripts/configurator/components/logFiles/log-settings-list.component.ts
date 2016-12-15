@@ -97,7 +97,6 @@ export class Logs implements OnInit, AfterViewChecked {
         };
 
         this.logsettingform.setValue(this.postData);
-        console.log(this.postData);
         this.service.put('/configurator/save_log_settings', this.postData)
             .subscribe(
             response => {
