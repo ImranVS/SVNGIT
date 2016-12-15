@@ -66,7 +66,6 @@ export class HoursDestinations extends GridBase implements OnInit {
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[1]));
-                //console.log(this.data);
             },
             (error) => this.errorMessage = <any>error
         );
@@ -124,7 +123,6 @@ export class HoursDestinations extends GridBase implements OnInit {
                 .subscribe(
                 response => {
                     this.data = response.data;
-                    //console.log(this.data);
                 }
             );
             //(<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
@@ -153,7 +151,6 @@ export class HoursDestinations extends GridBase implements OnInit {
         this.formTitle = "Edit " + this.formName;
 
         this.formObject.id = this.flex.collectionView.currentItem.id;
-        //console.log(this.flex.collectionView.currentItem.id);
         this.formObject.scripts = this.scripts;
         this.formObject.business_hours_type = this.flex.collectionView.currentItem.business_hours_type;
         this.formObject.send_to = this.flex.collectionView.currentItem.send_to;
@@ -234,7 +231,6 @@ export class HoursDestinations extends GridBase implements OnInit {
     deleteHoursDestinations() {
         let deleteUrl = '/configurator/delete_hours_destinations/';
         this.key = this.flex.collectionView.currentItem.id;
-        console.log(this.key);
         if (confirm("Are you sure want to delete this record?")) {
             this.service.delete(deleteUrl + this.key);
             (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
