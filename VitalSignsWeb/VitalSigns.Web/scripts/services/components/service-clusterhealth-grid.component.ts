@@ -68,7 +68,6 @@ export class ServiceClusterHealthGrid implements OnInit {
         }
     }
     refreshChart(event: wijmo.grid.CellRangeEventArgs) {
-        console.log(`/services/statistics?statName = Replica.Cluster.SecondsOnQueue&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`);
         this.widgetService.refreshWidget('domcluster', `/services/statistics?statName=Replica.Cluster.SecondsOnQueue&deviceid=${event.panel.grid.selectedItems[0].device_id}&operation=hourly`)
             .catch(error => console.log(error));
     }
