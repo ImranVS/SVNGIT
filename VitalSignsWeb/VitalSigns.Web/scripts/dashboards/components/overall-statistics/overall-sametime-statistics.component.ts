@@ -45,7 +45,6 @@ export class SametimeStatistics implements OnInit {
             );
     }
     filterStats() {
-        console.log(this.filterDate);
         this.service.get('/DashBoard/get_sametime_statistics?statdate=' + this.filterDate)
             .subscribe(
             (response) => {
