@@ -57,9 +57,7 @@ export class SametimeServerFilter {
         }
         
     }
-    applyFilters() {
-        console.log(this.statisticDropdown);
-       
+    applyFilters() {  
         //var v = multisel1.checkedItems;
        
         var selStartDate = (this.startDate.getDate()).toString();
@@ -99,14 +97,11 @@ export class SametimeServerFilter {
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
         if (this.hideStatDropdown == false)
             URL += `&statName=` + this.statisticDropdown;
-        console.log(URL);
+   
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
         //    .catch(error => console.log(error));
         //var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + "Temp";
-        //console.log(document.getElementById(this.widgetName))
-        //console.log(document.getElementById(this.widgetName).childNodes)
-        //console.log(Array.from(document.getElementById(this.widgetName).childNodes))
         var arr = Array.from(document.getElementById(this.widgetName).childNodes)
         //arr.forEach(function (x) { console.log(x); } );
         //arr.forEach(function (x) { console.log(x.firstChild != null ? x.firstChild.localName.toString() : "false") })
