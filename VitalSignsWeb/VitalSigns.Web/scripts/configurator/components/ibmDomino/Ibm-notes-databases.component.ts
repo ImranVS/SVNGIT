@@ -53,7 +53,6 @@ export class NotesDatabases extends GridBase implements OnInit {
             (response) => {
                 this.sererNames = response.data.serversData;
                 this.dominoServers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.serversData));
-                console.log(this.dominoServers);
             },
             (error) => this.errorMessage = <any>error
             );
@@ -67,11 +66,10 @@ export class NotesDatabases extends GridBase implements OnInit {
     }
 
     serversChecked(servers: wijmo.input.MultiSelect) {
-        this.usersByserver =null;
+        this.usersByserver = null;
         for (var item of servers.checkedItems) {
             this.usersByserver.push(item.value);
         }
-     
     }
 
     editNotesDatabase(dlg: wijmo.input.Popup, servers: wijmo.input.MultiSelect) {
@@ -79,25 +77,16 @@ export class NotesDatabases extends GridBase implements OnInit {
         this.checkedItems = null;
         this.usersByserver = null;
         var replicationdestination = this.currentEditItem.replication_destination;
-        console.log(replicationdestination + "sowji");
         if (replicationdestination) {
             if (servers)
                  servers.refresh(true);
             for (var travelerItem of (<wijmo.collections.CollectionView>this.dominoServers).sourceCollection) {
-                console.log(travelerItem);
                 var server = replicationdestination.filter((item) => item == travelerItem.value);
                 if (server.length > 0)
-                    
                     this.checkedItems.push(travelerItem);
-                console.log(this.checkedItems.push(travelerItem));
             }
-
         }
     }
-
-   
-  
-
 }
 
 

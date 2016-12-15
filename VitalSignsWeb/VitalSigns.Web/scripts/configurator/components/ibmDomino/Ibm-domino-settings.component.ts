@@ -50,68 +50,45 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-      
-      
         this.route.params.subscribe(params => {
-
-          
-           
             this.formTitle = "IBM Domino Settings";
-        
             this.dataProvider.get('/Configurator/get_ibm_domino_settings')
-                    .subscribe(
-                    (data) => this.ibmDominoSettingsForm.setValue(data.data),
-                    (error) => {
-                        this.errorMessage = <any>error
-                        this.appComponentService.showErrorMessage(this.errorMessage);
-                    }
-                   
-                    );             
+                .subscribe(
+                (data) => this.ibmDominoSettingsForm.setValue(data.data),
+                (error) => {
+                    this.errorMessage = <any>error
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                });
         });
-
     }
 
     ngAfterViewInit() {
-
     }
 
     onSubmit(nameValue: any): void {
         this.errorMessage = "";
         this.successMessage = "";
-        console.log(nameValue.is_modified);
         nameValue.is_modified = this.isModified;
         this.dataProvider.put('/Configurator/save_ibm_domino_settings', nameValue)
             .subscribe(
             response => {
               
                 if (response.status == "Success") {
-                        
-                        this.appComponentService.showSuccessMessage(response.message);
 
-                    } else {
+                    this.appComponentService.showSuccessMessage(response.message);
 
-                        this.appComponentService.showErrorMessage(response.message);
-                    }
-            });
-      
+                } else {
 
-
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });      
     }
     valuechange(newValue, form) {
-    
-      //  console.log(ids);
-        console.log(form.notes_password);
         if (form.notes_password== "****") {
-            console.log("**")
             this.isModified = false;
-            console.log(this.isModified)
         }
         else {
-            console.log("yessss*")
-            this.isModified= true;
-            console.log(this.isModified)
-
+            this.isModified= true;         
         }
-
     }
 }

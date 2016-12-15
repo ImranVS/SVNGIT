@@ -29,8 +29,6 @@ export class DominoLogFiles extends GridBase implements OnInit {
 
                 this.sererNames = response.data;
                 this.firstrowid = response.data[0].id;
-                console.log(this.firstrowid);
-
             },
             (error) => this.errorMessage = <any>error
             );
@@ -44,15 +42,12 @@ export class DominoLogFiles extends GridBase implements OnInit {
     }
 
     refreshGrid(event: wijmo.grid.CellRangeEventArgs) {
-        console.log(event.panel.grid.selectedItems[0].id);
-        console.log(`/configurator/ibmDomino?id=${event.panel.grid.selectedItems[0].id}`);
       //  this.router.navigateByUrl('/configurator/ibmDomino?id=' + event.panel.grid.selectedItems[0].Id);
         this.id = event.panel.grid.selectedItems[0].id;
 
     }
 
     editGrid() {
-        console.log(this.id);
         if (!this.id)
             this.id = this.firstrowid
         else
@@ -66,12 +61,9 @@ export class DominoLogFiles extends GridBase implements OnInit {
         //else
         //    this.id = this.id
         this.delteGridRow('/configurator/delete_log_file_scanning/');
-        console.log(this.id);
         //this.service.delete(`/configurator/delete_log_file_scanning/`+this.id)
         //window.location.reload();
-        //this.router.navigateByUrl('/configurator/ibmDomino?tab=1');
-    
-       
+        //this.router.navigateByUrl('/configurator/ibmDomino?tab=1');      
     }
 }
 

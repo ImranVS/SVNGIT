@@ -18,10 +18,6 @@ export class NotesDatabaseReplica extends GridBase implements OnInit {
             .subscribe(
             (response) => {
                 this.sererNames = response.data.serversData;
-            
-
-               
-                console.log(this.sererNames);
             },
             (error) => this.errorMessage = <any>error
         );
@@ -35,10 +31,7 @@ export class NotesDatabaseReplica extends GridBase implements OnInit {
     }
     delteNotesDatabaseReplica() {
         this.delteGridRow('/configurator/notes_database_replica/');
-    }
-  
-   
-
+    }    
     addNotesDatabaseReplica(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
         this.currentEditItem.device_name = "";

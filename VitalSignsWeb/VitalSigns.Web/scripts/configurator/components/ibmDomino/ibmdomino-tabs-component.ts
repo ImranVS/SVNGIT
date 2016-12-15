@@ -80,7 +80,6 @@ export class IBMDomino implements OnInit {
                 tab = Number.parseInt(params['tab']);
             }
         });
-        console.log('true part ' + tab);
         this.selectTab(this.tabsData[tab]);    
     };
 }

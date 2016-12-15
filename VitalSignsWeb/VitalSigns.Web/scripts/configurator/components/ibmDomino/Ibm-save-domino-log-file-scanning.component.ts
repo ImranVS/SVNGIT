@@ -65,20 +65,13 @@ export class AddLogFile extends GridBase implements OnInit {
                 this.results = response.data.result;
                 this.checkedDevices = response.data.servers;
                 this.devices = response.data.servers;
-                console.log(this.results);
-                console.log(this.checkedDevices);
                 //this.attributes = response.data.device_attributes;
 
             },
             error => this.errorMessage = <any>error
-
-
             );
-
-
     }
     saveEventLog(dlg: wijmo.input.Popup) {
-        console.log(this.results);
         //if (this.results != null || this.results.count == 0)
        // dlg.hide();
         this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
@@ -110,7 +103,6 @@ export class AddLogFile extends GridBase implements OnInit {
         };
 
         this.serverLog.setValue(postData);
-        console.log(postData);
         this.service.put('/configurator/save_log_file_servers/' + this.id, postData)
             .subscribe(
             response => {
