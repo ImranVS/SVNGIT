@@ -381,7 +381,8 @@ namespace VitalSigns.API.Controllers
                 validLocationsRepository = new Repository<ValidLocation>(ConnectionString);
                 if (string.IsNullOrEmpty(country) && string.IsNullOrEmpty(state))
                 {
-                    var countryData = validLocationsRepository.All().Where(x => x.Country != null).Select(x => x.Country).Distinct().OrderBy(x => x).ToList();
+                    var countryData = validLocationsRepository.All().OrderByDescending(x=>x.Country=="United States").Where(x => x.Country != null).Select(x => x.Country).Distinct().ToList();
+                   
                     Response = Common.CreateResponse(new { countryData = countryData });
                     // countryData.Insert(0, "-All-");
                 }
