@@ -4,7 +4,6 @@
 })
 export class SearchDeviceListPipe{
     transform(value: any, searchText: string, type: string, status: string, location: string) {
-        console.log(value);
         if (value != null) {
             if (searchText!="") {
                 value = value.filter((item) => item.name!=null && item.name.toLocaleLowerCase().indexOf(searchText.toLocaleLowerCase()) !== -1);
