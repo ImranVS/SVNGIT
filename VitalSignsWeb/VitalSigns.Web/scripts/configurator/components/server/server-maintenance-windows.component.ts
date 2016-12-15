@@ -102,7 +102,6 @@ export class MaintenanceWindows implements OnInit {
     }
 
     fillMaintenance() {
-        console.log(this.from_date, this.to_date, this.to_time);
         //this.service.get('/Token/reset_password?emailId=' + this.authService.CurrentUser.email + '&password=' + passwordVal)
         //this.dataProvider.get('/Configurator/get_server_maintenancedata?id=' + this.deviceId + '&fromDate=' + this.from_date + '&toDate=' + this.to_date + '&fromTime=' + this.from_time + '&toTime=' + this.to_time)
         //    .subscribe(
@@ -111,7 +110,7 @@ export class MaintenanceWindows implements OnInit {
         //        this.data.pageSize = 10;
         //    });
 
-       //console.log( this._filter.bind(this.from_date,this.to_date,this.from_time,this.to_time));
+      
         if (this.from_time == "undefined" || this.to_time == "undefined") {
 
             this.from_date = "";
@@ -119,20 +118,15 @@ export class MaintenanceWindows implements OnInit {
         }
 
         if (this.from_date != "" && this.to_date != "") {
-            console.log("test");
+          
             if (this.from_date > this.to_date) {
                 alert("From Date value should be less than To Date.");
             }
             else {
-                console.log(this.from_time);
-                if ((this.from_time != null && this.to_time != null) && (this.from_time != "" && this.to_time != "")) {
-                   
-                  
-                    console.log("step1" + this.from_time.indexOf(":"));
-                    console.log("step2" + this.from_time.substring(0,1));
-                    console.log(this.from_time.substring(0, this.from_time.indexOf(":")) + "value");
+              
+                if ((this.from_time != null && this.to_time != null) && (this.from_time != "" && this.to_time != "")) {                                  
                     this.fhour = this.from_time.substring(0, this.from_time.indexOf(":"));
-                    console.log(this.fhour);
+                   
                     this.thour = this.to_time.substring(0, this.to_time.indexOf(":"));
                     this.fhourInt = (this.fhour);
                     this.thourInt = (this.thour);
@@ -140,13 +134,13 @@ export class MaintenanceWindows implements OnInit {
                     this.tminute = this.to_time.substring(3, 2);
                     this.fminuteInt = (this.fminute);
                     this.tminuteInt = (this.tminute);
-                    console.log("step2");
+                
                     if (this.fhourInt >= 24 || this.thourInt >= 24 || this.fminuteInt >= 60 || this.tminuteInt >= 60) {
-                        console.log("24");
+                      
                         alert("Invalid hour/minute entry.");
                     }
                     else {
-                        console.log("sowji");
+                      
                         this.dataProvider.get('/Configurator/get_server_maintenancedata?id=' + this.deviceId + '&fromDate=' + this.from_date + '&toDate=' + this.to_date + '&fromTime=' + this.from_time + '&toTime=' + this.to_time)
                             .subscribe(
                             response => {
@@ -159,7 +153,7 @@ export class MaintenanceWindows implements OnInit {
         }
         else
         {
-            console.log("step123");
+         
             if ((this.from_time != null && this.to_time != null) && (this.from_time != "" && this.to_time != "")) {
                 this.fhour = this.from_time.substring(0, this.from_time.indexOf(":"));
                 this.thour = this.to_time.substring(0, this.to_time.IndexOf(":"));
