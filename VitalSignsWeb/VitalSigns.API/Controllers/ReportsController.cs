@@ -28,6 +28,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Server> serverRepository;
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
+        private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
 
         //private string DateFormat = "yyyy-MM-dd";
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
@@ -109,7 +110,7 @@ namespace VitalSigns.API.Controllers
                     }
                     series.Add(serie);
                 }
-                    
+
 
                 Chart chart = new Chart();
                 chart.Title = "";
@@ -131,7 +132,7 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetServerUtilization(string deviceId = "", string statName = "")
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
-           // string startDate = DateTime.UtcNow.AddDays(-30).ToString(DateFormat);
+            // string startDate = DateTime.UtcNow.AddDays(-30).ToString(DateFormat);
 
             DateTime dtStart = DateTime.UtcNow.AddDays(-30).ToUniversalTime();
 
@@ -202,9 +203,9 @@ namespace VitalSigns.API.Controllers
                                 });
                             }
                         }
-                        
+
                     }
-                    
+
                 }
                 serie.Title = "";
                 serie.Segments = segments;
@@ -238,7 +239,7 @@ namespace VitalSigns.API.Controllers
 
                 if (endDate == "")
                     endDate = DateTime.UtcNow.ToString(DateFormat);
-                
+
                 DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
                 DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1).ToUniversalTime();
 
@@ -289,9 +290,9 @@ namespace VitalSigns.API.Controllers
                         expandoObj.Add(entity.StatDate.Value.ToString(DateFormat), entity.StatValue);
                     }
                     expandoObj.Add(aggregationDisplay, aggregatedValue);
-                    
 
-                    
+
+
                     list.Add(expandoObj);
                 }
                 Response = Common.CreateResponse(list);
@@ -379,7 +380,7 @@ namespace VitalSigns.API.Controllers
                     }
                     series.Add(serie);
                 }
-               
+
                 Chart chart = new Chart();
                 chart.Title = statName;
                 chart.Series = series;
@@ -401,7 +402,7 @@ namespace VitalSigns.API.Controllers
             FilterDefinition<DailyStatistics> filterDef = null;
 
             //1 day is added to the end so we include that days data
-            DateTime dtDate = DateTime.ParseExact(date, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime(); 
+            DateTime dtDate = DateTime.ParseExact(date, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
 
             //dtDate = DateTime.SpecifyKind(dtDate, DateTimeKind.Utc);
 
@@ -475,7 +476,7 @@ namespace VitalSigns.API.Controllers
                     serie.Segments = new List<Segment>();
                     serie.Title = currList[0].DeviceName;
 
-                    for(var tempDate = dtDate; tempDate < dtDate.AddDays(1); tempDate = tempDate.AddHours(1))
+                    for (var tempDate = dtDate; tempDate < dtDate.AddDays(1); tempDate = tempDate.AddHours(1))
                     {
                         var item = currList.Where(x => x.Hour == tempDate.Hour).ToList();
 
@@ -511,7 +512,7 @@ namespace VitalSigns.API.Controllers
 
         [HttpGet("server_availability")]
         public APIResponse GetMonthlyServerDownTime(string statName, string deviceId = "", string month = "", string type = "", string minValue = "0", string reportType = "minutes")
-         {
+        {
             try
             {
                 //string statName = "HourlyDownTimeMinutes";
@@ -542,7 +543,7 @@ namespace VitalSigns.API.Controllers
                         {
                             minsInMonth = (int)((dtStart - dtStart.AddMonths(1)).TotalMinutes);
                         }
-                        segments.Add(new Segment() { Label = currSerie.Title, Value = (int)(currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value)/minsInMonth) });
+                        segments.Add(new Segment() { Label = currSerie.Title, Value = (int)(currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) / minsInMonth) });
                     }
 
                 }
@@ -561,7 +562,7 @@ namespace VitalSigns.API.Controllers
 
                 return Response;
             }
-            
+
         }
 
         [HttpGet("cost_per_user")]
@@ -727,10 +728,10 @@ namespace VitalSigns.API.Controllers
                 var builder = Builders<TravelerStats>.Filter;
                 var result = travelerRepository.Collection.Aggregate()
                                .Match(builder.And(builder.Eq(paramtype, paramvalue), builder.Eq(x => x.TravelerServerName, travelername))).ToList();
-                
+
                 if (paramtype == "interval")
                 {
-                    foreach (var mailserver in result.Select(x => x.MailServerName).Distinct()) 
+                    foreach (var mailserver in result.Select(x => x.MailServerName).Distinct())
                     {
                         foundInt = false;
                         List<Segment> segments = new List<Segment>();
@@ -774,7 +775,7 @@ namespace VitalSigns.API.Controllers
                         }
                         if (!foundInt)
                         {
-                            for (int i=0; i < segments.Count; i++)
+                            for (int i = 0; i < segments.Count; i++)
                             {
                                 segments.Add(new Segment { Label = segments[i].Label, Value = 0 });
                                 serie.Title = interval;
@@ -784,7 +785,7 @@ namespace VitalSigns.API.Controllers
                         series.Add(serie);
                     }
                 }
-                
+
                 Chart chart = new Chart();
                 chart.Title = "";
                 chart.Series = series;
@@ -906,8 +907,8 @@ namespace VitalSigns.API.Controllers
                              {
                                  ServerName = x.DeviceName,
                                  DeadMailThreshold = x.DeadMailThreshold,
-                                 HeldMailThreshold=x.HeldMailThreshold,
-                                 PendingMailThreshold=x.PendingMailThreshold
+                                 HeldMailThreshold = x.HeldMailThreshold,
+                                 PendingMailThreshold = x.PendingMailThreshold
                              }).ToList();
 
             Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
@@ -946,7 +947,7 @@ namespace VitalSigns.API.Controllers
                              .AsQueryable()
                              .Select(x => new DominoServerTasksList
                              {
-                                 TaskName  = x.TaskName,
+                                 TaskName = x.TaskName,
                                  FreezeDetect = x.FreezeDetect,
                                  IdleString = x.IdleString,
                                  RetryCount = x.RetryCount,
@@ -1029,8 +1030,8 @@ namespace VitalSigns.API.Controllers
                 var results = summaryRepository.Find(filterDef).ToList();
 
                 var listOfObjs = new List<IDictionary<string, object>>();
-                
-                foreach(var deviceName in results.Select(x => x.DeviceName).Distinct().ToList())
+
+                foreach (var deviceName in results.Select(x => x.DeviceName).Distinct().ToList())
                 {
                     var currList = results.Where(x => x.DeviceName == deviceName).ToList();
                     foreach (var statName in currList.Select(x => x.StatName).Distinct())
@@ -1043,13 +1044,13 @@ namespace VitalSigns.API.Controllers
 
                         foreach (var entity in workingList)
                         {
-                            if(expandoObj.Where(x => x.Key == entity.StatDate.Value.ToString(DateFormat)).Count() == 0)
+                            if (expandoObj.Where(x => x.Key == entity.StatDate.Value.ToString(DateFormat)).Count() == 0)
                                 expandoObj.Add(entity.StatDate.Value.ToString(DateFormat), entity.StatValue);
                         }
-                        
+
                         listOfObjs.Add(expandoObj);
                     }
-                    
+
                 }
 
                 Response = Common.CreateResponse(listOfObjs);
@@ -1073,13 +1074,13 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                
+
                 serverRepository = new Repository<Server>(ConnectionString);
 
                 var filterDef = serverRepository.Filter.Eq(x => x.DeviceType, type);
 
                 var results = serverRepository.Find(filterDef).ToList();
-                
+
                 Response = Common.CreateResponse(results);
                 return Response;
 
@@ -1107,7 +1108,7 @@ namespace VitalSigns.API.Controllers
                 var filterDefServer = serverRepository.Filter.Where(x => true);
                 var filterDefStatus = statusRepository.Filter.Where(x => true);
 
-                if(location_id != "")
+                if (location_id != "")
                 {
                     filterDefServer = filterDefServer & serverRepository.Filter.In(x => x.LocationId, location_id.Replace("[", "").Replace("]", "").Split(',').ToList());
                 }
@@ -1122,9 +1123,9 @@ namespace VitalSigns.API.Controllers
 
                 var results = new List<Object>();
 
-                foreach(var server in resultsServer)
+                foreach (var server in resultsServer)
                 {
-                    var status = resultsStatus.Where(i => i.DeviceId == server.Id).DefaultIfEmpty(new Status() {  }).First();
+                    var status = resultsStatus.Where(i => i.DeviceId == server.Id).DefaultIfEmpty(new Status() { }).First();
                     results.Add(new
                     {
                         DeviceName = server.DeviceName,
@@ -1155,7 +1156,7 @@ namespace VitalSigns.API.Controllers
         {
 
             try
-            { 
+            {
 
                 serverRepository = new Repository<Server>(ConnectionString);
                 List<Server> results;
@@ -1181,7 +1182,7 @@ namespace VitalSigns.API.Controllers
                     {
                         var statvalue = bson[docfield].ToString();
 
-                        if(docfield == "location_id")
+                        if (docfield == "location_id")
                             docList.Add(new NameValueModel() { Name = locList.Where(y => y.Id == statvalue).Select(y => y.LocationName).First(), Id = statvalue });
                         else
                             docList.Add(new NameValueModel() { Name = statvalue, Id = statvalue });
@@ -1189,10 +1190,10 @@ namespace VitalSigns.API.Controllers
                     }
                 }
 
-                var list = docList.Select(x => new { Name = x.Name, Id = x.Id}).Distinct().Select(x => new NameValueModel() { Name = x.Name, Id = x.Id }).ToList();
+                var list = docList.Select(x => new { Name = x.Name, Id = x.Id }).Distinct().Select(x => new NameValueModel() { Name = x.Name, Id = x.Id }).ToList();
 
                 Response = Common.CreateResponse(list);
-            
+
                 return Response;
             }
             catch (Exception exception)
@@ -1259,5 +1260,54 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("connections/community_activity")]
+        public APIResponse ConnectionsCommunityActivity()
+        {
+            List<dynamic> result = new List<dynamic>();
+            FilterDefinition<IbmConnectionsObjects> filterDef;
+            DateTime lastXDays = new DateTime();
+            try
+            {
+                lastXDays = DateTime.Now.AddDays(-7);
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community")
+                    .OrderBy(i => i.Name).OrderBy(i => i.DeviceName).ToList();
+
+                foreach (var community in listOfCommunity)
+                {
+                    filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.ParentGUID, community.Id),
+                        connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays));
+                    var res = connectionsObjectsRepository.Find(filterDef)
+                        .GroupBy(row => new
+                        {
+                            row.DeviceName,
+                            row.Type
+                        })
+                        .Select(x => new CommunityActivity
+                        {
+                            ServerName = x.Key.DeviceName,
+                            Community = community.Name,
+                            ObjectName = x.Key.Type,
+                            ObjectValue = x.Count(),
+                            DateRange = "Last 7 Days"
+                        }).ToList();
+                    foreach(var res1 in res)
+                    {
+                        result.Add(res1);
+                    }                 
+                }
+
+                Response = Common.CreateResponse(result);
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+        }
     }
 }
