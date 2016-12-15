@@ -9,6 +9,7 @@ import {Observable} from 'rxjs/Observable';
 declare var injectSVG: any;
 declare var bootstrapZeus: any;
 declare var bootstrapNavigator: any;
+import {AppComponentService} from '../core/services';
 
 @Component({
     selector: 'app-header',
@@ -26,10 +27,14 @@ export class AppHeader implements OnChanges,OnInit {
     deviceName: string;
     deviceSummary: any;
     systemMessages: any;
+    appComponentService: AppComponentService;
+    error = '';
+    success = '';
+
     constructor(
         private service: RESTService,
         private router: Router,
-        private authService: AuthenticationService) { }
+        private authService: AuthenticationService, appComponentService: AppComponentService) { this.appComponentService = appComponentService;}
     
     loadData() {   
         
@@ -57,7 +62,6 @@ export class AppHeader implements OnChanges,OnInit {
         if (this.deviceName != "") {
             this.router.navigateByUrl('services/dashboard?devicename='+this.deviceName);
         }
-
     }
        
     ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
@@ -68,9 +72,7 @@ export class AppHeader implements OnChanges,OnInit {
             injectSVG();
             bootstrapZeus();
             bootstrapNavigator();
-
         }
-
     } 
 
     changePassword(dialog: wijmo.input.Popup) {
@@ -81,9 +83,11 @@ export class AppHeader implements OnChanges,OnInit {
             this.service.get('/Token/reset_password?emailId=' + this.authService.CurrentUser.email + '&password=' + passwordVal)
                 .subscribe(
                 response => {
-
-                    
-                });
+                    this.appComponentService.showSuccessMessage("Password change successfuly");
+                    this.password = "";                  
+                },
+                error => this.errorMessage = <any>error
+            );
             dialog.hide();
         }
 
