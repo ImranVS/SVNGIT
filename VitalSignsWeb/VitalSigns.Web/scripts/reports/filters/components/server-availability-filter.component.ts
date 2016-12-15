@@ -42,8 +42,7 @@ export class ServerAvailabilityFilter {
 
     }
     applyFilters(multisel1: wijmo.input.MultiSelect) {
-        console.log(multisel1.checkedItems);
-       
+     
         var selectedServers = "";
         for (var item of multisel1.checkedItems) {
             if (selectedServers == "") 
@@ -63,7 +62,7 @@ export class ServerAvailabilityFilter {
         
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers;;
         URL += "&month=" + newCurrentDate.toISOString() + `&minValue=` + this.minValue + `&reportType=` + this.statTypeDropdown;
-        console.log(URL);
+      
         this.widgetService.refreshWidget(this.widgetName, URL )
             .catch(error => console.log(error));
 
