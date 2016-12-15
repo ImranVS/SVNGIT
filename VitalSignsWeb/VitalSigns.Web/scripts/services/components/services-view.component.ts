@@ -122,8 +122,6 @@ export class ServicesView implements OnInit, AfterViewChecked {
     onServerTypeSelectedIndexChanged(event: wijmo.EventArgs, deviceType: wijmo.input.ComboBox) {
       
         this.Type = deviceType.selectedValue;
-        console.log(this.Type);
-      
     }
 
   
