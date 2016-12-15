@@ -40,7 +40,6 @@ export class DominoServerImport implements OnInit{
             .subscribe(
             (response) => {
                 this.dominoServerImportData = response.data;
-                console.log(this.dominoServerImportData);
             },
             (error) => this.errorMessage = <any>error
             );
@@ -110,22 +109,15 @@ export class DominoServerImport implements OnInit{
          this.formData = null;
      }
      changeListener(fileInput: any) {
-         console.log('uploading...');
          this.postFile(fileInput);
 
      }
      //send post file to server 
      postFile(inputValue: any): void {
-         console.log(this.url);
          var formData = new FormData();
          for (let i = 0; i < inputValue.target.files.length; i++) {
              formData.append("file-" + i.toString(), inputValue.target.files[i]);
              this.formData.append("file-" + i.toString(), inputValue.target.files[i]);
-             console.log(inputValue.target.files[i]);
          }
-
-         // this.service.post(this.url, formData);
-     }
-
-   
+     } 
 }
