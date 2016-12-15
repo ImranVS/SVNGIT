@@ -12,13 +12,15 @@
                             <label for="from_date" class="control-label col-sm-4">From Date</label>
                             <div class="col-sm-6">
                                 <input type="date" class="form-control col-sm-7" id="from_date" name="from_date" [(ngModel)]="from_date">
-                               
+                                <!--<wj-input-date format="yyyy-MM-dd"  id="from_date"  selectionMode="Day" [(ngModel)]="from_date"></wj-input-date>-->
+                               {{from_date}}
                             </div>
                         </div>
                         <div class="form-group col-sm-5">
                             <label for="from_time" class="control-label col-sm-4">From Time</label>
                             <div class="col-sm-6">
-                                <input type="time" class="form-control" id="from_time" name="from_time">
+                                <input type="time" class="form-control" id="from_time" name="from_time" [(ngModel)]="from_time">
+                                <!--<wj-input-time [isEditable]="true" format="h:mm tt" id="from_time" name="from_time"  [(ngModel)]="from_time"  #wjStartTimeCtrl></wj-input-time>-->
                             </div>
                         </div>
                         <div class="form-group col-sm-2">
@@ -30,13 +32,13 @@
                         <div class="form-group col-sm-5">
                             <label for="to_date" class="control-label col-sm-4">To Date</label>
                             <div class="col-sm-6">
-                                <input type="date" class="form-control col-sm-7" id="to_date" name="to_date">
+                                <input type="date" class="form-control col-sm-7" id="to_date" name="to_date" [(ngModel)]="to_date">
                             </div>
                         </div>
                         <div class="form-group col-sm-5">
                             <label for="to_time" class="control-label col-sm-4">To Time</label>
                             <div class="col-sm-6">
-                                <input type="time" class="form-control" id="to_time" name="to_time">
+                                <input type="time" class="form-control" id="to_time" name="to_time" [(ngModel)]="to_time">
                             </div>
                         </div>
                         <div class="form-group col-sm-2">
@@ -61,7 +63,7 @@
                 <wj-flex-grid-column [header]="'Duration'" [binding]="'Duration'" [width]="160" align="right"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Maintenance Type'" [binding]="'MaintainType'" [width]="200"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Maintenance Frequency'" [binding]="'MaintenanceFrequency'" [width]="200"></wj-flex-grid-column>
-                <wj-flex-grid-column [header]="'Maintenance Days List'" *ngIf="module == 'dashboard'" [binding]="'MaintenanceDaysList'" [width]="200"> </wj-flex-grid-column>
+                <!--<wj-flex-grid-column [header]="'Maintenance Days List'" *ngIf="module == 'dashboard'" [binding]="'MaintenanceDaysList'" [width]="200"> </wj-flex-grid-column>-->
 
 
             </wj-flex-grid>
