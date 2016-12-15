@@ -69,7 +69,6 @@ export class WindowsServices implements WidgetComponent, OnInit {
             .subscribe(
             response => {
                 this.deviceTypeData = response.data.ComboBoxData;
-                console.log(response.data);
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.GridData));
                 this.data.pageSize = 10;
                
@@ -108,7 +107,6 @@ export class WindowsServices implements WidgetComponent, OnInit {
             "value": slectedWindowsServicesValues,
             "devices": this.devices
         };
-        console.log(postData);
         this.currentForm.setValue(postData);
         this.service.put('/Configurator/save_windows_services', postData)
             .subscribe(

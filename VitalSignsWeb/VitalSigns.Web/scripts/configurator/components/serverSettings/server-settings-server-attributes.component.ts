@@ -91,7 +91,6 @@ export class DeviceAttributes extends GridBase implements OnInit {
     }
     applySetting() { 
         var slectedAttributeValues: DeviceAttributeValue[] = [];
-      //  console.log(this.flex);
         for (var _i = 0; _i < this.attributeGrid.collectionView.sourceCollection.length; _i++) {
             var item = (<wijmo.collections.CollectionView>this.attributeGrid.collectionView.sourceCollection)[_i];
             if (item.is_selected) {
@@ -101,9 +100,6 @@ export class DeviceAttributes extends GridBase implements OnInit {
                 deviceAttrObject.datatype = item.datatype;
                 deviceAttrObject.defaultboolvalue = item.defaultboolvalue;
                 slectedAttributeValues.push(deviceAttrObject);
-                console.log(deviceAttrObject.value);
-                console.log(deviceAttrObject.field_name);
-                
             }
 
        }
@@ -114,8 +110,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
             "setting": "",
             "value": slectedAttributeValues,
             "devices": this.devices
-        };   
-        console.log(postData);
+        };  
         this.currentForm.setValue(postData);
         this.service.put('/Configurator/save_device_attributes', postData)
             .subscribe(

@@ -76,8 +76,6 @@ export class DominoServerTasks extends GridBase implements OnInit  {
             "value": slectedDominoServerValues,
             "devices": this.devices
         };
-
-        console.log(postData);
         this.currentForm.setValue(postData);
         this.service.put('/Configurator/save_domino_server_tasks', postData)
             .subscribe(
