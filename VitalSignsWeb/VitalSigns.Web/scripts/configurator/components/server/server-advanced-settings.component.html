@@ -100,7 +100,7 @@
                         <div class="col-sm-6">
                             <input type="text" class="form-control" name="proxyServerProtocol" formControlName="proxy_server_protocol">
                         </div>
-                    </div> 
+                    </div>
                 </div>
             </div>
         </div>
@@ -129,8 +129,10 @@
                     <label for="db2_settings_credentials_id" class="control-label col-sm-2">DB2 Credentials</label>
                     <div class="col-sm-3">
 
+
                         <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
                                       placeholder="Select Credential" [(ngModel)]="db2CredentialsId"  formControlName="db2_settings_credentials_id" name="db2_settings_credentials_id" [isEditable]="true">
+
                         </wj-combo-box>
                     </div>
                     <div class="col-sm-2">
@@ -158,26 +160,30 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group col-sm-4">
-                            <div class="funkyradio col-sm-12">
-                                <div class="funkyradio-default">
-                                    <input type="checkbox" id="collectMeetingStatistics" name="collectMeetingStatistics" formControlName="collect_meeting_statistics">
-                                    <label for="collectMeetingStatistics">
-                                        Collect Meeting Server Statistics
-                                    </label>
+                        <div>
+                            <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
+                                <div class="funkyradio col-sm-12">
+                                    <div class="funkyradio-default">
+                                        <input type="checkbox" id="collectMeetingStatistics" name="collectMeetingStatistics" formControlName="collect_meeting_statistics">
+                                        <label for="collectMeetingStatistics">
+                                            Collect Meeting Server Statistics
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group col-sm-4">
-                            <div class="funkyradio col-sm-12">
-                                <div class="funkyradio-default">
-                                    <input type="checkbox" id="collectConferenceStatistics" name="collectConferenceStatistics" formControlName="collect_conference_statistics">
-                                    <label for="collectConferenceStatistics">
-                                        Collect Conference Server Statistics
-                                    </label>
+                      
+                            <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
+                                <div class="funkyradio col-sm-12">
+                                    <div class="funkyradio-default">
+                                        <input type="checkbox" id="collectConferenceStatistics" name="collectConferenceStatistics" formControlName="collect_conference_statistics">
+                                        <label for="collectConferenceStatistics">
+                                            Collect Conference Server Statistics
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                       
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group col-sm-5">
@@ -185,38 +191,38 @@
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="portNo" formControlName="extended_statistics_port">
                             </div>
-                        </div> 
-                        <div class="form-group col-sm-4">
+                        </div>
+                        <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
                             <label for="meetingHostName" class="control-label col-sm-6">Meeting Host Name</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="meetingHostName" formControlName="meeting_host_name">
                             </div>
                         </div>
-                        <div class="form-group col-sm-4">
+                        <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
                             <label for="conferenceHostName" class="control-label col-sm-7">Conference Host Name</label>
                             <div class="col-sm-5">
                                 <input type="text" class="form-control" name="conferenceHostName" formControlName="conference_host_name">
                             </div>
                         </div>
+                    </div>
+                    <div class="col-sm-12" *ngIf="websphereplatform!='Domino'">
+                        <div class="form-group col-sm-5">&nbsp;</div>
+                        <div class="form-group col-sm-4">
+                            <label for="meetingPort" class="control-label col-sm-6">Meeting Port</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="meetingPort" formControlName="meeting_port">
+                            </div>
                         </div>
-                    <div class="col-sm-12">
-                            <div class="form-group col-sm-5">&nbsp;</div>
-                            <div class="form-group col-sm-4">
-                                <label for="meetingPort" class="control-label col-sm-6">Meeting Port</label>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control" name="meetingPort" formControlName="meeting_port">
-                                </div>
+                        <div class="form-group col-sm-4">
+                            <label for="conferencePort" class="control-label col-sm-7">Conference Port</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="conferencePort" formControlName="conference_port">
                             </div>
-                            <div class="form-group col-sm-4">
-                                <label for="conferencePort" class="control-label col-sm-7">Conference Port</label>
-                                <div class="col-sm-5">
-                                    <input type="text" class="form-control" name="conferencePort" formControlName="conference_port">
-                                </div>
-                            </div>
+                        </div>
 
-                            
-                        </div>
-                    <div class="col-sm-12">
+
+                    </div>
+                    <div class="col-sm-12" *ngIf="websphereplatform!='Domino'">
                         <div class="form-group col-sm-5">&nbsp;</div>
                         <div class="form-group col-sm-4">
                             <div class="funkyradio col-sm-12">

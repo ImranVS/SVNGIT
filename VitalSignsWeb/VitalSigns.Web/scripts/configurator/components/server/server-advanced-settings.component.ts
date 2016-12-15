@@ -23,11 +23,11 @@ export class ServerAdvancedSettings implements OnInit {
     addCredentialForm: FormGroup;
     serverType: string;
     Types: string;
+    websphereplatform: string;
     platform: string;
+ appComponentService: AppComponentService;
     db2CredentialsId : any;
-  
 
-    appComponentService: AppComponentService;
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
@@ -80,7 +80,6 @@ export class ServerAdvancedSettings implements OnInit {
 
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
-
         });
         this.dataProvider.get('/Configurator/get_advanced_settings/' + this.deviceId)
             .subscribe(
@@ -89,9 +88,20 @@ export class ServerAdvancedSettings implements OnInit {
                 this.advancedSettingsForm.setValue(response.data.results);
                 this.db2CredentialsId = response.data.results.db2_settings_credentials_id;
                 this.deviceType = response.data.results.device_type;
-                this.platform = response.data.platform;
                 this.deviceCredentialData = response.data.credentialsData;
                 this.ConnectionsCredentialData = response.data.credentialsData;
+                this.route.queryParams.subscribe(params => {
+
+                    this.websphereplatform = params['platform'];
+                    if (this.websphereplatform == "undefined" || this.websphereplatform == null)
+                    {
+                        this.websphereplatform = response.data.platform;
+                    }
+                    else {
+                        this.websphereplatform = this.websphereplatform;
+                    }
+                });
+
             },
             (error) => {
                 this.errorMessage = <any>error

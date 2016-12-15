@@ -50,6 +50,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     usernameorPassword: string = "Optional Username/Password"
     visiblity: boolean;
     documentschecked: boolean;
+    module: any;
+
  
     constructor(
         private formBuilder: FormBuilder,
@@ -95,7 +97,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
             response => {
                 this.serverAttributes = response.data.serverresult;
                 this.deviceCredentialData = response.data.credentialsData;
-                this.platform = response.data.serverresult.platform;
+               // this.platform = response.data.serverresult.platform;
                 //  this.selectedplatform = response.data.platform;
 
                 //this.attributes = response.data.device_attributes;
@@ -147,20 +149,15 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
         console.log(this.documentschecked);
     }
 
-    handleClick(index: any) {
-
+    handleClick(index: any) {     
         this.platform = index;
         if (index == "WebSphere") {
-           // this.servicesViewService.refreshTabData();
-           // this.serverdetail.ngOnInit();
-           // this.serverdetail.service.tabs[1].visible = false;
-            
+            this.platform = "Domino";
         }
         else {
-          //  this.servicesViewService.refreshTabData();
-          //  this.serverdetail.service.tabs[1].visible = false;
+            this.platform = "WebSphere";
         }
-
+        this.router.navigateByUrl('/services/configurator/' + this.deviceId +'?platform=' + this.platform);
     }
 
 
