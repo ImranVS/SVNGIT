@@ -43,8 +43,6 @@ export class ServerConfigurationFilter {
     
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
-        console.log(this.widgetName);
-        console.log(this.docField);
         this.service.get(`/reports/server_configuration_dropdown?docfield=${this.docField}`)
             .subscribe(
             (response) => {
@@ -56,8 +54,7 @@ export class ServerConfigurationFilter {
 
 
     applyFilters(multisel1: wijmo.input.MultiSelect) {
-        console.log(multisel1.checkedItems);
-       
+     
         //var v = multisel1.checkedItems;
         var selectedValues = "";
         for (var item of multisel1.checkedItems) {
@@ -68,7 +65,7 @@ export class ServerConfigurationFilter {
         }
 
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + this.docField + `=` + selectedValues;
-        console.log(URL);
+    
         //this.widgetService.refreshWidget(this.widgetName, URL )
         //    .catch(error => console.log(error));
 
