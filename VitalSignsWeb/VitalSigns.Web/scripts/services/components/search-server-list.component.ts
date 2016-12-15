@@ -74,8 +74,5 @@ export class SearchServerList implements OnInit  {
         this.deviceType = paramtype;
         this.deviceStatus = paramstatus;
         this.deviceName = paramName;
-
-        console.log(this.deviceName);
-
     }
 }
