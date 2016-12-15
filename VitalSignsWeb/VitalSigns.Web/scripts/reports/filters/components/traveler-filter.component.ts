@@ -85,20 +85,19 @@ export class TravelerFilter {
         all_server_sel: wijmo.input.ComboBox) {
         if (this.hideDatePanel == true && this.hideSingleDatePanel == true) {
             if (this.hideIntervalControl == false) {
-                var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + interval_sel.selectedValue;
-                //console.log(URL);
+                var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + interval_sel.selectedValue;          
                 this.widgetService.refreshWidget(this.widgetName, URL)
                     .catch(error => console.log(error));
             }
             else if (this.hideMailServerControl == false && this.hideServerControl == false) {
                 var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + mail_server_sel.selectedValue;
-                //console.log(URL);
+              
                 this.widgetService.refreshWidget(this.widgetName, URL)
                     .catch(error => console.log(error));
             }
             else if (this.hideAllServerControl == false) {
                 var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue;
-                //console.log(URL);
+              
                 this.widgetService.refreshWidget(this.widgetName, URL)
                     .catch(error => console.log(error));
             }
@@ -135,13 +134,13 @@ export class TravelerFilter {
 
             if (this.hideSingleDatePanel == true) {
                 var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
-                //console.log(URL);
+               
                 this.widgetService.refreshWidget(this.widgetName, URL)
                     .catch(error => console.log(error));
             }
             else {
                 var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&year=` + newCurrentDate.getFullYear();
-                //console.log(URL);
+             
                 this.widgetService.refreshWidget(this.widgetName, URL)
                     .catch(error => console.log(error));
             }
