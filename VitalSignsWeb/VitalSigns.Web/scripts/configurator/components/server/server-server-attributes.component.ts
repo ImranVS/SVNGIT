@@ -13,7 +13,6 @@ declare var injectSVG: any;
         RESTService
     ]
 })
-//export class ServerDiskSettings implements OnInit, AfterViewInit {
 export class ServerAttribute implements OnInit, AfterViewChecked  {
     
     deviceId: any;
@@ -40,24 +39,12 @@ export class ServerAttribute implements OnInit, AfterViewChecked  {
         this.Attribute.get('/configurator/' + this.deviceId + '/servers_attributes')
             .subscribe(
             response => {
-                console.log(response.data);
                 this.Attributes = response.data;
             },
-            error => this.errorMessage = <any>error
-            
-            
-        );
-    
-      
-    }
-       
-     
+            error => this.errorMessage = <any>error                      
+        );        
+    }   
     ngAfterViewChecked() {
         injectSVG();
     }
-      
-    
-    //changeInDevices(server: string) {
-    //    this.devices = server;
-  
 }

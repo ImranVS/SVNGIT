@@ -99,9 +99,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
                 this.deviceCredentialData = response.data.credentialsData;
                // this.platform = response.data.serverresult.platform;
                 //  this.selectedplatform = response.data.platform;
-
                 //this.attributes = response.data.device_attributes;
-               // console.log(this.serverAttributes);
             },
             error => this.errorMessage = <any>error
 
@@ -146,7 +144,6 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
     isChecked(ischecked: boolean) {
         this.documentschecked = ischecked;
-        console.log(this.documentschecked);
     }
 
     handleClick(index: any) {     
@@ -170,7 +167,6 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
         };
 
         this.ServerAttributeForm.setValue(postData);
-       // console.log(postData);
         this.Attribute.put('/configurator/save_servers_attributes/' + this.deviceId, postData)
             .subscribe(
             response => {

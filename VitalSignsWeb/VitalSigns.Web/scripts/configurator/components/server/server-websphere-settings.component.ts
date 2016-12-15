@@ -87,16 +87,13 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
         this.service.get('/configurator/get_sametime_websphere/'+ this.deviceId)
             .subscribe(
             (response) => {
-                console.log(response.data.cellData);
                 this.websphereSettingsForm.setValue(response.data.cellData);
                 this.websphereSettingsForm.valueChanges.subscribe(websphereobject => {
                    
                     this.limitsChecked = websphereobject['global_security'];
                    
                 });
-                console.log(response.data.cellData);
                // this.websphereSettingsForm.setValue(response.data.cellData);
-               // console.log(response.data.cellData);
                 if (response.data.cellData.length > 0) {
                     this.webSphereServerNodeData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.cellData[0].nodes_data));
                     this.webSphereServerNodeData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("node_name"));
@@ -151,7 +148,6 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
     }
 
     //RefreshCell() {
-    //    console.log(this.websphereSettingsForm);
     //    this.service.put('/configurator/get_websohere_nodes', this.websphereSettingsForm)
     //        .subscribe(
     //        response => {

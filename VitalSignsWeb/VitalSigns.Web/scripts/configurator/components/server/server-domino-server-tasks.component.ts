@@ -92,8 +92,6 @@ export class ServerTasks extends GridBase implements OnInit {
             "setting": setting,
           
         };
-
-        console.log(postData);
         this.currentForm.setValue(postData);
        
         //this.saveGridRow('/configurator/save_server_tasks', postData, dlg)

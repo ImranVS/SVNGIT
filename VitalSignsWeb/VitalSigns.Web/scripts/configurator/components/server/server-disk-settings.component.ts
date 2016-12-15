@@ -94,7 +94,6 @@ export class DominoServerDiskSettings implements OnInit {
 
                 this.selectedDiskSetting = response.data.disk_name;
                 this.diskThreshold = response.data.freespace_threshold;
-                console.log(this.selectedDiskSetting);
             },
 
             (error) => {

@@ -70,8 +70,6 @@ export class MaintenanceWindows implements OnInit {
         this.route.parent.params.subscribe(params => {
 
             this.module = params['module'];
-            console.log(this.module);
-
         });
        
     }
@@ -88,8 +86,6 @@ export class MaintenanceWindows implements OnInit {
    }
 
     clearClick() {
-        console.log("sowji");
-        console.log(this.from_date);
         this.from_date = "";
         this.to_date = "";
         this.from_time = "";
