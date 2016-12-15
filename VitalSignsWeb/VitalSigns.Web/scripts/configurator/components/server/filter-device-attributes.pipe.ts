@@ -4,12 +4,10 @@
 })
 export class FilterDeviceAttributesPipe {
     transform(value: any, category: string) {
-        console.log(value);  
-        if (category) {
-            console.log(category);  
+      
+        if (category) {  
             value = value.filter((item) => item.category.toLocaleLowerCase().indexOf(category.toLocaleLowerCase()) !== -1);
         }
-        console.log(value);  
         return value;
     }
 
