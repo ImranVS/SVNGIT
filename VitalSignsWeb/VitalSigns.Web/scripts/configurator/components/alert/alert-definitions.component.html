@@ -1,159 +1,153 @@
-﻿<div id="zeusContent">
-    <div class="col-xs-12">
-        <div class="widgetWrapper">
-            <div class="widgetContent">
-                <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
-                    The list of event notifications is displayed below. When an event matches a notification definition, a message will be sent out to the specified recipients. In order to add new definitions or configure existing definitions, please use the buttons below.
-                </div>
-                <div class="grid-sort-group" *ngIf="data">
-                    <!-- edit details in a popup -->
-                    <button class="btn btn-success" (click)="showEditForm(frmDialog)" [disabled]="data.itemCount==0">
-                        Edit
-                    </button>
-                    <button class="btn btn-success" (click)="showAddForm(frmDialog)">
-                        Add
-                    </button>
-                    <button class="btn btn-success" (click)="deleteDefinition();" [disabled]="data.itemCount==0">
-                        Delete
-                    </button>
-                </div>
-                <div>&nbsp;</div>
-                <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex>
-                    <wj-flex-grid-filter></wj-flex-grid-filter>
-                    <wj-flex-grid-column [header]="'Definition Name'" [binding]="'notification_name'" [width]="280"> </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="280" [visible]="false"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Event Ids'" [binding]="'event_ids'" [visible]="false"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Selected Event Ids'" [binding]="'is_selected_event'" [visible]="false"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Hours Ids'" [binding]="'business_hours_ids'" [visible]="false"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Selected Hours Ids'" [binding]="'is_selected_hour'" [visible]="false"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Server Ids'" [binding]="'server_ids'" [visible]="false"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Selected Server Ids'" [binding]="'is_selected_server'" [visible]="false"></wj-flex-grid-column>
-                </wj-flex-grid>
-
-                <wj-popup class="col-md-8 modal-content" style="height: 70%; overflow: auto" #frmDialog>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            {{formTitle}}
-                            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-                        </div>
-                        <form (ngSubmit)="saveDefinition(frmDialog)" #frmUser="ngForm">
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="notification_name">Definition Name</label>
-                                    <input type="text" class="form-control" #name id="notification_name" required name="notification_name" [(ngModel)]="formObject.notification_name">
-                                </div>
-                                <div class="form-group">
-                                    <label for="events">Hours and Destinations</label>
-                                    <br />
-                                    <wj-flex-grid [itemsSource]="hoursdata" selectionMode="Row" headersVisibility="Column" #flex4>
-                                        <wj-flex-grid-filter></wj-flex-grid-filter>
-                                        <!--<wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_h'" align="center">
-                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                            <input type="checkbox" [ngModel]="cell.item.is_selected_h" name="is_selected_h" (change)="hoursCheck(cell.item.hours_destinations_id,$event)" />
-                        </template>
-                    </wj-flex-grid-column>-->
-                                        <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_hour'" align="center"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Type'" [binding]="'business_hours_type'" [width]="120" [isReadOnly]="true"> </wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Copy To'" [binding]="'copy_to'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Blind Copy To'" [binding]="'blind_copy_to'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Persistent Notification'" [binding]="'persistent_notification'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Send Via'" [binding]="'send_via'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
-                                    </wj-flex-grid>
-                                </div>
-                                <div class="form-group">
-                                    <label for="events">Escalation</label>
-                                    <br />
-                                    <wj-flex-grid [itemsSource]="escalationdata" selectionMode="Row" headersVisibility="Column" #flex5>
-                                        <wj-flex-grid-filter></wj-flex-grid-filter>
-                                        <!--<wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_e'" align="center">
-                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                            <input type="checkbox" [ngModel]="cell.item.is_selected_e" name="is_selected_e" (change)="escalationCheck(cell.item.hours_destinations_id,$event)" />
-                        </template>
-                    </wj-flex-grid-column>-->
-                                        <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_hour'" align="center"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Escalate To'" [binding]="'send_to'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Interval (min)'" [binding]="'interval'" [width]="120" align="right" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Send Via'" [binding]="'send_via'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
-                                    </wj-flex-grid>
-                                </div>
-                                <div class="form-group">
-                                    <label for="events">Events</label>
-                                    <br />
-                                    <wj-flex-grid [itemsSource]="eventsdata" selectionMode="Row" headersVisibility="Column" #flex3>
-                                        <wj-flex-grid-filter></wj-flex-grid-filter>
-                                        <!--<wj-flex-grid-column [header]="'Select'" [binding]="'selected_event'" align="center">
-                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell" >
-                            <input type="checkbox" name="selected_event" [(ngModel)]="cell.item.is_selected_event"/>
-                        </template>
-                    </wj-flex-grid-column>-->
-                                        <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_event'" align="center"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Event Type'" [binding]="'event_type'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Alert about Event Recurrences'" [binding]="'notification_on_repeat'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>
-                                        <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
-                                    </wj-flex-grid>
-                                    <!--<div class="btn-group" *ngIf="eventsdata != null">
-                                                <button type="button" class="btn btn-default"
-                                                        (click)="eventsdata.moveToFirstPage()"
-                                                        [disabled]="eventsdata.pageIndex <= 0">
-                                                    <span class="glyphicon glyphicon-fast-backward"></span>
-                                                </button>
-                                                <button type="button" class="btn btn-default"
-                                                        (click)="onPageClickPrev()"
-                                                        [disabled]="eventsdata.pageIndex <= 0">
-                                                    <span class="glyphicon glyphicon-step-backward">
-                                                    </span>
-                                                </button>
-                                                <button type="button" class="btn btn-default" disabled style="width:100px">
-                                                                                                                                                                                                    {{
-                eventsdata.pageIndex + 1 | number
-                                                    }} / {{eventsdata.pageCount | number}}
-                                                </button>
-                                                <button type="button" class="btn btn-default"
-                                                        (click)="onPageClickNext()"
-                                                        [disabled]="eventsdata.pageIndex >= eventsdata.pageCount - 1">
-                                                    <span class="glyphicon glyphicon-step-forward"></span>
-                                                </button>
-                                                <button type="button" class="btn btn-default"
-                                                        (click)="eventsdata.moveToLastPage()"
-                                                        [disabled]="eventsdata.pageIndex >= eventsdata.pageCount - 1">
-                                                    <span class="glyphicon glyphicon-fast-forward"></span>
-                                                </button>
-                                            </div>-->
-                                    <!--<div class="pull-right" *ngIf="eventsdata != null">
-                    <wj-menu [(value)]="eventsPageSize" [header]="'Page size'">
-                        <wj-menu-item [value]="10">10</wj-menu-item>
-                        <wj-menu-item [value]="20">20</wj-menu-item>
-                        <wj-menu-item [value]="50">50</wj-menu-item>
-                    </wj-menu>
-                </div>-->
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="devices">Devices</label>
-                                    <br />
-                                    <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices"></server-location-list>
-                                </div>
-
-
-                            </div>
-
-                            <div class="panel-footer">
-                                <div id="errorDiv" *ngIf="errorMessage" class="alert alert-danger col-md-12" align="left">
-                                    Error: {{errorMessage}}
-                                </div>
-                                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                                <button class="btn btn-primary wj-hide" type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                            </div>
-
-                        </form>
-                    </div>                  
-                </wj-popup>
-            </div>
+﻿    <div class="col-xs-12">
+        <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
+            The list of event notifications is displayed below. When an event matches a notification definition, a message will be sent out to the specified recipients. In order to add new definitions or configure existing definitions, please use the buttons below.
         </div>
+        <div class="grid-sort-group" *ngIf="data">
+            <!-- edit details in a popup -->
+            <button class="btn btn-success" (click)="showEditForm(frmDialog)" [disabled]="data.itemCount==0">
+                Edit
+            </button>
+            <button class="btn btn-success" (click)="showAddForm(frmDialog)">
+                Add
+            </button>
+            <button class="btn btn-success" (click)="deleteDefinition();" [disabled]="data.itemCount==0">
+                Delete
+            </button>
+        </div>
+        <div>&nbsp;</div>
+        <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex>
+            <wj-flex-grid-filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [header]="'Definition Name'" [binding]="'notification_name'" [width]="280"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="280" [visible]="false"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Event Ids'" [binding]="'event_ids'" [visible]="false"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Selected Event Ids'" [binding]="'is_selected_event'" [visible]="false"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Hours Ids'" [binding]="'business_hours_ids'" [visible]="false"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Selected Hours Ids'" [binding]="'is_selected_hour'" [visible]="false"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Server Ids'" [binding]="'server_ids'" [visible]="false"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Selected Server Ids'" [binding]="'is_selected_server'" [visible]="false"></wj-flex-grid-column>
+        </wj-flex-grid>
+
+        <wj-popup class="col-md-8 modal-content" style="height: 70%; overflow: auto" #frmDialog>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {{formTitle}}
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </div>
+                <form (ngSubmit)="saveDefinition(frmDialog)" #frmUser="ngForm">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="notification_name">Definition Name</label>
+                            <input type="text" class="form-control" #name id="notification_name" required name="notification_name" [(ngModel)]="formObject.notification_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="events">Hours and Destinations</label>
+                            <br />
+                            <wj-flex-grid [itemsSource]="hoursdata" selectionMode="Row" headersVisibility="Column" #flex4>
+                                <wj-flex-grid-filter></wj-flex-grid-filter>
+                                <!--<wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_h'" align="center">
+                                <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                    <input type="checkbox" [ngModel]="cell.item.is_selected_h" name="is_selected_h" (change)="hoursCheck(cell.item.hours_destinations_id,$event)" />
+                                </template>
+                            </wj-flex-grid-column>-->
+                                <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_hour'" align="center"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Type'" [binding]="'business_hours_type'" [width]="120" [isReadOnly]="true"> </wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Copy To'" [binding]="'copy_to'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Blind Copy To'" [binding]="'blind_copy_to'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Persistent Notification'" [binding]="'persistent_notification'" [width]="200" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Send Via'" [binding]="'send_via'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
+                            </wj-flex-grid>
+                        </div>
+                        <div class="form-group">
+                            <label for="events">Escalation</label>
+                            <br />
+                            <wj-flex-grid [itemsSource]="escalationdata" selectionMode="Row" headersVisibility="Column" #flex5>
+                                <wj-flex-grid-filter></wj-flex-grid-filter>
+                                <!--<wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_e'" align="center">
+                                <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                    <input type="checkbox" [ngModel]="cell.item.is_selected_e" name="is_selected_e" (change)="escalationCheck(cell.item.hours_destinations_id,$event)" />
+                                </template>
+                            </wj-flex-grid-column>-->
+                                <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_hour'" align="center"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Escalate To'" [binding]="'send_to'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Interval (min)'" [binding]="'interval'" [width]="120" align="right" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Send Via'" [binding]="'send_via'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
+                            </wj-flex-grid>
+                        </div>
+                        <div class="form-group">
+                            <label for="events">Events</label>
+                            <br />
+                            <wj-flex-grid [itemsSource]="eventsdata" selectionMode="Row" headersVisibility="Column" #flex3>
+                                <wj-flex-grid-filter></wj-flex-grid-filter>
+                                <!--<wj-flex-grid-column [header]="'Select'" [binding]="'selected_event'" align="center">
+                                <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell" >
+                                    <input type="checkbox" name="selected_event" [(ngModel)]="cell.item.is_selected_event"/>
+                                </template>
+                            </wj-flex-grid-column>-->
+                                <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected_event'" align="center"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Event Type'" [binding]="'event_type'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Alert about Event Recurrences'" [binding]="'notification_on_repeat'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
+                            </wj-flex-grid>
+                            <!--<div class="btn-group" *ngIf="eventsdata != null">
+                                                        <button type="button" class="btn btn-default"
+                                                                (click)="eventsdata.moveToFirstPage()"
+                                                                [disabled]="eventsdata.pageIndex <= 0">
+                                                            <span class="glyphicon glyphicon-fast-backward"></span>
+                                                        </button>
+                                                        <button type="button" class="btn btn-default"
+                                                                (click)="onPageClickPrev()"
+                                                                [disabled]="eventsdata.pageIndex <= 0">
+                                                            <span class="glyphicon glyphicon-step-backward">
+                                                            </span>
+                                                        </button>
+                                                        <button type="button" class="btn btn-default" disabled style="width:100px">
+                                                                                                                                                                                                            {{
+                        eventsdata.pageIndex + 1 | number
+                                                            }} / {{eventsdata.pageCount | number}}
+                                                        </button>
+                                                        <button type="button" class="btn btn-default"
+                                                                (click)="onPageClickNext()"
+                                                                [disabled]="eventsdata.pageIndex >= eventsdata.pageCount - 1">
+                                                            <span class="glyphicon glyphicon-step-forward"></span>
+                                                        </button>
+                                                        <button type="button" class="btn btn-default"
+                                                                (click)="eventsdata.moveToLastPage()"
+                                                                [disabled]="eventsdata.pageIndex >= eventsdata.pageCount - 1">
+                                                            <span class="glyphicon glyphicon-fast-forward"></span>
+                                                        </button>
+                                                    </div>-->
+                            <!--<div class="pull-right" *ngIf="eventsdata != null">
+                            <wj-menu [(value)]="eventsPageSize" [header]="'Page size'">
+                                <wj-menu-item [value]="10">10</wj-menu-item>
+                                <wj-menu-item [value]="20">20</wj-menu-item>
+                                <wj-menu-item [value]="50">50</wj-menu-item>
+                            </wj-menu>
+                        </div>-->
+                        </div>
+
+                        <div class="form-group">
+                            <label for="devices">Devices</label>
+                            <br />
+                            <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices"></server-location-list>
+                        </div>
+
+
+                    </div>
+
+                    <div class="panel-footer">
+                        <div id="errorDiv" *ngIf="errorMessage" class="alert alert-danger col-md-12" align="left">
+                            Error: {{errorMessage}}
+                        </div>
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                        <button class="btn btn-primary wj-hide" type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+
+                </form>
+            </div>
+        </wj-popup>
     </div>
-</div>

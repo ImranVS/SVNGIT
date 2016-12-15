@@ -13,7 +13,26 @@
     <div class="clearfix"></div>
 </div>
 
-<ul class="nav nav-tabs" role="tablist">
+
+<div id="zeusContent">
+    <div class="widgetWrapper">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of tabsData">
+                <a href="javascript:void(0);">{{tab.title}}</a>
+            </li>
+        </ul>
+        <div class="widgetContent">
+            <div class="tab-content">
+
+                <div #tab></div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--<ul class="nav nav-tabs" role="tablist">
     <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of tabsData">
         <a href="javascript:void(0);">{{tab.title}}</a>
     </li>
@@ -23,4 +42,4 @@
 
     <div #tab></div>
 
-</div>
+</div>-->
