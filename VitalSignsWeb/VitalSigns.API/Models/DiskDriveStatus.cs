@@ -45,8 +45,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("threshold")]
         public double? Threshold { get; set; }
 
-        [JsonProperty("unit")]
-        public string Unit { get; set; }
+        [JsonProperty("threshold_type")]
+        public string ThresholdType { get; set; }
 
         [JsonProperty("last_updated")]
         public DateTime? LastUpdated { get; set; }

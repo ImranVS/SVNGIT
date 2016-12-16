@@ -1656,7 +1656,7 @@ namespace VitalSigns.API.Controllers
                             DiskUsed = drive.DiskFree == null || drive.DiskSize == null ? 0 : drive.DiskSize - drive.DiskFree,
                             PercentFree = drive.PercentFree == null ? 0 : Math.Round(Convert.ToDouble(drive.PercentFree) * 100, 1),
                             Threshold = drive.Threshold == null ? 0 : drive.Threshold,
-                            Unit = drive.ThresholdType,
+                            ThresholdType = drive.ThresholdType,
                             LastUpdated = status.LastUpdated,
                             Location = status.Location
                         });
