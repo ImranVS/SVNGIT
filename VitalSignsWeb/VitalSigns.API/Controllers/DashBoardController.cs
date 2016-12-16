@@ -1614,8 +1614,8 @@ namespace VitalSigns.API.Controllers
                         if (stat1.DeviceName == stat3.DeviceName)
                         {
                             var doc = stat3.ToBsonDocument();
-                            x.Add("Memory", Math.Round(Convert.ToDouble(doc["memory"].ToString()), 2).ToString());
-                            x.Add("CPU", Math.Round(Convert.ToDouble(doc["cpu"].ToString()), 2).ToString());
+                            x.Add("Memory", Math.Round(Convert.ToDouble(doc["memory"].ToString()) * 100, 2).ToString());
+                            x.Add("CPU", Math.Round(Convert.ToDouble(doc["cpu"].ToString()) * 100, 2).ToString());
                             //x.Add("MemoryThreshold", doc["memory_threshold"].ToString());
                             //x.Add("CPUThreshold", doc["cpu_threshold"].ToString());
                         }
@@ -1654,7 +1654,7 @@ namespace VitalSigns.API.Controllers
                             DiskSize = drive.DiskSize == null ? 0 : drive.DiskSize,
                             DiskName = drive.DiskName,
                             DiskUsed = drive.DiskFree == null || drive.DiskSize == null ? 0 : drive.DiskSize - drive.DiskFree,
-                            PercentFree = drive.PercentFree == null ? 0 : drive.PercentFree,
+                            PercentFree = drive.PercentFree == null ? 0 : Math.Round(Convert.ToDouble(drive.PercentFree) * 100, 1),
                             Threshold = drive.Threshold == null ? 0 : drive.Threshold,
                             Unit = drive.ThresholdType,
                             LastUpdated = status.LastUpdated,

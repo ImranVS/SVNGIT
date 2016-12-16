@@ -1648,7 +1648,7 @@ namespace VitalSigns.API.Controllers
                         }                      
                    
                     }
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Disk Settings Sucessfully updated.");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Disk settings sucessfully updated.");
 
 
                 }
