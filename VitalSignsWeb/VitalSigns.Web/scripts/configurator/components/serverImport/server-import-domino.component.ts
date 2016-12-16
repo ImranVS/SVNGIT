@@ -48,7 +48,7 @@ export class DominoServerImport implements OnInit{
         this.dataProvider.put('/configurator/load_domino_servers', this.dominoServerImportData)
             .subscribe(
             response => {
-                if (response.status != "OK") {
+                if (response.status != "Success") {
                     this.errorMessage = response.message;
                 }
                 else {

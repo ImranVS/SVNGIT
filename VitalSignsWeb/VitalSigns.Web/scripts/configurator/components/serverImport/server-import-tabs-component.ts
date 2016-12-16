@@ -38,7 +38,7 @@ export class ServerImports implements OnInit {
                 "active": false
             },
             {
-                "title": "Web Sphere",
+                "title": "WebSphere",
                 "component": "WebSphereServerImport",
                 "path": "/app/configurator/components/serverimport/server-import-websphere.component",
                 "active": false

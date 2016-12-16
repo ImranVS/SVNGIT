@@ -1,5 +1,5 @@
 ﻿
-<div class="container">
+<div class="widgetWrapper">
     <!--Step 1-->
     <div *ngIf="currentStep=='1'">
         <div class="panel panel-default">
@@ -69,16 +69,16 @@ data.pageIndex + 1 | number
             <div class="well grid-sort-group">
 
                 <!-- edit details in a popup -->
-                <button class="btn btn-default" (click)="editCellInfo(frmDialog)">
+                <button class="btn btn-success" (click)="editCellInfo(frmDialog)">
                     Edit
                 </button>
-                <button class="btn btn-default" (click)="addCellInfo(frmDialog)">
+                <button class="btn btn-success" (click)="addCellInfo(frmDialog)">
                     Add
                 </button>
-                <button class="btn btn-default" (click)="delteCellInfo();">
+                <button class="btn btn-success" (click)="delteCellInfo();">
                     Delete
                 </button>
-                <button class="btn btn-default" (click)="RefreshCell();">
+                <button class="btn btn-success" (click)="RefreshCell();">
                     Refresh
                 </button>
             </div>
@@ -158,11 +158,11 @@ webSphereServerNodeData.pageIndex + 1 | number
                     <div class="row">
                         <div *ngFor="let attribute of  websphereData.device_attributes |filterDeviceAttributes:scanSettings">
 
-                            <div class="form-group">
+                            <div class="form-group col-sm-12">
                                 <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-1">
                                     <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                     </div>
                                     <div *ngIf="attribute.type=='CheckBox'">
                                         <input type="checkbox" [(ngModel)]="attribute.default_value">
@@ -182,11 +182,11 @@ webSphereServerNodeData.pageIndex + 1 | number
                     <div class="row">
                         <div *ngFor="let attribute of  websphereData.device_attributes |filterDeviceAttributes:webSphereSettings">
 
-                            <div class="form-group">
+                            <div class="form-group col-sm-12">
                                 <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-1">
                                     <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                     </div>
                                     <div *ngIf="attribute.type=='CheckBox'">
                                         <input type="checkbox" [(ngModel)]="attribute.default_value">
@@ -201,126 +201,133 @@ webSphereServerNodeData.pageIndex + 1 | number
             </div>
 
         </div>
-
-        <div class="row">
-
-            <label class="control-label col-sm-3">Memory Threshold</label>
-            <div class="col-sm-3">
-                <input type="text" [(ngModel)]="websphereData.memory_threshold">
-            </div>
-            <label class="control-label col-sm-3">CPU Threshold</label>
-            <div class="col-sm-3">
-                <input type="text" [(ngModel)]="websphereData.cpu_threshold">
-            </div>
-        </div>
-        <b>The following server(s) will be assigned monitoring defaults selected above:</b>
-        <div class="row">
-            <div class="col-sm-3" *ngFor="let server of  websphereData.selected_servers; let i=index">
-                <label>                  
-                    {{server.server_name}}
-                </label>
-            </div>
-        </div>       
-        <div class="panel-footer">
-            <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
-        </div>
-    </div>
-    <!--Step 3-->
-    <div *ngIf="currentStep=='3'">
         <div class="panel panel-default">
-            <div class="panel-heading">
-                <b> Step 3 - Finish</b>
-            </div>
-        </div>
-        <div class="panel-body">
-            <b>Following Severs were imported successfully</b>
-            <div class="row">
-                <div class="col-sm-3" *ngFor="let server of  websphereData.selected_servers; let i=index">
-                    <label>
-                        {{server.server_name}}
-                    </label>
+            <div class="panel-heading"></div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <label class="control-label col-sm-3">Memory Threshold</label>
+                        <div class="col-sm-1">
+                            <input type="text" [(ngModel)]="websphereData.memory_threshold" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <label class="control-label col-sm-3">CPU Threshold</label>
+                        <div class="col-sm-1">
+                            <input type="text" [(ngModel)]="websphereData.cpu_threshold" class="form-control">
+                        </div>
+                    </div>
+                </div>
                 </div>
             </div>
-        </div>
-
-        <div class="panel-footer">
-            <button class="btn btn-primary" type="button" name="next" (click)="step3Click()">Finish</button>
-        </div>
-    </div>
-
-    <wj-popup class="modal-content col-sm-10" #frmDialog>
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <b> {{formTitle}}</b>
-
-                <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-            </div>
-            <form (ngSubmit)="saveCellInfo(frmDialog)" #frmCell="ngForm" class="form-horizontal">
-
-                <div class="panel-body" *ngIf="currentEditItem">
-                    <div class="row">
-                        <div class="form-group col-sm-6">
-                            <label for="login_name" class="control-label col-sm-5">Name</label>
-                            <div class="col-sm-7">
-                                <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
-                            </div>
-                        </div>
-                        <div class="form-group col-sm-6">
-                            <label for="full_name" class="control-label col-sm-5">Host Name</label>
-                            <div class="col-sm-7">
-                                <input type="text" class="form-control" id="host_name" required name="host_name" [(ngModel)]="currentEditItem.host_name">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-sm-6">
-                            <label for="status" class="control-label col-sm-5">Connection Type</label>
-                            <div class="col-sm-7">
-                                <select name="status" class="form-control" [(ngModel)]="currentEditItem.connection_type" id="connection_type">
-                                    <option value="SOAP">SOAP</option>
-                                    <option value="RMI">RMI</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group col-sm-6">
-                            <label for="email" class="control-label col-sm-5">Port No</label>
-                            <div class="col-sm-7">
-                                <input type="text" class="form-control" id="email" required name="email" [(ngModel)]="currentEditItem.port_no">
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-sm-6">
-                            <label for="super_admin" class="control-label col-sm-5">Global Security</label>
-                            <div class="col-sm-7">
-                                <input type="checkbox" class="checkbox-inline" id="global_security" [(ngModel)]="currentEditItem.global_security" name="global_security">
-                            </div>
-                        </div>
-                        <div class="form-group col-sm-6" *ngIf="currentEditItem.global_security">
-                            <label for="credentails" class="control-label col-sm-5"> Credentials</label>
-                            <div class="col-sm-7">
-                                <wj-combo-box name="credential" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                              [(ngModel)]="currentEditItem.credentials_id" [(text)]="currentEditItem.credentials_name" placeholder="Select Credential">
-                                </wj-combo-box>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-sm-6" *ngIf="currentEditItem.global_security">
-                            <label for="realm" class="control-label col-sm-5">Realm</label>
-                            <div class="col-sm-7">
-                                <input type="text" class="form-control" id="realm" name="realm" [(ngModel)]="currentEditItem.realm">
-                            </div>
-                        </div>
+                <b>The following server(s) will be assigned monitoring defaults selected above:</b>
+                <div class="row">
+                    <div class="col-sm-3" *ngFor="let server of  websphereData.selected_servers; let i=index">
+                        <label>
+                            {{server.server_name}}
+                        </label>
                     </div>
                 </div>
                 <div class="panel-footer">
-                    <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmCell.form.valid">Save</button>
-                    <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
                 </div>
-            </form>
+            </div>
+            <!--Step 3-->
+            <div *ngIf="currentStep=='3'">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <b> Step 3 - Finish</b>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <b>Following Severs were imported successfully</b>
+                    <div class="row">
+                        <div class="col-sm-3" *ngFor="let server of  websphereData.selected_servers; let i=index">
+                            <label>
+                                {{server.server_name}}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <button class="btn btn-primary" type="button" name="next" (click)="step3Click()">Finish</button>
+                </div>
+            </div>
+
+            <wj-popup class="modal-content col-sm-10" #frmDialog>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <b> {{formTitle}}</b>
+
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                    </div>
+                    <form (ngSubmit)="saveCellInfo(frmDialog)" #frmCell="ngForm" class="form-horizontal">
+
+                        <div class="panel-body" *ngIf="currentEditItem">
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label for="login_name" class="control-label col-sm-5">Name</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label for="full_name" class="control-label col-sm-5">Host Name</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="host_name" required name="host_name" [(ngModel)]="currentEditItem.host_name">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label for="status" class="control-label col-sm-5">Connection Type</label>
+                                    <div class="col-sm-7">
+                                        <select name="status" class="form-control" [(ngModel)]="currentEditItem.connection_type" id="connection_type">
+                                            <option value="SOAP">SOAP</option>
+                                            <option value="RMI">RMI</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label for="email" class="control-label col-sm-5">Port No</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="email" required name="email" [(ngModel)]="currentEditItem.port_no">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label for="super_admin" class="control-label col-sm-5">Global Security</label>
+                                    <div class="col-sm-7">
+                                        <input type="checkbox" class="checkbox-inline" id="global_security" [(ngModel)]="currentEditItem.global_security" name="global_security">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6" *ngIf="currentEditItem.global_security">
+                                    <label for="credentails" class="control-label col-sm-5"> Credentials</label>
+                                    <div class="col-sm-7">
+                                        <wj-combo-box name="credential" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                                      [(ngModel)]="currentEditItem.credentials_id" [(text)]="currentEditItem.credentials_name" placeholder="Select Credential">
+                                        </wj-combo-box>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6" *ngIf="currentEditItem.global_security">
+                                    <label for="realm" class="control-label col-sm-5">Realm</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="realm" name="realm" [(ngModel)]="currentEditItem.realm">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmCell.form.valid">Save</button>
+                            <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </wj-popup>
         </div>
-    </wj-popup>
-</div>

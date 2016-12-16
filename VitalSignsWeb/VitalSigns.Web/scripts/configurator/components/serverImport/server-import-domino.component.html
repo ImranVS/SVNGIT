@@ -1,4 +1,4 @@
-﻿<div class="container" *ngIf="dominoServerImportData">
+﻿<div class="widgetWrapper" *ngIf="dominoServerImportData">
     <!--Step 1-->
     <div *ngIf="currentStep=='1'">
         <div class="panel panel-default">
@@ -8,14 +8,14 @@
 
         </div>
         <div class="panel-body">
-            <div id="infoDivLoad">
+            <div class="alert alert-info col-lg-12">
                 Enter the Domino Directory Server value and click 'Load Servers' or load a CSV file
                 by clicking the 'Browse...' button and click 'Load from CSV' to get a list of servers to import.
             </div>
             <div class="row">
                 <div class="form-group col-sm-6">
-                    <label for="dominoServer" class="control-label col-sm-2">Domino Directory Server:</label>
-                    <div class="col-sm-10">
+                    <label for="dominoServer" class="control-label col-sm-3">Domino Directory Server:</label>
+                    <div class="col-sm-8">
                         <input type="text" class="form-control" required name="dominoServer" [(ngModel)]="dominoServerImportData.domino_server">
                     </div>
                 </div>
@@ -28,8 +28,8 @@
             <b>Or</b>
             <div class="row">
                 <div class="form-group col-sm-6">
-                    <label for="domino_server_csv" class="control-label col-sm-2">Load from a CSV file:</label>
-                    <div class="col-sm-10">
+                    <label for="domino_server_csv" class="control-label col-sm-3">Load from a CSV file:</label>
+                    <div class="col-sm-8">
                         <input type="file" class="form-control" required name="domino_server_csv" (change)="changeListener($event)">
                     </div>
                 </div>
@@ -85,6 +85,7 @@
 
                     </wj-combo-box>
                 </div>
+                <div class="alert alert-info col-lg-12">Any server not on the list has already been imported.</div>
                 <div class="row">
                     <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
                         <label>
@@ -95,12 +96,12 @@
                 </div>
             </div>
             <div class="panel-footer">
-                <button class="btn btn-primary" type="button" name="next" (click)="step1Click()" >Next</button>
-               
+                <button class="btn btn-primary" type="button" name="next" (click)="step1Click()">Next</button>
+
             </div>
         </div>
     </div>
-   
+
     <!--Step 2-->
     <div *ngIf="currentStep=='2'">
         <div class="panel panel-default">
@@ -121,11 +122,11 @@
                     <div class="row">
                         <div *ngFor="let attribute of dominoServerImportData.device_attributes |filterDeviceAttributes:scanSettings">
 
-                            <div class="form-group">
+                            <div class="form-group col-sm-12">
                                 <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-1">
                                     <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                     </div>
                                     <div *ngIf="attribute.type=='CheckBox'">
                                         <input type="checkbox" [(ngModel)]="attribute.default_value">
@@ -145,11 +146,11 @@
                     <div class="row">
                         <div *ngFor="let attribute of  dominoServerImportData.device_attributes |filterDeviceAttributes:mailSettings">
 
-                            <div class="form-group">
+                            <div class="form-group col-sm-12">
                                 <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-1">
                                     <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value">
+                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                                     </div>
                                     <div *ngIf="attribute.type=='CheckBox'">
                                         <input type="checkbox" [(ngModel)]="attribute.default_value">
@@ -164,22 +165,29 @@
             </div>
 
         </div>
-
-        <div class="row">
-           
-                <label class="control-label col-sm-3">Memory Threshold</label>
-                <div class="col-sm-3">                   
-                        <input type="text" [(ngModel)]="dominoServerImportData.memory_threshold">
+        <div class="panel panel-default">
+            <div class="panel-heading"></div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <label class="control-label col-sm-3">Memory Threshold</label>
+                        <div class="col-sm-1">
+                            <input type="text" [(ngModel)]="dominoServerImportData.memory_threshold" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <label class="control-label col-sm-3">CPU Threshold</label>
+                        <div class="col-sm-1">
+                            <input type="text" [(ngModel)]="dominoServerImportData.cpu_threshold" class="form-control">
+                        </div>
+                    </div>
                 </div>
-                <label class="control-label col-sm-3">CPU Threshold</label>
-                <div class="col-sm-3">
-                    <input type="text" [(ngModel)]="dominoServerImportData.cpu_threshold">
-                </div>         
+            </div>
         </div>
         <b>Selected Severs</b>
         <div class="row">
-            
-           
+
+
             <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
                 <label *ngIf="server.selected">
                     <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.selected">
@@ -215,9 +223,9 @@
             </div>
         </div>
         <b>Selected Severs</b>
-        <div class="row">           
+        <div class="row">
             <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
-                  <label *ngIf="server.selected">
+                <label *ngIf="server.selected">
                     <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.selected">
                     {{server.device_name}}
                 </label>
@@ -247,7 +255,7 @@
                 </div>
             </div>
         </div>
-       
+
         <div class="panel-footer">
             <button class="btn btn-primary" type="button" name="next" (click)="step4Click()">Finish</button>
         </div>
