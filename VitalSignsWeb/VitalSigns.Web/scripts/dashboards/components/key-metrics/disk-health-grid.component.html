@@ -7,10 +7,10 @@
     <wj-flex-grid-column [header]="'Disk Free (GB)'" [binding]="'disk_free'" [width]="200" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Percent Free'" [binding]="'percent_free'" align="right">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-            <div *ngIf="cell.item.percent_free <= cell.item.threshold && cell.item.threshold!=0">
+            <div *ngIf="(cell.item.percent_free <= cell.item.threshold && cell.item.threshold_type == 'Percent' || cell.item.disk_free <= cell.item.threshold && cell.item.threshold_type == 'GB') && cell.item.threshold!=0">
                 <span class="label label-pill label-danger">{{cell.item.percent_free}}</span>
             </div>
-            <div *ngIf="cell.item.percent_free > cell.item.threshold && cell.item.threshold!=0 || cell.item.threshold==0">
+            <div *ngIf="(cell.item.percent_free > cell.item.threshold && cell.item.threshold!=0 && cell.item.threshold_type == 'Percent' || cell.item.disk_free > cell.item.threshold && cell.item.threshold!=0 && cell.item.threshold_type == 'GB') || cell.item.threshold==0">
                 <span class="label label-pill label-success">{{cell.item.percent_free}}</span>
             </div>
         </template>
