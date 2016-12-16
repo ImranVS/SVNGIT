@@ -34,6 +34,12 @@ export class ServerDiskSettings implements OnInit {
     diskValues: any;
     protected appComponentService: AppComponentService;
     deviceTypes: string = "Domino,Exchange,Active Directory,Windows";
+    thresholdTypes: string[];
+    formObject: any = {
+        id: null,
+        threshold_type: null,
+        free_space_threshold: null
+    };
 
     constructor(    
         private dataProvider: RESTService,
@@ -55,10 +61,14 @@ export class ServerDiskSettings implements OnInit {
 
 
         });
+        this.thresholdTypes = ["Percent", "GB"];
         this.appComponentService = appComponentService;
     }
     ngOnInit() {
-        
+    }
+    ngOnAfterInit() {
+        this.formObject.threshold_type = this.flexDisks.collectionView.currentItem.threshold_type;
+        this.formObject.free_space_threshold = this.flexDisks.collectionView.currentItem.freespace_threshold;
     }
 
     itemsSourceChangedHandler() {

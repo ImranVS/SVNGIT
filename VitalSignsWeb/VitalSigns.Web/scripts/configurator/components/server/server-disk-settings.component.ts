@@ -37,7 +37,9 @@ export class DominoServerDiskSettings implements OnInit {
     diskSettingsDataForm: FormGroup;
     disktype: any;
     diskThreshold: any;
-     appComponentService: AppComponentService;
+    appComponentService: AppComponentService;
+    thresholdTypes: string[];
+
     constructor(
         private dataProvider: RESTService,
         private formBuilder: FormBuilder,
@@ -65,6 +67,7 @@ export class DominoServerDiskSettings implements OnInit {
         //    'disk_free': [''],
 
         //});
+        this.thresholdTypes = ["Percent", "GB"];
         this.appComponentService = appComponentService;
     }
 
