@@ -5,22 +5,21 @@
             Maintenance Windows are times when you do not want the server monitored. You can define maintenance windows using the Configurator -> Application Settings -> Maintenance tab.
         </div>
        
-            <div class="panel panel-default" *ngIf="module == 'dashboard'">
+            <!--<div class="panel panel-default" *ngIf="module == 'dashboard'">
                 <div class="panel-body">
                     <div class="row">
                         <div class="form-group col-sm-5">
                             <label for="from_date" class="control-label col-sm-4">From Date</label>
                             <div class="col-sm-6">
-                                <input type="date" class="form-control col-sm-7" id="from_date" name="from_date" [(ngModel)]="from_date">
-                                <!--<wj-input-date format="yyyy-MM-dd"  id="from_date"  selectionMode="Day" [(ngModel)]="from_date"></wj-input-date>-->
-                               {{from_date}}
+                                <input type="date" class="form-control col-sm-7" id="from_date" name="from_date" [(ngModel)]="from_date" (ngModelChange)="dateChanged()">
+                               
                             </div>
                         </div>
                         <div class="form-group col-sm-5">
                             <label for="from_time" class="control-label col-sm-4">From Time</label>
                             <div class="col-sm-6">
                                 <input type="time" class="form-control" id="from_time" name="from_time" [(ngModel)]="from_time">
-                                <!--<wj-input-time [isEditable]="true" format="h:mm tt" id="from_time" name="from_time"  [(ngModel)]="from_time"  #wjStartTimeCtrl></wj-input-time>-->
+                               
                             </div>
                         </div>
                         <div class="form-group col-sm-2">
@@ -48,12 +47,12 @@
                     </div>
 
                 </div>
-            </div>
+            </div>-->
            
 
             <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="2" [isReadOnly]="true">
 
-                <wj-flex-grid-filter></wj-flex-grid-filter>
+                <wj-flex-grid-filter #filter></wj-flex-grid-filter>
                 <wj-flex-grid-column [header]="'Server Name'" *ngIf="module == 'dashboard'" [binding]="'DeviceName'" [width]="200"> </wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Server Type'" *ngIf="module == 'dashboard'" [binding]="'DeviceType'" [width]="200"> </wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Name'" [binding]="'Name'" [width]="200"> </wj-flex-grid-column>
