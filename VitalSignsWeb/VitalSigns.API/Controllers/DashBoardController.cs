@@ -1552,9 +1552,10 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetCPUMemory()
         {
             List<dynamic> result = new List<dynamic>();
-
+            FilterDefinition<Server> filterDefServer;
             try
             {
+                serverRepository = new Repository<Server>(ConnectionString);
                 dailyStatisticsRepository = new Repository<DailyStatistics>(ConnectionString);
                 FilterDefinition<DailyStatistics> filterDef = dailyStatisticsRepository.Filter.Eq(x => x.StatName, "Mem.PercentUsed");
                 var dailyStatsMem = dailyStatisticsRepository.Find(filterDef);
@@ -1616,8 +1617,15 @@ namespace VitalSigns.API.Controllers
                             var doc = stat3.ToBsonDocument();
                             x.Add("Memory", Math.Round(Convert.ToDouble(doc["memory"].ToString()) * 100, 2).ToString());
                             x.Add("CPU", Math.Round(Convert.ToDouble(doc["cpu"].ToString()) * 100, 2).ToString());
-                            //x.Add("MemoryThreshold", doc["memory_threshold"].ToString());
-                            //x.Add("CPUThreshold", doc["cpu_threshold"].ToString());
+                            filterDefServer = serverRepository.Filter.Eq(i => i.Id, stat3.DeviceId);
+                            var advsettings = serverRepository.Find(filterDefServer).ToList();
+                            if (advsettings.Count > 0)
+                            {
+                                var memT = advsettings[0].MemoryThreshold != null ? Math.Round(Convert.ToDouble(advsettings[0].MemoryThreshold) * 100, 2) : 0.0;
+                                var cpuT = advsettings[0].CpuThreshold != null ? Math.Round(Convert.ToDouble(advsettings[0].CpuThreshold) * 100, 2) : 0.0;
+                                x.Add("MemoryThreshold", memT);
+                                x.Add("CPUThreshold", cpuT);
+                            }
                         }
                     }
                     result.Add(x);

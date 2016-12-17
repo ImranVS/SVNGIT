@@ -2733,7 +2733,7 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold)
                                                                  .Set(p => p.ClusterReplicationQueueThreshold, advancedSettings.ClusterReplicationQueueThreshold);
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully.");
                     }
                     else if (advancedSettings.DeviceType == "Sametime")
                     {
@@ -2756,7 +2756,7 @@ namespace VitalSigns.API.Controllers
                                                                .Set(p => p.Db2SettingsCredentialsId, advancedSettings.Db2SettingsCredentialsId);
 
                         var result = serversRepository.Update(filterDefination, updateDefination, new UpdateOptions { IsUpsert = true });
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully.");
                     }
                     else if (advancedSettings.DeviceType == "IBM Connections")
                     {
@@ -2764,18 +2764,18 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.DatabaseSettingsPort, advancedSettings.DatabaseSettingsPort)
                                                              .Set(p => p.DatabaseSettingsCredentialsId, advancedSettings.DatabaseSettingsCredentialsId);
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advaced Settings updated successfully.");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully.");
                     }
                 }
                 catch (Exception exception)
                 {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Advanced Settings falied .\n Error Message :" + exception.Message);
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving advanced settings failed .\n Error Message :" + exception.Message);
                 }
                 return Response;
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Advanced Settings falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving advanced settings failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }      
