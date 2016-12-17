@@ -1,10 +1,28 @@
 ﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'DeviceName'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Memory Utilization'" [binding]="'Memory'" [width]="200" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Memory Utilization'" [binding]="'Memory'" [width]="200" align="right">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div *ngIf="cell.item.Memory <= cell.item.MemoryThreshold && cell.item.MemoryThreshold!=0">
+                <span class="label label-pill label-success">{{cell.item.Memory}}/{{cell.item.MemoryThreshold}}</span>
+            </div>
+            <div *ngIf="cell.item.Memory > cell.item.MemoryThreshold && cell.item.MemoryThreshold!=0">
+                <span class="label label-pill label-danger">{{cell.item.Memory}}/{{cell.item.MemoryThreshold}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Average Memory'" [binding]="'AvgMem'" [width]="200" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Peak Memory'" [binding]="'MaxMem'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'CPU Utilization'" [binding]="'CPU'" [width]="200" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'CPU Utilization'" [binding]="'CPU'" [width]="200" align="right">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div *ngIf="cell.item.CPU <= cell.item.CPUThreshold && cell.item.CPUThreshold!=0">
+                <span class="label label-pill label-success">{{cell.item.CPU}}/{{cell.item.CPUThreshold}}</span>
+            </div>
+            <div *ngIf="cell.item.CPU > cell.item.CPUThreshold && cell.item.CPUThreshold!=0">
+                <span class="label label-pill label-danger">{{cell.item.CPU}}/{{cell.item.CPUThreshold}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Average CPU'" [binding]="'AvgCPU'" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Peak CPU'" [binding]="'MaxCPU'" align="right"></wj-flex-grid-column>
 </wj-flex-grid>
