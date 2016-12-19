@@ -1,4 +1,4 @@
-﻿import { Component, ViewChild } from '@angular/core';
+﻿import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { trigger, state, style, transition, animate, AnimationTransitionEvent } from '@angular/core';
 import { HttpModule } from '@angular/http';
@@ -49,7 +49,10 @@ import * as helpers from '../core/services/helpers/helpers';
         HttpModule,
         RESTService,
         helpers.UrlHelperService
-    ]
+    ],
+    host: {
+        '(document:click)': 'onClick($event)',
+    }
 })
 export class AppNavigator {
 
@@ -71,7 +74,8 @@ export class AppNavigator {
     constructor(
         private service: RESTService,
         private router: Router,
-        protected urlHelpers: helpers.UrlHelperService
+        protected urlHelpers: helpers.UrlHelperService,
+        private eltRef: ElementRef
     ) { }
 
     ngOnInit() {
@@ -85,6 +89,13 @@ export class AppNavigator {
             error => console.log(error)
             );
             
+    }
+
+    onClick(event) {
+
+        if (!this.eltRef.nativeElement.contains(event.target))
+            this.visible = false;
+
     }
 
     onSearch(e) {
