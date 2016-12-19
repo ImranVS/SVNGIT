@@ -81,7 +81,7 @@ export class ServicesView implements OnInit, AfterViewChecked {
      deviceTypeData:any;
      postData: any;
      url: boolean;
-    
+     modal = true;
      constructor(
          private formBuilder: FormBuilder,
          private service: RESTService,
@@ -151,6 +151,8 @@ export class ServicesView implements OnInit, AfterViewChecked {
 
                 this.deviceLocationData = response.data.locationsData;
                 this.deviceTypeData = response.data.serverTypeData;
+                console.log("csdcsdc");
+                console.log(response.data.serverTypeData);
                 this.devicebusinessHourData = response.data.businessHoursData;
             },
             (error) => this.errorMessage = <any>error
@@ -172,9 +174,16 @@ export class ServicesView implements OnInit, AfterViewChecked {
                 this.addServersForm.reset();
                 this.router.navigate(['services/' + this.module, response.data]);
             });
-        
+        this.addServersForm.reset();
         dialog.hide();
         
     }
+    addServer(dlg: wijmo.input.Popup) {
+        if (dlg) {
+            dlg.modal = this.modal;
+            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
+            dlg.show();
 
+        }
+    }
 }
