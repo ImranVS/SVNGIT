@@ -38,7 +38,16 @@ namespace VitalSigns.API
                 serverTypeIcons[item.ServerTypeName] = item.Icon;
             return serverTypeIcons;
         }
+        public static List<ComboBoxListItem> GetServerTypes()
+        {
+            List<ComboBoxListItem> serverTypes = new List<ComboBoxListItem>();
 
+            List<ServerTypeModel> serverTypeList = (List<ServerTypeModel>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerTypeModel>));
+             serverTypes = serverTypeList.Select(x => new ComboBoxListItem { DisplayText = x.ServerTypeName, Value = x.ServerTypeName }).ToList().ToList();
+           
+        
+            return serverTypes;
+        }
         public static ServerTypeModel GetServerTypeTabs(string serverTypeName )
         {   
             List<ServerTypeModel> serverTypeList = (List<ServerTypeModel>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerTypeModel>));
