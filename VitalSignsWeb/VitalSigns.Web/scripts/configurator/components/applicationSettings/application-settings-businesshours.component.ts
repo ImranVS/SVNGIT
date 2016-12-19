@@ -82,7 +82,7 @@ export class BusinessHours extends GridBase implements OnInit {
     } 
 
     saveBusinessHour(dlg: wijmo.input.Popup) {  
-        this.formObject.start_time = this.wjTimeCtrl.selectedValue;
+        this.formObject.start_time = this.wjTimeCtrl.text;
         this.errorMessage = ""; 
         if (!this.formObject.sunday && !this.formObject.monday && !this.formObject.tuesday && !this.formObject.wednesday && !this.formObject.thursday
             && !this.formObject.friday && !this.formObject.saturday) {
@@ -150,25 +150,25 @@ export class BusinessHours extends GridBase implements OnInit {
     }
 
     selectAllClick(index: any) {
-        this.currentEditItem.sunday = true;
-        this.currentEditItem.monday = true;
-        this.currentEditItem.tuesday = true;
-        this.currentEditItem.wednesday = true;
-        this.currentEditItem.thursday = true;
-        this.currentEditItem.friday = true;
-        this.currentEditItem.saturday = true;
+        this.formObject.sunday = true;
+        this.formObject.monday = true;
+        this.formObject.tuesday = true;
+        this.formObject.wednesday = true;
+        this.formObject.thursday = true;
+        this.formObject.friday = true;
+        this.formObject.saturday = true;
         
     }
 
     deselectAllClick(index: any) {
 
-        this.currentEditItem.sunday = false;
-        this.currentEditItem.monday = false;
-        this.currentEditItem.tuesday = false;
-        this.currentEditItem.wednesday = false;
-        this.currentEditItem.thursday = false;
-        this.currentEditItem.friday = false;
-        this.currentEditItem.saturday = false;
+        this.formObject.sunday = false;
+        this.formObject.monday = false;
+        this.formObject.tuesday = false;
+        this.formObject.wednesday = false;
+        this.formObject.thursday = false;
+        this.formObject.friday = false;
+        this.formObject.saturday = false;
         
     }
 
