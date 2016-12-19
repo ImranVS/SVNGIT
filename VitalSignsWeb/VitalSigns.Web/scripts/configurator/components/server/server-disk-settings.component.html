@@ -36,7 +36,12 @@
             <div class="form-group col-sm-11">
                 <label for="currentThresholdByPercentage" class="control-label col-sm-3">Current Threshold</label>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="currentThresholdByPercentage" [(ngModel)]="diskThreshold">
+                    <input type="number" name="currentThresholdByPercentage" class="form-control" min="0" max="100" [(ngModel)]="diskThreshold" #name="ngModel">
+                    <!--<div *ngIf="name.errors && (name.dirty || name.touched)">
+                        <div [hidden]="!name.errors.max">
+                            Name cannot be more than 24 characters long.
+                        </div>
+                    </div>-->
                 </div>
                 <div class="col-sm-3">% free space</div>
             </div>

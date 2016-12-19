@@ -97,7 +97,7 @@ export class TravelerStatsReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: ''
+                                text: 'Open Times'
                             }
                         },
                         plotOptions: {
