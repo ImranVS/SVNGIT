@@ -106,6 +106,12 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpPut("save_licence")]
         public APIResponse SaveLicence()
         {
@@ -168,6 +174,12 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("get_preferences")]
         public APIResponse GetPreferences()
         {
@@ -340,6 +352,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
+
         [HttpGet("get_server_types")]
 
         public APIResponse GetServerTypes()
@@ -381,8 +399,8 @@ namespace VitalSigns.API.Controllers
                 validLocationsRepository = new Repository<ValidLocation>(ConnectionString);
                 if (string.IsNullOrEmpty(country) && string.IsNullOrEmpty(state))
                 {
-                    var countryData = validLocationsRepository.All().OrderByDescending(x=>x.Country=="United States").Where(x => x.Country != null).Select(x => x.Country).Distinct().ToList();
-                   
+                    var countryData = validLocationsRepository.All().OrderByDescending(x => x.Country == "United States").Where(x => x.Country != null).Select(x => x.Country).Distinct().ToList();
+
                     Response = Common.CreateResponse(new { countryData = countryData });
                     // countryData.Insert(0, "-All-");
                 }
@@ -535,6 +553,12 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="nameonly"></param>
+        /// <returns></returns>
         public List<dynamic> GetAllBusinessHours(bool nameonly = false)
         {
             List<dynamic> resultList = new List<dynamic>();
@@ -705,6 +729,11 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
 
         public List<dynamic> GetMaintenanceList()
         {
@@ -765,10 +794,10 @@ namespace VitalSigns.API.Controllers
                 return result_disp;
             }
             catch (Exception exception)
-            {                
+            {
                 return result_disp;
-            }     
-            
+            }
+
         }
         /// <summary>
         ///saves the  maintenance data
@@ -977,7 +1006,7 @@ namespace VitalSigns.API.Controllers
                         }
                         result_disp = GetMaintenanceList();
                         Response = Common.CreateResponse(result_disp, Common.ResponseStatus.Success.ToDescription(), "Maintenance data  updated successfully");
-                    }           
+                    }
                 }
                 else
                 {
@@ -1020,14 +1049,14 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         [HttpGet("get_server_maintenancedata")]
-        public APIResponse GetServerMaintenanceData( string id, string fromDate, string fromTime, string toDate, string toTime)
+        public APIResponse GetServerMaintenanceData(string id, string fromDate, string fromTime, string toDate, string toTime)
         {
             serversRepository = new Repository<Server>(ConnectionString);
             maintenanceRepository = new Repository<Maintenance>(ConnectionString);
             List<MaintenanceModel> maintenanceWindows = new List<MaintenanceModel>();
-          
+
             //Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
-          
+
             // var result = serversRepository.Find(attributeexpression).Select(x => x.MaintenanceWindows).FirstOrDefault();
 
             //var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id) && (!string.IsNullOrEmpty(fromdate) ? s.StartDate == Convert.ToDateTime(fromdate) : true) && (!string.IsNullOrEmpty(todate) ? s.EndDate == Convert.ToDateTime(todate) : true)
@@ -1039,14 +1068,14 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Server, bool>> attributeexpression = (p => p.Id == id);
                 var serverResult = serversRepository.Find(attributeexpression).ToList();
 
-                List<dynamic>finalResult = new List<dynamic>();
+                List<dynamic> finalResult = new List<dynamic>();
 
                 var result = serversRepository.Find(attributeexpression).Select(x => x.MaintenanceWindows).FirstOrDefault();
 
                 if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate) && !string.IsNullOrEmpty(fromTime) && !string.IsNullOrEmpty(toTime))
                 {
-                    var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id) &&  s.StartDate == Convert.ToDateTime(fromDate))
-                                                                   .Select(m => new 
+                    var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id) && s.StartDate == Convert.ToDateTime(fromDate))
+                                                                   .Select(m => new
                                                                    {
                                                                        id = m.Id,
                                                                        Name = m.Name,
@@ -1080,7 +1109,8 @@ namespace VitalSigns.API.Controllers
                         }
                     }
                 }
-                else {
+                else
+                {
                     var results = maintenanceRepository.Collection.AsQueryable().Where(s => result.Contains(s.Id))
                                                             .Select(m => new
                                                             {
@@ -1117,7 +1147,7 @@ namespace VitalSigns.API.Controllers
                         }
                     }
                 }
-               
+
 
                 Response = Common.CreateResponse(finalResult);
 
@@ -1161,6 +1191,12 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="maintainuser"></param>
+        /// <returns></returns>
 
         [HttpPut("save_maintain_users")]
         public APIResponse UpdateMaintainUsers([FromBody]MaintainUsersModel maintainuser)
@@ -1184,12 +1220,12 @@ namespace VitalSigns.API.Controllers
                 {
                     if (string.IsNullOrEmpty(maintainuser.Id))
                     {
-                        Users maintainUsers = new Users {FullName = maintainuser.FullName, Email = maintainuser.Email,Roles = maintainuser.Roles, Status = maintainuser.Status};
-                       string  password = Membership.GeneratePassword(6, 2);
+                        Users maintainUsers = new Users { FullName = maintainuser.FullName, Email = maintainuser.Email, Roles = maintainuser.Roles, Status = maintainuser.Status };
+                        string password = Membership.GeneratePassword(6, 2);
                         string hashedPassword = Startup.SignData(password);
                         maintainUsers.Hash = hashedPassword;
                         string id = maintainUsersRepository.Insert(maintainUsers);
-                   (new Common()).SendPasswordEmail(maintainuser.Email, password);
+                        (new Common()).SendPasswordEmail(maintainuser.Email, password);
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
                     }
                     else
@@ -1198,7 +1234,7 @@ namespace VitalSigns.API.Controllers
                         var updateDefination = maintainUsersRepository.Updater.Set(p => p.FullName, maintainuser.FullName)
                                                                  .Set(p => p.Email, maintainuser.Email)
                                                                  .Set(p => p.Status, maintainuser.Status)
-                                                                 .Set(p => p.Roles, maintainuser.Roles);                                                             
+                                                                 .Set(p => p.Roles, maintainuser.Roles);
                         var result = maintainUsersRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Maintain Users updated successfully");
                     }
@@ -1215,6 +1251,12 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("delete_maintain_users/{id}")]
         public APIResponse DeleteMaintainUsers(string id)
         {
@@ -1223,7 +1265,7 @@ namespace VitalSigns.API.Controllers
                 maintainUsersRepository = new Repository<Users>(ConnectionString);
                 Expression<Func<Users, bool>> expression = (p => p.Id == id);
                 maintainUsersRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(),"Maintain User Deleted successfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Maintain User Deleted successfully");
             }
             catch (Exception exception)
             {
@@ -1232,8 +1274,8 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        
-     
+
+
 
         #endregion
 
@@ -1253,7 +1295,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-                var result = deviceAttributesRepository.All().Where(x=>x.DeviceType==type).Select(x => new DeviceAttributesModel
+                var result = deviceAttributesRepository.All().Where(x => x.DeviceType == type).Select(x => new DeviceAttributesModel
                 {
                     Id = x.Id,
                     AttributeName = x.AttributeName,
@@ -1287,7 +1329,7 @@ namespace VitalSigns.API.Controllers
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
                 Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                 UpdateDefinition<BsonDocument> updateDefinition = null;
-                if (deviceAttributes.Count() ==0)
+                if (deviceAttributes.Count() == 0)
                 {
                     Response = Common.CreateResponse(true, Common.ResponseStatus.Error.ToDescription(), "Please select at least one Attribute.");
                 }
@@ -1350,11 +1392,11 @@ namespace VitalSigns.API.Controllers
                     }
                     Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes Updated Successfully.");
                 }
-                    // var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                    
-                
-            
-                    
+                // var result = repository.Collection.UpdateMany(filter, updateDefinition);
+
+
+
+
 
 
             }
@@ -1420,8 +1462,8 @@ namespace VitalSigns.API.Controllers
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)dominoserversettings.Devices).ToObject<string[]>();
                 UpdateDefinition<Server> updateDefinition = null;
 
-               
-                if (devicesList.Count() > 0 && selectedServerTasks.Count()>0 && !string.IsNullOrEmpty(setting.Trim()))
+
+                if (devicesList.Count() > 0 && selectedServerTasks.Count() > 0 && !string.IsNullOrEmpty(setting.Trim()))
                 {
 
                     foreach (string id in devicesList)
@@ -1430,7 +1472,7 @@ namespace VitalSigns.API.Controllers
                         List<DominoServerTask> dominoServerTasks = new List<DominoServerTask>();
                         dominoServerTasks.AddRange(server.ServerTasks);
                         name = string.Empty;
-                        
+
                         foreach (var serverTask in selectedServerTasks)
                         {
                             Expression<Func<Server, bool>> filterExpression1 = (p => p.Id == id);
@@ -1444,7 +1486,7 @@ namespace VitalSigns.API.Controllers
                                     {
                                         name = "exists";
                                     }
-                                 
+
                                 }
                             }
 
@@ -1471,24 +1513,24 @@ namespace VitalSigns.API.Controllers
                                     Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks added Successfully.");
                                 }
                             }
-                             if (setting.Equals("remove"))
+                            if (setting.Equals("remove"))
                             {
                                 var dominoServerTaskRemove = dominoServerTasks.Where(x => x.TaskId == serverTask.Id).ToList();
-                                foreach(var item in dominoServerTaskRemove)
-                                dominoServerTasks.Remove(item);
+                                foreach (var item in dominoServerTaskRemove)
+                                    dominoServerTasks.Remove(item);
                                 Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks deleted Successfully.");
                             }
-                             
-                        }
-                       
 
-                     
-                            updateDefinition = serversRepository.Updater.Set(p => p.ServerTasks, dominoServerTasks);
-                            var result = serversRepository.Update(server, updateDefinition);
-                        
+                        }
+
+
+
+                        updateDefinition = serversRepository.Updater.Set(p => p.ServerTasks, dominoServerTasks);
+                        var result = serversRepository.Update(server, updateDefinition);
+
 
                     }
-                   // Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings are not selected");
+                    // Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings are not selected");
 
 
                 }
@@ -1525,7 +1567,7 @@ namespace VitalSigns.API.Controllers
                 windowsservicesRepository = new Repository<WindowsService>(ConnectionString);
                 var result = windowsservicesRepository.All().Select(x => new WindowsServiceModel
                 {
-                   // Id = x.Id,
+                    // Id = x.Id,
                     ServiceName = x.ServiceName,
                     IsSelected = false
                     // Id = x.Id
@@ -1611,13 +1653,13 @@ namespace VitalSigns.API.Controllers
             serversRepository = new Repository<Server>(ConnectionString);
             try
             {
-               
+
                 string setting = Convert.ToString(deviceSettings.Setting);
                 string settingValue = Convert.ToString(deviceSettings.Value);
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Devices).ToObject<string[]>();
                 UpdateDefinition<Server> updateDefinition = null;
                 if (devicesList.Count() > 0 && !string.IsNullOrEmpty(setting))
-                {                
+                {
 
                     foreach (string id in devicesList)
                     {
@@ -1627,7 +1669,7 @@ namespace VitalSigns.API.Controllers
                         if (setting.Equals("allDisksBypercentage"))
                             diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "Percent" });
                         else if (setting.Equals("allDisksByGB"))
-                            diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "GB" });                      
+                            diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "GB" });
                         else if (setting.Equals("noDiskAlerts"))
                             diskSettings.Add(new DiskSetting { DiskName = "NoAlerts", Threshold = null, ThresholdType = null });
                         else if (setting.Equals("selectedDisks"))
@@ -1645,8 +1687,8 @@ namespace VitalSigns.API.Controllers
                         {
                             updateDefinition = serversRepository.Updater.Set(p => p.DiskInfo, diskSettings);
                             var result = serversRepository.Update(server, updateDefinition);
-                        }                      
-                   
+                        }
+
                     }
                     Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Disk settings sucessfully updated.");
 
@@ -1674,7 +1716,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("get_server_credentials_businesshours")]
-      
+
         public APIResponse GetDeviceListDropDownData()
         {
 
@@ -1685,11 +1727,11 @@ namespace VitalSigns.API.Controllers
                 locationRepository = new Repository<Location>(ConnectionString);
                 serverTypeRepository = new Repository<ServerType>(ConnectionString);
                 var serverTypeData = serverTypeRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Name }).ToList().OrderBy(x => x.DisplayText);
-               // var credentialServerTypeData = serverTypeRepository.All().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.ServerTypeId.ToString() }).ToList().OrderBy(x => x.DisplayText);
+                // var credentialServerTypeData = serverTypeRepository.All().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.ServerTypeId.ToString() }).ToList().OrderBy(x => x.DisplayText);
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData, locationsData = locationsData, serverTypeData= serverTypeData });
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, businessHoursData = businessHoursData, locationsData = locationsData, serverTypeData = serverTypeData });
                 return Response;
             }
             catch (Exception exception)
@@ -1793,8 +1835,8 @@ namespace VitalSigns.API.Controllers
                     Description = s.Description,
                     IPAddress = s.IPAddress,
                     Category = s.Category,
-                    IsEnabled=s.IsEnabled,
-                    Platform=s.Platform,
+                    IsEnabled = s.IsEnabled,
+                    Platform = s.Platform,
                     LocationId = s.LocationId,
                     Devicetype = s.DeviceType,
                     CellId = s.CellId,
@@ -1828,11 +1870,11 @@ namespace VitalSigns.API.Controllers
                     }).FirstOrDefault();
                     serverresult.NodeName = nodename.NodeName;
                 }
-               // var credentialsData = credentialsRepository.All().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
+                // var credentialsData = credentialsRepository.All().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
                 serverresult.LocationId = locationname.LocationName;
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
 
-             
+
                 Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == serverresult.Devicetype);
                 List<DeviceAttributesModel> deviceAttributes = new List<DeviceAttributesModel>();
 
@@ -1853,14 +1895,14 @@ namespace VitalSigns.API.Controllers
 
                 var serverattributes = serversRepository.Find(attributeexpression).AsQueryable().OrderBy(x => x.Id).FirstOrDefault();
 
-             
-                    var serverValues = serverattributes.ToBsonDocument();
-                    foreach (var attri in attributes)
+
+                var serverValues = serverattributes.ToBsonDocument();
+                foreach (var attri in attributes)
+                {
+                    if (serverValues.Contains(attri.FieldName))
                     {
-                        if (serverValues.Contains(attri.FieldName) )
-                        {
-                       
-                            var servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
+
+                        var servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
                         attri.DefaultValue = servervalue.ToString();
                         if (attri.DataType == "bool" && attri.DefaultValue == "false")
                         {
@@ -1880,7 +1922,7 @@ namespace VitalSigns.API.Controllers
                             {
                                 string[] myPasswordArray = myPassword.Split(',');
                                 byte[] Password = new byte[myPasswordArray.Length];
-                               
+
 
                                 for (int j = 0; j < myPasswordArray.Length; j++)
                                 {
@@ -1908,8 +1950,8 @@ namespace VitalSigns.API.Controllers
                     }
                     serverresult.DeviceAttributes.Add(attri);
                 }
-                   
-               
+
+
 
                 //Response = Common.CreateResponse(serverresult);
                 Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult });
@@ -1938,9 +1980,9 @@ namespace VitalSigns.API.Controllers
                 //  var servers = serversRepository.Collection.AsQueryable().FirstOrDefault(x => x.SametimeId == id);
                 // CellInfo cell = new CellInfo();
                 List<NodeInfo> NodesData = new List<NodeInfo>();
-              
-                    var websphereserver = serversRepository.All().Where(x => x.SametimeId == id && x.DeviceType == "WebSphereCell").FirstOrDefault();
-                if (websphereserver!=null)
+
+                var websphereserver = serversRepository.All().Where(x => x.SametimeId == id && x.DeviceType == "WebSphereCell").FirstOrDefault();
+                if (websphereserver != null)
                 {
                     //  cellsData.Add(websphereserver);
 
@@ -1954,9 +1996,9 @@ namespace VitalSigns.API.Controllers
                     cell.GlobalSecurity = websphereserver.GlobalSecurity;
                     cell.CredentialsId = websphereserver.CredentialsId;
                     cell.Realm = websphereserver.Realm;
-                    
+
                     cell.NodesData = new List<NodeInfo>();
-                    if(cell.NodesData!=null)
+                    if (cell.NodesData != null)
                     {
                         foreach (var webSphereNode in websphereserver.Nodes)
                         {
@@ -1976,8 +2018,8 @@ namespace VitalSigns.API.Controllers
                             }
                         }
                     }
-                   
-                  
+
+
 
 
 
@@ -2001,11 +2043,11 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
 
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
-               
-                    var credential = credentialsData.FirstOrDefault(x => x.Value == cell.CredentialsId);
-                    if (credential != null)
-                        cell.CredentialsName = credential.DisplayText;
-                
+
+                var credential = credentialsData.FirstOrDefault(x => x.Value == cell.CredentialsId);
+                if (credential != null)
+                    cell.CredentialsName = credential.DisplayText;
+
                 model.SelectedServers = new List<NodeInfo>();
                 Response = Common.CreateResponse(new { websphereData = model, cellData = cell, credentialsData = credentialsData });
             }
@@ -2016,8 +2058,15 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="cellInfo"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPut("get_sametime_websphere_nodes/{id}")]
-        public APIResponse LoadSametimeWebSphereNodes([FromBody]CellInfo cellInfo,string id)
+        public APIResponse LoadSametimeWebSphereNodes([FromBody]CellInfo cellInfo, string id)
         {
 
             try
@@ -2091,7 +2140,7 @@ namespace VitalSigns.API.Controllers
                                         var result = serversRepository.Update(sametimefilterDefination, updateSametimeDefination);
                                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell updated successfully");
                                     }
-                                
+
 
                                     WebSphereNode node = new WebSphereNode();
                                     node.NodeId = ObjectId.GenerateNewId().ToString();
@@ -2140,7 +2189,7 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Swathi</author>
         [HttpPut("save_servers_attributes/{id}")]
-        public APIResponse SaveServerDeviceAttributes([FromBody]DeviceSettings serverAttributes,string id)
+        public APIResponse SaveServerDeviceAttributes([FromBody]DeviceSettings serverAttributes, string id)
         {
             try
             {
@@ -2182,9 +2231,9 @@ namespace VitalSigns.API.Controllers
                             string value = attribute.DefaultValue;
                             bool defaultvalues = attribute.DefaultboolValues;
                             string datatype = attribute.DataType;
-                            if(field == "password")
+                            if (field == "password")
                             {
-                               
+
                                 byte[] myPassWord;
 
                                 VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
@@ -2201,12 +2250,12 @@ namespace VitalSigns.API.Controllers
                                 value = bytePassword;
 
                             }
-                            if(datatype=="int")
+                            if (datatype == "int")
                             {
                                 int outputvalue = Convert.ToInt32(value);
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                      .Set(field, outputvalue);
-                                var result = repository.Collection.UpdateMany(filter, updateDefinition);                                                                  
+                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
                             if (datatype == "double")
                             {
@@ -2233,7 +2282,7 @@ namespace VitalSigns.API.Controllers
                             }
 
 
-                            if (datatype=="string")
+                            if (datatype == "string")
                             {
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                                                                                     .Set(field, value);
@@ -2246,10 +2295,10 @@ namespace VitalSigns.API.Controllers
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
 
-                        }                       
+                        }
 
                     }
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes data Updated Successfully.");   
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes data Updated Successfully.");
                 }
             }
 
@@ -2291,7 +2340,7 @@ namespace VitalSigns.API.Controllers
                         DiskSize = drive.DiskSize,
 
                         PercentFree = drive.PercentFree,
-                      
+
                     });
 
                 }
@@ -2341,25 +2390,27 @@ namespace VitalSigns.API.Controllers
                 var result = serversRepository.Find(expression).Select(x => x.DiskInfo).FirstOrDefault();
                 if (result.Count == 1)
                 {
-                   var results=result.Select(s=>new SelectedDiksModel {DiskName =(s.DiskName == "AllDisks" && s.ThresholdType == "GB" ? "allDisksByGB" :
-                                                                      s.DiskName == "AllDisks" && s.ThresholdType == "Percent" ? "allDisksBypercentage" :
-                                                                      s.DiskName == "NoAlerts" ? "noDiskAlerts" :
-                                                                      "selectedDisks"),
-                                                                      ThresholdType = s.ThresholdType,
-                                                                      FreespaceThreshold = s.Threshold.ToString()
+                    var results = result.Select(s => new SelectedDiksModel
+                    {
+                        DiskName = (s.DiskName == "AllDisks" && s.ThresholdType == "GB" ? "allDisksByGB" :
+                                                                         s.DiskName == "AllDisks" && s.ThresholdType == "Percent" ? "allDisksBypercentage" :
+                                                                         s.DiskName == "NoAlerts" ? "noDiskAlerts" :
+                                                                         "selectedDisks"),
+                        ThresholdType = s.ThresholdType,
+                        FreespaceThreshold = s.Threshold.ToString()
 
-                }).FirstOrDefault();
+                    }).FirstOrDefault();
                     Response = Common.CreateResponse(results);
                 }
-             
 
-               
 
-               
+
+
+
 
             }
 
-            
+
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get server disk settings data falied.\n Error Message :" + exception.Message);
@@ -2386,7 +2437,7 @@ namespace VitalSigns.API.Controllers
                 if (!string.IsNullOrEmpty(setting))
                 {
 
-                 
+
                     var server = serversRepository.Get(deviceSettings.Devices.ToString());
                     List<DiskSetting> diskSettings = new List<DiskSetting>();
 
@@ -2413,11 +2464,11 @@ namespace VitalSigns.API.Controllers
                         var result = serversRepository.Update(server, updateDefinition);
                     }
 
-            
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Server Disk Settings updated successfully.");
 
-            }
-              
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Server Disk Settings updated successfully.");
+
+                }
+
                 else
                 {
                     Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Servers were not selected");
@@ -2499,8 +2550,8 @@ namespace VitalSigns.API.Controllers
             {
                 dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
                 var result1 = dominoservertasksRepository.All().Where(x => x.TaskName != null).Select(x => x.TaskName).Distinct().OrderBy(x => x).ToList();
-                Response = Common.CreateResponse(new { TaskNames = result1});
-               
+                Response = Common.CreateResponse(new { TaskNames = result1 });
+
             }
             catch (Exception ex)
             {
@@ -2521,7 +2572,7 @@ namespace VitalSigns.API.Controllers
         [HttpPut("save_server_tasks")]
         public APIResponse SaveServerTasksData([FromBody]DominoServerTasksModel servertasks)
         {
-           
+
             serversRepository = new Repository<Server>(ConnectionString);
             try
             {
@@ -2543,7 +2594,7 @@ namespace VitalSigns.API.Controllers
                             }
                         }
 
-                       
+
                     }
                 }
                 if (name == "exists")
@@ -2600,7 +2651,7 @@ namespace VitalSigns.API.Controllers
 
                 }
 
-                
+
             }
             catch (Exception exception)
             {
@@ -2621,7 +2672,7 @@ namespace VitalSigns.API.Controllers
             serversRepository = new Repository<Server>(ConnectionString);
             try
             {
-                
+
                 var server = serversRepository.Get(deviceId);
                 var dominoServerTasks = server.ServerTasks;
 
@@ -2661,11 +2712,11 @@ namespace VitalSigns.API.Controllers
                 serversRepository = new Repository<Server>(ConnectionString);
                 Expression<Func<Server, bool>> expression = (p => p.Id == id);
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
-                var platform = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.Platform).FirstOrDefault();               
+                var platform = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.Platform).FirstOrDefault();
                 var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
                             .Select(x => new AdvancedSettingsModel
                             {
-                                MemoryThreshold =x.MemoryThreshold,
+                                MemoryThreshold = x.MemoryThreshold,
                                 CpuThreshold = x.CpuThreshold,
                                 ServerDaysAlert = x.ServerDaysAlert,
                                 ClusterReplicationDelayThreshold = x.ClusterReplicationDelayThreshold,
@@ -2686,10 +2737,10 @@ namespace VitalSigns.API.Controllers
                                 ConferenceRequireSSL = x.ConferenceRequireSSL,
                                 DatabaseSettingsHostName = x.DatabaseSettingsHostName,
                                 DatabaseSettingsCredentialsId = x.DatabaseSettingsCredentialsId,
-                                DatabaseSettingsPort=x.DatabaseSettingsPort,
+                                DatabaseSettingsPort = x.DatabaseSettingsPort,
                                 DeviceType = x.DeviceType,
-                                CollectConferenceStatistics=x.CollectConferenceStatistics,
-                                ClusterReplicationQueueThreshold=x.ClusterReplicationQueueThreshold,
+                                CollectConferenceStatistics = x.CollectConferenceStatistics,
+                                ClusterReplicationQueueThreshold = x.ClusterReplicationQueueThreshold,
                             }).FirstOrDefault();
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == results.DeviceType).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
 
@@ -2703,7 +2754,7 @@ namespace VitalSigns.API.Controllers
                 //    }).FirstOrDefault();
                 //    results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
                 //}
-                Response = Common.CreateResponse(new { results = results, platform = platform , credentialsData = credentialsData });             
+                Response = Common.CreateResponse(new { results = results, platform = platform, credentialsData = credentialsData });
             }
             catch (Exception exception)
             {
@@ -2778,13 +2829,18 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving advanced settings failed .\n Error Message :" + exception.Message);
             }
             return Response;
-        }      
+        }
         #endregion
         #endregion
 
         #region IBM Domino Settings
 
         #region Custom Statistics
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("get_custom_statistics")]
         public APIResponse GetCustomStatistics()
         {
@@ -2793,8 +2849,8 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Domino Custom Statistic").Select(x => new CustomStatisticsModel
                 {
-                    Id = x.Id,                   
-                   DominoServers = x.DominoServers,
+                    Id = x.Id,
+                    DominoServers = x.DominoServers,
                     StatName = x.StatName,
                     ThresholdValue = x.ThresholdValue,
                     TimesInARow = x.TimesInARow,
@@ -2812,6 +2868,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="customstat"></param>
+        /// <returns></returns>
         [HttpPut("save_custom_statistics")]
         public APIResponse UpdateCustomStatistics([FromBody]CustomStatisticsModel customstat)
         {
@@ -2825,25 +2887,25 @@ namespace VitalSigns.API.Controllers
                     {
                         Type = "Domino Custom Statistic",
                         DominoServers = devicesList,
-                       StatName = customstat.StatName,
+                        StatName = customstat.StatName,
                         ThresholdValue = customstat.ThresholdValue,
-                        TimesInARow  = customstat.TimesInARow,
-                        GreaterThanOrLessThan = customstat . GreaterThanOrLessThan,
+                        TimesInARow = customstat.TimesInARow,
+                        GreaterThanOrLessThan = customstat.GreaterThanOrLessThan,
                         ConsoleCommand = customstat.ConsoleCommand
-                    
+
                     };
                     string id = serverOtherRepository.Insert(customstatistic);
                     Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "custom statistics inserted successfully");
                 }
                 else
                 {
-                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == customstat.Id);                 
+                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == customstat.Id);
                     var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServers, devicesList)
                                                              .Set(p => p.StatName, customstat.StatName)
                                                              .Set(p => p.ThresholdValue, customstat.ThresholdValue)
                                                              .Set(p => p.TimesInARow, customstat.TimesInARow)
                                                               .Set(p => p.GreaterThanOrLessThan, customstat.GreaterThanOrLessThan)
-                                                               .Set(p => p.ConsoleCommand, customstat.ConsoleCommand);                                                            
+                                                               .Set(p => p.ConsoleCommand, customstat.ConsoleCommand);
                     var result = serverOtherRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "custom statistics updated successfully");
                 }
@@ -2855,6 +2917,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpDelete("delete_custom_statistics/{Id}")]
         public APIResponse DeleteCustomStatistics(string Id)
         {
@@ -2927,10 +2995,10 @@ namespace VitalSigns.API.Controllers
                     DifferenceThreshold = x.DifferenceThreshold
 
 
-                }).ToList().OrderBy(x => x.DominoServerA).OrderBy(x=>x.DominoServerB);
+                }).ToList().OrderBy(x => x.DominoServerA).OrderBy(x => x.DominoServerB);
 
                 Response = Common.CreateResponse(result);
-               // Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Delete Server Credentials falied .\n Error Message :");
+                // Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Delete Server Credentials falied .\n Error Message :");
 
             }
             catch (Exception exception)
@@ -2964,7 +3032,7 @@ namespace VitalSigns.API.Controllers
 
                 }
                 var existedData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
-                if(existedData==null)
+                if (existedData == null)
                 {
                     if (string.IsNullOrEmpty(notesDatabaseReplica.Id))
                     {
@@ -3031,6 +3099,12 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpDelete("notes_database_replica/{Id}")]
         public APIResponse DeleteNotesDatabaseReplica(string Id)
         {
@@ -3236,11 +3310,11 @@ namespace VitalSigns.API.Controllers
                 var existsData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
 
                 if (string.IsNullOrEmpty(existsData))
-                { 
+                {
 
                     if (string.IsNullOrEmpty(notesDatabase.Id))
                     {
-                   
+
                         ServerOther notesDatabases = new ServerOther
                         {
 
@@ -3290,9 +3364,9 @@ namespace VitalSigns.API.Controllers
                 {
                     Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Name already exists. Enter another one.");
                 }
-               
-                    
-               
+
+
+
             }
             catch (Exception exception)
             {
@@ -3328,6 +3402,11 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region IBM Domino Server Tasks
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
 
         [HttpGet("get_server_task_definiton")]
         public APIResponse GetServerTask()
@@ -3357,6 +3436,13 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="servertask"></param>
+        /// <returns></returns>
         [HttpPut("save_server_task_definition")]
         public APIResponse UpdateServerTaskDefinition([FromBody]ServerTaskDefinitionModel servertask)
         {
@@ -3366,7 +3452,7 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(servertask.Id))
                 {
                     DominoServerTasks servertaskDef = new DominoServerTasks { TaskName = servertask.TaskName, LoadString = servertask.LoadString, ConsoleString = servertask.ConsoleString, FreezeDetect = servertask.FreezeDetect, IdleString = servertask.IdleString, MaxBusyTime = servertask.MaxBusyTime, RetryCount = servertask.RetryCount };
-                   string id = dominoservertasksRepository.Insert(servertaskDef);
+                    string id = dominoservertasksRepository.Insert(servertaskDef);
                     Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Domino server task definition inserted successfully");
                 }
                 else
@@ -3392,6 +3478,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("delete_server_task_definition/{id}")]
         public APIResponse DeleteServerTaskDefinition(string id)
         {
@@ -3405,7 +3497,7 @@ namespace VitalSigns.API.Controllers
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Task falied .\n Error Message :" + exception.Message);
-            }     
+            }
             return Response;
         }
 
@@ -3454,7 +3546,7 @@ namespace VitalSigns.API.Controllers
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 List<Models.Configurator.LogFile> service = new List<Models.Configurator.LogFile>();
-                if ( id!="-1")
+                if (id != "-1")
                 {
                     var serverOther = serverOtherRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == id);
                     if (serverOther != null)
@@ -3462,7 +3554,7 @@ namespace VitalSigns.API.Controllers
                         var devicename = serverOther.Name;
                         var result = serverOther.LogFileKeywords;
                         var servers = serverOther.LogFileServers;
-                        
+
                         service = new List<Models.Configurator.LogFile>();
                         foreach (LogFileKeyword task in result)
                         {
@@ -3486,9 +3578,9 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                       Response = Common.CreateResponse(new { devicename = string.Empty, result = service, servers = new List<string>() });
+                    Response = Common.CreateResponse(new { devicename = string.Empty, result = service, servers = new List<string>() });
                 }
-            
+
 
             }
             catch (Exception exception)
@@ -3535,21 +3627,49 @@ namespace VitalSigns.API.Controllers
 
                     }
                     var existsData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
-                   // var existEventlog = serverOtherRepository.Collection.AsQueryable().Where(x => x.Name == settingValue).FirstOrDefault();
+                    // var existEventlog = serverOtherRepository.Collection.AsQueryable().Where(x => x.Name == settingValue).FirstOrDefault();
                     if (existsData != settingValue)
                     {
-                       
-                            UpdateDefinition<ServerOther> updateDefinition = null;
-                            List<LogFileKeyword> logscannings = new List<LogFileKeyword>();
-                            if (id == ("-1"))
+
+                        UpdateDefinition<ServerOther> updateDefinition = null;
+                        List<LogFileKeyword> logscannings = new List<LogFileKeyword>();
+                        if (id == ("-1"))
+                        {
+                            foreach (var logfile in logfiles)
                             {
-                                foreach (var logfile in logfiles)
+                                if (logfile.Id != "-1")
                                 {
-                                    if (logfile.Id != "-1")
+                                    logscannings.Add(new LogFileKeyword
                                     {
+                                        EventId = ObjectId.GenerateNewId().ToString(),
+                                        Keyword = logfile.Keyword,
+                                        Exclude = logfile.Exclude,
+                                        OneAlertPerDay = logfile.OneAlertPerDay,
+                                        ScanLog = logfile.ScanLog,
+                                        ScanAgentLog = logfile.ScanAgentLog
+                                    });
+                                }
+                            }
+
+
+
+                            ServerOther logscanserver = new ServerOther { Name = settingValue, Type = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
+                            string newid = serverOtherRepository.Insert(logscanserver);
+                            Response = Common.CreateResponse(newid, Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition  inserted successfully");
+                        }
+                        if (id != ("-1"))
+                        {
+                            if (devicesList.Count() > 0)
+                            {
+                                if (!string.IsNullOrEmpty(settingValue))
+                                {
+
+                                    foreach (var logfile in logfiles)
+                                    {
+
                                         logscannings.Add(new LogFileKeyword
                                         {
-                                            EventId = ObjectId.GenerateNewId().ToString(),
+                                            // EventId = ObjectId.GenerateNewId().ToString(),
                                             Keyword = logfile.Keyword,
                                             Exclude = logfile.Exclude,
                                             OneAlertPerDay = logfile.OneAlertPerDay,
@@ -3557,56 +3677,28 @@ namespace VitalSigns.API.Controllers
                                             ScanAgentLog = logfile.ScanAgentLog
                                         });
                                     }
-                                }
+                                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
+                                    var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
+                                                                             .Set(p => p.LogFileServers, devicesList)
+                                                                             .Set(p => p.LogFileKeywords, logscannings)
+                                                                              .Set(p => p.Type, "Domino Log Scanning");
 
-
-
-                                ServerOther logscanserver = new ServerOther { Name = settingValue, Type = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
-                                string newid = serverOtherRepository.Insert(logscanserver);
-                                Response = Common.CreateResponse(newid, Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition  inserted successfully");
-                            }
-                            if (id!=("-1"))
-                            {
-                                if (devicesList.Count() > 0)
-                                {
-                                    if (!string.IsNullOrEmpty(settingValue))
-                                    {
-
-                                        foreach (var logfile in logfiles)
-                                        {
-
-                                            logscannings.Add(new LogFileKeyword
-                                            {
-                                               // EventId = ObjectId.GenerateNewId().ToString(),
-                                                Keyword = logfile.Keyword,
-                                                Exclude = logfile.Exclude,
-                                                OneAlertPerDay = logfile.OneAlertPerDay,
-                                                ScanLog = logfile.ScanLog,
-                                                ScanAgentLog = logfile.ScanAgentLog
-                                            });
-                                        }
-                                        FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
-                                        var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
-                                                                                 .Set(p => p.LogFileServers, devicesList)
-                                                                                 .Set(p => p.LogFileKeywords, logscannings)
-                                                                                  .Set(p => p.Type, "Domino Log Scanning");
-
-                                        var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
-                                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Domino Event Log Scanning updated successfully");
-
-                                    }
+                                    var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
+                                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Domino Event Log Scanning updated successfully");
 
                                 }
+
                             }
-                        
-                       
+                        }
+
+
                     }
                     else if (existsData == settingValue)
                     {
                         Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Event Definition " + "" + existsData + " " + "already exists. Please Enter another one.");
                     }
 
-                    if (logfiles.Count==0)
+                    if (logfiles.Count == 0)
                     {
                         Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please create at least one Domino Event Log entry.");
                     }
@@ -3657,7 +3749,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-            
+
                 var server = serverOtherRepository.Get(deviceId);
                 var dominoServerTasks = server.LogFileKeywords;
 
@@ -3720,6 +3812,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="travelerdatas"></param>
+        /// <returns></returns>
         [HttpPut("save_traveler_data_store")]
         public APIResponse UpdateTravelerDataStore([FromBody]TravelerDataStoresModel travelerdatas)
         {
@@ -3756,6 +3854,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("delete_traveler_data_store/{id}")]
         public APIResponse DeleteTravelerDataStore(string id)
         {
@@ -3766,7 +3870,7 @@ namespace VitalSigns.API.Controllers
                 travelerdatastoreRepository.Delete(expression);
                 Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Traveler Data Store Deleted successfully");
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Traveler Data falied .\n Error Message :" + exception.Message);
             }
@@ -3780,6 +3884,13 @@ namespace VitalSigns.API.Controllers
 
         #region Alert Settings
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="listAlertSettings"></param>
+        /// <returns></returns>
+
         [HttpPut("save_alert_settings")]
         public APIResponse UpdateIbmAlertSettings([FromBody]RecurringEvents listAlertSettings)
         {
@@ -3790,7 +3901,7 @@ namespace VitalSigns.API.Controllers
                 UpdateDefinition<EventsMaster> updateEvents;
                 AlertSettingsModel alertSettings = listAlertSettings.AlertSettings;
                 List<string> selectedEvents = listAlertSettings.SelectedEvents;
-                
+
                 try
                 {
                     var alertData = new List<NameValue> { new NameValue { Name = "PrimaryHostName", Value = alertSettings.PrimaryHostName },
@@ -3851,6 +3962,11 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("get_alert_settings")]
         public APIResponse GetAlertSettings()
         {
@@ -3933,6 +4049,11 @@ namespace VitalSigns.API.Controllers
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("events_master_list")]
         public APIResponse GetEventsMasterList()
         {
@@ -3955,6 +4076,12 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region View Alerts
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="statdate"></param>
+        /// <returns></returns>
         [HttpGet("viewalerts")]
         public APIResponse GetViewalerts(DateTime statdate)
         {
@@ -3966,17 +4093,17 @@ namespace VitalSigns.API.Controllers
                 {
                     statdate = DateTime.Now;
                     var resultList = eventsdetectedRepository.All().Where(x => x.EventDetected.HasValue && x.EventDetected.Value.Date == statdate.Date).ToList();
-                    var result = resultList                        
+                    var result = resultList
                         .Select(s => new AlertsModel
                         {
                             DeviceName = s.Device,
                             DeviceType = s.DeviceType,
                             AlertType = s.EventType,
                             Details = s.Details,
-                            EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count-1].EventDetectedSent.Value) : nullDate,
+                            EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].EventDetectedSent.Value) : nullDate,
                             EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
                             NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
-                        }).OrderBy(x=>x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
+                        }).OrderBy(x => x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
 
                     Response = Common.CreateResponse(result);
                 }
@@ -3993,7 +4120,7 @@ namespace VitalSigns.API.Controllers
                             EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].EventDetectedSent.Value) : nullDate,
                             EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
                             NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
-                        }).OrderBy(x=>x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
+                        }).OrderBy(x => x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
 
                     Response = Common.CreateResponse(result);
                 }
@@ -4007,7 +4134,11 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Notifications
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         private List<dynamic> GetNotificationsList()
         {
             List<dynamic> result_disp = new List<dynamic>();
@@ -4212,7 +4343,7 @@ namespace VitalSigns.API.Controllers
                 result.Add(result_escalateto);
                 result.Add(result_events);
                 result.Add(result_servers);
-                
+
             }
             catch (Exception ex)
             {
@@ -4221,11 +4352,16 @@ namespace VitalSigns.API.Controllers
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("notifications_list")]
         public APIResponse GetNotifications()
         {
             List<dynamic> result = new List<dynamic>();
-            
+
             try
             {
                 result = GetNotificationsList();
@@ -4238,6 +4374,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="isCombo"></param>
+        /// <returns></returns>
         [HttpGet("get_scripts")]
         public APIResponse GetScripts(bool isCombo = false)
         {
@@ -4263,7 +4405,7 @@ namespace VitalSigns.API.Controllers
                     var result = scriptsRepository.Collection.AsQueryable()
                         .Select(x => new ComboBoxListItem { DisplayText = x.ScriptName, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
                     Response = Common.CreateResponse(result);
-                }          
+                }
             }
             catch (Exception ex)
             {
@@ -4272,6 +4414,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="notificationDefinition"></param>
+        /// <returns></returns>
         [HttpPut("save_hours_destinations")]
         public APIResponse UpdateHoursDestinations([FromBody]NotificationsModel notificationDefinition)
         {
@@ -4364,7 +4512,7 @@ namespace VitalSigns.API.Controllers
                 else
                 {
                     filterDef = notificationDestRepository.Filter.Eq(x => x.Id, notificationDef.ID);
-                    
+
                     if (notificationDef.SendVia != "E-mail")
                     {
                         updateHours = notificationDestRepository.Updater.Set(x => x.BusinessHoursId, bushrsid)
@@ -4392,6 +4540,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="notificationDefinition"></param>
+        /// <returns></returns>
         [HttpPut("save_escalation")]
         public APIResponse UpdateEscalation([FromBody]NotificationsModel notificationDefinition)
         {
@@ -4457,6 +4611,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="scriptDefinition"></param>
+        /// <returns></returns>
         [HttpPut("save_script")]
         public APIResponse UpdateScript([FromBody]ScriptDefinition scriptDefinition)
         {
@@ -4507,6 +4667,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="notificationDefinition"></param>
+        /// <returns></returns>
         [HttpPut("save_notification_definition")]
         public APIResponse UpdateNotificationDefinition([FromBody]NotificationsModel notificationDefinition)
         {
@@ -4629,12 +4795,12 @@ namespace VitalSigns.API.Controllers
                             if (ind < 0)
                             {
                                 eventDef.NotificationList.Add(notification.Id);
-                            }                            
+                            }
                         }
                         else
                         {
                             tempList.Add(notification.Id);
-                            eventDef.NotificationList = tempList;                            
+                            eventDef.NotificationList = tempList;
                         }
                         eventsMasterRepository.Replace(eventDef);
                     }
@@ -4692,7 +4858,7 @@ namespace VitalSigns.API.Controllers
                                 if (ind < 0)
                                 {
                                     serverDef.NotificationList.Add(_id);
-                                } 
+                                }
                             }
                             else
                             {
@@ -4745,7 +4911,7 @@ namespace VitalSigns.API.Controllers
                                 if (ind < 0)
                                 {
                                     eventDef.NotificationList.Add(_id);
-                                }                                
+                                }
                             }
                             else
                             {
@@ -4766,6 +4932,11 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="id"></param>
         [HttpDelete("delete_hours_destinations/{id}")]
         public void DeleteHoursDestinations(string id)
         {
@@ -4781,6 +4952,11 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="id"></param>
         [HttpDelete("delete_script/{id}")]
         public void DeleteScript(string id)
         {
@@ -4796,6 +4972,11 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="id"></param>
         [HttpDelete("delete_notification_definition/{id}")]
         public void DeleteNotificationDefinition(string id)
         {
@@ -4847,13 +5028,17 @@ namespace VitalSigns.API.Controllers
             {
                 Response = Common.CreateResponse(null, "Error", "Delete Notification falied .\n Error Message :" + exception.Message);
             }
-            
+
 
         }
         #endregion
 
         #endregion
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author> </author>
+        /// <returns></returns>
         [HttpGet("servers_list")]
         public APIResponse GetAllServersList()
         {
@@ -4881,13 +5066,18 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("get_device_type_list")]
         public APIResponse GetDeviceTypes()
         {
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
-                var result = serversRepository.Collection.AsQueryable().Where(x=>x.DeviceType!="URL" && x.DeviceType!= "WebSphereCell" && x.DeviceType!= "WebSphereNode").Select(x => new ComboBoxListItem { DisplayText = x.DeviceType, Value = x.DeviceType }).Distinct().ToList().OrderBy(x => x.DisplayText);
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType != "URL" && x.DeviceType != "WebSphereCell" && x.DeviceType != "WebSphereNode").Select(x => new ComboBoxListItem { DisplayText = x.DeviceType, Value = x.DeviceType }).Distinct().ToList().OrderBy(x => x.DisplayText);
 
 
                 Response = Common.CreateResponse(result);
@@ -4899,6 +5089,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("mobileusers")]
         public APIResponse GetAllMobileUsersList()
         {
@@ -4925,6 +5121,11 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
 
         [HttpGet("device_list")]
         public APIResponse GetAllServersWithLocation()
@@ -4964,6 +5165,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="windowsservicesettings"></param>
+        /// <returns></returns>
 
         [HttpPut("save_windows_services")]
         public APIResponse SaveWindowsServices([FromBody]DeviceSettings windowsservicesettings)
@@ -4986,7 +5193,7 @@ namespace VitalSigns.API.Controllers
                 //        {
                 //            WindowsService windowsService = new WindowsService();
                 //            windowsService.ServiceName = serverTask.TaskName;
-                           
+
                 //            windowsServices.Add(windowsService);
                 //        }
                 //        windowsServices.AddRange(server.ServerTasks);
@@ -5016,7 +5223,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="device_id"></param>
+        /// <returns></returns>
         [HttpGet("{device_id}/get_maintenance_windows")]
         public APIResponse GetMaintenanceWindows(string device_id)
         {
@@ -5146,6 +5358,11 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #region Node Health
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
 
         [HttpGet("get_nodes_health")]
         public APIResponse GetAllNodesHealth()
@@ -5160,12 +5377,12 @@ namespace VitalSigns.API.Controllers
                     Name = x.Name,
                     HostName = x.HostName,
                     Pulse = x.Pulse,
-                    IsAlive =x.IsAlive,
-                    Alive =x.IsAlive?"Yes":"No",
+                    IsAlive = x.IsAlive,
+                    Alive = x.IsAlive ? "Yes" : "No",
                     LoadFactor = x.LoadFactor,
                     IsConfiguredPrimary = x.IsConfiguredPrimary,
                     IsPrimary = x.IsPrimary
-                    
+
 
 
                 }).ToList().OrderBy(x => x.Name);
@@ -5176,9 +5393,9 @@ namespace VitalSigns.API.Controllers
 
                 // var serviceresult = nodesRepository.Collection.AsQueryable().Where(x => x.Id == servernodes.id).Select(x => x.ServiceStatus).FirstOrDefault();
 
-              
 
-                Response = Common.CreateResponse(new { nodesData = nodesData, result = result});
+
+                Response = Common.CreateResponse(new { nodesData = nodesData, result = result });
 
             }
             catch (Exception exception)
@@ -5188,6 +5405,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("get_nodes_services")]
         public APIResponse GetAllNodesServices(string id)
         {
@@ -5195,29 +5418,29 @@ namespace VitalSigns.API.Controllers
             {
                 nodesRepository = new Repository<Nodes>(ConnectionString);
                 Expression<Func<Nodes, bool>> expression = (p => p.Id == id);
-                var result= nodesRepository.Collection.AsQueryable().Where(x=>x.Id==id).FirstOrDefault();
-              //  var serviceresult = nodesRepository.Find(expression).Select(x => x.ServiceStatus).FirstOrDefault();
+                var result = nodesRepository.Collection.AsQueryable().Where(x => x.Id == id).FirstOrDefault();
+                //  var serviceresult = nodesRepository.Find(expression).Select(x => x.ServiceStatus).FirstOrDefault();
                 //   var distinctData = summaryStats.Select(x => new { DeviceId = x.DeviceID, DeviceName = x.DeviceName }).Distinct().OrderBy(x => x.DeviceName).ToList();
                 List<ServiceStatusModel> service = new List<ServiceStatusModel>();
                 List<NodesServices> nodesServicesStatus = new List<NodesServices>();
                 var serviceresult = result.ServiceStatus;
-                    if (serviceresult != null)
-                    {
+                if (serviceresult != null)
+                {
 
-                        NodesServices nodesservices = new NodesServices();
-               
+                    NodesServices nodesservices = new NodesServices();
+
 
 
                     var dominoService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Domino");
-                        nodesservices.VSServicDomino = dominoService.State;
+                    nodesservices.VSServicDomino = dominoService.State;
 
-                    
 
-                        var coreService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Core");
-                        nodesservices.VSServiceCore = coreService.State;
 
-                        var vsAlert = serviceresult.FirstOrDefault(x => x.Name == "VSService_Alerting");
-                    if(result.IsPrimary==false)
+                    var coreService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Core");
+                    nodesservices.VSServiceCore = coreService.State;
+
+                    var vsAlert = serviceresult.FirstOrDefault(x => x.Name == "VSService_Alerting");
+                    if (result.IsPrimary == false)
                     {
                         nodesservices.VSServiceAlerting = "N/A";
                     }
@@ -5225,38 +5448,38 @@ namespace VitalSigns.API.Controllers
                     {
                         nodesservices.VSServiceAlerting = vsAlert.State;
                     }
-                        
 
-                        var clusterHealth = serviceresult.FirstOrDefault(x => x.Name == "VSService_Cluster Health");
-                        nodesservices.VSServiceCluster = clusterHealth.State;
 
-                        var dailyService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Daily Service");
-                        nodesservices.VSService_Daily = dailyService.State;
+                    var clusterHealth = serviceresult.FirstOrDefault(x => x.Name == "VSService_Cluster Health");
+                    nodesservices.VSServiceCluster = clusterHealth.State;
 
-                        var masterService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Master Service");
-                        nodesservices.VSService_Master = masterService.State;
+                    var dailyService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Daily Service");
+                    nodesservices.VSService_Daily = dailyService.State;
 
-                        var dbHealth = serviceresult.FirstOrDefault(x => x.Name == "VSService_DB Health");
-                        nodesservices.VSService_DB = dbHealth.State;
+                    var masterService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Master Service");
+                    nodesservices.VSService_Master = masterService.State;
 
-                        var exJournal = serviceresult.FirstOrDefault(x => x.Name == "VSService_EX Journal");
-                        nodesservices.VSService_EX = exJournal.State;
+                    var dbHealth = serviceresult.FirstOrDefault(x => x.Name == "VSService_DB Health");
+                    nodesservices.VSService_DB = dbHealth.State;
 
-                        var console = serviceresult.FirstOrDefault(x => x.Name == "VSService_Console Commands");
-                        nodesservices.VSService_Console = console.State;
+                    var exJournal = serviceresult.FirstOrDefault(x => x.Name == "VSService_EX Journal");
+                    nodesservices.VSService_EX = exJournal.State;
 
-                        var microsoft = serviceresult.FirstOrDefault(x => x.Name == "VSService_Microsoft");
-                        nodesservices.VSService_Microsoft = microsoft.State;
+                    var console = serviceresult.FirstOrDefault(x => x.Name == "VSService_Console Commands");
+                    nodesservices.VSService_Console = console.State;
 
-                        var core64Bit = serviceresult.FirstOrDefault(x => x.Name == "VSService_Core 64-bit");
-                        nodesservices.VSService_Core64 = core64Bit.State;
+                    var microsoft = serviceresult.FirstOrDefault(x => x.Name == "VSService_Microsoft");
+                    nodesservices.VSService_Microsoft = microsoft.State;
+
+                    var core64Bit = serviceresult.FirstOrDefault(x => x.Name == "VSService_Core 64-bit");
+                    nodesservices.VSService_Core64 = core64Bit.State;
 
                     //if()
-                        nodesServicesStatus.Add(nodesservices);
-                    }
-                    Response = Common.CreateResponse(nodesServicesStatus);
+                    nodesServicesStatus.Add(nodesservices);
+                }
+                Response = Common.CreateResponse(nodesServicesStatus);
 
-                
+
             }
             catch (Exception exception)
             {
@@ -5265,6 +5488,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="nodeshealth"></param>
+        /// <returns></returns>
         [HttpPut("save_nodes_health")]
         public APIResponse UpdateNodesHealth([FromBody]NodesModel nodeshealth)
         {
@@ -5281,7 +5510,7 @@ namespace VitalSigns.API.Controllers
                                                          .Set(p => p.LoadFactor, nodeshealth.LoadFactor)
                                                          .Set(p => p.IsConfiguredPrimary, nodeshealth.IsConfiguredPrimary)
                                                          .Set(p => p.IsPrimary, nodeshealth.IsPrimary);
-                                                       
+
 
                 var result = nodesRepository.Update(filterDefination, updateDefination);
                 Response = Common.CreateResponse(result, "OK", "Nodes Health updated successfully");
@@ -5296,7 +5525,12 @@ namespace VitalSigns.API.Controllers
 
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="devicesettings"></param>
+        /// <returns></returns>
         [HttpPut("save_nodes_servers")]
         public APIResponse UpdateNodesServers([FromBody] DeviceSettings devicesettings)
         {
@@ -5305,7 +5539,7 @@ namespace VitalSigns.API.Controllers
                 serversRepository = new Repository<Server>(ConnectionString);
                 string selectedNode = Convert.ToString(devicesettings.Setting);
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
-                foreach(var id in devicesList)
+                foreach (var id in devicesList)
                 {
 
                     FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
@@ -5325,6 +5559,11 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="Id"></param>
         [HttpDelete("delete_nodes_health/{Id}")]
         public void DeleteNodesHealth(string Id)
         {
@@ -5403,7 +5642,7 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
-      
+
         #region Mobile Devices
         /// <summary>
         ///Returns all mobile devices
@@ -5486,12 +5725,12 @@ namespace VitalSigns.API.Controllers
                 eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
                 var result = eventsdetectedRepository.All().Where(x => x.EventDismissed == null).Select(x => new AlertsModel
                 {
-                    DeviceType=x.DeviceType,
+                    DeviceType = x.DeviceType,
                     DeviceName = x.Device,
                     EventType = x.EventType,
                     Details = x.Details,
-                    EventDetected=Convert.ToString(x.EventDetected)
-                  
+                    EventDetected = Convert.ToString(x.EventDetected)
+
                 }).ToList();
 
 
@@ -5508,6 +5747,12 @@ namespace VitalSigns.API.Controllers
 
         #region Servers Import
         #region Domino
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="serverImport"></param>
+        /// <returns></returns>
         // [FunctionAuthorize("DominoServerImport")]
         [HttpPut("load_domino_servers")]
         public APIResponse LoadDominoServers([FromBody]DominoServerImportModel serverImport)
@@ -5672,6 +5917,11 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         //  [FunctionAuthorize("DominoServerImport")]
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("get_domino_import")]
         public APIResponse GetDominoImportData()
         {
@@ -5711,7 +5961,12 @@ namespace VitalSigns.API.Controllers
             return Common.CreateResponse(model);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="serverImport"></param>
+        /// <returns></returns>
         [HttpPut("save_domino_servers")]
         public APIResponse SaveDominoServers([FromBody]DominoServerImportModel serverImport)
         {
@@ -5820,6 +6075,12 @@ namespace VitalSigns.API.Controllers
 
 
         #region WebSphere
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="cellInfo"></param>
+        /// <returns></returns>
 
         [HttpPut("get_websohere_nodes")]
         public APIResponse LoadWebSphereNodes([FromBody]CellInfo cellInfo)
@@ -5827,7 +6088,7 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                BusinessHours bh = new BusinessHours();                
+                BusinessHours bh = new BusinessHours();
                 byte[] password;
                 string decryptedPassword = string.Empty;
                 string errorMessage = string.Empty;
@@ -5858,19 +6119,19 @@ namespace VitalSigns.API.Controllers
                             foreach (var cell in cells.Cell)
                             {
                                 List<WebSphereNode> nodes = new List<WebSphereNode>();
-                                Server server= serversRepository.Get(cellInfo.DeviceId);
-                                                            
+                                Server server = serversRepository.Get(cellInfo.DeviceId);
+
                                 foreach (var cellNode in cell.Nodes.Node)
                                 {
                                     WebSphereNode node = new WebSphereNode();
-                                    node.NodeId= ObjectId.GenerateNewId().ToString();
+                                    node.NodeId = ObjectId.GenerateNewId().ToString();
                                     node.NodeName = cellNode.Name;
                                     node.HostName = cellNode.HostName;
                                     node.WebSphereServers = new List<WebSphereServer>();
                                     foreach (var nodeServer in cellNode.Servers.Server)
                                     {
                                         WebSphereServer webSphereServer = new WebSphereServer();
-                                        webSphereServer.ServerId= ObjectId.GenerateNewId().ToString();
+                                        webSphereServer.ServerId = ObjectId.GenerateNewId().ToString();
                                         webSphereServer.ServerName = nodeServer;
                                         node.WebSphereServers.Add(webSphereServer);
 
@@ -5879,7 +6140,7 @@ namespace VitalSigns.API.Controllers
                                 }
                                 FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
                                 var updateDefination = serversRepository.Updater.Set(p => p.CellName, cell.Name).Set(p => p.Nodes, nodes);
-                              //  var result = serversRepository.Update(filterDefination, updateDefination);
+                                //  var result = serversRepository.Update(filterDefination, updateDefination);
                             }
                         }
                         else
@@ -5905,7 +6166,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="cellProperties"></param>
+        /// <returns></returns>
         public Cells getServerList(CellInfo cellProperties)
         {
 
@@ -5976,6 +6242,13 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="cellProperties"></param>
+        /// <param name="AppClientFolder"></param>
+        /// <param name="ServicePath"></param>
         private void ExecuteGetServerListCmd(CellInfo cellProperties, string AppClientFolder, string ServicePath)
         {
 
@@ -5993,6 +6266,14 @@ namespace VitalSigns.API.Controllers
 
             ExecuteCommand(pathToBatch + "" + arguments, AppClientFolder, ServicePath, 60);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="cmd"></param>
+        /// <param name="AppClientFolder"></param>
+        /// <param name="ServicePath"></param>
+        /// <param name="timeoutSec"></param>
         private void ExecuteCommand(string cmd, string AppClientFolder, string ServicePath, int timeoutSec = 60)
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
@@ -6024,6 +6305,13 @@ namespace VitalSigns.API.Controllers
             //throw new Exception(s + "...." + p);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="pathToXML"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private object DecodeXMLFromPath(string pathToXML, Type type)
         {
             XmlSerializer serializer = new XmlSerializer(type);
@@ -6038,10 +6326,16 @@ namespace VitalSigns.API.Controllers
             return obj;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("get_websohere_import")]
         public APIResponse GetWebSphereImportData()
         {
-            try {
+            try
+            {
                 WebShpereServerImport model = new WebShpereServerImport();
                 var cellsData = new List<CellInfo>();
                 serversRepository = new Repository<Server>(ConnectionString);
@@ -6106,7 +6400,7 @@ namespace VitalSigns.API.Controllers
                         item.CredentialsName = credential.DisplayText;
                 }
                 model.SelectedServers = new List<NodeInfo>();
-                Response= Common.CreateResponse(new { websphereData = model, cellData = cellsData, credentialsData = credentialsData });
+                Response = Common.CreateResponse(new { websphereData = model, cellData = cellsData, credentialsData = credentialsData });
             }
             catch (Exception exception)
             {
@@ -6116,7 +6410,12 @@ namespace VitalSigns.API.Controllers
 
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="serverImport"></param>
+        /// <returns></returns>
         [HttpPut("save_webspherecell_nodes")]
         public APIResponse SaveWebSphereCellNodes([FromBody]DominoServerImportModel serverImport)
         {
@@ -6222,12 +6521,20 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="cellInfo"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPut("save_websphere_cell")]
-        public APIResponse SaveWebsphereCellInfo([FromBody]CellInfo cellInfo,string id)
+        public APIResponse SaveWebsphereCellInfo([FromBody]CellInfo cellInfo, string id)
         {
             serversRepository = new Repository<Server>(ConnectionString);
             try
-            {  if (string.IsNullOrEmpty(cellInfo.DeviceId))
+            {
+                if (string.IsNullOrEmpty(cellInfo.DeviceId))
                 {
                     Server server = new Server();
                     server.Id = ObjectId.GenerateNewId().ToString();
@@ -6241,12 +6548,12 @@ namespace VitalSigns.API.Controllers
                     server.CredentialsId = cellInfo.CredentialsId;
                     server.Realm = cellInfo.Realm;
                     server.SametimeId = id;
-                    
-                    server.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();                   
-                   var serverId= serversRepository.Insert(server);
+
+                    server.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();
+                    var serverId = serversRepository.Insert(server);
                     Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell inserted successfully");
                 }
-            else
+                else
                 {
 
                     FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
@@ -6272,6 +6579,12 @@ namespace VitalSigns.API.Controllers
             return Response;
 
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("delete_cellInfo/{id}")]
         public APIResponse DeleteCellInfo(string id)
         {
@@ -6279,18 +6592,24 @@ namespace VitalSigns.API.Controllers
             {
                 serversRepository = new Repository<Server>(ConnectionString);
                 Expression<Func<Server, bool>> expression = (p => p.Id == id);
-               serversRepository.Delete(expression);
+                serversRepository.Delete(expression);
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell deleted successfully");
             }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(),  exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
             }
 
             return Response;
 
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="serverImport"></param>
+        /// <returns></returns>
         [HttpPut("save_websphere_servers")]
         public APIResponse SaveWebSphereServers([FromBody]WebShpereServerImport serverImport)
         {
@@ -6308,7 +6627,7 @@ namespace VitalSigns.API.Controllers
                         server.NodeId = serverModel.NodeId;
                         server.DeviceName = serverModel.ServerName;
                         server.DeviceType = "WebSphere";
-                       // server.LocationId = serverImport.Location;                       
+                        // server.LocationId = serverImport.Location;                       
                         serversRepository.Insert(server);
 
                         Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
@@ -6407,14 +6726,14 @@ namespace VitalSigns.API.Controllers
                 statusRepository = new Repository<Status>(ConnectionString);
                 Expression<Func<Status, bool>> statustExpression = (p => p.DeviceId == Id);
                 statusRepository.Delete(statustExpression);
-                
+
                 statusDetailsRepository = new Repository<StatusDetails>(ConnectionString);
                 Expression<Func<StatusDetails, bool>> statusDeatilstExpression = (p => p.DeviceId == Id);
                 statusDetailsRepository.Delete(statusDeatilstExpression);
                 summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
                 Expression<Func<SummaryStatistics, bool>> summaryStatisticsExpression = (p => p.DeviceId == Id);
                 summaryStatisticsRepository.Delete(summaryStatisticsExpression);
-               travelerSummaryStatsRepository = new Repository<TravelerStatusSummary>(ConnectionString);
+                travelerSummaryStatsRepository = new Repository<TravelerStatusSummary>(ConnectionString);
                 Expression<Func<TravelerStatusSummary, bool>> travelerStatusSummaryExpression = (p => p.DeviceId == Id);
                 travelerSummaryStatsRepository.Delete(travelerStatusSummaryExpression);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
@@ -6436,24 +6755,29 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Delete falied .\n Error Message :" + exception.Message);
             }
 
-           return Response;
+            return Response;
         }
         #endregion 
 
         #region Log Settings
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpGet("get_log_files")]
         public APIResponse GetLogFiles()
-      {
+        {
             try
             {
                 nameValueRepository = new Repository<NameValue>(ConnectionString);
                 var loglevel = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Level").Select(x => x.Value).FirstOrDefault();
                 var logfiles = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Files Path-New").Select(x => x.Value).FirstOrDefault();
                 string[] filePaths = System.IO.Directory.GetFiles(logfiles);
-                string[] folderPaths = System.IO.Directory.GetDirectories(logfiles);               
+                string[] folderPaths = System.IO.Directory.GetDirectories(logfiles);
                 List<SendLogs> logfilenames = new List<SendLogs>();
-             
-           
+
+
                 foreach (var x in filePaths)
                 {
 
@@ -6472,7 +6796,7 @@ namespace VitalSigns.API.Controllers
                 List<string> sendlogfiles = new List<string>();
                 List<ComboBoxListItem> combolist = new List<ComboBoxListItem>();
                 //logs.LogFileName = sendlogfiles.ToList();
-               
+
                 foreach (var x in filePaths)
                 {
 
@@ -6485,7 +6809,7 @@ namespace VitalSigns.API.Controllers
                 }
 
 
-                Response = Common.CreateResponse(new { loglevel =loglevel,logfilenames = logfilenames, combolist = combolist });
+                Response = Common.CreateResponse(new { loglevel = loglevel, logfilenames = logfilenames, combolist = combolist });
             }
             catch (Exception exception)
             {
@@ -6494,8 +6818,13 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-      
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="logfile"></param>
+        /// <returns></returns>
         [HttpGet("get_read_files/{logfile}")]
         public APIResponse GetreagLogFiles(string logfile)
         {
@@ -6505,13 +6834,13 @@ namespace VitalSigns.API.Controllers
                 nameValueRepository = new Repository<NameValue>(ConnectionString);
 
                 var logfiles = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Files Path-New").Select(x => x.Value).FirstOrDefault();
-                string filepath = logfiles+"\\" + logfile;
+                string filepath = logfiles + "\\" + logfile;
                 double maxfileLength = 5;
                 long length = new System.IO.FileInfo(filepath).Length;
                 double lengthd = length / 1024 / 1024;
                 if (lengthd >= maxfileLength)
                 {
-                     Text = "The log file you selected is too large to be displayed in the browser. Please view the file " + filepath + " directly on the server.";
+                    Text = "The log file you selected is too large to be displayed in the browser. Please view the file " + filepath + " directly on the server.";
                 }
                 else
                 {
@@ -6534,7 +6863,12 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <param name="devicesettings"></param>
+        /// <returns></returns>
         [HttpPut("save_log_settings")]
         public APIResponse UpdateLogSettings([FromBody] LogFolders devicesettings)
         {
@@ -6551,22 +6885,22 @@ namespace VitalSigns.API.Controllers
                 var update = nameValueRepository.Update(filterDefination, updateDefination);
                 Response = Common.CreateResponse(update);
                 //  var logslist = ((Newtonsoft.Json.Linq.JObject)devicesettings.FileName).ToObject<List<LogFolders>>();
-                List<string> listoffiles =new  List<string>();
-               
-                
+                List<string> listoffiles = new List<string>();
+
+
                 foreach (var file in logslist.LogName)
                 {
                     string filename = file.ToString();
-                   // filename = filename.Replace("{file_name:" , "");
+                    // filename = filename.Replace("{file_name:" , "");
 
                     string filepath = logfiles + "\\" + filename;
                     listoffiles.Add(filepath);
                 }
                 string[] paths = listoffiles.ToArray();
-               
-                    string[] oldZipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
+
+                string[] oldZipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
                 foreach (var files in oldZipFiles)
-                   System.IO.File.Delete(files);
+                    System.IO.File.Delete(files);
                 //Directory.Delete(files);
 
                 ZipFile zip = new ZipFile();
@@ -6579,49 +6913,49 @@ namespace VitalSigns.API.Controllers
                 //string[] zipFiles = System.IO.Directory.GetFiles(logPath, "LogFiles.z*");
                 string[] zipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
 
-                    var result = nameValueRepository.All()
-                                         .Select(x => new
-                                         {
-                                             Name = x.Name,
-                                             Value = x.Value
-                                         }).ToList();
+                var result = nameValueRepository.All()
+                                     .Select(x => new
+                                     {
+                                         Name = x.Name,
+                                         Value = x.Value
+                                     }).ToList();
 
-                    var host = result.Where(x => x.Name == "PrimaryHostName").Select(x => x.Value).FirstOrDefault();
-                   
-                    var PEmail = result.Where(x => x.Name == "PrimaryUserId").Select(x => x.Value).FirstOrDefault();
-                    var Ppwd = result.Where(x => x.Name == "Primarypwd").Select(x => x.Value).FirstOrDefault();
-                    var port = result.Where(x => x.Name == "PrimaryPort").Select(x => x.Value).FirstOrDefault();
+                var host = result.Where(x => x.Name == "PrimaryHostName").Select(x => x.Value).FirstOrDefault();
 
-                    var auth = result.Where(x => x.Name == "PrimaryAuth").Select(x => x.Value).FirstOrDefault();
-                    var PSSL = result.Where(x => x.Name == "PrimarySSL").Select(x => x.Value).FirstOrDefault();
-                    bool gmail = host.ToUpper().Contains("GMAIL");
+                var PEmail = result.Where(x => x.Name == "PrimaryUserId").Select(x => x.Value).FirstOrDefault();
+                var Ppwd = result.Where(x => x.Name == "Primarypwd").Select(x => x.Value).FirstOrDefault();
+                var port = result.Where(x => x.Name == "PrimaryPort").Select(x => x.Value).FirstOrDefault();
+
+                var auth = result.Where(x => x.Name == "PrimaryAuth").Select(x => x.Value).FirstOrDefault();
+                var PSSL = result.Where(x => x.Name == "PrimarySSL").Select(x => x.Value).FirstOrDefault();
+                bool gmail = host.ToUpper().Contains("GMAIL");
 
 
-                    for (int i = 0; i < zipFiles.Length; i++)
-                    {
+                for (int i = 0; i < zipFiles.Length; i++)
+                {
 
-                        string newfile = zipFiles[i];
+                    string newfile = zipFiles[i];
 
-                        MailMessage mail = new MailMessage();
+                    MailMessage mail = new MailMessage();
 
-                        System.Net.Mail.SmtpClient SmtpServer = new SmtpClient(host);
-                        mail.From = new MailAddress(PEmail);
-                        mail.To.Add(email);
-                        mail.Subject = "Log Files";
-                        mail.Body = "Log Files sent from VitalSigns.  File  " + (i + 1) + " of " + zipFiles.Length + ".";
+                    System.Net.Mail.SmtpClient SmtpServer = new SmtpClient(host);
+                    mail.From = new MailAddress(PEmail);
+                    mail.To.Add(email);
+                    mail.Subject = "Log Files";
+                    mail.Body = "Log Files sent from VitalSigns.  File  " + (i + 1) + " of " + zipFiles.Length + ".";
 
-                        System.Net.Mail.Attachment attachment;
-                        attachment = new System.Net.Mail.Attachment(newfile);
-                        mail.Attachments.Add(attachment);
+                    System.Net.Mail.Attachment attachment;
+                    attachment = new System.Net.Mail.Attachment(newfile);
+                    mail.Attachments.Add(attachment);
 
-                        SmtpServer.Port = Convert.ToInt32(port);
-                        SmtpServer.Credentials = new System.Net.NetworkCredential(PEmail, Ppwd);
-                        SmtpServer.EnableSsl = Convert.ToBoolean(PSSL);
+                    SmtpServer.Port = Convert.ToInt32(port);
+                    SmtpServer.Credentials = new System.Net.NetworkCredential(PEmail, Ppwd);
+                    SmtpServer.EnableSsl = Convert.ToBoolean(PSSL);
 
-                        SmtpServer.Send(mail);
-                    }
+                    SmtpServer.Send(mail);
                 }
- 
+            }
+
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Log Scan Servers falied .\n Error Message :" + exception.Message);
@@ -6646,24 +6980,24 @@ namespace VitalSigns.API.Controllers
 
 
 
-                
-                    Server servers = new Server
-                    {
-                       DeviceName = serverData.DeviceName   ,
-                        DeviceType = serverData.DeviceType,
-                        Description = serverData.Description,
-                        LocationId = serverData.LocationId,
-                        IPAddress = serverData.IpAddress,
-                        BusinessHoursId = serverData.BusinessHoursId,
-                        MonthlyOperatingCost = serverData.MonthlyOperatingCost,
-                        IdealUserCount = serverData.IdealUserCount,
-                        Category=serverData.Category
-                    };
+
+                Server servers = new Server
+                {
+                    DeviceName = serverData.DeviceName,
+                    DeviceType = serverData.DeviceType,
+                    Description = serverData.Description,
+                    LocationId = serverData.LocationId,
+                    IPAddress = serverData.IpAddress,
+                    BusinessHoursId = serverData.BusinessHoursId,
+                    MonthlyOperatingCost = serverData.MonthlyOperatingCost,
+                    IdealUserCount = serverData.IdealUserCount,
+                    Category = serverData.Category
+                };
 
 
-                    string id = serversRepository.Insert(servers);
-                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server inserted successfully.");
-                
+                string id = serversRepository.Insert(servers);
+                Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server inserted successfully.");
+
 
 
             }
@@ -6676,6 +7010,12 @@ namespace VitalSigns.API.Controllers
 
         }
         #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
 
         [HttpPut("upload_file")]
         public APIResponse UploadFile()
@@ -6701,7 +7041,7 @@ namespace VitalSigns.API.Controllers
                     //read the file back if it's csv and process the file 
                     string logPath = filePath + fileName;
                     List<ServersModel> serverList = new List<ServersModel>();
-                    if (fileName.ToLower().Contains (".csv"))
+                    if (fileName.ToLower().Contains(".csv"))
                     {
                         using (StreamReader sr = new StreamReader(logPath))
                         {
@@ -6735,7 +7075,9 @@ namespace VitalSigns.API.Controllers
         /// <author>Durga</author>
         /// </summary>
         /// <returns></returns>
-         #region Suspend Temporarly
+        #region Suspend Temporarly
+
+
         [HttpPut("save_suspend_temporarly")]
         public APIResponse SaveSuspendTemporarly([FromBody]SuspendTemporarilyModel maintenance)
         {
@@ -6799,6 +7141,11 @@ namespace VitalSigns.API.Controllers
         #endregion
         #endregion
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <author></author>
+        /// <returns></returns>
         [HttpPut("upload_script")]
         public string uploadScripts()
         {
@@ -6834,6 +7181,7 @@ namespace VitalSigns.API.Controllers
         /// <param name="device_id"></param>
         /// <returns></returns>
         #region Events
+
         [HttpGet("{device_id}/events")]
         public APIResponse GetEvents(string device_id)
         {
@@ -6898,7 +7246,7 @@ namespace VitalSigns.API.Controllers
         /// <author>Durga</author>
         /// </summary>
         /// <returns></returns>
-     
+
         [HttpPut("save_scan_now/{id}")]
         public APIResponse SaveScanNow(string id)
         {
@@ -6914,16 +7262,16 @@ namespace VitalSigns.API.Controllers
 
                 var statusResult = statusRepository.Update(statusFilterDefination, statusUpdateDefination);
 
-               // Response = Common.CreateResponse(statusResult, Common.ResponseStatus.Success.ToDescription(), "Server scan now successfully.");
+                // Response = Common.CreateResponse(statusResult, Common.ResponseStatus.Success.ToDescription(), "Server scan now successfully.");
 
                 FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
                 serversRepository = new Repository<Server>(ConnectionString);
 
 
                 var updateDefination = serversRepository.Updater.Set(p => p.ScanNow, true);
-                                                             
+
                 var result = serversRepository.Update(filterDefination, updateDefination);
-              
+
                 Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server scan now successfully.");
 
 
@@ -6938,10 +7286,10 @@ namespace VitalSigns.API.Controllers
             return Response;
 
         }
-       
+
         #endregion
     }
 }
 
-    
+
 
