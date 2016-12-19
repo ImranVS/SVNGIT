@@ -6,8 +6,7 @@ import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/overall-statistics/overall-sametime-statistics.component.html',

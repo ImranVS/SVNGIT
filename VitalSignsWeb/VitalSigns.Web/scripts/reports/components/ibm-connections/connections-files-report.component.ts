@@ -5,8 +5,7 @@ import {RESTService} from '../../../core/services/rest.service';
 
 import * as helpers from '../../../core/services/helpers/helpers';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 
 @Component({
@@ -102,7 +101,7 @@ export class ConnectionsFilesReport extends WidgetController {
             }
         ];
         injectSVG();
-        bootstrapNavigator();
+        
 
     }
 
@@ -155,7 +154,7 @@ export class ConnectionsFilesReport extends WidgetController {
     //        }
     //    ];
     //    injectSVG();
-    //    bootstrapNavigator();
+    //    
 
     //}
 }

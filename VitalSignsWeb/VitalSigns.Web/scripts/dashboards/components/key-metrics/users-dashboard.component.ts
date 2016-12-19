@@ -3,8 +3,7 @@
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/key-metrics/users-dashboard.component.html',
@@ -132,7 +131,7 @@ export class UsersDashboard extends WidgetController implements OnInit  {
             }
         ]
         injectSVG();
-        bootstrapNavigator();
+        
     }
 
     setSort1(byCount: boolean) {

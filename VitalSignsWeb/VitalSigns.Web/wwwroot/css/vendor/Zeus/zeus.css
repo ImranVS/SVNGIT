@@ -505,6 +505,8 @@ html.zeus, .zeus body {
 #zeusContext #zeusContextNavigation h2 {
 	font-size: 28px;
 	margin: 0;
+    display: inline;
+    position: relative;
 }
 
 #zeusContext #zeusContextNavigation p {
@@ -512,9 +514,11 @@ html.zeus, .zeus body {
 }
 
 #zeusContext #zeusContextNavigation .dropdown {
-	display: none;
 	letter-spacing: normal;
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    position: absolute;
+    right: -20px;
+    top: 6px;
 }
 
 #zeusContext #zeusContextNavigation #openContextNavigation {

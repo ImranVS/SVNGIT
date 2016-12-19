@@ -5,8 +5,7 @@ import {AppNavigator} from '../../../navigation/app.navigator.component';
 
 import {OverallDatabaseDetails} from './overall-database-details.component';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/key-metrics/overall-database-dashboard.component.html',
@@ -24,7 +23,7 @@ export class OverallDatabaseDashboard implements OnInit {
         this.widgetService.setProperty("istemplate", "False");
 
         injectSVG();
-        bootstrapNavigator();
+        
     }
 
     onSelect(serviceId: string) {

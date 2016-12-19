@@ -11,8 +11,7 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as helpers from '../../core/services/helpers/helpers';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/services/components/service-outages-grid.component.html',

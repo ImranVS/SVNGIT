@@ -4,8 +4,7 @@ import {WidgetController, WidgetContract, WidgetService} from '../../../core/wid
 
 import {RESTService} from '../../../core/services/rest.service';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 
 @Component({
@@ -87,7 +86,7 @@ export class ServerUtilizationReport extends WidgetController {
             }
         ];
         injectSVG();
-        bootstrapNavigator();
+        
 
     }
 }

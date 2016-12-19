@@ -4,8 +4,7 @@ import {RESTService} from '../../../core/services/rest.service';
 
 import * as helpers from '../../../core/services/helpers/helpers';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 
 @Component({
@@ -89,7 +88,7 @@ export class AverageResponseTimeReport extends WidgetController {
             },
         ];
         injectSVG();
-        bootstrapNavigator();
+        
 
     }
 }

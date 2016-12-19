@@ -5,8 +5,7 @@ import {WidgetComponent, WidgetService} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/overall-statistics/overall-domino-statistics.component.html',

@@ -7,7 +7,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as helpers from '../../../core/services/helpers/helpers';
 
 declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+
 
 
 @Component({
@@ -128,7 +128,7 @@ export class TravelerStatsReport extends WidgetController {
         ];
         
         injectSVG();
-        bootstrapNavigator();
+        
 
     }
 }

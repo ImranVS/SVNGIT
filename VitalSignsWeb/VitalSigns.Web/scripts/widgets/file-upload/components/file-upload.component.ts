@@ -5,8 +5,7 @@ import {WidgetController, WidgetContract, WidgetService} from '../../../core/wid
 import {Router, ActivatedRoute} from '@angular/router';
 import {RESTService} from '../../../core/services/rest.service';
 import {Http, Response, Headers} from '@angular/http';
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 
 @Component({

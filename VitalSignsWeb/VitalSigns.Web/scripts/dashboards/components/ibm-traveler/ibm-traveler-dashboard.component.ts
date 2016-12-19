@@ -5,8 +5,7 @@ import {AppNavigator} from '../../../navigation/app.navigator.component';
 import {RESTService} from '../../../core/services';
 import {DominoServerInfo} from '../../../widgets/main-dashboard/models/domino-server-info';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     selector: 'ibm-traveler-dashboard',
@@ -185,6 +184,6 @@ export class IBMTravelerDashboard extends WidgetController implements OnInit {
 
     ngOnInit() {
         injectSVG();
-        bootstrapNavigator();
+        
     }
 }

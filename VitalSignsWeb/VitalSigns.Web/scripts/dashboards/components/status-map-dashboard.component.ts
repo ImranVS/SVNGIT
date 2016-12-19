@@ -3,8 +3,7 @@
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
 import {AppNavigator} from '../../navigation/app.navigator.component';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/status-map-dashboard.component.html',
@@ -20,7 +19,7 @@ export class StatusMapDashboard extends WidgetController implements OnInit {
 
     ngOnInit() {
         injectSVG();
-        bootstrapNavigator();
+        
     }
 
 }

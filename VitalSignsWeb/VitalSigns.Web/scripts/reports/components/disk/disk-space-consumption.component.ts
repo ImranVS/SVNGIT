@@ -4,8 +4,7 @@ import { RESTService } from '../../../core/services/rest.service';
 
 declare var Highcharts: any;
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/reports/components/disk/disk-space-consumption.component.html',
@@ -112,7 +111,7 @@ export class DiskSpaceConsumptionReport implements OnInit {
             });
 
         injectSVG();
-        bootstrapNavigator();
+        
 
     }
 }

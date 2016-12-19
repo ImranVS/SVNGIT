@@ -10,8 +10,7 @@ import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/services/components/service-travelermailservers-grid.component.html',
@@ -33,7 +32,7 @@ export class ServiceTravelerMailServersGrid implements OnInit {
     get pageSize(): number {
         return this.data.pageSize;
     }
-
+    
     set pageSize(value: number) {
         if (this.data.pageSize != value) {
             this.data.pageSize = value;

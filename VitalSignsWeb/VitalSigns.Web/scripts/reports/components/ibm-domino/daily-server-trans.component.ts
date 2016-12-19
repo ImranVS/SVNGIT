@@ -4,8 +4,7 @@ import {WidgetController, WidgetContract, WidgetService} from '../../../core/wid
 import {Router, ActivatedRoute} from '@angular/router';
 import {RESTService} from '../../../core/services/rest.service';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 
 @Component({
@@ -97,7 +96,7 @@ export class DailyServerTrans extends WidgetController {
             }
         ];
         injectSVG();
-        bootstrapNavigator();
+        
 
     }
 }

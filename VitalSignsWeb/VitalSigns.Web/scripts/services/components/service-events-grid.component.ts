@@ -12,8 +12,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 
 import * as helpers from '../../core/services/helpers/helpers';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/services/components/service-events-grid.component.html',

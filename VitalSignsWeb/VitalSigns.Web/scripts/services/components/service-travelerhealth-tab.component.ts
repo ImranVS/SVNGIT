@@ -8,7 +8,7 @@ import {AppNavigator} from '../../navigation/app.navigator.component';
 import {ServiceTab} from '../models/service-tab.interface';
 
 declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+
 
 @Component({
     templateUrl: '/app/services/components/service-travelerhealth-tab.component.html',
@@ -188,7 +188,7 @@ export class ServiceTravelerHealthTab extends WidgetController implements OnInit
 
 
         injectSVG();
-        bootstrapNavigator();
+        
     }
 
 }

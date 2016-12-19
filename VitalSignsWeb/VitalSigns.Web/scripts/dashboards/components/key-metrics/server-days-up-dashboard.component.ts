@@ -2,8 +2,7 @@
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import {RESTService} from '../../../core/services';
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     selector: 'sample-dashboard',
@@ -73,7 +72,7 @@ export class ServerDaysUp extends WidgetController implements OnInit {
 
     ngOnInit() {
         injectSVG();
-        bootstrapNavigator();
+        
     }
 
     setSort1(byCount: boolean) {

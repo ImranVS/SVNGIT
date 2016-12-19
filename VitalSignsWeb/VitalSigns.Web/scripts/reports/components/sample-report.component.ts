@@ -4,8 +4,7 @@ import { RESTService } from '../../core/services/rest.service';
 
 declare var Highcharts: any;
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/reports/components/sample-report.component.html',
@@ -99,7 +98,7 @@ export class SampleReport implements OnInit {
             });
 
         injectSVG();
-        bootstrapNavigator();
+        
 
     }
 }

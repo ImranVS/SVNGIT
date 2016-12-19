@@ -6,8 +6,7 @@ import {AppNavigator} from '../../../navigation/app.navigator.component';
 
 import {RESTService} from '../../../core/services/rest.service';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/dashboards/components/office365/office365-dashboard.component.html',
@@ -32,7 +31,7 @@ export class Office365Dashboard implements OnInit {
             )
 
         injectSVG();
-        bootstrapNavigator();
+        
 
     }
 

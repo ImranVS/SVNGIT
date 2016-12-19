@@ -5,8 +5,7 @@ import 'rxjs/Rx';
 import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     selector: 'websphere-dashboard',
@@ -162,7 +161,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
 
     ngOnInit() {
         injectSVG();
-        bootstrapNavigator();
+        
     }
 
     onSelect(serviceId: string) {

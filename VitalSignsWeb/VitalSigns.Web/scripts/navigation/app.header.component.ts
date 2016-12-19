@@ -7,8 +7,7 @@ import {RESTService} from '../core/services';
 import {AuthenticationService} from '../profiles/services/authentication.service';
 import {Observable} from 'rxjs/Observable';
 declare var injectSVG: any;
-declare var bootstrapZeus: any;
-declare var bootstrapNavigator: any;
+declare var bootstrapZeus: any;
 import {AppComponentService} from '../core/services';
 
 @Component({
@@ -71,7 +70,7 @@ export class AppHeader implements OnChanges,OnInit {
             this.loadData();
             injectSVG();
             bootstrapZeus();
-            bootstrapNavigator();
+            
         }
     } 
 

@@ -4,8 +4,7 @@ import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
-declare var injectSVG: any;
-declare var bootstrapNavigator: any;
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/configurator/components/alert/alert-definitions-dashboard.component.html',
@@ -23,6 +22,6 @@ export class AlertDefinitionsDashboard implements OnInit  {
 
     ngOnInit() {
         injectSVG();
-        bootstrapNavigator();
+        
     }
 }

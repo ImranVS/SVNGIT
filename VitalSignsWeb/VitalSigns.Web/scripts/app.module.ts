@@ -35,6 +35,8 @@ import { ForwardPage } from './core/components/forward-page.component';
 import {AppHeader} from './navigation/app.header.component';
 import {AppMainMenu} from './navigation/app.main-menu.component';
 import {AppNavigator} from './navigation/app.navigator.component';
+import {NodePanel} from './navigation/navigator/node-panel.component';
+
 import {SiteMapList} from './navigation/editor/components/sitemap-list.component';
 import {SiteMapEditor} from './navigation/editor/components/sitemap-editor.component';
 import {SiteMapNode} from './navigation/editor/components/sitemap-node.component';
@@ -137,6 +139,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         AppHeader,
         AppMainMenu,
         AppNavigator,
+        NodePanel,
         SiteMapList,
         SiteMapEditor,
         SiteMapNode,
@@ -388,6 +391,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         wjInputTime.WjInputTime
     ],
     entryComponents: [
+        NodePanel,
         widgets.AppStatus,
         widgets.ChartComponent,
         widgets.DynamicGrid,
