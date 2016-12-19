@@ -32,6 +32,8 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
     memory_threshold: any;
     cpu_threshold: any;
     limitsChecked: boolean;
+    platform: any;
+    nodes: FormGroup;
 
     websphereData: any;
     constructor(service: RESTService, appComponentService: AppComponentService, private formBuilder: FormBuilder, private route: ActivatedRoute) {
@@ -54,6 +56,14 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
             'nodes_data': ['']
         });
 
+        this.nodes = this.formBuilder.group({
+
+            'selected_servers': [''],
+           
+
+
+        });
+
 
     }
     isLimitsChecked(ischecked: boolean) {
@@ -68,22 +78,18 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
 
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
+            this.route.parent.params.subscribe(params => {
+
+                this.platform = params['platform'];
+                console.log(this.platform);
+
+            });
             this.loadData();
         });
     }
 
     loadData() {
-
-
-        //this.service.get('/Configurator/get_ibm_domino_settings')
-        //    .subscribe(
-        //    (data) => this.websphereSettingsForm.setValue(data.data),
-        //    (error) => 
-        //        this.errorMessage = <any>error
-        //        this.appComponentService.showErrorMessage(this.errorMessage);
-        //    }
-
-        //    );    
+ 
         this.service.get('/configurator/get_sametime_websphere/'+ this.deviceId)
             .subscribe(
             (response) => {
@@ -94,8 +100,9 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
                    
                 });
                // this.websphereSettingsForm.setValue(response.data.cellData);
-                if (response.data.cellData.length > 0) {
-                    this.webSphereServerNodeData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.cellData[0].nodes_data));
+                if (response.data.cellData != null) {
+                    
+                    this.webSphereServerNodeData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.cellData.nodes_data));
                     this.webSphereServerNodeData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("node_name"));
                     this.webSphereServerNodeData.pageSize = 10;
                 }
@@ -114,7 +121,7 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
             response => {
 
                 if (response.status == "Success") {
-
+                   
                     this.appComponentService.showSuccessMessage(response.message);
 
                 } else {
@@ -147,16 +154,7 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
 
     }
 
-    //RefreshCell() {
-    //    this.service.put('/configurator/get_websohere_nodes', this.websphereSettingsForm)
-    //        .subscribe(
-    //        response => {
-
-    //        },
-    //        (error) => this.errorMessage = <any>error
-
-    //        );
-    //}
+  
     serverCheck(value, event) {
 
         if (event.target.checked) {
@@ -179,13 +177,18 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
                     "server_name": item.server_name
                 });
             }
-            this.step2Click();
+           
 
         }
-        this.currentStep = "2";
-    }
-    step2Click(): void {
-        this.service.put('/configurator/save_websphere_servers', this.websphereData)
+        var postData = {
+            "selected_servers": this.websphereData.selected_servers,
+            
+        };
+
+        this.nodes.setValue(postData);
+       
+        
+        this.service.put('/configurator/save_websphere_servers', postData)
             .subscribe(
             response => {
                 this.currentStep = "3";
@@ -194,8 +197,8 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
             (error) => this.errorMessage = <any>error
 
             );
-
     }
+   
     step3Click(): void {
         this.currentStep = "1";
         this.ngOnInit();
