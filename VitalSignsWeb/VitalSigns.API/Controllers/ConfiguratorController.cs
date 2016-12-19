@@ -2721,8 +2721,8 @@ namespace VitalSigns.API.Controllers
                 var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
                             .Select(x => new AdvancedSettingsModel
                             {
-                                MemoryThreshold = x.MemoryThreshold,
-                                CpuThreshold = x.CpuThreshold,
+                                MemoryThreshold = x.MemoryThreshold == null ? 0 : x.MemoryThreshold * 100,
+                                CpuThreshold = x.CpuThreshold == null ? 0 : x.CpuThreshold * 100,
                                 ServerDaysAlert = x.ServerDaysAlert,
                                 ClusterReplicationDelayThreshold = x.ClusterReplicationDelayThreshold,
                                 ProxyServerType = x.ProxyServerType,
@@ -2783,8 +2783,8 @@ namespace VitalSigns.API.Controllers
                 {
                     if (advancedSettings.DeviceType == "Domino")
                     {
-                        var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold)
-                                                                 .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold)
+                        var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold/100)
+                                                                 .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold/100)
                                                                  .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
                                                                  .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold)
                                                                  .Set(p => p.ClusterReplicationQueueThreshold, advancedSettings.ClusterReplicationQueueThreshold);

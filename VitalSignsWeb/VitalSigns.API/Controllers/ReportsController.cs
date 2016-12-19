@@ -708,8 +708,9 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("traveler_stats")]
-        public APIResponse GetTravelerStats(string deviceId, string paramtype, string paramvalue)
+        public APIResponse GetTravelerStats(string deviceId = "", string paramtype = "", string paramvalue = "")
         {
+            List<TravelerStats> result = new List<TravelerStats>();
             FilterDefinition<Server> filterDef = null;
             Repository<TravelerStats> travelerRepository = new Repository<TravelerStats>(ConnectionString);
             List<Serie> series = new List<Serie>();
@@ -718,17 +719,24 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                serverRepository = new Repository<Server>(ConnectionString);
-                filterDef = serverRepository.Filter.Eq(x => x.Id, deviceId);
-                var serverlist = serverRepository.Find(filterDef).ToList();
-                if (serverlist.Count > 0)
+                if (!string.IsNullOrEmpty(deviceId))
                 {
-                    travelername = serverlist[0].DeviceName;
-                }
-                var builder = Builders<TravelerStats>.Filter;
-                var result = travelerRepository.Collection.Aggregate()
+                    serverRepository = new Repository<Server>(ConnectionString);
+                    filterDef = serverRepository.Filter.Eq(x => x.Id, deviceId);
+                    var serverlist = serverRepository.Find(filterDef).ToList();
+                    if (serverlist.Count > 0)
+                    {
+                        travelername = serverlist[0].DeviceName;
+                    }
+                    var builder = Builders<TravelerStats>.Filter;
+                    result = travelerRepository.Collection.Aggregate()
                                .Match(builder.And(builder.Eq(paramtype, paramvalue), builder.Eq(x => x.TravelerServerName, travelername))).ToList();
-
+                }
+                else
+                {
+                    result = travelerRepository.Collection.Aggregate().ToList();
+                }
+                           
                 if (paramtype == "interval")
                 {
                     foreach (var mailserver in result.Select(x => x.MailServerName).Distinct())
