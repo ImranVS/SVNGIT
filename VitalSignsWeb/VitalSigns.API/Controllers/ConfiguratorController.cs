@@ -1726,8 +1726,10 @@ namespace VitalSigns.API.Controllers
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
                 locationRepository = new Repository<Location>(ConnectionString);
                 serverTypeRepository = new Repository<ServerType>(ConnectionString);
-                var serverTypeData = serverTypeRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Name }).ToList().OrderBy(x => x.DisplayText);
-                // var credentialServerTypeData = serverTypeRepository.All().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.ServerTypeId.ToString() }).ToList().OrderBy(x => x.DisplayText);
+
+                var serverTypeData = Common.GetServerTypes();
+               
+
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var locationsData = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
