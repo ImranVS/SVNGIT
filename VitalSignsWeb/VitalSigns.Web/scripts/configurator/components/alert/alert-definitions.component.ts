@@ -51,7 +51,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     refreshCheckedEvents() {
         if (this.flex3.collectionView) {
             if (this.flex3.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
                     var val = this.selected_events.filter((record) => record == item.id);
@@ -83,7 +83,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     refreshCheckedHours() {
         if (this.flex4.collectionView) {
             if (this.flex4.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex4.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection)[_i];
                     var val = this.selected_hours.filter((record) => record == item.id);
@@ -105,7 +105,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     refreshCheckedEscalation() {
         if (this.flex5.collectionView) {
             if (this.flex5.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex5.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection)[_i];
                     var ind = this.selected_escalation.filter((record) => record == item.id);
@@ -185,7 +185,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         this.devices = [];
         if (this.flex3.collectionView) {
             if (this.flex3.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
                     if (this.formObject.event_ids) {
@@ -210,7 +210,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         this.formObject.is_selected_event = this.flex.collectionView.currentItem.is_selected_event;
         if (this.flex4.collectionView) {
             if (this.flex4.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex4.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection)[_i];
                     if (this.formObject.business_hours_ids) {
@@ -234,7 +234,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         }
         if (this.flex5.collectionView) {
             if (this.flex5.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex5.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection)[_i];
                     if (this.formObject.business_hours_ids) {
@@ -291,7 +291,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         this.devices = [];
         if (this.flex3.collectionView) {
             if (this.flex3.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
                     item.is_selected_event = false;
@@ -300,7 +300,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         }
         if (this.flex4.collectionView) {
             if (this.flex4.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex4.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection)[_i];
                     item.is_selected_hour = false;
@@ -309,7 +309,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         }
         if (this.flex5.collectionView) {
             if (this.flex5.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).pageIndex = 0;
+                (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex5.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection)[_i];
                     item.is_selected_hour = false;
@@ -364,7 +364,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                     });
                 (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
             }
-            (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).pageIndex = 0;           
+            (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();           
             this.flex.refresh();
             this._deviceList = [];
             dlg.hide();

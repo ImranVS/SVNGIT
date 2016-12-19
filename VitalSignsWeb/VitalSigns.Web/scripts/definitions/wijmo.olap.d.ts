@@ -1,6 +1,6 @@
 /*
     *
-    * Wijmo Library 5.20162.211
+    * Wijmo Library 5.20163.234
     * http://wijmo.com/
     *
     * Copyright(c) GrapeCity, Inc.  All rights reserved.
@@ -73,19 +73,19 @@ declare module wijmo.olap {
         /**
          * Gets the @see:PivotFieldCollection that owns this key.
          */
-        fields: PivotFieldCollection;
+        readonly fields: PivotFieldCollection;
         /**
          * Gets the @see:PivotFieldCollection that contains the values for this key.
          */
-        valueFields: PivotFieldCollection;
+        readonly valueFields: PivotFieldCollection;
         /**
          * Gets an array with the values used to create this key.
          */
-        values: any[];
+        readonly values: any[];
         /**
          * Gets the type of aggregate represented by this key.
          */
-        aggregate: Aggregate;
+        readonly aggregate: Aggregate;
         /**
          * Gets the value for this key at a given index.
          *
@@ -154,15 +154,15 @@ declare module wijmo.olap {
         /**
          * Gets the @see:_PivotKey represented by this @see:_PivotNode.
          */
-        key: _PivotKey;
+        readonly key: _PivotKey;
         /**
          * Gets the parent node of this node.
          */
-        parent: _PivotNode;
+        readonly parent: _PivotNode;
         /**
          * Gets the child items of this node.
          */
-        tree: _PivotNode;
+        readonly tree: _PivotNode;
     }
 }
 
@@ -182,7 +182,7 @@ declare module wijmo.olap {
         /**
          * Gets a reference to the @see:PivotEngine that owns this view.
          */
-        engine: PivotEngine;
+        readonly engine: PivotEngine;
         _performSort(items: any[]): void;
     }
 }
@@ -228,7 +228,7 @@ declare module wijmo.olap {
         /**
          * Gets a reference to the @see:PivotFilter used to filter values for this field.
          */
-        filter: PivotFilter;
+        readonly filter: PivotFilter;
         /**
          * Gets or sets how the field should be summarized.
          */
@@ -280,11 +280,11 @@ declare module wijmo.olap {
         /**
          * Gets a reference to the @see:PivotEngine that owns this @see:PivotField.
          */
-        engine: PivotEngine;
+        readonly engine: PivotEngine;
         /**
          * Gets the @see:ICollectionView bound to this field.
          */
-        collectionView: collections.ICollectionView;
+        readonly collectionView: collections.ICollectionView;
         /**
          * Gets or sets a value that determines whether this field is
          * currently being used in the view.
@@ -302,7 +302,7 @@ declare module wijmo.olap {
          * same binding with different parameters. The copies keep a
          * reference to their parent fields.
          */
-        parentField: PivotField;
+        readonly parentField: PivotField;
         /**
          * Occurs when the value of a property in this @see:Range changes.
          */
@@ -344,7 +344,7 @@ declare module wijmo.olap {
         /**
          * Gets a reference to the @see:PivotEngine that owns this @see:PivotFieldCollection.
          */
-        engine: PivotEngine;
+        readonly engine: PivotEngine;
         /**
          * Gets a field by header.
          *
@@ -393,7 +393,7 @@ declare module wijmo.olap {
         /**
          * Gets a value that indicates whether the filter is active.
          */
-        isActive: boolean;
+        readonly isActive: boolean;
         /**
          * Clears the filter.
          */
@@ -401,11 +401,11 @@ declare module wijmo.olap {
         /**
          * Gets the @see:ValueFilter in this @see:PivotFilter.
          */
-        valueFilter: grid.filter.ValueFilter;
+        readonly valueFilter: grid.filter.ValueFilter;
         /**
          * Gets the @see:ConditionFilter in this @see:PivotFilter.
          */
-        conditionFilter: grid.filter.ConditionFilter;
+        readonly conditionFilter: grid.filter.ConditionFilter;
     }
 }
 
@@ -514,11 +514,11 @@ declare module wijmo.olap {
         /**
          * Gets a reference to the @see:PivotField whose filter is being edited.
          */
-        field: PivotField;
+        readonly field: PivotField;
         /**
          * Gets a reference to the @see:PivotFilter being edited.
          */
-        filter: PivotFilter;
+        readonly filter: PivotFilter;
         /**
          * Updates the editor with current filter settings.
          */
@@ -606,6 +606,26 @@ declare module wijmo.olap {
          * Show differences between each item and the item in the previous column as a percentage.
          */
         DiffColPct = 4,
+        /**
+         * Show values as a percentage of the grand totals for the field.
+         */
+        PctGrand = 5,
+        /**
+         * Show values as a percentage of the row totals for the field.
+         */
+        PctRow = 6,
+        /**
+         * Show values as a percentage of the column totals for the field.
+         */
+        PctCol = 7,
+        /**
+         * Show values as running totals.
+         */
+        RunTot = 8,
+        /**
+         * Show values as percentage running totals.
+         */
+        RunTotPct = 9,
     }
     /**
      * Provides a user interface for interactively transforming regular data tables into Olap
@@ -623,7 +643,7 @@ declare module wijmo.olap {
         private _autoGenFields;
         private _allowFieldEditing;
         private _showRowTotals;
-        private _showColumnTotals;
+        private _showColTotals;
         private _totalsBefore;
         private _showZeros;
         private _updating;
@@ -663,11 +683,11 @@ declare module wijmo.olap {
         /**
          * Gets the @see:ICollectionView that contains the raw data.
          */
-        collectionView: collections.ICollectionView;
+        readonly collectionView: collections.ICollectionView;
         /**
          * Gets the @see:ICollectionView containing the output pivot view.
          */
-        pivotView: collections.ICollectionView;
+        readonly pivotView: collections.ICollectionView;
         /**
          * Gets or sets a value that determines whether the output @see:pivotView
          * should include rows containing subtotals or grand totals.
@@ -739,25 +759,25 @@ declare module wijmo.olap {
          * // done defining the view
          * pe.endUpdate();</pre>
          */
-        fields: PivotFieldCollection;
+        readonly fields: PivotFieldCollection;
         /**
          * Gets the list of @see:PivotField objects that define the fields shown as rows in the output table.
          */
-        rowFields: PivotFieldCollection;
+        readonly rowFields: PivotFieldCollection;
         /**
          * Gets the list of @see:PivotField objects that define the fields shown as columns in the output table.
          */
-        columnFields: PivotFieldCollection;
+        readonly columnFields: PivotFieldCollection;
         /**
          * Gets the list of @see:PivotField objects that define the fields used as filters.
          *
          * Fields on this list do not appear in the output table, but are still used for filtering the input data.
          */
-        filterFields: PivotFieldCollection;
+        readonly filterFields: PivotFieldCollection;
         /**
          * Gets the list of @see:PivotField objects that define the fields summarized in the output table.
          */
-        valueFields: PivotFieldCollection;
+        readonly valueFields: PivotFieldCollection;
         /**
          * Gets or sets the current pivot view definition as a JSON string.
          *
@@ -782,7 +802,7 @@ declare module wijmo.olap {
          * A pivot view is defined if the @see:valueFields list is not empty and
          * either the @see:rowFields or @see:columnFields lists are not empty.
          */
-        isViewDefined: boolean;
+        readonly isViewDefined: boolean;
         /**
          * Suspends the refresh processes until next call to the @see:endUpdate.
          */
@@ -794,7 +814,7 @@ declare module wijmo.olap {
         /**
          * Gets a value that indicates whether the engine is currently being updated.
          */
-        isUpdating: boolean;
+        readonly isUpdating: boolean;
         /**
          * Executes a function within a @see:beginUpdate/@see:endUpdate block.
          *
@@ -889,8 +909,11 @@ declare module wijmo.olap {
         private _updatePivotView();
         private _getSortedKeys(obj);
         private _updateFieldValues(arr);
+        private _getColTotal(arr, col);
+        private _getRunningTotal(arr, row, col, showAs);
+        private _getLastValueInRowGroup(arr, row, col);
         private _getRowDifference(arr, row, col, showAs);
-        private _getColumnDifference(arr, row, col, showAs);
+        private _getColDifference(arr, row, col, showAs);
         private _generateFields();
         private _cvCollectionChanged(sender, e);
         private _fieldListChanged(s, e);
@@ -915,7 +938,7 @@ declare module wijmo.olap {
         /**
          * Gets the current progress as a number between 0 and 100.
          */
-        progress: number;
+        readonly progress: number;
     }
 }
 
@@ -1010,11 +1033,11 @@ declare module wijmo.olap {
         /**
          * Gets the @see:ICollectionView that contains the raw data.
          */
-        collectionView: collections.ICollectionView;
+        readonly collectionView: collections.ICollectionView;
         /**
          * Gets the @see:ICollectionView containing the output pivot view.
          */
-        pivotView: collections.ICollectionView;
+        readonly pivotView: collections.ICollectionView;
         /**
          * Gets or sets a value that determines whether the engine should populate
          * the @see:fields collection automatically based on the @see:itemsSource.
@@ -1023,23 +1046,23 @@ declare module wijmo.olap {
         /**
          * Gets the list of fields available for building views.
          */
-        fields: PivotFieldCollection;
+        readonly fields: PivotFieldCollection;
         /**
          * Gets the list of fields that define the rows in the output table.
          */
-        rowFields: PivotFieldCollection;
+        readonly rowFields: PivotFieldCollection;
         /**
          * Gets the list of fields that define the columns in the output table.
          */
-        columnFields: PivotFieldCollection;
+        readonly columnFields: PivotFieldCollection;
         /**
          * Gets the list of fields that define the values shown in the output table.
          */
-        valueFields: PivotFieldCollection;
+        readonly valueFields: PivotFieldCollection;
         /**
          * Gets the list of fields that define filters applied while generating the output table.
          */
-        filterFields: PivotFieldCollection;
+        readonly filterFields: PivotFieldCollection;
         /**
          * Gets or sets the current pivot view definition as a JSON string.
          *
@@ -1064,7 +1087,7 @@ declare module wijmo.olap {
          * A pivot view is defined if the @see:valueFields list is not empty and
          * either the @see:rowFields or @see:columnFields lists are not empty.
          */
-        isViewDefined: boolean;
+        readonly isViewDefined: boolean;
         /**
          * Occurs after the value of the @see:itemsSource property changes.
          */
@@ -1100,6 +1123,7 @@ declare module wijmo.olap {
          */
         onUpdatedView(e?: EventArgs): void;
         refresh(fullUpdate?: boolean): void;
+        _copy(key: string, value: any): boolean;
         _globalize(): void;
         _itemsSourceChanged(s: PivotEngine, e?: EventArgs): void;
         _viewDefinitionChanged(s: PivotEngine, e?: EventArgs): void;
@@ -1191,7 +1215,7 @@ declare module wijmo.olap {
         /**
          * Gets a reference to the @see:PivotEngine that owns this @see:PivotGrid.
          */
-        engine: PivotEngine;
+        readonly engine: PivotEngine;
         /**
          * Gets or sets a value that determines whether the grid should show a popup containing
          * the detail records when the user double-clicks a cell.
@@ -1346,7 +1370,7 @@ declare module wijmo.olap {
         /**
          * Gets a reference to the @see:PivotEngine that owns this @see:PivotChart.
          */
-        engine: PivotEngine;
+        readonly engine: PivotEngine;
         /**
          * Gets or sets the @see:PivotEngine or @see:PivotPanel that provides data
          * for this @see:PivotChart.
@@ -1380,11 +1404,11 @@ declare module wijmo.olap {
         /**
          * Gets a reference to the inner <b>FlexChart</b> control.
          */
-        flexChart: chart.FlexChart;
+        readonly flexChart: chart.FlexChart;
         /**
          * Gets a reference to the inner <b>FlexPie</b> control.
          */
-        flexPie: chart.FlexPie;
+        readonly flexPie: chart.FlexPie;
         /**
          * Refreshes the control.
          *

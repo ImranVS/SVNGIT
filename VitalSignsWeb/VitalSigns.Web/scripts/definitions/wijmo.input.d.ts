@@ -1,6 +1,6 @@
 /*
     *
-    * Wijmo Library 5.20162.211
+    * Wijmo Library 5.20163.234
     * http://wijmo.com/
     *
     * Copyright(c) GrapeCity, Inc.  All rights reserved.
@@ -51,7 +51,7 @@ declare module wijmo.input {
          * Use this property in situations where you want to customize the
          * attributes of the input element.
          */
-        inputElement: HTMLInputElement;
+        readonly inputElement: HTMLInputElement;
         /**
          * Gets or sets a value that indicates whether the user can modify
          * the control value using the mouse and keyboard.
@@ -76,7 +76,7 @@ declare module wijmo.input {
          * Gets the drop down element shown when the @see:isDroppedDown
          * property is set to true.
          */
-        dropDown: HTMLElement;
+        readonly dropDown: HTMLElement;
         /**
          * Gets or sets a CSS class name to add to the control's drop-down element.
          *
@@ -345,6 +345,7 @@ declare module wijmo.input {
         private _valid(date);
         private _inValidRange(date);
         private _monthInValidRange(month);
+        private _yearInValidRange(year);
         private _sameMonth(date, month);
         _clamp(value: Date): Date;
         private _createChildren();
@@ -489,7 +490,7 @@ declare module wijmo.input {
         /**
          * Gets the @see:ICollectionView object used as the item source.
          */
-        collectionView: collections.ICollectionView;
+        readonly collectionView: collections.ICollectionView;
         /**
          * Gets or sets a value indicating whether items contain plain text or HTML.
          */
@@ -697,15 +698,15 @@ declare module wijmo.input {
         /**
          * Gets the index of the data item in the list.
          */
-        index: number;
+        readonly index: number;
         /**
          * Gets the data item being formatted.
          */
-        data: any;
+        readonly data: any;
         /**
          * Gets a reference to the element that represents the list item to be formatted.
          */
-        item: HTMLElement;
+        readonly item: HTMLElement;
     }
 }
 
@@ -762,7 +763,7 @@ declare module wijmo.input {
         /**
          * Gets the @see:ICollectionView object used as the item source.
          */
-        collectionView: collections.ICollectionView;
+        readonly collectionView: collections.ICollectionView;
         /**
          * Gets or sets the name of the property to use as the visual representation of the items.
          */
@@ -864,7 +865,7 @@ declare module wijmo.input {
         /**
          * Gets the @see:ListBox control shown in the drop-down.
          */
-        listBox: ListBox;
+        readonly listBox: ListBox;
         refresh(fullUpdate?: boolean): void;
         onLostFocus(e?: EventArgs): void;
         onIsDroppedDownChanging(e: CancelEventArgs): boolean;
@@ -901,12 +902,12 @@ declare module wijmo.input {
     class AutoComplete extends ComboBox {
         private _cssMatch;
         private _itemsSourceFn;
+        private _itemsSourceFnCallBackBnd;
         private _srchProp;
         private _minLength;
         private _maxItems;
         private _itemCount;
         private _delay;
-        private _itemFormatter;
         private _toSearch;
         private _query;
         private _rxMatch;
@@ -979,14 +980,13 @@ declare module wijmo.input {
          * of the content that match the search terms.
          */
         cssMatch: string;
-        itemFormatter: Function;
         _keydown(e: KeyboardEvent): void;
         _setText(text: string): void;
         _itemSourceFunctionCallback(result: any): void;
         onIsDroppedDownChanged(e?: EventArgs): void;
         protected _updateItems(): void;
         protected _filter(item: any): boolean;
-        protected _defaultFormatter(index: number, text: string): string;
+        protected _formatListItem(sender: any, e: FormatItemEventArgs): void;
     }
 }
 
@@ -1245,10 +1245,12 @@ declare module wijmo.input {
     enum PopupTrigger {
         /** No triggers; popups must be shown and hidden using code. */
         None = 0,
-        /** Show or hide when the owner element is clicked. */
+        /** Show or hide the popup when the owner element is clicked. */
         Click = 1,
         /** Hide the popup when it loses focus. */
         Blur = 2,
+        /** Show or hide the popup when the owner element is clicked, hide when it loses focus. */
+        ClickOrBlur = 3,
     }
     /**
      * Class that shows an element as a popup.
@@ -1288,12 +1290,14 @@ declare module wijmo.input {
         _fadeIn: boolean;
         _fadeOut: boolean;
         _click: any;
+        _mousedown: any;
         _bkdrop: HTMLDivElement;
         _result: any;
         _resultEnter: any;
         _callback: Function;
         _refreshing: boolean;
         _visible: boolean;
+        _wasVisible: boolean;
         /**
          * Initializes a new instance of the @see:Popup class.
          *
@@ -1381,7 +1385,7 @@ declare module wijmo.input {
         /**
          * Gets a value that determines whether the @see:Popup is currently visible.
          */
-        isVisible: boolean;
+        readonly isVisible: boolean;
         /**
          * Shows the @see:Popup.
          *
@@ -1451,6 +1455,7 @@ declare module wijmo.input {
         refresh(fullUpdate?: boolean): void;
         protected _handleResize(): void;
         protected _handleClick(e: any): void;
+        protected _handleMouseDown(e: any): void;
         private _showBackdrop();
         private _validateAndHide(result);
     }
@@ -1551,14 +1556,14 @@ declare module wijmo.input {
         /**
          * Gets a reference to the @see:Calendar control shown in the drop-down box.
          */
-        calendar: Calendar;
+        readonly calendar: Calendar;
         /**
          * Gets the HTML input element hosted by the control.
          *
          * Use this property in situations where you want to customize the
          * attributes of the input element.
          */
-        inputElement: HTMLInputElement;
+        readonly inputElement: HTMLInputElement;
         /**
          * Gets or sets the "type" attribute of the HTML input element hosted by the control.
          *
@@ -1675,7 +1680,7 @@ declare module wijmo.input {
          * Use this property in situations where you want to customize the
          * attributes of the input element.
          */
-        inputElement: HTMLInputElement;
+        readonly inputElement: HTMLInputElement;
         /**
          * Gets or sets the "type" attribute of the HTML input element hosted by the control.
          *
@@ -1876,7 +1881,7 @@ declare module wijmo.input {
          * Use this property in situations where you want to customize the
          * attributes of the input element.
          */
-        inputElement: HTMLInputElement;
+        readonly inputElement: HTMLInputElement;
         /**
          * Gets or sets the "type" attribute of the HTML input element hosted by the control.
          *
@@ -2047,7 +2052,7 @@ declare module wijmo.input {
          * Use this property in situations where you want to customize the
          * attributes of the input element.
          */
-        inputElement: HTMLInputElement;
+        readonly inputElement: HTMLInputElement;
         /**
          * Gets or sets the text currently shown in the control.
          */
@@ -2079,7 +2084,7 @@ declare module wijmo.input {
         /**
          * Gets a value that indicates whether the mask has been completely filled.
          */
-        maskFull: boolean;
+        readonly maskFull: boolean;
         /**
          * Gets or sets a value indicating whether the control value must be a number or whether it
          * can be set to null (by deleting the content of the control).
@@ -2139,7 +2144,7 @@ declare module wijmo.input {
         /**
          * Gets a reference to the @see:ColorPicker control shown in the drop-down.
          */
-        colorPicker: ColorPicker;
+        readonly colorPicker: ColorPicker;
         /**
          * Occurs after a new color is selected.
          */

@@ -1,6 +1,6 @@
 /*
     *
-    * Wijmo Library 5.20162.211
+    * Wijmo Library 5.20163.234
     * http://wijmo.com/
     *
     * Copyright(c) GrapeCity, Inc.  All rights reserved.
@@ -108,13 +108,13 @@ declare module wijmo.grid.filter {
         /**
          * Gets the @see:Column to filter.
          */
-        column: Column;
+        readonly column: Column;
         /**
          * Gets a value that indicates whether the filter is active.
          *
          * The filter is active if there is at least one value is selected.
          */
-        isActive: boolean;
+        readonly isActive: boolean;
         /**
          * Gets a value that indicates whether a value passes the filter.
          *
@@ -167,7 +167,7 @@ declare module wijmo.grid.filter {
         /**
          * Gets a reference to the @see:ValueFilter being edited.
          */
-        filter: ValueFilter;
+        readonly filter: ValueFilter;
         /**
          * Updates editor with current filter settings.
          */
@@ -212,11 +212,11 @@ declare module wijmo.grid.filter {
         /**
          * Gets the first condition in the filter.
          */
-        condition1: FilterCondition;
+        readonly condition1: FilterCondition;
         /**
          * Gets the second condition in the filter.
          */
-        condition2: FilterCondition;
+        readonly condition2: FilterCondition;
         /**
          * Gets a value that indicates whether to combine the two conditions
          * with an AND or an OR operator.
@@ -225,14 +225,14 @@ declare module wijmo.grid.filter {
         /**
          * Gets the @see:Column to filter.
          */
-        column: Column;
+        readonly column: Column;
         /**
          * Gets a value that indicates whether the filter is active.
          *
          * The filter is active if at least one of the two conditions
          * has its operator and value set to a valid combination.
          */
-        isActive: boolean;
+        readonly isActive: boolean;
         /**
          * Returns a value indicating whether a value passes this filter.
          *
@@ -289,7 +289,7 @@ declare module wijmo.grid.filter {
         /**
          * Gets a reference to the @see:ConditionFilter being edited.
          */
-        filter: ConditionFilter;
+        readonly filter: ConditionFilter;
         /**
          * Updates editor with current filter settings.
          */
@@ -330,7 +330,7 @@ declare module wijmo.grid.filter {
         /**
          * Gets a value that indicates whether the condition is active.
          */
-        isActive: boolean;
+        readonly isActive: boolean;
         /**
          * Clears the condition.
          */
@@ -404,19 +404,19 @@ declare module wijmo.grid.filter {
         /**
          * Gets the @see:ValueFilter in this @see:ColumnFilter.
          */
-        valueFilter: ValueFilter;
+        readonly valueFilter: ValueFilter;
         /**
          * Gets the @see:ConditionFilter in this @see:ColumnFilter.
          */
-        conditionFilter: ConditionFilter;
+        readonly conditionFilter: ConditionFilter;
         /**
          * Gets the @see:Column being filtered.
          */
-        column: Column;
+        readonly column: Column;
         /**
          * Gets a value that indicates whether the filter is active.
          */
-        isActive: boolean;
+        readonly isActive: boolean;
         /**
          * Gets a value that indicates whether a value passes the filter.
          *
@@ -474,7 +474,7 @@ declare module wijmo.grid.filter {
         /**
          * Gets a reference to the @see:ColumnFilter being edited.
          */
-        filter: ColumnFilter;
+        readonly filter: ColumnFilter;
         /**
          * Updates editor with current filter settings.
          */
@@ -507,8 +507,8 @@ declare module wijmo.grid.filter {
 }
 
 /**
-* Extension that provides an Excel-style filtering UI for @see:FlexGrid controls.
-*/
+ * Extension that provides an Excel-style filtering UI for @see:FlexGrid controls.
+ */
 declare module wijmo.grid.filter {
     /**
      * Specifies types of column filter.
@@ -564,7 +564,7 @@ declare module wijmo.grid.filter {
         /**
          * Gets a reference to the @see:FlexGrid that owns this filter.
          */
-        grid: FlexGrid;
+        readonly grid: FlexGrid;
         /**
          * Gets or sets an array containing the names or bindings of the columns
          * that have filters.
@@ -621,7 +621,8 @@ declare module wijmo.grid.filter {
          * Shows the filter editor for the given grid column.
          *
          * @param col The @see:Column that contains the filter to edit.
-         * @param ht A @see:HitTestInfo object containing the range of the cell that triggered the filter display.
+         * @param ht A @see:wijmo.grid.HitTestInfo object containing the range of the cell
+         * that triggered the filter display.
          */
         editColumnFilter(col: any, ht?: HitTestInfo): void;
         /**

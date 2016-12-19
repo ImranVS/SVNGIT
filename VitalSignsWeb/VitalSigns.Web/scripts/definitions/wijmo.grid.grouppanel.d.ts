@@ -1,6 +1,6 @@
 /*
     *
-    * Wijmo Library 5.20162.211
+    * Wijmo Library 5.20163.234
     * http://wijmo.com/
     *
     * Copyright(c) GrapeCity, Inc.  All rights reserved.
@@ -11,9 +11,9 @@
     *
     */
 /**
-* Extension that provides a drag and drop UI for editing
-* groups in bound @see:FlexGrid controls.
-*/
+ * Extension that provides a drag and drop UI for editing
+ * groups in bound @see:FlexGrid controls.
+ */
 declare module wijmo.grid.grouppanel {
     /**
      * The @see:GroupPanel control provides a drag and drop UI for editing

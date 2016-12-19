@@ -1,6 +1,6 @@
 /*
     *
-    * Wijmo Library 5.20162.211
+    * Wijmo Library 5.20163.234
     * http://wijmo.com/
     *
     * Copyright(c) GrapeCity, Inc.  All rights reserved.
@@ -99,6 +99,8 @@ declare module wijmo.grid {
         private _shSort;
         private _shGroups;
         private _shAlt;
+        private _shErr;
+        private _valEdt;
         private _gHdrFmt;
         private _rows;
         private _cols;
@@ -325,6 +327,22 @@ declare module wijmo.grid {
          */
         showAlternatingRows: boolean;
         /**
+         * Gets or sets a value that determines whether the grid should add the 'wj-state-invalid'
+         * class to cells that contain validation errors, and tooltips with error descriptions.
+         *
+         * The grid detects validation errors using the @see:CollectionView.getError property
+         * on the grid's @see:itemsSource.
+         */
+        showErrors: boolean;
+        /**
+         * Gets or sets a value that determines whether the grid should remain
+         * in edit mode when the user tries to commit edits that fail validation.
+         *
+         * The grid detects validation errors by calling the @see:CollectionView.getError
+         * method on the grid's @see:itemsSource.
+         */
+        validateEdits: boolean;
+        /**
          * Gets or sets the format string used to create the group header content.
          *
          * The string may contain any text, plus the following replacement strings:
@@ -362,7 +380,7 @@ declare module wijmo.grid {
         /**
          * Gets the @see:ICollectionView that contains the grid data.
          */
-        collectionView: collections.ICollectionView;
+        readonly collectionView: collections.ICollectionView;
         /**
          * Gets or sets the name of the property (or properties) used to generate
          * child rows in hierarchical grids.
@@ -381,11 +399,11 @@ declare module wijmo.grid {
         /**
          * Gets the @see:GridPanel that contains the data cells.
          */
-        cells: GridPanel;
+        readonly cells: GridPanel;
         /**
          * Gets the @see:GridPanel that contains the column header cells.
          */
-        columnHeaders: GridPanel;
+        readonly columnHeaders: GridPanel;
         /**
          * Gets the @see:GridPanel that contains the column footer cells.
          *
@@ -408,31 +426,31 @@ declare module wijmo.grid {
          *   flex.bottomLeftCells.setCellData(0, 0, '\u03A3');
          * }</pre>
          */
-        columnFooters: GridPanel;
+        readonly columnFooters: GridPanel;
         /**
          * Gets the @see:GridPanel that contains the row header cells.
          */
-        rowHeaders: GridPanel;
+        readonly rowHeaders: GridPanel;
         /**
          * Gets the @see:GridPanel that contains the top left cells
          * (to the left of the column headers).
          */
-        topLeftCells: GridPanel;
+        readonly topLeftCells: GridPanel;
         /**
          * Gets the @see:GridPanel that contains the bottom left cells.
          *
          * The @see:bottomLeftCells panel appears below the row headers, to the
          * left of the @see:columnFooters panel.
          */
-        bottomLeftCells: GridPanel;
+        readonly bottomLeftCells: GridPanel;
         /**
          * Gets the grid's row collection.
          */
-        rows: RowCollection;
+        readonly rows: RowCollection;
         /**
          * Gets the grid's column collection.
          */
-        columns: ColumnCollection;
+        readonly columns: ColumnCollection;
         /**
          * Gets a column by name or by binding.
          *
@@ -472,19 +490,19 @@ declare module wijmo.grid {
         /**
          * Gets the client size of the control (control size minus headers and scrollbars).
          */
-        clientSize: Size;
+        readonly clientSize: Size;
         /**
          * Gets the bounding rectangle of the control in page coordinates.
          */
-        controlRect: Rect;
+        readonly controlRect: Rect;
         /**
          * Gets the size of the grid content in pixels.
          */
-        scrollSize: Size;
+        readonly scrollSize: Size;
         /**
          * Gets the range of cells currently in view.
          */
-        viewRange: CellRange;
+        readonly viewRange: CellRange;
         /**
          * Gets or sets the @see:CellFactory that creates and updates cells for this grid.
          */
@@ -573,7 +591,7 @@ declare module wijmo.grid {
          */
         setCellData(r: number, c: any, value: any, coerce?: boolean, invalidate?: boolean): boolean;
         /**
-         * Gets a @see:HitTestInfo object with information about a given point.
+         * Gets a @see:wijmo.grid.HitTestInfo object with information about a given point.
          *
          * For example:
          *
@@ -586,9 +604,9 @@ declare module wijmo.grid {
          *
          * @param pt @see:Point to investigate, in page coordinates, or a MouseEvent object, or x coordinate of the point.
          * @param y Y coordinate of the point in page coordinates (if the first parameter is a number).
-         * @return A @see:HitTestInfo object with information about the point.
+         * @return A @see:wijmo.grid.HitTestInfo object with information about the point.
          */
-        hitTest(pt: any, y?: number): HitTestInfo;
+        hitTest(pt: any, y?: number): wijmo.grid.HitTestInfo;
         /**
          * Gets the content of a @see:CellRange as a string suitable for
          * copying to the clipboard.
@@ -768,11 +786,11 @@ declare module wijmo.grid {
         /**
          * Gets the <b>HTMLInputElement</b> that represents the cell editor currently active.
          */
-        activeEditor: HTMLInputElement;
+        readonly activeEditor: HTMLInputElement;
         /**
          * Gets a @see:CellRange that identifies the cell currently being edited.
          */
-        editRange: CellRange;
+        readonly editRange: CellRange;
         /**
          * Gets or sets the @see:MergeManager object responsible for determining how cells
          * should be merged.
@@ -1059,10 +1077,6 @@ declare module wijmo.grid {
         onPrepareCellForEdit(e: CellRangeEventArgs): void;
         /**
          * Occurs when a cell edit is ending.
-         */
-        cellEditEnding: Event;
-        /**
-         * Raises the @see:cellEditEnding event.
          *
          * You can use this event to perform validation and prevent invalid edits.
          * For example, the code below prevents users from entering values that
@@ -1078,10 +1092,22 @@ declare module wijmo.grid {
          *   e.cancel = newVal.indexOf('a') &lt; 0;
          * }</pre>
          *
-         * @param e @see:CellRangeEventArgs that contains the event data.
+         * Setting the @see:CellEditEndingEventArgs.cancel parameter to
+         * true causes the grid to discard the edited value and keep the
+         * cell's original value.
+         *
+         * If you also set the @see:CellEditEndingEventArgs.stayInEditMode
+         * parameter to true, the grid will remain in edit mode so the user
+         * can correct invalid entries before committing the edits.
+         */
+        cellEditEnding: Event;
+        /**
+         * Raises the @see:cellEditEnding event.
+         *
+         * @param e @see:CellEditEndingEventArgs that contains the event data.
          * @return True if the event was not canceled.
          */
-        onCellEditEnding(e: CellRangeEventArgs): boolean;
+        onCellEditEnding(e: CellEditEndingEventArgs): boolean;
         /**
          * Occurs when a cell edit has been committed or canceled.
          */
@@ -1093,7 +1119,55 @@ declare module wijmo.grid {
          */
         onCellEditEnded(e: CellRangeEventArgs): void;
         /**
+         * Occurs before a row enters edit mode.
+         */
+        rowEditStarting: Event;
+        /**
+         * Raises the @see:rowEditStarting event.
+         *
+         * @param e @see:CellRangeEventArgs that contains the event data.
+         */
+        onRowEditStarting(e: CellRangeEventArgs): void;
+        /**
+         * Occurs after a row enters edit mode.
+         */
+        rowEditStarted: Event;
+        /**
+         * Raises the @see:rowEditStarted event.
+         *
+         * @param e @see:CellRangeEventArgs that contains the event data.
+         */
+        onRowEditStarted(e: CellRangeEventArgs): void;
+        /**
          * Occurs when a row edit is ending, before the changes are committed or canceled.
+         *
+         * This event can be used in conjunction with the @see:rowEditStarted event to
+         * implement deep-binding edit undos. For example:
+         *
+         * <pre>// save deep bound values when editing starts
+         * var itemData = {};
+         * s.rowEditStarted.addHandler(function (s, e) {
+         *   var item = s.collectionView.currentEditItem;
+         *   itemData = {};
+         *   s.columns.forEach(function (col) {
+         *     if (col.binding.indexOf('.') &gt; -1) { // deep binding
+         *       var binding = new wijmo.Binding(col.binding);
+         *       itemData[col.binding] = binding.getValue(item);
+         *     }
+         *   })
+         * });
+         *
+         * // restore deep bound values when edits are canceled
+         * s.rowEditEnded.addHandler(function (s, e) {
+         *   if (e.cancel) { // edits were canceled by the user
+         *     var item = s.collectionView.currentEditItem;
+         *     for (var k in itemData) {
+         *       var binding = new wijmo.Binding(k);
+         *       binding.setValue(item, itemData[k]);
+         *     }
+         *   }
+         *   itemData = {};
+         * });</pre>
          */
         rowEditEnding: Event;
         /**
@@ -1300,6 +1374,7 @@ declare module wijmo.grid {
         _updateStickyHeaders(): void;
         private _updateScrollPosition();
         private _updateContent(recycle, state?);
+        _updateFrozenCells(): void;
         private _getMarqueeRect(rng);
         _bindColumns(): void;
         _updateColumnTypes(): void;
@@ -1311,6 +1386,7 @@ declare module wijmo.grid {
         private static _getSerializableProperties(obj);
         _copy(key: string, value: any): boolean;
         _isInputElement(e: any): boolean;
+        _wantsInput(e: any): boolean;
         private static _maxCssHeight;
         private static _getMaxSupportedCssHeight();
         static _rtlMode: string;
@@ -1333,23 +1409,23 @@ declare module wijmo.grid {
          * @param rng Range of cells affected by the event.
          * @param data Data related to the event.
          */
-        constructor(p: GridPanel, rng: CellRange, data?: string);
+        constructor(p: GridPanel, rng: CellRange, data?: any);
         /**
          * Gets the @see:GridPanel affected by this event.
          */
-        panel: GridPanel;
+        readonly panel: GridPanel;
         /**
          * Gets the @see:CellRange affected by this event.
          */
-        range: CellRange;
+        readonly range: CellRange;
         /**
          * Gets the row affected by this event.
          */
-        row: number;
+        readonly row: number;
         /**
          * Gets the column affected by this event.
          */
-        col: number;
+        readonly col: number;
         /**
          * Gets or sets the data associated with the event.
          */
@@ -1371,7 +1447,18 @@ declare module wijmo.grid {
         /**
          * Gets a reference to the element that represents the grid cell to be formatted.
          */
-        cell: HTMLElement;
+        readonly cell: HTMLElement;
+    }
+    /**
+     * Provides arguments for the @see:FlexGrid.cellEditEnding event.
+     */
+    class CellEditEndingEventArgs extends CellRangeEventArgs {
+        _stayInEditMode: boolean;
+        /**
+         * Gets or sets whether the cell should remain in edit mode instead
+         * of finishing the edits.
+         */
+        stayInEditMode: boolean;
     }
 }
 
@@ -1422,31 +1509,31 @@ declare module wijmo.grid {
         /**
          * Gets the grid that owns the panel.
          */
-        grid: FlexGrid;
+        readonly grid: FlexGrid;
         /**
          * Gets the type of cell contained in the panel.
          */
-        cellType: CellType;
+        readonly cellType: CellType;
         /**
          * Gets a @see:CellRange that indicates the range of cells currently visible on the panel.
          */
-        viewRange: CellRange;
+        readonly viewRange: CellRange;
         /**
          * Gets the total width of the content in the panel.
          */
-        width: number;
+        readonly width: number;
         /**
          * Gets the total height of the content in this panel.
          */
-        height: number;
+        readonly height: number;
         /**
          * Gets the panel's row collection.
          */
-        rows: RowCollection;
+        readonly rows: RowCollection;
         /**
          * Gets the panel's column collection.
          */
-        columns: ColumnCollection;
+        readonly columns: ColumnCollection;
         /**
          * Gets the value stored in a cell in the panel.
          *
@@ -1491,7 +1578,7 @@ declare module wijmo.grid {
         /**
          * Gets the host element for the panel.
          */
-        hostElement: HTMLElement;
+        readonly hostElement: HTMLElement;
         _getOffsetY(): number;
         _updateContent(recycle: boolean, state: boolean, offsetY: number): void;
         _reorderCells(rngNew: CellRange, rngOld: CellRange): void;
@@ -1531,6 +1618,12 @@ declare module wijmo.grid {
          * @param cell The element that represents the cell.
          */
         disposeCell(cell: HTMLElement): void;
+        /**
+         * Gets the value of the editor currently being used.
+         *
+         * @param g @see:FlexGrid that owns the editor.
+         */
+        getEditorValue(g: FlexGrid): any;
         private _isEditingCell(g, r, c);
         private _getTreeIcon(gr);
         private _getSortIcon(col);
@@ -1588,37 +1681,37 @@ declare module wijmo.grid {
         /**
          * Gets the number of rows in the range.
          */
-        rowSpan: number;
+        readonly rowSpan: number;
         /**
          * Gets the number of columns in the range.
          */
-        columnSpan: number;
+        readonly columnSpan: number;
         /**
          * Gets the index of the top row in the range.
          */
-        topRow: number;
+        readonly topRow: number;
         /**
          * Gets the index of the bottom row in the range.
          */
-        bottomRow: number;
+        readonly bottomRow: number;
         /**
          * Gets the index of the leftmost column in the range.
          */
-        leftCol: number;
+        readonly leftCol: number;
         /**
          * Gets the index of the rightmost column in the range.
          */
-        rightCol: number;
+        readonly rightCol: number;
         /**
          * Checks whether the range contains valid row and column indices
          * (row and column values are zero or greater).
          */
-        isValid: boolean;
+        readonly isValid: boolean;
         /**
          * Checks whether this range corresponds to a single cell (beginning and ending rows have
          * the same index, and beginning and ending columns have the same index).
          */
-        isSingleCell: boolean;
+        readonly isSingleCell: boolean;
         /**
          * Checks whether the range contains another range or a specific cell.
          *
@@ -1728,15 +1821,15 @@ declare module wijmo.grid {
          * This property is read-only. To change the visibility of a
          * row or column, use the @see:visible property instead.
          */
-        isVisible: boolean;
+        readonly isVisible: boolean;
         /**
          * Gets the position of the row or column.
          */
-        pos: number;
+        readonly pos: number;
         /**
          * Gets the index of the row or column in the parent collection.
          */
-        index: number;
+        readonly index: number;
         /**
          * Gets or sets the size of the row or column.
          * Setting this property to null or negative values causes the element to use the
@@ -1747,7 +1840,7 @@ declare module wijmo.grid {
          * Gets the render size of the row or column.
          * This property accounts for visibility, default size, and min and max sizes.
          */
-        renderSize: number;
+        readonly renderSize: number;
         /**
          * Gets or sets a value that indicates whether the user can resize the row or column with the mouse.
          */
@@ -1785,11 +1878,11 @@ declare module wijmo.grid {
         /**
          * Gets the @see:FlexGrid that owns the row or column.
          */
-        grid: FlexGrid;
+        readonly grid: FlexGrid;
         /**
          * Gets the @see:ICollectionView bound to this row or column.
          */
-        collectionView: collections.ICollectionView;
+        readonly collectionView: collections.ICollectionView;
         /**
          * Marks the owner list as dirty and refreshes the owner grid.
          */
@@ -1842,7 +1935,8 @@ declare module wijmo.grid {
          * are required.
          *
          * By default, this property is set to null, which means values
-         * are required, but string columns may contain empty strings.
+         * are required, but non-masked string columns may contain empty
+         * strings.
          *
          * When set to true, values are required and empty strings are
          * not allowed.
@@ -1943,7 +2037,7 @@ declare module wijmo.grid {
          *
          * The value returned takes into account the column's visibility, default size, and min and max sizes.
          */
-        renderWidth: number;
+        readonly renderWidth: number;
         /**
          * Gets or sets the horizontal alignment of items in the column.
          *
@@ -1962,6 +2056,16 @@ declare module wijmo.grid {
          * selects the alignment based on the column's @see:dataType.
          */
         getAlignment(): string;
+        /**
+         * Gets a value that determines whether the column is required.
+         *
+         * Returns the value of the @see:isRequired property if it is not null, or
+         * determines the required status based on the column's @see:dataType.
+         *
+         * By default, string columns are not required unless they have a
+         * @see:mask value set; all other data types are required.
+         */
+        getIsRequired(): boolean;
         /**
          * Gets or sets the text displayed in the column header.
          */
@@ -1991,7 +2095,7 @@ declare module wijmo.grid {
          * Possible values are '+' for ascending order, '-' for descending order, or
          * null for unsorted columns.
          */
-        currentSort: string;
+        readonly currentSort: string;
         /**
          * Gets or sets the @see:Aggregate to display in the group header rows
          * for the column.
@@ -2027,7 +2131,7 @@ declare module wijmo.grid {
          *
          * The value returned takes into account the row's visibility, default size, and min and max sizes.
          */
-        renderHeight: number;
+        readonly renderHeight: number;
     }
     /**
      * Represents a row that serves as a header for a group of rows.
@@ -2045,7 +2149,7 @@ declare module wijmo.grid {
         /**
          * Gets a value that indicates whether the group row has child rows.
          */
-        hasChildren: boolean;
+        readonly hasChildren: boolean;
         /**
          * Gets or sets a value that indicates whether the GroupRow is collapsed
          * (child rows are hidden) or expanded (child rows are visible).
@@ -2057,8 +2161,8 @@ declare module wijmo.grid {
         getGroupHeader(): string;
         _setCollapsed(collapsed: boolean): void;
         /**
-         * Gets a CellRange object that contains all of the rows in the group represented
-         * by the GroupRow and all of the columns in the grid.
+         * Gets a @see:CellRange object that contains all of the rows in the group represented
+         * by this @see:GroupRow and all of the columns in the grid.
          */
         getCellRange(): CellRange;
     }
@@ -2190,7 +2294,7 @@ declare module wijmo.grid {
         /**
          * Gets the index of the first visible column (where the outline tree is displayed).
          */
-        firstVisibleIndex: number;
+        readonly firstVisibleIndex: number;
         _update(): boolean;
         _updateStarSizes(szAvailable: number): boolean;
     }
@@ -2204,7 +2308,7 @@ declare module wijmo.grid {
          *
          * @return The maximum group level or -1 if the grid has no group rows.
          */
-        maxGroupLevel: number;
+        readonly maxGroupLevel: number;
         _update(): boolean;
     }
 }
@@ -2223,52 +2327,52 @@ declare module wijmo.grid {
         _edge: number;
         static _SZEDGE: number[];
         /**
-         * Initializes a new instance of the @see:HitTestInfo class.
+         * Initializes a new instance of the @see:wijmo.grid.HitTestInfo class.
          *
          * @param grid The @see:FlexGrid control or @see:GridPanel to investigate.
          * @param pt The @see:Point object in page coordinates to investigate.
          */
         constructor(grid: any, pt: any);
         /**
-         * Gets the point in control coordinates that this @see:HitTestInfo refers to.
+         * Gets the point in control coordinates that this @see:wijmo.grid.HitTestInfo refers to.
          */
-        point: Point;
+        readonly point: Point;
         /**
          * Gets the cell type at the specified position.
          */
-        cellType: CellType;
+        readonly cellType: CellType;
         /**
          * Gets the grid panel at the specified position.
          */
-        panel: GridPanel;
+        readonly panel: GridPanel;
         /**
          * Gets the row index of the cell at the specified position.
          */
-        row: number;
+        readonly row: number;
         /**
          * Gets the column index of the cell at the specified position.
          */
-        col: number;
+        readonly col: number;
         /**
          * Gets the cell range at the specified position.
          */
-        range: CellRange;
+        readonly range: CellRange;
         /**
          * Gets a value that indicates whether the mouse is near the left edge of the cell.
          */
-        edgeLeft: boolean;
+        readonly edgeLeft: boolean;
         /**
          * Gets a value that indicates whether the mouse is near the top edge of the cell.
          */
-        edgeTop: boolean;
+        readonly edgeTop: boolean;
         /**
          * Gets a value that indicates whether the mouse is near the right edge of the cell.
          */
-        edgeRight: boolean;
+        readonly edgeRight: boolean;
         /**
          * Gets a value that indicates whether the mouse is near the bottom edge of the cell.
          */
-        edgeBottom: boolean;
+        readonly edgeBottom: boolean;
     }
 }
 
@@ -2399,15 +2503,15 @@ declare module wijmo.grid {
         /**
          * Gets the @see:ICollectionView object that contains the map data.
          */
-        collectionView: collections.ICollectionView;
+        readonly collectionView: collections.ICollectionView;
         /**
          * Gets the name of the property to use as a key for the item (data value).
          */
-        selectedValuePath: string;
+        readonly selectedValuePath: string;
         /**
          * Gets the name of the property to use as the visual representation of the item.
          */
-        displayMemberPath: string;
+        readonly displayMemberPath: string;
         /**
          * Gets the key that corresponds to a given display value.
          *
@@ -2560,6 +2664,7 @@ declare module wijmo.grid {
         private _keypress(e);
         private _moveSel(rowMove, colMove, extend);
         private _deleteSel();
+        private _startEditing(fullEdit, evt, r?, c?);
     }
 }
 
@@ -2684,9 +2789,10 @@ declare module wijmo.grid {
          * @param r Index of the row to be edited. Defaults to the currently selected row.
          * @param c Index of the column to be edited. Defaults to the currently selected column.
          * @param focus Whether to give the editor the focus. Defaults to true.
+         * @param evt Event that triggered this action (usually a keypress or keydown).
          * @return True if the edit operation started successfully.
          */
-        startEditing(fullEdit?: boolean, r?: number, c?: number, focus?: boolean): boolean;
+        startEditing(fullEdit?: boolean, r?: number, c?: number, focus?: boolean, evt?: any): boolean;
         /**
          * Commits any pending edits and exits edit mode.
          *
@@ -2697,17 +2803,18 @@ declare module wijmo.grid {
         /**
          * Gets the <b>HTMLInputElement</b> that represents the cell editor currently active.
          */
-        activeEditor: HTMLInputElement;
+        readonly activeEditor: HTMLInputElement;
         /**
          * Gets a @see:CellRange that identifies the cell currently being edited.
          */
-        editRange: CellRange;
+        readonly editRange: CellRange;
+        _getValidationError(): string;
         _allowEditing(r: number, c: number): boolean;
         _commitRowEdits(): void;
         _keydown(e: KeyboardEvent): boolean;
         _keydownListBox(e: KeyboardEvent): boolean;
         _keypress(e: KeyboardEvent): void;
-        _toggleListBox(rng: CellRange): boolean;
+        _toggleListBox(evt: any, rng?: CellRange): boolean;
         private _createListBox();
         private _removeListBox();
     }

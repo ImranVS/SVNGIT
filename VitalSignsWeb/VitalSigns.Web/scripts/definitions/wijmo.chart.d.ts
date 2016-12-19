@@ -1,6 +1,6 @@
 /*
     *
-    * Wijmo Library 5.20162.211
+    * Wijmo Library 5.20163.234
     * http://wijmo.com/
     *
     * Copyright(c) GrapeCity, Inc.  All rights reserved.
@@ -36,7 +36,7 @@ declare module wijmo.chart {
     /**
      * Provides arguments for @see:Series events.
      */
-    class RenderEventArgs extends EventArgs {
+    class RenderEventArgs extends CancelEventArgs {
         _engine: IRenderEngine;
         /**
          * Initializes a new instance of the @see:RenderEventArgs class.
@@ -47,7 +47,30 @@ declare module wijmo.chart {
         /**
          * Gets the @see:IRenderEngine object to use for rendering the chart elements.
          */
-        engine: IRenderEngine;
+        readonly engine: IRenderEngine;
+    }
+    /**
+     * Provides arguments for @see:Series rendering event.
+     */
+    class SeriesRenderingEventArgs extends RenderEventArgs {
+        _index: number;
+        _count: number;
+        /**
+         * Initializes a new instance of the @see:SeriesRenderingEventArgs class.
+         *
+         * @param engine (@see:IRenderEngine) The rendering engine to use.
+         * @param index The index of the series to render.
+         * @param count Total number of the series to render.
+         */
+        constructor(engine: IRenderEngine, index: number, count: number);
+        /**
+         * Gets the index of the series to render.
+         */
+        readonly index: number;
+        /**
+         * Gets total number of series to render.
+         */
+        readonly count: number;
     }
     /**
      * Specifies the format of the image with embed base64-encoded binary data.
@@ -99,7 +122,7 @@ declare module wijmo.chart {
         /**
          * Gets the @see:ICollectionView object that contains the chart data.
          */
-        collectionView: wijmo.collections.ICollectionView;
+        readonly collectionView: wijmo.collections.ICollectionView;
         /**
          * Gets or sets an array of default colors to use for displaying each series.
          *
@@ -385,7 +408,7 @@ declare module wijmo.chart {
         /**
          * Gets the chart's @see:Tooltip.
          */
-        tooltip: ChartTooltip;
+        readonly tooltip: ChartTooltip;
         /**
          * Gets or sets the point data label.
          */
@@ -396,13 +419,13 @@ declare module wijmo.chart {
         selectedIndex: number;
         _getLabelsForLegend(): string[];
         /**
-         * Gets a @see:HitTestInfo object with information about the specified point.
+         * Gets a @see:wijmo.chart.HitTestInfo object with information about the specified point.
          *
          * @param pt The point to investigate, in window coordinates.
          * @param y The Y coordinate of the point (if the first parameter is a number).
-         * @return A HitTestInfo object containing information about the point.
+         * @return A @see:wijmo.chart.HitTestInfo object containing information about the point.
          */
-        hitTest(pt: any, y?: number): HitTestInfo;
+        hitTest(pt: any, y?: number): wijmo.chart.HitTestInfo;
         _performBind(): void;
         _initData(): void;
         _getBindData(item: any, values: any, labels: any, binding: any, bindingName: any): number;
@@ -441,11 +464,11 @@ declare module wijmo.chart {
         constructor(center: Point, radius: number, angle: number, sweep: number);
         contains(pt: Point): boolean;
         distance(pt: Point): number;
-        center: Point;
-        radius: number;
-        langle: number;
-        angle: number;
-        sweep: number;
+        readonly center: Point;
+        readonly radius: number;
+        readonly langle: number;
+        readonly angle: number;
+        readonly sweep: number;
         tag: any;
     }
     class _DonutSegment implements _IHitArea, _ISegment {
@@ -462,12 +485,12 @@ declare module wijmo.chart {
         constructor(center: Point, radius: number, innerRadius: number, angle: number, sweep: number);
         contains(pt: Point): boolean;
         distance(pt: Point): number;
-        center: Point;
-        radius: number;
-        langle: number;
-        angle: number;
-        sweep: number;
-        innerRadius: number;
+        readonly center: Point;
+        readonly radius: number;
+        readonly langle: number;
+        readonly angle: number;
+        readonly sweep: number;
+        readonly innerRadius: number;
         tag: any;
     }
 }
@@ -559,11 +582,11 @@ declare module wijmo.chart {
         /**
          * Gets the collection of @see:Series objects.
          */
-        series: wijmo.collections.ObservableArray;
+        readonly series: wijmo.collections.ObservableArray;
         /**
          * Gets the collection of @see:Axis objects.
          */
-        axes: wijmo.collections.ObservableArray;
+        readonly axes: wijmo.collections.ObservableArray;
         /**
          * Gets or sets the main X axis.
          */
@@ -575,7 +598,7 @@ declare module wijmo.chart {
         /**
          * Gets the collection of @see:PlotArea objects.
          */
-        plotAreas: PlotAreaCollection;
+        readonly plotAreas: PlotAreaCollection;
         /**
          * Gets or sets the name of the property that contains the Y values.
          */
@@ -639,7 +662,7 @@ declare module wijmo.chart {
          *
          * See @see:ChartTooltip properties for more details and options.
          */
-        tooltip: ChartTooltip;
+        readonly tooltip: ChartTooltip;
         /**
          * Gets or sets the point data label.
          */
@@ -660,13 +683,13 @@ declare module wijmo.chart {
          */
         onSeriesVisibilityChanged(e: SeriesEventArgs): void;
         /**
-         * Gets a @see:HitTestInfo object with information about the specified point.
+         * Gets a @see:wijmo.chart.HitTestInfo object with information about the specified point.
          *
          * @param pt The point to investigate, in window coordinates.
          * @param y The Y coordinate of the point (if the first parameter is a number).
-         * @return A HitTestInfo object with information about the point.
+         * @return A @see:wijmo.chart.HitTestInfo object with information about the point.
          */
-        hitTest(pt: any, y?: number): HitTestInfo;
+        hitTest(pt: any, y?: number): wijmo.chart.HitTestInfo;
         /**
          * Converts a @see:Point from control coordinates to chart data coordinates.
          *
@@ -701,12 +724,12 @@ declare module wijmo.chart {
         private _getAxes();
         private _clearPlotters();
         _initPlotter(plotter: _IPlotter): void;
-        private _barPlotter;
-        private _linePlotter;
-        private _areaPlotter;
-        private _bubblePlotter;
-        private _financePlotter;
-        private _funnelPlotter;
+        private readonly _barPlotter;
+        private readonly _linePlotter;
+        private readonly _areaPlotter;
+        private readonly _bubblePlotter;
+        private readonly _financePlotter;
+        private readonly _funnelPlotter;
         _getPlotter(series: SeriesBase): _IPlotter;
         _layout(rect: Rect, size: Size, engine: IRenderEngine): void;
         private _layoutSingle(rect, size, engine);
@@ -725,7 +748,7 @@ declare module wijmo.chart {
         static _toOADate(date: Date): number;
         static _fromOADate(val: number): Date;
         static _renderText(engine: IRenderEngine, text: string, pos: Point, halign: any, valign: any, className?: string, groupName?: string, style?: any, test?: any): Rect;
-        static _renderRotatedText(engine: IRenderEngine, text: string, pos: Point, halign: any, valign: any, center: Point, angle: number, className: string, style?: any): void;
+        static _renderRotatedText(engine: IRenderEngine, text: string, pos: Point, halign: any, valign: any, center: Point, angle: number, className: string, groupClassName?: string, style?: any): void;
     }
     /**
      * Analyzes chart data.
@@ -744,6 +767,7 @@ declare module wijmo.chart {
         private dx;
         constructor();
         analyse(seriesList: any, isRotated: boolean, stacking: Stacking, xvals: Array<number>, logx: boolean, logy: boolean): void;
+        _parseYVal(val: any, xval: any, custom: any, stackAbs: any, stackPos: any, stackNeg: any): void;
         getMinY(): number;
         getMaxY(): number;
         getMinX(): number;
@@ -778,7 +802,7 @@ declare module wijmo.chart {
          * Gets or sets the tooltip content.
          *
          * The tooltip content can be specified as a string or as a function that
-         * takes a @see:HitTestInfo object as a parameter.
+         * takes a @see:wijmo.chart.HitTestInfo object as a parameter.
          *
          * When the tooltip content is a string, it may contain any of the following
          * parameters:
@@ -818,18 +842,18 @@ declare module wijmo.chart {
 }
 
 /**
-* Defines the @see:FlexChart control and its associated classes.
-*
-* The example below creates a @see:FlexChart control and binds it to a data array.
-* The chart has three series, each corresponding to a property in the objects
-* contained in the source array.
-*
-* The last series in the example uses the @see:Series.chartType property to
-* override the default chart type used
-* by the other series.
-*
-* @fiddle:6GB66
-*/
+ * Defines the @see:FlexChart control and its associated classes.
+ *
+ * The example below creates a @see:FlexChart control and binds it to a data array.
+ * The chart has three series, each corresponding to a property in the objects
+ * contained in the source array.
+ *
+ * The last series in the example uses the @see:Series.chartType property to
+ * override the default chart type used
+ * by the other series.
+ *
+ * @fiddle:6GB66
+ */
 declare module wijmo.chart {
     /**
      * Specifies the chart type.
@@ -876,6 +900,8 @@ declare module wijmo.chart {
         SplineArea = 11,
         /** Displays funnel chart.*/
         Funnel = 12,
+        /** Displays Box & Whisker chart.*/
+        BoxPlot = 13,
     }
     /**
      * The @see:FlexChart control provides a powerful and flexible way to visualize
@@ -911,7 +937,7 @@ declare module wijmo.chart {
         chartType: ChartType;
         /**
          * Gets or sets a value indicating whether to flip the axes so that
-         * X is vertical and Y is horizontal.
+         * X becomes vertical and Y becomes horizontal.
          */
         rotated: boolean;
         /**
@@ -945,6 +971,35 @@ declare module wijmo.chart {
          *
          * <pre>chart.options = {
          *   funnel: { neckWidth: 0.3, neckHeight: 0.3, type: 'rectangle' }
+         * }</pre>
+
+         * <b>boxPlot.groupWidth</b>: Specifies the group width as a percentage for the Box&Whisker chart.
+         * The default value is 0.8.
+         *
+         * <b>boxPlot.gapWidth</b>: Specifies the gap width as a percentage for the Box&Whisker chart.
+         * The default value is 0.1.
+         *
+         * <b>boxPlot.showMeanLine</b>: Specifies whether to show the mean line for the Box&Whisker chart.
+         * The default value is false.
+         *
+         * <b>boxPlot.meanLineStyle</b>: Specifies the style for the mean line.
+         *
+         * <b>boxPlot.showMeanMarker</b>: Specifies whether to show the mean marker for the Box&Whisker chart.
+         * The default value is false.
+         *
+         * <b>boxPlot.showInnerPoints</b>: Specifies whether to show the inner points for the Box&Whisker chart.
+         * The default value is false.
+         *
+         * <b>boxPlot.showOutliers</b>: Specifies whether to show the outliers for the Box&Whisker chart.
+         * The default value is false.
+         *
+         * <b>boxPlot.meanMarkerStyle</b>: Specifies the style for the mean marker.
+
+         * <b>boxPlot.quartileCalculation</b>: Specifies the quartile calculation for the Box&Whisker chart.
+         *  It should be 'include' or 'exclude' for Inclusive Median and Exclusive Median.
+         *
+         * <pre>chart.options = {
+         *   boxPlot: { groupWidth: 0.5, neckHeight: 0.3, showMeanMarker: true, showMeanLine: true }
          * }</pre>
 
          * <b>groupWidth</b>: Specifies the group width for the Column charts,
@@ -1091,19 +1146,19 @@ declare module wijmo.chart {
         /**
          * Gets the axis host element.
          */
-        hostElement: SVGGElement;
+        readonly hostElement: SVGGElement;
         /**
          * Gets the actual axis minimum.
          *
          * It returns a number or a Date object (for time-based data).
         */
-        actualMin: any;
+        readonly actualMin: any;
         /**
         * Gets the actual axis maximum.
         *
         * It returns a number or a Date object (for time-based data).
         */
-        actualMax: any;
+        readonly actualMax: any;
         /**
          * Gets or sets the minimum value shown on the axis.
          *
@@ -1271,6 +1326,7 @@ declare module wijmo.chart {
          * Gets or sets the label padding.
          */
         labelPadding: number;
+        readonly _groupClass: string;
         /**
          * Occurs when the axis range changes.
          */
@@ -1344,7 +1400,7 @@ declare module wijmo.chart {
         /**
          * Gets the axis type.
          */
-        axisType: AxisType;
+        readonly axisType: AxisType;
         _getMinNum(): number;
         _getMaxNum(): number;
         private _invalidate();
@@ -1358,7 +1414,7 @@ declare module wijmo.chart {
         private _nicePrecision(range);
         private _niceTickNumber(x);
         private _niceNumber(x, exp, round);
-        _uniqueId: number;
+        readonly _uniqueId: number;
     }
     /**
      * Represents a collection of @see:Axis objects in a @see:FlexChart control.
@@ -1540,7 +1596,7 @@ declare module wijmo.chart {
         /**
          * Gets the @see:Series object affected by this event.
          */
-        series: SeriesBase;
+        readonly series: SeriesBase;
     }
     /**
      * Represents a series of data points to display in the chart.
@@ -1572,6 +1628,7 @@ declare module wijmo.chart {
         private _visibility;
         private _axisX;
         private _axisY;
+        private __plotter;
         _legendElement: SVGAElement;
         _hostElement: SVGGElement;
         _pointIndexes: number[];
@@ -1627,19 +1684,19 @@ declare module wijmo.chart {
         /**
          * Gets the @see:ICollectionView object that contains the data for this series.
          */
-        collectionView: wijmo.collections.ICollectionView;
+        readonly collectionView: wijmo.collections.ICollectionView;
         /**
          * Gets the @see:FlexChart object that owns this series.
          */
-        chart: FlexChartCore;
+        readonly chart: FlexChartCore;
         /**
          * Gets the series host element.
          */
-        hostElement: SVGGElement;
+        readonly hostElement: SVGGElement;
         /**
          * Gets the series element in the legend.
          */
-        legendElement: SVGGElement;
+        readonly legendElement: SVGGElement;
         /**
          * Gets or sets the series CSS class.
          */
@@ -1656,15 +1713,27 @@ declare module wijmo.chart {
          * Raises the @see:rendering event.
          *
          * @param engine The @see:IRenderEngine object used to render the series.
+         * @param index The index of the series to render.
+         * @param count Total number of the series to render.
          */
-        onRendering(engine: IRenderEngine): void;
+        onRendering(engine: IRenderEngine, index: number, count: number): boolean;
         /**
-         * Gets a @see:HitTestInfo object with information about the specified point.
+         * Occurs when series is rendered.
+         */
+        rendered: Event;
+        /**
+         * Raises the @see:rendered event.
+         *
+         * @param engine The @see:IRenderEngine object used to render the series.
+         */
+        onRendered(engine: IRenderEngine): void;
+        /**
+         * Gets a @see:wijmo.chart.HitTestInfo object with information about the specified point.
          *
          * @param pt The point to investigate, in window coordinates.
          * @param y The Y coordinate of the point (if the first parameter is a number).
          */
-        hitTest(pt: any, y?: number): HitTestInfo;
+        hitTest(pt: any, y?: number): wijmo.chart.HitTestInfo;
         /**
          * Gets the plot element that corresponds to the specified point index.
          *
@@ -1679,6 +1748,7 @@ declare module wijmo.chart {
          * Gets or sets the y-axis for the series.
          */
         axisY: Axis;
+        _plotter: _IPlotter;
         getDataType(dim: number): DataType;
         getValues(dim: number): number[];
         /**
@@ -1735,8 +1805,6 @@ declare module wijmo.chart {
         _getAltSymbolStroke(seriesIndex?: number): string;
         _getAltSymbolFill(seriesIndex?: number): string;
         _renderLabels(engine: IRenderEngine, smap: _IHitArea[], chart: FlexChartCore, lblAreas: _RectArea[]): void;
-        _getLabelPoint(dataPoint: _DataPoint): Point;
-        _renderLabel(engine: IRenderEngine, s: string, index: number, pos: LabelPosition, offset: number, pt: Point, line: boolean, marg: any): Rect;
     }
 }
 
@@ -1850,7 +1918,7 @@ declare module wijmo.chart {
         beginRender(): void;
         endRender(): void;
         setViewportSize(w: number, h: number): void;
-        element: Element;
+        readonly element: Element;
         fill: string;
         fontSize: string;
         fontFamily: string;
@@ -1954,7 +2022,7 @@ declare module wijmo.chart {
         private __yfmt;
         private _name;
         /**
-         * Initializes a new instance of the @see:HitTestInfo class.
+         * Initializes a new instance of the @see:wijmo.chart.HitTestInfo class.
          *
          * @param chart The chart control.
          * @param point The original point in window coordinates.
@@ -1962,42 +2030,42 @@ declare module wijmo.chart {
          */
         constructor(chart: FlexChartBase, point: Point, element?: ChartElement);
         /**
-         * Gets the point in control coordinates to which this HitTestInfo object
-         * refers to.
+         * Gets the point in control coordinates to which this @see:wijmo.chart.HitTestInfo
+         * object refers to.
          */
-        point: Point;
+        readonly point: Point;
         /**
          * Gets the chart series at the specified coordinates.
          */
-        series: SeriesBase;
+        readonly series: SeriesBase;
         /**
          * Gets the data point index at the specified coordinates.
          */
-        pointIndex: number;
+        readonly pointIndex: number;
         /**
          * Gets the chart element at the specified coordinates.
          */
-        chartElement: ChartElement;
+        readonly chartElement: ChartElement;
         /**
          * Gets the distance from the closest data point.
          */
-        distance: number;
+        readonly distance: number;
         /**
          * Gets the data object that corresponds to the closest data point.
          */
-        item: any;
+        readonly item: any;
         /**
          * Gets the x-value of the closest data point.
          */
-        x: any;
+        readonly x: any;
         /**
          * Gets the y-value of the closest data point.
          */
-        y: any;
-        value: any;
-        name: any;
-        _xfmt: any;
-        _yfmt: any;
+        readonly y: any;
+        readonly value: any;
+        readonly name: any;
+        readonly _xfmt: any;
+        readonly _yfmt: any;
         _setData(series: SeriesBase, pi?: number): void;
         _setDataPoint(dataPoint: _DataPoint): void;
         private _getValue(index, formatted);
@@ -2127,15 +2195,15 @@ declare module wijmo.chart {
         /**
          * Gets the point associated with the label in control coordinates.
          */
-        point: Point;
+        readonly point: Point;
         /**
          * Gets or sets the label text.
          */
-        text: string;
+        readonly text: string;
         /**
          * Gets the hit test information.
          */
-        hitTestInfo: HitTestInfo;
+        readonly hitTestInfo: wijmo.chart.HitTestInfo;
     }
     /**
     * Represents the base abstract class for the @see:DataLabel and the @see:PieDataLabel classes.
@@ -2150,7 +2218,7 @@ declare module wijmo.chart {
          * Gets or sets the content of data labels.
          *
          * The content can be specified as a string or as a function that
-         * takes @see:HitTestInfo object as a parameter.
+         * takes @see:wijmo.chart.HitTestInfo object as a parameter.
          *
          * When the label content is a string, it can contain any of the following
          * parameters:
@@ -2351,7 +2419,7 @@ declare module wijmo.chart {
         /**
          * Gets the @see:FlexChart object that owns the LineMarker.
          */
-        chart: FlexChartCore;
+        readonly chart: FlexChartCore;
         /**
          * Gets or sets the visibility of the LineMarker.
          */
@@ -2375,11 +2443,11 @@ declare module wijmo.chart {
         /**
          * Gets the current x-value as chart data coordinates.
          */
-        x: number;
+        readonly x: number;
         /**
          * Gets the current y-value as chart data coordinates.
          */
-        y: number;
+        readonly y: number;
         /**
          * Gets or sets the content function that allows you to customize the text content of the LineMarker.
          */
@@ -2478,8 +2546,8 @@ declare module wijmo.chart {
         private _dataX;
         private _dataY;
         constructor(seriesIndex: number, pointIndex: number, dataX: number, dataY: number);
-        seriesIndex: number;
-        pointIndex: number;
+        readonly seriesIndex: number;
+        readonly pointIndex: number;
         dataX: number;
         dataY: number;
     }
@@ -2491,7 +2559,7 @@ declare module wijmo.chart {
     class _RectArea implements _IHitArea {
         private _rect;
         constructor(rect: Rect);
-        rect: Rect;
+        readonly rect: Rect;
         tag: any;
         contains(pt: Point): boolean;
         pointDistance(pt1: Point, pt2: Point, option: _MeasureOption): number;
@@ -2504,7 +2572,7 @@ declare module wijmo.chart {
         tag: any;
         constructor(center: Point, radius: number);
         setRadius(radius: number): void;
-        center: Point;
+        readonly center: Point;
         contains(pt: Point): boolean;
         distance(pt: Point): number;
     }
@@ -2548,6 +2616,8 @@ declare module wijmo.chart {
         rotated: boolean;
         adjustLimits(dataInfo: _DataInfo, plotRect: Rect): Rect;
         plotSeries(engine: IRenderEngine, ax: _IAxis, ay: _IAxis, series: _ISeries, palette: _IPalette, iser: number, nser: number): any;
+        _renderLabels(engine: IRenderEngine, series: SeriesBase, smap: _IHitArea[], chart: FlexChartCore, lblAreas: _RectArea[]): any;
+        _renderLabel(engine: IRenderEngine, map: _IHitArea, dp: _DataPoint, chart: FlexChartCore, lbl: DataLabel, series: SeriesBase, offset: number, lblAreas: _RectArea[]): any;
         load(): any;
         unload(): any;
     }
@@ -2564,6 +2634,11 @@ declare module wijmo.chart {
         seriesIndex: number;
         seriesCount: number;
         clear(): void;
+        _renderLabels(engine: IRenderEngine, series: SeriesBase, smap: _IHitArea[], chart: FlexChartCore, lblAreas: _RectArea[]): void;
+        _renderLabel(engine: IRenderEngine, map: _IHitArea, dp: _DataPoint, chart: FlexChartCore, lbl: DataLabel, series: SeriesBase, offset: number, lblAreas: _RectArea[]): void;
+        _getPointAndPosition(pt: Point, pos: LabelPosition, map: _IHitArea, chart: FlexChartCore): void;
+        _getLabelPoint(series: SeriesBase, dataPoint: _DataPoint): Point;
+        _renderLabelAndBorder(engine: IRenderEngine, s: string, pos: LabelPosition, offset: number, pt: Point, line: boolean, marg: any, border: boolean): Rect;
         getNumOption(name: string, parent?: string): number;
         static cloneStyle(style: any, ignore: string[]): any;
         isValid(datax: number, datay: number, ax: _IAxis, ay: _IAxis): boolean;
@@ -2696,6 +2771,7 @@ declare module wijmo.chart {
         private _getTrapezoidOffsetY(width, area, angle);
         private drawSymbol(engine, rect, series, pointIndex, point);
         private drawDefaultSymbol(engine, rect, series);
+        _getPointAndPosition(pt: Point, pos: LabelPosition, map: _IHitArea, chart: FlexChartCore): void;
     }
     class _FunnelSegment implements _IHitArea {
         private _center;
@@ -2709,7 +2785,7 @@ declare module wijmo.chart {
         constructor(startPoint: Point, width: number, height: number, neckWidth: number, neckHeight: number);
         contains(pt: Point): boolean;
         distance(pt: Point): number;
-        center: Point;
+        readonly center: Point;
         tag: any;
     }
 }

@@ -1,6 +1,6 @@
 /*
     *
-    * Wijmo Library 5.20162.211
+    * Wijmo Library 5.20163.234
     * http://wijmo.com/
     *
     * Copyright(c) GrapeCity, Inc.  All rights reserved.
@@ -11,9 +11,9 @@
     *
     */
 /**
-* Contains utilities used by all controls and modules, as well as the
-* @see:Control and @see:Event classes.
-*/
+ * Contains utilities used by all controls and modules, as well as the
+ * @see:Control and @see:Event classes.
+ */
 declare module wijmo {
     /**
      * Gets the version of the Wijmo library that is currently loaded.
@@ -635,11 +635,11 @@ declare module wijmo {
         /**
          * Gets the right coordinate of this @see:Rect.
          */
-        right: number;
+        readonly right: number;
         /**
          * Gets the bottom coordinate of this @see:Rect.
          */
-        bottom: number;
+        readonly bottom: number;
         /**
          * Returns true if a @see:Rect has the same coordinates and dimensions
          * as this @see:Rect.
@@ -1043,6 +1043,7 @@ declare module wijmo {
         private static _expandFormat(format);
         private static _zeroPad(num, places);
         private static _h12(d);
+        private static _mul100(n);
     }
 }
 
@@ -1171,7 +1172,7 @@ declare module wijmo {
         /**
          * Gets a value that indicates whether this event has any handlers.
          */
-        hasHandlers: boolean;
+        readonly hasHandlers: boolean;
     }
     /**
      * Base class for event arguments.
@@ -1209,15 +1210,15 @@ declare module wijmo {
         /**
          * Gets the name of the property whose value changed.
          */
-        propertyName: string;
+        readonly propertyName: string;
         /**
          * Gets the old value of the property.
          */
-        oldValue: any;
+        readonly oldValue: any;
         /**
          * Gets the new value of the property.
          */
-        newValue: any;
+        readonly newValue: any;
     }
     /**
      * Provides arguments for @see:XMLHttpRequest error events.
@@ -1238,7 +1239,7 @@ declare module wijmo {
          * The status and statusText properties of the request object contain
          * details about the error.
          */
-        request: XMLHttpRequest;
+        readonly request: XMLHttpRequest;
     }
 }
 
@@ -1333,7 +1334,7 @@ declare module wijmo {
         /**
          * Gets the DOM element that is hosting the control.
          */
-        hostElement: HTMLElement;
+        readonly hostElement: HTMLElement;
         /**
          * Sets the focus to this control.
          */
@@ -1398,7 +1399,7 @@ declare module wijmo {
         /**
          * Gets a value that indicates whether the control is currently being updated.
          */
-        isUpdating: boolean;
+        readonly isUpdating: boolean;
         /**
          * Executes a function within a @see:beginUpdate/@see:endUpdate block.
          *
@@ -1412,7 +1413,7 @@ declare module wijmo {
         /**
          * Gets a value that indicates whether the control is currently handling a touch event.
          */
-        isTouching: boolean;
+        readonly isTouching: boolean;
         /**
          * Gets or sets a value that determines whether the control is disabled.
          *
@@ -1657,11 +1658,11 @@ declare module wijmo.collections {
         /**
          * Gets the name of the property used to sort.
          */
-        property: string;
+        readonly property: string;
         /**
          * Gets a value that determines whether to sort the values in ascending order.
          */
-        ascending: boolean;
+        readonly ascending: boolean;
     }
     /**
      * Enables collections to have the functionalities of current record management,
@@ -1816,27 +1817,27 @@ declare module wijmo.collections {
          */
         canCancelEdit: boolean;
         /**
-`        * Gets a value that indicates whether items can be removed from the collection.
+         * Gets a value that indicates whether items can be removed from the collection.
          */
         canRemove: boolean;
         /**
-`        * Gets the item that is being added during the current add transaction.
+         * Gets the item that is being added during the current add transaction.
          */
         currentAddItem: any;
         /**
-`        * Gets the item that is being edited during the current edit transaction.
+         * Gets the item that is being edited during the current edit transaction.
          */
         currentEditItem: any;
         /**
-`        * Gets a value that indicates whether an add transaction is in progress.
+         * Gets a value that indicates whether an add transaction is in progress.
          */
         isAddingNew: boolean;
         /**
-`        * Gets a value that indicates whether an edit transaction is in progress.
+         * Gets a value that indicates whether an edit transaction is in progress.
          */
         isEditingItem: boolean;
         /**
-`        * Adds a new item to the collection.
+         * Adds a new item to the collection.
          *
          * @return The item that was added to the collection.
          */
@@ -1883,15 +1884,15 @@ declare module wijmo.collections {
      */
     interface IPagedCollectionView extends ICollectionView {
         /**
-`        * Gets a value that indicates whether the @see:pageIndex value can change.
+         * Gets a value that indicates whether the @see:pageIndex value can change.
          */
         canChangePage: boolean;
         /**
-`        * Gets a value that indicates whether the index is changing.
+         * Gets a value that indicates whether the index is changing.
          */
         isPageChanging: boolean;
         /**
-`        * Gets the number of items in the view taking paging into account.
+         * Gets the number of items in the view taking paging into account.
          *
          * To get the total number of items, use the @see:totalItemCount property.
          *
@@ -1901,15 +1902,15 @@ declare module wijmo.collections {
          */
         itemCount: number;
         /**
-`        * Gets the zero-based index of the current page.
+         * Gets the zero-based index of the current page.
          */
         pageIndex: number;
         /**
-`        * Gets or sets the number of items to display on a page.
+         * Gets or sets the number of items to display on a page.
          */
         pageSize: number;
         /**
-`        * Gets the total number of items in the view before paging is applied.
+         * Gets the total number of items in the view before paging is applied.
          *
          * To get the number of items in the current view not taking paging into
          * account, use the @see:itemCount property.
@@ -2026,7 +2027,7 @@ declare module wijmo.collections {
          * the group name is the property value for the item.
          */
         constructor(property: string, converter?: Function);
-        propertyName: string;
+        readonly propertyName: string;
         /**
          * Returns the group name for the given item.
          *
@@ -2169,7 +2170,7 @@ declare module wijmo.collections {
          * Gets a value that indicates whether notifications are currently suspended
          * (see @see:beginUpdate and @see:endUpdate).
          */
-        isUpdating: boolean;
+        readonly isUpdating: boolean;
         /**
          * Executes a function within a @see:beginUpdate/@see:endUpdate block.
          *
@@ -2272,6 +2273,7 @@ declare module wijmo.collections {
         _chgEdited: ObservableArray;
         _srtCvt: Function;
         _srtCmp: Function;
+        _getError: Function;
         /**
          * Initializes a new instance of the @see:CollectionView class.
          *
@@ -2329,7 +2331,8 @@ declare module wijmo.collections {
          * algorithms that in some cases result in sorting sequences that are
          * more consistent with user's expectations than plain string comparisons.
          *
-         * For example, see <a href="http://www.davekoelle.com/alphanum.html">Dave Koele's Alphanum algorithm</a>.
+         * For example, see
+         * <a href="http://www.davekoelle.com/alphanum.html">Dave Koele's Alphanum algorithm</a>.
          * It breaks up strings into chunks composed of strings or numbers, then
          * sorts number chunks in value order and string chunks in ASCII order.
          * Dave calls the result a "natural sorting order".
@@ -2369,12 +2372,6 @@ declare module wijmo.collections {
          */
         getAggregate(aggType: Aggregate, binding: string, currentPage?: boolean): any;
         /**
-         * Returns true if the caller queries for a supported interface.
-         *
-         * @param interfaceName Name of the interface to look for.
-         */
-        implementsInterface(interfaceName: string): boolean;
-        /**
          * Gets or sets a value that determines whether the control should
          * track changes to the data.
          *
@@ -2400,17 +2397,17 @@ declare module wijmo.collections {
          * Gets an @see:ObservableArray containing the records that were added to
          * the collection since @see:trackChanges was enabled.
          */
-        itemsAdded: ObservableArray;
+        readonly itemsAdded: ObservableArray;
         /**
          * Gets an @see:ObservableArray containing the records that were removed from
          * the collection since @see:trackChanges was enabled.
          */
-        itemsRemoved: ObservableArray;
+        readonly itemsRemoved: ObservableArray;
         /**
          * Gets an @see:ObservableArray containing the records that were edited in
          * the collection since @see:trackChanges was enabled.
          */
-        itemsEdited: ObservableArray;
+        readonly itemsEdited: ObservableArray;
         /**
          * Clears all changes by removing all items in the @see:itemsAdded,
          * @see:itemsRemoved, and @see:itemsEdited collections.
@@ -2419,6 +2416,45 @@ declare module wijmo.collections {
          * after refreshing the data from the server.
          */
         clearChanges(): void;
+        /**
+         * Returns true if the caller queries for a supported interface.
+         *
+         * @param interfaceName Name of the interface to look for.
+         */
+        implementsInterface(interfaceName: string): boolean;
+        /**
+         * Gets or sets a callback that determines whether a specific property
+         * of an item contains validation errors.
+         *
+         * If provided, the callback should take two parameters containing the
+         * item and the property to validate, and should return a string describing
+         * the error (or null if there are no errors).
+         *
+         * For example:
+         *
+         * <pre>var view = new wijmo.collections.CollectionView(data, {
+         *     getError: function (item, property) {
+         *         switch (property) {
+         *             case 'country':
+         *                 return countries.indexOf(item.country) &lt; 0
+         *                     ? 'Invalid Country'
+         *                     : null;
+         *             case 'downloads':
+         *             case 'sales':
+         *             case 'expenses':
+         *                 return item[property] &lt; 0
+         *                     ? 'Cannot be negative!'
+         *                     : null;
+         *             case 'active':
+         *                 return item.active && item.country.match(/US|UK/)
+         *                     ? 'No active items allowed in the US or UK!'
+         *                     : null;
+         *         }
+         *         return null;
+         *     }
+         * });</pre>
+         */
+        getError: Function;
         /**
          * Occurs when the collection changes.
          */
@@ -2470,7 +2506,7 @@ declare module wijmo.collections {
         /**
          * Gets the ordinal position of the current item in the view.
          */
-        currentPosition: number;
+        readonly currentPosition: number;
         /**
          * Gets or sets a callback used to determine if an item is suitable for
          * inclusion in the view.
@@ -2490,21 +2526,21 @@ declare module wijmo.collections {
          * Gets a collection of @see:GroupDescription objects that describe how the
          * items in the collection are grouped in the view.
          */
-        groupDescriptions: ObservableArray;
+        readonly groupDescriptions: ObservableArray;
         /**
          * Gets an array of @see:CollectionViewGroup objects that represents the
          * top-level groups.
          */
-        groups: CollectionViewGroup[];
+        readonly groups: CollectionViewGroup[];
         /**
          * Gets a value that indicates whether this view contains no items.
          */
-        isEmpty: boolean;
+        readonly isEmpty: boolean;
         /**
          * Gets a collection of @see:SortDescription objects that describe how the items
          * in the collection are sorted in the view.
          */
-        sortDescriptions: ObservableArray;
+        readonly sortDescriptions: ObservableArray;
         /**
          * Gets or sets the underlying (unfiltered and unsorted) collection.
          */
@@ -2573,7 +2609,7 @@ declare module wijmo.collections {
         /**
          * Gets items in the view.
          */
-        items: any[];
+        readonly items: any[];
         /**
          * Suspend refreshes until the next call to @see:endUpdate.
          */
@@ -2586,7 +2622,7 @@ declare module wijmo.collections {
          * Gets a value that indicates whether notifications are currently suspended
          * (see @see:beginUpdate and @see:endUpdate).
          */
-        isUpdating: boolean;
+        readonly isUpdating: boolean;
         /**
          * Executes a function within a @see:beginUpdate/@see:endUpdate block.
          *
@@ -2613,24 +2649,39 @@ declare module wijmo.collections {
         /**
          * Gets the item that is being added during the current add transaction.
          */
-        currentAddItem: any;
+        readonly currentAddItem: any;
         /**
          * Gets the item that is being edited during the current edit transaction.
          */
-        currentEditItem: any;
+        readonly currentEditItem: any;
         /**
          * Gets a value that indicates whether an add transaction is in progress.
          */
-        isAddingNew: boolean;
+        readonly isAddingNew: boolean;
         /**
          * Gets a value that indicates whether an edit transaction is in progress.
          */
-        isEditingItem: boolean;
+        readonly isEditingItem: boolean;
+        /**
+         * Begins an edit transaction of the specified item.
+         *
+         * @param item Item to be edited.
+         */
+        editItem(item: any): void;
+        /**
+         * Ends the current edit transaction and saves the pending changes.
+         */
+        commitEdit(): void;
+        /**
+         * Ends the current edit transaction and, if possible,
+         * restores the original value to the item.
+         */
+        cancelEdit(): void;
         /**
          * Creates a new item and adds it to the collection.
          *
          * This method takes no parameters. It creates a new item, adds it to the
-         * collection, and prevents refresh operations until the new item is
+         * collection, and defers refresh operations until the new item is
          * committed using the @see:commitNew method or canceled using the
          * @see:cancelNew method.
          *
@@ -2657,28 +2708,13 @@ declare module wijmo.collections {
          */
         addNew(): any;
         /**
-         * Ends the current edit transaction and, if possible,
-         * restores the original value to the item.
-         */
-        cancelEdit(): void;
-        /**
-         * Ends the current add transaction and discards the pending new item.
-         */
-        cancelNew(): void;
-        /**
-         * Ends the current edit transaction and saves the pending changes.
-         */
-        commitEdit(): void;
-        /**
          * Ends the current add transaction and saves the pending new item.
          */
         commitNew(): void;
         /**
-         * Begins an edit transaction of the specified item.
-         *
-         * @param item Item to be edited.
+         * Ends the current add transaction and discards the pending new item.
          */
-        editItem(item: any): void;
+        cancelNew(): void;
         /**
          * Removes the specified item from the collection.
          *
@@ -2703,15 +2739,15 @@ declare module wijmo.collections {
         /**
          * Gets a value that indicates whether the page index is changing.
          */
-        isPageChanging: boolean;
+        readonly isPageChanging: boolean;
         /**
          * Gets the total number of items in the view taking paging into account.
          */
-        itemCount: number;
+        readonly itemCount: number;
         /**
          * Gets the zero-based index of the current page.
          */
-        pageIndex: number;
+        readonly pageIndex: number;
         /**
          * Gets or sets the number of items to display on a page.
          */
@@ -2719,11 +2755,11 @@ declare module wijmo.collections {
         /**
          * Gets the total number of items in the view before paging is applied.
          */
-        totalItemCount: number;
+        readonly totalItemCount: number;
         /**
          * Gets the total number of pages.
          */
-        pageCount: number;
+        readonly pageCount: number;
         /**
          * Sets the first page as the current page.
          *
@@ -2802,12 +2838,12 @@ declare module wijmo.collections {
          * @param isBottomLevel Whether this group has any subgroups.
          */
         constructor(groupDescription: GroupDescription, name: string, level: number, isBottomLevel: boolean);
-        name: string;
-        level: number;
-        isBottomLevel: boolean;
-        items: any[];
-        groups: CollectionViewGroup[];
-        groupDescription: GroupDescription;
+        readonly name: string;
+        readonly level: number;
+        readonly isBottomLevel: boolean;
+        readonly items: any[];
+        readonly groups: CollectionViewGroup[];
+        readonly groupDescription: GroupDescription;
         /**
          * Calculates an aggregate value for the items in this group.
          *
@@ -2894,7 +2930,7 @@ declare module wijmo {
         /**
          * Gets whether the tooltip is currently visible.
          */
-        isVisible: boolean;
+        readonly isVisible: boolean;
         /**
          * Gets or sets a value that determines whether the tooltip contents
          * should be displayed as plain text or as HTML.
@@ -3349,7 +3385,7 @@ declare module wijmo {
         /**
          * Gets a value that indicates whether the mask has been completely filled.
          */
-        maskFull: boolean;
+        readonly maskFull: boolean;
         /**
          * Gets an array with the position of the first and last wildcard characters in the mask.
          */
