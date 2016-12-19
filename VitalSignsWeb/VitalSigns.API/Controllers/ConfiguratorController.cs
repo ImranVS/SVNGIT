@@ -1967,6 +1967,7 @@ namespace VitalSigns.API.Controllers
         ///Get Sametime Websphere data
         /// </summary>
         /// <author>Swathi</author>
+       
         [HttpGet("get_sametime_websphere/{id}")]
         public APIResponse GetWebSphereSametimeData(string id)
         {
@@ -2058,7 +2059,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        /// <summary>
+         /// <summary>
         /// 
         /// </summary>
         /// <author></author>
@@ -2103,43 +2104,44 @@ namespace VitalSigns.API.Controllers
                             {
                                 List<WebSphereNode> nodes = new List<WebSphereNode>();
                                 Server server = serversRepository.Get(cellInfo.DeviceId);
+                                if (string.IsNullOrEmpty(cellInfo.DeviceId))
+                                {
+                                    Server sametimeserver = new Server();
+                                    sametimeserver.CellId = ObjectId.GenerateNewId().ToString();
+                                    sametimeserver.CellName = cellInfo.CellName;
+                                    sametimeserver.DeviceName = cellInfo.Name;
+                                    sametimeserver.CellHostName = cellInfo.HostName;
+                                    sametimeserver.ConnectionType = cellInfo.ConnectionType;
+                                    sametimeserver.PortNumber = cellInfo.PortNo;
+                                    sametimeserver.GlobalSecurity = cellInfo.GlobalSecurity;
+                                    sametimeserver.CredentialsId = cellInfo.CredentialsId;
+                                    sametimeserver.Realm = cellInfo.Realm;
+                                    sametimeserver.SametimeId = id;
 
+                                    sametimeserver.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();
+                                    var serverId = serversRepository.Insert(sametimeserver);
+
+                                    Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell inserted successfully");
+                                }
+                                else
+                                {
+
+                                    FilterDefinition<Server> sametimefilterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                                    var updateSametimeDefination = serversRepository.Updater.Set(p => p.CellId, cellInfo.CellId)
+                                                                             .Set(p => p.CellName, cellInfo.CellName)
+                                                                             .Set(p => p.DeviceName, cellInfo.Name)
+                                                                             .Set(p => p.CellHostName, cellInfo.HostName)
+                                                                             .Set(p => p.ConnectionType, cellInfo.ConnectionType)
+                                                                             .Set(p => p.PortNumber, cellInfo.PortNo)
+                                                                             .Set(p => p.GlobalSecurity, cellInfo.GlobalSecurity)
+                                                                             .Set(p => p.CredentialsId, cellInfo.CredentialsId)
+                                                                             .Set(p => p.Realm, cellInfo.Realm);
+                                    var result = serversRepository.Update(sametimefilterDefination, updateSametimeDefination);
+                                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell updated successfully");
+                                }
                                 foreach (var cellNode in cell.Nodes.Node)
                                 {
-                                    if (string.IsNullOrEmpty(cellInfo.DeviceId))
-                                    {
-                                        Server sametimeserver = new Server();
-                                        sametimeserver.CellId = ObjectId.GenerateNewId().ToString();
-                                        sametimeserver.CellName = cellInfo.CellName;
-                                        sametimeserver.DeviceName = cellInfo.Name;
-                                        sametimeserver.CellHostName = cellInfo.HostName;
-                                        sametimeserver.ConnectionType = cellInfo.ConnectionType;
-                                        sametimeserver.PortNumber = cellInfo.PortNo;
-                                        sametimeserver.GlobalSecurity = cellInfo.GlobalSecurity;
-                                        sametimeserver.CredentialsId = cellInfo.CredentialsId;
-                                        sametimeserver.Realm = cellInfo.Realm;
-                                        sametimeserver.SametimeId = id;
 
-                                        server.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();
-                                        var serverId = serversRepository.Insert(server);
-                                        Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell inserted successfully");
-                                    }
-                                    else
-                                    {
-
-                                        FilterDefinition<Server> sametimefilterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
-                                        var updateSametimeDefination = serversRepository.Updater.Set(p => p.CellId, cellInfo.CellId)
-                                                                                 .Set(p => p.CellName, cellInfo.CellName)
-                                                                                 .Set(p => p.DeviceName, cellInfo.Name)
-                                                                                 .Set(p => p.CellHostName, cellInfo.HostName)
-                                                                                 .Set(p => p.ConnectionType, cellInfo.ConnectionType)
-                                                                                 .Set(p => p.PortNumber, cellInfo.PortNo)
-                                                                                 .Set(p => p.GlobalSecurity, cellInfo.GlobalSecurity)
-                                                                                 .Set(p => p.CredentialsId, cellInfo.CredentialsId)
-                                                                                 .Set(p => p.Realm, cellInfo.Realm);
-                                        var result = serversRepository.Update(sametimefilterDefination, updateSametimeDefination);
-                                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell updated successfully");
-                                    }
 
 
                                     WebSphereNode node = new WebSphereNode();
@@ -2157,9 +2159,10 @@ namespace VitalSigns.API.Controllers
                                     }
                                     nodes.Add(node);
                                 }
-                                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                                var deviceId = serversRepository.Collection.AsQueryable().FirstOrDefault(x => x.SametimeId == id);
+                                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == deviceId.Id);
                                 var updateDefination = serversRepository.Updater.Set(p => p.CellName, cell.Name).Set(p => p.Nodes, nodes);
-                                //  var result = serversRepository.Update(filterDefination, updateDefination);
+                                var noderesult = serversRepository.Update(filterDefination, updateDefination);
                             }
                         }
                         else
