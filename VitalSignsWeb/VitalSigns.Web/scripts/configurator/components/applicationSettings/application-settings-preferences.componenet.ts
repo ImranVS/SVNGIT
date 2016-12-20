@@ -85,12 +85,20 @@ export class PreferencesForm implements OnInit {
             this.formData = null;
             this.formData = new FormData();
             this.formData.append("licKey", licencekey);
+            this.appComponentService.showProgressBar();
             this.dataProvider.put('/configurator/save_licence', this.formData)
                 .subscribe(
                 response => {
                     this.dataProvider.get('/configurator/get_preferences')
                         .subscribe(
                         response => {
+                            this.appComponentService.hideProgressBar();
+                            if (response.status == "Success") {
+                                this.appComponentService.showSuccessMessage("License Key Updated Successfully!");
+                            }
+                            else {
+                                this.appComponentService.showErrorMessage("Error updating the license key!");
+                            }
                             this.expirationDate = response.data.licenseitem.ExpirationDate;
                             this.units = response.data.licenseitem.units;
                             this.companyName = response.data.licenseitem.CompanyName;
