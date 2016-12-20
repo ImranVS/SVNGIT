@@ -892,25 +892,25 @@ Partial Public Class VitalSignsPlusDomino
 
                     Try
                         If entity.CpuThreshold Is Nothing Then
-                            .CPU_Threshold = 90
+                            .CPU_Threshold = 0.9
                             '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
                         Else
-                            .CPU_Threshold = entity.CpuThreshold * 100
+                            .CPU_Threshold = entity.CpuThreshold
                         End If
                     Catch ex As Exception
-                        .CPU_Threshold = 90
+                        .CPU_Threshold = 0.9
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino server CPU Utilization threshold Not set, using default of 90%.")
                     End Try
 
                     Try
                         If entity.MemoryThreshold Is Nothing Then
-                            .Memory_Threshold = 90
+                            .Memory_Threshold = 0.9
                             '  WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Pending Mail threshold Not set, using default of 50.")
                         Else
-                            .Memory_Threshold = entity.MemoryThreshold * 100
+                            .Memory_Threshold = entity.MemoryThreshold
                         End If
                     Catch ex As Exception
-                        .Memory_Threshold = 90
+                        .Memory_Threshold = 0.9
                         WriteAuditEntry(Now.ToString & " " & .Name & " Domino server memory usage threshold Not set, using default of 90%.")
                     End Try
 

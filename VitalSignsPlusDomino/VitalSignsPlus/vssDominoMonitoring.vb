@@ -2001,7 +2001,7 @@ WaitHere:
 
                     Try
                         '  myCPU = CType(myCPUString, Double)
-                        MyDominoServer.CPU_Utilization = myCPU
+                        MyDominoServer.CPU_Utilization = myCPU / 100
                     Catch ex As Exception
                         MyDominoServer.CPU_Utilization = 0
                     End Try
@@ -2013,13 +2013,13 @@ WaitHere:
                     End Try
 
                     Try
-                        If myCPU > MyDominoServer.CPU_Threshold And MyDominoServer.CPU_Threshold > 0 Then
+                        If MyDominoServer.CPU_Utilization > MyDominoServer.CPU_Threshold And MyDominoServer.CPU_Threshold > 0 Then
                             MyDominoServer.Status = "Insufficient CPU"
-                            MyDominoServer.ResponseDetails += "The CPU utilization on this server exceeds the alert threshold of " & MyDominoServer.CPU_Threshold & "%. " & vbCrLf
-                            MyDominoServer.Description = "The CPU utilization on this server exceeds the alert threshold of " & MyDominoServer.CPU_Threshold & "%. "
-                            myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "CPU", "The CPU utilization on this server exceeds the alert threshold of " & MyDominoServer.CPU_Threshold & "%.", MyDominoServer.Location)
+                            MyDominoServer.ResponseDetails += "The CPU utilization on this server exceeds the alert threshold of " & (MyDominoServer.CPU_Threshold * 100) & "%. " & vbCrLf
+                            MyDominoServer.Description = "The CPU utilization on this server exceeds the alert threshold of " & (MyDominoServer.CPU_Threshold * 100) & "%. "
+                            myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "CPU", "The CPU utilization on this server exceeds the alert threshold of " & (MyDominoServer.CPU_Threshold * 100) & "%.", MyDominoServer.Location)
                         Else
-                            myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "CPU", MyDominoServer.Location, "The CPU is at " & MyDominoServer.CPU_Utilization & "%")
+                            myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "CPU", MyDominoServer.Location, "The CPU is at " & (MyDominoServer.CPU_Utilization * 100) & "%")
                         End If
                     Catch ex As Exception
 
@@ -4106,6 +4106,8 @@ SkipTask:
                     MyDominoServer.MemoryPercentUsed = 0
                 End If
 
+
+
                 ' MyDominoServer.MemoryPercentUsed = Convert.ToDouble(PercentRAMinUse)
                 If MyLogLevel = LogLevel.Verbose Then
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " " & PercentRAMinUse & "% of memory is in use.")
@@ -4595,7 +4597,7 @@ skipdrive:
                     PercentFree = MyFreeSpace / MyDiskSize
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Dividing  " & MyFreeSpace.ToString("F1") & " GB by " & MyDiskSize.ToString("F1") & " GB gives free space percentage of " & PercentFree.ToString("P1"))
                 Catch ex As Exception
-                    PercentFree = 100
+                    PercentFree = 1
                 End Try
 
                 Try
@@ -4617,7 +4619,7 @@ skipdrive:
                             GoTo skipdrive2
                         End If
 
-                        If PercentFree > 100 Then
+                        If PercentFree > 1 Then
                             GoTo skipdrive2
                         End If
 
@@ -4663,18 +4665,18 @@ skipdrive:
                             Select Case disk.ThresholdType
                                 Case "Percent"
                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive has " & PercentFree * 100 & " % free space.")
-                                    If PercentFree * 100 < disk.Threshold Then
+                                    If PercentFree < disk.Threshold Then
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive is in an alert condition. ")
                                         MyDominoServer.Status = "Low Disk Space"
                                         If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                             'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                             '3/4/2016 NS modified for VSPLUS-2682
-                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & disk.Threshold & "%", MyDominoServer.Location)
+                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree * 100, 0) & "% available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & (disk.Threshold * 100) & "%", MyDominoServer.Location)
 
                                         Else
                                             ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                             '3/4/2016 NS modified for VSPLUS-2682
-                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% available space on drive " & DiskNames(n) & ". The threshold is " & disk.Threshold & "%", MyDominoServer.Location)
+                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree * 100, 0) & "% available space on drive " & DiskNames(n) & ". The threshold is " & (disk.Threshold * 100) & "%", MyDominoServer.Location)
                                             ' MyDominoServer.ResponseDetails += " - " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & Microsoft.VisualBasic.Strings.Format(row.Item("Threshold"), "##0.#" & "%")
                                             MyDominoServer.ResponseDetails += " | " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & disk.Threshold.ToString & "%"
 
@@ -4732,19 +4734,19 @@ skipdrive:
                     Select Case AllDrivesThresholdType
                         Case "Percent"
                             Try
-                                If PercentFree * 100 < MyDominoServer.DiskThreshold And MyDominoServer.DiskThreshold <> 0 And Trim(DiskNames(n)) <> "" Then
+                                If PercentFree < MyDominoServer.DiskThreshold And MyDominoServer.DiskThreshold <> 0 And Trim(DiskNames(n)) <> "" Then
                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " My threshold is " & MyDominoServer.DiskThreshold)
                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " My percent free is " & PercentFree)
                                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " My disk name is " & Trim(DiskNames(n)))
                                     If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                         'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & MyDominoServer.DiskThreshold & "%", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree, 0) & " available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & (MyDominoServer.DiskThreshold * 100) & "%", MyDominoServer.Location)
 
                                     Else
                                         ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold & "%", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & (MyDominoServer.DiskThreshold * 100) & "%", MyDominoServer.Location)
 
                                     End If
                                     MyDominoServer.Status = "Low Disk Space"
@@ -5234,11 +5236,11 @@ Cleanup:
                 MyDominoServer.Status = "Dead Mail Alert"
                 MyDominoServer.AlertType = DeadMail
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Dead Mail", "The server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages.", MyDominoServer.Location)
+                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Dead Mail", "The server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages with an alert threshold of " + MyDominoServer.DeadThreshold + ".", MyDominoServer.Location)
                 ' myAlert.QueueAlert("Domino", MyDominoServer.Name, "Dead Mail", "The Domino server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages.", MyDominoServer.Location)
             Else
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Dead Mail", MyDominoServer.Location, "The server has " & MyDominoServer.DeadMail & " dead messages.")
+                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Dead Mail", MyDominoServer.Location, "The server has " & MyDominoServer.DeadMail & " dead messages with an alert threshold of " + MyDominoServer.DeadThreshold + ".")
                 If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " No problem with dead mail, Dead Mail= " & MyDominoServer.DeadMail & " Dead mail threshold= " & MyDominoServer.DeadThreshold)
             End If
         Catch ex As Exception
@@ -5299,13 +5301,13 @@ Cleanup:
                     strmsg = "The server " & MyDominoServer.Name & " has at least " & MyDominoServer.HeldMail.ToString & " held messages.  This server is configured to stop counting when the threshold is exceeded."
                 Else
                     '3/4/2016 NS modified for VSPLUS-2682
-                    strmsg = "The server " & MyDominoServer.Name & " has " & MyDominoServer.HeldMail.ToString & " held messages."
+                    strmsg = "The server " & MyDominoServer.Name & " has " & MyDominoServer.HeldMail.ToString & " held messages with an alert threshold of " + MyDominoServer.HeldThreshold + "."
                 End If
 
                 myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Held Mail", strmsg, MyDominoServer.Location)
             Else
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Held Mail", MyDominoServer.Location, "The server has " & MyDominoServer.HeldMail & " held messages.")
+                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Held Mail", MyDominoServer.Location, "The server has " & MyDominoServer.HeldMail & " held messages with an alert threshold of " + MyDominoServer.HeldThreshold + ".")
             End If
         Catch ex As Exception
             If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception calculating Held mail alert: " & ex.ToString)

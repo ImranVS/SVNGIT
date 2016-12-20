@@ -876,8 +876,8 @@ Partial Public Class VitalSignsPlusDomino
                                                                                      .Set(Function(x) x.ResponseThreshold, Convert.ToInt32(.ResponseThreshold)) _
                                                                                      .Set(Function(x) x.UserCount, .UserCount) _
                                                                                      .Set(Function(x) x.CPU, .CPU_Utilization) _
-                                                                                     .Set(Function(x) x.CPUthreshold, (.CPU_Threshold / 100)) _
-                                                                                     .Set(Function(x) x.Memory, (.MemoryPercentUsed / 100)) _
+                                                                                     .Set(Function(x) x.CPUthreshold, .CPU_Threshold) _
+                                                                                     .Set(Function(x) x.Memory, .MemoryPercentUsed / 100) _
                                                                                      .Set(Function(x) x.NextScan, GetFixedDateTime(.NextScan)) _
                                                                                      .Set(Function(x) x.UpPercentMinutes, myUpPercent) _
                                                                                      .Set(Function(x) x.MyPercent, Double.Parse(strPercent)) _
