@@ -107,6 +107,7 @@ export class PreferencesForm implements OnInit {
                             //this.preferencesForm.setValue(response.data.userpreference);
                         },
                         (error) => {
+                            this.appComponentService.hideProgressBar();
                             this.errorMessage = <any>error
                             this.appComponentService.showErrorMessage(this.errorMessage);
                         });
