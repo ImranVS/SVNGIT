@@ -32,6 +32,10 @@ declare var injectSVG: any;
             <span> {{message}}</span>
         </div>
     </div>
+
+ <div style="position: fixed; top: 0px; left: 0; width: 100%;height:100%;text-align:center;vertical-align:middle; z-index: 100100;display:none;background-color:Gray;filter:alpha(opacity=50);opacity: 0.5;" id="dvProgress">
+    <div style="border-radius: 50% 50% 50% 50%;box-shadow: 5px 5px 150px 50px #FFFFFF, -5px -5px 150px 50px #FFFFFF;display: inline-block;height: 64px;margin: 300px;width: 64px;"><img src='/img/loading-64.gif'/> </div>
+</div>
 </div>
 `,
     providers: [
@@ -85,7 +89,15 @@ export class AppComponent implements OnInit {
         this.closed = true;
 
     }
-
+    showProgress()
+    {
+        var v1 = <HTMLDivElement>document.getElementById("dvProgress");
+        v1.style.display = "block";
+    }
+    hideProgress() {
+        var v1 = <HTMLDivElement>document.getElementById("dvProgress");
+        v1.style.display = "none";
+    }
     ngOnInit() {
 
         bootstrapZeus();
