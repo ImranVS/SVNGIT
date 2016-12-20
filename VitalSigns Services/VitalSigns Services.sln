@@ -9,6 +9,9 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "AlertLibrary", "..\AlertSer
 	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "AlertWindowsService", "..\AlertService\AlertWindowsService\AlertWindowsService\AlertWindowsService\AlertWindowsService.vbproj", "{56CFA19C-3E66-4DF9-98A8-49C6695DCCAB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B88FA958-5E33-42F8-92ED-0B8F5521433C} = {B88FA958-5E33-42F8-92ED-0B8F5521433C}
+	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "DateUtils", "..\DateUtils\DateUtils.vbproj", "{686BB71D-BD6D-4089-A8F6-2F7DBD2D4B96}"
 EndProject
