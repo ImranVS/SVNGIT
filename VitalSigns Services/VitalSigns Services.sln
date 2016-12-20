@@ -26,8 +26,6 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "MaintenanceDLL", "..\Mainte
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "MonitoredItems", "..\MonitoredItems\MonitoredItems.vbproj", "{F0352188-DCF6-48E7-8A73-43DE89B7F6EC}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "VitalSignsDailyTasks", "..\VitalSignsDailyTasks\VitalSignsDailyTasks.vbproj", "{23575873-1ABE-4E30-A98A-286363CB7138}"
-EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "VitalSignsPlusCore", "..\VitalSignsPlusCore\VitalSignsPlus\VitalSignsPlusCore.vbproj", "{113BF36B-8669-4F8C-8219-E38485A13733}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "VitalSignsPlusDomino", "..\VitalSignsPlusDomino\VitalSignsPlus\VitalSignsPlusDomino.vbproj", "{E42A9848-297F-4EBB-A2A9-8B7845053997}"
@@ -147,16 +145,6 @@ Global
 		{F0352188-DCF6-48E7-8A73-43DE89B7F6EC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F0352188-DCF6-48E7-8A73-43DE89B7F6EC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F0352188-DCF6-48E7-8A73-43DE89B7F6EC}.Release|x86.ActiveCfg = Release|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{23575873-1ABE-4E30-A98A-286363CB7138}.Release|x86.ActiveCfg = Release|Any CPU
 		{113BF36B-8669-4F8C-8219-E38485A13733}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{113BF36B-8669-4F8C-8219-E38485A13733}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{113BF36B-8669-4F8C-8219-E38485A13733}.Debug|Mixed Platforms.Build.0 = Debug|x86
