@@ -21,5 +21,14 @@ export class AppComponentService {
     showErrorMessage(_message: string) {
         this._appComponent.showAlert("danger", _message, 0);
     }
+    closeAlertMessage($event) {
+        this._appComponent.onClose($event);
+    }
+    showProgressBar() {
+        this._appComponent.showProgress();
+    }
+    hideProgressBar() {
+        this._appComponent.hideProgress();
+    }
 
 }
