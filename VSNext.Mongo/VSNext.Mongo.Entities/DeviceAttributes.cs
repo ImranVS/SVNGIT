@@ -47,5 +47,8 @@ namespace VSNext.Mongo.Entities
         [BsonElement("datatype")]
         public string DataType { get; set; }
 
+        [DataMember]
+        [BsonElement("is_percentage")]
+        public bool IsPercentage { get; set; }
     }
 }
