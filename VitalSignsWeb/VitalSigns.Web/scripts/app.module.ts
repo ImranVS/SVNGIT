@@ -109,6 +109,7 @@ import {ServerAvailabilityFilter} from './reports/filters/components/server-avai
 import {DiskSpaceConsumptionReport} from './reports/components/disk/disk-space-consumption.component';
 import { TravelerHTTPSessionsReport } from './reports/components/ibm-traveler/traveler-http-sessions.component';
 import { TravelerDeviceSyncReport } from './reports/components/ibm-traveler/traveler-device-syncs.component';
+import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/traveler-cpu-util.component';
 
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 
@@ -209,6 +210,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         RepeatableChart,
         TravelerHTTPSessionsReport,
         TravelerDeviceSyncReport,
+        TravelerCPUUtilReport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,

@@ -1,29 +1,23 @@
-﻿import { Component, ComponentFactoryResolver, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
-import { WidgetController, WidgetContract, WidgetService } from '../../../core/widgets';
+﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
-import { RESTService } from '../../../core/services/rest.service';
-import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-import * as helpers from '../../../core/services/helpers/helpers';
+import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
+import {Router, ActivatedRoute} from '@angular/router';
+import {RESTService} from '../../../core/services/rest.service';
 
-declare var injectSVG: any;
-
+declare var injectSVG: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/ibm-traveler/traveler-http-sessions.component.html',
+    templateUrl: '/app/reports/components/ibm-traveler/traveler-cpu-util.component.html',
     providers: [
         WidgetService,
-        RESTService,
-        helpers.UrlHelperService
+        RESTService
     ]
 })
-export class TravelerHTTPSessionsReport extends WidgetController {
+export class TravelerCPUUtilReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-    paramtype: string;
-    paramvalue: string;
-    selectedInterval: any;
+    servers: string;
 
     currentHideDTControl: boolean = false;
     currentHideSingleDTControl: boolean = true;
@@ -31,53 +25,35 @@ export class TravelerHTTPSessionsReport extends WidgetController {
     currentHideIntervalControl: boolean = true;
     currentHideMailServerControl: boolean = true;
     currentHideAllServerControl: boolean = true;
-    currentWidgetName: string = `travelerHttpChart`;
+    currentWidgetName: string = `travelerCPUUtilChart`;
     currentWidgetURL: string;
 
-    servers: any;
-    errorMessage: any;
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private router: Router, private route: ActivatedRoute) {
 
-    constructor(
-        protected resolver: ComponentFactoryResolver,
-        protected widgetService: WidgetService,
-        private service: RESTService,
-        private router: Router,
-        private route: ActivatedRoute,
-        protected urlHelpers: helpers.UrlHelperService) {
+        super(resolver, widgetService);
 
-        super(resolver, widgetService, true, router, route);
     }
 
     ngOnInit() {
-
-        super.ngOnInit();
-
         this.service.get('/navigation/sitemaps/traveler_reports')
             .subscribe
             (
             data => this.contextMenuSiteMap = data,
             error => console.log(error)
             );
-        this.service.get(`/services/status_list?type=Traveler`)
-            .subscribe(
-            (response) => {
-                this.servers = response.data;
-            },
-            (error) => this.errorMessage = <any>error
-            );
-        this.currentWidgetURL = `/services/summarystats?statName=Http.CurrentConnections&seriesTitle=devicename`;
-        
+
+        this.currentWidgetURL = `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil`;
         this.widgets = [
             {
-                id: 'travelerHttpChart',
+                id: 'travelerCPUUtilChart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
                     url: this.currentWidgetURL,
-                    dateformat: 'date',
+                    dateformat: "date",
                     chart: {
                         chart: {
-                            renderTo: 'travelerHttpChart',
+                            renderTo: 'travelerCPUUtilChart',
                             type: 'spline',
                             height: 540
                         },
@@ -92,7 +68,7 @@ export class TravelerHTTPSessionsReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'HTTP Sessions'
+                                text: '% Utilization'
                             }
                         },
                         plotOptions: {
@@ -121,7 +97,6 @@ export class TravelerHTTPSessionsReport extends WidgetController {
                 }
             }
         ];
-        
         injectSVG();
         
 

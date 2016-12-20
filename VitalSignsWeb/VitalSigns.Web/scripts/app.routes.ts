@@ -104,6 +104,7 @@ import { ConnectionsWikiReport } from './reports/components/ibm-connections/conn
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
 import { TravelerHTTPSessionsReport } from './reports/components/ibm-traveler/traveler-http-sessions.component';
 import { TravelerDeviceSyncReport } from './reports/components/ibm-traveler/traveler-device-syncs.component';
+import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/traveler-cpu-util.component';
 
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
@@ -507,6 +508,10 @@ const appRoutes: Routes = [
                     {
                         path: 'travelerdevicesyncs',
                         component: TravelerDeviceSyncReport
+                    },
+                    {
+                        path: 'travelercpuutil',
+                        component: TravelerCPUUtilReport
                     }
                 ]
             },

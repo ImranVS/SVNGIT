@@ -8,8 +8,6 @@ import {WidgetComponent, WidgetService} from '../../../core/widgets';
     templateUrl: '/app/reports/filters/components/traveler-filter.component.html',
 })
 export class TravelerFilter {
-    @ViewChildren('interval_selector') interval_selector: wijmo.input.ComboBox;
-    @ViewChildren('server_selector') server_selector: wijmo.input.ComboBox;
     selectedServers: any;
     serverType: string;
     statName: string;
@@ -79,8 +77,8 @@ export class TravelerFilter {
             var v1 = <HTMLDivElement>document.getElementById("selInterval");
             v1.style.display = "none";
         }
-       
     }
+
     applyFilters(server_sel: wijmo.input.ComboBox, interval_sel: wijmo.input.ComboBox, mail_server_sel: wijmo.input.ComboBox,
         all_server_sel: wijmo.input.ComboBox) {
         if (this.hideDatePanel == true && this.hideSingleDatePanel == true) {
