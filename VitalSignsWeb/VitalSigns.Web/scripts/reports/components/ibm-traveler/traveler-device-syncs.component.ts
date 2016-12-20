@@ -11,14 +11,14 @@ declare var injectSVG: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/ibm-traveler/traveler-http-sessions.component.html',
+    templateUrl: '/app/reports/components/ibm-traveler/traveler-device-syncs.component.html',
     providers: [
         WidgetService,
         RESTService,
         helpers.UrlHelperService
     ]
 })
-export class TravelerHTTPSessionsReport extends WidgetController {
+export class TravelerDeviceSyncReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
     paramtype: string;
@@ -27,11 +27,11 @@ export class TravelerHTTPSessionsReport extends WidgetController {
 
     currentHideDTControl: boolean = false;
     currentHideSingleDTControl: boolean = true;
-    currentHideServerControl: boolean = false;
+    currentHideServerControl: boolean = true;
     currentHideIntervalControl: boolean = true;
     currentHideMailServerControl: boolean = true;
-    currentHideAllServerControl: boolean = true;
-    currentWidgetName: string = `travelerHttpChart`;
+    currentHideAllServerControl: boolean = false;
+    currentWidgetName: string = `travelerDeviceSyncsChart`;
     currentWidgetURL: string;
 
     constructor(
@@ -56,11 +56,11 @@ export class TravelerHTTPSessionsReport extends WidgetController {
             error => console.log(error)
             );
 
-        this.currentWidgetURL = `/services/summarystats?statName=Http.CurrentConnections&seriesTitle=devicename`;
+        this.currentWidgetURL = `/services/summarystats?statName=Traveler.IncrementalDeviceSyncs&seriesTitle=devicename`;
         
         this.widgets = [
             {
-                id: 'travelerHttpChart',
+                id: 'travelerDeviceSyncsChart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
@@ -68,7 +68,7 @@ export class TravelerHTTPSessionsReport extends WidgetController {
                     dateformat: 'date',
                     chart: {
                         chart: {
-                            renderTo: 'travelerHttpChart',
+                            renderTo: 'travelerDeviceSyncsChart',
                             type: 'spline',
                             height: 540
                         },
@@ -83,7 +83,7 @@ export class TravelerHTTPSessionsReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'HTTP Sessions'
+                                text: 'Device Sync Volume'
                             }
                         },
                         plotOptions: {

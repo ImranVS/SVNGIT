@@ -133,10 +133,18 @@ export class TravelerFilter {
             var newCurrentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDate());
 
             if (this.hideSingleDatePanel == true) {
-                var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
-               
-                this.widgetService.refreshWidget(this.widgetName, URL)
-                    .catch(error => console.log(error));
+                if (this.hideServerControl == false){
+                    var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
+
+                    this.widgetService.refreshWidget(this.widgetName, URL)
+                        .catch(error => console.log(error));
+                }
+                else {
+                    var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
+
+                    this.widgetService.refreshWidget(this.widgetName, URL)
+                        .catch(error => console.log(error));
+                }
             }
             else {
                 var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&year=` + newCurrentDate.getFullYear();
