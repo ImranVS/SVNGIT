@@ -102,6 +102,8 @@ import { ConnectionsProfilesReport } from './reports/components/ibm-connections/
 import { ConnectionsTagsReport } from './reports/components/ibm-connections/connections-tags-report.component';
 import { ConnectionsWikiReport } from './reports/components/ibm-connections/connections-wiki-report.component';
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
+import { TravelerHTTPSessionsReport } from './reports/components/ibm-traveler/traveler-http-sessions.component';
+
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
@@ -496,6 +498,10 @@ const appRoutes: Routes = [
                     {
                         path: 'diskspaceconsumption',
                         component: DiskSpaceConsumptionReport
+                    },
+                    {
+                        path: 'travelerhttpsessions',
+                        component: TravelerHTTPSessionsReport
                     }
                 ]
             },
