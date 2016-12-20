@@ -53,10 +53,11 @@ export class DeviceAttributes extends GridBase implements OnInit {
 
     onCellEditEnding(grid: wijmo.grid.FlexGrid, e: wijmo.grid.CellEditEndingEventArgs) {
     
-        let isPercent: boolean = grid.selectedRows[0].dataItem.unit_of_measurement === 'Percentage Used (eg:- for 90% = 0.90)';
+        //let isPercent: boolean = grid.selectedRows[0].dataItem.unit_of_measurement === 'Percentage Used (eg:- for 90% = 0.90)';
+        let isPercent: boolean = grid.selectedRows[0].dataItem.is_percentage === true;
         let newValue: number = parseFloat(grid.activeEditor.value);
         
-        if (isPercent && (isNaN(newValue) || newValue < 0 || newValue > 1)) {
+        if (isPercent && (isNaN(newValue) || newValue < 0 || newValue > 100)) {
             e.cancel = true;
             e.stayInEditMode = true;
         }
