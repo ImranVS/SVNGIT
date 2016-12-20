@@ -84,7 +84,7 @@ namespace VitalSigns.API.Controllers
                                         {
                                             var bson2 = stats.ToBsonDocument();
                                             var statname = bson2["StatName"].ToString();
-                                            var statvalue = bson2["StatValue"].ToString();
+                                            var statvalue = Math.Round(Convert.ToDouble(bson2["StatValue"].ToString()),2);
                                             x.Add(statname, statvalue);
                                         }
                                     }
@@ -101,7 +101,7 @@ namespace VitalSigns.API.Controllers
                                 var x = new ExpandoObject() as IDictionary<string, Object>;
                                 foreach (var field in status.ToBsonDocument())
                                 {
-                                    x.Add(field.Name, field.Value.ToString());
+                                    x.Add(field.Name, Math.Round(Convert.ToDouble(field.Value.ToString()),2));
                                 }
                                 result.Add(x);
                             }

@@ -1844,7 +1844,7 @@ namespace VitalSigns.API.Controllers
                             else
                                 dominoStats.WebCommandsTotal = null;
 
-                            var httpsession = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "HTTP sessions");
+                            var httpsession = summaryStats.FirstOrDefault(x => x.DeviceID == item.DeviceId && x.StatName == "Http.CurrentConnections");
                             if (httpsession != null)
                                 dominoStats.HttpSession = httpsession.SumValue;
                             else
