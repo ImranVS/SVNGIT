@@ -45,7 +45,7 @@ export class ServersLocation implements OnInit {
     refreshCheckedDevices() {
         if (this.flex.collectionView) {
             if (this.flex.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();
+                //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
                     if (this._deviceList) {

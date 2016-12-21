@@ -159,7 +159,19 @@ export class Escalation extends GridBase implements OnInit  {
         let deleteUrl = '/configurator/delete_hours_destinations/';
         this.key = this.flex.collectionView.currentItem.id;
         if (confirm("Are you sure want to delete this record?")) {
-            this.service.delete(deleteUrl + this.key);
+            this.service.delete(deleteUrl + this.key)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage(response.message);
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
             (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
         }
     }

@@ -355,7 +355,7 @@ export class Maintenance extends GridBase implements OnInit  {
                             this.data = this.datetimeHelpers.toLocal(response.data);
                             //this.data.pageSize = 10;
                             (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
-                            (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();    
+                            //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();    
                             dlg.hide();
                             this.appComponentService.showSuccessMessage(response.message);
                         }
@@ -372,7 +372,7 @@ export class Maintenance extends GridBase implements OnInit  {
                             this.data = this.datetimeHelpers.toLocal(response.data);
                             //this.data.pageSize = 10;
                             (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
-                            (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();    
+                            //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();    
                             dlg.hide();
                             this.appComponentService.showSuccessMessage(response.message);
                         }
@@ -461,7 +461,7 @@ export class Maintenance extends GridBase implements OnInit  {
     refreshCheckedUsers() {
         if (this.flex1.collectionView) {
             if (this.flex1.collectionView.items.length > 0) {
-                (<wijmo.collections.CollectionView>this.flex1.collectionView.sourceCollection).moveToFirstPage();
+                //(<wijmo.collections.CollectionView>this.flex1.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex1.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex1.collectionView.sourceCollection)[_i];
                     var val = this.keyUsers.filter((record) => record == item.id);
