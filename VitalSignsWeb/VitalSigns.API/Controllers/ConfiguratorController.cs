@@ -101,7 +101,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Updating settings has failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -165,11 +165,11 @@ namespace VitalSigns.API.Controllers
                         licCollection.refreshServerCollectionWrapper();
                     }
                 }
-                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Licence Key Saved Successfully Saved");
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Licence key saved successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Licence Key falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Licence Key update has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -202,7 +202,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", " preferences falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", " preferences failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -239,7 +239,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting server credentials has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -318,12 +318,12 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This Alias name already exists.");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This alias name already exists.");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving server credentials has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -342,12 +342,12 @@ namespace VitalSigns.API.Controllers
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 Expression<Func<Credentials, bool>> expression = (p => p.Id == Id);
                 credentialsRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Deleted Server Credential Suvcessfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server credentials deleted successfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Credential delete falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server credentials deletion has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -503,7 +503,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save locations falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving location has failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -523,11 +523,11 @@ namespace VitalSigns.API.Controllers
                 locationRepository = new Repository<Location>(ConnectionString);
                 Expression<Func<Location, bool>> expression = (p => p.Id == id);
                 locationRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location Deleted successfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete locations falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of location has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -1033,12 +1033,12 @@ namespace VitalSigns.API.Controllers
                 maintenanceRepository = new Repository<Maintenance>(ConnectionString);
                 Expression<Func<Maintenance, bool>> expression = (p => p.Id == id);
                 maintenanceRepository.Delete(expression);
-                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Maintenance data deleted succesfully.");
+                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Maintenance data deleted succesfully");
             }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Maintenance data falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of maintenance data has failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -1187,7 +1187,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting user information has failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -1236,17 +1236,17 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.Status, maintainuser.Status)
                                                                  .Set(p => p.Roles, maintainuser.Roles);
                         var result = maintainUsersRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Maintain Users updated successfully");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "User information updated successfully");
                     }
                 }
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + maintainuser.Email + "already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + maintainuser.Email + " already exists. Please enter a different one.");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Maintain Users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving user information has failed .\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -1265,11 +1265,11 @@ namespace VitalSigns.API.Controllers
                 maintainUsersRepository = new Repository<Users>(ConnectionString);
                 Expression<Func<Users, bool>> expression = (p => p.Id == id);
                 maintainUsersRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Maintain User Deleted successfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "User information deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Maintain Users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of user information has failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -1304,7 +1304,8 @@ namespace VitalSigns.API.Controllers
                     FieldName = x.FieldName,
                     DataType = x.DataType,
                     Unitofmeasurement = x.Unitofmeasurement,
-                    IsSelected = false
+                    IsSelected = false,
+                    IsPercentage = x.IsPercentage
                 }).ToList();
                 Response = Common.CreateResponse(result);
             }
@@ -1542,7 +1543,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Domino Server Tasks falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving domino server task has failed. \n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2056,7 +2057,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Server Attributes falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Saving server attributes has failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2178,13 +2179,13 @@ namespace VitalSigns.API.Controllers
                 }
                 catch (Exception exception)
                 {
-                    Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                    Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
                 }
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -2309,7 +2310,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Save Server Attributes falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Saving of server attributes has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2418,7 +2419,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get server disk settings data falied.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting server disk settings data has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2660,7 +2661,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Domino Server Tasks  falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving Domino server tasks has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -2689,12 +2690,12 @@ namespace VitalSigns.API.Controllers
                     var result = serversRepository.Update(server, updateDefinition);
                 }
 
-                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Server Tasks deleted Successfully.");
+                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Server tasks deleted successfully");
             }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Tasks falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of server tasks has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -2868,7 +2869,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "custom statistics falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Getting custom statistics has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2912,12 +2913,12 @@ namespace VitalSigns.API.Controllers
                                                               .Set(p => p.GreaterThanOrLessThan, customstat.GreaterThanOrLessThan)
                                                                .Set(p => p.ConsoleCommand, customstat.ConsoleCommand);
                     var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "custom statistics updated successfully");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Custom statistics updated successfully");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save custom statistics falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving custom statistics has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -2936,11 +2937,11 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Custom Statistics Deleted successfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Custom statistics deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete custom statistics falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of custom statistics has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3008,7 +3009,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting Notes Database Replica falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting Notes database replica has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3097,7 +3098,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Notes Database Replica update falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Notes database replica update has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -3119,11 +3120,11 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
 
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica Deleted Sucessfully.");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Notes database replica deleted sucessfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Notes Database Replic delete falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Notes database replica deletion has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3177,7 +3178,7 @@ namespace VitalSigns.API.Controllers
             catch (Exception exception)
             {
 
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting IBM Domino settings has failed.\n Error Message :" + exception.Message);
             }
             return Response;
 
@@ -3229,12 +3230,12 @@ namespace VitalSigns.API.Controllers
                                                              };
                     var result = Common.SaveNameValues(ibmDominoSettings);
                     //  Response = Common.CreateResponse(result);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "IBM Domino settings are successfully updated.");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "IBM Domino settings updated successfully.");
 
                 }
                 catch (Exception exception)
                 {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving IBM Domino settings has failed.\n Error Message :" + exception.Message);
                 }
 
                 return Response;
@@ -3243,7 +3244,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save IBM Domino Settings falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving IBM Domino settings has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -3287,7 +3288,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3359,7 +3360,7 @@ namespace VitalSigns.API.Controllers
                                                                  .Set(p => p.ReplicationDestination, notesDatabase.ReplicationDestination);
 
                         var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes Database updated successfully");
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes database updated successfully");
                     }
 
 
@@ -3367,7 +3368,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Name already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This name already exists. Please enter a different one.");
                 }
 
 
@@ -3375,7 +3376,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Notes Database falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Notes database creation has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -3436,7 +3437,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get domino server task falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Geting domino server task information has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3477,7 +3478,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Domino Server Task falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving Domino server task has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -3497,11 +3498,11 @@ namespace VitalSigns.API.Controllers
                 dominoservertasksRepository = new Repository<DominoServerTasks>(ConnectionString);
                 Expression<Func<DominoServerTasks, bool>> expression = (p => p.Id == id);
                 dominoservertasksRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Task Deleted successfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server task deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Server Task falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of server task has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3533,7 +3534,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get Log File Scanning falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Getting log file scanning information has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3590,7 +3591,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get Event Log File Scanning falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Getting event log file scanning information has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3700,19 +3701,19 @@ namespace VitalSigns.API.Controllers
                     }
                     else if (existsData == settingValue)
                     {
-                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Event Definition " + "" + existsData + " " + "already exists. Please Enter another one.");
+                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This event definition " + "" + existsData + " " + "already exists. Please enter a different one.");
                     }
 
                     if (logfiles.Count == 0)
                     {
-                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please create at least one Domino Event Log entry.");
+                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please create at least one Domino event log entry.");
                     }
                 }
             }
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Domino Event Definition falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Domino event definition creation has failed.\n Error Message :" + exception.Message);
             }
             return Response;
 
@@ -3732,12 +3733,12 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition Deleted successfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino event definition deleted successfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Domino Event Definition falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of Domino event definition has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3764,14 +3765,14 @@ namespace VitalSigns.API.Controllers
                     dominoServerTasks.Remove(serverTaskDelete);
                     var updateDefinition = serverOtherRepository.Updater.Set(p => p.LogFileKeywords, dominoServerTasks);
                     var result = serverOtherRepository.Update(server, updateDefinition);
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino Event Log Scanning Deleted successfully");
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino event log scanning deleted successfully");
                 }
 
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Event Log File falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of event log file has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3812,7 +3813,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get traveler data falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting traveler data has failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3849,12 +3850,12 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.TestScanServer, travelerdatas.TestScanServer);
                     //.Set(p => p.UsedByServers, travelerdatas.UsedByServers);
                     var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "traveler data updated successfully");
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Traveler data updated successfully");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save traveler data falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving traveler data has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3873,11 +3874,11 @@ namespace VitalSigns.API.Controllers
                 travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
                 Expression<Func<TravelerDTS, bool>> expression = (p => p.Id == id);
                 travelerdatastoreRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Traveler Data Store Deleted successfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Traveler data store deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Delete Traveler Data falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of Traveler data has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -4943,18 +4944,20 @@ namespace VitalSigns.API.Controllers
         /// <author></author>
         /// <param name="id"></param>
         [HttpDelete("delete_hours_destinations/{id}")]
-        public void DeleteHoursDestinations(string id)
+        public APIResponse DeleteHoursDestinations(string id)
         {
             try
             {
                 notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
                 Expression<Func<NotificationDestinations, bool>> expression = (p => p.Id == id);
                 notificationDestRepository.Delete(expression);
+                Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Hours and destinations deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of hours and destinations has failed.\n Error Message :" + exception.Message);
             }
+            return Response;
         }
 
         /// <summary>
@@ -4963,18 +4966,20 @@ namespace VitalSigns.API.Controllers
         /// <author></author>
         /// <param name="id"></param>
         [HttpDelete("delete_script/{id}")]
-        public void DeleteScript(string id)
+        public APIResponse DeleteScript(string id)
         {
             try
             {
                 scriptsRepository = new Repository<Scripts>(ConnectionString);
                 Expression<Func<Scripts, bool>> expression = (p => p.Id == id);
                 scriptsRepository.Delete(expression);
+                Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Script deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Business Hours falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of script has failed.\n Error Message :" + exception.Message);
             }
+            return Response;
         }
 
         /// <summary>
@@ -4983,7 +4988,7 @@ namespace VitalSigns.API.Controllers
         /// <author></author>
         /// <param name="id"></param>
         [HttpDelete("delete_notification_definition/{id}")]
-        public void DeleteNotificationDefinition(string id)
+        public APIResponse DeleteNotificationDefinition(string id)
         {
             FilterDefinition<Server> filterServerDef;
             FilterDefinition<EventsMaster> filterEventsDef;
@@ -5028,12 +5033,13 @@ namespace VitalSigns.API.Controllers
                         serversRepository.Replace(serverDef);
                     }
                 }
+                Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notification definition deleted successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Notification falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of notification has failed.\n Error Message :" + exception.Message);
             }
-
+            return Response;
 
         }
         #endregion
@@ -5223,7 +5229,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Get maintain users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Getting user information has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -5293,12 +5299,12 @@ namespace VitalSigns.API.Controllers
                 Server server = serversRepository.Get(ibmsimulations.Id);
                 var updateDefination = serversRepository.Updater.Set(p => p.SimulationTests, nameValuePairs);
                 var result = serversRepository.Update(server, updateDefination);
-                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Simulationtests updated successfully");
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Simulation tests updated successfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save simulationtests falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving simulation tests has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -5356,7 +5362,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", " simulationtest falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Getting simulation tests has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -5405,7 +5411,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "get Nodes Health falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Getting nodes health has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -5488,7 +5494,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "get Nodes Health falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Getting nodes health has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -5518,12 +5524,12 @@ namespace VitalSigns.API.Controllers
 
 
                 var result = nodesRepository.Update(filterDefination, updateDefination);
-                Response = Common.CreateResponse(result, "OK", "Nodes Health updated successfully");
+                Response = Common.CreateResponse(result, "OK", "Nodes health updated successfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Nodes Health falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Saving nodes health information has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -5558,7 +5564,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Log Scan Servers falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Saving log scan server information has failed.\n Error Message :" + exception.Message);
             }
             return Response;
 
@@ -5582,7 +5588,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Nodes Health falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of nodes health has failed.\n Error Message :" + exception.Message);
             }
         }
 
@@ -5707,7 +5713,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Save Mobile users falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving mobile users information has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -6159,13 +6165,13 @@ namespace VitalSigns.API.Controllers
                 }
                 catch (Exception exception)
                 {
-                    Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                    Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
                 }
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -6753,11 +6759,11 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Server, bool>> serverExpression = (p => p.Id == Id);
                 serversRepository.Delete(serverExpression);
 
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Server Deleted sucessfully.");
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Server deleted sucessfull.");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Delete falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server deletion has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -6818,7 +6824,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -6863,7 +6869,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Delete Server Credentials falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -6963,7 +6969,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Log Scan Servers falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Saving log scan servers has failed.\n Error Message :" + exception.Message);
             }
             return Response;
 
@@ -7001,14 +7007,14 @@ namespace VitalSigns.API.Controllers
 
 
                 string id = serversRepository.Insert(servers);
-                Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server inserted successfully.");
+                Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server created successfully");
 
 
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server insert falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server insert has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -7137,7 +7143,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server suspend temporarly falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Temporarly suspending the server has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -7240,7 +7246,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get Server Events falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting server events has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -7277,7 +7283,7 @@ namespace VitalSigns.API.Controllers
 
                 var result = serversRepository.Update(filterDefination, updateDefination);
 
-                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server scan now successfully.");
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server scan queued up successfully");
 
 
 
@@ -7285,7 +7291,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server scan now falied .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server scan now queue has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;

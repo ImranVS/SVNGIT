@@ -94,6 +94,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("is_selected")]
         public bool IsSelected { get; set; }
+
+        [JsonProperty("is_percentage")]
+        public bool IsPercentage { get; set; }
     }
 
     public class DeviceAttributeValue
