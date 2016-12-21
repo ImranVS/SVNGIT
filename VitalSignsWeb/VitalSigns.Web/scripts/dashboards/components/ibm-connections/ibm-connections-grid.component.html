@@ -1,5 +1,5 @@
 ﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" (selectionChanged)="onSelectionChanged($event)">
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" id="flex" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
@@ -10,7 +10,13 @@
             <span *ngIf="cell.item.status == 'Maintenance'" class="label label-pill label-default">Maintenance</span>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="280">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div data-toggle="tooltip" data-placement="top" title={{cell.item.details}}>
+                {{cell.item.details}}
+            </div>
+        </template>
+    </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" align="right"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">

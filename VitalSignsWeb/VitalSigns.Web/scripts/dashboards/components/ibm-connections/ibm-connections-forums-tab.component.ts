@@ -47,7 +47,7 @@ export class IBMConnectionsForumsTab extends WidgetController implements OnInit,
                         chart: {
                             renderTo: 'forums',
                             type: 'spline',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -75,7 +75,7 @@ export class IBMConnectionsForumsTab extends WidgetController implements OnInit,
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false

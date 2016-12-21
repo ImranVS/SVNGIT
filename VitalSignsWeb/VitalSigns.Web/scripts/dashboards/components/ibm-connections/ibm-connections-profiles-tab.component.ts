@@ -48,7 +48,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                         chart: {
                             renderTo: 'managersNonManagers',
                             type: 'pie',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -100,7 +100,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                         chart: {
                             renderTo: 'pictureNoPicture',
                             type: 'pie',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -152,7 +152,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                         chart: {
                             renderTo: 'jobHierarchyNoJobHierarchy',
                             type: 'pie',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },

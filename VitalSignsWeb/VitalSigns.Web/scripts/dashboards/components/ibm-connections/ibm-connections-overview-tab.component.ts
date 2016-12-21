@@ -48,7 +48,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                         chart: {
                             renderTo: 'dailyActivities',
                             type: 'spline',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -76,7 +76,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
@@ -99,7 +99,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                         chart: {
                             renderTo: 'top5Tags',
                             type: 'bar',
-                            height: 240
+                            height: 340
                         },
                         colors: ['#5fbe7f'],
                         title: { text: '' },

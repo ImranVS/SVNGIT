@@ -50,7 +50,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                         chart: {
                             renderTo: 'communitiesByType',
                             type: 'pie',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -101,7 +101,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                         chart: {
                             renderTo: 'top5Communities',
                             type: 'bar',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -141,7 +141,7 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                         chart: {
                             renderTo: 'mostActiveCommunity',
                             type: 'pie',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },

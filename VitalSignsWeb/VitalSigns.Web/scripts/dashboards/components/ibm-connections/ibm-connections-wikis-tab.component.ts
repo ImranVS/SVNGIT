@@ -47,7 +47,7 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                         chart: {
                             renderTo: 'wikis',
                             type: 'spline',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -75,7 +75,7 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
@@ -98,7 +98,7 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                         chart: {
                             renderTo: 'top5CommunitiesWikis',
                             type: 'bar',
-                            height: 240
+                            height: 340
                         },
                         colors: ['#5fbe7f'],
                         title: { text: '' },

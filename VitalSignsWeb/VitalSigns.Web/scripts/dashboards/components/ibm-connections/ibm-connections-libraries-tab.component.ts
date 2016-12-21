@@ -47,7 +47,7 @@ export class IBMConnectionsLibrariesTab extends WidgetController implements OnIn
                         chart: {
                             renderTo: 'libraries',
                             type: 'spline',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -75,7 +75,7 @@ export class IBMConnectionsLibrariesTab extends WidgetController implements OnIn
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false

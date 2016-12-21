@@ -46,7 +46,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                         chart: {
                             renderTo: 'bookmarks',
                             type: 'spline',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -74,7 +74,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
@@ -97,7 +97,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                         chart: {
                             renderTo: 'top5CommunitiesBookmarks',
                             type: 'bar',
-                            height: 240
+                            height: 340
                         },
                         colors: ['#5fbe7f'],
                         title: { text: '' },

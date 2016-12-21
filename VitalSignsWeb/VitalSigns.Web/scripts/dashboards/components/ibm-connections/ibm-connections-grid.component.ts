@@ -1,4 +1,4 @@
-﻿import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
+﻿import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent, WidgetService} from '../../../core/widgets';
@@ -19,9 +19,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 })
 export class IBMConnectionsGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
-
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
-
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;  
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     
@@ -61,11 +60,15 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
                 this.data.pageSize = 10;
                 this.data.moveCurrentToPosition(0);
                 this.serviceId = this.data.currentItem.device_id;
+                //var tt = new wijmo.Tooltip();
+                //tt.setTooltip('#flex', this.data.currentItem.details);
             },
             (error) => this.errorMessage = <any>error
             );
 
     }
+
+    
 
     onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {
 
