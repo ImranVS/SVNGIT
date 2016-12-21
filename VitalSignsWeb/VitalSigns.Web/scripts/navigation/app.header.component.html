@@ -14,13 +14,13 @@
     <div id="noResponseNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
         <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Not Responding'}" class="widgetFooter zeusColorReactBg">
             <span class="notifVitalSignNumber badge">{{deviceSummary.notResponding}}</span>
-            <span class="notifVitalSignLabel">Not resp. </span>
+            <span class="notifVitalSignLabel">Not responding </span>
         </a>      
     </div>
     <div id="noIssuesNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
         <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'OK'}" class="widgetFooter zeusColorReactBg">
             <span class="notifVitalSignNumber badge">{{deviceSummary.ok}}</span>
-            <span class="notifVitalSignLabel">No iss.</span>
+            <span class="notifVitalSignLabel">No issues</span>
         </a>
     </div>
     <div id="issuesNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
@@ -32,7 +32,7 @@
     <div id="maintenanceNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
         <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Maintenance'}" class="widgetFooter zeusColorReactBg">
             <span class="notifVitalSignNumber badge">{{deviceSummary.maintenance}}</span>
-            <span class="notifVitalSignLabel">Mainten.</span>
+            <span class="notifVitalSignLabel">Maintenance</span>
         </a>
     </div>
     <div id="notificationBtWrapper" class="headerBlock" *ngIf="deviceSummary">
