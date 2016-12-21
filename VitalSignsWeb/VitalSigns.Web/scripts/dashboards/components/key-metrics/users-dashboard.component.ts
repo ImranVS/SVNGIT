@@ -103,7 +103,8 @@ export class UsersDashboard extends WidgetController implements OnInit  {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: '$'
                             }
                         },
                         plotOptions: {
