@@ -1,7 +1,8 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
+import {WidgetComponent} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 
 import * as helpers from '../../../core/services/helpers/helpers';

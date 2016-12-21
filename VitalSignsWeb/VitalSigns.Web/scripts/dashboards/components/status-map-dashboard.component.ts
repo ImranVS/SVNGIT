@@ -1,9 +1,11 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 
-import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../core/widgets';
+import {WidgetController, WidgetContainer, WidgetContract} from '../../core/widgets';
+import {WidgetService} from '../../core/widgets/services/widget.service';
 import {AppNavigator} from '../../navigation/app.navigator.component';
 
-declare var injectSVG: any;
+declare var injectSVG: any;
+
 
 @Component({
     templateUrl: '/app/dashboards/components/status-map-dashboard.component.html',

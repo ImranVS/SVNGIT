@@ -1,7 +1,8 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-import {WidgetComponent, WidgetService} from '../../core/widgets';
+import {WidgetComponent} from '../../core/widgets';
+import {WidgetService} from '../../core/widgets/services/widget.service';
 import {RESTService} from '../../core/services';
 import {AppNavigator} from '../../navigation/app.navigator.component';
 import {ServiceTab} from '../models/service-tab.interface';
@@ -10,7 +11,8 @@ import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 
-declare var injectSVG: any;
+declare var injectSVG: any;
+
 
 @Component({
     templateUrl: '/app/services/components/service-clusterhealth-grid.component.html',

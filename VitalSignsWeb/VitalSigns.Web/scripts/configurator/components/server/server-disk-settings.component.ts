@@ -5,7 +5,8 @@ import {HttpModule}    from '@angular/http';
 import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
 import {DiskSttingsValue} from '../../models/server-disk-settings';
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
+import {WidgetComponent} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {AppComponentService} from '../../../core/services';
 @Component({
     selector: 'servder-form',

@@ -1,11 +1,13 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {WidgetController, WidgetContract, WidgetService} from '../../core/widgets';
+import {WidgetController, WidgetContract} from '../../core/widgets';
+import {WidgetService} from '../../core/widgets/services/widget.service';
 import {RESTService} from '../../core/services/rest.service';
 
 import * as helpers from '../../core/services/helpers/helpers';
 
-declare var injectSVG: any;
+declare var injectSVG: any;
+
 
 
 @Component({

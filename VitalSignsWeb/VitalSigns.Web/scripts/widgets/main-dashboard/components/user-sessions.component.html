@@ -3,7 +3,7 @@
 <div class="col-lg-3 col-md-6 zeusColorReact-success">
     <a [routerLink]="['/dashboard/users']">
         <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
-            <img class="svgInject" src="img/dashboard/UsersSessions.svg" title="Users sessions" alt="Users sessions" style="width: 70px;" />
+            <img class="svgInject" src="/img/dashboard/UsersSessions.svg" title="Users sessions" alt="Users sessions" style="width: 70px;" />
             <div>
                 <div class="widgetImageText-head" *ngIf="usersessionsStatus">{{usersessionsStatus.user_count }}</div>
                 <div class="widgetImageText-text">User sessions</div>
@@ -16,7 +16,7 @@
 
 <div class="col-lg-3 col-md-6 zeusColorReact-danger">
     <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
-        <img class="svgInject" src="img/dashboard/Chrono.svg" title="Down time" alt="Down time" />
+        <img class="svgInject" src="/img/dashboard/Chrono.svg" title="Down time" alt="Down time" />
         <div>
             <div class="widgetImageText-head" *ngIf="usersessionsStatus">{{usersessionsStatus.downMinutes | number:'1.0-2'}}</div>
             <div class="widgetImageText-text">Down time this hour</div>
@@ -27,7 +27,7 @@
 <div class="col-lg-3 col-md-6 zeusColorReact-warning">
     
         <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
-            <img class="svgInject" src="img/dashboard/HourGlass.svg" title="Average response time" alt="Average Response time" />
+            <img class="svgInject" src="/img/dashboard/HourGlass.svg" title="Average response time" alt="Average Response time" />
             <div>
                 <div class="widgetImageText-head" *ngIf="usersessionsStatus">{{usersessionsStatus.response_time | number:'1.0-2'}}</div>
                 <div class="widgetImageText-text">Average response time</div>
@@ -39,7 +39,7 @@
 <div class="col-lg-3 col-md-6 zeusColorReact-default">
     <a [routerLink]="['/dashboard/mail-delivery-status']">
         <div class="widgetWrapper h-xs-108" data-widget-type="widgetImageText">
-            <img class="svgInject zeusColorReactFill" src="img/dashboard/Email.svg" title="Email" alt="Email" />
+            <img class="svgInject zeusColorReactFill" src="/img/dashboard/Email.svg" title="Email" alt="Email" />
             <div style="padding: 0 5px;">
                 <div class="widgetImageText-head zeusColorReactText" *ngIf="usersessionsStatus">{{usersessionsStatus.pendingMail }}</div>
                 <div class="widgetImageText-text zeusColorReactText">Pending mail</div>

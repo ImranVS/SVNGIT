@@ -12,7 +12,7 @@ import {AppComponentService} from './services';
 // Base class for all components demonstrating FlexGrid control.
 @Component({
     selector: '',
-    templateUrl: ''
+    template: ''
 })
 
 export abstract class GridBase {

@@ -1,11 +1,13 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
-import {WidgetController, WidgetContract, WidgetService} from '../../../core/widgets';
+import {WidgetController, WidgetContract} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {RESTService} from '../../../core/services/rest.service';
 import {Http, Response, Headers} from '@angular/http';
-declare var injectSVG: any;
+declare var injectSVG: any;
+
 
 
 @Component({

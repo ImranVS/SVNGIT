@@ -2,7 +2,8 @@
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
+import {WidgetComponent} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import {SuccessErrorMessageComponent} from '../../../core/components/success-error-message-component';
 import { BrowserModule  } from '@angular/platform-browser';

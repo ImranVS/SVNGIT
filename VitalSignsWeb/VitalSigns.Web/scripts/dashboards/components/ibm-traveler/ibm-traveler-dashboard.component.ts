@@ -1,11 +1,13 @@
 ﻿import {Component, ComponentFactoryResolver, Input, OnInit} from '@angular/core';
 
-import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
+import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import {RESTService} from '../../../core/services';
 import {DominoServerInfo} from '../../../widgets/main-dashboard/models/domino-server-info';
 
-declare var injectSVG: any;
+declare var injectSVG: any;
+
 
 @Component({
     selector: 'ibm-traveler-dashboard',

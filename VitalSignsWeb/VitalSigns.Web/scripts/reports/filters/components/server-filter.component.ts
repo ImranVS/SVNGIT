@@ -1,7 +1,8 @@
 ﻿import {Component, Output, EventEmitter, ViewChildren, Input} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {RESTService} from '../../../core/services';
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
+import {WidgetComponent} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 
 @Component({
     selector: 'server-filter',

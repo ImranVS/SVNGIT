@@ -1,11 +1,13 @@
 ﻿import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
+import {WidgetComponent} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
-declare var injectSVG: any;
+declare var injectSVG: any;
+
 
 @Component({
     templateUrl: '/app/dashboards/components/overall-statistics/overall-domino-statistics.component.html',

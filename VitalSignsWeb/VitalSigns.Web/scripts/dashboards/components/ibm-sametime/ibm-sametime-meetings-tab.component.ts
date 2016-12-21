@@ -1,6 +1,7 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
-import {WidgetController, WidgetContainer, WidgetContract, WidgetService} from '../../../core/widgets';
+import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 
 import {ServiceTab} from '../../../services/models/service-tab.interface';
 

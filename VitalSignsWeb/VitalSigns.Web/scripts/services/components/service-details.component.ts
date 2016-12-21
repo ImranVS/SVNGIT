@@ -12,7 +12,7 @@ import * as helpers from '../../core/services/helpers/helpers';
 import {ServiceTab} from '../models/service-tab.interface';
 
 import * as ServiceTabs from '../service-tab.collection';
-import {WidgetService} from '../../core/widgets';
+import { WidgetService } from '../../core/widgets/services/widget.service';
 import {AppComponentService} from '../../core/services';
 import {ServicesViewService} from '../services/services-view.service';
 @Component({

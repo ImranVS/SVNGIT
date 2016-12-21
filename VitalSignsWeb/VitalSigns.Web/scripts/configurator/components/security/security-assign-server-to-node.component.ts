@@ -2,7 +2,8 @@
 import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
+import {WidgetComponent} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {AppNavigator} from '../../../navigation/app.navigator.component';

@@ -1,7 +1,8 @@
 ﻿import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
-import {WidgetComponent, WidgetService} from '../../../core/widgets';
+import {WidgetComponent} from '../../../core/widgets';
+import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 
 import {IBMConnectionsGrid} from './ibm-connections-grid.component';

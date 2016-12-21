@@ -1,6 +1,6 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit, ViewChild} from '@angular/core';
 
-import {WidgetService} from '../../../core/widgets';
+import { WidgetService } from '../../../core/widgets/services/widget.service';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 
 import {IBMSametimeGrid} from './ibm-sametime-grid.component';
