@@ -21,7 +21,7 @@ export class OverallDashboard extends WidgetController implements OnInit {
 
     widgetOnPremisesApps: WidgetContract = {
         id: 'widgetOnPremisesApps',
-        title: 'On premises applications',
+        title: 'All Applications and Servers',
         name: 'OnPremisesApps',
         css: 'col-md-6 col-lg-12',
         settings: {}
