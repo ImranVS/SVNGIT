@@ -1083,7 +1083,10 @@ namespace VitalSigns.API.Controllers
                                                                        StartTime = m.StartTime,
                                                                        EndDate = m.EndDate,
                                                                        Duration = m.Duration,
-                                                                       MaintainType = m.MaintainType,
+                                                                       MaintainType = m.MaintainType == 1 ? "One Time" :
+                                                                                      m.MaintainType == 2 ? "Daily" :
+                                                                                      m.MaintainType == 3 ? "Weekly" :
+                                                                                      m.MaintainType == 4 ? "Monthly" : "-",
                                                                        MaintenanceFrequency = m.MaintenanceFrequency,
                                                                        MaintenanceDaysList = m.MaintenanceDaysList
                                                                    }).ToList();
@@ -1120,7 +1123,10 @@ namespace VitalSigns.API.Controllers
                                                                 StartTime = m.StartTime,
                                                                 EndDate = m.EndDate,
                                                                 Duration = m.Duration,
-                                                                MaintainType = m.MaintainType,
+                                                                MaintainType = m.MaintainType == 1 ? "One Time" :
+                                                                               m.MaintainType == 2 ? "Daily" :
+                                                                               m.MaintainType == 3 ? "Weekly" :
+                                                                               m.MaintainType == 4 ? "Monthly" : "-",
                                                                 MaintenanceFrequency = m.MaintenanceFrequency,
                                                                 MaintenanceDaysList = m.MaintenanceDaysList
 
