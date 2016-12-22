@@ -9,13 +9,15 @@ import {Observable} from 'rxjs/Observable';
 declare var injectSVG: any;
 declare var bootstrapZeus: any;
 import {AppComponentService} from '../core/services';
+import * as helpers from '../core/services/helpers/helpers';
 
 @Component({
     selector: 'app-header',
     templateUrl: '/app/navigation/app.header.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.DateTimeHelper
     ]
 })
 export class AppHeader implements OnChanges,OnInit {
@@ -33,7 +35,9 @@ export class AppHeader implements OnChanges,OnInit {
     constructor(
         private service: RESTService,
         private router: Router,
-        private authService: AuthenticationService, appComponentService: AppComponentService) { this.appComponentService = appComponentService;}
+        private authService: AuthenticationService, appComponentService: AppComponentService, private datetimeHelpers: helpers.DateTimeHelper) {
+        this.appComponentService = appComponentService;
+    }
     
     loadData() {   
         
@@ -105,7 +109,7 @@ export class AppHeader implements OnChanges,OnInit {
         this.service.get('/services/get_system_messages')
             .subscribe(
             response => {
-                this.systemMessages = response.data;
+                this.systemMessages = this.datetimeHelpers.toLocalDateTime(response.data);
             });
     }
     logout() {
