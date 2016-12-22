@@ -27,6 +27,7 @@
   <ItemGroup>
     <DnxInvisibleFolder Include=".vs\" />
     <DnxInvisibleFolder Include="scripts\definitions\" />
+    <DnxInvisibleFolder Include="node_modules\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

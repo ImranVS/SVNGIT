@@ -4,10 +4,19 @@
 
 @section scripts
 {
+@{
+#if DEBUG
+}
     <script>
         System.import('app').catch(function (err) { console.error(err); });
-
     </script>
+@{
+#else
+}
+    <script src="~/app/app.js"></script>
+@{
+#endif
+}
 }
 
 <app></app>

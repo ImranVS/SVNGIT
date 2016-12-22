@@ -7,7 +7,7 @@ import {RESTService} from '../../../core/services';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 
 @Component({
-    templateUrl:'/app/widgets/grid/components/dynamic-grid.component.html' ,
+    templateUrl: '/app/widgets/grid/components/dynamic-grid.component.html',
     providers: [
         HttpModule,
         RESTService

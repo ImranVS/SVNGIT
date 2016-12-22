@@ -16,7 +16,7 @@ import {WidgetComponent} from '../../../core/widgets';
 
 
 @Component({
-    templateUrl: '/app/configurator/components/serverSettings/configurator-windows-services .component.html',
+    templateUrl: '/app/configurator/components/serverSettings/server-settings-windows-services.component.html',
     providers: [
         HttpModule,
         RESTService
