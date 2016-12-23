@@ -1317,5 +1317,105 @@ namespace VitalSigns.API.Controllers
             }
 
         }
+
+        [HttpGet("connections/user_activity")]
+        public APIResponse ConnectionsUserActivity()
+        {
+            List<UserAdoptionPivot> result = new List<UserAdoptionPivot>();
+            List<dynamic> resultFinal = new List<dynamic>();
+            List<string> objectTypes = new List<string>();
+            UserAdoptionPivot ua = new UserAdoptionPivot();
+            List<int> uaVal = new List<int>();
+            int total = 0;
+            FilterDefinition<IbmConnectionsObjects> filterDef;
+            DateTime lastXDays = new DateTime();
+            try
+            {
+                lastXDays = DateTime.Now.AddDays(-90);
+                //Find all communities
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community").ToList();
+
+                //Iterate through the list of communities and build a list of distinct object types, i.e., blogs, bookmarks, etc.
+                foreach (var community in listOfCommunity)
+                {
+                    filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.ParentGUID, community.Id),
+                        connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays));
+                    var res2 = connectionsObjectsRepository.Collection.Distinct(i => i.Type, filterDef).ToList();
+                    foreach (var objType in res2)
+                    {
+                        if (!objectTypes.Contains(objType))
+                        {
+                            objectTypes.Add(objType);
+                        }
+                    }
+                }
+
+                //Iterate through the list of users and collect information about each user's activity level for each of the object types above
+                filterDef = connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users");
+                var listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
+                var listOfUserNames = connectionsObjectsRepository.Collection.Distinct(i => i.Name, filterDef).ToList();
+                foreach (var user in listOfUserNames)
+                {
+                    var userId = listOfUsers.Find(i => i.Name == user);
+                    filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
+                        connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays),
+                        connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
+                    var res = connectionsObjectsRepository.Find(filterDef)
+                        .GroupBy(row => new
+                        {
+                            row.DeviceName,
+                            row.OwnerId,
+                            row.Type
+                        })
+                        .Select(x => new UserAdoption
+                        {
+                            ServerName = x.Key.DeviceName,
+                            ObjectName = x.Key.Type,
+                            ObjectValue = x.Count(),
+                            UserName = user
+                        }).ToList();
+                    if (res.Count > 0)
+                    {
+                        uaVal = new List<int>();
+                        total = 0;
+                        foreach (var obj in objectTypes)
+                        {
+                            var record = res.Find(x => x.ObjectName == obj);
+                            if (record != null)
+                            {
+                                uaVal.Add(record.ObjectValue);
+                                total += record.ObjectValue;
+                            }
+                            else
+                            {
+                                uaVal.Add(0);
+                            }
+                        }
+                        ua = new UserAdoptionPivot
+                        {
+                            ServerName = res[0].ServerName,
+                            UserName = res[0].UserName,
+                            ObjectValues = uaVal,
+                            Total = total
+                        };
+                        result.Add(ua);
+                    }     
+                }
+                List<UserAdoptionPivot> sortedList = result.OrderByDescending(i => i.Total).ToList();
+                resultFinal.Add(sortedList);
+                resultFinal.Add(objectTypes);
+                Response = Common.CreateResponse(resultFinal);
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+        }
     }
 }
