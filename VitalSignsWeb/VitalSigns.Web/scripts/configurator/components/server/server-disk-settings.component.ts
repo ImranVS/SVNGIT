@@ -8,12 +8,15 @@ import {DiskSttingsValue} from '../../models/server-disk-settings';
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {AppComponentService} from '../../../core/services';
+import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
+
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/server/server-disk-settings.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        ServersLocationService
     ]
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
@@ -25,6 +28,7 @@ export class DominoServerDiskSettings implements OnInit {
     deviceCredentialData: any;
     devicebusinessHourData: any;
     diskSettingsForm: FormGroup;
+
     selectedDiskSetting: any;
     selectedDiskSettingValue: any;
 

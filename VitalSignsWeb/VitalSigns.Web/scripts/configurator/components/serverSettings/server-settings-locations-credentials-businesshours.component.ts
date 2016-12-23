@@ -2,6 +2,8 @@
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
+import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
+
 
 import {RESTService} from '../../../core/services';
 import {AppComponentService} from '../../../core/services';
@@ -10,7 +12,8 @@ import {AppComponentService} from '../../../core/services';
     templateUrl: '/app/configurator/components/serverSettings/server-settings-locations-credentials-businesshours.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        ServersLocationService
     ]
 })
 export class ServerLocations implements OnInit, AfterViewInit {

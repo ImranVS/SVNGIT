@@ -4,11 +4,13 @@ import {GridBase} from '../../../core/gridBase';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {AppComponentService} from '../../../core/services';
+import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component.html',
     providers: [
-        RESTService
+        RESTService,
+        ServersLocationService
     ]
 })
 export class AddLogFile extends GridBase implements OnInit {

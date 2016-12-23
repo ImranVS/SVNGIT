@@ -6,21 +6,17 @@ import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-import {AppNavigator} from '../../../navigation/app.navigator.component';
-import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
-import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
-import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
-import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
 import {AppComponentService} from '../../../core/services';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
+import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
 
 
 @Component({
     templateUrl: '/app/configurator/components/security/security-assign-server-to-node.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        ServersLocationService
     ]
 })
 export class Nodes extends GridBase {
@@ -33,7 +29,7 @@ export class Nodes extends GridBase {
     servernodes: any;
     nodesHealth: FormGroup;
     devices: string;
-    selectedNode: string;
+    selectedNode: string = null;
     visibility: boolean = true;
     isVisible: boolean = false;
     

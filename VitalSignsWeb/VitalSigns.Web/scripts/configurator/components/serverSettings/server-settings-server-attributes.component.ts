@@ -6,21 +6,17 @@ import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {DeviceAttributeValue} from '../../models/device-attribute';
 import {AppComponentService} from '../../../core/services';
+import {ServersLocationService} from './serverattributes-view.service';
+import { ServersLocation } from '../server-list-location.component';
 
-
-import {AppNavigator} from '../../../navigation/app.navigator.component';
-import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
-import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
-import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
-import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
 
 
 @Component({
     templateUrl: '/app/configurator/components/serverSettings/server-settings-server-attributes.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        ServersLocationService
     ]
 })
 export class DeviceAttributes extends GridBase implements OnInit {
@@ -33,17 +29,24 @@ export class DeviceAttributes extends GridBase implements OnInit {
     errorMessage: any;
     selectedDeviceType: any;
     currentForm: FormGroup;
+    public serversLocationsService: ServersLocationService;
     //data: wijmo.collections.CollectionView;
-    constructor(service: RESTService,
+    constructor(service: RESTService, serversLocationsService: ServersLocationService,
         private formBuilder: FormBuilder, appComponentService: AppComponentService) {
+       
         super(service, appComponentService);
+        this.serversLocationsService = serversLocationsService;
+       
         this.currentForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
             'devices': ['']
 
-
+           
         });
+       this.serversLocationsService = serversLocationsService;
+     
+        
     }  
   
     changeInDevices(devices: string) {
@@ -68,6 +71,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
         this.currentDeviceType = this.combo.selectedItem.Text;
         this.type.emit(this.currentDeviceType);
         this.selectedDeviceType = this.selectedDeviceType;
+      
         this.service.get('/configurator/get_device_attributes?type='+ this.selectedDeviceType)
             .subscribe(
             (response) => {
@@ -75,21 +79,10 @@ export class DeviceAttributes extends GridBase implements OnInit {
                 this.data.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
-            );
-
-
-
+        );
+        this.serversLocationsService.refreshServerLocations(this.selectedDeviceType);
     }
-    //loadData() {
-    //    this.service.get('/configurator/get_device_attributes?type=' + this.selectedDeviceType)
-    //        .subscribe(
-    //        (response) => {
-    //            this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-    //            this.data.pageSize = 10;
-    //        },
-    //        (error) => this.errorMessage = <any>error
-    //        );
-    //}
+ 
     ngOnInit()
     {
         this.initialGridBind('/Configurator/get_device_attributes?type='+this.selectedDeviceType);
@@ -100,7 +93,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
             },
             (error) => this.errorMessage = <any>error
         );
-       // this.loadData();
+ 
     }
     applySetting() { 
         var slectedAttributeValues: DeviceAttributeValue[] = [];
@@ -116,8 +109,6 @@ export class DeviceAttributes extends GridBase implements OnInit {
             }
 
        }
-
-
 
         var postData = {
             "setting": "",

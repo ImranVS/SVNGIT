@@ -3,7 +3,7 @@
         <div class="form-group">
             <label for="deviceType" class="control-label">Device Type</label>
 
-            <wj-combo-box name="deviceType" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceTypeData" [(text)]="selectedDeviceType"
+            <wj-combo-box name="deviceType" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceTypeData" [(text)]="selectedDeviceType" [isEditable]="true"
                           [(ngModel)]="selectedDeviceType" placeholder="Select Device Type" (selectedIndexChanged)="onDeviceTypeIndexChanged($event)" #combo>
             </wj-combo-box>
         </div>
@@ -58,7 +58,7 @@ data.pageIndex + 1 | number
 <div class="widgetContent">
     <div>
         <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
-        <server-location-list (checkedDevices)="changeInDevices($event)" (deviceType)="currentDeviceType=$event" ></server-location-list>
+        <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceType)]="selectedDeviceType"></server-location-list>
         <button type="button" class="btn btn-primary" (click)="applySetting()" [disabled]="!(devices.length>0)">Apply</button>
     </div>
 

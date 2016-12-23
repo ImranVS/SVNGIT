@@ -6,12 +6,14 @@ import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
 import {DiskSttingsValue} from '../../models/server-disk-settings';
 import {AppComponentService} from '../../../core/services';
+import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/serverSettings/server-settings-disk-settings.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        ServersLocationService
     ]
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {

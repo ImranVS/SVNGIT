@@ -13,12 +13,15 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
 import {DominoServerTasksValue} from '../../models/domino-server-tasks';
 import {AppComponentService} from '../../../core/services';
 
+import {ServersLocationService} from './serverattributes-view.service';
+
+
 
 @Component({
     templateUrl: '/app/configurator/components/serverSettings/server-settings-domino-server-tasks.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService, ServersLocationService
     ]
 })
 export class DominoServerTasks extends GridBase implements OnInit  {  

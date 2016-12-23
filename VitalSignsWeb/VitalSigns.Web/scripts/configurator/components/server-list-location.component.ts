@@ -1,15 +1,9 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit, Output, Input, EventEmitter} from '@angular/core';
-import { CommonModule } from '@angular/common';EventEmitter
+import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../core/services';
 import {GridBase} from '../../core/gridBase';
-
-import {AppNavigator} from '../../navigation/app.navigator.component';
-import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
-import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
-import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
-import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
+import {ServersLocationService} from './serverSettings/serverattributes-view.service';
 
 
 @Component({
@@ -17,7 +11,9 @@ import * as wjCoreModule from 'wijmo/wijmo.angular2.core';;
     templateUrl: '/app/configurator/components/server-list-location.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        
+           
     ]
 })
 export class ServersLocation implements OnInit {
@@ -42,6 +38,11 @@ export class ServersLocation implements OnInit {
             }
         }
     }
+    constructor(private service: RESTService, private serversLocationsService: ServersLocationService) {
+        
+           this.serversLocationsService.registerServerLocation(this);
+        
+    } 
     refreshCheckedDevices() {
         if (this.flex.collectionView) {
             if (this.flex.collectionView.items.length > 0) {
@@ -68,9 +69,7 @@ export class ServersLocation implements OnInit {
             }
         }
     }
-    constructor(private service: RESTService) {
-       
-    } 
+   
     serverCheck(value,event) {
      
         if (event.target.checked)
@@ -94,9 +93,26 @@ export class ServersLocation implements OnInit {
             this.data.refresh();
         }
     }
-    onDeviceListChange() {
+    onDeviceListChange(deviceType: string) {
+        this.deviceType = deviceType;
+        this.service.get("/Configurator/device_list")
+            .subscribe(
+            response => {
+               // this.serversLocationsService.registerServerLocation(this);
+                if (this.deviceType) {
+                    var resultData = response.data;
+                    
+                        resultData = resultData.filter((record) => record.device_type == this.deviceType);                        
+                    
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
+                    this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
+                    this.data.pageSize = 10;
+                }
+            });
+        this.flex.refresh(true);
     }
     ngOnInit() {
+       
         this.service.get("/Configurator/device_list")
             .subscribe(
             response => {
