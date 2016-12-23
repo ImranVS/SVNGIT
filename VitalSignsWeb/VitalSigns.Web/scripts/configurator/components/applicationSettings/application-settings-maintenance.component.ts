@@ -3,7 +3,7 @@ import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {AppComponentService} from '../../../core/services';
-
+import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
 import * as helpers from '../../../core/services/helpers/helpers';
 
 @Component({
@@ -11,7 +11,8 @@ import * as helpers from '../../../core/services/helpers/helpers';
     providers: [
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper
+        helpers.DateTimeHelper,
+        ServersLocationService
     ]
 })
 export class Maintenance extends GridBase implements OnInit  {  
