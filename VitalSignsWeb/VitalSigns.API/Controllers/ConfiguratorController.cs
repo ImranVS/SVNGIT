@@ -487,8 +487,8 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(locations.Id))
                 {
                     Location location = new Location { LocationName = locations.LocationName, Country = locations.Country, Region = locations.Region, City = locations.City };
-                    locationRepository.Insert(location);
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location inserted successfully");
+                    string id = locationRepository.Insert(location);
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Location inserted successfully");
                 }
                 else
                 {
@@ -2068,12 +2068,11 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-         /// <summary>
-        /// 
-        /// </summary>
-        /// <author></author>
+        /// <summary>
+        /// //Get nodes
         /// <param name="cellInfo"></param>
         /// <param name="id"></param>
+        /// <author>Swathi</author>
         /// <returns></returns>
         [HttpPut("get_sametime_websphere_nodes/{id}")]
         public APIResponse LoadSametimeWebSphereNodes([FromBody]CellInfo cellInfo, string id)
@@ -5378,7 +5377,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <author></author>
+        /// <author>swathi</author>
         /// <returns></returns>
 
         [HttpGet("get_nodes_health")]
@@ -5425,7 +5424,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <author></author>
+        /// <author>swathi</author>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("get_nodes_services")]
@@ -5508,7 +5507,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <author></author>
+        /// <author>swathi</author>
         /// <param name="nodeshealth"></param>
         /// <returns></returns>
         [HttpPut("save_nodes_health")]
@@ -5545,7 +5544,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <author></author>
+        /// <author>Swathi</author>
         /// <param name="devicesettings"></param>
         /// <returns></returns>
         [HttpPut("save_nodes_servers")]
@@ -5579,7 +5578,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <author></author>
+        /// <author>Swathi</author>
         /// <param name="Id"></param>
         [HttpDelete("delete_nodes_health/{Id}")]
         public void DeleteNodesHealth(string Id)
@@ -6780,7 +6779,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <author></author>
+        /// <author>author</author>
         /// <returns></returns>
         [HttpGet("get_log_files")]
         public APIResponse GetLogFiles()
@@ -6839,7 +6838,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <author></author>
+        /// <author>author</author>
         /// <param name="logfile"></param>
         /// <returns></returns>
         [HttpGet("get_read_files/{logfile}")]
@@ -6883,7 +6882,7 @@ namespace VitalSigns.API.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <author></author>
+        /// <author>Swathi</author>
         /// <param name="devicesettings"></param>
         /// <returns></returns>
         [HttpPut("save_log_settings")]
