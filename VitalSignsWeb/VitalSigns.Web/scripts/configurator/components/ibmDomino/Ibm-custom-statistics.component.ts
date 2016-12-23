@@ -6,13 +6,15 @@ import {GridBase} from '../../../core/gridBase';
 
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import {AppComponentService} from '../../../core/services';
+import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
 
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-custom-statistics.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        ServersLocationService
     ]
 })
 export class CustomStatistics extends GridBase implements OnInit {
