@@ -10,13 +10,16 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as wjCoreModule from 'wijmo/wijmo.angular2.core';
 import {GridBase} from '../../../core/gridBase';
-import {AppComponentService} from '../../../core/services';
+import { AppComponentService } from '../../../core/services';
+import { ServersLocationService } from '../serverSettings/serverattributes-view.service';
+
 @Component({
     selector: 'vs-notification-definitions',
     templateUrl: '/app/configurator/components/alert/alert-definitions.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        ServersLocationService
     ]
 })
 export class AlertDefinitions extends GridBase implements OnInit  {  
