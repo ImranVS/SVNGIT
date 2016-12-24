@@ -17,7 +17,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" *ngIf="licenseType!='Perpetual'">
                             <div class="form-group col-sm-12">
                                 <label for="expirationDate" class="control-label col-sm-5">Expiration Date</label>
                                 <div id="expirationDate" name="expirationDate" class="col-sm-7"  style="padding-top: 7px;">{{expirationDate}}</div>

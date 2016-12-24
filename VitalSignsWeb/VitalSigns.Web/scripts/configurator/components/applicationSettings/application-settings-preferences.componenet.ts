@@ -4,12 +4,14 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {AppComponentService} from '../../../core/services';
 import {RESTService} from '../../../core/services';
+import * as helpers from '../../../core/services/helpers/helpers';
 
 @Component({
     selector: 'preferences-form',
     templateUrl: '/app/configurator/components/applicationSettings/application-settings-preferences.componenet.html',
     providers: [
         HttpModule,
+        helpers.DateTimeHelper,
         RESTService
     ]
 })
@@ -33,6 +35,7 @@ export class PreferencesForm implements OnInit {
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
+        private datetimeHelpers: helpers.DateTimeHelper,
         private route: ActivatedRoute, appComponentService: AppComponentService) {
 
         this.preferencesForm = this.formBuilder.group({
@@ -79,7 +82,7 @@ export class PreferencesForm implements OnInit {
     saveLicence(dialog: wijmo.input.Popup) {
         var licencekey=this.licencekey.first.nativeElement.value;
         if (licencekey == "") {
-            alert("error");
+            this.appComponentService.showErrorMessage("You must enter a license key");
         } else
         {
             this.formData = null;
@@ -94,17 +97,18 @@ export class PreferencesForm implements OnInit {
                         response => {
                             this.appComponentService.hideProgressBar();
                             if (response.status == "Success") {
-                                this.appComponentService.showSuccessMessage("License Key Updated Successfully!");
+                                this.appComponentService.showSuccessMessage("License key updated successfully");
                             }
                             else {
-                                this.appComponentService.showErrorMessage("Error updating the license key!");
+                                this.appComponentService.showErrorMessage("Error updating the license key");
                             }
-                            this.expirationDate = response.data.licenseitem.ExpirationDate;
+                            this.expirationDate = new Date(response.data.licenseitem.ExpirationDate).toDateString();
                             this.units = response.data.licenseitem.units;
                             this.companyName = response.data.licenseitem.CompanyName;
                             this.licenseType = response.data.licenseitem.LicenseType;
                             this.installType = response.data.licenseitem.InstallType;
                             //this.preferencesForm.setValue(response.data.userpreference);
+                            
                         },
                         (error) => {
                             this.appComponentService.hideProgressBar();
