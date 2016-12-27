@@ -950,8 +950,8 @@ namespace VitalSigns.API.Controllers
             eventsRepository = new Repository<EventsDetected>(ConnectionString);
             try
             {
-                Expression<Func<EventsDetected, bool>> expression = (p => p.DeviceId == device_id);
-                var events1 = eventsRepository.Find(expression).AsQueryable().ToList();
+                Expression<Func<EventsDetected, bool>> expression = (p => p.DeviceId == device_id && (p.EventDetected<=DateTime.Now && p.EventDetected>=DateTime.Now.AddDays(-7)) );
+                var events1 = eventsRepository.Find(expression).AsQueryable().ToList().OrderByDescending(p=>p.EventDetected);
                 foreach (EventsDetected event1 in events1)
                 {
                     var x = new ExpandoObject() as IDictionary<string, Object>;
