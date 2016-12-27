@@ -376,7 +376,7 @@ namespace VitalSigns.API.Controllers
                     {
                         var item = currList.Where(x => x.StatDate.Value.Date == date.Date).ToList();
 
-                        serie.Segments.Add(new Segment() { Label = date.ToString(DateFormat), Value = item.Count > 0 ? (double?)item[0].StatValue : null });
+                        serie.Segments.Add(new Segment() { Label = date.ToString(DateFormat), Value = item.Count > 0 ? (double?)Math.Round(item[0].StatValue,2) : null });
                     }
                     series.Add(serie);
                 }
