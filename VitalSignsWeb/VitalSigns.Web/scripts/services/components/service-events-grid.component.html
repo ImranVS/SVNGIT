@@ -1,4 +1,8 @@
-﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" #flex>
+﻿
+<div class="alert alert-info col-lg-12">
+    <p>The list of configured events that apply to the server are listed below. The list includes the last 7 days worth of information.</p>
+</div>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Event'" [binding]="'event_type'" [width]="250"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Event Detected'" [binding]="'event_detected'" [width]="200"></wj-flex-grid-column>
