@@ -102,6 +102,8 @@ Public Class MaintenanceDll
         Dim MinTime, MaxTime As TimeSpan
         Dim TimeNow As DateTime = Now
         Dim Wknum, Duration, StartWknum, TodayWknum As Integer
+        Dim dayOfWeekT As Integer
+
         Wknum = b2.GetWeekOfMonth(Convert.ToDateTime(Now)) 'Format(Now.Date, "w")
 
         Try
@@ -181,6 +183,7 @@ Public Class MaintenanceDll
                                     Dim WKday As Array = i.Split(":")
                                     If (TodayWknum - StartWknum) Mod WKday(1) = 0 Then
                                         'If Wknum = WKday(1) Then
+                                        dayOfWeekT = IIf(MyStartTime.DayOfWeek = 0, 7, MyStartTime.DayOfWeek)
                                         WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName &
                                                                 "; MyStartTime - " & MyStartTime.ToString() &
                                                                 "; MyEndTime - " & MyEndTime.ToString() &
@@ -189,8 +192,8 @@ Public Class MaintenanceDll
                                                                 "; TodayWknum - " & TodayWknum.ToString() &
                                                                 "; WKday(1) - " & WKday(1).ToString() &
                                                                 "; WKday(0) - " & WKday(0).ToString() &
-                                                                "; MyStartTime.DayOfWeek - " & MyStartTime.DayOfWeek)
-                                        If MyStartTime.DayOfWeek = WKday(0) Then
+                                                                "; dayOfWeekT - " & dayOfWeekT)
+                                        If dayOfWeekT = WKday(0) Then
                                             If Now >= MyStartTime And Now < MyEndTime Then
                                                 WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is in maintenance.")
                                                 InMaintenanceWindow = True
