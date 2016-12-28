@@ -289,16 +289,6 @@ Public Class VitalSignsPlusDomino
 
         End Try
 
-
-        Try
-            Dim myAdapter As New VSFramework.XMLOperation
-            Dim MyConnectionString As String
-            MyConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
-            'WriteAuditEntry(Now.ToString + " My connection string is " & MyConnectionString)
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString + " Exception getting connection string: " & ex.ToString)
-        End Try
-
         Try
             mNotesProgDir = myRegistry.ReadFromRegistry("Notes Program Directory")
             If mNotesProgDir = "" Then

@@ -2142,10 +2142,10 @@ Public Class VSMaster
             'Dim DS2 As New DataSet
             'DA2.Fill(DS2, "svalue")
             'Dim dtmail As DataTable = DS2.Tables(0)
-            Dim dtmail As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlstm)
-            If dtmail.Rows.Count > 0 Then
-                alertson = Convert.ToBoolean(dtmail.Rows(0)("svalue").ToString())
-            End If
+            'Dim dtmail As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlstm)
+            'If dtmail.Rows.Count > 0 Then
+            'alertson = Convert.ToBoolean(dtmail.Rows(0)("svalue").ToString())
+            'End If
 
         Catch ex As Exception
         End Try

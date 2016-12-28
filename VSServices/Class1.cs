@@ -146,7 +146,7 @@ namespace RPRWyatt.VitalSigns.Services
                         {
                             strSQL = "select * from VS_AssemblyVersionInfo where  AssemblyName='" + newt.Rows[i]["AssemblyName"].ToString() + "' and NodeName='" + NodeName + "'";
                             myAdapter.FillDatasetAny("VitalSigns", "None", strSQL, ref DsSettings, "VS_AssemblyVersionInfo");
-                            dt = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), strSQL);
+                            //dt = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), strSQL);
                           //  dt = DsSettings.Tables["VS_AssemblyVersionInfo"];
                             if (dt.Rows.Count > 0)
                             {

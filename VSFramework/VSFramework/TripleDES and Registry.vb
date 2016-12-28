@@ -363,7 +363,6 @@ Public Class XMLOperation
             strChangeValue = strValue
         End If
         Dim sConnectionString As String = ""
-        sConnectionString = GetDBConnectionString("VitalSigns")
 
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NameValue)(GetMongoDBConnectionString())

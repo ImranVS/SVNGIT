@@ -164,17 +164,6 @@ Public Class VitalSignsPlusExJournal
 
         End Try
 
-
-        Try
-            Dim myAdapter As New VSFramework.XMLOperation
-            Dim MyConnectionString As String
-            MyConnectionString = myAdapter.GetDBConnectionString("VitalSigns")
-            WriteAuditEntry(Now.ToString + " My connection string is " & MyConnectionString)
-
-        Catch ex As Exception
-            WriteAuditEntry(Now.ToString + " Exception getting connection string: " & ex.ToString)
-        End Try
-
         '5/5/2016 NS commented out the code below since it is outdated and produces an error in SQL
         'Try
         '	Dim VSObject As New VSFramework.VSAdaptor

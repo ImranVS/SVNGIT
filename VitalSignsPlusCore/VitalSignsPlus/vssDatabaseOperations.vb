@@ -3648,20 +3648,21 @@ Partial Public Class VitalSignsPlusCore
     End Sub
     'Kiran Dadireddy VSPLUS-2684
     Private Sub ShrinkLog(ByVal connection As String)
-        Try
+        Return
+        'Try
 
-            Dim myAdapter As New VSFramework.XMLOperation
-            Using con As New System.Data.SqlClient.SqlConnection(myAdapter.GetDBConnectionString(connection))
-                con.Open()
-                Dim command As New SqlCommand("DBCC SHRINKFILE(" + connection + "_Log,10)", con)
-                command.ExecuteNonQuery()
-            End Using
+        '    Dim myAdapter As New VSFramework.XMLOperation
+        '    Using con As New System.Data.SqlClient.SqlConnection(myAdapter.GetDBConnectionString(connection))
+        '        con.Open()
+        '        Dim command As New SqlCommand("DBCC SHRINKFILE(" + connection + "_Log,10)", con)
+        '        command.ExecuteNonQuery()
+        '    End Using
 
-            WriteAuditEntry(Now.ToString & " Completed shrinking " + connection + " Log ")
-        Catch ex As Exception
+        '    WriteAuditEntry(Now.ToString & " Completed shrinking " + connection + " Log ")
+        'Catch ex As Exception
 
-            WriteAuditEntry(Now.ToString & " Exception while Shrinking " + connection + " Log . \n Exception :" + ex.Message)
-        End Try
+        '    WriteAuditEntry(Now.ToString & " Exception while Shrinking " + connection + " Log . \n Exception :" + ex.Message)
+        'End Try
     End Sub
 
 End Class

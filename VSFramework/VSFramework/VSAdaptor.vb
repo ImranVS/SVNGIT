@@ -75,9 +75,9 @@ Public Class VSAdaptor
 			Dim myOp As New XMLOperation
 			With mySqlConnection
 				If .State = ConnectionState.Closed Then
-					'  .ConnectionString = "Data Source=" & SQLServerName & "; Integrated Security=" & SQLIntegratedSecurity & ";Initial Catalog=" & SQLDBName & ";Persist Security Info=False;User ID=" & SQLUserName & ";Password=" & SQLPassword & "; Workstation ID=" & WorkstationName
-					.ConnectionString = myOp.GetDBConnectionString(SQLDBName)
-					.Open()
+                    '  .ConnectionString = "Data Source=" & SQLServerName & "; Integrated Security=" & SQLIntegratedSecurity & ";Initial Catalog=" & SQLDBName & ";Persist Security Info=False;User ID=" & SQLUserName & ";Password=" & SQLPassword & "; Workstation ID=" & WorkstationName
+                    .ConnectionString = "" 'myOp.GetDBConnectionString(SQLDBName)
+                    .Open()
 				End If
 			End With
 
