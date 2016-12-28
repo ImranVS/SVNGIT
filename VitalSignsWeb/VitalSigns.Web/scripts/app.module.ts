@@ -111,6 +111,9 @@ import {DiskSpaceConsumptionReport} from './reports/components/disk/disk-space-c
 import { TravelerHTTPSessionsReport } from './reports/components/ibm-traveler/traveler-http-sessions.component';
 import { TravelerDeviceSyncReport } from './reports/components/ibm-traveler/traveler-device-syncs.component';
 import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/traveler-cpu-util.component';
+import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websphere-response-times.component';
+import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
+import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
 
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 
@@ -213,6 +216,9 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         TravelerHTTPSessionsReport,
         TravelerDeviceSyncReport,
         TravelerCPUUtilReport,
+        WebSphereResponseTimes,
+        WebSphereActiveThreads,
+        WebSphereCurrentHeapSize,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
