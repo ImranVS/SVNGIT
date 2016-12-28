@@ -85,6 +85,20 @@ data.pageIndex + 1 | number
                                         </div>
                                         <div class="row">
                                             <div class="form-group col-sm-12">
+                                                <label class="control-label col-sm-4">...type of statistic:</label>
+                                                <div class="col-sm-8">
+                                                    <div class="radio radio-info radio-inline col-sm-12">
+                                                        <input type="radio" id="numeric" name="type_of_statistic" value="Numeric" [(ngModel)]="currentEditItem.type_of_statistic" />
+                                                        <label for="numeric" class="col-sm-3">Numeric</label>
+                                                        <input type="radio" id="string" name="type_of_statistic" value="String" [(ngModel)]="currentEditItem.type_of_statistic" />
+                                                        <label for="string" class="col-sm-3">String</label>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12" *ngIf="currentEditItem.type_of_statistic=='Numeric'">
                                                 <label class="control-label col-sm-4">...has a value that is</label>
                                                 <div class="col-sm-8">
                                                     <div class="radio radio-info radio-inline col-sm-12">
@@ -93,18 +107,44 @@ data.pageIndex + 1 | number
                                                         <input type="radio" id="less_than" name="greater_than_or_less_than" value="Less Than" [(ngModel)]="currentEditItem.greater_than_or_less_than" />
                                                         <label for="less_than" class="col-sm-3">Less Than</label>
                                                     </div>
-                                                    
+
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="form-group col-sm-12">
+                                            <div class="form-group col-sm-12" *ngIf="currentEditItem.type_of_statistic=='String'">
+                                                <label class="control-label col-sm-4">...has a value that is</label>
+                                                <div class="col-sm-8">
+                                                    <div class="radio radio-info radio-inline col-sm-12">
+                                                        <input type="radio" id="equal" name="eual_or_not_equal" value="Equal" [(ngModel)]="currentEditItem.eual_or_not_equal" />
+                                                        <label for="equal" class="col-sm-3">Equal</label>
+                                                        <input type="radio" id="not_equal" name="eual_or_not_equal" value="Not Equal" [(ngModel)]="currentEditItem.eual_or_not_equal" />
+                                                        <label for="not_equal" class="col-sm-3">Not Equal</label>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12" *ngIf="currentEditItem.type_of_statistic=='Numeric'">
                                                 <label for="yellow_threshold" class="control-label col-sm-4">...this value</label>
                                                 <div class="col-sm-2">
                                                     <input type="number" class="form-control" id="yellow_threshold" name="yellow_threshold" [(ngModel)]="currentEditItem.yellow_threshold" />
                                                 </div>
                                                 <div class="col-sm-2">
                                                     <input type="number" class="form-control" id="times_in_a_row" name="times_in_a_row" [(ngModel)]="currentEditItem.times_in_a_row" />
+                                                </div>
+                                                <label for="times_in_a_row" class="control-label col-sm-2">times in a row</label>
+                                            </div>
+                                        </div>
+                                        <div class="row" *ngIf="currentEditItem.type_of_statistic=='String'">
+                                            <div class="form-group col-sm-12">
+                                                <label for="yellow_threshold" class="control-label col-sm-4">...this value</label>
+                                                <div class="col-sm-2">
+                                                    <input type="text" class="form-control" name="string_value" [(ngModel)]="currentEditItem.yellow_threshold" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input type="number" class="form-control" name="string_times_in_a_row" [(ngModel)]="currentEditItem.times_in_a_row" />
                                                 </div>
                                                 <label for="times_in_a_row" class="control-label col-sm-2">times in a row</label>
                                             </div>

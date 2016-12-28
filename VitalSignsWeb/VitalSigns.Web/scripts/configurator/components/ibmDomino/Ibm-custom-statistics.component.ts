@@ -55,8 +55,11 @@ export class CustomStatistics extends GridBase implements OnInit {
         this.addGridRow(dlg);
         this.currentEditItem.domino_servers = "";
         this.currentEditItem.stat_name = "";
-        this.currentEditItem.yellow_threshold = 0;
+        this.currentEditItem.yellow_threshold = "";
         this.currentEditItem.greater_than_or_less_than = "Less Than";
+        this.currentEditItem.type_of_statistic = "Numeric";
+        // this.currentEditItem.numeric_or_string = "Numeric"; 
+        this.currentEditItem.eual_or_not_equal = "Equal";
         this.currentEditItem.times_in_a_row = 0;
         this.currentEditItem.console_command = "";
         this.checkedDevices = [];
