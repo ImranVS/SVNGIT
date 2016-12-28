@@ -182,8 +182,26 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonIgnoreIfNull]
+        [BsonElement("numeric_or_string")]
+        public String NumericOrString { get; set; }
+
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("type_of_statistic")]
+        public String TypeOfStatistic { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("eual_or_not_equal")]
+        public String EqualOrNotEqual { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
         [BsonElement("times_in_a_row")]
         public int? TimesInARow { get; set; }
+
+
 
         [DataMember]
         [BsonIgnoreIfNull]
