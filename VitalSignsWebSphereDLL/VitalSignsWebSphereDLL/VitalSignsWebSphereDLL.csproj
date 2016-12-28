@@ -51,6 +51,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\LogUtils\LogUtils\LogUtils.csproj">
+      <Project>{1cb45d92-7551-4699-b6a2-215e1ec9599b}</Project>
+      <Name>LogUtils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\VSFramework\VSFramework\VSFramework.vbproj">
       <Project>{6C0FFC43-9F5B-4832-820B-D274D0FBAC09}</Project>
       <Name>VSFramework</Name>
