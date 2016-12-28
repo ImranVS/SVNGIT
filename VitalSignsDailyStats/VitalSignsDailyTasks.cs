@@ -43,6 +43,7 @@ namespace VitalSignsDailyStats
         IRepository<ConsolidationResults> consolidationResultsRepository;
 
         IRepository<ValidLocation> validLocationsRepository;
+        IRepository<MobileDeviceTranslations> mobileDeviceTranslationsRepository;
         List<string> diskNames = new List<string>();
         VSAdaptor objVsAdaptor = new VSAdaptor();
         string culture = "en-US";
@@ -108,6 +109,7 @@ namespace VitalSignsDailyStats
 
                 validLocationsRepository = _unitOfWork.Repository<ValidLocation>();
                 consolidationResultsRepository = _unitOfWork.Repository<ConsolidationResults>();
+                mobileDeviceTranslationsRepository = _unitOfWork.Repository<MobileDeviceTranslations>();
                 try
                 {
                     if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
@@ -1048,50 +1050,6 @@ namespace VitalSignsDailyStats
             public string TranslatedValue { get; set; }
             public string OSName { get; set; }
         }
-        //Kiran Dadireddy VSPLUS-2684
-        private void ShrinkLog(string connection)
-        {
-
-            try
-            {
-                VSFramework.XMLOperation myAdapter = new VSFramework.XMLOperation();
-                using (System.Data.SqlClient.SqlConnection con = new System.Data.SqlClient.SqlConnection(myAdapter.GetDBConnectionString(connection)))
-                {
-                    try
-                    {
-                        con.Open();
-                        SqlCommand command = new SqlCommand("DBCC SHRINKFILE(" + connection + "_Log,10)", con);
-                        command.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                    }
-                    finally
-                    {
-                        if (con.State == ConnectionState.Open)
-                        {
-                            con.Close();
-                        }
-                    }
-                }
-
-                WriteAuditEntry(DateTime.Now.ToString() + " Completed shrinking " + connection + " Log ");
-
-            }
-            catch (Exception ex)
-            {
-                WriteAuditEntry(DateTime.Now.ToString() + " Exception while Shrinking " + connection + " Log . \\n Exception :" + ex.Message);
-            }
-        }
-        //Kiran Dadireddy VSPLUS-2684
-        private void ShrinkDBLogOnWeeklyBasis()
-        {
-            WriteAuditEntry(DateTime.Now.ToString() + " Starting Shrinking VitalSigns Log ");
-            ShrinkLog("VitalSigns");
-
-            WriteAuditEntry(DateTime.Now.ToString() + " Starting Shrinking VSS_Statistics Log ");
-            ShrinkLog("VSS_Statistics");
-        }
 
         private void ConsolidateExchangeMailboxData(DateTime curDate, String searchDateStr = "")
         {
@@ -1277,6 +1235,52 @@ namespace VitalSignsDailyStats
                     }
 
                 }
+
+                if ((root.Device.Length > 0))
+                {
+
+                    try
+                    {
+                        List<VSNext.Mongo.Entities.MobileDeviceTranslations> entitiesList = new List<MobileDeviceTranslations>();
+                        root.Device.ToList().ForEach(x => entitiesList.Add(new MobileDeviceTranslations()
+                        {
+                            OriginalValue = x.DeviceType,
+                            OSType = x.OSName,
+                            TranslatedValue = x.TranslatedValue,
+                            Type = "Device"
+                        }));
+                        mobileDeviceTranslationsRepository.Delete(x => x.Type == "Device");
+                        mobileDeviceTranslationsRepository.Insert(entitiesList);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteAuditEntry(DateTime.Now.ToString() + " Error adding new device translations " + ex.ToString());
+                    }
+                }
+
+
+                if ((root.OS.Length > 0))
+                {
+
+                    try
+                    {
+                        List<VSNext.Mongo.Entities.MobileDeviceTranslations> entitiesList = new List<MobileDeviceTranslations>();
+                        root.OS.ToList().ForEach(x => entitiesList.Add(new MobileDeviceTranslations()
+                        {
+                            OriginalValue = x.OSType,
+                            OSType = x.OSName,
+                            TranslatedValue = x.TranslatedValue,
+                            Type = "OS"
+                        }));
+                        mobileDeviceTranslationsRepository.Delete(x => x.Type == "OS");
+                        mobileDeviceTranslationsRepository.Insert(entitiesList);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteAuditEntry(DateTime.Now.ToString() + " Error adding new OS translations " + ex.ToString());
+                    }
+                }
+                
 
                 try
                 {

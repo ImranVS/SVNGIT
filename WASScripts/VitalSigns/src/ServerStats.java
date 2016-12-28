@@ -93,7 +93,7 @@ public class ServerStats
 		connectProps.setProperty(AdminClient.CONNECTOR_AUTO_ACCEPT_SIGNER,"true");
 		connectProps.setProperty(AdminClient.CONNECTOR_HOST,hostName);
 		connectProps.setProperty(AdminClient.CONNECTOR_PORT,portNo);
-		System.setOut(new PrintStream(new FileOutputStream("Log_Files/Stats_Connection.log", true)));
+		//System.setOut(new PrintStream(new FileOutputStream("Log_Files/Stats_Connection.log", true)));
 		connectProps.setProperty(AdminClient.USERNAME,userName);
 		connectProps.setProperty(AdminClient.PASSWORD,passwd);
 		System.setProperty("com.ibm.CORBA.loginUserid",userName);
@@ -133,7 +133,7 @@ public class ServerStats
 		//connectProps.setProperty(AdminClient.CONNECTOR_TYPE,connTypeStr);
 		//connectProps.setProperty(AdminClient.CONNECTOR_AUTO_ACCEPT_SIGNER,"true");
 		
-		System.setOut(new PrintStream(new FileOutputStream("logs/Stats_Connection.log", true)));
+		//System.setOut(new PrintStream(new FileOutputStream("logs/Stats_Connection.log", true)));
 		
 		adminClient = null;
 		long startTime = System.nanoTime();
@@ -411,6 +411,12 @@ public class ServerStats
 		 DOMSource source = new DOMSource(doc);
 		 StreamResult result = new StreamResult(f);
 		 transformer.transform(source, result);
+
+		transformer.setOutputProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
+		StringWriter writer = new StringWriter();
+		transformer.transform(source, new StreamResult(writer));
+		String xmlString = writer.getBuffer().toString().replaceAll("\n|\r", "");
+		System.out.println("VitalSigns Output: " + xmlString + "\n");
 		 } //End of IF
 		 
       } catch (Exception e) {

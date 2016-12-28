@@ -17,8 +17,6 @@ Public Class Alertdll
     ' Private strConsoleCommandLogDest As String
     Private strLogDest As String
     Dim myAdapter As New VSFramework.XMLOperation
-    Dim connectionString As String = myAdapter.GetDBConnectionString("VitalSigns")
-    Dim VSSconnectionString As String = myAdapter.GetDBConnectionString("VSS_Statistics")
 
 #End Region
 

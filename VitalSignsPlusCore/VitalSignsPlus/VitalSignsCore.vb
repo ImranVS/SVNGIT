@@ -255,6 +255,8 @@ Public Class VitalSignsPlusCore
 
     Dim ThreadHourlyDaily As New Thread(AddressOf PerformHourlyDailyTasks)
 
+    Dim dictOfCommunityIds As New Dictionary(Of String, String)()
+
     'WS added for VSPLUS-2239
     Dim SametimeProcess As Process
 
@@ -2774,29 +2776,39 @@ Public Class VitalSignsPlusCore
                 End Try
 
                 If (Cells.Connectionstatus <> "CONNECTED") Then
-                    WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Could not connect. Name: " & myServer.ServerName)
-                    WriteAuditEntryWebSphere(Now.ToString & " Could not conenct to " & myServer.Name & ".")
+                    WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Could not connect to the cell. Name: " & myServer.ServerName)
+                    WriteAuditEntryWebSphere(Now.ToString & " Could not conenct to the cell for " & myServer.Name & ".")
                     myServer.Status = "Not Responding"
                     myServer.StatusCode = "Not Responding"
-                    myServer.ResponseDetails = "Could not connect to the server"
+                    myServer.ResponseDetails = "Could not connect to the cell"
                     SendWebSphereNotRespondingAlert(myServer, False)
 
                 Else
-                    WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Connected. Name: " & myServer.ServerName)
-                    SendWebSphereNotRespondingAlert(myServer, True)
+                    If Cells.Cell.Nodes.Node.Servers.Server.Stats.Status.Value = "Not Reachable" Then
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Could not connectto the server. Name: " & myServer.ServerName)
+                        WriteAuditEntryWebSphere(Now.ToString & " Could not conenct to the server for " & myServer.Name & ".")
+                        myServer.Status = "Not Responding"
+                        myServer.StatusCode = "Not Responding"
+                        myServer.ResponseDetails = "Could not connect to the server"
+                        SendWebSphereNotRespondingAlert(myServer, False)
+                    Else
 
-                    Dim server As VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.Server_ServerStats = Cells.Cell.Nodes.Node.Servers.Server
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Connected. Name: " & myServer.ServerName)
+                        SendWebSphereNotRespondingAlert(myServer, True)
 
-                    'go through all the stats and save it to the server object
-                    Try
-                        CopyValuesToCollectionServers(myServer, server)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception copying values. Exception: " & ex.Message.ToString())
-                    End Try
+                        Dim server As VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.Server_ServerStats = Cells.Cell.Nodes.Node.Servers.Server
+
+                        'go through all the stats and save it to the server object
+                        Try
+                            CopyValuesToCollectionServers(myServer, server)
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception copying values. Exception: " & ex.Message.ToString())
+                        End Try
 
 
-                    'Send Alerts
-                    SendWebSphereAlerts(myServer)
+                        'Send Alerts
+                        SendWebSphereAlerts(myServer)
+                    End If
 
                 End If
 
@@ -2836,7 +2848,7 @@ CleanUp:
             If (resetAlert) Then
                 myAlert.ResetAlert(.ServerType, .Name, "Not Responding", .Location, "The server is responding.", "WebSphere")
             Else
-                myAlert.QueueAlert(.ServerType, .Name, "Not Responding", .Location, "The server is not responding", "WebSphere")
+                myAlert.QueueAlert(.ServerType, .Name, "Not Responding", "The server is not responding", .Location, "WebSphere")
             End If
 
         End With
@@ -2915,15 +2927,21 @@ CleanUp:
             With server
 
                 Dim resetAlert As Boolean = actualValue < thresholdValue
-                Dim msg As String = "The " & statName & " has a current value of " & actualValue & " and a threshold of " & thresholdValue & "."
+                Dim msg As String = "The " & statName & " has a current value of " & actualValue & " and a threshold of " & thresholdValue & ""
 
-                If (resetAlert) Then
+                If thresholdValue = 0 Then
+                    msg = "The " & statName & " has a current value of " & actualValue & " and no threshold value"
                     myAlert.ResetAlert(.ServerType, .Name, statName, .Location, msg, "WebSphere")
                 Else
-                    myAlert.QueueAlert(.ServerType, .Name, statName, .Location, msg, "WebSphere")
-                    server.Status = "Issue"
-                    server.ResponseDetails = msg
+                    If (resetAlert) Then
+                        myAlert.ResetAlert(.ServerType, .Name, statName, .Location, msg, "WebSphere")
+                    Else
+                        myAlert.QueueAlert(.ServerType, .Name, statName, msg, .Location, "WebSphere")
+                        server.Status = "Issue"
+                        server.ResponseDetails = msg
+                    End If
                 End If
+
             End With
         Catch ex As Exception
             WriteDeviceHistoryEntry("WebSphere", statName, Now.ToString & " the " & statName & " alert faield to process.  Exception: " & ex.Message.ToString())
@@ -2943,90 +2961,96 @@ CleanUp:
             actualVal = .ActiveThreadCount
             thresholdVal = .ActiveThreadCountThreshold
             statName = "Active Thread Count"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
+            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
             actualVal = .ClearedThreadHangCount
             thresholdVal = .ClearedThreadHangCountThreshold
             statName = "Cleared Hung Thread Count"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            'SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .ConcurrentHungThreadCount
-            thresholdVal = 1
+            thresholdVal = .HungThreadCountThreshold
             statName = "Current Hung Thread Count"
             SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
+            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
             actualVal = .DeclaredThreadHungCount
             thresholdVal = .DeclaredThreadHungCountThreshold
             statName = "Declared Hung Thread Count"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            'SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = Math.Round((.Memory_Used / (.Memory_Free + .Memory_Used)) * 100, 0)
             thresholdVal = .Memory_Threshold
             statName = "Memory"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            'SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .Memory_Used
             statName = "Memory Used"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
 
             actualVal = .Memory_Free
             thresholdVal = .Memory_Threshold
             statName = "Memory Free"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            'SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
+            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
             actualVal = .CurrentHeap
             thresholdVal = .CurrentHeapThreshold
             statName = "Current Heap Size"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
-
+            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
             actualVal = .HeapSizeinitial
             thresholdVal = .HeapSizeinitial
             statName = "Initial Heap"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            'SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
-            WriteAuditEntryWebSphere(Now.ToString & " InitialHeap " & actualVal)
+            'WriteAuditEntryWebSphere(Now.ToString & " InitialHeap " & actualVal)
 
 
             actualVal = .HeapSizemaximum
             thresholdVal = .HeapSizemaximum
             statName = "Maximum Heap"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            'SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
-            WriteAuditEntryWebSphere(Now.ToString & " MaximumHeap " & actualVal)
+            'WriteAuditEntryWebSphere(Now.ToString & " MaximumHeap " & actualVal)
 
 
 
             actualVal = .AverageThreadPool
             thresholdVal = .AverageThreadPoolThreshold
-            statName = "Average Pool Size"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            statName = "Average Thread Count"
+            SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
+            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
-            actualVal = .UpTime
+            actualVal = Math.Round(.UpTime / 60 / 60 / 24, 1)
             thresholdVal = .UpTimeThreshold
             statName = "Up Time"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
+            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
             actualVal = .CPU_Utilization
             thresholdVal = .CPU_Threshold
             statName = "Process CPU Usage"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
+            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
             actualVal = .ResponseTime
             thresholdVal = .ResponseThreshold
-            statName = "ResponseTime"
-            'SendWebSphereAlert(server, resetAlert, actualVal, thresholdVal, statName)
+            statName = "Response Time"
+            SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
         End With
 
@@ -3327,7 +3351,7 @@ CleanUp:
                 myServer.ResponseDetails = "This instance passed all tests"
 
                 If TestIBMConnectResponding(myServer) = True Then
-
+                    myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Not Responding", myServer.Location, "The server is responding", myServer.ServerType)
                     TestIMBConnectLogon(myServer)
 
                     If (myServer.TestCreateActivity) Then
@@ -3378,6 +3402,7 @@ CleanUp:
 
                 Else
 
+                    myAlert.QueueAlert(myServer.ServerType, myServer.Name, "Not Responding", "The server is not responding", myServer.Location, myServer.ServerType)
                     myServer.Status = "Not Responding"
                     myServer.ResponseDetails = "This instance could not connect"
 
@@ -3590,7 +3615,7 @@ CleanUp:
 
             Dim ActivityName As String = "VitalSigns Test Activity"
             Dim activityURL As String = URL + "/activities/service/atom2/activities"
-            Dim activityBody As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom""><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""activity"" label=""Activity""/><title type=""text"">" & ActivityName & "</title><content type=""html"">This is an activity</content></entry>"
+            Dim activityBody As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom""><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""activity"" label=""Activity""/><title type=""text"">" & ActivityName & "</title><content type=""html"">This is an activity</content><category scheme=""http://www.ibm.com/xmlns/prod/sn/flags"" term=""private"" label=""Private"" /></entry>"
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Activities", LogUtilities.LogUtils.LogLevel.Normal)
             CleanAllVitalSignActivities(myServer)
@@ -3932,10 +3957,10 @@ CleanUp:
             Dim Password As String = myServer.Password
             Dim TestThreshold As Int32 = myServer.CreateBookmarkThreshold
 
-            Dim Name As String = "http://www.google.com"
+            Dim Name As String = "VitalSigns Test BookMark Title"
+            Dim testUrl As String = "http://www.DummyURLForVitalSigns.com"
             URL = URL + "/dogear/api/app"
-            Dim Body As String = "<?xml version=""1.0"" encoding=""utf-8""?>\r\n<entry xmlns=""http://www.w3.org/2005/Atom"">\r\n<author><name>Author</name></author>\r\n<title>VitalSigns Test BookMark</title>\r\n<content type=""html""><![CDATA[VitalSigns Creating Bookmark]]></content>\r\n<category scheme=""http://www.ibm.com/xmlns/prod/sn/type""  term=""bookmark"" />\r\n<category term=""lotus"" />\r\n<category term=""connections"" />\r\n<category term=""VitalSigns Testing"" />\r\n<link href=""" & Name & """ />\r\n" + "</entry>\r\n"
-            Dim t As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom""><author><name>Author</name></author><title>VitalSigns Test BookMark Title</title><content type=""html""><![CDATA[VitalSigns Creating Bookmark]]></content><category scheme=""http://www.ibm.com/xmlns/prod/sn/type""  term=""bookmark"" /><category term=""lotus"" /><category term=""connections"" /><category term=""VitalSigns Testing"" /><link href=""" & Name & """ />" + "</entry>"
+            Dim Body As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom""><author><name>Author</name></author><title>" & Name & "</title><content type=""html""><![CDATA[VitalSigns Creating Bookmark]]></content><category scheme=""http://www.ibm.com/xmlns/prod/sn/type""  term=""bookmark"" /><category term=""lotus"" /><category term=""connections"" /><category term=""VitalSigns Testing"" /><link href=""" & testUrl & """ /><category scheme=""http://www.ibm.com/xmlns/prod/sn/flags"" term=""private""/></entry>"
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Bookmarks", LogUtilities.LogUtils.LogLevel.Normal)
             CleanAllVitalSignBookmarks(myServer)
@@ -3948,7 +3973,7 @@ CleanUp:
             httpWR.Accept = "*/*"
             httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
 
-            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(t.ToString())
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(Body.ToString())
             httpWR.ContentLength = byteArr.Length
             Dim dataStream As Stream = httpWR.GetRequestStream()
             dataStream.Write(byteArr, 0, byteArr.Length)
@@ -3986,7 +4011,7 @@ CleanUp:
 
                 If (webResposne.StatusCode = HttpStatusCode.Created) Then
 
-                    Dim deleteString As String = URL & "?url=" & Name
+                    Dim deleteString As String = URL & "?url=" & testUrl
 
                     httpWR = WebRequest.Create(deleteString)
                     httpWR.Timeout = 6000000
@@ -4242,6 +4267,7 @@ CleanUp:
 
             Dim Name As String = "VitalSignsTestFiles.txt"
             Dim GetURL As String = URL + "/files/basic/api/nonce"
+            Dim purgeUrl As String = URL + "/files/basic/api/myuserlibrary/view/recyclebin/{document-id}/entry"
             URL = URL + "/files/basic/api/myuserlibrary/feed"
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Files", LogUtilities.LogUtils.LogLevel.Normal)
@@ -4317,6 +4343,10 @@ CleanUp:
 
                     Dim deleteString As String = headers.Get("Location")
 
+
+                    Dim reg = New Text.RegularExpressions.Regex("(?<=\/document\/)[a-zA-Z0-9-]*(?=\/)")
+                    Dim docId = reg.Match(deleteString).Value.ToString()
+
                     httpWR = WebRequest.Create(deleteString)
                     httpWR.Timeout = 6000000
                     httpWR.Method = "DELETE"
@@ -4332,33 +4362,39 @@ CleanUp:
                         webResponse2 = httpWR.GetResponse()
 
                         If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
-                            'It deleted...do nothing
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted file.", LogUtilities.LogUtils.LogLevel.Normal)
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "TestCreateFiles purge url:" & purgeUrl.Replace("{document-id}", docId), LogUtilities.LogUtils.LogLevel.Verbose)
+                            httpWR = WebRequest.Create(purgeUrl.Replace("{document-id}", docId))
+                            httpWR.Timeout = 6000000
+                            httpWR.Method = "DELETE"
+                            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                            httpWR.ContentType = "application/atom+xml"
+                            httpWR.Accept = "*/*"
+                            'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
 
-                            'If TestThreshold > createTime Then
-                            '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
-                            'Else
-                            '    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
-                            'End If
+                            httpWR.CookieContainer = cookieContainer
+                            Dim webResponse3 As HttpWebResponse
+                            Try
+                                webResponse3 = httpWR.GetResponse()
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to purge file due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                            Finally
+                                If webResponse3 IsNot Nothing Then
+                                    webResponse3.Close()
+                                End If
+
+                            End Try
+
+
+                            'It deleted...do nothing
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Purged file.", LogUtilities.LogUtils.LogLevel.Normal)
+
                         Else
                             'It failed to delete...send alert
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete file.", LogUtilities.LogUtils.LogLevel.Normal)
-                            'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The file was successfully created in " & createTime & " ms but failed to delete.")
-
-                            If myServer.StatusCode = "OK" Then
-                                'myServer.StatusCode = "Issue"
-                                'myServer.ResponseDetails = "The file was successfully created in " & createTime & " ms but failed to delete."
-                            End If
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to purge file.", LogUtilities.LogUtils.LogLevel.Normal)
                         End If
 
                     Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete file due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                        'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The file was successfully created in " & createTime & " ms but failed to delete.")
 
-                        If myServer.StatusCode = "OK" Then
-                            'myServer.StatusCode = "Issue"
-                            'myServer.ResponseDetails = "The file was successfully created in " & createTime & " ms but failed to delete."
-                        End If
                     Finally
                         If webResponse2 IsNot Nothing Then
                             webResponse2.Close()
@@ -4400,10 +4436,10 @@ CleanUp:
 
     End Sub
 
-    Public Sub TestCreateforums(ByRef myServer As MonitoredItems.IBMConnect)
+    Public Sub TestCreateForums(ByRef myServer As MonitoredItems.IBMConnect)
         Try
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateForums", LogUtilities.LogUtils.LogLevel.Normal)
-            Dim AlertType As String = "Create forum"
+            'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateForums", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Forum"
             Dim alertReset As Boolean
 
             Dim URLBase As String = myServer.IPAddress
@@ -4411,14 +4447,12 @@ CleanUp:
             Dim Password As String = myServer.Password
             Dim TestThreshold As Int32 = myServer.CreateForumsThreshold
 
-            Dim Name As String = "VitalSigns Test Community"
-            Dim URL As String = URLBase + "/communities/service/atom/communities/my"
-            Dim Body As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom"" xmlns:app=""http://www.w3.org/2007/app""  xmlns:snx=""http://www.ibm.com/xmlns/prod/sn""><title type=""text"">" + Name + "</title><content type=""html"">Test Community</content><category term=""community"" scheme=""http://www.ibm.com/xmlns/prod/sn/type""></category><snx:communityType>public</snx:communityType></entry>"
-            Dim ForumsURL As String = URLBase & "/communities/service/atom/community/forum/topics"
-            Dim ForumsBody As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">VitalSigns Test Forum</title><content type=""html"">VitalSigns Test Forum</content><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""forum-topic""></category></entry>"
+            Dim Name As String = "VitalSigns Test Forum"
+            Dim URL As String = URLBase + "/forums/atom/forums"
+            Dim Body As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">" & Name & "</title><content type=""text"">Forum Sub Forum Test 1</content><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""forum-forum""></category></entry>"
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Forums", LogUtilities.LogUtils.LogLevel.Normal)
-            CleanAllVitalSignCommunities(myServer)
+            CleanAllVitalSignForums(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
             httpWR.Timeout = 60000
@@ -4438,20 +4472,26 @@ CleanUp:
 
             Dim webResponse As HttpWebResponse
             Try
+                Dim startTime As DateTime = DateTime.Now
                 webResponse = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
 
                 If (webResponse.StatusCode = HttpStatusCode.Created) Then
                     'Created Correctly...do nothing
+                    alertReset = True
+
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Commuinity for the forum failed to create. It produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
-
+                    alertReset = False
                     myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community for the forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
                         myServer.Status = "Issue"
-                        myServer.ResponseDetails = "The community for the forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
+                        myServer.ResponseDetails = "The forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
                     End If
                 End If
 
@@ -4462,92 +4502,38 @@ CleanUp:
 
                     Dim LocationsHeader As String = headers.Get("Location")
                     webResponse.Close()
-                    ForumsURL = ForumsURL & LocationsHeader.Substring(LocationsHeader.IndexOf("?"))
 
-                    httpWR = WebRequest.Create(ForumsURL)
-                    httpWR.Timeout = 60000
-                    httpWR.Method = "POST"
+                    Dim reg As Text.RegularExpressions.Regex = New Text.RegularExpressions.Regex("(?<=forumUuid=)[a-zA-Z0-9-]*")
+                    Dim docId = reg.Match(LocationsHeader).Value.ToString()
+
+                    TestCreateForumsTopic(myServer, docId)
+
+                    httpWR = WebRequest.Create(LocationsHeader)
+                    httpWR.Timeout = 6000000
+                    httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
                     httpWR.Accept = "*/*"
-                    httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
                     httpWR.CookieContainer = cookieContainer
-
-                    byteArr = System.Text.Encoding.ASCII.GetBytes(ForumsBody.ToString())
-                    httpWR.ContentLength = byteArr.Length
-                    dataStream = httpWR.GetRequestStream()
-                    dataStream.Write(byteArr, 0, byteArr.Length)
-                    dataStream.Close()
 
                     Dim httpWebResponse As HttpWebResponse
 
                     Try
-                        Dim startTime As DateTime = DateTime.Now
-                        httpWebResponse = httpWR.GetResponse()
-                        Dim endTime As DateTime = DateTime.Now
-                        Dim span As TimeSpan = endTime - startTime
-                        Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
-
-                        If (webResponse.StatusCode = HttpStatusCode.OK) Then
-                            'Created Correctly...do things
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created forum in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
-                            alertReset = True
-                            InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Forum.TimeMs", createTime.ToString(), myServer.ServerObjectID)
-                        Else
-                            'Created wrongly...do things
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Forum failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
-                            alertReset = False
-
-                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
-
-                            If myServer.StatusCode = "OK" Then
-                                myServer.StatusCode = "Issue"
-                                myServer.Status = "Issue"
-                                myServer.ResponseDetails = "The forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
-                            End If
-                        End If
-
-                        httpWR = WebRequest.Create(LocationsHeader)
-                        httpWR.Timeout = 60000
-                        httpWR.Method = "DELETE"
-                        httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-                        httpWR.ContentType = "application/atom+xml"
-                        httpWR.Accept = "*/*"
-                        'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
-
                         Dim webResponse2 As HttpWebResponse
 
                         Try
                             webResponse2 = httpWR.GetResponse()
 
-                            If (webResponse2.StatusCode = HttpStatusCode.OK) Then
+                            If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
                                 'It deleted...do nothing
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted comunity.", LogUtilities.LogUtils.LogLevel.Normal)
-
-                                'If TestThreshold > createTime Then
-                                '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
-                                'Else
-                                '    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The forum was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
-                                'End If
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted community.", LogUtilities.LogUtils.LogLevel.Normal)
                             Else
                                 'It failed to delete...send alert
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete comunity.", LogUtilities.LogUtils.LogLevel.Normal)
-                                'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The forum was successfully created in " & createTime & " ms but failed to delete the comunity.")
-
-                                If myServer.StatusCode = "OK" Then
-                                    'myServer.StatusCode = "Issue"
-                                    'myServer.ResponseDetails = "The forum was successfully created in " & createTime & " ms but failed to delete the comunity."
-                                End If
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete community.", LogUtilities.LogUtils.LogLevel.Normal)
                             End If
 
                         Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete comunity due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                            'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The forum was successfully created in " & createTime & " ms but failed to delete the comunity.")
-
-                            If myServer.StatusCode = "OK" Then
-                                'myServer.StatusCode = "Issue"
-                                'myServer.ResponseDetails = "The forum was successfully created in " & createTime & " ms but failed to delete the comunity."
-                            End If
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                         Finally
                             If webResponse2 IsNot Nothing Then
                                 webResponse2.Close()
@@ -4583,7 +4569,7 @@ CleanUp:
                     End Try
                 End If
             Catch ex As Exception
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create comunity for forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community for forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                 myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
 
                 If myServer.StatusCode = "OK" Then
@@ -4598,6 +4584,154 @@ CleanUp:
             End Try
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateForums. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+
+    End Sub
+
+    Public Sub TestCreateForumsTopic(ByRef myServer As MonitoredItems.IBMConnect, ByRef forumId As String)
+        Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateForumsTopic", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Forum Topic"
+            Dim alertReset As Boolean
+
+            Dim URLBase As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+            Dim TestThreshold As Int32 = myServer.CreateForumsThreshold
+
+            Dim Name As String = "VitalSigns Test Forum Topic"
+            Dim URL As String = URLBase + "/forums/atom/topics?forumUuid=" & forumId
+            Dim Body As String = "<entry xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">" & Name & "</title><content type=""text"">topic test</content><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""forum-topic""></category></entry>"
+
+            'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Forums", LogUtilities.LogUtils.LogLevel.Normal)
+            'CleanAllVitalSignCommunities(myServer)
+
+            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+            httpWR.Timeout = 60000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/atom+xml"
+            httpWR.Accept = "*/*"
+            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(Body.ToString())
+            httpWR.ContentLength = byteArr.Length
+            Dim dataStream As Stream = httpWR.GetRequestStream()
+            dataStream.Write(byteArr, 0, byteArr.Length)
+            dataStream.Close()
+            Dim cookieContainer As New CookieContainer()
+            httpWR.CookieContainer = cookieContainer
+
+            Dim webResponse As HttpWebResponse
+            Try
+                Dim startTime As DateTime = DateTime.Now
+                webResponse = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+                    'Created Correctly...do nothing
+                    alertReset = True
+
+                Else
+                    'Created wrongly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " the forum topic failed to create. It produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum topic was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The forum topic was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
+                    End If
+                End If
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+
+                    Dim headers As System.Net.WebHeaderCollection
+                    headers = webResponse.Headers
+
+                    Dim LocationsHeader As String = headers.Get("Location")
+                    webResponse.Close()
+
+                    httpWR = WebRequest.Create(LocationsHeader)
+                    httpWR.Timeout = 6000000
+                    httpWR.Method = "DELETE"
+                    httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                    httpWR.ContentType = "application/atom+xml"
+                    httpWR.Accept = "*/*"
+                    httpWR.CookieContainer = cookieContainer
+
+                    Dim httpWebResponse As HttpWebResponse
+
+                    Try
+                        Dim webResponse2 As HttpWebResponse
+
+                        Try
+                            webResponse2 = httpWR.GetResponse()
+
+                            If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
+                                'It deleted...do nothing
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted forum topic.", LogUtilities.LogUtils.LogLevel.Normal)
+                            Else
+                                'It failed to delete...send alert
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete forum topic.", LogUtilities.LogUtils.LogLevel.Normal)
+                            End If
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete forum topic due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        Finally
+                            If webResponse2 IsNot Nothing Then
+                                webResponse2.Close()
+                            End If
+
+                            If TestThreshold < createTime Then
+                                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum topic was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+
+                                If myServer.StatusCode = "OK" Then
+                                    myServer.StatusCode = "Issue"
+                                    myServer.Status = "Issue"
+                                    myServer.ResponseDetails = "The forum topic was successfully created in " & createTime & " ms but has a threshold of " & TestThreshold & " ms."
+                                End If
+
+                            Else
+                                myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The forum topic was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            End If
+
+                        End Try
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create forum topic due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum topic was not created.", myServer.Location)
+
+                        If myServer.StatusCode = "OK" Then
+                            myServer.StatusCode = "Issue"
+                            myServer.Status = "Issue"
+                            myServer.ResponseDetails = "The forum topic was not created."
+                        End If
+                    Finally
+                        If httpWebResponse IsNot Nothing Then
+                            httpWebResponse.Close()
+                        End If
+                    End Try
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create forum topic due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum topic was not created.", myServer.Location)
+
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The forum topic was not created."
+                End If
+            Finally
+                If webResponse IsNot Nothing Then
+                    webResponse.Close()
+                End If
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateForumsTopic. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
 
 
@@ -4976,89 +5110,112 @@ CleanUp:
 
 
             Dim BlogName As String = "VitalSigns Test Blog"
-            Dim BlogURL As String = URL + "/blogs/homepage/feed/blogs/atom?search=" & BlogName.Replace(" ", "%20") & "&ps=100&lang=en_us"
+            Dim BlogURL As String = URL + "/blogs/homepage/feed/blogs/atom?ps=100&lang=en_us"
+
+            Dim deleteThisLoop As Boolean = False
+
+            While BlogURL <> ""
+                deleteThisLoop = False
+                Dim httpWR As HttpWebRequest = WebRequest.Create(BlogURL)
+                httpWR.Timeout = 60000
+                httpWR.Method = "GET"
+                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                httpWR.ContentType = "application/atom+xml"
+                httpWR.Accept = "*/*"
+                httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+                Dim cookieContainer As New CookieContainer()
+                httpWR.CookieContainer = cookieContainer
+
+                BlogURL = ""
+
+                Dim webResponse As HttpWebResponse
+
+                Try
+
+                    webResponse = httpWR.GetResponse()
+
+                    If (webResponse.StatusCode = HttpStatusCode.OK) Then
+                        'Got Correctly...do things
+
+                        Dim actString As String = webResponse.ResponseUri.AbsolutePath
+                        Dim actDS As Stream = webResponse.GetResponseStream()
+                        Dim actReader As StreamReader = New StreamReader(actDS)
+                        Dim resposne As String = actReader.ReadToEnd()
+
+                        Dim xmlDoc As New Xml.XmlDocument()
+                        xmlDoc.LoadXml(resposne)
 
 
-            Dim httpWR As HttpWebRequest = WebRequest.Create(BlogURL)
-            httpWR.Timeout = 60000
-            httpWR.Method = "GET"
-            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-            httpWR.ContentType = "application/atom+xml"
-            httpWR.Accept = "*/*"
-            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
-            Dim cookieContainer As New CookieContainer()
-            httpWR.CookieContainer = cookieContainer
 
-            Dim webResponse As HttpWebResponse
+                        Dim ID As String = ""
+                        For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
 
-            Try
-
-                webResponse = httpWR.GetResponse()
-
-                If (webResponse.StatusCode = HttpStatusCode.OK) Then
-                    'Got Correctly...do things
-
-                    Dim actString As String = webResponse.ResponseUri.AbsolutePath
-                    Dim actDS As Stream = webResponse.GetResponseStream()
-                    Dim actReader As StreamReader = New StreamReader(actDS)
-                    Dim resposne As String = actReader.ReadToEnd()
-
-                    Dim xmlDoc As New Xml.XmlDocument()
-                    xmlDoc.LoadXml(resposne)
+                            If xmlEntry.GetElementsByTagName("title")(0).InnerText.ToString() = BlogName Then
 
 
-                    Dim ID As String = ""
-                    For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
+                                ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
+                                ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
 
-                        If xmlEntry.GetElementsByTagName("title")(0).InnerText.ToString() = BlogName Then
-                            ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
-                            ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
-
-                            Dim deleteURL As String = URL + "/blogs/homepage/api/blogs/" + ID
-
-                            Try
-                                Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                httpWR2.Timeout = 60000
-                                httpWR2.Method = "DELETE"
-                                httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-                                httpWR2.ContentType = "application/atom+xml"
-                                httpWR2.Accept = "*/*"
-                                httpWR2.CookieContainer = cookieContainer
-
-                                Dim webResponse2 As HttpWebResponse
+                                Dim deleteURL As String = URL + "/blogs/homepage/api/blogs/" + ID
 
                                 Try
-                                    webResponse2 = httpWR2.GetResponse()
-                                    If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
-                                        'Not deleted
-                                    End If
+                                    Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
+                                    httpWR2.Timeout = 60000
+                                    httpWR2.Method = "DELETE"
+                                    httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                    httpWR2.ContentType = "application/atom+xml"
+                                    httpWR2.Accept = "*/*"
+                                    httpWR2.CookieContainer = cookieContainer
+
+                                    Dim webResponse2 As HttpWebResponse
+
+                                    Try
+                                        webResponse2 = httpWR2.GetResponse()
+                                        If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
+                                            'Not deleted
+                                        Else
+                                            deleteThisLoop = True
+                                        End If
+
+                                    Catch ex As Exception
+
+                                    Finally
+                                        If webResponse2 IsNot Nothing Then
+                                            webResponse2.Close()
+                                        End If
+
+                                    End Try
 
                                 Catch ex As Exception
 
-                                Finally
-                                    If webResponse2 IsNot Nothing Then
-                                        webResponse2.Close()
-                                    End If
-
                                 End Try
 
-                            Catch ex As Exception
+                            End If
 
-                            End Try
+                        Next
 
+                        If deleteThisLoop = True Then
+                            BlogURL = httpWR.RequestUri().AbsoluteUri()
+                        Else
+                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
+                                If xmlLink.GetAttribute("rel") = "next" Then
+                                    BlogURL = xmlLink.GetAttribute("href").Replace("amp;", "")
+                                    Exit For
+                                End If
+                            Next
                         End If
 
-                    Next
+                    End If
 
-                End If
+                Catch ex As Exception
 
-            Catch ex As Exception
+                Finally
+                    If webResponse IsNot Nothing Then
+                        webResponse.Close()
+                    End If
+                End Try
 
-            Finally
-                If webResponse IsNot Nothing Then
-                    webResponse.Close()
-                End If
-            End Try
+            End While
 
         Catch ex As Exception
 
@@ -5077,45 +5234,52 @@ CleanUp:
             Dim Password As String = myServer.Password
 
             Dim Name As String = "http://www.DummyURLForVitalSigns.com"
-            URL = URL + "/dogear/api/app"
+            Dim fullURL = URL + "/dogear/api/app?url=" & Name.ToLower()
 
-            Dim deleteString As String = URL & "?url=" & Name
+            Dim deletedEntry As Boolean = False
 
-            Dim httpWR As HttpWebRequest = WebRequest.Create(deleteString)
-            httpWR.Timeout = 6000000
-            httpWR.Method = "DELETE"
-            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-            httpWR.ContentType = "application/atom+xml"
-            httpWR.Accept = "*/*"
-            httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
-            Dim cookieContainer As New CookieContainer()
-            httpWR.CookieContainer = cookieContainer
-            Dim httpWP As HttpWebResponse
+            Do
+                deletedEntry = False
 
-            Try
-                httpWP = httpWR.GetResponse()
+                Dim httpWR As HttpWebRequest = WebRequest.Create(fullURL)
+                httpWR.Timeout = 6000000
+                httpWR.Method = "DELETE"
+                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                httpWR.ContentType = "application/atom+xml"
+                httpWR.Accept = "*/*"
+                httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+                Dim cookieContainer As New CookieContainer()
+                httpWR.CookieContainer = cookieContainer
+                Dim httpWP As HttpWebResponse
 
-                If (httpWP.StatusCode = HttpStatusCode.NoContent) Then
-                    'It deleted...do things
-                Else
-                    'It failed to delete...do things
-                End If
+                Try
+                    httpWP = httpWR.GetResponse()
 
-            Catch ex As Exception
+                    If httpWP.StatusCode <> HttpStatusCode.NoContent Then
+                        'Not deleted
+                    Else
+                        deletedEntry = True
+                    End If
 
-            Finally
-                If httpWP IsNot Nothing Then
-                    httpWP.Close()
-                End If
-            End Try
+                Catch ex As Exception
+
+                Finally
+                    If httpWP IsNot Nothing Then
+                        httpWP.Close()
+                    End If
+
+                End Try
+
+
+
+            Loop While deletedEntry = True
+
 
 
 
         Catch ex As Exception
 
         End Try
-
-
     End Sub
 
     Public Sub CleanAllVitalSignCommunities(ByRef myServer As MonitoredItems.IBMConnect)
@@ -5127,96 +5291,120 @@ CleanUp:
 
 
             Dim Name As String = "VitalSigns Test Community"
-            Dim CommunityURL As String = URL + "/communities/service/atom/communities/all?search=" & Name.Replace(" ", "%20") & "&ps=100&lang=en_us"
+            Dim CommunityURL As String = URL + "/communities/service/atom/communities/my?ps=100&lang=en_us"
+
+            Dim deleteThisLoop As Boolean = False
+
+            While CommunityURL <> ""
+                deleteThisLoop = False
+
+                Dim httpWR As HttpWebRequest = WebRequest.Create(CommunityURL)
+                httpWR.Timeout = 60000
+                httpWR.Method = "GET"
+                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                httpWR.ContentType = "application/atom+xml"
+                httpWR.Accept = "*/*"
+                httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+                Dim cookieContainer As New CookieContainer()
+                httpWR.CookieContainer = cookieContainer
+
+                CommunityURL = ""
+
+                Dim webResponse As HttpWebResponse
+
+                Try
+
+                    webResponse = httpWR.GetResponse()
+
+                    If (webResponse.StatusCode = HttpStatusCode.OK) Then
+                        'Got Correctly...do things
+
+                        Dim actString As String = webResponse.ResponseUri.AbsolutePath
+                        Dim actDS As Stream = webResponse.GetResponseStream()
+                        Dim actReader As StreamReader = New StreamReader(actDS)
+                        Dim resposne As String = actReader.ReadToEnd()
+
+                        Dim xmlDoc As New Xml.XmlDocument()
+                        xmlDoc.LoadXml(resposne)
 
 
-            Dim httpWR As HttpWebRequest = WebRequest.Create(CommunityURL)
-            httpWR.Timeout = 60000
-            httpWR.Method = "GET"
-            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-            httpWR.ContentType = "application/atom+xml"
-            httpWR.Accept = "*/*"
-            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
-            Dim cookieContainer As New CookieContainer()
-            httpWR.CookieContainer = cookieContainer
+                        Dim ID As String = ""
+                        For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
 
-            Dim webResponse As HttpWebResponse
+                            If xmlEntry.GetElementsByTagName("title")(0).InnerText.ToString() = Name Then
 
-            Try
-
-                webResponse = httpWR.GetResponse()
-
-                If (webResponse.StatusCode = HttpStatusCode.OK) Then
-                    'Got Correctly...do things
-
-                    Dim actString As String = webResponse.ResponseUri.AbsolutePath
-                    Dim actDS As Stream = webResponse.GetResponseStream()
-                    Dim actReader As StreamReader = New StreamReader(actDS)
-                    Dim resposne As String = actReader.ReadToEnd()
-
-                    Dim xmlDoc As New Xml.XmlDocument()
-                    xmlDoc.LoadXml(resposne)
-
-
-                    Dim ID As String = ""
-                    For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
-
-                        If xmlEntry.GetElementsByTagName("title")(0).InnerText.ToString() = Name Then
-
-                            For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
-                                If xmlLink.Name = "link" Then
-                                    If xmlLink.Attributes("rel").Value.ToString() = "edit" Then
-                                        Dim deleteURL As String = xmlLink.Attributes("href").Value.ToString()
-
-                                        Try
-                                            Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                            httpWR2.Timeout = 60000
-                                            httpWR2.Method = "DELETE"
-                                            httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-                                            httpWR2.ContentType = "application/atom+xml"
-                                            httpWR2.Accept = "*/*"
-                                            httpWR2.CookieContainer = cookieContainer
-
-                                            Dim webResponse2 As HttpWebResponse
+                                For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
+                                    If xmlLink.Name = "link" Then
+                                        If xmlLink.Attributes("rel").Value.ToString() = "edit" Then
+                                            Dim deleteURL As String = xmlLink.Attributes("href").Value.ToString()
 
                                             Try
-                                                webResponse2 = httpWR2.GetResponse()
-                                                If webResponse2.StatusCode <> HttpStatusCode.OK Then
-                                                    'deleted
-                                                End If
+                                                Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
+                                                httpWR2.Timeout = 60000
+                                                httpWR2.Method = "DELETE"
+                                                httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                                httpWR2.ContentType = "application/atom+xml"
+                                                httpWR2.Accept = "*/*"
+                                                httpWR2.CookieContainer = cookieContainer
+
+                                                Dim webResponse2 As HttpWebResponse
+
+                                                Try
+                                                    webResponse2 = httpWR2.GetResponse()
+                                                    If webResponse2.StatusCode <> HttpStatusCode.OK Then
+                                                        'not deleted
+                                                    Else
+                                                        deleteThisLoop = True
+                                                    End If
+
+                                                Catch ex As Exception
+
+                                                Finally
+                                                    If webResponse2 IsNot Nothing Then
+                                                        webResponse2.Close()
+                                                    End If
+
+                                                End Try
 
                                             Catch ex As Exception
 
-                                            Finally
-                                                If webResponse2 IsNot Nothing Then
-                                                    webResponse2.Close()
-                                                End If
-
                                             End Try
 
-                                        Catch ex As Exception
 
-                                        End Try
-
-
+                                        End If
                                     End If
+
+                                Next
+
+                            End If
+
+                        Next
+
+                        If deleteThisLoop = True Then
+                            CommunityURL = httpWR.RequestUri().AbsoluteUri()
+                        Else
+                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
+                                If xmlLink.GetAttribute("rel") = "next" Then
+                                    CommunityURL = xmlLink.GetAttribute("href").Replace("amp;", "")
+                                    Exit For
                                 End If
-
                             Next
-
                         End If
 
-                    Next
+                    End If
 
-                End If
 
-            Catch ex As Exception
+                Catch ex As Exception
 
-            Finally
-                If webResponse IsNot Nothing Then
-                    webResponse.Close()
-                End If
-            End Try
+                Finally
+                    If webResponse IsNot Nothing Then
+                        webResponse.Close()
+                    End If
+                End Try
+
+
+            End While
+
 
         Catch ex As Exception
 
@@ -5233,104 +5421,396 @@ CleanUp:
             Dim Password As String = myServer.Password
 
             Dim Name As String = "VitalSignsTestFiles.txt"
-            URL = URL + "/files/basic/api/myuserlibrary/feed?search=" & Name & "&ps=100"
+            URL = URL + "/files/basic/api/myuserlibrary/feed?ps=100"
 
             '  https://connections-as.jnittech.com:9444/communities/service/atom/community/instance?communityUuid=ae774096-1d25-4840-8cd4-855807dc5f69
 
-            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
-            httpWR.Method = "GET"
-            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-            httpWR.ContentType = "application/atom+xml"
-            httpWR.Accept = "*/*"
-            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
-            Dim cookieContainer As New CookieContainer()
-            httpWR.CookieContainer = cookieContainer
+            Dim deleteThisLoop As Boolean = False
 
-            Dim webResponse As HttpWebResponse
+            While URL <> ""
+                deleteThisLoop = False
+                Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+                httpWR.Timeout = 60000
+                httpWR.Method = "GET"
+                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                httpWR.ContentType = "application/atom+xml"
+                httpWR.Accept = "*/*"
+                httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+                Dim cookieContainer As New CookieContainer()
+                httpWR.CookieContainer = cookieContainer
 
-            Try
+                URL = ""
 
-                webResponse = httpWR.GetResponse()
+                Dim webResponse As HttpWebResponse
 
-                If (webResponse.StatusCode = HttpStatusCode.OK) Then
-                    'Got Correctly...do things
+                Try
 
-                    Dim actString As String = webResponse.ResponseUri.AbsolutePath
-                    Dim actDS As Stream = webResponse.GetResponseStream()
-                    Dim actReader As StreamReader = New StreamReader(actDS)
-                    Dim resposne As String = actReader.ReadToEnd()
+                    webResponse = httpWR.GetResponse()
 
-                    Dim xmlDoc As New Xml.XmlDocument()
-                    xmlDoc.LoadXml(resposne)
+                    If (webResponse.StatusCode = HttpStatusCode.OK) Then
+                        'Got Correctly...do things
+
+                        Dim actString As String = webResponse.ResponseUri.AbsolutePath
+                        Dim actDS As Stream = webResponse.GetResponseStream()
+                        Dim actReader As StreamReader = New StreamReader(actDS)
+                        Dim resposne As String = actReader.ReadToEnd()
+
+                        Dim xmlDoc As New Xml.XmlDocument()
+                        xmlDoc.LoadXml(resposne)
 
 
-                    Dim ID As String = ""
-                    For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
+                        Dim ID As String = ""
+                        For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
 
-                        If xmlEntry.GetElementsByTagName("td:label")(0).InnerText.ToString() = Name Then
+                            If xmlEntry.GetElementsByTagName("td:label")(0).InnerText.ToString() = Name Then
 
-                            For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
-                                If xmlLink.Name = "link" Then
-                                    If xmlLink.Attributes("rel").Value.ToString() = "edit" Then
-                                        Dim deleteURL As String = xmlLink.Attributes("href").Value.ToString()
-
-                                        Try
-                                            Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                            httpWR2.Timeout = 60000
-                                            httpWR2.Method = "DELETE"
-                                            httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-                                            httpWR2.ContentType = "application/atom+xml"
-                                            httpWR2.Accept = "*/*"
-                                            httpWR2.CookieContainer = cookieContainer
-
-                                            Dim webResponse2 As HttpWebResponse
-
+                                For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
+                                    If xmlLink.Name = "link" Then
+                                        If xmlLink.Attributes("rel").Value.ToString() = "edit" Then
+                                            Dim deleteURL As String = xmlLink.Attributes("href").Value.ToString()
+                                            Dim reg As New Text.RegularExpressions.Regex("\/library\/[a-zA-Z0-9-]*\/")
+                                            deleteURL = reg.Replace(deleteURL, "/myuserlibrary/")
                                             Try
-                                                webResponse2 = httpWR2.GetResponse()
-                                                If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
-                                                    'deleted
-                                                End If
+                                                Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
+                                                httpWR2.Timeout = 60000
+                                                httpWR2.Method = "DELETE"
+                                                httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                                httpWR2.ContentType = "application/atom+xml"
+                                                httpWR2.Accept = "*/*"
+                                                httpWR2.CookieContainer = cookieContainer
+
+                                                Dim webResponse2 As HttpWebResponse
+
+                                                Try
+                                                    webResponse2 = httpWR2.GetResponse()
+                                                    If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
+                                                        'not deleted
+                                                    Else
+                                                        deleteThisLoop = True
+                                                    End If
+
+                                                Catch ex As Exception
+
+                                                Finally
+                                                    If webResponse2 IsNot Nothing Then
+                                                        webResponse2.Close()
+                                                    End If
+
+                                                End Try
 
                                             Catch ex As Exception
 
-                                            Finally
-                                                If webResponse2 IsNot Nothing Then
-                                                    webResponse2.Close()
-                                                End If
+                                            End Try
+
+
+                                        End If
+                                    End If
+
+                                Next
+
+                                'ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
+                                'ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
+
+                                'Dim deleteURL As String = URL + "/blogs/homepage/api/blogs/" + ID
+
+
+
+                            End If
+
+                        Next
+
+                        If deleteThisLoop = True Then
+                            URL = httpWR.RequestUri().AbsoluteUri()
+                        Else
+                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
+                                If xmlLink.GetAttribute("rel") = "next" Then
+                                    URL = xmlLink.GetAttribute("href").Replace("amp;", "")
+                                    Exit For
+                                End If
+                            Next
+                        End If
+
+                    End If
+
+                Catch ex As Exception
+
+                Finally
+                    If webResponse IsNot Nothing Then
+                        webResponse.Close()
+                    End If
+                End Try
+            End While
+
+        Catch ex As Exception
+
+        End Try
+        CleanAllVitalSignFilesPurge(myServer)
+    End Sub
+
+    Public Sub CleanAllVitalSignFilesPurge(ByRef myServer As MonitoredItems.IBMConnect)
+        Try
+
+            Dim URL As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+
+            Dim Name As String = "VitalSignsTestFiles.txt"
+            URL = URL + "/files/basic/api/myuserlibrary/view/recyclebin/feed?ps=100"
+
+            '  https://connections-as.jnittech.com:9444/communities/service/atom/community/instance?communityUuid=ae774096-1d25-4840-8cd4-855807dc5f69
+
+            Dim deleteThisLoop As Boolean = False
+
+            While URL <> ""
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "CleanAllPurgeFiles URL: " & URL, LogUtilities.LogUtils.LogLevel.Verbose)
+                deleteThisLoop = False
+                Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+                httpWR.Timeout = 120000
+                httpWR.Method = "GET"
+                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                httpWR.ContentType = "application/atom+xml"
+                httpWR.Accept = "*/*"
+                httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+                Dim cookieContainer As New CookieContainer()
+                httpWR.CookieContainer = cookieContainer
+
+                URL = ""
+
+                Dim webResponse As HttpWebResponse
+
+                Try
+
+                    webResponse = httpWR.GetResponse()
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "CleanAllPurgeFiles ResponseCode: " & webResponse.StatusCode, LogUtilities.LogUtils.LogLevel.Verbose)
+                    If (webResponse.StatusCode = HttpStatusCode.OK) Then
+                        'Got Correctly...do things
+
+                        Dim actString As String = webResponse.ResponseUri.AbsolutePath
+                        Dim actDS As Stream = webResponse.GetResponseStream()
+                        Dim actReader As StreamReader = New StreamReader(actDS)
+                        Dim resposne As String = actReader.ReadToEnd()
+
+                        Dim xmlDoc As New Xml.XmlDocument()
+                        xmlDoc.LoadXml(resposne)
+
+
+                        Dim ID As String = ""
+                        For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "CleanAllPurgeFiles found an entity", LogUtilities.LogUtils.LogLevel.Verbose)
+                            If xmlEntry.GetElementsByTagName("td:label")(0).InnerText.ToString() = Name Then
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "CleanAllPurgeFiles found an label match", LogUtilities.LogUtils.LogLevel.Verbose)
+                                For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
+                                    If xmlLink.Name = "link" Then
+                                        If xmlLink.Attributes("rel").Value.ToString() = "self" Then
+
+                                            Dim deleteURL As String = xmlLink.Attributes("href").Value.ToString()
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "CleanAllPurgeFiles delete url:" & deleteURL, LogUtilities.LogUtils.LogLevel.Verbose)
+                                            Try
+                                                Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
+                                                httpWR2.Timeout = 60000
+                                                httpWR2.Method = "DELETE"
+                                                httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                                httpWR2.ContentType = "application/atom+xml"
+                                                httpWR2.Accept = "*/*"
+                                                httpWR2.CookieContainer = cookieContainer
+
+                                                Dim webResponse2 As HttpWebResponse
+
+                                                Try
+                                                    webResponse2 = httpWR2.GetResponse()
+                                                    If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
+
+                                                        '/basic/api/myuserlibrary/view/recyclebin/{document-id}/entryy
+                                                        'not deleted
+                                                    Else
+                                                        deleteThisLoop = True
+                                                    End If
+
+                                                Catch ex As Exception
+
+                                                Finally
+                                                    If webResponse2 IsNot Nothing Then
+                                                        webResponse2.Close()
+                                                    End If
+
+                                                End Try
+
+                                            Catch ex As Exception
 
                                             End Try
 
-                                        Catch ex As Exception
 
-                                        End Try
-
-
+                                        End If
                                     End If
+
+                                Next
+
+                                'ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
+                                'ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
+
+                                'Dim deleteURL As String = URL + "/blogs/homepage/api/blogs/" + ID
+
+
+
+                            End If
+
+                        Next
+
+                        If deleteThisLoop = True Then
+                            URL = httpWR.RequestUri().AbsoluteUri()
+                        Else
+                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
+                                If xmlLink.GetAttribute("rel") = "next" Then
+                                    URL = xmlLink.GetAttribute("href").Replace("amp;", "")
+                                    Exit For
                                 End If
-
                             Next
-
-                            'ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
-                            'ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
-
-                            'Dim deleteURL As String = URL + "/blogs/homepage/api/blogs/" + ID
-
-
-
                         End If
 
-                    Next
+                    End If
 
-                End If
+                Catch ex As Exception
 
-            Catch ex As Exception
+                Finally
+                    If webResponse IsNot Nothing Then
+                        webResponse.Close()
+                    End If
+                End Try
+            End While
 
-            Finally
-                If webResponse IsNot Nothing Then
-                    webResponse.Close()
-                End If
-            End Try
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+    Public Sub CleanAllVitalSignForums(ByRef myServer As MonitoredItems.IBMConnect)
+
+        Try
+
+            Dim URL As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+
+            Dim Name As String = "VitalSigns Test Forum"
+            URL = URL + "/forums/atom/forums?ps=100"
+
+            Dim deleteThisLoop As Boolean = False
+
+            While URL <> ""
+                deleteThisLoop = False
+                Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+                httpWR.Timeout = 60000
+                httpWR.Method = "GET"
+                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                httpWR.ContentType = "application/atom+xml"
+                httpWR.Accept = "*/*"
+                httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+                Dim cookieContainer As New CookieContainer()
+                httpWR.CookieContainer = cookieContainer
+
+                URL = ""
+
+                Dim webResponse As HttpWebResponse
+
+                Try
+
+                    webResponse = httpWR.GetResponse()
+
+                    If (webResponse.StatusCode = HttpStatusCode.OK) Then
+                        'Got Correctly...do things
+
+                        Dim actString As String = webResponse.ResponseUri.AbsolutePath
+                        Dim actDS As Stream = webResponse.GetResponseStream()
+                        Dim actReader As StreamReader = New StreamReader(actDS)
+                        Dim resposne As String = actReader.ReadToEnd()
+
+                        Dim xmlDoc As New Xml.XmlDocument()
+                        xmlDoc.LoadXml(resposne)
+
+
+                        Dim ID As String = ""
+                        For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
+
+                            If xmlEntry.GetElementsByTagName("title")(0).InnerText.ToString() = Name Then
+
+                                For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
+                                    If xmlLink.Name = "link" Then
+                                        If xmlLink.Attributes("rel").Value.ToString() = "edit" Then
+                                            Dim deleteURL As String = xmlLink.Attributes("href").Value.ToString()
+
+                                            Try
+                                                Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
+                                                httpWR2.Timeout = 60000
+                                                httpWR2.Method = "DELETE"
+                                                httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                                httpWR2.ContentType = "application/atom+xml"
+                                                httpWR2.Accept = "*/*"
+                                                httpWR2.CookieContainer = cookieContainer
+
+                                                Dim webResponse2 As HttpWebResponse
+
+                                                Try
+                                                    webResponse2 = httpWR2.GetResponse()
+                                                    If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
+
+                                                        '/basic/api/myuserlibrary/view/recyclebin/{document-id}/entryy
+                                                        'not deleted
+                                                    Else
+                                                        deleteThisLoop = True
+                                                    End If
+
+                                                Catch ex As Exception
+
+                                                Finally
+                                                    If webResponse2 IsNot Nothing Then
+                                                        webResponse2.Close()
+                                                    End If
+
+                                                End Try
+
+                                            Catch ex As Exception
+
+                                            End Try
+
+
+                                        End If
+                                    End If
+
+                                Next
+
+                                'ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
+                                'ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
+
+                                'Dim deleteURL As String = URL + "/blogs/homepage/api/blogs/" + ID
+
+
+
+                            End If
+
+                        Next
+
+                        If deleteThisLoop = True Then
+                            URL = httpWR.RequestUri().AbsoluteUri()
+                        Else
+                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
+                                If xmlLink.GetAttribute("rel") = "next" Then
+                                    URL = xmlLink.GetAttribute("href").Replace("amp;", "")
+                                    Exit For
+                                End If
+                            Next
+                        End If
+
+                    End If
+
+                Catch ex As Exception
+
+                Finally
+                    If webResponse IsNot Nothing Then
+                        webResponse.Close()
+                    End If
+                End Try
+            End While
 
         Catch ex As Exception
 
@@ -5350,107 +5830,126 @@ CleanUp:
             URL = URL + "/wikis/basic/api/wikis/feed?ps=500"
 
             '  https://connections-as.jnittech.com:9444/communities/service/atom/community/instance?communityUuid=ae774096-1d25-4840-8cd4-855807dc5f69
+            Dim deleteThisLoop As Boolean = False
 
-            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
-            httpWR.Method = "GET"
-            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-            httpWR.ContentType = "application/atom+xml"
-            httpWR.Accept = "*/*"
-            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
-            Dim cookieContainer As New CookieContainer()
-            httpWR.CookieContainer = cookieContainer
+            While URL <> ""
+                Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+                httpWR.Timeout = 60000
+                httpWR.Method = "GET"
+                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                httpWR.ContentType = "application/atom+xml"
+                httpWR.Accept = "*/*"
+                httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+                Dim cookieContainer As New CookieContainer()
+                httpWR.CookieContainer = cookieContainer
 
-            Dim webResponse As HttpWebResponse
+                URL = ""
 
-            Try
+                Dim webResponse As HttpWebResponse
 
-                webResponse = httpWR.GetResponse()
+                Try
 
-                If (webResponse.StatusCode = HttpStatusCode.OK) Then
-                    'Got Correctly...do things
+                    webResponse = httpWR.GetResponse()
 
-                    Dim actString As String = webResponse.ResponseUri.AbsolutePath
-                    Dim actDS As Stream = webResponse.GetResponseStream()
-                    Dim actReader As StreamReader = New StreamReader(actDS)
-                    Dim resposne As String = actReader.ReadToEnd()
+                    If (webResponse.StatusCode = HttpStatusCode.OK) Then
+                        'Got Correctly...do things
 
-                    Dim xmlDoc As New Xml.XmlDocument()
-                    xmlDoc.LoadXml(resposne)
+                        Dim actString As String = webResponse.ResponseUri.AbsolutePath
+                        Dim actDS As Stream = webResponse.GetResponseStream()
+                        Dim actReader As StreamReader = New StreamReader(actDS)
+                        Dim resposne As String = actReader.ReadToEnd()
+
+                        Dim xmlDoc As New Xml.XmlDocument()
+                        xmlDoc.LoadXml(resposne)
 
 
-                    Dim ID As String = ""
-                    For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
+                        Dim ID As String = ""
+                        For Each xmlEntry As Xml.XmlElement In xmlDoc.GetElementsByTagName("entry")
 
-                        If xmlEntry.GetElementsByTagName("td:label")(0).InnerText.ToString() = Name Then
+                            If xmlEntry.GetElementsByTagName("td:label")(0).InnerText.ToString().StartsWith(Name) Then
 
-                            For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
-                                If xmlLink.Name = "link" Then
-                                    If xmlLink.Attributes("rel").Value.ToString() = "edit" Then
-                                        Dim deleteURL As String = xmlLink.Attributes("href").Value.ToString()
-
-                                        Try
-                                            Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                            httpWR2.Timeout = 60000
-                                            httpWR2.Method = "DELETE"
-                                            httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-                                            httpWR2.ContentType = "application/atom+xml"
-                                            httpWR2.Accept = "*/*"
-                                            httpWR2.CookieContainer = cookieContainer
-
-                                            Dim webResponse2 As HttpWebResponse
+                                For Each xmlLink As Xml.XmlElement In xmlEntry.ChildNodes()
+                                    If xmlLink.Name = "link" Then
+                                        If xmlLink.Attributes("rel").Value.ToString() = "edit" Then
+                                            Dim deleteURL As String = xmlLink.Attributes("href").Value.ToString()
 
                                             Try
-                                                webResponse2 = httpWR2.GetResponse()
-                                                If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
-                                                    'deleted
-                                                End If
+                                                Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
+                                                httpWR2.Timeout = 60000
+                                                httpWR2.Method = "DELETE"
+                                                httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                                httpWR2.ContentType = "application/atom+xml"
+                                                httpWR2.Accept = "*/*"
+                                                httpWR2.CookieContainer = cookieContainer
+
+                                                Dim webResponse2 As HttpWebResponse
+
+                                                Try
+                                                    webResponse2 = httpWR2.GetResponse()
+                                                    If webResponse2.StatusCode <> HttpStatusCode.NoContent Then
+                                                        'deleted
+                                                    Else
+                                                        deleteThisLoop = True
+                                                    End If
+
+                                                Catch ex As Exception
+
+                                                Finally
+                                                    If webResponse2 IsNot Nothing Then
+                                                        webResponse2.Close()
+                                                    End If
+
+                                                End Try
 
                                             Catch ex As Exception
 
-                                            Finally
-                                                If webResponse2 IsNot Nothing Then
-                                                    webResponse2.Close()
-                                                End If
-
                                             End Try
 
-                                        Catch ex As Exception
 
-                                        End Try
-
-
+                                        End If
                                     End If
+
+                                Next
+
+                                'ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
+                                'ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
+
+                                'Dim deleteURL As String = URL + "/blogs/homepage/api/blogs/" + ID
+
+
+
+                            End If
+
+                        Next
+
+                        If deleteThisLoop = True Then
+                            URL = httpWR.RequestUri().AbsoluteUri()
+                        Else
+                            For Each xmlLink As Xml.XmlElement In xmlDoc.GetElementsByTagName("link")
+                                If xmlLink.GetAttribute("rel") = "next" Then
+                                    URL = xmlLink.GetAttribute("href").Replace("amp;", "")
+                                    Exit For
                                 End If
-
                             Next
-
-                            'ID = xmlEntry.GetElementsByTagName("id")(0).InnerText.ToString()
-                            'ID = ID.Substring(ID.IndexOf("blog-") + "blog-".Length)
-
-                            'Dim deleteURL As String = URL + "/blogs/homepage/api/blogs/" + ID
-
-
-
                         End If
 
-                    Next
+                    End If
 
-                End If
+                Catch ex As Exception
 
-            Catch ex As Exception
-
-            Finally
-                If webResponse IsNot Nothing Then
-                    webResponse.Close()
-                End If
-            End Try
+                Finally
+                    If webResponse IsNot Nothing Then
+                        webResponse.Close()
+                    End If
+                End Try
+            End While
 
         Catch ex As Exception
 
         End Try
 
     End Sub
+
 
 
 
@@ -5596,19 +6095,19 @@ CleanUp:
 
             'This should be first
             GetProfileStats(myServer)
+            GetCommunityStats(myServer)
 
             'These can go whenever
             GetActivityStats(myServer)
             GetBlogStats(myServer)
             GetBookmarksStats(myServer)
-            GetCommunityStats(myServer)
             GetFileStats(myServer)
             GetWikiStats(myServer)
             GetForumStats(myServer)
             GetLibraryStats(myServer)
 
             'This should be last
-            GetHomepageStats(myServer)
+            'GetHomepageStats(myServer)
 
         Catch ex As Exception
 
@@ -5640,6 +6139,7 @@ CleanUp:
 
     Public Sub GetActivityStats(ByRef myServer As MonitoredItems.IBMConnect)
 
+
         Dim sql As String = "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END), 0) LOGINS_LAST_MONTH,COALESCE( SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGINS_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGINS_LAST_DAY FROM ACTIVITIES.OA_MEMBERPROFILE;" &
          "SELECT COUNT(*) NUM_OF_ACTIVITIES FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity';" &
          "SELECT COUNT(distinct ACTIVITIES.OA_NODEMEMBER.MEMBERID) NUM_OF_USERS_FOLLOWING_ACTIVITY FROM ACTIVITIES.OA_NODEMEMBER INNER JOIN ACTIVITIES.OA_MEMBERPROFILE ON ACTIVITIES.OA_NODEMEMBER.MEMBERID = ACTIVITIES.OA_MEMBERPROFILE.MEMBERID;" &
@@ -5648,7 +6148,8 @@ CleanUp:
          "SELECT COUNT(*) NUM_OF_ACTIVITIES_FOLLOWED_YESTERDAY FROM ACTIVITIES.OA_NODEMEMBER WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
          "SELECT node.Name, 'Activity' as Type, node.CREATED, node.LASTMOD, mp.EXID, node.ACTIVITYUUID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = node.CREATEDBY WHERE node.ISDELETED = 0;" &
          "SELECT NODEUUID, NAME FROM ACTIVITIES.OA_TAG;" &
-         "SELECT nm.NODEUUID, mp.EXID FROM ACTIVITIES.OA_NODEMEMBER nm INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = nm.MEMBERID;"
+         "SELECT nm.NODEUUID, mp.EXID FROM ACTIVITIES.OA_NODEMEMBER nm INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = nm.MEMBERID;" &
+         "select mp.exid, node.nodeuuid from (select exid, memberid from activities.oa_memberprofile where exid in ('" & String.Join("','", dictOfCommunityIds.Keys) & "')) mp inner join activities.oa_memberprofile mp2 on mp2.exid =  mp.memberid || '+owner' inner join activities.OA_ACLENTRY al on mp2.memberid = al.memberid inner join activities.oa_node node on node.nodeuuid = al.objectuuid and node.isdeleted = 0;"
 
 
         Dim Category As String = "Activity"
@@ -5706,8 +6207,6 @@ CleanUp:
 
                 dict.Add("NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_ACTIVITIES_FOLLOWED_YESTERDAY"))
 
-                'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
-
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
                 For Each key In dict.Keys
@@ -5719,8 +6218,6 @@ CleanUp:
                             Val = Int(20 * Rnd()) + 1
                         End If
                     End If
-
-                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
 
                     addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
@@ -5768,6 +6265,11 @@ CleanUp:
                     IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
                     IbmConnectionsObjects2.OwnerId = connectionsUserId
                     IbmConnectionsObjects2.GUID = row("ACTIVITYUUID").ToString()
+                    If (ds.Tables(9).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").Count > 0) Then
+                        Dim parentGUID As String = ds.Tables(9).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").First()("exid").ToString()
+                        IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
+                    End If
+
 
                     'cmd = New SqlClient.SqlCommand()
                     'cmd.Connection = sqlConn
@@ -5884,7 +6386,8 @@ CleanUp:
          "SELECT COUNT(*) NUM_OF_NOTIFICATIONS_CREATED_YESTERDAY FROM BLOGS.ROLLER_NOTIFICATION WHERE DATE(TIME) = CURRENT_DATE - 1 DAY;" &
          "SELECT blog.ID, blog.NAME, 'Blog' as TYPE, blog.DATECREATED, blog.LASTMODIFIED, users.EXTID FROM BLOGS.WEBSITE blog INNER JOIN BLOGS.ROLLERUSER users ON blog.USERID = users.ID;" &
          "SELECT NAME, WEBSITEID FROM BLOGS.ROLLER_WEBSITETAG;" &
-         "SELECT entry.ID, entry.Title, 'Blog Entry' as TYPE, entry.PUBTIME, entry.UPDATETIME, users.EXTID, entry.WEBSITEID FROM BLOGS.WEBLOGENTRY entry INNER JOIN BLOGS.ROLLERUSER users ON entry.USERID = users.ID;"
+         "SELECT entry.ID, entry.Title, 'Blog Entry' as TYPE, entry.PUBTIME, entry.UPDATETIME, users.EXTID, entry.WEBSITEID FROM BLOGS.WEBLOGENTRY entry INNER JOIN BLOGS.ROLLERUSER users ON entry.USERID = users.ID;" &
+         "SELECT ASSOCID, WEBSITEID FROM BLOGS.WEBSITEASSOC"
 
 
         Dim Category As String = "Blog"
@@ -6088,6 +6591,10 @@ CleanUp:
                     IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMODIFIED").ToString())
                     IbmConnectionsObjects2.OwnerId = connectionsUserId
                     IbmConnectionsObjects2.GUID = row("ID").ToString()
+                    If (ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count > 0) Then
+                        Dim parentGUID As String = ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
+                        IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
+                    End If
 
                     'cmd = New SqlClient.SqlCommand()
                     'cmd.Connection = sqlConn
@@ -6543,6 +7050,11 @@ CleanUp:
                     'cmd.ExecuteNonQuery()
                 Next
 
+                Dim listOfComms As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects).ToList()
+                For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjects In listOfComms
+                    dictOfCommunityIds.Add(entity.GUID, entity.Id)
+                Next
+
                 'End Using
 
             Catch ex As Exception
@@ -6948,8 +7460,6 @@ CleanUp:
 
                 'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
-
-
                 Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
 
                     Dim cmd As New SqlClient.SqlCommand()
@@ -6973,8 +7483,10 @@ CleanUp:
                             parent = row("PARENTUUID").ToString()
                             parentType = "Forum"
                         End If
+
                         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                         Dim parentObjectId As String = Nothing
+
                         Try
                             Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
                                 repo.Filter.Eq(Function(x) x.Type, parentType)
@@ -7105,7 +7617,7 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_WIKIS_PAGES_CREATED_YESTERDAY FROM WIKIS.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS FROM WIKIS.MEDIA_REVISION;" &
             "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY FROM WIKIS.MEDIA_REVISION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
-            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID;" &
+            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID, wiki.EXTERNAL_CONTAINER_ID FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID;" &
             "SELECT HEX(lib.LIBRARY_ID) as LIBRARY_ID, tag.TAG FROM WIKIS.LIBRARY_TO_TAG lib INNER JOIN WIKIS.TAG tag ON tag.ID = lib.TAG_ID;" &
             "SELECT HEX(media.ID) as ID, media.LABEL, 'Wiki Entry' as TYPE, media.CREATE_DATE, media.LAST_UPDATE, user.DIRECTORY_ID, HEX(media.LIBRARY_ID) as LIBRARY_ID FROM WIKIS.MEDIA media INNER JOIN WIKIS.USER user ON user.ID = media.OWNER_USER_ID;"
 
@@ -7194,6 +7706,10 @@ CleanUp:
                     IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
                     IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
                     IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
+                    If (row("EXTERNAL_CONTAINER_ID") IsNot Nothing And row("EXTERNAL_CONTAINER_ID").ToString() <> "") Then
+                        IbmConnectionsObjects.ParentGUID = dictOfCommunityIds(row("EXTERNAL_CONTAINER_ID").ToString())
+                    End If
+
 
                     repo.Insert(IbmConnectionsObjects)
                     'Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)

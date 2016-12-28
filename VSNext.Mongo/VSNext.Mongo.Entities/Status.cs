@@ -204,6 +204,11 @@ namespace VSNext.Mongo.Entities
         public double? Memory { get; set; }
 
         [DataMember]
+        [BsonElement("memory_threshold")]
+        [BsonIgnoreIfNullAttribute]
+        public double? MemoryThreshold { get; set; }
+
+        [DataMember]
         [BsonElement("elapsed_days")]
         [BsonIgnoreIfNullAttribute]
         public double? ElapsedDays { get; set; }

@@ -11,24 +11,19 @@ namespace VitalSignsWebSphereDLL
 	public class VitalSignsWebSphereDLL
 	{
 
-		private void ExecuteCommand(string cmd, string AppClientFolder, string ServicePath, int timeoutSec = 60)
+		private string ExecuteCommand(string cmd, string AppClientFolder, string ServicePath, int timeoutSec = 60)
 		{
 			System.Diagnostics.Process process = new System.Diagnostics.Process();
 			System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 			startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 			startInfo.FileName = "cmd.exe";
 			startInfo.Arguments = "/C " + cmd;
-			//throw new Exception(cmd);
 			startInfo.WorkingDirectory = ServicePath;
 			// *** Redirect the output ***
 			startInfo.RedirectStandardError = true;
 			startInfo.RedirectStandardOutput = true;
 			startInfo.UseShellExecute = false;
 			startInfo.CreateNoWindow = true;
-			//startInfo.UserName = "wasadmin";
-			//System.Security.SecureString str = new System.Security.SecureString();
-			//"W@sadm1n".ToCharArray().ToList().ForEach(str.AppendChar);
-			//startInfo.Password = str;
 			process.StartInfo = startInfo;
 			process.Start();
 
@@ -39,7 +34,11 @@ namespace VitalSignsWebSphereDLL
 			//for debugging
 			string s = process.StandardOutput.ReadToEnd();
 			string p = process.StandardError.ReadToEnd();
-			//throw new Exception(s + "...." + p);
+
+            LogUtilities.LogUtils.WriteDeviceHistoryEntry("ALL", "WebSphereDLL", DateTime.Now.ToString() + " Output from console: " + s + "\n\nError from console: " + p);
+            System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(s, "<cells>.*<\\/cells>");
+            return match.Groups[0].Value;
+			//throw new Exception(cmd + "......" + AppClientFolder + "...." + ServicePath + "....." +s + "...." + p);
 		}
 
 		private object DecodeXMLFromPath(string pathToXML, Type type)
@@ -88,7 +87,7 @@ namespace VitalSignsWebSphereDLL
 			ExecuteCommand(pathToBatch + "" + arguments, AppClientFolder, ServicePath, 60);
 		}
 
-		private void ExecuteGetServerStatsCmd(MonitoredItems.WebSphere cellProperties, string AppClientFolder, string ServicePath)
+		private string ExecuteGetServerStatsCmd(MonitoredItems.WebSphere cellProperties, string AppClientFolder, string ServicePath)
 		{
 
 			//string AppClientFolder = "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\";
@@ -106,7 +105,7 @@ namespace VitalSignsWebSphereDLL
 			arguments += " \"" + cellProperties.ServerName + "\"";
 
 			//throw new Exception("Path: " + pathToBatch + "" + arguments + ". App:" + AppClientFolder + "Serv:" + ServicePath);
-			ExecuteCommand(pathToBatch + "" + arguments, AppClientFolder, ServicePath, 60);
+			return ExecuteCommand(pathToBatch + "" + arguments, AppClientFolder, ServicePath, 60);
 		}
 
 		public Cells getServerList(CellProperties cellProperties)
@@ -229,12 +228,9 @@ namespace VitalSignsWebSphereDLL
 					ServicePath += "\\";
 
 
-				ExecuteGetServerStatsCmd(serverProperties, AppClientPath, ServicePath);
+				string result = ExecuteGetServerStatsCmd(serverProperties, AppClientPath, ServicePath);
 
-				string filePath = ServicePath + "VitalSigns\\xml\\AppServerStats.xml";
-
-				Cells_ServerStats cell = (Cells_ServerStats)DecodeXMLFromPath(filePath, typeof(Cells_ServerStats));
-
+                Cells_ServerStats cell = (Cells_ServerStats)DecodeXMLFromString(result, typeof(Cells_ServerStats));
 				return cell;
 			}
 			catch (Exception ex)

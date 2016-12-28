@@ -671,10 +671,10 @@ Partial Public Class VitalSignsPlusDomino
 
 	Private Sub CycleTravelerUsers()
 		WriteDeviceHistoryEntry("All", "CycleTravelerUsers", Now.ToString & " Begin cycle Traveler users.")
-		'Get the Decode Values from Database
-		GetDeviceTypeTranslationvalues()
-		GetOSTypeTranslationvalues()
-		Dim ScanCandidates As New MonitoredItems.DominoCollection
+        'Get the Decode Values from Database
+        GetDeviceTypeTranslationvalues()
+        'GetOSTypeTranslationvalues()
+        Dim ScanCandidates As New MonitoredItems.DominoCollection
 		For Each srv As MonitoredItems.DominoServer In MyDominoServers
 			If srv.Enabled = True Then
 				' WriteDeviceHistoryEntry("All", "CycleTravelerUsers", Now.ToString & " Processing scan candidate:  " & srv.Name)
@@ -713,67 +713,19 @@ Partial Public Class VitalSignsPlusDomino
 
 	End Sub
 
-	Private Sub GetDeviceTypeTranslationvalues()
-		Dim myConnectionString As New VSFramework.XMLOperation
-		Dim myAdapter As New VSFramework.VSAdaptor
-		WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct DeviceTypeTranslation List ")
-		Dim sSQLServers As String = "SELECT DISTINCT DeviceType,TranslatedValue  FROM DeviceTypeTranslation where OSName='Apple'"
-		Try
-			DeviceTypeTranslationApple.Clear()
-			Dim dtDeviceTypeList As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sSQLServers)
-			WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct DeviceTypeTranslationApple List Count: " + dtDeviceTypeList.Rows.Count.ToString)
-			For Each drDeviceTypeList As DataRow In dtDeviceTypeList.Rows
-				DeviceTypeTranslationApple.Add(drDeviceTypeList(0).ToString, drDeviceTypeList(1).ToString)
-			Next
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct DeviceTypeTranslationApple List: Error: " + ex.Message.ToString)
-		End Try
-
-		sSQLServers = "SELECT DISTINCT DeviceType,TranslatedValue  FROM DeviceTypeTranslation where OSName='Android'"
-		Try
-			DeviceTypeTranslationAndroid.Clear()
-			Dim dtDeviceTypeList As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sSQLServers)
-			WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct DeviceTypeTranslationAndroid List Count: " + dtDeviceTypeList.Rows.Count.ToString)
-			For Each drDeviceTypeList As DataRow In dtDeviceTypeList.Rows
-				DeviceTypeTranslationAndroid.Add(drDeviceTypeList(0).ToString.ToLower, drDeviceTypeList(1).ToString)
-			Next
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct DeviceTypeTranslationAndroid List: Error: " + ex.Message.ToString)
-		End Try
-
+    Private Sub GetDeviceTypeTranslationvalues()
+        Try
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDeviceTranslations)(connectionString)
+            Dim list As List(Of VSNext.Mongo.Entities.MobileDeviceTranslations) = repo.Find(Function(x) True).ToList()
+            list.Where(Function(x) x.Type = "OS" And x.OSType = "Android").ToList().ForEach(Sub(x) OSTypeTranslationAndroid.Add(x.OriginalValue, x.TranslatedValue))
+            list.Where(Function(x) x.Type = "OS" And x.OSType = "Apple").ToList().ForEach(Sub(x) OSTypeTranslationApple.Add(x.OriginalValue, x.TranslatedValue))
+            list.Where(Function(x) x.Type = "Device" And x.OSType = "Android").ToList().ForEach(Sub(x) DeviceTypeTranslationAndroid.Add(x.OriginalValue, x.TranslatedValue))
+            list.Where(Function(x) x.Type = "Device" And x.OSType = "Apple").ToList().ForEach(Sub(x) DeviceTypeTranslationApple.Add(x.OriginalValue, x.TranslatedValue))
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct Translation List: Error: " + ex.Message.ToString)
+        End Try
     End Sub
 
-	Private Sub GetOSTypeTranslationvalues()
-		Dim myConnectionString As New VSFramework.XMLOperation
-		Dim myAdapter As New VSFramework.VSAdaptor
-		WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct OSTypeTranslation List ")
-		Dim sSQLServers As String = "SELECT DISTINCT OSType,TranslatedValue  FROM OSTypeTranslation WHERE OSName='Apple'"
-		Try
-			OSTypeTranslationApple.Clear()
-
-			Dim dtOSTypeList As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sSQLServers)
-			WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct OSTypeTranslationApple List Count: " + dtOSTypeList.Rows.Count.ToString)
-			For Each drOSTypeList As DataRow In dtOSTypeList.Rows
-				OSTypeTranslationApple.Add(drOSTypeList(0).ToString, drOSTypeList(1).ToString)
-			Next
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct OSTypeTranslationApple List: Error: " + ex.Message.ToString)
-		End Try
-
-		sSQLServers = "SELECT DISTINCT OSType,TranslatedValue  FROM OSTypeTranslation WHERE OSName='Android'"
-		Try
-			OSTypeTranslationAndroid.Clear()
-
-			Dim dtOSTypeList As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sSQLServers)
-			WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct OSTypeTranslationAndroid List Count: " + dtOSTypeList.Rows.Count.ToString)
-			For Each drOSTypeList As DataRow In dtOSTypeList.Rows
-				OSTypeTranslationAndroid.Add(drOSTypeList(0).ToString, drOSTypeList(1).ToString)
-			Next
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Get Distinct OSTypeTranslationAndroid List: Error: " + ex.Message.ToString)
-		End Try
-
-	End Sub
     'Private Sub CycleTravelerUsersOLD()
     '	Dim ScanCandidates As New MonitoredItems.DominoCollection
     '	For Each srv As MonitoredItems.DominoServer In MyDominoServers
@@ -832,7 +784,7 @@ Partial Public Class VitalSignsPlusDomino
 
     'End Sub
 
-	Private Sub CheckTravelerUsersLoop(ByVal ServerName As String)
+    Private Sub CheckTravelerUsersLoop(ByVal ServerName As String)
 		' Traveler Users
 		WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Starting a new thread for  " & ServerName)
 		Dim MyDominoServer As MonitoredItems.DominoServer

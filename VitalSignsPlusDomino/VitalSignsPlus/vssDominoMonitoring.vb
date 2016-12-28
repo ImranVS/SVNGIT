@@ -2001,7 +2001,7 @@ WaitHere:
 
                     Try
                         '  myCPU = CType(myCPUString, Double)
-                        MyDominoServer.CPU_Utilization = myCPU / 100
+                        MyDominoServer.CPU_Utilization = Math.Round(myCPU / 100, 2)
                     Catch ex As Exception
                         MyDominoServer.CPU_Utilization = 0
                     End Try
