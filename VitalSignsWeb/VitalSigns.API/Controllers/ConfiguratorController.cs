@@ -2866,7 +2866,11 @@ namespace VitalSigns.API.Controllers
                     ThresholdValue = x.ThresholdValue,
                     TimesInARow = x.TimesInARow,
                     GreaterThanOrLessThan = x.GreaterThanOrLessThan,
-                    ConsoleCommand = x.ConsoleCommand
+                    ConsoleCommand = x.ConsoleCommand,
+                    TypeOfStatistic=x.TypeOfStatistic,
+                    EqualOrNotEqual=x.EqualOrNotEqual
+
+
 
                 }).ToList();
                 Response = Common.CreateResponse(result);
@@ -2902,7 +2906,9 @@ namespace VitalSigns.API.Controllers
                         ThresholdValue = customstat.ThresholdValue,
                         TimesInARow = customstat.TimesInARow,
                         GreaterThanOrLessThan = customstat.GreaterThanOrLessThan,
-                        ConsoleCommand = customstat.ConsoleCommand
+                        ConsoleCommand = customstat.ConsoleCommand,
+                        TypeOfStatistic=customstat.TypeOfStatistic,
+                        EqualOrNotEqual=customstat.EqualOrNotEqual
 
                     };
                     string id = serverOtherRepository.Insert(customstatistic);
@@ -2916,7 +2922,9 @@ namespace VitalSigns.API.Controllers
                                                              .Set(p => p.ThresholdValue, customstat.ThresholdValue)
                                                              .Set(p => p.TimesInARow, customstat.TimesInARow)
                                                               .Set(p => p.GreaterThanOrLessThan, customstat.GreaterThanOrLessThan)
-                                                               .Set(p => p.ConsoleCommand, customstat.ConsoleCommand);
+                                                               .Set(p => p.ConsoleCommand, customstat.ConsoleCommand)
+                                                               .Set(p => p.TypeOfStatistic, customstat.TypeOfStatistic)
+                                                               .Set(p => p.EqualOrNotEqual, customstat.EqualOrNotEqual);
                     var result = serverOtherRepository.Update(filterDefination, updateDefination);
                     Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Custom statistics updated successfully");
                 }
