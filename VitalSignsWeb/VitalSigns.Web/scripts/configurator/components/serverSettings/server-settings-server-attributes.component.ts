@@ -19,7 +19,7 @@ import { ServersLocation } from '../server-list-location.component';
         ServersLocationService
     ]
 })
-export class DeviceAttributes extends GridBase implements OnInit {
+export class DeviceAttributes implements OnInit {
     @ViewChild('attributeGrid') attributeGrid: wijmo.grid.FlexGrid;
     @ViewChild('combo') combo: wijmo.input.ComboBox;
     @Output() type = new EventEmitter();  
@@ -29,12 +29,29 @@ export class DeviceAttributes extends GridBase implements OnInit {
     errorMessage: any;
     selectedDeviceType: any;
     currentForm: FormGroup;
+    protected service: RESTService;
+    protected appComponentService: AppComponentService;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    data: wijmo.collections.CollectionView;
     public serversLocationsService: ServersLocationService;
     //data: wijmo.collections.CollectionView;
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            if (this.flex) {
+                (<wijmo.collections.IPagedCollectionView>this.flex.collectionView).pageSize = value;
+            }
+        }
+    }
     constructor(service: RESTService, serversLocationsService: ServersLocationService,
         private formBuilder: FormBuilder, appComponentService: AppComponentService) {
        
-        super(service, appComponentService);
+        this.service = service;
+        this.appComponentService = appComponentService; 
+
         this.serversLocationsService = serversLocationsService;
        
         this.currentForm = this.formBuilder.group({
@@ -84,8 +101,21 @@ export class DeviceAttributes extends GridBase implements OnInit {
     }
  
     ngOnInit()
-    {
-        this.initialGridBind('/Configurator/get_device_attributes?type='+this.selectedDeviceType);
+    {     
+        this.service.get('/Configurator/get_device_attributes?type=' + this.selectedDeviceType)
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                    this.data.pageSize = 10;
+                } else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+
+            }, error => {
+                var errorMessage = <any>error;
+                this.appComponentService.showErrorMessage(errorMessage);
+            });
         this.service.get('/configurator/get_device_type_list')
             .subscribe(
             (response) => {
@@ -99,6 +129,7 @@ export class DeviceAttributes extends GridBase implements OnInit {
         var slectedAttributeValues: DeviceAttributeValue[] = [];
         for (var _i = 0; _i < this.attributeGrid.collectionView.sourceCollection.length; _i++) {
             var item = (<wijmo.collections.CollectionView>this.attributeGrid.collectionView.sourceCollection)[_i];
+            console.log(item.is_selected);
             if (item.is_selected) {
                 var deviceAttrObject=new DeviceAttributeValue();
                 deviceAttrObject.value = item.default_value;
@@ -129,6 +160,12 @@ export class DeviceAttributes extends GridBase implements OnInit {
                 }
 
             });
+    }
+
+    selectionChangedHandler = () => {
+        console.log(this.flex.collectionView.currentItem);
+        (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
+
     }
   
 
