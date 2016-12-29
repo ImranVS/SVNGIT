@@ -1301,7 +1301,14 @@ namespace VSNext.Mongo.Entities
 
     public class NameValuePair
     {
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("name")]
         public string Name { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("value")]
         public string Value { get; set; }
 
     }

@@ -3021,7 +3021,7 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.DatabaseSettingsHostName) _
                 .Include(Function(x) x.DatabaseSettingsCredentialsId) _
                 .Include(Function(x) x.DatabaseSettingsPort) _
-                .Include(Function(x) x.Tests)
+                .Include(Function(x) x.SimulationTests)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -3585,34 +3585,34 @@ Partial Public Class VitalSignsPlusCore
                         .TestCreateWikis = False
                         .TestSearchProfiles = False
 
-                        For Each test As VSNext.Mongo.Entities.Tests In entity.Tests
-                            Select Case test.TestName
+                        For Each test As VSNext.Mongo.Entities.NameValuePair In entity.SimulationTests
+                            Select Case test.Name
 
-                                Case "Create Activity"
-                                    .CreateActivityThreshold = test.Threshold
+                                Case "Create Activity Threshold"
+                                    .CreateActivityThreshold = test.Value
                                     .TestCreateActivity = True
 
-                                Case "Create Blog"
-                                    .CreateBlogThreshold = test.Threshold
+                                Case "Create Blog Threshold"
+                                    .CreateBlogThreshold = test.Value
                                     .TestCreateBlog = True
-                                Case "Create Bookmark"
-                                    .CreateBookmarkThreshold = test.Threshold
+                                Case "Create Bookmark Threshold"
+                                    .CreateBookmarkThreshold = test.Value
                                     .TestCreateBookmarks = True
 
-                                Case "Create Community"
-                                    .CreateCommunitiesThreshold = test.Threshold
+                                Case "Create Community Threshold"
+                                    .CreateCommunitiesThreshold = test.Value
                                     .TestCreateCommunities = True
 
-                                Case "Create File"
-                                    .CreateFilesThreshold = test.Threshold
+                                Case "Create File Threshold"
+                                    .CreateFilesThreshold = test.Value
                                     .TestCreateFiles = True
 
-                                Case "Create Wiki"
-                                    .CreateWikisThreshold = test.Threshold
+                                Case "Create Wiki Threshold"
+                                    .CreateWikisThreshold = test.Value
                                     .TestCreateWikis = True
 
-                                Case "Search Profile"
-                                    .SearchProfilesThreshold = test.Threshold
+                                Case "Search Profile Threshold"
+                                    .SearchProfilesThreshold = test.Value
                                     .SearchProfilesThreshold = True
 
                             End Select
