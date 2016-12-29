@@ -3,10 +3,11 @@
         Domino Server Tasks
     </div>
     <div class="widgetContent">
-        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1">
+        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column"  [frozenColumns]="1"
+                      (selectionChanged)="selectionChangedHandler()">
             <wj-flex-grid-filter></wj-flex-grid-filter>
             <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="100"> </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="250" is-read-only="true"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="250" [isReadOnly]="true"> </wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Load'" [binding]="'is_load'" [width]="150"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Restart ASAP'" [binding]="'is_restart_asap'" [width]="150"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Restart Later'" [binding]="'is_resart_later'" [width]="150"></wj-flex-grid-column>
@@ -54,9 +55,10 @@ data.pageIndex + 1 | number
     </div>
     <div class="widgetContent">
         <div>
+            <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
             <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceType)]="currentDeviceType"></server-location-list>
 
-            <button type="button" class="btn btn-success" (click)="applySetting()">Add Tasks</button>
+            <button type="button" class="btn btn-success" (click)="applySetting()" [disabled]="!(devices.length>0)">Add Tasks</button>
             <button type="button" class="btn btn-success" (click)="removeSetting()">Remove Tasks</button>
 
         </div>
