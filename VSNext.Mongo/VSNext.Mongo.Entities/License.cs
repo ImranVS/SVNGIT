@@ -141,6 +141,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("service_status")]
         [BsonIgnoreIfNull]
         public List<ServiceStatus> ServiceStatus { get; set; }
+
+        [DataMember]
+        [BsonElement("assembly_info")]
+        [BsonIgnoreIfNull]
+        public List<AssemblyInfo> AssemblyInfo { get; set; }
     }
 
     public class ServiceStatus
@@ -154,5 +159,34 @@ namespace VSNext.Mongo.Entities
         [BsonElement("state")]
         [BsonIgnoreIfNull]
         public string State { get; set; }
+    }
+
+    public class AssemblyInfo
+    {
+        [DataMember]
+        [BsonElement("name")]
+        [BsonIgnoreIfNull]
+        public string AssemblyName { get; set; }
+
+        [DataMember]
+        [BsonElement("name")]
+        [BsonIgnoreIfNull]
+        public string AssemblyVersion { get; set; }
+
+        [DataMember]
+        [BsonElement("name")]
+        [BsonIgnoreIfNull]
+        public string ProductVersion { get; set; }
+
+        [DataMember]
+        [BsonElement("name")]
+        [BsonIgnoreIfNull]
+        public DateTime? BuildDate { get; set; }
+
+        [DataMember]
+        [BsonElement("name")]
+        [BsonIgnoreIfNull]
+        public string FileArea { get; set; }
+
     }
 }

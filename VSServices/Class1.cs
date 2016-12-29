@@ -114,6 +114,8 @@ namespace RPRWyatt.VitalSigns.Services
                 newt.Columns.Add("BuildDate");
 
                 LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + ",xml rows: " + newt.Rows.Count, "AssemblyVersionError.txt", LogUtils.LogLevel.Verbose);
+                List<VSNext.Mongo.Entities.AssemblyInfo> listAssemblyInfo = new List<VSNext.Mongo.Entities.AssemblyInfo>();
+
                 for (int i = 0; i <= newt.Rows.Count - 1; i++)
                 {
 
@@ -140,34 +142,25 @@ namespace RPRWyatt.VitalSigns.Services
 						string ver = AssemblyName.GetAssemblyName((FilePath + newt.Rows[i]["AssemblyName"].ToString())).Version.Major.ToString() + "." + AssemblyName.GetAssemblyName((FilePath + newt.Rows[i]["AssemblyName"].ToString())).Version.Minor.ToString() + "." + AssemblyName.GetAssemblyName((FilePath + newt.Rows[i]["AssemblyName"].ToString())).Version.Build.ToString();
                         FileVersionInfo fvi = FileVersionInfo.GetVersionInfo((FilePath + newt.Rows[i]["AssemblyName"].ToString()));
 						string fversion = fvi.ProductMajorPart.ToString() + "." + fvi.ProductMinorPart.ToString() + "." + fvi.ProductBuildPart;
-                        string builddt = Convert.ToString(System.IO.File.GetLastWriteTime(FilePath + newt.Rows[i]["AssemblyName"].ToString()));
-
+                        DateTime builddt = System.IO.File.GetLastWriteTime(FilePath + newt.Rows[i]["AssemblyName"]);
                         try
                         {
-                            strSQL = "select * from VS_AssemblyVersionInfo where  AssemblyName='" + newt.Rows[i]["AssemblyName"].ToString() + "' and NodeName='" + NodeName + "'";
-                            myAdapter.FillDatasetAny("VitalSigns", "None", strSQL, ref DsSettings, "VS_AssemblyVersionInfo");
-                            //dt = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), strSQL);
-                          //  dt = DsSettings.Tables["VS_AssemblyVersionInfo"];
-                            if (dt.Rows.Count > 0)
+                            listAssemblyInfo.Add(new VSNext.Mongo.Entities.AssemblyInfo()
                             {
-                                strSQL = "Update VS_AssemblyVersionInfo set AssemblyVersion='" + ver.ToString() + "', ProductVersion='" + fversion + "',BuildDate='" + builddt + "' where  AssemblyName='" + newt.Rows[i]["AssemblyName"].ToString() + "' and NodeName='" + NodeName + "'";
-								myAdapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL);
-                            }
-                            else
-                            {
-                                strSQL = "Insert into VS_AssemblyVersionInfo(AssemblyName,AssemblyVersion,ProductVersion,BuildDate,FileArea,NodeName) " + "values('" + newt.Rows[i]["AssemblyName"].ToString() + "','" + ver.ToString() + "','" + fversion + "','" + builddt + "','" + newt.Rows[i]["FileArea"].ToString() + "','" + NodeName + "')";
-								myAdapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL);
-                            }
-
-
+                                AssemblyName = newt.Rows[i]["AssemblyName"].ToString(),
+                                AssemblyVersion = ver.ToString(),
+                                ProductVersion = fversion,
+                                BuildDate = builddt,
+                                FileArea = newt.Rows[i]["FileArea"].ToString()
+                            });
+                            
                         }
                         catch (Exception ex)
                         {
-                            LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + ",Filepath: " + FilePath + ",sql: " + strSQL + ", error:" + ex.Message, "AssemblyVersionError.txt", LogUtils.LogLevel.Verbose);
+                            LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + " Error adding new AssemblyInfo to list error:" + ex.Message, "AssemblyVersionError.txt", LogUtils.LogLevel.Verbose);
                         }
 
-
-                    }
+                        }
                     catch (Exception ex)
                     {
                         LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + " error: " + ex.Message, "AssemblyVersionError.txt" + ", error:" + ex.Message, LogUtils.LogLevel.Verbose);
@@ -175,6 +168,18 @@ namespace RPRWyatt.VitalSigns.Services
                     }
                 }
 
+                try
+                {
+                    VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes>(connectionString);
+                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterDef = repository.Filter.Eq(x => x.Name, NodeName);
+                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updateDef = repository.Updater.Set(x => x.AssemblyInfo, listAssemblyInfo);
+                    repository.Update(filterDef, updateDef);
+                }
+                catch (Exception ex)
+                {
+                    LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + " error when updating node collection. Error: " + ex.Message, "AssemblyVersionError.txt" + ", error:" + ex.Message, LogUtils.LogLevel.Verbose);
+
+                }
 
             }
             catch (Exception ex)
