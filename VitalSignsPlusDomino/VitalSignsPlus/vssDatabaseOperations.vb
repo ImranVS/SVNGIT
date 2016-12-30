@@ -1557,7 +1557,7 @@ Partial Public Class VitalSignsPlusDomino
                                                                                     .Set(Function(x) x.DeviceName, Device.DeviceName.ToString()) _
                                                                                     .Set(Function(x) x.OSType, Device.OS_Type.ToString()) _
                                                                                     .Set(Function(x) x.ClientBuild, Device.Client_Build.ToString()) _
-                                                                                    .Set(Function(x) x.Access, Device.UserName.ToString()) _
+                                                                                    .Set(Function(x) x.Access, Device.Access.ToString()) _
                                                                                     .Set(Function(x) x.WipeSupported, Device.wipeSupported.ToString()) _
                                                                                     .Set(Function(x) x.SyncType, Device.AutoSyncType.ToString()) _
                                                                                     .Set(Function(x) x.SecurityPolicy, Device.ApprovalPolicy.ToString()) _
