@@ -4,11 +4,7 @@
     <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="200"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'OS Type'" [binding]="'os_type'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Last Sync Time'" [binding]="'last_sync_time'" [width]="180">
-        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-            {{cell.item.last_sync_time | date: 'MM/dd/yyyy hh:mm:ss'}}
-        </template>
-    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Sync Time'" [binding]="'last_sync_time'" [width]="180"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Access'" [binding]="'access'" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <span *ngIf="cell.item.access == 'Allow'" class="label label-pill label-success">Allow</span>
