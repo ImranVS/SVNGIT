@@ -34,8 +34,8 @@ export class ServerTaskDefinition extends GridBase {
         this.currentEditItem.console_string = "";
         this.currentEditItem.freeze_detect = "";
         this.currentEditItem.idle_string = "";
-        this.currentEditItem.max_busy_time = "";
-        this.currentEditItem.retry_count = "";
+        this.currentEditItem.max_busy_time = 0;
+        this.currentEditItem.retry_count = 0;
     }
 }
 
