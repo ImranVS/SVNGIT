@@ -38,4 +38,37 @@ namespace VitalSigns.API.Models
         [JsonProperty("total")]
         public int Total { get; set; }
     }
+
+    public class UserList
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+    }
+
+    public class CommunityUserList
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("community")]
+        public string Community { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+    }
+
+    public class UserComparison
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("category")]
+        public string Category { get; set; }
+    }
 }

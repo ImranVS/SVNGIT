@@ -28,6 +28,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<NameValue> nameValueRepository;
         private IRepository<EventsDetected> eventsDetectedRepository;
+        private IRepository<StatusDetails> statusDetailsRepository;
         // private IRepository<DominoSettingsModel> dominoSettingsRepository;
 
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
@@ -1269,6 +1270,10 @@ namespace VitalSigns.API.Controllers
             List<dynamic> result = new List<dynamic>();
             List<Segment> segments = new List<Segment>();
             List<Status> list = null;
+            List<StatusDetails> statusdetails = null;
+            List<dynamic> tests = new List<dynamic>();
+            List<string> headerList = new List<string>();
+            List<string> dataList = new List<string>();
             Segment segment = new Segment();
 
             try
@@ -1303,15 +1308,52 @@ namespace VitalSigns.API.Controllers
                             list = statusRepository.Find(expression).AsQueryable().OrderBy(x => x.DeviceName).ToList();
                         }
                         
-                        foreach (Status status in list)
+                        // Get test information from the status_details collection
+                        if (type == "IBM Connections")
                         {
-                            var x = new ExpandoObject() as IDictionary<string, Object>;
-                            foreach (var field in status.ToBsonDocument())
-                            {
-                                x.Add(field.Name, field.Value.ToString());
-                            }
-                            result.Add(x);
+                            statusDetailsRepository = new Repository<StatusDetails>(ConnectionString);
+                            FilterDefinition<StatusDetails> filterDefDetails = statusDetailsRepository.Filter.Eq(p => p.Type, type);
+                            statusdetails = statusDetailsRepository.Find(filterDefDetails).ToList();
                         }
+
+                        if (type != "IBM Connections")
+                        {
+                            foreach (Status status in list)
+                            {
+                                var x = new ExpandoObject() as IDictionary<string, Object>;
+                                foreach (var field in status.ToBsonDocument())
+                                {
+                                    x.Add(field.Name, field.Value.ToString());
+                                }
+                                result.Add(x);
+                            }
+                        }
+                        else
+                        {
+                            foreach (Status status in list)
+                            {
+                                var x = new ExpandoObject() as IDictionary<string, Object>;
+                                foreach (var field in status.ToBsonDocument())
+                                {
+                                    x.Add(field.Name, field.Value.ToString());
+                                }
+                                headerList = statusdetails.Where(n => n.DeviceId == status.DeviceId)
+                                    .Select(p => p.TestName).ToList();
+                                if (headerList.Count > 0)
+                                {
+                                    x.Add("headerText", headerList);
+                                }
+                                dataList = statusdetails.Where(n => n.DeviceId == status.DeviceId)
+                                    .Select(p => p.Result).ToList();
+                                if (dataList.Count > 0)
+                                {
+                                    x.Add("dataKey", dataList);
+                                }
+                                result.Add(x);
+                            }
+                            
+                        }
+
                         Response = Common.CreateResponse(result);
                     }
                     else

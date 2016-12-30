@@ -40,6 +40,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Maintenance> maintenanceRepository;
         private IRepository<Location> locationRepository;
         private IRepository<NameValue> namevalueRepository;
+        private IRepository<IbmConnectionsObjects> connectionsRepository;
 
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         /// <summary>
@@ -1391,6 +1392,144 @@ namespace VitalSigns.API.Controllers
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("connections/users")]
+        public APIResponse ConnectionsUsers(string deviceid)
+        {
+            List<UserList> result = new List<UserList>();
+
+            try
+            {
+                connectionsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                FilterDefinition<IbmConnectionsObjects> filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Users"),
+                    connectionsRepository.Filter.Eq(x => x.DeviceId, deviceid));
+                result = connectionsRepository.Find(filterDef)
+                    .Select(x => new UserList
+                    {
+                        Id = x.Id,
+                        Name = x.Name
+                    }).OrderBy(x => x.Name).ToList();
+                Response = Common.CreateResponse(result);
+                return Response;
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("connections/community_user")]
+        public APIResponse ConnectionsCommunityUser(string deviceid)
+        {
+            List<string> users = new List<string>();
+            List<CommunityUserList> result = new List<CommunityUserList>();
+            FilterDefinition<IbmConnectionsObjects> filterDef;
+            try
+            {
+                connectionsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Community"),
+                    connectionsRepository.Filter.Eq(x => x.DeviceId, deviceid));
+                var result1 = connectionsRepository.Find(filterDef).OrderBy(x => x.Name).ToList();
+                foreach (var community in result1)
+                {
+                    if (community.users != null)
+                    {
+                        filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Users"),
+                            connectionsRepository.Filter.In(x => x.Id, community.users));
+                        users = connectionsRepository.Find(filterDef).OrderBy(x => x.Name).Select(x => x.Name).ToList();
+                        if (users != null)
+                        {
+                            foreach (var user in users)
+                            {
+                                result.Add(new CommunityUserList{
+                                    Id = community.Id,
+                                    Community = community.Name,
+                                    Name = user
+                                });
+                            }
+                        }
+                    }
+                }
+                Response = Common.CreateResponse(result);
+                return Response;
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("connections/compare_users")]
+        public APIResponse ConnectionsCompareUsers(string deviceid, string user1 = "", string user2 = "", string username1 = "", string username2 = "")
+        {
+            List<UserComparison> result1 = new List<UserComparison>();
+            List<UserComparison> result2 = new List<UserComparison>();
+            List<UserComparison> result3 = new List<UserComparison>();
+            List<UserComparison> result = null;
+            FilterDefinition<IbmConnectionsObjects> filterDef;
+
+            try
+            {
+                if (user1 != "" && user2 != "" && username1 != "" && username2 != "")
+                {
+                    connectionsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                    //Get communities in common for both users
+                    filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Community"),
+                        connectionsRepository.Filter.Eq(x => x.DeviceId, deviceid),
+                        connectionsRepository.Filter.AnyEq(x => x.users, user1),
+                        connectionsRepository.Filter.AnyEq(x => x.users, user2));
+                    result1 = connectionsRepository.Find(filterDef)
+                        .Select(x => new UserComparison
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            Category = "Communities in common"
+                        }).OrderBy(x => x.Name).ToList();
+
+                    //Get communities to which only user1 belongs
+                    filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Community"),
+                        connectionsRepository.Filter.Eq(x => x.DeviceId, deviceid),
+                        connectionsRepository.Filter.AnyEq(x => x.users, user1),
+                        connectionsRepository.Filter.AnyNe(x => x.users, user2));
+                    result2 = connectionsRepository.Find(filterDef)
+                        .Select(x => new UserComparison
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            Category = "Communities of which only " + username1 + " is a member"
+                        }).OrderBy(x => x.Name).ToList();
+
+                    //Get communities to which only user2 belongs
+                    filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Community"),
+                        connectionsRepository.Filter.Eq(x => x.DeviceId, deviceid),
+                        connectionsRepository.Filter.AnyNe(x => x.users, user1),
+                        connectionsRepository.Filter.AnyEq(x => x.users, user2));
+                    result3 = connectionsRepository.Find(filterDef)
+                        .Select(x => new UserComparison
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            Category = "Communities of which only " + username2 + " is a member"
+                        }).OrderBy(x => x.Name).ToList();
+                    result = new List<UserComparison>();
+                    result.AddRange(result1);
+                    result.AddRange(result2);
+                    result.AddRange(result3);
+                }
+                Response = Common.CreateResponse(result);
+                return Response;
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
 
                 return Response;
             }

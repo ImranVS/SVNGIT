@@ -986,21 +986,23 @@ namespace VitalSigns.API.Controllers
             List<IBMConnCommunityUsersList> result2 = new List<IBMConnCommunityUsersList>(); ;
             foreach (IBMConnCommunityUsersList l in result)
             {
-                foreach (string s in l.users)
+                if (l.users != null)
                 {
-                    IBMConnCommunityUsersList ibm2 = new IBMConnCommunityUsersList();
-                    ibm2.ServerName = l.ServerName;
-                    ibm2.Name = l.Name;
-                    FilterDefinition<IbmConnectionsObjects> filterDef2 = connectionsRepository.Filter.Eq(x => x.Type, "Users") & connectionsRepository.Filter.Eq(x => x.Id, s);
-                    List<string> us = connectionsRepository.Find(filterDef2)
-                                .AsQueryable()
-                                .Select(x => x.Name).ToList();
-                    foreach (string s1 in us)
-                        ibm2.user = s1;
-                    result2.Add(ibm2);
+                    foreach (string s in l.users)
+                    {
+                        IBMConnCommunityUsersList ibm2 = new IBMConnCommunityUsersList();
+                        ibm2.ServerName = l.ServerName;
+                        ibm2.Name = l.Name;
+                        FilterDefinition<IbmConnectionsObjects> filterDef2 = connectionsRepository.Filter.Eq(x => x.Type, "Users") & connectionsRepository.Filter.Eq(x => x.Id, s);
+                        List<string> us = connectionsRepository.Find(filterDef2)
+                                    .AsQueryable()
+                                    .Select(x => x.Name).ToList();
+                        foreach (string s1 in us)
+                            ibm2.user = s1;
+                        ibm2.users = us;
+                        result2.Add(ibm2);
+                    }
                 }
-
-
             }
             Response = Common.CreateResponse(result2.OrderBy(x => x.Name));
             return Response;
