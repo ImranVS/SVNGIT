@@ -444,6 +444,20 @@
             "component": "URLHealthTab",
             "path": "/app/services/components/service-url-health.component",
             "type": "Dashboard"
+          },
+          {
+            "tab_id": 2,
+            "title": "Events History",
+            "component": "ServiceEventsTab",
+            "path": "/app/services/components/service-events-tab.component",
+            "type": "Dashboard"
+          },
+          {
+            "tab_id": 3,
+            "title": "Outages",
+            "component": "ServiceOutagesTab",
+            "path": "/app/services/components/service-outages-tab.component",
+            "type": "Dashboard"
           }
         ]
 
