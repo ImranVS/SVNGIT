@@ -177,6 +177,12 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                         series: []
                     }
                 }
+            },
+            {
+                id: 'userComparison',
+                title: 'User Comparison',
+                name: 'IBMConnectionsUserComparison',
+                css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             }
         ];
         injectSVG();
@@ -198,6 +204,9 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 .catch(error => console.log(error));
 
             this.widgetService.refreshWidget('mostActiveCommunity', `/dashboard/connections/top_communities?deviceid=${this.serviceId}&count=1`)
+                .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('userComparison', `/dashboard/connections/users?deviceid=${this.serviceId}`)
                 .catch(error => console.log(error));
             
         }

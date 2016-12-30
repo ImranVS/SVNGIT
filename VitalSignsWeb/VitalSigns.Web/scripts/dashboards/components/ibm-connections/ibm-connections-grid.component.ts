@@ -24,6 +24,7 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;  
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+    connectionsData: any;
     
     get serviceId(): string {
 
@@ -61,6 +62,7 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
                 this.data.pageSize = 10;
                 this.data.moveCurrentToPosition(0);
                 this.serviceId = this.data.currentItem.device_id;
+                this.connectionsData = data.data;
                 //var tt = new wijmo.Tooltip();
                 //tt.setTooltip('#flex', this.data.currentItem.details);
             },

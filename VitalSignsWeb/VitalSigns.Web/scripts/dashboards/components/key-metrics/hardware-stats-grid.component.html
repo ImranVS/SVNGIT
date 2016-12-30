@@ -1,4 +1,4 @@
-﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" #flex>
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'DeviceName'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Memory Utilization'" [binding]="'Memory'" [width]="200" align="right">

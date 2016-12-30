@@ -136,3 +136,5 @@ export * from './dashboards/components/issues/issues.component';
 export * from './reports/components/configuration/domino-server-configuration-report-grid.component'
 export * from './reports/components/configuration/server-list-type-report-grid.component'
 export * from './reports/components/configuration/server-list-location-report-grid.component'
+
+export * from './dashboards/components/ibm-connections/ibm-connections-users-compare.component'

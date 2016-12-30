@@ -39,7 +39,7 @@ export class HardwareStatsDashboard extends WidgetController implements OnInit {
                         endOnTick: false,
                         allowDecimals: false,
                         title: {
-                            text: 'Milliseconds'
+                            text: 'milliseconds'
                         }
                     },
                     plotOptions: {
@@ -69,7 +69,7 @@ export class HardwareStatsDashboard extends WidgetController implements OnInit {
         },
         {
             id: 'hardwareStatsGrid',
-            title: 'CPU/Memory Stats',
+            title: 'CPU/Memory Health',
             name: 'HardwareStatisticsGrid',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-12'
         },
