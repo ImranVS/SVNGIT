@@ -34,8 +34,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
         });
 
         var date = new Date();
-        var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
-
+        var displayDate = (new Date(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
         this.widgets = [
             {
                 id: 'managersNonManagers',
@@ -192,6 +191,12 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                         series: []
                     }
                 }
+            },
+            {
+                id: 'communityUser',
+                title: '',
+                name: 'IBMConnectionsCommunityUser',
+                css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             }
         ];
     
@@ -204,7 +209,8 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
 
             this.serviceId = value;
 
-            var displayDate = (new Date()).toISOString().slice(0, 10);
+            var date = new Date();
+            var displayDate = (new Date(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
 
             this.widgetService.refreshWidget('managersNonManagers', `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_MANAGERS,NUM_OF_PROFILES_WITH_NO_MANAGER]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`)
                 .catch(error => console.log(error));

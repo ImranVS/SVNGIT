@@ -8,7 +8,7 @@
                 <div class="widgetTitle" *ngIf="widget.title">
                     {{widget.title}}
                 </div>
-                <div class="widgetEditButton" *ngIf="widget.title"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+                <!--<div class="widgetEditButton" *ngIf="widget.title"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
                 <div class="widgetContent" id="{{widget.id}}">
                     <my-widget [contract]="widget">loading...</my-widget>
                 </div>

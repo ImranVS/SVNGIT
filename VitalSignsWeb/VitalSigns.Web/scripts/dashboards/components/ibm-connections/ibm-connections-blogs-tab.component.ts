@@ -42,7 +42,7 @@ export class IBMConnectionsBlogsTab extends WidgetController implements OnInit, 
                 id: 'blogs',
                 title: 'Blogs',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/summarystats?statName=NUM_OF_BLOGS_*_CREATED_YESTERDAY&deviceid=${this.serviceId}`,
                     dateformat: "date",
@@ -94,7 +94,7 @@ export class IBMConnectionsBlogsTab extends WidgetController implements OnInit, 
                 id: 'top5CommunitiesBlogs',
                 title: 'Top 5 Communities for Blogs',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Blog&count=5`,
                     chart: {
@@ -129,7 +129,7 @@ export class IBMConnectionsBlogsTab extends WidgetController implements OnInit, 
                 id: 'blogsGrid',
                 title: '',
                 name: 'IBMConnectionsStatsGrid',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
             }
         ];
     

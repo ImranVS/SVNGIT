@@ -1,6 +1,6 @@
-﻿import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
+﻿import {Component, Input, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
-import {ActivatedRoute} from '@angular/router';
+
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
@@ -24,29 +24,14 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
 
-    @Output() select: EventEmitter<string> = new EventEmitter<string>();
-
     data: wijmo.collections.CollectionView;
+    serviceId: string;
     errorMessage: string;
     _serviceId: string;
     url: string;
     
-    get serviceId(): string {
-
-        return this._serviceId;
-
-    }
-
-    set serviceId(id: string) {
-        this._serviceId = id;
-        this.widgetService.setProperty('serviceId', id);
-
-        this.select.emit(this.widgetService.getProperty('serviceId'));
-
-    }
-
-
-    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute) { }
+    
+    constructor(private service: RESTService, private widgetService: WidgetService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -60,14 +45,16 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        this.route.params.subscribe(params => {
-            if (params['service'])
-                this.serviceId = params['service'];
-            else {
+        //this.route.params.subscribe(params => {
+        //    if (params['service'])
+        //        this.serviceId = params['service'];
+        //    else {
 
-                this.serviceId = this.widgetService.getProperty('serviceId');
-            }
-        });
+        //        this.serviceId = this.widgetService.getProperty('serviceId');
+        //    }
+        //});
+
+        this.serviceId = this.widgetService.getProperty('serviceId');
         var date = new Date();
         var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
@@ -88,19 +75,43 @@ export class IBMConnectionsStatsGrid implements WidgetComponent, OnInit {
 
     }
 
-    refresh(serviceUrl?: string) {
+    //refresh(serviceUrl?: string) {
 
-        var date = new Date();
-        var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
+    //    var date = new Date();
+    //    var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
-        this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`)
-            .subscribe(
-            (data) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                this.data.pageSize = 10;
-            },
-            (error) => this.errorMessage = <any>error
-            );
+    //    this.service.get(`/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`)
+    //        .subscribe(
+    //        (data) => {
+    //            this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+    //            this.data.pageSize = 10;
+    //        },
+    //        (error) => this.errorMessage = <any>error
+    //        );
+
+    //}
+
+    onPropertyChanged(key: string, value: any) {
+        if (key === 'serviceId') {
+            this.serviceId = value;
+            var date = new Date();
+            var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
+            if (this.widgetService.getProperty("tabname") != "OVERVIEW") {
+                this.url = `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`;
+            }
+            else {
+                this.url = `/services/summarystats?statName=NUM_OF_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}&regex=^(?:(?!_YESTERDAY).)*?$`;
+            }
+            this.service.get(this.url)
+                .subscribe(
+                (data) => {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                    this.data.pageSize = 10;
+                },
+                (error) => this.errorMessage = <any>error
+                );
+
+        }
 
     }
 

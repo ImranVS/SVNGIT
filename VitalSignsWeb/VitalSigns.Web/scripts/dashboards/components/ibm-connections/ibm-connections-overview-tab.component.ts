@@ -41,7 +41,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                 id: 'dailyActivities',
                 title: 'Daily Activities',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/summarystats?statName=*_CREATED_LAST_DAY&deviceid=${this.serviceId}`,
                     dateformat: "date",
@@ -93,7 +93,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                 id: 'top5Tags',
                 title: 'Top 5 Tags',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/dashboard/connections/top_tags?deviceid=${this.serviceId}&type=Bookmark&count=5`,
                     chart: {
@@ -128,7 +128,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                 id: 'overviewGrid',
                 title: '',
                 name: 'IBMConnectionsStatsGrid',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
             }
         ];
     

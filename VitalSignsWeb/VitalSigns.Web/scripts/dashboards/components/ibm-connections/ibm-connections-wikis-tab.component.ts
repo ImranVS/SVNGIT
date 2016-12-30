@@ -40,7 +40,7 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                 id: 'wikis',
                 title: 'Wikis',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/summarystats?statName=NUM_OF_WIKIS_*_YESTERDAY&deviceid=${this.serviceId}`,
                     dateformat: "date",
@@ -92,7 +92,7 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                 id: 'top5CommunitiesWikis',
                 title: 'Top 5 Communities for Wikis',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Wiki&count=5`,
                     chart: {
@@ -127,7 +127,7 @@ export class IBMConnectionsWikisTab extends WidgetController implements OnInit, 
                 id: 'wikisGrid',
                 title: '',
                 name: 'IBMConnectionsStatsGrid',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
             }
         ];
     

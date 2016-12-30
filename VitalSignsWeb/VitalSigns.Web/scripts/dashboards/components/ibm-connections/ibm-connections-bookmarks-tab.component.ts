@@ -39,7 +39,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                 id: 'bookmarks',
                 title: 'Bookmarks',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/summarystats?statName=NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY&deviceid=${this.serviceId}`,
                     dateformat: "date",
@@ -91,7 +91,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                 id: 'top5CommunitiesBookmarks',
                 title: 'Top 5 Communities for Bookmarks',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Bookmark&count=5`,
                     chart: {
@@ -126,7 +126,7 @@ export class IBMConnectionsBookmarksTab extends WidgetController implements OnIn
                 id: 'bookmarksGrid',
                 title: '',
                 name: 'IBMConnectionsStatsGrid',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
             }
         ];
     

@@ -38,7 +38,7 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
                 id: 'activities',
                 title: 'Activities',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/summarystats?statName=[NUM_OF_ACTIVITIES_ACTIVITIES_CREATED_YESTERDAY,NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY,ACTIVITY_LOGINS_LAST_DAY]&deviceid=${this.serviceId}`,
                     dateformat: "date",
@@ -90,7 +90,7 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
                 id: 'top5CommunitiesActivities',
                 title: 'Top 5 Communities for Activities',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Activity&count=5`,
                     chart: {
@@ -125,7 +125,7 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
                 id: 'activitiesGrid',
                 title: '',
                 name: 'IBMConnectionsStatsGrid',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4'
+                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6'
             }
         ];
     
@@ -146,10 +146,6 @@ export class IBMConnectionsActivitiesTab extends WidgetController implements OnI
 
             this.widgetService.refreshWidget('top5CommunitiesActivities', `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Activity&count=5`)
                 .catch(error => console.log(error));
-
-            this.widgetService.refreshWidget('activitiesGrid', `/services/summarystats?statName=NUM_OF_${this.widgetService.getProperty("tabname")}_*&deviceId=${this.serviceId}&isChart=false&startDate=${displayDate}&endDate=${displayDate}`)
-                .catch(error => console.log(error));
-            
 
         }
 

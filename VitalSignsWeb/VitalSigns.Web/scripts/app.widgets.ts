@@ -138,3 +138,4 @@ export * from './reports/components/configuration/server-list-type-report-grid.c
 export * from './reports/components/configuration/server-list-location-report-grid.component'
 
 export * from './dashboards/components/ibm-connections/ibm-connections-users-compare.component'
+export * from './dashboards/components/ibm-connections/ibm-connections-community-user.component'
