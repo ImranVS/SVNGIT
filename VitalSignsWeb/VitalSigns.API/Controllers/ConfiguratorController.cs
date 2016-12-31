@@ -5655,12 +5655,12 @@ namespace VitalSigns.API.Controllers
                 FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id == Id);
                 var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, null);
                 var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
-                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Mobile User deleted successfully");
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Mobile user removed from monitoring successfully");
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Mobile User delete failed.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Removing mobile user from monitoring has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -5721,6 +5721,7 @@ namespace VitalSigns.API.Controllers
                     FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id == mobileUser.Id);
                     var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, mobileUser.ThresholdSyncTime);
                     var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
+                    // need to return two data sets on save and split them up in the ui to refresh the grids
                     Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Mobile users updated successfully");
                 }
             }
