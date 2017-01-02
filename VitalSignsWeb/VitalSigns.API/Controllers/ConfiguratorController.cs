@@ -3319,11 +3319,11 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<ServerOther, bool>> filterExpression;
                 if (string.IsNullOrEmpty(notesDatabase.Id))
                 {
-                    filterExpression = (p => p.Name == notesDatabase.Name);
+                    filterExpression = (p => p.Name == notesDatabase.Name && p.Type == "Notes Database");
                 }
                 else
                 {
-                    filterExpression = (p => p.Name == notesDatabase.Name && p.Id != notesDatabase.Id);
+                    filterExpression = (p => p.Name == notesDatabase.Name && p.Id != notesDatabase.Id && p.Type == "Notes Database");
 
                 }
                 var existsData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
