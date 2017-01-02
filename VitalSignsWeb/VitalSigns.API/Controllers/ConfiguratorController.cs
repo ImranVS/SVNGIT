@@ -3040,13 +3040,13 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<ServerOther, bool>> filterExpression;
                 if (string.IsNullOrEmpty(notesDatabaseReplica.Id))
                 {
-                    filterExpression = (p => p.Name == notesDatabaseReplica.Name);
+                    filterExpression = (p => p.Name == notesDatabaseReplica.Name && p.Type== "Notes Database Replica");
 
 
                 }
                 else
                 {
-                    filterExpression = (p => p.Name == notesDatabaseReplica.Name && p.Id != notesDatabaseReplica.Id);
+                    filterExpression = (p => p.Name == notesDatabaseReplica.Name && p.Id != notesDatabaseReplica.Id && p.Type == "Notes Database Replica");
 
 
                 }
