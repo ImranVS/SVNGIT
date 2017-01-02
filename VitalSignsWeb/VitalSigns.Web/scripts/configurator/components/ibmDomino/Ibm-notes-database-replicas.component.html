@@ -139,7 +139,7 @@ data.pageIndex + 1 | number
                                                         <div class="form-group col-sm-12">
                                                             <label for="scan_interval" class="control-label col-sm-4">Scan Interval</label>
                                                             <div class="col-sm-4">
-                                                                <input type="number" class="form-control" name="scan_interval" [(ngModel)]="currentEditItem.scan_interval" required>
+                                                                <input type="number" class="form-control" name="scan_interval" [(ngModel)]="currentEditItem.scan_interval"  min="1" required>
 
                                                             </div>
                                                             <div class="control-label col-sm-1">minutes</div>
@@ -149,7 +149,7 @@ data.pageIndex + 1 | number
                                                         <div class="form-group col-sm-12">
                                                             <label for="off_hours_scan_interval" class="control-label col-sm-4">Off-Hours Scan Interval</label>
                                                             <div class="col-sm-4">
-                                                                <input type="number" class="form-control" name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval" required>
+                                                                <input type="number" class="form-control" name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval"  min="1" required>
 
                                                             </div>
                                                             <div class="control-label col-sm-1">minutes</div>

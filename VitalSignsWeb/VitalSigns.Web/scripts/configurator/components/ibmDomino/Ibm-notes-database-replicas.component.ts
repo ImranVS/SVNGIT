@@ -1,7 +1,8 @@
 ﻿import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-import {AppComponentService} from '../../../core/services';
+import { AppComponentService } from '../../../core/services';
+
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-notes-database-replicas.component.html',
@@ -21,13 +22,20 @@ export class NotesDatabaseReplica extends GridBase implements OnInit {
             },
             (error) => this.errorMessage = <any>error
         );
-      
+        this.appComponentService = appComponentService;
     }
     ngOnInit() {
         this.initialGridBind('/configurator/get_notes_database_replica');
     }
-    saveNotesDatabaseReplica(dlg: wijmo.input.Popup) {      
-        this.saveGridRow('/configurator/save_notes_database_replica', dlg);
+    saveNotesDatabaseReplica(dlg: wijmo.input.Popup) {     
+        if (this.currentEditItem.domino_server_a != this.currentEditItem.domino_server_b) {
+            this.saveGridRow('/configurator/save_notes_database_replica', dlg);
+        }
+        else {
+            this.appComponentService.showErrorMessage("You must select two different servers to be added as cluster members.");
+        }
+         
+        
     }
     delteNotesDatabaseReplica() {
         this.delteGridRow('/configurator/notes_database_replica/');
