@@ -81,8 +81,8 @@ data.pageIndex + 1 | number
                     <div class="widgetContent">
                         <div class="alert alert-info col-lg-12"><p>Only the "Primary Node", the node marked with the star, will have the "Alerting Service" and the "DB Health" running on it. Also, any service not colored is due to it running only when needed, so it is expected to be in the "Stopped" state.</p></div>
 
-                        <div class="form-group" *ngIf="services !=null">
-                            <div *ngIf="services!= null">
+                        <div class="form-group" >
+                            <div >
 
                                 <wj-flex-grid #flex [itemsSource]="services" headersVisibility="Column" [frozenColumns]="1" [isReadOnly]="true">
                                     <wj-flex-grid-filter></wj-flex-grid-filter>
@@ -91,15 +91,17 @@ data.pageIndex + 1 | number
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_Alerting">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Alerting}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Alerting}}</span>
-                                            </div>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_Alerting}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_Alerting}}</span>
+                                            </div>                                      
                                         </template>
                                     </wj-flex-grid-column>
                                     <wj-flex-grid-column [header]="'Console Commands'" align="center" [binding]="'VSService_Console_Commands'" is-read-only="true" [width]="200">
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_Console_Commands">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Console_Commands}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Console_Commands}}</span>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_Console_Commands}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_Console_Commands}}</span>
                                             </div>
                                         </template>
                                     </wj-flex-grid-column>
@@ -107,7 +109,8 @@ data.pageIndex + 1 | number
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_Core">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Core}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Core}}</span>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_Core}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_Core}}</span>
                                             </div>
                                         </template>
                                     </wj-flex-grid-column>
@@ -115,7 +118,8 @@ data.pageIndex + 1 | number
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_Core_64">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Core_64}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Core_64}}</span>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_Core_64}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_Core_64}}</span>
                                             </div>
                                         </template>
                                     </wj-flex-grid-column>
@@ -123,7 +127,8 @@ data.pageIndex + 1 | number
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_DB_Health">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_DB_Health}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_DB_Health}}</span>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_DB_Health}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_DB_Health}}</span>
                                             </div>
                                         </template>
                                     </wj-flex-grid-column>
@@ -131,7 +136,8 @@ data.pageIndex + 1 | number
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_Domino">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Domino}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Domino}}</span>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_Domino}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_Domino}}</span>
                                             </div>
                                         </template>
                                     </wj-flex-grid-column>
@@ -139,7 +145,8 @@ data.pageIndex + 1 | number
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_EX_Journal">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_EX_Journal}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_EX_Journal}}</span>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_EX_Journal}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_EX_Journal}}</span>
                                             </div>
                                         </template>
                                     </wj-flex-grid-column>
@@ -147,7 +154,8 @@ data.pageIndex + 1 | number
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_Master_Service">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Master_Service}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Master_Service}}</span>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_Master_Service}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_Master_Service}}</span>
                                             </div>
                                         </template>
                                     </wj-flex-grid-column>
@@ -155,7 +163,8 @@ data.pageIndex + 1 | number
                                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                             <div [ngSwitch]="cell.item.VSService_Microsoft">
                                                 <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.VSService_Microsoft}}</span>
-                                                <span *ngSwitchDefault class="label label-pill label-danger">{{cell.item.VSService_Microsoft}}</span>
+                                                <span *ngSwitchCase="'Stopped'" class="label label-pill label-danger">{{cell.item.VSService_Microsoft}}</span>
+                                                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.VSService_Microsoft}}</span>
                                             </div>
                                         </template>
                                     </wj-flex-grid-column>
@@ -177,10 +186,10 @@ data.pageIndex + 1 | number
                         </div>
                     </div>
                     <div>
-                        <label for="selectedNode" class="control-label col-sm-3">Nodes</label>
+                        <label for="node" class="control-label col-sm-3">Nodes</label>
 
-                        <wj-combo-box name="selectedNode" [itemsSource]="nodes" [(text)]="service.Name"
-                                      [(ngModel)]="selectedNode">
+                        <wj-combo-box name="node" [itemsSource]="nodes" displayMemberPath="text" selectedValuePath="value"
+                                      [(ngModel)]="selectedNode" placeholder="Select Node" [isEditable]="true">
                         </wj-combo-box>
 
 
