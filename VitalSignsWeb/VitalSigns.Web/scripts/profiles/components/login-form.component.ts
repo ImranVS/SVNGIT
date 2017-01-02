@@ -55,9 +55,17 @@ export class LoginForm {
             this.service.get(`/Token/reset_password?emailId=${email}`)
                 .subscribe(
                 response => {
-                    this.appComponentService.showSuccessMessage("Password sent to your email");
-                    this.emailid.first.nativeElement.value = "";
-                });
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage("Password sent to your email");
+                        this.emailid.first.nativeElement.value = "";
+                    }
+                    else
+                    {
+                        this.appComponentService.showErrorMessage("The EmailId is does not exist");
+                    }
+                },
+                error => this.errorMessage = <any>error
+            );
             dialog.hide();
         }
     }
