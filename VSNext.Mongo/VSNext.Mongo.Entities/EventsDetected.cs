@@ -58,6 +58,11 @@ namespace VSNext.Mongo.Entities
         public bool IsSystemMessage { get; set; }
 
         [DataMember]
+        [BsonElement("is_system_message_dismissed")]
+        [BsonIgnoreIfNullAttribute]
+        public bool? IsSystemMessageDismissed { get; set; }
+
+        [DataMember]
         [BsonElement("notifications_sent")]
         [BsonIgnoreIfNullAttribute]
         public List<NotificationsSent> NotificationsSent { get; set; }

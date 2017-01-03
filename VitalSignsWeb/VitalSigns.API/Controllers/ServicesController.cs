@@ -67,7 +67,7 @@ namespace VitalSigns.API.Controllers
                 var ok = statusCode.Where(item => item == "OK").Count();
                 var notResponding = statusCode.Where(item => item == "Not Responding").Count();
                 var maintenance = statusCode.Where(item => item == "Maintenance").Count();
-                var systemMessages = eventsDetectedRepository.Collection.AsQueryable().Where(x => x.IsSystemMessage == true && x.EventDismissed==null).ToList(); ;
+                var systemMessages = eventsDetectedRepository.Collection.AsQueryable().Where(x => x.IsSystemMessage == true && x.EventDismissed==null && (x.IsSystemMessageDismissed == false || x.IsSystemMessageDismissed == null)).ToList(); ;
 
                 Response = Common.CreateResponse(new { issue = issue, ok = ok, notResponding = notResponding, maintenance = maintenance, systemMessages= systemMessages==null?0: systemMessages.Count });
             }
@@ -86,7 +86,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 eventsDetectedRepository = new Repository<EventsDetected>(ConnectionString);
-                var systemMessages = eventsDetectedRepository.Collection.AsQueryable().Where(x => x.IsSystemMessage == true && x.EventDismissed == null)
+                var systemMessages = eventsDetectedRepository.Collection.AsQueryable().Where(x => x.IsSystemMessage == true && x.EventDismissed == null && (x.IsSystemMessageDismissed == false || x.IsSystemMessageDismissed == null))
                                                                                        .Select(x => new
                                                                                        {
                                                                                            CreatedDate = x.CreatedOn,
@@ -109,8 +109,8 @@ namespace VitalSigns.API.Controllers
             try
             {
                 eventsDetectedRepository = new Repository<EventsDetected>(ConnectionString);
-                FilterDefinition<EventsDetected> filterDefination = Builders<EventsDetected>.Filter.Where(x => x.IsSystemMessage == true && x.EventDismissed == null);
-                var updateDefination = eventsDetectedRepository.Updater.Set(p => p.EventDismissed, DateTime.Now);
+                FilterDefinition<EventsDetected> filterDefination = Builders<EventsDetected>.Filter.Where(x => x.IsSystemMessage == true && x.EventDismissed == null && (x.IsSystemMessageDismissed == false || x.IsSystemMessageDismissed == null));
+                var updateDefination = eventsDetectedRepository.Updater.Set(p => p.IsSystemMessageDismissed, true);
                 var result = eventsDetectedRepository.Update(filterDefination, updateDefination);
                 Response = Common.CreateResponse(result);
             }
