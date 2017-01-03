@@ -355,7 +355,13 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                 this.service.put('/configurator/save_notification_definition', this.formObject)
                     .subscribe(
                     response => {
-                        this.data = response.data[0];
+                        if (response.status == "Success") {
+                            this.data = response.data[0];
+                            this.appComponentService.showSuccessMessage(response.message);
+                        }
+                        else {
+                            this.appComponentService.showErrorMessage(response.message);
+                        }
                     });
                 (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
             }
@@ -363,7 +369,13 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                 this.service.put('/configurator/save_notification_definition', this.formObject)
                     .subscribe(
                     response => {
-                        this.data = response.data[0];
+                        if (response.status == "Success") {
+                            this.data = response.data[0];
+                            this.appComponentService.showSuccessMessage(response.message);
+                        }
+                        else {
+                            this.appComponentService.showErrorMessage(response.message);
+                        }
                     });
                 (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
             }

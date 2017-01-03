@@ -38,19 +38,19 @@
                             <div class="form-group col-sm-6" *ngIf="isEmail">
                                 <label for="send_to" class="control-label col-sm-3">Send To</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="send_to" name="send_to" [(ngModel)]="formObject.send_to" 
+                                    <input type="text" class="form-control" id="send_to" name="send_to" required [(ngModel)]="formObject.send_to" 
                                            pattern="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*" />
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" *ngIf="isSMS">
                                 <label for="sms_to" class="control-label col-sm-3">SMS To</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="sms_to" name="sms_to" [(ngModel)]="formObject.send_to" />
+                                    <input type="text" class="form-control" id="sms_to" name="sms_to" required [(ngModel)]="formObject.send_to" />
                                 </div>
                             </div>
                             <div class="form-group col-sm-6" *ngIf="isScript">
                                 <label for="script_name" class="control-label col-sm-3">Script</label>
-                                <wj-combo-box name="script_name" [itemsSource]="scripts" [(text)]="formObject.script_name"
+                                <wj-combo-box name="script_name" [itemsSource]="scripts" required [(text)]="formObject.script_name"
                                               [(ngModel)]="formObject.script_name">
                                 </wj-combo-box>
                             </div>
@@ -59,7 +59,7 @@
                             <div class="form-group col-sm-6">
                                 <label for="interval" class="control-label col-sm-5">Escalation Interval (min)</label>
                                 <div class="row col-sm-3">
-                                    <input type="text" class="form-control" id="interval" name="interval" [(ngModel)]="formObject.interval" 
+                                    <input type="text" class="form-control" id="interval" name="interval" required [(ngModel)]="formObject.interval" 
                                            onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                 </div>
                             </div>

@@ -147,7 +147,8 @@ data.pageIndex + 1 | number
                             <div class="form-group col-sm-6">
                                 <label for="duration" class="control-label col-sm-4">Duration</label>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="duration" name="duration" [(ngModel)]="formObject.duration">
+                                    <input type="text" class="form-control" id="duration" name="duration" required [(ngModel)]="formObject.duration"
+                                           onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
                                 </div>
                                 <div class="col-sm-2">minutes</div>
                             </div>

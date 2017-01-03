@@ -122,7 +122,13 @@ export class HoursDestinations extends GridBase implements OnInit {
             this.service.put(saveUrl, this.formObject)
                 .subscribe(
                 response => {
-                    this.data = response.data;
+                    if (response.status == "Success") {
+                        this.data = response.data;
+                        this.appComponentService.showSuccessMessage(response.message);
+                    }
+                    else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
                 }
             );
             //(<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
@@ -132,7 +138,13 @@ export class HoursDestinations extends GridBase implements OnInit {
             this.service.put(saveUrl, this.formObject)
                 .subscribe(
                 response => {
-                    this.flex.collectionView.currentItem.id = response.data;
+                    if (response.status == "Success") {
+                        this.flex.collectionView.currentItem.id = response.data;
+                        this.appComponentService.showSuccessMessage(response.message);
+                    }
+                    else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
                 }
             );
             (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
