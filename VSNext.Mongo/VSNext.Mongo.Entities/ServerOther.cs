@@ -193,7 +193,7 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonIgnoreIfNull]
-        [BsonElement("eual_or_not_equal")]
+        [BsonElement("equal_or_not_equal")]
         public String EqualOrNotEqual { get; set; }
 
         [DataMember]
