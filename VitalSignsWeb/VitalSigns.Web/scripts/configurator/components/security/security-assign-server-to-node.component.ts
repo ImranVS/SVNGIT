@@ -32,6 +32,8 @@ export class Nodes extends GridBase {
     selectedNode: string = null;
     visibility: boolean = true;
     isVisible: boolean = false;
+    firstrowid: string;
+    id: string;
     
 
     constructor(service: RESTService, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
@@ -49,16 +51,26 @@ export class Nodes extends GridBase {
             .subscribe(
             (response) => {
                 this.nodeNames = response.data.result;
-                this.nodes = response.data.nodesData;
-                
+                this.nodes = response.data.nodesData;             
+                this.firstrowid = response.data.result[0].Id;
+                this.service.get(`/configurator/get_nodes_services?id=`+this.firstrowid)
+                    .subscribe(
+                    (response) => {
+                        this.services = response.data;
+                    },
+                    (error) => this.errorMessage = <any>error
+                    );
+                console.log(this.firstrowid);
             },
             (error) => this.errorMessage = <any>error
             );
+      
 
     }
 
     refreshGrid(event: wijmo.grid.CellRangeEventArgs) {
-        this.service.get(`/configurator/get_nodes_services?id=${event.panel.grid.selectedItems[0].Id}`)
+        this.id = event.panel.grid.selectedItems[0].Id;
+        this.service.get(`/configurator/get_nodes_services?id=`+ this.id)
             .subscribe(
             (response) => {
                 this.services = response.data;
