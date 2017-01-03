@@ -2149,7 +2149,7 @@ Partial Public Class VitalSignsPlusDomino
             WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " Get Distinct Server Names first ", LogLevel.Verbose)
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.MobileDevices)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repository.Filter.Exists(Function(x) x.ThresholdSyncTime, True)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.MobileDevices) = repository.Filter.Exists(Function(x) x.ThresholdSyncTime, True) And repository.Filter.Ne(Function(x) x.ThresholdSyncTime, Nothing)
             Dim listOfDevices As List(Of VSNext.Mongo.Entities.MobileDevices) = repository.Find(filterDef).ToList()
 
             WriteDeviceHistoryEntry("All", "Mobile_Device", Now.ToString & " Distinct Server List Count: " & listOfDevices.Count & " Servers ")
