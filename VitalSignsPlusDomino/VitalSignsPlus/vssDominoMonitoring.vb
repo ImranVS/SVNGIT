@@ -4869,9 +4869,8 @@ skipdrive2:
         Next
 
         Try
-            Dim MyDominoServer2 As MonitoredItems.DominoServer = MyDominoServer
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceType, MyDominoServer2.ServerType) And repository.Filter.Eq(Function(x) x.DeviceName, MyDominoServer2.Name)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Id, MyDominoServer.ServerObjectID)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.Disks, listOfDiskStatus)
             repository.Update(filterDef, updateDef)
         Catch ex As Exception
