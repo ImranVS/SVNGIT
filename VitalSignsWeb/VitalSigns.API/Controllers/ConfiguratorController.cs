@@ -5410,14 +5410,7 @@ namespace VitalSigns.API.Controllers
 
 
                 }).ToList().OrderBy(x => x.Name);
-                // var servicesresult =  nodesRepository.Collection.AsQueryable().Select(x => x.ServiceStatus).ToList();
                 var nodesData = nodesRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
-                //var nodesData = nodesRepository.All().Select(x => x.Name).Distinct().OrderBy(x => x).ToList();
-                //  Response = Common.CreateResponse(result);
-
-                // var serviceresult = nodesRepository.Collection.AsQueryable().Where(x => x.Id == servernodes.id).Select(x => x.ServiceStatus).FirstOrDefault();
-
-
 
                 Response = Common.CreateResponse(new { nodesData = nodesData, result = result });
 
@@ -5448,31 +5441,21 @@ namespace VitalSigns.API.Controllers
                 List<ServiceStatusModel> service = new List<ServiceStatusModel>();
                 List<NodesServices> nodesServicesStatus = new List<NodesServices>();
                 var serviceresult = result.ServiceStatus;
+                NodesServices nodesservices = new NodesServices();
                 if (serviceresult != null)
                 {
 
-                    NodesServices nodesservices = new NodesServices();
+                    
 
 
 
                     var dominoService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Domino");
                     nodesservices.VSServicDomino = dominoService.State;
-
-
-
                     var coreService = serviceresult.FirstOrDefault(x => x.Name == "VSService_Core");
                     nodesservices.VSServiceCore = coreService.State;
 
                     var vsAlert = serviceresult.FirstOrDefault(x => x.Name == "VSService_Alerting");
-                    if (result.IsPrimary == false)
-                    {
-                        nodesservices.VSServiceAlerting = "N/A";
-                    }
-                    else
-                    {
-                        nodesservices.VSServiceAlerting = vsAlert.State;
-                    }
-
+                    nodesservices.VSServiceAlerting = vsAlert.State;
 
                     var clusterHealth = serviceresult.FirstOrDefault(x => x.Name == "VSService_Cluster Health");
                     nodesservices.VSServiceCluster = clusterHealth.State;
@@ -5499,8 +5482,52 @@ namespace VitalSigns.API.Controllers
                     nodesservices.VSService_Core64 = core64Bit.State;
 
                     //if()
-                    nodesServicesStatus.Add(nodesservices);
+                    
                 }
+                else
+                {
+                    string[] notAlwaysRunning = new string[] {
+                "Daily Service",
+                "DB Health"
+            };
+
+                    string[] OnlyPrimary = new String[] {
+                "DB Health",
+                "Alerting"
+            };
+
+                    if (OnlyPrimary.Contains(nodesservices.VSServiceAlerting) && result.IsPrimary == false)
+                    {
+                        nodesservices.VSServiceAlerting = "N/A";
+                    }
+                    if (OnlyPrimary.Contains(nodesservices.VSService_DB) && result.IsPrimary == false)
+                    {
+                        nodesservices.VSService_DB = "N/A";
+                    }
+                    if (notAlwaysRunning.Contains(nodesservices.VSService_Daily) && nodesservices.VSService_Daily != "Not Found" && result.IsAlive == true)
+                    {                        
+                    }
+                    if (result.IsAlive==false)
+                    {
+                        nodesservices.VSService_DB = "N/A";
+                        nodesservices.VSServiceAlerting = "N/A";
+                        nodesservices.VSServicDomino = "N/A";
+                        nodesservices.VSServiceCore = "N/A";
+                        nodesservices.VSServiceCluster = "N/A";
+                        nodesservices.VSService_Daily = "N/A";
+                        nodesservices.VSService_Master = "N/A";
+                        nodesservices.VSService_DB = "N/A";
+                        nodesservices.VSService_EX = "N/A";
+                        nodesservices.VSService_Console = "N/A";
+                        nodesservices.VSService_Microsoft = "N/A";
+                        nodesservices.VSService_Core64 = "N/A";
+                    }
+                   
+                                       
+
+                }
+                nodesServicesStatus.Add(nodesservices);
+
                 Response = Common.CreateResponse(nodesServicesStatus);
 
 
@@ -5537,7 +5564,7 @@ namespace VitalSigns.API.Controllers
 
 
                 var result = nodesRepository.Update(filterDefination, updateDefination);
-                Response = Common.CreateResponse(result, "OK", "Nodes health updated successfully");
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Nodes health updated successfully");
 
             }
             catch (Exception exception)
