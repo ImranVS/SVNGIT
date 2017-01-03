@@ -16,6 +16,7 @@ export class LoginForm {
     loading = false;
     error = '';
     success = '';
+    errorMessage: string;
     appComponentService: AppComponentService;
 
     constructor(
