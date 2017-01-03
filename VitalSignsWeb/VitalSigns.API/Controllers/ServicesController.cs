@@ -911,7 +911,7 @@ namespace VitalSigns.API.Controllers
                                         time = DateTime.UtcNow.AddHours(-hour);
                                         time = new DateTime(time.Year, time.Month, time.Day, time.Hour, 0, 0, time.Kind);
                                         string displayTime = "";
-                                        displayTime = time.ToString(DateFormat);
+                                        displayTime = time.ToString();
 
 
                                         if (item != null && statNames.Length == 1)
