@@ -6127,6 +6127,7 @@ Public Class DominoDiskSpace
 
     Public DiskSizeInGB As Double
     Public DiskFreeInGB As Double
+    Public Threshold As Double
 
     Public Property ThresholdType As String
         'should have the value of "Percent" or "GB"

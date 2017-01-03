@@ -4225,9 +4225,10 @@ SkipTask:
         Dim listOfDisks As List(Of VSNext.Mongo.Entities.DiskSetting)
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.ObjectId, MongoDB.Bson.ObjectId.Parse(MyDominoServer.ServerObjectID))
-            listOfDisks = repository.Find(filterDef)(0).DiskInfo
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.Id, MyDominoServer.ServerObjectID)
+            listOfDisks = repository.Find(filterDef).ToList()(0).DiskInfo
         Catch ex As Exception
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception getting drive info. Exception: " & ex.Message)
             listOfDisks = New List(Of VSNext.Mongo.Entities.DiskSetting)()
         End Try
 
@@ -4661,6 +4662,8 @@ skipdrive:
                     For Each disk As VSNext.Mongo.Entities.DiskSetting In listOfDisks
                         Dim myThreshold As Integer = disk.Threshold
                         If myDiskDrive.DiskName = disk.DiskName And boolNoAlerts = False And boolAllDrives = False And disk.Threshold <> 0 Then
+                            myDiskDrive.ThresholdType = disk.ThresholdType
+                            myDiskDrive.Threshold = disk.Threshold
                             WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Set to monitor " & disk.DiskName & " with a threshold of " & disk.Threshold & " " & disk.ThresholdType)
                             Select Case disk.ThresholdType
                                 Case "Percent"
@@ -4731,6 +4734,8 @@ skipdrive:
                 'Handle the case when all drives are monitored for the same threshold.
                 If boolAllDrives = True And boolNoAlerts = False Then
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " All drives are evaluated on the same threshold.")
+                    myDiskDrive.ThresholdType = AllDrivesThresholdType
+                    myDiskDrive.Threshold = MyDominoServer.DiskThreshold
                     Select Case AllDrivesThresholdType
                         Case "Percent"
                             Try
@@ -4845,7 +4850,7 @@ skipdrive2:
                                     .DiskName = myDiskDrive.DiskName,
                                     .DiskSize = myDiskDrive.DiskSize,
                                     .PercentFree = myDiskDrive.PercentFree,
-                                    .Threshold = MyDominoServer.DiskThreshold,
+                                    .Threshold = myDiskDrive.Threshold,
                                     .ThresholdType = myDiskDrive.ThresholdType
                                     })
 
