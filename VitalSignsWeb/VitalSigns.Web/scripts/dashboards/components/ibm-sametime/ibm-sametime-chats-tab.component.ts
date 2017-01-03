@@ -71,7 +71,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step:7
                             },
                             categories: []
                         },
@@ -106,7 +106,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },
@@ -141,7 +141,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },
@@ -176,7 +176,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },

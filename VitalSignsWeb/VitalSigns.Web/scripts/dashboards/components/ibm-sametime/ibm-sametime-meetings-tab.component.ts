@@ -45,7 +45,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },

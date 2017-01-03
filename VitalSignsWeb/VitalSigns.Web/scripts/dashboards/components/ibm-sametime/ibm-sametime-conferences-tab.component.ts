@@ -45,7 +45,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },
@@ -80,7 +80,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },
@@ -115,7 +115,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },
@@ -150,7 +150,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },
@@ -185,7 +185,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },
@@ -220,7 +220,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },

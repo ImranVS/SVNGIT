@@ -82,7 +82,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 4
+                                step: 7
                             },
                             categories: []
                         },
