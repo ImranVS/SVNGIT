@@ -27,7 +27,13 @@
                     <wj-flex-grid-column [header]="'Server Name'" [binding]="'device'" [width]="300"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Server Type'" [binding]="'device_type'" [width]="150"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Test Name'" [binding]="'event_type'" [width]="300"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="300"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="300">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div data-toggle="tooltip" data-placement="top" title={{cell.item.details}}>
+                                {{cell.item.details}}
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Last Update'" [binding]="'event_detected'" [width]="300"></wj-flex-grid-column>
                 </wj-flex-grid>
                 <div class="btn-group" *ngIf="data != null">
