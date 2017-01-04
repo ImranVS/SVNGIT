@@ -29,7 +29,7 @@ namespace VitalSigns.API.Models.Configurator
         //[JsonProperty("numeric_or_string")]
         //public String NumericOrString { get; set; }
 
-        [JsonProperty("eual_or_not_equal")]
+        [JsonProperty("equal_or_not_equal")]
         public String EqualOrNotEqual { get; set; }
 
 
