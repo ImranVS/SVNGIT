@@ -7269,66 +7269,77 @@ Cleanup:
                 End If
                 WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Current value of Stat.ConsecutiveRepeat is " & Stat.ConsecutiveRepeat)
                 Try
-                    Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_All)
+                    'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_All)
+                    Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_All)
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " #1 Error checking Domino Custom Statistics for " & DominoServer.Name & ":  " & ex.Message)
-                    Stat.Value = -999
+                    Stat.Value = "-999"
                 End Try
 
                 Try
-                    If Stat.Value <> -999 Then
+                    If Stat.Value <> "-999" Then
                         WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Found " & Stat.Statistic & " with value of  " & Stat.Value & ". ")
                     End If
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " #2 Error checking Domino Custom Statistics for " & DominoServer.Name & ":  " & ex.Message)
-                    Stat.Value = -999
+                    Stat.Value = "-999"
                 End Try
 
                 Try
 
-                    If Stat.Value = -999 Then
+                    If Stat.Value = "-999" Then
                         '    WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & Stat.Statistic.ToUpper & " not found in collection, which is  " & vbCrLf & DominoServer.Statistics_All.ToUpper & ". ")
                         If InStr(Stat.Statistic.ToUpper, "Mail.".ToUpper) Then
-                            Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Mail)
+                            'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Mail)
+                            Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Mail)
                         End If
                         If InStr(Stat.Statistic.ToUpper, "Server.".ToUpper) Then
-                            Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Server)
+                            'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Server)
+                            Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Server)
                         End If
                         If InStr(Stat.Statistic.ToUpper, "Disk.".ToUpper) Then
-                            Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Disk)
+                            'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Disk)
+                            Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Disk)
                         End If
                         If InStr(Stat.Statistic.ToUpper, "Mem.".ToUpper) Then
-                            Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Memory)
+                            'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Memory)
+                            Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Memory)
                         End If
                         If InStr(Stat.Statistic.ToUpper, "Replica.".ToUpper) Then
-                            Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Replica)
+                            'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Replica)
+                            Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Replica)
                         End If
                     End If
                     If InStr(Stat.Statistic.ToUpper, "Platform.".ToUpper) Then
-                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Platform)
+                        'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Platform)
+                        Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Platform)
                     End If
                     If InStr(Stat.Statistic.ToUpper, "Domino.".ToUpper) Then
-                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Domino)
+                        'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Domino)
+                        Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Domino)
                     End If
                     If InStr(Stat.Statistic.ToUpper, "Traveler.".ToUpper) Then
-                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Traveler)
+                        'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Traveler)
+                        Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Traveler)
                     End If
                     If InStr(Stat.Statistic.ToUpper, "Replica.".ToUpper) Then
-                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Replica)
+                        'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Replica)
+                        Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Replica)
                     End If
                     If InStr(Stat.Statistic.ToUpper, "Database.".ToUpper) Then
-                        Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Database)
+                        'Stat.Value = ParseNumericStatValue(Stat.Statistic, DominoServer.Statistics_Database)
+                        Stat.Value = ParseTextStatValue(Stat.Statistic, DominoServer.Statistics_Database)
                     End If
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Parsed out the custom stat to " & Stat.Value)
 
 
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " #3 Error checking Domino Custom Statistics for " & DominoServer.Name & ":  " & ex.Message)
-                    Stat.Value = -999
+                    Stat.Value = "-999"
                 End Try
 
                 Try
-                    If Stat.Value = -999 Then
+                    If Stat.Value = "-999" Then
                         WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " I think the stat is -999")
 
                         Dim Facility As String
@@ -7341,16 +7352,17 @@ Cleanup:
                         StatName = Mid(Stat.Statistic, intStartLocation + 1)
                         ' WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Parsed out Facility as " & Facility & " and Stat as " & StatName)
 
-                        Stat.Value = GetDominoNumericStatistic(DominoServer.Name, Facility, StatName)
+                        'Stat.Value = GetDominoNumericStatistic(DominoServer.Name, Facility, StatName)
+                        Stat.Value = GetDominoTextStatistic(DominoServer.Name, Facility, StatName)
                     End If
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " #4 Error checking Domino Custom Statistics for " & DominoServer.Name & ":  " & ex.Message)
-                    Stat.Value = -999
+                    Stat.Value = "-999"
                 End Try
 
                 WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " " & DominoServer.Name & " " & Stat.Statistic & " " & Stat.ComparisonOperator & " " & Stat.ThresholdValue & ".  Current Value is " & Stat.Value & ".  It has repeated " & Stat.ConsecutiveRepeat & " threshold of " & Stat.mRepeat)
 
-                If Not Stat.Value = -999 Then
+                If Not Stat.Value = "-999" Then
                     '8/30/2016 NS added for VSPLUS-3176
                     ConsecutiveCustomStatsDict(DominoServer.Name & "-CustomStats-" & Stat.Statistic) = Stat.ConsecutiveRepeat
                     WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Consecutive repeat value for " & Stat.Statistic & " is " & Stat.ConsecutiveRepeat)

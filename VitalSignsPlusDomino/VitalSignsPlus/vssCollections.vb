@@ -1289,7 +1289,7 @@ Partial Public Class VitalSignsPlusDomino
                                     With MyNewCustomStatisticSetting
                                         .Statistic = customStat.StatName
                                         .ThresholdValue = customStat.ThresholdValue
-                                        .ComparisonOperator = customStat.GreaterThanOrLessThan
+                                        .ComparisonOperator = IIf(customStat.TypeOfStatistic = "String", customStat.EqualOrNotEqual, customStat.GreaterThanOrLessThan)
                                         .RepeatThreshold = customStat.TimesInARow
                                         .ConsoleCommand = customStat.ConsoleCommand
                                     End With
@@ -1306,7 +1306,7 @@ Partial Public Class VitalSignsPlusDomino
                                     With MyCustomStatistic
                                         WriteAuditEntry(Now.ToString & " Checking settings for existing Custom Statistic " & MyCustomStatistic.Statistic, LogLevel.Verbose)
                                         .ThresholdValue = customStat.ThresholdValue
-                                        .ComparisonOperator = customStat.GreaterThanOrLessThan
+                                        .ComparisonOperator = IIf(customStat.TypeOfStatistic = "String", customStat.EqualOrNotEqual, customStat.GreaterThanOrLessThan)
                                         .RepeatThreshold = customStat.TimesInARow
                                         .ConsoleCommand = customStat.ConsoleCommand
                                     End With
