@@ -24,7 +24,14 @@
                     <wj-flex-grid-column [header]="'Statistic'" [binding]="'stat_name'" [width]="220"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Threshold Value'" [binding]="'yellow_threshold'" [width]="200" align="right"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Repeat Factor'" [binding]="'times_in_a_row'" [width]="200"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Comparison'" [binding]="'greater_than_or_less_than'" [width]="200"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Comparison'" [width]="200">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <div [ngSwitch]="cell.item.type_of_statistic">
+                                <span *ngSwitchCase="'String'">{{cell.item.equal_or_not_equal}}</span>
+                                <span *ngSwitchDefault >{{cell.item.greater_than_or_less_than}}</span>
+                            </div>
+                        </template>
+                    </wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Console Command'" [binding]="'console_command'" [width]="200"></wj-flex-grid-column>
                 </wj-flex-grid>
                 <div class="btn-group" *ngIf="data != null">
@@ -116,9 +123,9 @@ data.pageIndex + 1 | number
                                                 <label class="control-label col-sm-4">...has a value that is</label>
                                                 <div class="col-sm-8">
                                                     <div class="radio radio-info radio-inline col-sm-12">
-                                                        <input type="radio" id="equal" name="eual_or_not_equal" value="Equal" [(ngModel)]="currentEditItem.eual_or_not_equal" />
+                                                        <input type="radio" id="equal" name="eual_or_not_equal" value="Equal" [(ngModel)]="currentEditItem.equal_or_not_equal" />
                                                         <label for="equal" class="col-sm-3">Equal</label>
-                                                        <input type="radio" id="not_equal" name="eual_or_not_equal" value="Not Equal" [(ngModel)]="currentEditItem.eual_or_not_equal" />
+                                                        <input type="radio" id="not_equal" name="eual_or_not_equal" value="Not Equal" [(ngModel)]="currentEditItem.equal_or_not_equal" />
                                                         <label for="not_equal" class="col-sm-3">Not Equal</label>
                                                     </div>
 
