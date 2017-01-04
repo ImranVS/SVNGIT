@@ -4840,9 +4840,6 @@ skipdrive2:
 
             'Write the results to the database
             '4/7/2016 NS modified for VSPLUS-2790
-            Dim strUpdate As String = ""
-            Dim strInsert As String = ""
-            Dim objVSAdaptor As New VSAdaptor
             Try
                 If myDiskDrive.DiskSize <> 0 And myDiskDrive.DiskName.Trim <> "" Then
                     listOfDiskStatus.Add(New VSNext.Mongo.Entities.DiskStatus() With {
@@ -4870,7 +4867,7 @@ skipdrive2:
 
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.Id, MyDominoServer.ServerObjectID)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceId, MyDominoServer.ServerObjectID)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater.Set(Function(x) x.Disks, listOfDiskStatus)
             repository.Update(filterDef, updateDef)
         Catch ex As Exception
