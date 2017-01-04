@@ -6209,8 +6209,8 @@ End Class
 
 Public Class DominoCustomStatistic
     Dim mStatName As String   'i.e.,  Server.Users
-    Dim mStatValue As Double ' The current value of the statistic
-    Dim mThreshold As Double ' The value of the stat that triggers an alert
+    Dim mStatValue As String    ' The current value of the statistic
+    Dim mThreshold As String ' The value of the stat that triggers an alert
     Public mRepeat As Integer 'the number of successive times the threshold must be met
     Dim mComparison As String  'will be 'Greater Than' or 'Less Than'
     Dim mRepeatActual As Integer = 0 'the number of successive times the threshold HAS be met
@@ -6219,31 +6219,44 @@ Public Class DominoCustomStatistic
 
 
 
-    Public Property Value() As Double
+    Public Property Value() As String
         Get
             Return mStatValue
         End Get
 
-        Set(ByVal Value As Double)
-            If Value <> -999 Then
+        Set(ByVal Value As String)
+            If Value <> "-999" Then
                 ' -999 is used as a reset/junk value to make sure the stat is current.  Ignore this value
-            mStatValue = Value
+                mStatValue = Value
+
                 Select Case mComparison
                     Case "Greater Than"
-                        If mStatValue >= mThreshold + 1 Then
-                        IncrementCounter()
-                    Else
-                        ResetCounter()
-                    End If
-                    Case "Less than"
-                    If mStatValue <= mThreshold Then
-                        IncrementCounter()
-                    Else
-                        ResetCounter()
-                    End If
-            End Select
+                        If Convert.ToDouble(mStatValue) >= Convert.ToDouble(mThreshold + 1) Then
+                            IncrementCounter()
+                        Else
+                            ResetCounter()
+                        End If
+                    Case "Less Than"
+                        If Convert.ToDouble(mStatValue) <= Convert.ToDouble(mThreshold) Then
+                            IncrementCounter()
+                        Else
+                            ResetCounter()
+                        End If
+                    Case "Equal"
+                        If mStatValue = mThreshold Then
+                            IncrementCounter()
+                        Else
+                            ResetCounter()
+                        End If
+                    Case "Not Equal"
+                        If mStatValue <> mThreshold Then
+                            IncrementCounter()
+                        Else
+                            ResetCounter()
+                        End If
+                End Select
             End If
-           
+
         End Set
     End Property
 
