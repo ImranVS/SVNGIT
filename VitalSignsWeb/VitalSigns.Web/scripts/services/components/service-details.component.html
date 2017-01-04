@@ -23,10 +23,10 @@
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a (click)="deleteServer()">Delete Server</a></li>
-                            <li><a (click)="scanNow()">Scan Now</a></li>
+                            <li *ngIf="module == 'Configurator'"><a (click)="deleteServer()">Delete Server</a></li>
+                            <li *ngIf="module == 'dashboard'"> <a (click)="scanNow()">Scan Now</a></li>
                            
-                            <li><a (click)="suspendTemporarly(frmDialog)">Suspend Temporarily</a></li>
+                            <li *ngIf="module == 'dashboard'"><a (click)="suspendTemporarly(frmDialog)">Suspend Temporarily</a></li>
                         </ul>
                     </div>
                 </div>

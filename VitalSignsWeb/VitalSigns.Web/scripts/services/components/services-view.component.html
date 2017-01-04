@@ -1,7 +1,10 @@
 ﻿<div id="zeusContext">
     <div id="zeusContextNavigation">
-        <div id="zeusContextNavigationIcon">
-            <img class="svgInject" src="/img/menu/servers.svg" title="Dashboard" alt="Dashboard" />
+        <div id="zeusContextNavigationIcon"  *ngIf="module == 'dashboard'">
+            <img  class="svgInject" src="/img/menu/servers.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationIcon" *ngIf="module == 'Configurator'">
+            <img class="svgInject" src="/img/menu/configurator.svg" title="Configurator" alt="Configurator" />
         </div>
         <div id="zeusContextNavigationText">
             <div class="form-group col-sm-8">
@@ -15,10 +18,10 @@
                         </ul>
                     </div>
                 </h2>
-                <p>Manage your servers</p>
+                <p *ngIf="module == 'Configurator'">Manage your servers</p>
             </div>
             <div class="form-group col-sm-4">
-                <button (click)="addServer(frmDialog)" type="button" class="btn btn-primary">Add Server</button>
+                <button (click)="addServer(frmDialog)" type="button" class="btn btn-primary"  *ngIf="module == 'Configurator'">Add Server</button>
             </div>
             </div>
     </div>
