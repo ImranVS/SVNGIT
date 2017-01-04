@@ -34,6 +34,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=${this.serviceId}&operation=hourly`,
+                    dateformat: 'datetime',
                     chart: {
                         chart: {
                             renderTo: 'activeMeetingsUsers',
@@ -45,7 +46,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 7
+                                step: 6
                             },
                             categories: []
                         },

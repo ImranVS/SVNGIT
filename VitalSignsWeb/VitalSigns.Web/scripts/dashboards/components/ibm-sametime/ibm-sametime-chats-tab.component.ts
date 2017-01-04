@@ -60,6 +60,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=Numberofnwaychats&deviceid=${this.serviceId}&operation=hourly`,
+                    dateformat: 'datetime',
                     chart: {
                         chart: {
                             renderTo: 'nWayChats',
@@ -71,7 +72,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step:7
+                                step: 6
                             },
                             categories: []
                         },
@@ -95,6 +96,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=Numberofactivenwaychats&deviceid=${this.serviceId}&operation=hourly`,
+                    dateformat: 'datetime',
                     chart: {
                         chart: {
                             renderTo: 'activeNWayChats',
@@ -106,7 +108,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 7
+                                step: 6
                             },
                             categories: []
                         },
@@ -130,6 +132,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=Numberofopenchatsessions&deviceid=${this.serviceId}&operation=hourly`,
+                    dateformat: 'datetime',
                     chart: {
                         chart: {
                             renderTo: 'openChatSessions',
@@ -141,7 +144,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 7
+                                step: 6
                             },
                             categories: []
                         },
@@ -165,6 +168,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=Numberofchatmessages&deviceid=${this.serviceId}&operation=hourly`,
+                    dateformat: 'datetime',
                     chart: {
                         chart: {
                             renderTo: 'chatMessages',
@@ -176,7 +180,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 7
+                                step: 6
                             },
                             categories: []
                         },
