@@ -1856,12 +1856,16 @@ namespace VitalSigns.API.Controllers
 
 
                 }).FirstOrDefault();
-                var locationname = locationRepository.All().Where(x => x.Id == serverresult.LocationId).Select(x => new Location
+                if (!string.IsNullOrEmpty(serverresult.LocationId))
                 {
-                    LocationName = x.LocationName
+                    var locationname = locationRepository.All().Where(x => x.Id == serverresult.LocationId).Select(x => new Location
+                    {
+                        LocationName = x.LocationName
 
 
-                }).FirstOrDefault();
+                    }).FirstOrDefault();
+                    serverresult.LocationId = locationname.LocationName;
+                }
                 if (serverresult.Devicetype == "WebSphere")
                 {
                     var cellname = serversRepository.Collection.AsQueryable().Where(x => x.Id == serverresult.CellId).Select(x => new DeviceAttributesDataModel
@@ -1880,7 +1884,7 @@ namespace VitalSigns.API.Controllers
                     serverresult.NodeName = nodename.NodeName;
                 }
                 // var credentialsData = credentialsRepository.All().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
-                serverresult.LocationId = locationname.LocationName;
+                
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
 
 
@@ -2210,13 +2214,20 @@ namespace VitalSigns.API.Controllers
                 var deviceAttributes = ((Newtonsoft.Json.Linq.JObject)serverAttributes.Value).ToObject<DeviceAttributesDataModel>();
                 var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
                 var filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
-                var locationname = locationRepository.All().Where(x => x.LocationName == deviceAttributes.LocationId).Select(x => new Location
+                if (!string.IsNullOrEmpty(deviceAttributes.LocationId))
                 {
-                    Id = x.Id
+                    var locationname = locationRepository.All().Where(x => x.LocationName == deviceAttributes.LocationId).Select(x => new Location
+                    {
+                        Id = x.Id
 
 
-                }).FirstOrDefault();
-                deviceAttributes.LocationId = locationname.Id;
+                    }).FirstOrDefault();
+                    deviceAttributes.LocationId = locationname.Id;
+                }
+                else
+                {
+                    deviceAttributes.LocationId = null;
+                }
                 //   UpdateDefinition<BsonDocument> updateserverDefinition = Builders<BsonDocument>.Update.Set(devicename=devicename,, category, ipaddress, isenabled, location, description);
                 //  var serverresult = repository.Collection.UpdateMany(filter, updateserverDefinition);
                 var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, deviceAttributes.DeviceName)
