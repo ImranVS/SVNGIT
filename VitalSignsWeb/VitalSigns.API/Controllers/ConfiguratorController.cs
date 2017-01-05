@@ -6995,81 +6995,103 @@ namespace VitalSigns.API.Controllers
                 var logfiles = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Files Path-New").Select(x => x.Value).FirstOrDefault();
                 string loglevel = Convert.ToString(devicesettings.LogLevel);
                 string email = Convert.ToString(devicesettings.Email);
-
+                
                 var logslist = devicesettings;
-                var updateDefination = nameValueRepository.Updater.Set(p => p.Name, loglevel);
-                var filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Log Level");
-                var update = nameValueRepository.Update(filterDefination, updateDefination);
-                Response = Common.CreateResponse(update);
-                //  var logslist = ((Newtonsoft.Json.Linq.JObject)devicesettings.FileName).ToObject<List<LogFolders>>();
-                List<string> listoffiles = new List<string>();
-
-
-                foreach (var file in logslist.LogName)
+                if(string.IsNullOrEmpty(email))
                 {
-                    string filename = file.ToString();
-                    // filename = filename.Replace("{file_name:" , "");
+                    var getloglevel = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Level").Select(x => x.Value).FirstOrDefault();
+                    if (!string.IsNullOrEmpty(getloglevel))
+                    {
+                        var updateDefination = nameValueRepository.Updater.Set(p => p.Name, loglevel);
+                        var filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Log Level");
 
-                    string filepath = logfiles + "\\" + filename;
-                    listoffiles.Add(filepath);
+                        var update = nameValueRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(update, Common.ResponseStatus.Success.ToDescription(), "Log level updated successfully");
+
+                    }
+                    else
+                    {
+                        NameValue loglevels = new NameValue { Name = "Log Level", Value = loglevel };
+                        string id = nameValueRepository.Insert(loglevels);
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Log level inserted successfully");
+                    }
+
                 }
-                string[] paths = listoffiles.ToArray();
 
-                string[] oldZipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
-                foreach (var files in oldZipFiles)
-                    System.IO.File.Delete(files);
-                //Directory.Delete(files);
-
-                ZipFile zip = new ZipFile();
-
-                zip.AddFiles(listoffiles);
-                zip.MaxOutputSegmentSize = 3 * 1024 * 1024;
-                //zip.Save(logPath + "LogFiles.zip");
-                zip.Save(logfiles + "//LogFiles.zip");
-
-                //string[] zipFiles = System.IO.Directory.GetFiles(logPath, "LogFiles.z*");
-                string[] zipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
-
-                var result = nameValueRepository.All()
-                                     .Select(x => new
-                                     {
-                                         Name = x.Name,
-                                         Value = x.Value
-                                     }).ToList();
-
-                var host = result.Where(x => x.Name == "PrimaryHostName").Select(x => x.Value).FirstOrDefault();
-
-                var PEmail = result.Where(x => x.Name == "PrimaryUserId").Select(x => x.Value).FirstOrDefault();
-                var Ppwd = result.Where(x => x.Name == "Primarypwd").Select(x => x.Value).FirstOrDefault();
-                var port = result.Where(x => x.Name == "PrimaryPort").Select(x => x.Value).FirstOrDefault();
-
-                var auth = result.Where(x => x.Name == "PrimaryAuth").Select(x => x.Value).FirstOrDefault();
-                var PSSL = result.Where(x => x.Name == "PrimarySSL").Select(x => x.Value).FirstOrDefault();
-                bool gmail = host.ToUpper().Contains("GMAIL");
-
-
-                for (int i = 0; i < zipFiles.Length; i++)
+                else
                 {
+                    List<string> listoffiles = new List<string>();
 
-                    string newfile = zipFiles[i];
 
-                    MailMessage mail = new MailMessage();
+                    foreach (var file in logslist.LogName)
+                    {
+                        string filename = file.ToString();
+                        // filename = filename.Replace("{file_name:" , "");
 
-                    System.Net.Mail.SmtpClient SmtpServer = new SmtpClient(host);
-                    mail.From = new MailAddress(PEmail);
-                    mail.To.Add(email);
-                    mail.Subject = "Log Files";
-                    mail.Body = "Log Files sent from VitalSigns.  File  " + (i + 1) + " of " + zipFiles.Length + ".";
+                        string filepath = logfiles + "\\" + filename;
+                        listoffiles.Add(filepath);
+                    }
+                    string[] paths = listoffiles.ToArray();
 
-                    System.Net.Mail.Attachment attachment;
-                    attachment = new System.Net.Mail.Attachment(newfile);
-                    mail.Attachments.Add(attachment);
+                    string[] oldZipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
+                    foreach (var files in oldZipFiles)
+                        System.IO.File.Delete(files);
+                    //Directory.Delete(files);
 
-                    SmtpServer.Port = Convert.ToInt32(port);
-                    SmtpServer.Credentials = new System.Net.NetworkCredential(PEmail, Ppwd);
-                    SmtpServer.EnableSsl = Convert.ToBoolean(PSSL);
+                    ZipFile zip = new ZipFile();
 
-                    SmtpServer.Send(mail);
+                    zip.AddFiles(listoffiles);
+                    zip.MaxOutputSegmentSize = 3 * 1024 * 1024;
+                    //zip.Save(logPath + "LogFiles.zip");
+                    zip.Save(logfiles + "//LogFiles.zip");
+
+                    //string[] zipFiles = System.IO.Directory.GetFiles(logPath, "LogFiles.z*");
+                    string[] zipFiles = System.IO.Directory.GetFiles(logfiles, "LogFiles.z*");
+
+                    var result = nameValueRepository.All()
+                                         .Select(x => new
+                                         {
+                                             Name = x.Name,
+                                             Value = x.Value
+                                         }).ToList();
+
+                    var host = result.Where(x => x.Name == "PrimaryHostName").Select(x => x.Value).FirstOrDefault();
+
+                    var PEmail = result.Where(x => x.Name == "PrimaryUserId").Select(x => x.Value).FirstOrDefault();
+                    var Ppwd = result.Where(x => x.Name == "Primarypwd").Select(x => x.Value).FirstOrDefault();
+                    var port = result.Where(x => x.Name == "PrimaryPort").Select(x => x.Value).FirstOrDefault();
+
+                    var auth = result.Where(x => x.Name == "PrimaryAuth").Select(x => x.Value).FirstOrDefault();
+                    var PSSL = result.Where(x => x.Name == "PrimarySSL").Select(x => x.Value).FirstOrDefault();
+                    bool gmail = host.ToUpper().Contains("GMAIL");
+
+
+                    for (int i = 0; i < zipFiles.Length; i++)
+                    {
+
+                        string newfile = zipFiles[i];
+
+                        MailMessage mail = new MailMessage();
+
+                        System.Net.Mail.SmtpClient SmtpServer = new SmtpClient(host);
+                        mail.From = new MailAddress(PEmail);
+                        mail.To.Add(email);
+                        mail.Subject = "Log Files";
+                        mail.Body = "Log Files sent from VitalSigns.  File  " + (i + 1) + " of " + zipFiles.Length + ".";
+
+                        System.Net.Mail.Attachment attachment;
+                        attachment = new System.Net.Mail.Attachment(newfile);
+                        mail.Attachments.Add(attachment);
+
+                        SmtpServer.Port = Convert.ToInt32(port);
+                        SmtpServer.Credentials = new System.Net.NetworkCredential(PEmail, Ppwd);
+                        SmtpServer.EnableSsl = Convert.ToBoolean(PSSL);
+
+                        SmtpServer.Send(mail);
+                        Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Log Files Sent Succesfully");
+                    }
+                //  var logslist = ((Newtonsoft.Json.Linq.JObject)devicesettings.FileName).ToObject<List<LogFolders>>();
+    
                 }
             }
 
