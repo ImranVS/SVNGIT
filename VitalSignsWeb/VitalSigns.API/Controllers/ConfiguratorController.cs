@@ -5692,7 +5692,8 @@ namespace VitalSigns.API.Controllers
 
                 FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id == Id);
                 var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, null);
-                var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
+                mobileDevicesRepository.Update(filterDefination, updateDefination);
+                var result = GetMobileDeviceList();
                 Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Mobile user removed from monitoring successfully");
 
             }
@@ -5745,21 +5746,19 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPut("save_mobileusers")]
-        public APIResponse UpdateServerCredentials([FromBody]MobileUserDevice mobileUser)
+        public APIResponse SaveMobileUsers([FromBody]MobileUserDevice mobileUser)
         {
             try
             {
                 mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
 
-
-
                 if (!string.IsNullOrEmpty(mobileUser.Id))
                 {
-
                     FilterDefinition<MobileDevices> filterDefination = Builders<MobileDevices>.Filter.Where(p => p.Id == mobileUser.Id);
                     var updateDefination = mobileDevicesRepository.Updater.Set(p => p.ThresholdSyncTime, mobileUser.ThresholdSyncTime);
-                    var result = mobileDevicesRepository.Update(filterDefination, updateDefination);
+                    mobileDevicesRepository.Update(filterDefination, updateDefination);
                     // need to return two data sets on save and split them up in the ui to refresh the grids
+                    var result = GetMobileDeviceList();
                     Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Mobile users updated successfully");
                 }
             }
@@ -5770,6 +5769,51 @@ namespace VitalSigns.API.Controllers
 
             return Response;
 
+        }
+
+        private List<dynamic> GetMobileDeviceList()
+        {
+            List<dynamic> result_disp = new List<dynamic>();
+            List<dynamic> result_critical = new List<dynamic>();
+            List<dynamic> result_all = new List<dynamic>();
+            
+            try
+            {
+                mobiledevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                var mobileUsers = mobiledevicesRepository.Collection.AsQueryable().ToList();
+                foreach (var mobileUser in mobileUsers)
+                {
+                    if (mobileUser.ThresholdSyncTime != null)
+                    {
+                        result_critical.Add(new MobileUserDevice
+                        {
+                            Id = mobileUser.Id.ToString(),
+                            UserName = mobileUser.UserName,
+                            DeviceName = mobileUser.DeviceName,
+                            DeviceId = mobileUser.DeviceID,
+                            ThresholdSyncTime = mobileUser.ThresholdSyncTime
+                        });
+                    }
+                    else
+                    {
+                        result_all.Add(new MobileUserDevice
+                        {
+                            Id = mobileUser.Id.ToString(),
+                            UserName = mobileUser.UserName,
+                            DeviceName = mobileUser.DeviceName,
+                            DeviceId = mobileUser.DeviceID,
+                            OperatingSystem = mobileUser.OSType
+                        });
+                    }
+                }
+                result_disp.Add(result_critical);
+                result_disp.Add(result_all);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return result_disp;
         }
 
         #endregion
