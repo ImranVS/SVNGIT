@@ -22,7 +22,7 @@
                     Edit
                 </button>
 
-                <button class="btn btn-success" (click)="delteMobileUsers();">
+                <button class="btn btn-success" (click)="deleteMobileUsers()">
                     Delete
                 </button>
                 </div>
@@ -134,7 +134,7 @@ mobileDeviceData.pageIndex + 1 | number
                         {{formTitle}}
                         <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                     </div>
-                    <form (ngSubmit)="saveMobileUsers(frmDialog)" #frmMobileUser="ngForm" class="form-horizontal">
+                    <form (ngSubmit)="saveMobileUsersMonitor(frmDialog)" #frmMobileUser="ngForm" class="form-horizontal">
                         <div class="panel-body" *ngIf="currentEditItem" style="height:70%;overflow:auto">
                             <div class="row">
                                 <div class="form-group col-sm-12">

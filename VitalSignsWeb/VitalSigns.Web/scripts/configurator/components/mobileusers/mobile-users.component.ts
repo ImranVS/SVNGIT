@@ -15,6 +15,8 @@ import {AppComponentService} from '../../../core/services';
     ]
 })
 export class MobileUser extends GridBase implements OnInit {
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    @ViewChild('mobileDeviceGrid') mobileDeviceGrid: wijmo.grid.FlexGrid; 
     sererNames: any;
     errorMessage: any;
     currentEditItem: any;
@@ -52,6 +54,16 @@ export class MobileUser extends GridBase implements OnInit {
                 .subscribe(
                 response => {
                     //assign new data sets to each grid based on the response data
+                    if (response.status == "Success") {
+                        this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[0]));
+                        this.mobileDeviceData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[1]));
+                        this.data.pageSize = 10;
+                        this.mobileDeviceData.pageSize = 10;
+                        this.appComponentService.showSuccessMessage(response.message);
+                    }
+                    else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
                 },
                 (error) => this.errorMessage = <any>error
                 );
@@ -59,9 +71,31 @@ export class MobileUser extends GridBase implements OnInit {
         }
         dlg.hide();
     }
-    delteMobileUsers() {
-        this.delteGridRow('/configurator/delete_mobile_users/');
+
+    deleteMobileUsers() {
+        var deleteUrl = '/configurator/delete_mobile_users/';
+        this.key = this.flex.collectionView.currentItem.id;
+        if (confirm("Are you sure want to delete this record?")) {
+            this.service.delete(deleteUrl + this.key)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage(response.message);
+                        this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[0]));
+                        this.mobileDeviceData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[1]));
+                        this.data.pageSize = 10;
+                        this.mobileDeviceData.pageSize = 10;
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
+            (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
+        }
     }
+    
     showEditForm(dlg: wijmo.input.Popup) {
 
         this.formTitle = "Edit " + this.formName;
