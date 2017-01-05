@@ -1,4 +1,4 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, OnInit, ViewChild} from '@angular/core';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {AppComponentService} from '../../../core/services';
@@ -11,24 +11,23 @@ import {AppComponentService} from '../../../core/services';
     ]
 })
 export class NotesDatabases extends GridBase implements OnInit {
+    @ViewChild('selectserver') selectserver;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     sererNames: any;   
     errorMessage: string;
     usersByserver: any = [];
     checkedItems: any[];
     serversData: any;
+    dominoServer: any;
     dominoServers: any;
    
 
     constructor(service: RESTService, appComponentService: AppComponentService) {
         super(service, appComponentService);
         this.formName = "Notes Database";
-
-
-       
-
     }
 
-    addNotesDatabase(dlg: wijmo.input.Popup, servers: wijmo.input.MultiSelect) {
+    addNotesDatabase(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
         this.currentEditItem.name = "";
         this.currentEditItem.is_enabled = false;
@@ -37,14 +36,12 @@ export class NotesDatabases extends GridBase implements OnInit {
         this.currentEditItem.scan_interval = "8";
         this.currentEditItem.retry_interval = "2";
         this.currentEditItem.off_hours_scan_interval = "30";
-        this.currentEditItem.trigger_type = null;
-        this.currentEditItem.trigger_value = null;
+        this.currentEditItem.trigger_type = "";
+        this.currentEditItem.trigger_value = "";
         this.currentEditItem.initiate_replication = false;
-        this.currentEditItem.replication_destination = null;
-        this.checkedItems = null;
-        this.usersByserver = null;
-        if(servers)
-             servers.refresh(true);
+        this.currentEditItem.replication_destination = "";
+        this.checkedItems = [];
+        this.usersByserver = [];
     }
     ngOnInit() {
        
@@ -53,12 +50,14 @@ export class NotesDatabases extends GridBase implements OnInit {
             .subscribe(
             (response) => {
                 this.sererNames = response.data.serversData;
-                this.dominoServers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.serversData));
+                //this.dominoServers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.serversData));
+                this.dominoServers = response.data.serversData;
             },
             (error) => this.errorMessage = <any>error
             );
     }
     saveNotesDatabase(dlg: wijmo.input.Popup) {  
+        this.serversChecked();
         this.currentEditItem.replication_destination = this.usersByserver;  
         this.saveGridRow('/configurator/save_notes_databases', dlg);
     }
@@ -66,27 +65,33 @@ export class NotesDatabases extends GridBase implements OnInit {
         this.delteGridRow('/configurator/delete_notes_database/');
     }
 
-    //serversChecked(servers: wijmo.input.MultiSelect) {
-    //    this.usersByserver = null;
-    //    for (var item of servers.checkedItems) {
-    //        this.usersByserver.push(item.value);
-    //    }
-    //}
+    serversChecked() {
+        let options = this.selectserver.nativeElement.options;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].selected) {
+                var ind1 = options[i].value.indexOf("'");
+                var ind2 = options[i].value.lastIndexOf("'");
+                this.usersByserver.push(options[i].value.substring(ind1 + 1, ind2));
+            }
+        }
+    }
 
     editNotesDatabase(dlg: wijmo.input.Popup) {
+        var replicationdestination = this.flex.collectionView.currentItem.replication_destination;
+        this.dominoServer = replicationdestination;
         this.editGridRow(dlg);
-        //this.checkedItems = null;
-        //this.usersByserver = null;
-        //var replicationdestination = this.currentEditItem.replication_destination;
-        //if (replicationdestination) {
-        //    if (servers)
-        //         servers.refresh(true);
-        //    for (var travelerItem of (<wijmo.collections.CollectionView>this.dominoServers).sourceCollection) {
-        //        var server = replicationdestination.filter((item) => item == travelerItem.value);
-        //        if (server.length > 0)
-        //            this.checkedItems.push(travelerItem);
-        //    }
-        //}
+    }
+
+    initialized(multiselect: wijmo.input.MultiSelect) {
+        if (multiselect != null) {
+            multiselect.isDroppedDown = true;
+        }
+    }
+
+    selectServers() {
+        if (this.currentEditItem.trigger_type == "Replication") {
+
+        }
     }
 }
 
