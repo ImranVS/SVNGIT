@@ -56,11 +56,14 @@
                 <div class="aServer" *ngFor="let message of systemMessages">
                     <p><b>{{message.CreatedDate}} </b> {{message.Details}}</p>
                 </div>
-                <div>&nbsp;</div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-primary" name="Dismiss" (click)="dismissSystemMessages(frmDialogSysMsg);">Dismiss</button>
+                <div class="aServer" *ngIf="systemMessages.length=='0'">
+                <label>No System Messages Found</label>    
                 </div>
-            </div>
+                    <div>&nbsp;</div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" name="Dismiss" (click)="dismissSystemMessages(frmDialogSysMsg);" [disabled]="!(systemMessages.length>0)">Dismiss</button>
+                    </div>
+                </div>
         </wj-popup>
     </div>
 
