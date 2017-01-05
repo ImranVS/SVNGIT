@@ -28,6 +28,7 @@ export class DominoServerTasks implements OnInit  {
     protected service: RESTService;
     protected appComponentService: AppComponentService;
     devices: string = "";
+    attributes: string[] = [];
     currentDeviceType:string="Domino"
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
@@ -130,6 +131,18 @@ export class DominoServerTasks implements OnInit  {
                 }
             });
 
+    }
+
+    serverCheck(value, event) {
+
+        if (event.target.checked) {
+            // this.attributes.push(value);
+            this.flex.collectionView.currentItem.is_selected = true;
+        }
+        else {
+            // this.attributes.splice(this.devices.indexOf(value), 1);
+            this.flex.collectionView.currentItem.is_selected = false;
+        }
     }
 }
 
