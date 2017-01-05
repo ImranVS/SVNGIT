@@ -5,7 +5,8 @@ import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 declare var injectSVG: any;
-import {DeviceAttributeValue} from '../../models/device-attribute';
+import { DeviceAttributeValue } from '../../models/device-attribute';
+import { AppComponentService } from '../../../core/services';
 
 
 @Component({
@@ -33,7 +34,7 @@ export class Logs implements OnInit, AfterViewChecked {
         private formBuilder: FormBuilder,
         private service: RESTService,
         private router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute, private appComponentService: AppComponentService) {
         this.logsettingform = this.formBuilder.group({
             'log_level': [],
             'emailid': [],
@@ -87,21 +88,71 @@ export class Logs implements OnInit, AfterViewChecked {
         //}
         
     }
-    applySetting(nameValue: any) {
+    applySetting(nameValue: any) {       
+        if (this.emailid == null)
+        {
+            this.appComponentService.showErrorMessage("Please enter email address .");
+        }
+        else {
+            this.postData = {
+                "log_level": this.log_level,
+                "emailid": this.emailid,
+                "log_name": this.devices,
 
-        this.postData = {
-            "log_level": this.log_level,
-            "emailid": this.emailid,
-            "log_name": this.devices,
+            };
+
+            this.logsettingform.setValue(this.postData);
+            this.service.put('/configurator/save_log_settings', this.postData)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage(response.message);
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
+        }
+      
+            
+    }
+
+
+    saveloglevel(nameValue: any) {
+        console.log(this.log_level);
+        if (this.log_level == null || this.log_level=="") {
+            this.appComponentService.showErrorMessage("Please select Log Level.");
+        }
+        else {
+            this.postData = {
+                "log_level": this.log_level,
+                "emailid": null,
+                "log_name": null
+
+            };
+
+            this.logsettingform.setValue(this.postData);
+            this.service.put('/configurator/save_log_settings', this.postData)
+                .subscribe(
+                response => {
+                   
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage(response.message);
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
+
+
+        }
            
-        };
 
-        this.logsettingform.setValue(this.postData);
-        this.service.put('/configurator/save_log_settings', this.postData)
-            .subscribe(
-            response => {
-
-            });
     }
 
 
