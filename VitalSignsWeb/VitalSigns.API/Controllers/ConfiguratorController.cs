@@ -521,9 +521,19 @@ namespace VitalSigns.API.Controllers
             try
             {
                 locationRepository = new Repository<Location>(ConnectionString);
-                Expression<Func<Location, bool>> expression = (p => p.Id == id);
-                locationRepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location deleted successfully");
+                serversRepository = new Repository<Server>(ConnectionString);
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.LocationId == id).Select(x=>x.LocationId).FirstOrDefault();
+                if(!string.IsNullOrEmpty(result))
+                {
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Location is used for different servers. Cannot delete.") ;
+                }
+                else
+                {
+                    Expression<Func<Location, bool>> expression = (p => p.Id == id);
+                    locationRepository.Delete(expression);
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location deleted successfully");
+                }
+               
             }
             catch (Exception exception)
             {
