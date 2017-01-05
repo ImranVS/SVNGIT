@@ -20,11 +20,12 @@ import { ServersLocation } from '../server-list-location.component';
     ]
 })
 export class DeviceAttributes implements OnInit {
-    @ViewChild('attributeGrid') attributeGrid: wijmo.grid.FlexGrid;
+   // @ViewChild('attributeGrid') attributeGrid: wijmo.grid.FlexGrid;
     @ViewChild('combo') combo: wijmo.input.ComboBox;
     @Output() type = new EventEmitter();  
     @Input() currentDeviceType: string;
-    devices: string="";
+    devices: string = "";
+    attributes: string[] = [];
     deviceTypeData: any;
     errorMessage: any;
     selectedDeviceType: any;
@@ -127,16 +128,17 @@ export class DeviceAttributes implements OnInit {
     }
     applySetting() { 
         var slectedAttributeValues: DeviceAttributeValue[] = [];
-        for (var _i = 0; _i < this.attributeGrid.collectionView.sourceCollection.length; _i++) {
-            var item = (<wijmo.collections.CollectionView>this.attributeGrid.collectionView.sourceCollection)[_i];
-            console.log(item.is_selected);
+        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+          //  var value = this.attributes.filter((record) => record == item.id);
+           // if (value.length > 0){
             if (item.is_selected) {
                 var deviceAttrObject=new DeviceAttributeValue();
                 deviceAttrObject.value = item.default_value;
                 deviceAttrObject.field_name = item.field_name;
                 deviceAttrObject.datatype = item.datatype;
                 deviceAttrObject.defaultboolvalue = item.defaultboolvalue;
-                slectedAttributeValues.push(deviceAttrObject);
+                slectedAttributeValues.push(deviceAttrObject);               
             }
 
        }
@@ -162,12 +164,17 @@ export class DeviceAttributes implements OnInit {
             });
     }
 
-    selectionChangedHandler = () => {
-        console.log(this.flex.collectionView.currentItem);
-        (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
+    serverCheck(value, event) {
 
+        if (event.target.checked) {
+           // this.attributes.push(value);
+             this.flex.collectionView.currentItem.is_selected = true;
+        }
+        else {
+           // this.attributes.splice(this.devices.indexOf(value), 1);
+            this.flex.collectionView.currentItem.is_selected = false;
+        }     
     }
-  
 
     }
 
