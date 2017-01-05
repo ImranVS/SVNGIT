@@ -2994,7 +2994,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
-                var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.DeviceName }).ToList().OrderBy(x => x.DisplayText);
+                var serversData = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Domino").Select(x => new ComboBoxListItem { DisplayText = x.DeviceName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 Response = Common.CreateResponse(new { serversData = serversData });
                 return Response;
             }
@@ -3375,7 +3375,7 @@ namespace VitalSigns.API.Controllers
 
 
                         string id = serverOtherRepository.Insert(notesDatabases);
-                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes Database inserted successfully");
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes database inserted successfully");
                     }
 
                     else
