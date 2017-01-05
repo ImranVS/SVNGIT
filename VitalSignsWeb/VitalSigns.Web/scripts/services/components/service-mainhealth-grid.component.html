@@ -3,7 +3,7 @@
     <wj-flex-grid-filter></wj-flex-grid-filter>
 
     <wj-flex-grid-column [header]="'Category'" [binding]="'category'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Test Name'" [binding]="'test_name'" [width]="250"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Test Name'" [binding]="'test_name'" [width]="230"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Result'" [binding]="'result'" [width]="100" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div [ngSwitch]="cell.item.result">
@@ -13,8 +13,14 @@
             </div>
         </template>
   </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="250"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Last Update'" [binding]="'last_scan'" [width]="250"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Details'" [binding]="'details'"  [width]="280">
+     
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div data-toggle="tooltip" data-placement="top" title={{cell.item.details}}>
+                {{cell.item.details}}
+            </div>
+        </template>
+    </wj-flex-grid-column>    <wj-flex-grid-column [header]="'Last Update'" [binding]="'last_scan'" [width]="250"></wj-flex-grid-column>
 
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
