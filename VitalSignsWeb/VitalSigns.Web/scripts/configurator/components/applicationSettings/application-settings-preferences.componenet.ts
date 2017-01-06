@@ -41,8 +41,8 @@ export class PreferencesForm implements OnInit {
         this.preferencesForm = this.formBuilder.group({
             'company_name': ['', Validators.required],
             'currency_symbol': ['', Validators.required],
-            'monitoring_delay': ['', Validators.required],
-            'threshold_show': ['', Validators.required],
+            'monitoring_delay': [0, Validators.required],
+            'threshold_show': [0, Validators.required],
             'dashboardonly_exec_summary_buttons': [false],
             'bing_key': ['']
         });     
