@@ -11,8 +11,8 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("file_name")]
         public string FileName { get; set; }
 
-        //[JsonProperty("is_selected")]
-        //public bool IsSelected { get; set; }
+        [JsonProperty("is_selected")]
+        public bool IsSelected { get; set; }
 
         //[JsonProperty("log_file_name")]
         //public List<string> LogFileName { get; set; }
