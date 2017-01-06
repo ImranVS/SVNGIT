@@ -3644,7 +3644,7 @@ namespace VitalSigns.API.Controllers
             {
                 if (devicesettings.Setting == null && devicesettings.Devices == null && devicesettings.Value == null)
                 {
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "");
+                    Response = Common.CreateResponse(false,Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition  inserted successfully");
                 }
                 else
                 {
@@ -3792,7 +3792,10 @@ namespace VitalSigns.API.Controllers
 
                 var server = serverOtherRepository.Get(deviceId);
                 var dominoServerTasks = server.LogFileKeywords;
-
+                if(id=="false")
+                {
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino event log scanning deleted successfully");
+                }
                 var serverTaskDelete = dominoServerTasks.FirstOrDefault(x => x.EventId == id);
                 if (serverTaskDelete != null)
                 {
