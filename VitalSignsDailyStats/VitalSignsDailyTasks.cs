@@ -30,17 +30,18 @@ namespace VitalSignsDailyStats
         private static UnitOfWork _unitOfWork;
 
 
-        IRepository<DailyStatistics> dailyStatasticsRepository;
-        IRepository<SummaryStatistics> summaryStatasticsRepository;
+        IRepository<DailyStatistics> dailyStatisticsRepository;
+        IRepository<SummaryStatistics> summaryStatisticsRepository;
         IRepository<DailyTasks> dailyTasksRepository;
-        IRepository<TravelerStats> travelerStatusSummaryRepository;
         IRepository<Status> statusRepository;
+        IRepository<Outages > OutagesRepository;
         IRepository<Nodes> nodesRepository;
         IRepository<TravelerStats> travelerStatsRepository;
         IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
-        IRepository<StatusDetails> statusDeatilsRepository;
+        IRepository<StatusDetails> statusDetailsRepository;
         IRepository<NameValue> nameValueRepository;
         IRepository<ConsolidationResults> consolidationResultsRepository;
+        IRepository<EventsDetected> eventsRepository;
 
         IRepository<ValidLocation> validLocationsRepository;
         IRepository<MobileDeviceTranslations> mobileDeviceTranslationsRepository;
@@ -97,14 +98,14 @@ namespace VitalSignsDailyStats
         {
             try
             {
-                dailyStatasticsRepository = _unitOfWork.Repository<DailyStatistics>();
-                summaryStatasticsRepository = _unitOfWork.Repository<SummaryStatistics>();
+                dailyStatisticsRepository = _unitOfWork.Repository<DailyStatistics>();
+                summaryStatisticsRepository = _unitOfWork.Repository<SummaryStatistics>();
                 dailyTasksRepository = _unitOfWork.Repository<DailyTasks>();
                 statusRepository = _unitOfWork.Repository<Status>();
                 nodesRepository = _unitOfWork.Repository<Nodes>();
                 travelerStatsRepository = _unitOfWork.Repository<TravelerStats>();
                 travelerSummaryStatsRepository = _unitOfWork.Repository<TravelerStatusSummary>();
-                statusDeatilsRepository = _unitOfWork.Repository<StatusDetails>();
+                statusDetailsRepository = _unitOfWork.Repository<StatusDetails>();
                 nameValueRepository = _unitOfWork.Repository<NameValue>();
 
                 validLocationsRepository = _unitOfWork.Repository<ValidLocation>();
@@ -160,7 +161,7 @@ namespace VitalSignsDailyStats
                 }
                 catch (Exception ex)
                 {
-                    WriteAuditEntry("Exception while handling DateFormate.  Error: " + ex.Message);
+                    WriteAuditEntry("Exception while handling Date Format.  Error: " + ex.Message);
                 }
                 try
                 {
@@ -218,7 +219,7 @@ namespace VitalSignsDailyStats
                     productName = "VitalSigns";
                 }
                 WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks service is starting up.");
-                WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks Build Number: " + builddNumber);
+              //  WriteAuditEntry(DateTime.Now.ToString() + " VitalSigns Daily Tasks Build Number: " + AssemblyInfo);
                 WriteAuditEntry(DateTime.Now.ToString() + " Copyright " + companyName + "  " + DateTime.Now.Year + " - All rights reserved." + "\r\n" + "\r\n");
                 try
                 {
@@ -257,7 +258,7 @@ namespace VitalSignsDailyStats
 
                 if (!isPrimaryNode)
                 {
-                    WriteAuditEntry("Daily Task is finished since it is not the Primary Node....");
+                    WriteAuditEntry("Daily Task is stopping because it is only supposed to run one the Primary Node....");
                     this.Stop();
                     return;
                 }
@@ -275,7 +276,7 @@ namespace VitalSignsDailyStats
 
                 try
                 {
-                    WriteAuditEntry("Building ConsolidateStatistics,if any... ");
+                    WriteAuditEntry("Building a list of statistics to consolidate ");
                     ConsolidateStatistics();
                 }
 
@@ -902,7 +903,7 @@ namespace VitalSignsDailyStats
                         {
 
                             case "AVG":
-                                var avgResult = dailyStatasticsRepository.Collection.Aggregate()
+                                var avgResult = dailyStatisticsRepository.Collection.Aggregate()
                                .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
 
                                    .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Average(s => s.StatValue) })
@@ -924,14 +925,14 @@ namespace VitalSignsDailyStats
                                     {
                                         item.StatDate = SearchDate;
                                     }
-                                    summaryStatasticsRepository.Insert(avgResult);
+                                    summaryStatisticsRepository.Insert(avgResult);
 
 
                                 }
 
                                 break;
                             case "SUM":
-                                var sumResult = dailyStatasticsRepository.Collection.Aggregate()
+                                var sumResult = dailyStatisticsRepository.Collection.Aggregate()
                                   .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
                                    .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
                                    .Project(x => new SummaryStatistics
@@ -950,11 +951,11 @@ namespace VitalSignsDailyStats
                                     {
                                         item.StatDate = SearchDate;
                                     }
-                                    summaryStatasticsRepository.Insert(sumResult);
+                                    summaryStatisticsRepository.Insert(sumResult);
                                 }
                                 break;
                             case "MAX":
-                                var maxResult = dailyStatasticsRepository.Collection.Aggregate()
+                                var maxResult = dailyStatisticsRepository.Collection.Aggregate()
                                     .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
                                    .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
                                    .Project(x => new SummaryStatistics
@@ -973,7 +974,7 @@ namespace VitalSignsDailyStats
                                         item.StatDate = SearchDate;
                                        
                                     }
-                                    summaryStatasticsRepository.Insert(maxResult);
+                                    summaryStatisticsRepository.Insert(maxResult);
                                 }
 
 
@@ -1056,7 +1057,7 @@ namespace VitalSignsDailyStats
             try
             {
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("Mailbox."));
-                var dailyStsts = dailyStatasticsRepository.Find(expression);
+                var dailyStsts = dailyStatisticsRepository.Find(expression);
 
                 var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId,g.DeviceType})
 
@@ -1076,7 +1077,7 @@ namespace VitalSignsDailyStats
 
 
                 if (result.Count > 0)
-                    summaryStatasticsRepository.Insert(result);
+                    summaryStatisticsRepository.Insert(result);
 
             }
             catch (Exception ex)
@@ -1095,7 +1096,7 @@ namespace VitalSignsDailyStats
             try
             {
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName.StartsWith("ExDatabaseSizeMb"));
-                var dailyStsts = dailyStatasticsRepository.Find(expression);
+                var dailyStsts = dailyStatisticsRepository.Find(expression);
 
                 var result = dailyStsts.GroupBy(g => new { g.StatName, g.DeviceName, g.DeviceId,g.DeviceType })
 
@@ -1116,7 +1117,7 @@ namespace VitalSignsDailyStats
 
 
                 if (result.Count > 0)
-                    summaryStatasticsRepository.Insert(result);
+                    summaryStatisticsRepository.Insert(result);
 
             }
             catch (Exception ex)
@@ -1352,7 +1353,7 @@ namespace VitalSignsDailyStats
 
 
                 Expression<Func<DailyStatistics, bool>> expression = (p => p.StatName == statName);
-                var dailyStsts = dailyStatasticsRepository.Find(expression);
+                var dailyStsts = dailyStatisticsRepository.Find(expression);
 
                 var result = dailyStsts.GroupBy(g => new { g.DeviceName, g.StatName, g.DeviceId,g.DeviceType})
 
@@ -1373,10 +1374,10 @@ namespace VitalSignsDailyStats
 
 
                 if (result.Count > 0)
-                    summaryStatasticsRepository.Insert(result);
+                    summaryStatisticsRepository.Insert(result);
 
                  Expression<Func<DailyStatistics, bool>> deleteExpression = (p => p.CreatedOn.Date < StatDate.AddDays(-2) && p.StatName== statName);
-                dailyStatasticsRepository.Delete(expression);
+                dailyStatisticsRepository.Delete(expression);
             }
             catch (Exception ex)
             {
@@ -1457,18 +1458,17 @@ namespace VitalSignsDailyStats
             try
             {
                 // Cleaning Up Status Details
-                Expression<Func<StatusDetails, bool>> expression = (p => p.CreatedOn < DateTime.Now);
-                statusDeatilsRepository.Delete(expression);
+                Expression<Func<StatusDetails, bool>> expression = (p => p.LastUpdate < DateTime.Now.AddMinutes(-120));
+                statusDetailsRepository.Delete(expression);
                 // Cleaning Up Status Table
-                Expression<Func<Status, bool>> statusExpression = (p => p.CreatedOn < DateTime.Now);
+                Expression<Func<Status, bool>> statusExpression = (p => p.CreatedOn < DateTime.Now.AddMinutes(-120));
                 statusRepository.Delete(statusExpression);
               //  Cleaning Up TravelerStats Table
 
                 Expression<Func<TravelerStats, bool>> travelerstatsExpression = (p => p.DateUpdated < DateTime.Now);
                 travelerStatsRepository.Delete(travelerstatsExpression);
 
-                //To Do pending for Clean up Alert History
-
+      
             }
             catch (Exception ex)
             {
@@ -1485,15 +1485,44 @@ namespace VitalSignsDailyStats
             VSAdaptor objVSAdaptor = new VSAdaptor();
             try
             {
-                Expression<Func<DailyStatistics, bool>> expression = (p => p.CreatedOn <= DateTime.Now.AddDays(-1));
-                dailyStatasticsRepository.Delete(expression);
+                //Delete daily stats older than 3 days since by then they should be consolidated
+                Expression<Func<DailyStatistics, bool>> expression = (p => p.CreatedOn <= DateTime.Now.AddDays(-3));
+                dailyStatisticsRepository.Delete(expression);
             }
             catch (Exception ex)
             {
-                WriteAuditEntry("Exception = " + ex.ToString());
+                WriteAuditEntry("Exception deleting old data from daily stats collection = " + ex.ToString());
                
             }
-        
+
+            try
+            {
+                // Delete old outage records
+                Expression<Func<Outages , bool>> expression = (p => p.CreatedOn <= DateTime.Now.AddDays(-30));
+                OutagesRepository.Delete(expression);
+                
+            }
+            catch (Exception ex)
+            {
+                WriteAuditEntry("Exception deleting old data from daily stats collection = " + ex.ToString());
+
+            }
+
+            try
+            {
+                // Delete events older than 30 days
+                Expression<Func<EventsDetected, bool>> expression = (p => p.CreatedOn <= DateTime.Now.AddDays(-30) && p.EventDismissed != null);
+                eventsRepository.Delete(expression);
+               
+            }
+            catch (Exception ex)
+            {
+                WriteAuditEntry("Exception deleting old events from events_detected collection = " + ex.ToString());
+
+            }
+
+           
+
             System.Threading.Tasks.Task taskVSStatsCleanUp = Task.Factory.StartNew(() => CleanUpVSTables());
             taskVSStatsCleanUp.Wait();
 
