@@ -164,6 +164,23 @@ export class ServerAdvancedSettings implements OnInit {
                     this.appComponentService.showErrorMessage(response.message);
                 }
             });
+        this.dataProvider.get('/Configurator/get_advanced_settings/' + this.deviceId)
+            .subscribe(
+            (response) => {
+
+               
+                this.deviceCredentialData = response.data.credentialsData;
+                this.ConnectionsCredentialData = response.data.credentialsData;
+            
+
+            },
+            (error) => {
+                this.errorMessage = <any>error
+                this.appComponentService.showErrorMessage(this.errorMessage);
+            }
+
+            );
+    
         dialog.hide();
     }
 }
