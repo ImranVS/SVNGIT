@@ -75,7 +75,27 @@ export class AddLogFile extends GridBase implements OnInit {
             );
     }
     saveEventLog(dlg: wijmo.input.Popup) {
-        this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
+      
+        if (this.flex.collectionView) {
+         
+            if (this.flex.collectionView.items.length > 1) {
+                var length = (this.flex.collectionView.sourceCollection.length) - 1;
+                for (var _i = 0; _i < length; _i++) {
+                    var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+                    if (this.currentEditItem.keyword == item.keyword) {
+                        this.appComponentService.showErrorMessage("Domino event keyword already exists.");
+                        return;                                
+                    }
+                    else {
+                        
+                        this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
+                    }                   
+                }
+            }
+            else {
+                this.saveGridRow('/configurator/save_log_file_servers/' + this.id, dlg);
+            }
+        }
 
     }
     deleteEventLog() {
