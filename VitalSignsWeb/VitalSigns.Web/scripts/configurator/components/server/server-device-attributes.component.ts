@@ -108,19 +108,31 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
 
 
     }
+
+    adddominoCredentials(dlg: wijmo.input.Popup) {
+        if (dlg) {
+            dlg.modal = this.modal;
+            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
+            dlg.show();
+            this.serverType = "Domino"
+
+        }
+    }
     addSametimeCredentials(dlg: wijmo.input.Popup) {
         if (dlg) {
             dlg.modal = this.modal;
             dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
             dlg.show();
+            this.serverType = "Sametime"
 
-            //this.serverType = "Domino"
         }
     }
 
     SaveCredential(addCrdential: any, dialog: wijmo.input.Popup) {
-        addCrdential.device_type = "Domino";
-
+        if (this.serverType == "Domino")
+            addCrdential.device_type = "Domino";
+        else if (this.serverType = "Sametime")
+            addCrdential.device_type = "Sametime";
         addCrdential.confirm_password = "";
         addCrdential.id = null;
         addCrdential.is_modified = true;
@@ -138,6 +150,16 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
                     this.appComponentService.showErrorMessage(response.message);
                 }
             });
+        this.Attribute.get('/configurator/' + this.deviceId + '/servers_attributes')
+            .subscribe(
+            response => {           
+                this.deviceCredentialData = response.data.credentialsData;       
+            },
+            error => this.errorMessage = <any>error
+
+
+            );
+
         dialog.hide();
 
     }
