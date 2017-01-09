@@ -35,7 +35,7 @@
                 <!--<wj-flex-grid-column [header]="'Use Type'" [binding]="'use_type'" [width]="100"></wj-flex-grid-column>-->
 
             </wj-flex-grid>
-            <!--<div class="btn-group" *ngIf="data != null">
+            <div class="btn-group" *ngIf="data != null">
                 <button type="button" class="btn btn-default"
                         (click)="data.moveToFirstPage()"
                         [disabled]="data.pageIndex <= 0">
@@ -62,14 +62,14 @@ data.pageIndex + 1 | number
                         [disabled]="data.pageIndex >= data.pageCount - 1">
                     <span class="glyphicon glyphicon-fast-forward"></span>
                 </button>
-            </div>-->
-            <!--<div class="pull-right" *ngIf="data != null">
+            </div>
+            <div class="pull-right" *ngIf="data != null">
                 <wj-menu [(value)]="pageSize" [header]="'Page size'">
                     <wj-menu-item [value]="10">10</wj-menu-item>
                     <wj-menu-item [value]="20">20</wj-menu-item>
                     <wj-menu-item [value]="50">50</wj-menu-item>
                 </wj-menu>
-            </div>-->
+            </div>
 
             <wj-popup style="height:80%;overflow:auto" class="modal-content col-sm-8" #frmDialog>
                 <div class="panel panel-default">
