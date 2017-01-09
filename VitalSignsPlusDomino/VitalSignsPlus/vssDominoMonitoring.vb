@@ -4072,7 +4072,7 @@ SkipTask:
         PercentRAMinUse = 999
 
         Try
-            If MyDominoServer.Memory_Threshold < 10 Then
+            If MyDominoServer.Memory_Threshold < 0.1 Then
                 Exit Sub
             End If
         Catch ex As Exception
