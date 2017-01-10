@@ -840,7 +840,9 @@ namespace VitalSigns.API.Controllers
                         // order_by is specified - sorting resulting data by th field specified in order_by in order specified by order_type (asc/desc)
                         if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
                         {
-                            var propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
+                            var propertyInfo = typeof(ServerDatabase).GetProperty("DeviceName");
+                            data = data.OrderBy(x => propertyInfo.GetValue(x, null)).ToList();
+                            propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
                             data = order_type == "asc" ? data.OrderBy(x => propertyInfo.GetValue(x, null)).ToList() : data.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
                         }
                         if (!string.IsNullOrEmpty(top_x))
@@ -1143,28 +1145,27 @@ namespace VitalSigns.API.Controllers
                 DateTime firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
                 DateTime nextMonth = firstDayOfMonth.AddMonths(1);
 
-                dailyStatisticsRepository = new Repository<DailyStatistics>(ConnectionString);
+                summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
+                FilterDefinition<SummaryStatistics> filterDef = summaryStatisticsRepository.Filter.Gte(x => x.CreatedOn, firstDayOfMonth) &
+                    summaryStatisticsRepository.Filter.Lt(x => x.CreatedOn, nextMonth) &
+                    summaryStatisticsRepository.Filter.In(x => x.StatName, statNames);
 
-                FilterDefinition<DailyStatistics> filterDef = dailyStatisticsRepository.Filter.Gte(x => x.CreatedOn, firstDayOfMonth) &
-                    dailyStatisticsRepository.Filter.Lt(x => x.CreatedOn, nextMonth) &
-                    dailyStatisticsRepository.Filter.In(x => x.StatName, statNames);
-
-                var dailyStats = dailyStatisticsRepository.Find(filterDef).ToList();
+                var summaryStats = summaryStatisticsRepository.Find(filterDef).ToList();
                 List<Object> result = new List<object>();
-                foreach (string deviceName in dailyStats.Select(i => i.DeviceName).Distinct())
+                foreach (string deviceName in summaryStats.Select(i => i.DeviceName).Distinct())
                 {
-                    var dailyStatsTemp = dailyStats.Where(i => i.DeviceName == deviceName).ToList();
+                    var summaryStatsTemp = summaryStats.Where(i => i.DeviceName == deviceName).ToList();
                     result.Add(new
                     {
                         DeviceName = deviceName,
-                        TotalRouted = Convert.ToInt32(dailyStatsTemp.Where(i => i.StatName == "Mail.TotalRouted").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
-                        Delivered = Convert.ToInt32(dailyStatsTemp.Where(i => i.StatName == "Mail.Delivered").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
-                        TransferFailures = Convert.ToInt32(dailyStatsTemp.Where(i => i.StatName == "Mail.TransferFailures").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
-                        TotalPending = Math.Round(dailyStatsTemp.Where(i => i.StatName == "Mail.TotalPending").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
-                        AvgDeliveryTimeInSeconds = Math.Round(dailyStatsTemp.Where(i => i.StatName == "Mail.AverageDeliverTime").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
-                        AvgServerHops = Math.Round(dailyStatsTemp.Where(i => i.StatName == "Mail.AverageServerHops").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
-                        AvgSizeDelivered = Math.Round(dailyStatsTemp.Where(i => i.StatName == "Mail.AverageSizeDelivered").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
-                        SmtpMessagesProcessed = Convert.ToInt32(dailyStatsTemp.Where(i => i.StatName == "SMTP.MessagesProcessed").Select(i => i.StatValue).DefaultIfEmpty(0).Sum())
+                        TotalRouted = Convert.ToInt32(summaryStatsTemp.Where(i => i.StatName == "Mail.TotalRouted").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
+                        Delivered = Convert.ToInt32(summaryStatsTemp.Where(i => i.StatName == "Mail.Delivered").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
+                        TransferFailures = Convert.ToInt32(summaryStatsTemp.Where(i => i.StatName == "Mail.TransferFailures").Select(i => i.StatValue).DefaultIfEmpty(0).Sum()),
+                        TotalPending = Math.Round(summaryStatsTemp.Where(i => i.StatName == "Mail.TotalPending").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
+                        AvgDeliveryTimeInSeconds = Math.Round(summaryStatsTemp.Where(i => i.StatName == "Mail.AverageDeliverTime").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
+                        AvgServerHops = Math.Round(summaryStatsTemp.Where(i => i.StatName == "Mail.AverageServerHops").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
+                        AvgSizeDelivered = Math.Round(summaryStatsTemp.Where(i => i.StatName == "Mail.AverageSizeDelivered").Select(i => i.StatValue).DefaultIfEmpty(0).Average(), 1),
+                        SmtpMessagesProcessed = Convert.ToInt32(summaryStatsTemp.Where(i => i.StatName == "SMTP.MessagesProcessed").Select(i => i.StatValue).DefaultIfEmpty(0).Sum())
                     });
                 }
 
