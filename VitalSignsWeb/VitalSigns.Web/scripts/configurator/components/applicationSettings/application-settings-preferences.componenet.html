@@ -163,7 +163,8 @@
                                             <div class="form-group col-sm-12">
                                                 <label for="monitoring_delay" class="control-label col-sm-3">Monitoring Delay</label>
                                                 <div class="col-sm-7">
-                                                    <input type="number" min="0" class="form-control" id="monitoring_delay" name="monitoring_delay" formControlName="monitoring_delay">
+                                                    <input type="number" min="0" class="form-control" id="monitoring_delay" name="monitoring_delay" formControlName="monitoring_delay"
+                                                           onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
                                                 </div>
                                             </div>
                                         </div>
@@ -171,7 +172,8 @@
                                             <div class="form-group col-sm-12">
                                                 <label for="threshold_show" class="control-label col-sm-3">Disk Space Alert Threshold</label>
                                                 <div class="col-sm-7">
-                                                    <input type="number" min="0"class="form-control" id="threshold_show" name="threshold_show" formControlName="threshold_show">
+                                                    <input type="number" min="0" class="form-control" id="threshold_show" name="threshold_show" formControlName="threshold_show"
+                                                           onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
                                                 </div>
                                             </div>
                                         </div>

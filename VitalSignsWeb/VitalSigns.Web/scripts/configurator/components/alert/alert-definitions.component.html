@@ -136,6 +136,10 @@
                                 <label for="devices">Devices</label>
                                 <br />
                                 <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices"></server-location-list>
+                                <div style="display: none">
+                                    <wj-flex-grid [itemsSource]="serversdata" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex6>
+                                    </wj-flex-grid>
+                                </div>
                             </div>
 
 
