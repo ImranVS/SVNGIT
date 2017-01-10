@@ -4,7 +4,7 @@ import {WidgetController, WidgetContract} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {RESTService} from '../../../core/services/rest.service';
-
+import * as helpers from '../../../core/services/helpers/helpers';
 declare var injectSVG: any;
 
 
@@ -13,7 +13,8 @@ declare var injectSVG: any;
     templateUrl: '/app/reports/components/ibm-traveler/traveler-cpu-util.component.html',
     providers: [
         WidgetService,
-        RESTService
+        RESTService,
+        helpers.UrlHelperService
     ]
 })
 export class TravelerCPUUtilReport extends WidgetController {
@@ -30,9 +31,14 @@ export class TravelerCPUUtilReport extends WidgetController {
     currentWidgetName: string = `travelerCPUUtilChart`;
     currentWidgetURL: string;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private router: Router, private route: ActivatedRoute) {
+    constructor(protected resolver: ComponentFactoryResolver,
+        protected widgetService: WidgetService,
+        private service: RESTService,
+        private router: Router,
+        private route: ActivatedRoute,
+        protected urlHelpers: helpers.UrlHelperService) {
 
-        super(resolver, widgetService);
+        super(resolver, widgetService, true, router, route);
 
     }
 
