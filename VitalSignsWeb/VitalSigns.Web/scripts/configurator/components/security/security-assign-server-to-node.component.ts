@@ -8,7 +8,9 @@ import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {AppComponentService} from '../../../core/services';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
-import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
+import { ServersLocationService } from '../serverSettings/serverattributes-view.service';
+import { ServersLocation } from '../server-list-location.component';
+
 
 
 @Component({
@@ -16,7 +18,8 @@ import {ServersLocationService} from '../serverSettings/serverattributes-view.se
     providers: [
         HttpModule,
         RESTService,
-        ServersLocationService
+        ServersLocationService,
+        ServersLocation
     ]
 })
 export class Nodes extends GridBase {
@@ -34,6 +37,7 @@ export class Nodes extends GridBase {
     isVisible: boolean = false;
     firstrowid: string;
     id: string;
+    locations: string;
     
 
     constructor(service: RESTService, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
@@ -47,11 +51,13 @@ export class Nodes extends GridBase {
 
 
         });
+
         this.service.get('/configurator/get_nodes_health')
             .subscribe(
             (response) => {
                 this.nodeNames = response.data.result;
-                this.nodes = response.data.nodesData;             
+                this.nodes = response.data.nodesData; 
+                this.locations = response.data.locations;             
                 this.firstrowid = response.data.result[0].Id;
                 this.service.get(`/configurator/get_nodes_services?id=`+this.firstrowid)
                     .subscribe(
@@ -68,6 +74,8 @@ export class Nodes extends GridBase {
 
     }
 
+
+   
     refreshGrid(event: wijmo.grid.CellRangeEventArgs) {
         this.id = event.panel.grid.selectedItems[0].Id;
         this.service.get(`/configurator/get_nodes_services?id=`+ this.id)
@@ -98,7 +106,15 @@ export class Nodes extends GridBase {
         this.service.put('/configurator/save_nodes_servers', postData)
             .subscribe(
             response => {
+                if (response.status == "Success") {
 
+                    this.appComponentService.showSuccessMessage(response.message);
+                   
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
     }
     changeInDevices(server: string) {
