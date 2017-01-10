@@ -1838,7 +1838,7 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceName = x.DeviceName,
                     Category = x.Category,
-                    LastUpdated = Convert.ToString(x.LastUpdated),
+                    LastUpdated = x.LastUpdated.Value.ToString(DateFormat),
                     PendingMail = x.PendingMail == null ? 0 : x.PendingMail,
                     DeadMail = x.DeadMail == null ? 0 : x.DeadMail,
                     HeldMail = x.HeldMail == null ? 0 : x.HeldMail,
