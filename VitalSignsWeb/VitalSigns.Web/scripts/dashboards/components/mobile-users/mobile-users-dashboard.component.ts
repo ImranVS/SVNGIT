@@ -127,36 +127,25 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
-                    credits: {
-                        enabled: false
-                    },
                     xAxis: {
                         categories: []
                     },
-                    exporting: {
-                        enabled: false
-                    },
-                    plotOptions: {
-                        pie: {
-                            allowPointSelect: true,
-                            cursor: 'pointer',
-                            dataLabels: {
-                                enabled: false
-                            },
-                            showInLegend: true,
-                            innerSize: '70%'
+                    yAxis: {
+                        min: 0,
+                        endOnTick: false,
+                        allowDecimals: false,
+                        title: {
+                            enabled: false
                         }
-                    },
-                    tooltip: {
-                        formatter: function () {
-                            return '<div style="font-size: 11px; font-weight: normal;">' + this.key + '<br /><strong>' + this.y + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
-                        },
-                        useHTML: true
                     },
                     legend: {
-                        labelFormatter: function () {
-                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
-                        }
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
                     },
                     series: []
                 }
@@ -177,35 +166,25 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
-                    credits: {
-                        enabled: false
-                    },
                     xAxis: {
                         categories: []
                     },
-                    exporting: {
-                        enabled: false
-                    },
-                    plotOptions: {
-                        pie: {
-                            allowPointSelect: true,
-                            cursor: 'pointer',
-                            dataLabels: {
-                                enabled: false
-                            },
-                            showInLegend: true,
-                            innerSize: '70%'
-                        }
-                    },
-                    tooltip: {
-                        formatter: function () {
-                            return '<div style="font-size: 11px; font-weight: normal;">' + this.key + '<br /><strong>' + this.y + '</strong> (' + this.percentage.toFixed(1) + '%)</div>';
+                    yAxis: {
+                        min: 0,
+                        endOnTick: false,
+                        allowDecimals: false,
+                        title: {
+                            enabled: false
                         }
                     },
                     legend: {
-                        labelFormatter: function () {
-                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
-                        }
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
                     },
                     series: []
                 }
