@@ -25,6 +25,7 @@ export class KeyMetricsStatisticsGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     _serviceId: string;
+    filterDate: string;
 
     get serviceId(): string {
         return this._serviceId;
@@ -54,6 +55,8 @@ export class KeyMetricsStatisticsGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
+        var today = new Date();
+        this.filterDate = today.toISOString().substr(0, 7);
     }
 
     onItemsSourceChanged() {
@@ -61,6 +64,19 @@ export class KeyMetricsStatisticsGrid implements WidgetComponent, OnInit {
         row.wordWrap = true;
         // autosize first header row
         this.flex.autoSizeRow(0, true);
+
+    }
+
+    filterStats() {
+        var dt = new Date(this.filterDate);
+        this.service.get(`/dashboard/mail_health?month=` + dt.toISOString().substr(0, 7))
+            .subscribe(
+            (response) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data.pageSize = 20;
+            },
+            (error) => this.errorMessage = <any>error
+            );
 
     }
 }

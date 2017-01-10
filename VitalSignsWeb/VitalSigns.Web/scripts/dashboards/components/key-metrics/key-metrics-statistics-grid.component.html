@@ -1,4 +1,14 @@
-﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+﻿<div class="row">
+    <div class="form-group col-sm-5">
+        <label for="start_date" class="control-label col-sm-2">Month/Year</label>
+        <div class="col-sm-3">
+            <wj-input-date format="yyyy-MM" [(value)]="filterDate" style="width:125px;" id="start_date" required selectionMode="Month"></wj-input-date>
+        </div>
+        <div class="col-sm-3">
+            <button type="button" class="btn btn-primary" (click)="filterStats()">Filter</button>
+        </div>
+    </div>
+</div>
 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (itemsSourceChanged)="onItemsSourceChanged()" (selectionChanged)="refreshChart($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'DeviceName'" [width]="280"></wj-flex-grid-column>

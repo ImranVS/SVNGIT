@@ -50,6 +50,8 @@ export class OverallDatabaseGrid implements WidgetComponent, OnInit {
                 (data) => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                     this.data.pageSize = 10;
+                    var groupDesc = new wijmo.collections.PropertyGroupDescription('device_name');
+                    this.data.groupDescriptions.push(groupDesc);
                 },
                 (error) => this.errorMessage = <any>error
                 );
