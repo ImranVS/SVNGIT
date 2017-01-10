@@ -5419,6 +5419,7 @@ namespace VitalSigns.API.Controllers
             {
                 nodesRepository = new Repository<Nodes>(ConnectionString);
                 serversRepository = new Repository<Server>(ConnectionString);
+                locationRepository = new Repository<Location>(ConnectionString);
                 var result = nodesRepository.Collection.AsQueryable().Select(x => new NodesModel
                 {
                     Id = x.Id,
@@ -5429,14 +5430,20 @@ namespace VitalSigns.API.Controllers
                     Alive = x.IsAlive ? "Yes" : "No",
                     LoadFactor = x.LoadFactor,
                     IsConfiguredPrimary = x.IsConfiguredPrimary,
-                    IsPrimary = x.IsPrimary
+                    IsPrimary = x.IsPrimary,
+                    Version=x.Version,
+                    NodeType=x.NodeType,
+                    Location=x.Location
+                    
 
 
 
                 }).ToList().OrderBy(x => x.Name);
                 var nodesData = nodesRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+               
+                var locations = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
 
-                Response = Common.CreateResponse(new { nodesData = nodesData, result = result });
+                Response = Common.CreateResponse(new { nodesData = nodesData, result = result,locations=locations });
 
             }
             catch (Exception exception)
@@ -5584,7 +5591,11 @@ namespace VitalSigns.API.Controllers
                                                          .Set(p => p.IsAlive, nodeshealth.IsAlive)
                                                          .Set(p => p.LoadFactor, nodeshealth.LoadFactor)
                                                          .Set(p => p.IsConfiguredPrimary, nodeshealth.IsConfiguredPrimary)
-                                                         .Set(p => p.IsPrimary, nodeshealth.IsPrimary);
+                                                         .Set(p => p.IsPrimary, nodeshealth.IsPrimary)
+                                                         .Set(p => p.Version, nodeshealth.Version)
+                                                         .Set(p => p.NodeType, nodeshealth.NodeType)
+                                                         .Set(p => p.Location, nodeshealth.Location);
+
 
 
                 var result = nodesRepository.Update(filterDefination, updateDefination);
@@ -5612,17 +5623,21 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
+                nodesRepository = new Repository<Nodes>(ConnectionString);
                 string selectedNode = Convert.ToString(devicesettings.Setting);
+                var platform = nodesRepository.Collection.AsQueryable().Where(x => x.Id == selectedNode).Select(x => x.Name).FirstOrDefault();
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
                 foreach (var id in devicesList)
                 {
 
                     FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
 
-                    var updateDefination = serversRepository.Updater.Set(p => p.AssignedNode, selectedNode);
+                    var updateDefination = serversRepository.Updater.Set(p => p.AssignedNode, platform);
 
                     var result = serversRepository.Update(filterDefination, updateDefination);
+                    
                 }
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Nodes Assigned successfully");
             }
 
 
