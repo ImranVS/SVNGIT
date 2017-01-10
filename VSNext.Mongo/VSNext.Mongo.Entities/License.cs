@@ -101,6 +101,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public double LoadFactor { get; set; }
 
+        [DataMember]
+        [BsonElement("version")]
+        [BsonIgnoreIfNull]
+        public string Version { get; set; }
+
 
         [DataMember]
         [BsonElement("pulse")]
