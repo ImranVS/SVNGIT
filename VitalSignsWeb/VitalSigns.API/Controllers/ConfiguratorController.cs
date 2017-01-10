@@ -2089,7 +2089,7 @@ namespace VitalSigns.API.Controllers
         /// <author>Swathi</author>
         /// <returns></returns>
         [HttpPut("get_sametime_websphere_nodes/{id}")]
-        public APIResponse LoadSametimeWebSphereNodes([FromBody]CellInfo cellInfo, string id)
+        public APIResponse LoadSametimeWebSphereNodes(string id, [FromBody]CellInfo cellInfo)
         {
 
             try
@@ -2739,11 +2739,66 @@ namespace VitalSigns.API.Controllers
         [HttpGet("get_advanced_settings/{id}")]
         public APIResponse GetAdvancedSettings(string id)
         {
+            List<NodeInfo> NodesData = new List<NodeInfo>();
             try
             {
+                CellInfo cell = new CellInfo();
+                cell.NodesData = new List<NodeInfo>();
                 serversRepository = new Repository<Server>(ConnectionString);
+        
+                var websphereserver = serversRepository.All().Where(x => x.SametimeId == id && x.DeviceType == "WebSphereCell").FirstOrDefault();
+                if (websphereserver != null)
+                {
+                    cell.DeviceId = websphereserver.CellId;
+                    cell.CellId = websphereserver.Id;
+                    cell.CellName = websphereserver.CellName;
+                    cell.Name = websphereserver.DeviceName;
+                    cell.HostName = websphereserver.CellHostName;
+                    cell.PortNo = websphereserver.PortNumber;
+                    cell.ConnectionType = websphereserver.ConnectionType;
+                    cell.GlobalSecurity = websphereserver.GlobalSecurity;
+                    cell.CredentialsId = websphereserver.CredentialsId;
+                    cell.Realm = websphereserver.Realm;
+                    foreach (var webSphereNode in websphereserver.Nodes)
+                    {
+                        foreach (var webSphereServer in webSphereNode.WebSphereServers)
+                        {
+                            if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                            {
+                                NodeInfo node = new NodeInfo();
+                                node.NodeId = webSphereNode.NodeId;
+                                node.NodeName = webSphereNode.NodeName;
+                                node.ServerId = webSphereServer.ServerId;
+                                node.ServerName = webSphereServer.ServerName;
+                                node.HostName = webSphereNode.HostName;
+                                node.CellId = cell.CellId;
+                                cell.NodesData.Add(node);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    cell.DeviceId = "";
+                    cell.CellId = "";
+                    cell.CellName = "";
+                    cell.Name = "";
+                    cell.HostName = "";
+                    cell.PortNo = 0;
+                    cell.ConnectionType = "";
+                    cell.GlobalSecurity = false;
+                    cell.CredentialsId = "";
+                    cell.Realm = "";
+                    cell.NodesData = new List<NodeInfo>();
+                }
                 Expression<Func<Server, bool>> expression = (p => p.Id == id);
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
+                var wsCredentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+                var credential = wsCredentialsData.FirstOrDefault(x => x.Value == cell.CredentialsId);
+                if (credential != null)
+                {
+                    cell.CredentialsName = credential.DisplayText;
+                }
                 var platform = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.Platform).FirstOrDefault();
                 var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
                             .Select(x => new AdvancedSettingsModel
@@ -2772,21 +2827,24 @@ namespace VitalSigns.API.Controllers
                                 DatabaseSettingsPort = x.DatabaseSettingsPort,
                                 DeviceType = x.DeviceType,
                                 CollectConferenceStatistics = x.CollectConferenceStatistics,
-                                ClusterReplicationQueueThreshold = x.ClusterReplicationQueueThreshold,
+                                ClusterReplicationQueueThreshold = x.ClusterReplicationQueueThreshold
                             }).FirstOrDefault();
-                var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == results.DeviceType).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
-
-                //if (results.DeviceType == "IBM Connections")
-                //{
-                //    var ibmCredentialname = credentialsRepository.All().Where(x => x.Id == results.DatabaseSettingsCredentialsId).Select(x => new Credentials
-                //    {
-                //        Alias = x.Alias
-
-
-                //    }).FirstOrDefault();
-                //    results.DatabaseSettingsCredentialsId = ibmCredentialname.Alias;
-                //}
-                Response = Common.CreateResponse(new { results = results, platform = platform, credentialsData = credentialsData });
+                if (results != null)
+                {
+                    results.DeviceId = cell.DeviceId;
+                    results.CellId = cell.CellId;
+                    results.CellName = cell.CellName;
+                    results.Name = cell.Name;
+                    results.HostName = cell.HostName;
+                    results.PortNo = cell.PortNo;
+                    results.ConnectionType = cell.ConnectionType;
+                    results.GlobalSecurity = cell.GlobalSecurity;
+                    results.CredentialsId = cell.CredentialsId;
+                    results.Realm = cell.Realm;
+                    results.NodesData = cell.NodesData;
+                }
+                var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == results.DeviceType).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);                          
+                Response = Common.CreateResponse(new { results = results, platform = platform, credentialsData = credentialsData, wsCredentialsData = wsCredentialsData });
             }
             catch (Exception exception)
             {
@@ -4213,6 +4271,7 @@ namespace VitalSigns.API.Controllers
                 var hoursname = "";
                 foreach (var notificationDest in notificationDestinations)
                 {
+                    var is_sel = false;
                     if (notificationDest.Interval != null)
                     {
                         result_escalateto.Add(new HourDefinition
@@ -4245,6 +4304,7 @@ namespace VitalSigns.API.Controllers
                         });
                     }
                     hour_ids.Add(notificationDest.Id.ToString());
+                    is_selected_hour.Add(is_sel);
                 }
 
                 var notifications = notificationsRepository.Collection.AsQueryable().ToList();
@@ -4260,20 +4320,26 @@ namespace VitalSigns.API.Controllers
                         DeviceType = eventItem.DeviceType,
                         NotificationOnRepeat = eventItem.NotificationOnRepeat
                     });
+                    var is_sel = false;
+                    is_selected_event.Add(is_sel);
+                    event_ids.Add(eventItem.Id);
                 }
 
                 var serversList = serversRepository.Find(_ => true).OrderBy(x => x.DeviceName).ToList();
                 foreach (var serverItem in serversList)
                 {
-                    result_servers.Add(new ServerDefinition
-                    {
-                        Id = serverItem.Id,
-                        IsSelectedServer = false,
-                        DeviceName = serverItem.DeviceName,
-                        DeviceType = serverItem.DeviceType,
-                        Location = serverItem.LocationId,
-                        Description = serverItem.Description
-                    });
+                    //result_servers.Add(new ServerDefinition
+                    //{
+                    //    Id = serverItem.Id,
+                    //    IsSelectedServer = false,
+                    //    DeviceName = serverItem.DeviceName,
+                    //    DeviceType = serverItem.DeviceType,
+                    //    Location = serverItem.LocationId,
+                    //    Description = serverItem.Description
+                    //});
+                    var is_sel = false;
+                    is_selected_server.Add(is_sel);
+                    server_ids.Add(serverItem.Id);
                 }
 
                 foreach (var notification in notifications)
@@ -4381,6 +4447,23 @@ namespace VitalSigns.API.Controllers
                     //    }
                     //}
                 }
+
+                result_servers.Add(new NotificationsModel
+                {
+                    ID = "dummyid",
+                    NotificationName = "dummyname",
+                    SendVia = String.Join(", ", send_via.ToArray()),
+                    SendTo = String.Join(", ", send_to.ToArray()),
+                    SendViaList = send_via,
+                    SendToList = send_to,
+                    BusinessHoursIds = hour_ids,
+                    IsSelectedHour = is_selected_hour,
+                    EventIds = event_ids,
+                    IsSelectedEvent = is_selected_event,
+                    ServerIds = server_ids,
+                    IsSelectedServer = is_selected_server
+                });
+
                 result.Add(result_disp);
                 result.Add(result_sendto);
                 result.Add(result_escalateto);
