@@ -89,21 +89,25 @@ export class Escalation extends GridBase implements OnInit  {
 
     saveEscalation(dlg: wijmo.input.Popup) {
         var saveUrl = '/configurator/save_escalation';
-        if (this.formObject.send_via == "E-mail") {
-            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
-            this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
-            this.flex.collectionView.currentItem.interval = this.formObject.interval;
-        }
-        else if (this.formObject.send_via == "SMS") {
-            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
-            this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
-            this.flex.collectionView.currentItem.interval = this.formObject.interval;
-        }
-        else if (this.formObject.send_via == "Script") {
-            this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
-            this.flex.collectionView.currentItem.script_name = this.formObject.script_name;
-            this.flex.collectionView.currentItem.interval = this.formObject.interval;
-            //add script name and location
+        if (this.flex.collectionView) {
+            if (this.flex.collectionView.items.length > 0) {
+                if (this.formObject.send_via == "E-mail") {
+                    this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+                    this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
+                    this.flex.collectionView.currentItem.interval = this.formObject.interval;
+                }
+                else if (this.formObject.send_via == "SMS") {
+                    this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+                    this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
+                    this.flex.collectionView.currentItem.interval = this.formObject.interval;
+                }
+                else if (this.formObject.send_via == "Script") {
+                    this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+                    this.flex.collectionView.currentItem.script_name = this.formObject.script_name;
+                    this.flex.collectionView.currentItem.interval = this.formObject.interval;
+                    //add script name and location
+                }
+            }
         }
         if (this.formObject.id == "") {
             this.service.put(saveUrl, this.formObject)
@@ -169,7 +173,12 @@ export class Escalation extends GridBase implements OnInit  {
 
     deleteEscalate() {
         let deleteUrl = '/configurator/delete_hours_destinations/';
-        this.key = this.flex.collectionView.currentItem.id;
+        if (this.flex.collectionView.currentItem.id == null) {
+            this.key = this.flex.collectionView.currentItem.escalation_id;
+        }
+        else {
+            this.key = this.flex.collectionView.currentItem.id;
+        }
         if (confirm("Are you sure want to delete this record?")) {
             this.service.delete(deleteUrl + this.key)
                 .subscribe(

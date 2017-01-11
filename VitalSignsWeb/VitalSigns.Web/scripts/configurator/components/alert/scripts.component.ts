@@ -83,9 +83,14 @@ export class Scripts extends GridBase implements OnInit {
 
     saveScripts(dlg: wijmo.input.Popup) {
         var saveUrl = '/configurator/save_script';
-        this.flex.collectionView.currentItem.script_name = this.formObject.script_name;
-        this.flex.collectionView.currentItem.script_command = this.formObject.script_command;
-        this.flex.collectionView.currentItem.script_location = this.formObject.script_location;
+        if (this.flex.collectionView) {
+            if (this.flex.collectionView.items.length > 0) {
+                this.flex.collectionView.currentItem.script_name = this.formObject.script_name;
+                this.flex.collectionView.currentItem.script_command = this.formObject.script_command;
+                this.flex.collectionView.currentItem.script_location = this.formObject.script_location;
+            }
+
+        }
         if (this.formObject.id == "") {
             this.service.put(saveUrl, this.formObject)
                 .subscribe(

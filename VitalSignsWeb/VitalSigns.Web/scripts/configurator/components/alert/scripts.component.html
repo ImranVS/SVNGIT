@@ -1,15 +1,15 @@
 ﻿<div class="widgetWrapper">
     <div class="widgetContent">
-        <div class="grid-sort-group">
+        <div class="grid-sort-group" *ngIf="data">
 
             <!-- edit details in a popup -->
-            <button class="btn btn-success" (click)="showEditForm(frmDialog)">
+            <button class="btn btn-success" (click)="showEditForm(frmDialog)" [disabled]="data.itemCount==0">
                 Edit
             </button>
             <button class="btn btn-success" (click)="showAddForm(frmDialog)">
                 Add
             </button>
-            <button class="btn btn-success" (click)="deleteScript()">
+            <button class="btn btn-success" (click)="deleteScript()" [disabled]="data.itemCount==0">
                 Delete
             </button>
         </div>
