@@ -184,7 +184,7 @@ namespace VitalSigns.API.Controllers
             }
             else
             {
-                FilterDefinition<MobileDevices> filterDef = mobileDevicesRepository.Filter.Exists(x => x.ThresholdSyncTime, true);
+                FilterDefinition<MobileDevices> filterDef = mobileDevicesRepository.Filter.Ne(x => x.ThresholdSyncTime, null);
                 result = mobileDevicesRepository.Find(filterDef)
                                  .Select(x => new MobileUserDevice
                                  {
