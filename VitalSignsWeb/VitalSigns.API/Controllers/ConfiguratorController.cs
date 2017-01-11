@@ -54,6 +54,7 @@ namespace VitalSigns.API.Controllers
 
         private IRepository<Status> statusRepository;
         private IRepository<Nodes> nodesRepository;
+        private IRepository<License> LicenseRepository;
 
         private IRepository<ServerOther> serverOtherRepository;
         private IRepository<EventsMaster> eventsMasterRepository;
@@ -3709,65 +3710,43 @@ namespace VitalSigns.API.Controllers
                     serverOtherRepository = new Repository<ServerOther>(ConnectionString);
 
                     string settingValue = Convert.ToString(devicesettings.Value);
-
-                    var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
-                    var logfiles = ((Newtonsoft.Json.Linq.JArray)devicesettings.Setting).ToObject<List<Models.Configurator.LogFile>>();
-                    //  var server = serverOtherRepository.Get(id);
-                    Expression<Func<ServerOther, bool>> filterExpression;
-                    if (id == ("-1"))
+                    if(string.IsNullOrEmpty(settingValue))
                     {
-                        filterExpression = (p => p.Name == settingValue);
+                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please enter domino event defination");
 
                     }
                     else
                     {
-                        filterExpression = (p => p.Name == settingValue && p.Id != id);
-
-                    }
-                    var existsData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
-                    // var existEventlog = serverOtherRepository.Collection.AsQueryable().Where(x => x.Name == settingValue).FirstOrDefault();
-                    if (existsData != settingValue)
-                    {
-
-                        UpdateDefinition<ServerOther> updateDefinition = null;
-                        List<LogFileKeyword> logscannings = new List<LogFileKeyword>();
+                        var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
+                        var logfiles = ((Newtonsoft.Json.Linq.JArray)devicesettings.Setting).ToObject<List<Models.Configurator.LogFile>>();
+                        //  var server = serverOtherRepository.Get(id);
+                        Expression<Func<ServerOther, bool>> filterExpression;
                         if (id == ("-1"))
                         {
-                            foreach (var logfile in logfiles)
-                            {
-                                if (logfile.Id != "-1")
-                                {
-                                    logscannings.Add(new LogFileKeyword
-                                    {
-                                        EventId = ObjectId.GenerateNewId().ToString(),
-                                        Keyword = logfile.Keyword,
-                                        Exclude = logfile.Exclude,
-                                        OneAlertPerDay = logfile.OneAlertPerDay,
-                                        ScanLog = logfile.ScanLog,
-                                        ScanAgentLog = logfile.ScanAgentLog
-                                    });
-                                }
-                            }
+                            filterExpression = (p => p.Name == settingValue);
 
-
-
-                            ServerOther logscanserver = new ServerOther { Name = settingValue, Type = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
-                            string newid = serverOtherRepository.Insert(logscanserver);
-                            Response = Common.CreateResponse(newid, Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition  inserted successfully");
                         }
-                        if (id != ("-1"))
+                        else
                         {
-                            if (devicesList.Count() > 0)
+                            filterExpression = (p => p.Name == settingValue && p.Id != id);
+
+                        }
+                        var existsData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+                        // var existEventlog = serverOtherRepository.Collection.AsQueryable().Where(x => x.Name == settingValue).FirstOrDefault();
+                        if (existsData != settingValue)
+                        {
+
+                            UpdateDefinition<ServerOther> updateDefinition = null;
+                            List<LogFileKeyword> logscannings = new List<LogFileKeyword>();
+                            if (id == ("-1"))
                             {
-                                if (!string.IsNullOrEmpty(settingValue))
+                                foreach (var logfile in logfiles)
                                 {
-
-                                    foreach (var logfile in logfiles)
+                                    if (logfile.Id != "-1")
                                     {
-
                                         logscannings.Add(new LogFileKeyword
                                         {
-                                            // EventId = ObjectId.GenerateNewId().ToString(),
+                                            EventId = ObjectId.GenerateNewId().ToString(),
                                             Keyword = logfile.Keyword,
                                             Exclude = logfile.Exclude,
                                             OneAlertPerDay = logfile.OneAlertPerDay,
@@ -3775,31 +3754,61 @@ namespace VitalSigns.API.Controllers
                                             ScanAgentLog = logfile.ScanAgentLog
                                         });
                                     }
-                                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
-                                    var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
-                                                                             .Set(p => p.LogFileServers, devicesList)
-                                                                             .Set(p => p.LogFileKeywords, logscannings)
-                                                                              .Set(p => p.Type, "Domino Log Scanning");
-
-                                    var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
-                                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Domino Event Log Scanning updated successfully");
-
                                 }
 
+
+
+                                ServerOther logscanserver = new ServerOther { Name = settingValue, Type = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
+                                string newid = serverOtherRepository.Insert(logscanserver);
+                                Response = Common.CreateResponse(newid, Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition  inserted successfully");
                             }
+                            if (id != ("-1"))
+                            {
+                                if (devicesList.Count() > 0)
+                                {
+                                    if (!string.IsNullOrEmpty(settingValue))
+                                    {
+
+                                        foreach (var logfile in logfiles)
+                                        {
+
+                                            logscannings.Add(new LogFileKeyword
+                                            {
+                                                // EventId = ObjectId.GenerateNewId().ToString(),
+                                                Keyword = logfile.Keyword,
+                                                Exclude = logfile.Exclude,
+                                                OneAlertPerDay = logfile.OneAlertPerDay,
+                                                ScanLog = logfile.ScanLog,
+                                                ScanAgentLog = logfile.ScanAgentLog
+                                            });
+                                        }
+                                        FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
+                                        var updateDefination = serverOtherRepository.Updater.Set(p => p.Name, settingValue)
+                                                                                 .Set(p => p.LogFileServers, devicesList)
+                                                                                 .Set(p => p.LogFileKeywords, logscannings)
+                                                                                  .Set(p => p.Type, "Domino Log Scanning");
+
+                                        var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
+                                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Domino Event Log Scanning updated successfully");
+
+                                    }
+
+                                }
+                            }
+
+
+                        }
+                        else if (existsData == settingValue)
+                        {
+                            Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This event definition " + "" + existsData + " " + "already exists. Please enter a different one.");
                         }
 
+                        if (logfiles.Count == 0)
+                        {
+                            Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please create at least one Domino event log entry.");
+                        }
+                    }
 
-                    }
-                    else if (existsData == settingValue)
-                    {
-                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This event definition " + "" + existsData + " " + "already exists. Please enter a different one.");
-                    }
-
-                    if (logfiles.Count == 0)
-                    {
-                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please create at least one Domino event log entry.");
-                    }
                 }
             }
 
