@@ -49,7 +49,7 @@ export class Scripts extends GridBase implements OnInit {
         this.service.get('/configurator/get_scripts')
             .subscribe(
             (response) => {
-                this.data = response.data;
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
             },
             (error) => this.errorMessage = <any>error
             );

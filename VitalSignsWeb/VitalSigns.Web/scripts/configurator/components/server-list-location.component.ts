@@ -36,6 +36,11 @@ export class ServersLocation implements OnInit {
                 this.devices = [];
                 this.refreshCheckedDevices();
             }
+            else {
+                this._deviceList = [];
+                this.devices = [];
+                this.refreshCheckedDevices();
+            }
         }
     }
     constructor(private service: RESTService, private serversLocationsService: ServersLocationService) {
