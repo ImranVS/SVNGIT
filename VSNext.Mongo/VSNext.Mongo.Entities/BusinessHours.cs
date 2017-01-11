@@ -20,10 +20,10 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string Name { get; set; }
 
-        [DataMember]
-        [BsonElement("b_id")]
-        [BsonIgnoreIfNullAttribute]
-        public int BId { get; set; }
+        //[DataMember]
+        //[BsonElement("b_id")]
+        //[BsonIgnoreIfNullAttribute]
+        //public int? BId { get; set; }
 
         [DataMember]
         [BsonElement("start_time")]
@@ -40,9 +40,9 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string[] Days { get; set; }
 
-        [DataMember]
-        [BsonElement("device_id")]
-        public string DeviceId { get; set; }
+        //[DataMember]
+        //[BsonElement("device_id")]
+        //public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("use_type")]
