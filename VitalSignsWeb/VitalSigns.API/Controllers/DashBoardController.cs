@@ -2023,8 +2023,7 @@ namespace VitalSigns.API.Controllers
                 if (statdate == DateTime.MinValue || statdate.Date == DateTime.Now.Date)
                 {
                     statdate = DateTime.Now;
-                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Sametime" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Date == statdate.Date).ToList();
-
+                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Sametime" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year).ToList();
                     summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
                                          .Select(x => new SummaryDataModel
                                          {
@@ -2037,7 +2036,6 @@ namespace VitalSigns.API.Controllers
                 else
                 {
                     var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Sametime" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year).ToList();
-
                     summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
                                          .Select(x => new SummaryDataModel
                                          {
