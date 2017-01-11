@@ -64,19 +64,20 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                             }
                         },
                         plotOptions: {
-                            bar: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
                                 dataLabels: {
                                     enabled: false
                                 },
-                                groupPadding: 0.1,
-                                borderWidth: 0
-                            },
-                            series: {
-                                pointPadding: 0
+                                showInLegend: true,
+                                innerSize: '70%'
                             }
                         },
                         legend: {
-                            enabled: false
+                            labelFormatter: function () {
+                                return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                            }
                         },
                         credits: {
                             enabled: false
@@ -116,19 +117,20 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                             }
                         },
                         plotOptions: {
-                            bar: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
                                 dataLabels: {
                                     enabled: false
                                 },
-                                groupPadding: 0.1,
-                                borderWidth: 0
-                            },
-                            series: {
-                                pointPadding: 0
+                                showInLegend: true,
+                                innerSize: '70%'
                             }
                         },
                         legend: {
-                            enabled: false
+                            labelFormatter: function () {
+                                return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                            }
                         },
                         credits: {
                             enabled: false
@@ -168,19 +170,20 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                             }
                         },
                         plotOptions: {
-                            bar: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
                                 dataLabels: {
                                     enabled: false
                                 },
-                                groupPadding: 0.1,
-                                borderWidth: 0
-                            },
-                            series: {
-                                pointPadding: 0
+                                showInLegend: true,
+                                innerSize: '70%'
                             }
                         },
                         legend: {
-                            enabled: false
+                            labelFormatter: function () {
+                                return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                            }
                         },
                         credits: {
                             enabled: false

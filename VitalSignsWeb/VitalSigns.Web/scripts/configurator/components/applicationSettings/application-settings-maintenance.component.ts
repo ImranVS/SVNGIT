@@ -359,9 +359,6 @@ export class Maintenance extends GridBase implements OnInit  {
                             //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();    
                             dlg.hide();
                             this.appComponentService.showSuccessMessage(response.message);
-                            this.devices = [];
-                            this._deviceList = this.devices;
-                            this.checkedDevices = this._deviceList;
                         }
                         else {
                             this.appComponentService.showErrorMessage(response.message);
@@ -379,9 +376,6 @@ export class Maintenance extends GridBase implements OnInit  {
                             //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();    
                             dlg.hide();
                             this.appComponentService.showSuccessMessage(response.message);
-                            this.devices = [];
-                            this._deviceList = this.devices;
-                            this.checkedDevices = this._deviceList;
                         }
                         else {
                             this.appComponentService.showErrorMessage(response.message);
