@@ -22,7 +22,7 @@ export class SametimeStatistics implements OnInit {
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-    filterDate: Date;
+    filterDate: string;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     constructor(private service: RESTService, private route: ActivatedRoute) { }
 
@@ -44,9 +44,12 @@ export class SametimeStatistics implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
+        var today = new Date();
+        this.filterDate = today.toISOString().substr(0, 10);
     }
     filterStats() {
-        this.service.get('/DashBoard/get_sametime_statistics?statdate=' + this.filterDate)
+        var dt = new Date(this.filterDate);
+        this.service.get('/DashBoard/get_sametime_statistics?statdate=' + dt.toISOString().substr(0, 10))
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
