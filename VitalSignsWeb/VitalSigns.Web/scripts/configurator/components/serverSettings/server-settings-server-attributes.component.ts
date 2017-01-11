@@ -86,7 +86,7 @@ export class DeviceAttributes implements OnInit {
     }
 
     onDeviceTypeIndexChanged(event: wijmo.EventArgs) {
-        this.currentDeviceType = this.combo.selectedItem.Text;
+        this.currentDeviceType = this.combo.text;
         this.type.emit(this.currentDeviceType);
         this.selectedDeviceType = this.selectedDeviceType;
       
