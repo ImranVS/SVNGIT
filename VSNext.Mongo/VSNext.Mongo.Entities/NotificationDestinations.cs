@@ -21,10 +21,10 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string BusinessHoursId { get; set; }
 
-        [DataMember]
-        [BsonElement("b_id")]
-        [BsonIgnoreIfNullAttribute]
-        public int BId { get; set; }
+        //[DataMember]
+        //[BsonElement("b_id")]
+        //[BsonIgnoreIfNullAttribute]
+        //public int BId { get; set; }
 
         [DataMember]
         [BsonElement("send_via")]
