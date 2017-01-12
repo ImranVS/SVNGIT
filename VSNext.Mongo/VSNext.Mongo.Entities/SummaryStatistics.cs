@@ -37,6 +37,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string DeviceType { get; set; }
 
+        [DataMember]
+        [BsonElement("aggregation_type")]
+        [BsonIgnoreIfNull]
+        public string AggregationType { get; set; }
+
 
     }
 }
