@@ -108,38 +108,42 @@ namespace VitalSignsWebSphereDLL
 			return ExecuteCommand(pathToBatch + "" + arguments, AppClientFolder, ServicePath, 60);
 		}
 
-		public Cells getServerList(CellProperties cellProperties)
+		public Cells getServerList(CellProperties cellProperties, string AppClientPath = "", string ServicePath = "")
 		{
 
 			try
 			{
 
 				VSFramework.RegistryHandler registry = new VSFramework.RegistryHandler();
-				string AppClientPath = "";
-				string ServicePath = "";
+                //string AppClientPath = "";
+                //string ServicePath = "";
 
-				try
-				{
-					AppClientPath = registry.ReadFromRegistry("WebSphereAppClientPath").ToString();
-				}
-				catch
-				{
-					AppClientPath = "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\";
-				}
-
+                if (AppClientPath == "")
+                {
+                    try
+                    {
+                        AppClientPath = registry.ReadFromRegistry("WebSphereAppClientPath").ToString();
+                    }
+                    catch
+                    {
+                        AppClientPath = "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\";
+                    }
+                }
 				if (!AppClientPath.EndsWith("\\"))
 					AppClientPath += "\\";
 
-				//WS switched to use registry value in case of different paths on HA installs
-				try
-				{
-					ServicePath = registry.ReadFromVitalSignsComputerRegistry("InstallPath").ToString();
-				}
-				catch (Exception ex)
-				{
-					//ServicePath = "C:\\Program Files (x86)\\VitalSignsPlus\\";
-				}
-
+                //WS switched to use registry value in case of different paths on HA installs
+                if (ServicePath == "")
+                {
+                    try
+                    {
+                        ServicePath = registry.ReadFromVitalSignsComputerRegistry("InstallPath").ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        //ServicePath = "C:\\Program Files (x86)\\VitalSignsPlus\\";
+                    }
+                }
 				if (ServicePath == "")
 				{
 					try
