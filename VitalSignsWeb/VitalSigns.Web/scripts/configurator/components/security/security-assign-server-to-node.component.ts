@@ -10,7 +10,7 @@ import {AppComponentService} from '../../../core/services';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { ServersLocationService } from '../serverSettings/serverattributes-view.service';
 import { ServersLocation } from '../server-list-location.component';
-
+import * as helpers from '../../../core/services/helpers/helpers';
 
 
 @Component({
@@ -19,7 +19,8 @@ import { ServersLocation } from '../server-list-location.component';
         HttpModule,
         RESTService,
         ServersLocationService,
-        ServersLocation
+        ServersLocation,
+        helpers.DateTimeHelper
     ]
 })
 export class Nodes extends GridBase {
@@ -40,7 +41,7 @@ export class Nodes extends GridBase {
     locations: string;
     
 
-    constructor(service: RESTService, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
+    constructor(service: RESTService, private formBuilder: FormBuilder, appComponentService: AppComponentService, protected datetimeHelpers: helpers.DateTimeHelper) {
         super(service, appComponentService);
         this.formName = "Nodes";
 
@@ -55,7 +56,7 @@ export class Nodes extends GridBase {
         this.service.get('/configurator/get_nodes_health')
             .subscribe(
             (response) => {
-                this.nodeNames = response.data.result;
+                this.nodeNames = this.datetimeHelpers.toLocalDateTime(response.data.result);
                 this.nodes = response.data.nodesData; 
                 this.locations = response.data.locations;             
                 this.firstrowid = response.data.result[0].Id;

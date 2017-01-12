@@ -15,11 +15,7 @@
             </div>
         </template>
 </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="180">
-        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-            {{cell.item.last_updated | date: 'MM/dd/yyyy hh:mm:ss'}}
-        </template>
-    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="180"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
