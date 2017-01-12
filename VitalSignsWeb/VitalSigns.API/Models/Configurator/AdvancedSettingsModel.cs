@@ -88,5 +88,51 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("device_type")]
         public string DeviceType { get; set; }
+
+        //WebSphere settings
+
+        [JsonProperty("id")]
+        public string DeviceId { get; set; }
+
+        [JsonProperty("cell_id")]
+        public string CellId { get; set; }
+
+        [JsonProperty("cell_name")]
+        public string CellName { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+
+        [JsonProperty("host_name")]
+        public string HostName { get; set; }
+
+
+        [JsonProperty("connection_type")]
+        public string ConnectionType { get; set; }
+
+        [JsonProperty("port_no")]
+        public int? PortNo { get; set; }
+
+        [JsonProperty("global_security")]
+        public bool GlobalSecurity { get; set; }
+
+        [JsonProperty("credentials_id")]
+        public string CredentialsId { get; set; }
+
+        [JsonProperty("credentials_name")]
+        public string CredentialsName { get; set; }
+
+        [JsonProperty("realm")]
+        public string Realm { get; set; }
+
+        [JsonProperty("user_name")]
+        public string UserName { get; set; }
+
+        [JsonProperty("password")]
+        public string Password { get; set; }
+
+        [JsonProperty("nodes_data")]
+        public List<NodeInfo> NodesData { get; set; }
     }
 }

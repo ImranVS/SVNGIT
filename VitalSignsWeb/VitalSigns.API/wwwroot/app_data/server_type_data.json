@@ -513,26 +513,12 @@
             "component": "ServerAttribute",
             "path": "/app/configurator/components/server/server-device-attributes.component"
           },
-
-          {
-
-            "tab_id": 2,
-            "title": "WebSphere Settings",
-            "type": "Configurator",
-            "component": "WebSphereServerSettings",
-            "path": "/app/configurator/components/server/server-websphere-settings.component"
-
-
-          },
           {
             "tab_id": 3,
-
             "title": "Advanced Settings",
             "type": "Configurator",
             "component": "ServerAdvancedSettings",
             "path": "/app/configurator/components/server/server-advanced-settings.component"
-             
-
           },
           {
             "tab_id": 4,
@@ -548,7 +534,6 @@
             "component": "ServerEvents",
             "path": "/app/configurator/components/server/server-events.component"
           }
-
         ]
 
       },

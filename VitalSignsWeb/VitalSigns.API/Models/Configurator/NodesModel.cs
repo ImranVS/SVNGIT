@@ -61,6 +61,9 @@ namespace VitalSigns.API.Models.Configurator
 
         [JsonProperty("nodes_services")]
         public List<NodesServices> Nodeservices { get; set; }
+
+        [JsonProperty("version")]
+        public string Version { get; set; }
     }
 
     public class ServiceStatusModel

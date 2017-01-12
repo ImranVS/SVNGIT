@@ -91,7 +91,7 @@ namespace VitalSigns.API.Models
 
 
         [JsonProperty("is_selected")]
-        public string IsSelected { get; set; }
+        public bool IsSelected { get; set; }
 
 
     }
