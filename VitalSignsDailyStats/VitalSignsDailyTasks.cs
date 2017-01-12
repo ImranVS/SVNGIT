@@ -914,7 +914,8 @@ namespace VitalSignsDailyStats
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
-                                       DeviceType=x.key.DeviceType
+                                       DeviceType=x.key.DeviceType,
+                                       AggregationType = dailyTask.AggregationType.ToUpper()
                                    //StatDate= SearchDate
 
 
@@ -941,10 +942,11 @@ namespace VitalSignsDailyStats
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
-                                       DeviceType=x.key.DeviceType
+                                       DeviceType=x.key.DeviceType,
+                                       AggregationType = dailyTask.AggregationType.ToUpper()
 
-                                   //  StatDate = SearchDate
-                               }).ToList();
+                                       //  StatDate = SearchDate
+                                   }).ToList();
                                 if (sumResult.Count > 0)
                                 {
                                     foreach (var item in sumResult)
@@ -964,9 +966,10 @@ namespace VitalSignsDailyStats
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
-                                       DeviceType=x.key.DeviceType
-                                     
-                               }).ToList();
+                                       DeviceType=x.key.DeviceType,
+                                       AggregationType = dailyTask.AggregationType.ToUpper()
+
+                                   }).ToList();
                                 if (maxResult.Count > 0)
                                 {
                                     foreach (var item in maxResult)
