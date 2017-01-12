@@ -14,6 +14,7 @@ export class ServerAdvancedSettings implements OnInit {
     errorMessage: string;
     deviceId: any;
     deviceCredentialData: any;
+    wsDeviceCredentialData: any;
     ConnectionsCredentialData: any;
     selectedTpe: string;
     deviceType: any;
@@ -25,8 +26,14 @@ export class ServerAdvancedSettings implements OnInit {
     Types: string;
     websphereplatform: string;
     platform: string;
- appComponentService: AppComponentService;
-    db2CredentialsId : any;
+    appComponentService: AppComponentService;
+    db2CredentialsId: any;
+    credentials_id: any;
+    webSphereServerNodeData: any;
+    websphereSettingsForm: FormGroup;
+    nodes: FormGroup;
+    limitsChecked: boolean;
+    websphereData: any;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -59,8 +66,21 @@ export class ServerAdvancedSettings implements OnInit {
             'device_type': [''],
             'cluster_replication_queue_threshold': [''],
             'db2_settings_credentials_id': [''],
-            'collect_conference_statistics': ['']
-
+            'collect_conference_statistics': [''],
+            'id': [''],
+            'cell_id': [''],
+            'cell_name': [''],
+            'name': [''],
+            'host_name': [''],
+            'connection_type': [''],
+            'port_no': [''],
+            'global_security': [''],
+            'credentials_id': [''],
+            'credentials_name': [''],
+            'realm': [''],
+            'user_name': [''],
+            'password': [''],
+            'nodes_data': ['']
         });
 
         this.addCredentialForm = this.formBuilder.group({
@@ -73,6 +93,11 @@ export class ServerAdvancedSettings implements OnInit {
             'is_modified': ['']
 
         });
+     
+        this.nodes = this.formBuilder.group({
+            'selected_servers': [''],
+        });
+
         this.appComponentService = appComponentService;
     }
 
@@ -86,12 +111,24 @@ export class ServerAdvancedSettings implements OnInit {
             (response) => {
                
                 this.advancedSettingsForm.setValue(response.data.results);
+                this.advancedSettingsForm.valueChanges.subscribe(websphereobject => {
+                    this.limitsChecked = websphereobject['global_security'];
+                });
+                if (response.data.results != null) {
+                    this.webSphereServerNodeData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.results.nodes_data));
+                    this.webSphereServerNodeData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("node_name"));
+                    this.webSphereServerNodeData.pageSize = 10;
+                }
+                this.deviceCredentialData = response.data.credentialsData;
+                this.wsDeviceCredentialData = response.data.wsCredentialsData;
+                this.websphereData = response.data.websphereData;
                 this.db2CredentialsId = response.data.results.db2_settings_credentials_id;
+                this.credentials_id = response.data.results.credentials_id;
+                this.limitsChecked = response.data.results.global_security;
                 this.deviceType = response.data.results.device_type;
                 this.deviceCredentialData = response.data.credentialsData;
                 this.ConnectionsCredentialData = response.data.credentialsData;
                 this.route.queryParams.subscribe(params => {
-
                     this.websphereplatform = params['platform'];
                     if (this.websphereplatform == "undefined" || this.websphereplatform == null)
                     {
@@ -182,6 +219,25 @@ export class ServerAdvancedSettings implements OnInit {
             );
     
         dialog.hide();
+    }
+
+    isLimitsChecked(ischecked: boolean) {
+        this.limitsChecked = ischecked;
+    }
+
+    onClickRefresh() {
+        this.dataProvider.put('/Configurator/get_sametime_websphere_nodes/' + this.deviceId, this.advancedSettingsForm)
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
     }
 }
 
