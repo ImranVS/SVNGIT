@@ -1323,6 +1323,11 @@ namespace VSNext.Mongo.Entities
                 property.SetValue(this, null);
             }
         }
+        //added for disk data migration in server
+        [DataMember]
+        [BsonElement("name")]
+        [BsonIgnoreIfNull]
+        public string Name { get; set; }
 
         [DataMember]
         [BsonElement("disk_name")]
