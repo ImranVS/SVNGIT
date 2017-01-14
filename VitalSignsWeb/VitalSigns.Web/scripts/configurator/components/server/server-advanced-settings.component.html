@@ -147,7 +147,7 @@
                     </div>
 
                     <div class="col-sm-12">
-                        <button type="button" class="btn btn-primary" (click)="onClickRefresh()">Refresh</button>
+                        <button type="button" class="btn btn-primary" (click)="onClickRefresh(advancedSettingsForm.value)">Refresh</button>
                     </div>
                     <div class="col-sm-12">&nbsp;</div>
                     <wj-flex-grid #flex1 [itemsSource]="webSphereServerNodeData" selectionMode="Row" headersVisibility="Column">

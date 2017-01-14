@@ -225,16 +225,18 @@ export class ServerAdvancedSettings implements OnInit {
         this.limitsChecked = ischecked;
     }
 
-    onClickRefresh() {
-        this.dataProvider.put('/Configurator/get_sametime_websphere_nodes/' + this.deviceId, this.advancedSettingsForm)
+    onClickRefresh(advancedSettings: any) {
+        this.dataProvider.put('/Configurator/get_sametime_websphere_nodes/' + this.deviceId, advancedSettings)
             .subscribe(
             response => {
                 if (response.status == "Success") {
-
-                    this.appComponentService.showSuccessMessage(response.message);
-
-                } else {
-
+                    if (response.data.results != null) {
+                        this.webSphereServerNodeData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.results.nodes_data));
+                        this.webSphereServerNodeData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("node_name"));
+                        this.webSphereServerNodeData.pageSize = 10;
+                    }
+                }
+                else {
                     this.appComponentService.showErrorMessage(response.message);
                 }
             });
