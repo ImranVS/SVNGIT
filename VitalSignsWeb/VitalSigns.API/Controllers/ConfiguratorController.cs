@@ -17,6 +17,7 @@ using System.Net.Mail;
 using Ionic.Zip;
 using Microsoft.AspNet.Authorization;
 using System.Web.Security;
+using VitalSignsWebSphereDLL;
 
 namespace VitalSigns.API.Controllers
 {
@@ -2092,122 +2093,135 @@ namespace VitalSigns.API.Controllers
         [HttpPut("get_sametime_websphere_nodes/{id}")]
         public APIResponse LoadSametimeWebSphereNodes(string id, [FromBody]CellInfo cellInfo)
         {
+            FilterDefinition<NameValue> filterdef;
+            string AppClientPath = "";
+            string ServicePath = "";
+            byte[] password;
+            string decryptedPassword = string.Empty;
+            string errorMessage = string.Empty;
 
             try
-            {
-                BusinessHours bh = new BusinessHours();
-                byte[] password;
-                string decryptedPassword = string.Empty;
-                string errorMessage = string.Empty;
-
+            {                
                 serversRepository = new Repository<Server>(ConnectionString);
                 //Get user name and password from credentials
-
                 try
                 {
                     credentialsRepository = new Repository<Credentials>(ConnectionString);
-
                     var credential = credentialsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == cellInfo.CredentialsId);
-                    if (credential != null)
+                    if (!string.IsNullOrEmpty(credential.Password))
                     {
-                        if (!string.IsNullOrEmpty(credential.Password))
+                        var passwordArray = credential.Password.Split(',');
+                        password = new byte[passwordArray.Length];
+                        for (int i = 0; i < passwordArray.Length; i++)
                         {
-                            var passwordArray = credential.Password.Split(',');
-                            password = new byte[passwordArray.Length];
-                            for (int i = 0; i < passwordArray.Length; i++)
-                            {
-                                password[i] = Byte.Parse(passwordArray[i]);
-                            }
-                            VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
-                            cellInfo.Password = mySecrets.Decrypt(password);
-                            cellInfo.UserName = credential.UserId;
+                            password[i] = Byte.Parse(passwordArray[i]);
+                        }
+                        VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+                        cellInfo.Password = mySecrets.Decrypt(password);
+                        cellInfo.UserName = credential.UserId;
+                    }
+                    else
+                    {
+                        cellInfo.Password = "";
+                        cellInfo.UserName = "";
+                    }
 
-                            var cells = getServerList(cellInfo);
-                            foreach (var cell in cells.Cell)
-                            {
-                                List<WebSphereNode> nodes = new List<WebSphereNode>();
-                                Server server = serversRepository.Get(cellInfo.DeviceId);
-                                if (string.IsNullOrEmpty(cellInfo.DeviceId))
-                                {
-                                    Server sametimeserver = new Server();
-                                    sametimeserver.CellId = ObjectId.GenerateNewId().ToString();
-                                    sametimeserver.CellName = cellInfo.CellName;
-                                    sametimeserver.DeviceName = cellInfo.Name;
-                                    sametimeserver.CellHostName = cellInfo.HostName;
-                                    sametimeserver.ConnectionType = cellInfo.ConnectionType;
-                                    sametimeserver.PortNumber = cellInfo.PortNo;
-                                    sametimeserver.GlobalSecurity = cellInfo.GlobalSecurity;
-                                    sametimeserver.CredentialsId = cellInfo.CredentialsId;
-                                    sametimeserver.Realm = cellInfo.Realm;
-                                    sametimeserver.SametimeId = id;
+                    VitalSignsWebSphereDLL.VitalSignsWebSphereDLL dll = new VitalSignsWebSphereDLL.VitalSignsWebSphereDLL();
+                    VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.CellProperties cellprop = new VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.CellProperties();
+                    cellprop.HostName = cellInfo.HostName;
+                    cellprop.Port = Convert.ToInt32(cellInfo.PortNo == null ? 0 : cellInfo.PortNo);
+                    cellprop.ConnectionType = cellInfo.ConnectionType;
+                    cellprop.UserName = cellInfo.UserName;
+                    cellprop.Password = cellInfo.Password;
+                    cellprop.Realm = cellInfo.Realm;
 
-                                    sametimeserver.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();
-                                    var serverId = serversRepository.Insert(sametimeserver);
-
-                                    Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell inserted successfully");
-                                }
-                                else
-                                {
-
-                                    FilterDefinition<Server> sametimefilterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
-                                    var updateSametimeDefination = serversRepository.Updater.Set(p => p.CellId, cellInfo.CellId)
-                                                                             .Set(p => p.CellName, cellInfo.CellName)
-                                                                             .Set(p => p.DeviceName, cellInfo.Name)
-                                                                             .Set(p => p.CellHostName, cellInfo.HostName)
-                                                                             .Set(p => p.ConnectionType, cellInfo.ConnectionType)
-                                                                             .Set(p => p.PortNumber, cellInfo.PortNo)
-                                                                             .Set(p => p.GlobalSecurity, cellInfo.GlobalSecurity)
-                                                                             .Set(p => p.CredentialsId, cellInfo.CredentialsId)
-                                                                             .Set(p => p.Realm, cellInfo.Realm);
-                                    var result = serversRepository.Update(sametimefilterDefination, updateSametimeDefination);
-                                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell updated successfully");
-                                }
-                                foreach (var cellNode in cell.Nodes.Node)
-                                {
-
-
-
-                                    WebSphereNode node = new WebSphereNode();
-                                    node.NodeId = ObjectId.GenerateNewId().ToString();
-                                    node.NodeName = cellNode.Name;
-                                    node.HostName = cellNode.HostName;
-                                    node.WebSphereServers = new List<WebSphereServer>();
-                                    foreach (var nodeServer in cellNode.Servers.Server)
-                                    {
-                                        WebSphereServer webSphereServer = new WebSphereServer();
-                                        webSphereServer.ServerId = ObjectId.GenerateNewId().ToString();
-                                        webSphereServer.ServerName = nodeServer;
-                                        node.WebSphereServers.Add(webSphereServer);
-
-                                    }
-                                    nodes.Add(node);
-                                }
-                                var deviceId = serversRepository.Collection.AsQueryable().FirstOrDefault(x => x.SametimeId == id);
-                                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == deviceId.Id);
-                                var updateDefination = serversRepository.Updater.Set(p => p.CellName, cell.Name).Set(p => p.Nodes, nodes);
-                                var noderesult = serversRepository.Update(filterDefination, updateDefination);
-                            }
+                    nameValueRepository = new Repository<NameValue>(ConnectionString);
+                    filterdef = Builders<NameValue>.Filter.Where(p => p.Name == "WebSphereAppClientPath");
+                    var apppath = nameValueRepository.Find(filterdef).Select(x => x.Value).FirstOrDefault();
+                    if (apppath != null)
+                    {
+                        AppClientPath = apppath.ToString();
+                    }
+                    filterdef = Builders<NameValue>.Filter.Where(p => p.Name == "InstallLocation");
+                    var servicepath = nameValueRepository.Find(filterdef).Select(x => x.Value).FirstOrDefault();
+                    if (servicepath != null)
+                    {
+                        ServicePath = servicepath.ToString();
+                    }
+                    var cells = dll.getServerList(cellprop, AppClientPath, ServicePath);
+                    //Line below used for testing only
+                    //var cells = dll.getSrvList();
+                    foreach (var cell in cells.Cell)
+                    {
+                        List<WebSphereNode> nodes = new List<WebSphereNode>();
+                        Server server = serversRepository.Get(cellInfo.DeviceId);
+                        if (string.IsNullOrEmpty(cellInfo.DeviceId))
+                        {
+                            Server sametimeserver = new Server();
+                            sametimeserver.CellId = ObjectId.GenerateNewId().ToString();
+                            sametimeserver.CellName = cellInfo.CellName;
+                            sametimeserver.DeviceName = cellInfo.Name;
+                            sametimeserver.CellHostName = cellInfo.HostName;
+                            sametimeserver.ConnectionType = cellInfo.ConnectionType;
+                            sametimeserver.PortNumber = cellInfo.PortNo;
+                            sametimeserver.GlobalSecurity = cellInfo.GlobalSecurity;
+                            sametimeserver.CredentialsId = cellInfo.CredentialsId;
+                            sametimeserver.Realm = cellInfo.Realm;
+                            sametimeserver.SametimeId = id;
+                            sametimeserver.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();
+                            var serverId = serversRepository.Insert(sametimeserver);
+                            Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphere cell inserted successfully");
                         }
                         else
                         {
-                            errorMessage = "Notes password may not be empty. Please update the password under Stored Passwords & Options\\IBM Domino Settings.";
-                            throw new Exception(errorMessage);
+                            FilterDefinition<Server> sametimefilterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                            var updateSametimeDefination = serversRepository.Updater.Set(p => p.CellId, cellInfo.CellId)
+                                .Set(p => p.CellName, cellInfo.CellName)
+                                .Set(p => p.DeviceName, cellInfo.Name)
+                                .Set(p => p.CellHostName, cellInfo.HostName)
+                                .Set(p => p.ConnectionType, cellInfo.ConnectionType)
+                                .Set(p => p.PortNumber, cellInfo.PortNo)
+                                .Set(p => p.GlobalSecurity, cellInfo.GlobalSecurity)
+                                .Set(p => p.CredentialsId, cellInfo.CredentialsId)
+                                .Set(p => p.Realm, cellInfo.Realm);
+                            var result = serversRepository.Update(sametimefilterDefination, updateSametimeDefination);
+                            Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "WebSphere cell updated successfully");
                         }
+                        foreach (var cellNode in cell.Nodes.Node)
+                        {
+                            WebSphereNode node = new WebSphereNode();
+                            node.NodeId = ObjectId.GenerateNewId().ToString();
+                            node.NodeName = cellNode.Name;
+                            node.HostName = cellNode.HostName;
+                            node.WebSphereServers = new List<WebSphereServer>();
+                            foreach (var nodeServer in cellNode.Servers.Server)
+                            {
+                                WebSphereServer webSphereServer = new WebSphereServer();
+                                webSphereServer.ServerId = ObjectId.GenerateNewId().ToString();
+                                webSphereServer.ServerName = nodeServer;
+                                node.WebSphereServers.Add(webSphereServer);
 
+                            }
+                            nodes.Add(node);
+                        }
+                        var deviceId = serversRepository.Collection.AsQueryable().FirstOrDefault(x => x.SametimeId == id);
+                        FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == deviceId.Id);
+                        var updateDefination = serversRepository.Updater.Set(p => p.CellName, cell.Name).Set(p => p.Nodes, nodes);
+                        var noderesult = serversRepository.Update(filterDefination, updateDefination);
+                        //Call get_advanced_settings to get the current node info
+                        Response = GetAdvancedSettings(id);
+                        //Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "WebSphere cell updated successfully");
                     }
-
                 }
                 catch (Exception exception)
                 {
-                    Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
+                    Response = Common.CreateResponse(null, "Error", "Refreshing WebSphere information has failed.\n Error Message :" + exception.Message);
                 }
-
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Refreshing WebSphere information has failed.\n Error Message :" + exception.Message);
             }
-
             return Response;
         }
         /// <summary>
@@ -6963,13 +6977,14 @@ namespace VitalSigns.API.Controllers
                 travelerSummaryStatsRepository = new Repository<TravelerStatusSummary>(ConnectionString);
                 Expression<Func<TravelerStatusSummary, bool>> travelerStatusSummaryExpression = (p => p.DeviceId == Id);
                 travelerSummaryStatsRepository.Delete(travelerStatusSummaryExpression);
-                businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
-                Expression<Func<BusinessHours, bool>> businessHoursExpression = (p => p.DeviceId == Id);
-                businessHoursRepository.Delete(businessHoursExpression);
+                //1/13/2017 NS commented out - there is no reference to a server in the business_hours collection
+                //businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                //Expression<Func<BusinessHours, bool>> businessHoursExpression = (p => p.DeviceId == Id);
+                //businessHoursRepository.Delete(businessHoursExpression);
 
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> serverOtherExpression = (p => p.Id == Id);
-                businessHoursRepository.Delete(businessHoursExpression);
+                serverOtherRepository.Delete(serverOtherExpression);
 
                 serversRepository = new Repository<Server>(ConnectionString);
                 Expression<Func<Server, bool>> serverExpression = (p => p.Id == Id);
