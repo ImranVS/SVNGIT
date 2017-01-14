@@ -1861,7 +1861,8 @@ namespace VitalSigns.API.Controllers
                     LocationId = s.LocationId,
                     Devicetype = s.DeviceType,
                     CellId = s.CellId,
-                    NodeId = s.NodeId
+                    NodeId = s.NodeId,
+                    CredentialsId = s.CredentialsId
 
                     // CellName = serversRepository.Collection.Find(filter).AsQueryable().Select(x => x.NodeId).FirstOrDefault(),
                     //   NodeName = serversRepository.Collection.AsQueryable().Select(x => x.NodeIds).FirstOrDefault()
