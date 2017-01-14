@@ -151,8 +151,8 @@ export class ServicesView implements OnInit, AfterViewChecked {
 
                 this.deviceLocationData = response.data.locationsData;
                 this.deviceTypeData = response.data.serverTypeData;
-                console.log("csdcsdc");
-                console.log(response.data.serverTypeData);
+                //console.log("csdcsdc");
+                //console.log(response.data.serverTypeData);
                 this.devicebusinessHourData = response.data.businessHoursData;
             },
             (error) => this.errorMessage = <any>error
