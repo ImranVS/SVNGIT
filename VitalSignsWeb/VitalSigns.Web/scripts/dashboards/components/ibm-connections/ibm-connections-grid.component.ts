@@ -9,13 +9,15 @@ import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
+import * as helpers from '../../../core/services/helpers/helpers';
 
 @Component({
     selector: 'vs-connections-grid',
     templateUrl: './app/dashboards/components/ibm-connections/ibm-connections-grid.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.GridTooltip
     ]
 })
 export class IBMConnectionsGrid implements WidgetComponent, OnInit {
@@ -41,7 +43,7 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
     }
 
 
-    constructor(private service: RESTService, private widgetService: WidgetService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, protected toolTip: helpers.GridTooltip) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -68,7 +70,7 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-
+        this.toolTip.getTooltip(this.flex, 0, 2);
     }
 
     

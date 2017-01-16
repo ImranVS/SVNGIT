@@ -60,8 +60,21 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
                             enabled: false
                         }
                     },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true,
+                            innerSize: '70%'
+                        }
+                    },
                     legend: {
-                        enabled: false
+                        labelFormatter: function () {
+                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                        }
                     },
                     credits: {
                         enabled: false
@@ -99,8 +112,21 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
                             enabled: false
                         }
                     },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true,
+                            innerSize: '70%'
+                        }
+                    },
                     legend: {
-                        enabled: false
+                        labelFormatter: function () {
+                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                        }
                     },
                     credits: {
                         enabled: false
@@ -138,8 +164,21 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
                             enabled: false
                         }
                     },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true,
+                            innerSize: '70%'
+                        }
+                    },
                     legend: {
-                        enabled: false
+                        labelFormatter: function () {
+                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                        }
                     },
                     credits: {
                         enabled: false
@@ -177,8 +216,21 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
                             enabled: false
                         }
                     },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true,
+                            innerSize: '70%'
+                        }
+                    },
                     legend: {
-                        enabled: false
+                        labelFormatter: function () {
+                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                        }
                     },
                     credits: {
                         enabled: false

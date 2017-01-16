@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../core/widgets';
@@ -21,16 +21,19 @@ declare var injectSVG: any;
     providers: [
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper  
+        helpers.DateTimeHelper,
+        helpers.GridTooltip
     ]
 })
 export class ServiceMainHealthGrid implements OnInit {
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
 
-    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute, protected datetimeHelpers: helpers.DateTimeHelper) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute,
+        protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -56,7 +59,8 @@ export class ServiceMainHealthGrid implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-
+        // Create custom tooltip
+        this.toolTip.getTooltip(this.flex, 1, 3);
     }
 
     getAccessColor(access: string) {

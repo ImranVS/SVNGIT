@@ -39,7 +39,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -134,7 +134,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#ef3a24'],
+                        //colors: ['#ef3a24'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -157,10 +157,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                         exporting: {
                             enabled: false
                         },
-                        series: [{
-                            name: '% Usage',
-                            data: []
-                        }]
+                        series: []
                     }
                 }
             },
@@ -178,7 +175,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#848484'],
+                        //colors: ['#848484'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -201,10 +198,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                         exporting: {
                             enabled: false
                         },
-                        series: [{
-                            name: 'GB',
-                            data: []
-                        }]
+                        series: []
                     }
                 }
             }

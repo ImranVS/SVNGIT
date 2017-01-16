@@ -1,4 +1,4 @@
-﻿import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
+﻿import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
@@ -9,16 +9,19 @@ import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
+import * as helpers from '../../../core/services/helpers/helpers';
 
 @Component({
     selector: 'vs-sametime-grid',
     templateUrl: './app/dashboards/components/ibm-sametime/ibm-sametime-grid.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.GridTooltip
     ]
 })
 export class IBMSametimeGrid implements WidgetComponent, OnInit {
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
 
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
@@ -40,7 +43,7 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
 
     }
 
-    constructor(private service: RESTService, private widgetService: WidgetService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, protected toolTip: helpers.GridTooltip) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -53,8 +56,7 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
         }
     }
 
-    ngOnInit() {
-  
+    ngOnInit() { 
         this.service.get('/services/status_list?type=Sametime')
             .subscribe(
             (data) => {
@@ -65,7 +67,7 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-        
+        this.toolTip.getTooltip(this.flex, 0, 2);
     }
 
     onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {

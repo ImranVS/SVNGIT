@@ -1,5 +1,4 @@
-﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" headersVisibility ="Column" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="300"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Primary Status'" [binding]="'primary_status'" [width]="140"></wj-flex-grid-column>

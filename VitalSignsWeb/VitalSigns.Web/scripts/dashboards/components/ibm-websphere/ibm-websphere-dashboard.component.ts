@@ -50,12 +50,20 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
 
                     },
                     plotOptions: {
-                        series: {
-                            pointPadding: 0
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true,
+                            innerSize: '70%'
                         }
                     },
                     legend: {
-                        enabled: false
+                        labelFormatter: function () {
+                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                        }
                     },
                     credits: {
                         enabled: false

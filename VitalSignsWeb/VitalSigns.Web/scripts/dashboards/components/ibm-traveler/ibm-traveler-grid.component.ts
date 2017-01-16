@@ -8,12 +8,14 @@ import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
+import * as helpers from '../../../core/services/helpers/helpers';
 
 @Component({
     templateUrl: './app/dashboards/components/ibm-traveler/ibm-traveler-grid.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.GridTooltip
     ]
 })
 export class IBMTravelerGrid implements WidgetComponent, OnInit {
@@ -22,8 +24,8 @@ export class IBMTravelerGrid implements WidgetComponent, OnInit {
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-    
-    constructor(private service: RESTService) { }
+
+    constructor(private service: RESTService, protected toolTip: helpers.GridTooltip) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -37,7 +39,6 @@ export class IBMTravelerGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-
         this.service.get(`/dashboard/traveler-health`)
             .subscribe(
             (data) => {
@@ -46,8 +47,7 @@ export class IBMTravelerGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
         );
-        
-        //this.flex.autoSizeRow(0);
+        this.toolTip.getTooltip(this.flex, 0, 3);
     }
 
     onItemsSourceChanged() {
