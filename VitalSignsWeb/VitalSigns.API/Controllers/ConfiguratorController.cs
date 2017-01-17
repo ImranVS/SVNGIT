@@ -4214,21 +4214,26 @@ namespace VitalSigns.API.Controllers
             {
                 DateTime? nullDate = null;
                 eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
+                if (statdate == null)
+                {
+                    statdate = DateTime.MinValue;
+                }
                 if (statdate == DateTime.MinValue || statdate.Date == DateTime.Now.Date)
                 {
                     statdate = DateTime.Now;
-                    var resultList = eventsdetectedRepository.All().Where(x => x.EventDetected.HasValue && x.EventDetected.Value.Date == statdate.Date).ToList();
+                    var resultList = eventsdetectedRepository.All().Where(x => x.EventDetected.HasValue).ToList();
                     var result = resultList
                         .Select(s => new AlertsModel
                         {
-                            DeviceName = s.Device,
+                            DeviceName = (s.Device != "" && s.Device != null) ? s.Device : "System message",
                             DeviceType = s.DeviceType,
                             AlertType = s.EventType,
                             Details = s.Details,
+                            EventDetected = s.EventDetected != null ? s.EventDetected.Value : nullDate,
                             EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].EventDetectedSent.Value) : nullDate,
                             EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
                             NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
-                        }).OrderBy(x => x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
+                        }).OrderByDescending(x => x.EventDetected).ToList();
 
                     Response = Common.CreateResponse(result);
                 }
@@ -4238,14 +4243,15 @@ namespace VitalSigns.API.Controllers
                     var result = resultList
                         .Select(s => new AlertsModel
                         {
-                            DeviceName = s.Device,
+                            DeviceName = (s.Device != "" && s.Device != null) ? s.Device : "System message",
                             DeviceType = s.DeviceType,
                             AlertType = s.EventType,
                             Details = s.Details,
+                            EventDetected = s.EventDetected != null ? s.EventDetected.Value : nullDate,
                             EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].EventDetectedSent.Value) : nullDate,
                             EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
                             NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
-                        }).OrderBy(x => x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
+                        }).OrderByDescending(x => x.EventDetected).ToList();
 
                     Response = Common.CreateResponse(result);
                 }
@@ -4352,15 +4358,6 @@ namespace VitalSigns.API.Controllers
                 var serversList = serversRepository.Find(_ => true).OrderBy(x => x.DeviceName).ToList();
                 foreach (var serverItem in serversList)
                 {
-                    //result_servers.Add(new ServerDefinition
-                    //{
-                    //    Id = serverItem.Id,
-                    //    IsSelectedServer = false,
-                    //    DeviceName = serverItem.DeviceName,
-                    //    DeviceType = serverItem.DeviceType,
-                    //    Location = serverItem.LocationId,
-                    //    Description = serverItem.Description
-                    //});
                     var is_sel = false;
                     is_selected_server.Add(is_sel);
                     server_ids.Add(serverItem.Id);
@@ -4439,37 +4436,6 @@ namespace VitalSigns.API.Controllers
                         ServerIds = server_ids,
                         IsSelectedServer = is_selected_server
                     });
-
-                    //if (notificationDest.Interval == null)
-                    //{
-
-                    //}
-
-                    //foreach (var sendto in notification.SendList)
-                    //{
-                    //    foreach (var notificationDest in notificationDestinations)
-                    //    {
-                    //        if (sendto == notificationDest.Id)
-                    //        {
-                    //            if (notificationDest.Interval == null)
-                    //            {
-                    //                result_disp.Add(new NotificationsModel
-                    //                {
-                    //                    ID = notification.Id.ToString(),
-                    //                    NotificationName = notification.NotificationName,
-                    //                    SendVia = String.Join(", ", send_via.ToArray()),
-                    //                    SendTo = String.Join(", ", send_to.ToArray()),
-                    //                    BusinessHoursIds = hour_ids,
-                    //                    IsSelectedHour = is_selected_hour,
-                    //                    EventIds = event_ids,
-                    //                    IsSelectedEvent = is_selected_event,
-                    //                    ServerIds = server_ids,
-                    //                    IsSelectedServer = is_selected_server
-                    //                });
-                    //            }
-                    //        }
-                    //    }
-                    //}
                 }
 
                 result_servers.Add(new NotificationsModel
@@ -4520,6 +4486,27 @@ namespace VitalSigns.API.Controllers
             catch (Exception ex)
             {
                 Response = Common.CreateResponse(null, "Error", ex.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("notifications_selector")]
+        public APIResponse GetNotificationsForSelect()
+        {
+            try
+            {
+                notificationsRepository = new Repository<Notifications>(ConnectionString);
+                var result = notificationsRepository.All().Select(x => new NameValueModel
+                {
+                    Name = x.NotificationName,
+                    Id = x.Id
+                }).ToList();
+                result.Insert(0, new NameValueModel { Name = "All", Id = "" });
+                Response = Common.CreateResponse(new { notificationsList = result });
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
             }
             return Response;
         }
@@ -5185,6 +5172,115 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
 
+        }
+
+        [HttpGet("notifications_by_id")]
+        public APIResponse GetNotificationsById(string id = "")
+        {
+            List<string> events = new List<string>();
+            List<string> devicetypes = new List<string>();
+            List<string> servers = new List<string>();
+            EventFilter eventfilter = new EventFilter();
+            List<EventFilter> eventfilters = new List<EventFilter>();
+            List<Notifications> notifications = new List<Notifications>();
+            FilterDefinition<EventsMaster> filterEventsDef;
+            FilterDefinition<Server> filterServerDef;
+            FilterDefinition<EventsDetected> filterEventsDetectedDef;
+            DateTime? nullDate = null;
+
+            try
+            {
+                eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
+                eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
+                serversRepository = new Repository<Server>(ConnectionString);
+                notificationsRepository = new Repository<Notifications>(ConnectionString);
+                notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
+                if (!string.IsNullOrEmpty(id))
+                {
+                    notifications = notificationsRepository.Collection.AsQueryable().Where(i => i.Id == id).ToList();
+                    if (notifications.Count > 0)
+                    {
+                        //Get a list of all possible recipients
+                        foreach (var notification in notifications)
+                        {
+                            eventfilter = new EventFilter();
+                            //Get a list of all events that get specified notifications
+                            filterEventsDef = eventsMasterRepository.Filter.AnyEq(x => x.NotificationList, notification.Id);
+                            var eventsList = eventsMasterRepository.Find(filterEventsDef).ToList();
+                            if (eventsList.Count > 0)
+                            {
+                                foreach (var eventval in eventsList)
+                                {
+                                    events.Add(eventval.EventType);
+                                    devicetypes.Add(eventval.DeviceType);
+                                }
+                                eventfilter.EventTypes = events;
+                                eventfilter.DeviceTypes = devicetypes;
+                            }
+                            //Get a list of all devices that get specified notifications
+                            filterServerDef = serversRepository.Filter.AnyEq(x => x.NotificationList, notification.Id);
+                            var serversList = serversRepository.Find(filterServerDef).ToList();
+                            if (serversList.Count > 0)
+                            {
+                                foreach (var serverval in serversList)
+                                {
+                                    servers.Add(serverval.DeviceName);
+                                }
+                                eventfilter.DeviceNames = servers;
+                            }
+                            eventfilters.Add(eventfilter);
+                        }
+                        foreach (var eventfilterval in eventfilters)
+                        {
+                            filterEventsDetectedDef = eventsdetectedRepository.Filter.And(eventsdetectedRepository.Filter.In(i => i.DeviceType, eventfilterval.DeviceTypes),
+                                eventsdetectedRepository.Filter.In(i => i.Device, eventfilterval.DeviceNames),
+                                eventsdetectedRepository.Filter.In(i => i.EventType, eventfilterval.EventTypes));
+                            var eventsDetected = eventsdetectedRepository.Find(filterEventsDetectedDef).ToList();
+                            if (eventsDetected.Count > 0)
+                            {
+                                var result = eventsDetected.Select(s => new AlertsModel
+                                 {
+                                     DeviceName = s.Device,
+                                     DeviceType = s.DeviceType,
+                                     AlertType = s.EventType,
+                                     Details = s.Details,
+                                     EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].EventDetectedSent.Value) : nullDate,
+                                     EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
+                                     NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
+                                 }).OrderBy(x => x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
+                                Response = Common.CreateResponse(result);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var eventsDetected = eventsdetectedRepository.Collection.AsQueryable().ToList();
+                    if (eventsDetected.Count > 0)
+                    {
+                        var result = eventsDetected.Select(s => new AlertsModel
+                        {
+                            DeviceName = s.Device,
+                            DeviceType = s.DeviceType,
+                            AlertType = s.EventType,
+                            Details = s.Details,
+                            EventDetectedSent = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].EventDetectedSent.Value) : nullDate,
+                            EventDismissed = s.EventDismissed != null ? s.EventDismissed.Value : nullDate,
+                            NotificationSentTo = s.NotificationsSent != null ? (s.NotificationsSent[s.NotificationsSent.Count - 1].NotificationSentTo) : ""
+                        }).OrderBy(x => x.DeviceName).OrderByDescending(x => x.EventDetected).ToList();
+                        Response = Common.CreateResponse(result);
+                    }
+                }
+                if (Response == null)
+                {
+                    Response = Common.CreateResponse(null, "", "");
+                }            
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+            }
+            return Response;
         }
         #endregion
 
@@ -5962,6 +6058,7 @@ namespace VitalSigns.API.Controllers
         [HttpGet("get_all_open_issues")]
         public APIResponse GetALLOpenIssues()
         {
+            DateTime? nullDate = null;
             try
             {
                 eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
@@ -5971,7 +6068,7 @@ namespace VitalSigns.API.Controllers
                     DeviceName = x.Device,
                     EventType = x.EventType,
                     Details = x.Details,
-                    EventDetected = Convert.ToString(x.EventDetected)
+                    EventDetected = x.EventDetected != null ? x.EventDetected.Value : nullDate
 
                 }).ToList();
 

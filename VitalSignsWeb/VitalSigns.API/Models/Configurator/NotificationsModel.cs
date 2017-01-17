@@ -187,4 +187,17 @@ namespace VitalSigns.API.Models
         public string ScriptLocation { get; set; }
 
     }
+
+    public class EventFilter
+    {
+        [JsonProperty("event_types")]
+        public List<string> EventTypes { get; set; }
+
+        [JsonProperty("device_types")]
+        public List<string> DeviceTypes { get; set; }
+
+        [JsonProperty("device_names")]
+        public List<string> DeviceNames { get; set; }
+
+    }
 }

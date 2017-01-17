@@ -36,6 +36,6 @@ namespace VitalSigns.API.Models
         public string EventType { get; set; }
 
         [JsonProperty("event_detected")]
-        public string EventDetected { get; set; }
+        public DateTime? EventDetected { get; set; }
     }
 }
