@@ -620,15 +620,15 @@ Public Class VitalSignsAlertService
                                     If Not IsNothing(sendlist.PersistentNotification) Then
                                         dr("EnablePersistentAlert") = sendlist.PersistentNotification
                                     End If
-                                    If sendlist.SendVia = "email" Then
+                                    If sendlist.SendVia = "E-mail" Then
                                         dr("SendTo") = sendlist.SendTo
-                                    ElseIf sendlist.SendVia = "sms" Then
+                                    ElseIf sendlist.SendVia = "SMS" Then
                                         dr("SMSTo") = sendlist.SendTo
-                                    ElseIf sendlist.SendVia = "script" Then
+                                    ElseIf sendlist.SendVia = "Script" Then
                                         dr("ScriptName") = sendlist.SendTo
                                         dr("ScriptCommand") = sendlist.ScriptCommand
                                         dr("ScriptLocation") = sendlist.ScriptLocation
-                                    ElseIf sendlist.SendVia = "snmptrap" Then
+                                    ElseIf sendlist.SendVia = "SNMP Trap" Then
                                         dr("SendSNMPTrap") = True
                                     End If
                                     dr("HoursIndicator") = sendlist.BId
@@ -1229,14 +1229,14 @@ Public Class VitalSignsAlertService
                                             alertcreated = Convert.ToDateTime(eventsCreated(x).EventDetected)
                                             If (Now - alertcreated).TotalMinutes >= Convert.ToInt32(notificationDestEntity(z).Interval) Then
                                                 '3. Send escalation
-                                                If notificationDestEntity(z).SendTo <> "" And notificationDestEntity(z).SendVia = "email" Then
+                                                If notificationDestEntity(z).SendTo <> "" And notificationDestEntity(z).SendVia = "E-mail" Then
                                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via email", LogLevel.Verbose)
                                                     WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via email:", LogLevel.Normal)
                                                     WriteServiceHistoryEntry(Now.ToString & "   EscalateTo = " & notificationDestEntity(z).SendTo & ",   Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
                                                     SendMailwithChilkatorNet(notificationDestEntity(z).SendTo, "", "", eventsCreated(x).Device, eventsCreated(x).DeviceType, "", eventsCreated(x).EventType, eventsCreated(x).EventType, eventsCreated(x).Details, "", "ESCALATION")
                                                     eemailsent = True
                                                 End If
-                                                If notificationDestEntity(z).SendTo <> "" And notificationDestEntity(z).SendVia = "sms" Then
+                                                If notificationDestEntity(z).SendTo <> "" And notificationDestEntity(z).SendVia = "SMS" Then
                                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via SMS", LogLevel.Verbose)
                                                     WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via SMS:", LogLevel.Normal)
                                                     WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & notificationDestEntity(z).SendTo & ",    Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
