@@ -2,13 +2,21 @@
     <div class="widgetContent">
         <div>&nbsp;</div>
         <div class="row">
-            <div class="form-group col-sm-5">
+            <div class="form-group col-sm-9">
                 <label for="start_date" class="control-label col-sm-2">Month/Year</label>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <wj-input-date format="yyyy-MM" [(value)]="filterDate" style="width:125px;" id="start_date" required selectionMode="Month"></wj-input-date>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <button type="button" class="btn btn-primary" (click)="filterAlerts()">Filter</button>
+                </div>
+                <label for="notification_def" class="control-label col-sm-2">Notification Definition</label>
+                <div class="col-sm-2">
+                    <wj-combo-box name="notification_def" [itemsSource]="notification_definitions" displayMemberPath="name" selectedValuePath="id" #notification_def>
+                    </wj-combo-box>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-primary" (click)="filterAlertsByDef(notification_def)">Filter</button>
                 </div>
             </div>
         </div>

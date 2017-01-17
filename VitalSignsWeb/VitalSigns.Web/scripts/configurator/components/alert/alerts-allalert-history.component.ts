@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
@@ -21,17 +21,21 @@ declare var injectSVG: any;
         WidgetService,
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper
+        helpers.DateTimeHelper,
+        helpers.GridTooltip
     ]
 })
 export class AlertHistory implements OnInit {
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     filterDate: string;
+    notification_definitions: any;
 
-    constructor(private service: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
+    constructor(private service: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService,
+        protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -47,9 +51,16 @@ export class AlertHistory implements OnInit {
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
         });
+        this.service.get('/configurator/notifications_selector')
+            .subscribe(
+            (data) => {
+                this.notification_definitions = data.data.notificationsList;
+            },
+            (error) => this.errorMessage = <any>error
+            );
         var date = new Date();
         var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
-        this.service.get('/configurator/viewalerts?statdate=' + displayDate)
+        this.service.get('/configurator/viewalerts')
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
@@ -59,11 +70,25 @@ export class AlertHistory implements OnInit {
         );
         var today = new Date();
         this.filterDate = today.toISOString().substr(0, 10);
+        // Create custom tooltip
+        this.toolTip.getTooltip(this.flex, 0, 6);
     }
 
     filterAlerts() {
         var dt = new Date(this.filterDate);
         this.service.get('/configurator/viewalerts?statdate=' + dt.toISOString().substr(0, 10))
+            .subscribe(
+            (response) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
+                this.data.pageSize = 10;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+
+    }
+
+    filterAlertsByDef(notification_sel: wijmo.input.ComboBox) {
+        this.service.get('/configurator/notifications_by_id?id=' + notification_sel.selectedValue)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
