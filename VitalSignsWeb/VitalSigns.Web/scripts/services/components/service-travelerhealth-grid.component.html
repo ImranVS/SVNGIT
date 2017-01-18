@@ -1,19 +1,18 @@
 ﻿
 <div class="row">
-    <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-    <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
+    <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" headersVisibility="Column" #flex>
         <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Resource Constraint'" [binding]="'resource_constraint'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Details'" [binding]="'traveler_details'" [width]="140"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Heart Beat'" [binding]="'traveler_heartbeat'" [width]="160" align="center"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Traveler Servlet'" [binding]="'traveler_servlet'" [width]="140"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'Users'" [binding]="'traveler_users'" [width]="140"></wj-flex-grid-column>
-        <wj-flex-grid-column [header]="'HA'" [binding]="'traveler_ha'" [width]="40"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Users'" [binding]="'traveler_users'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'HA'" [binding]="'traveler_ha'" [width]="80"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Incremental Syncs'" [binding]="'traveler_incremental_syncs'" [width]="140"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'HTTP Status'" [binding]="'http_status'" [width]="140"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Devices API Status'" [binding]="'traveler_devices_api_status'" [width]="140"></wj-flex-grid-column>
     </wj-flex-grid>
-    <div class="btn-group" *ngIf="data != null">
+    <!--<div class="btn-group" *ngIf="data != null">
         <button type="button" class="btn btn-default"
                 (click)="data.moveToFirstPage()"
                 [disabled]="data.pageIndex <= 0">
@@ -47,7 +46,7 @@ data.pageIndex + 1 | number
             <wj-menu-item [value]="20">20</wj-menu-item>
             <wj-menu-item [value]="50">50</wj-menu-item>
         </wj-menu>
-    </div>
+    </div>-->
 </div>
 
 <!--<div class="row">

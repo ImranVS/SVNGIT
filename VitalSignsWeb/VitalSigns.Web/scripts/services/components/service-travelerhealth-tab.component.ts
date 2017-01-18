@@ -7,20 +7,24 @@ import {AppNavigator} from '../../navigation/app.navigator.component';
 
 
 import {ServiceTab} from '../models/service-tab.interface';
-
+import * as helpers from '../../core/services/helpers/helpers';
 declare var injectSVG: any;
 
 
 @Component({
     templateUrl: '/app/services/components/service-travelerhealth-tab.component.html',
-    providers: [WidgetService]
+    providers: [
+        WidgetService,
+        helpers.DateTimeHelper
+    ]
 })
 export class ServiceTravelerHealthTab extends WidgetController implements OnInit {
     deviceId: any;
     service: any;
     widgets: WidgetContract[]; 
        
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute,
+        protected toolTip: helpers.DateTimeHelper) {
         super(resolver, widgetService);
     }
 
@@ -43,13 +47,14 @@ export class ServiceTravelerHealthTab extends WidgetController implements OnInit
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=Traveler.IncrementalDeviceSyncs&deviceid=${this.deviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'successfuldevicesyncs',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -79,13 +84,14 @@ export class ServiceTravelerHealthTab extends WidgetController implements OnInit
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=Http.CurrentConnections&deviceid=${this.deviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'httpsessions',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -114,13 +120,14 @@ export class ServiceTravelerHealthTab extends WidgetController implements OnInit
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=Traveler.Memory.Java.Current&deviceid=${this.deviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'allocatedjavamemory',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -150,13 +157,14 @@ export class ServiceTravelerHealthTab extends WidgetController implements OnInit
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
                     url: `/services/statistics?statName=Traveler.Memory.C.Current&deviceid=${this.deviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'allocatedCmemory',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {

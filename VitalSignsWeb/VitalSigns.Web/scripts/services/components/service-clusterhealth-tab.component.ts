@@ -44,13 +44,14 @@ export class ServiceClusterHealthTab extends WidgetController implements OnInit 
                 css: 'col-xs-12',
                 settings: {
                     url: `/services/statistics?statName=Replica.Cluster.SecondsOnQueue&deviceid=${this.deviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'domcluster',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
