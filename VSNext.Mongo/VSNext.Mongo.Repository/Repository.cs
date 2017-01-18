@@ -153,7 +153,7 @@ namespace VSNext.Mongo.Repository
 
         public virtual void Replace(T entity, UpdateOptions updateOptions)
         {
-            Collection.ReplaceOne(i => i.Id == entity.Id, entity, updateOptions);
+            Collection.ReplaceOne(i => i.Id == entity.Id, ConvertDateTimesForReplace(entity), updateOptions);
         }
 
         public void Replace(IEnumerable<T> entities, UpdateOptions updateOptions)
@@ -274,6 +274,28 @@ namespace VSNext.Mongo.Repository
             }
             return listOfEntities;
         }
+
+        private T ConvertDateTimesForReplace(T entity)
+        {
+            //return entities;
+            if (!isService) return entity;
+
+            System.Reflection.PropertyInfo[] properties = entity.GetType().GetProperties().Where(i => ((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null).ToArray();
+            foreach (System.Reflection.PropertyInfo prop in properties)
+            {
+
+                DateTime? dt = (DateTime?)(prop.GetValue(entity));
+                if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                {
+                    prop.SetValue(entity, dt.Value.Subtract(dateTimeOffset));
+                }
+                DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
+
+            }
+            
+            return entity;
+        }
+
 
         #endregion
     }
