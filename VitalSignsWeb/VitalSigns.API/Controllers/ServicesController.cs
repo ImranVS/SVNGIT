@@ -325,7 +325,10 @@ namespace VitalSigns.API.Controllers
                                 serverStatus.Description = "Device Status not updated";
 
                             serverStatus.Details = status.Details;
-
+                            if (!string.IsNullOrEmpty(status.SecondaryRole))
+                            {
+                                serverStatus.SecondaryRole = status.SecondaryRole;
+                            }
                         }
                         else
                         {
@@ -1554,13 +1557,13 @@ namespace VitalSigns.API.Controllers
                     {
                         diskfreesegments.Add(new Segment()
                         {
-                            Label = status.DeviceName + " - " + item.Name,
+                            Label = string.IsNullOrEmpty(deviceId) ? status.DeviceName + " - " + item.Name : item.Name,
                             Value = item.Free.Value,
                             Color = "rgba(95, 190, 127, 1)"
                         });
                         diskusedsegments.Add(new Segment()
                         {
-                            Label = status.DeviceName + " - " + item.Name,
+                            Label = string.IsNullOrEmpty(deviceId) ? status.DeviceName + " - " + item.Name : item.Name,
                             Value = item.Used.Value,
                             Color = "rgba(239, 58, 36, 1)"
                         });
