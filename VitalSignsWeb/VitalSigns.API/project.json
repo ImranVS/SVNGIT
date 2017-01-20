@@ -31,6 +31,7 @@
       "dependencies": {
         "Ionic.Zip": "1.0.0-*",
         "VitalSignsLicensing": "1.0.0-*",
+        "VitalSignsWebSphereDLL": "1.0.0-*",
         "VSFramework": "1.0.0-*",
         "VSNext.Mongo.Entities": "1.0.0-*",
         "VSNext.Mongo.Repository": "1.0.0-*"
