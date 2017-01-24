@@ -6231,7 +6231,7 @@ Public Class DominoCustomStatistic
 
                 Select Case mComparison
                     Case "Greater Than"
-                        If Convert.ToDouble(mStatValue) >= Convert.ToDouble(mThreshold + 1) Then
+                        If Convert.ToDouble(mStatValue) >= Convert.ToDouble(mThreshold) + 1 Then
                             IncrementCounter()
                         Else
                             ResetCounter()
