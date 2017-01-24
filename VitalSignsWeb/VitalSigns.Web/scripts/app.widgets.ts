@@ -21,6 +21,7 @@ export * from './reports/components/financial/cost-per-user-pivot-grid.component
 
 export * from './not-yet-implemented.component';
 export * from './widgets/charts/components/chart.component';
+export * from './widgets/charts/components/bubblechart.component';
 export * from './widgets/grid/components/dynamic-grid.component';
 export * from './widgets/grid/components/sample-grid.component';
 export * from './widgets/main-dashboard/components/app-status.component';

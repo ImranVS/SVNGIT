@@ -102,6 +102,7 @@ import {ConnectionsTagsReport} from './reports/components/ibm-connections/connec
 import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
 import { ConnectionsUserActivityReport } from './reports/components/ibm-connections/connections-user-activity-report.component';
+import { ConnectionsUserActivityChartReport } from './reports/components/ibm-connections/connections-user-activity-chart-report.component';
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
 import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
 import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
@@ -206,6 +207,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         ConnectionsWikiReport,
         ConnectionsCommunityActivityReport,
         ConnectionsUserActivityReport,
+        ConnectionsUserActivityChartReport,
         ServerConfigurationFilter,
         FileUploadSample,
         SametimeServerFilter,
@@ -265,6 +267,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.ServerListLocationReportGrid,
         widgets.AppStatus,
         widgets.ChartComponent,
+        widgets.BubbleChartComponent,
         widgets.DynamicGrid,
         widgets.GreetingsWidget,
         widgets.IBMConnectionsGrid,
@@ -411,6 +414,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         NodePanel,
         widgets.AppStatus,
         widgets.ChartComponent,
+        widgets.BubbleChartComponent,
         widgets.DynamicGrid,
         widgets.GreetingsWidget,
         widgets.IBMConnectionsGrid,
