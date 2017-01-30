@@ -21,6 +21,7 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
     @Input() settings: any;
     chartData: any;
     activitiesList: string[];
+    categoriesList: string[];
     errorMessage: string;
     chart: any;
 
@@ -43,6 +44,7 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 this.activitiesList = data.data[1];
+                this.categoriesList = data.data[2];
                 switch (this.settings.dateformat) {
                     case "date":
                         this.chartData = this.datetimeHelpers.toLocalDate(data.data[0]);
@@ -93,7 +95,7 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
 
                     });
 
-                    this.settings.chart.xAxis.categories = categories;
+                    this.settings.chart.xAxis.categories = this.categoriesList;
                     this.settings.chart.yAxis.categories = this.activitiesList;
                     
                     // Second loop to build data points with actual value or null if missing 

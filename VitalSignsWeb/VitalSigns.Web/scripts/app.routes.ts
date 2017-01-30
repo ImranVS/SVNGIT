@@ -104,6 +104,7 @@ import { ConnectionsWikiReport } from './reports/components/ibm-connections/conn
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
 import { ConnectionsUserActivityReport } from './reports/components/ibm-connections/connections-user-activity-report.component';
 import { ConnectionsUserActivityChartReport } from './reports/components/ibm-connections/connections-user-activity-chart-report.component';
+import { ConnectionsUserActivityMonthlyChartReport } from './reports/components/ibm-connections/connections-user-activity-monthly-chart-report.component';
 import { TravelerHTTPSessionsReport } from './reports/components/ibm-traveler/traveler-http-sessions.component';
 import { TravelerDeviceSyncReport } from './reports/components/ibm-traveler/traveler-device-syncs.component';
 import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/traveler-cpu-util.component';
@@ -481,6 +482,10 @@ const appRoutes: Routes = [
                     {
                         path: 'connectionsuseractivitychart',
                         component: ConnectionsUserActivityChartReport
+                    },
+                    {
+                        path: 'connectionsuseractivitymonthly',
+                        component: ConnectionsUserActivityMonthlyChartReport
                     },
                     {
                         path: 'hourlystatistics',

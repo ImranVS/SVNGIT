@@ -11,9 +11,9 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
+        <user-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL"></user-filter>
         <div class="reportsPage">
-            <h1>Internal Champions & Key Influencers</h1>
-            <h5><b>(last 90 days)</b></h5>
+            <h1>Internal Champions - Monthly</h1>
             <div *ngFor="let widget of widgets">
                 <h3>{{widget.title}}</h3>
                 <div id="{{widget.id}}">

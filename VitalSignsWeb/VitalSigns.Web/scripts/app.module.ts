@@ -90,7 +90,8 @@ import {SametimeStatisticsGridReport} from './reports/components/ibm-sametime/sa
 import {DominoServerConfigurationReport} from './reports/components/configuration/domino-server-configuration-report.component';
 import {ServerListTypeReport} from './reports/components/configuration/server-list-type-report.component';
 import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
-import {ServerFilter} from './reports/filters/components/server-filter.component';
+import { ServerFilter } from './reports/filters/components/server-filter.component';
+import { UserFilter } from './reports/filters/components/user-filter.component';
 import {TravelerFilter} from './reports/filters/components/traveler-filter.component';
 import {ConnectionsServerFilter} from './reports/filters/components/connections-server-filter.component';
 import {ConnectionsActivityReport} from './reports/components/ibm-connections/connections-activity-report.component';
@@ -103,6 +104,7 @@ import {ConnectionsWikiReport} from './reports/components/ibm-connections/connec
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
 import { ConnectionsUserActivityReport } from './reports/components/ibm-connections/connections-user-activity-report.component';
 import { ConnectionsUserActivityChartReport } from './reports/components/ibm-connections/connections-user-activity-chart-report.component';
+import { ConnectionsUserActivityMonthlyChartReport } from './reports/components/ibm-connections/connections-user-activity-monthly-chart-report.component';
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
 import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
 import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
@@ -197,6 +199,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         ServerListTypeReport,
         ServerListLocationReport,
         ServerFilter,
+        UserFilter,
         ConnectionsServerFilter,
         ConnectionsActivityReport,
         ConnectionsBookmarkReport,
@@ -208,6 +211,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         ConnectionsCommunityActivityReport,
         ConnectionsUserActivityReport,
         ConnectionsUserActivityChartReport,
+        ConnectionsUserActivityMonthlyChartReport,
         ServerConfigurationFilter,
         FileUploadSample,
         SametimeServerFilter,
@@ -355,6 +359,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.SametimeStatisticGridReportGrid,
         widgets.DominoServerConfigurationReportGrid,
         widgets.ServerFilter,
+        widgets.UserFilter,
         widgets.TravelerFilter,
         widgets.ServerConfigurationFilter,
         widgets.SametimeServerFilter,
@@ -504,6 +509,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.ServerListTypeReportGrid,
         widgets.ServerListLocationReportGrid,
         widgets.ServerFilter,
+        widgets.UserFilter,
         widgets.TravelerFilter,
         widgets.ServerConfigurationFilter,
         widgets.SametimeServerFilter,

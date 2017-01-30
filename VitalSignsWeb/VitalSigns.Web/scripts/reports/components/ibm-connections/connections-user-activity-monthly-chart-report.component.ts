@@ -10,17 +10,19 @@ declare var injectSVG: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/ibm-connections/connections-user-activity-chart-report.component.html',
+    templateUrl: '/app/reports/components/ibm-connections/connections-user-activity-monthly-chart-report.component.html',
     providers: [
         WidgetService,
         RESTService
     ]
 })
-export class ConnectionsUserActivityChartReport extends WidgetController {
+export class ConnectionsUserActivityMonthlyChartReport extends WidgetController {
     contextMenuSiteMap: any;
     chartData: any;
     errorMessage: string;
     widgets: WidgetContract[];
+    currentWidgetName: string = `connectionsUserActivityMonthlyChartReport`;
+    currentWidgetURL: string = `/reports/connections/user_activity_monthly`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -38,14 +40,15 @@ export class ConnectionsUserActivityChartReport extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'connectionsUserActivityChartReport',
+                id: 'connectionsUserActivityMonthlyChartReport',
                 title: '',
                 name: 'BubbleChartComponent',
                 settings: {
-                    url: `/reports/connections/user_activity?isChart=true&topX=5`,
+                    url: `/reports/connections/user_activity_monthly`,
+                    dateformat: "date",
                     chart: {
                         chart: {
-                            renderTo: 'connectionsUserActivityChartReport',
+                            renderTo: 'connectionsUserActivityMonthlyChartReport',
                             type: 'bubble',
                             height: 540,
                             plotBorderWidth: 1,
@@ -79,17 +82,17 @@ export class ConnectionsUserActivityChartReport extends WidgetController {
                         },
                         series: [],
                         plotOptions: {
-                            series: {
-                                marker: {
-                                    fillColor: {
-                                        radialGradient: { cx: 0.4, cy: 0.3, r: 0.7 },
-                                        stops: [
-                                            [0, 'rgba(255,255,255,0.5)'],
-                                            [1, 'rgba(69,114,167,0.5)']
-                                        ]
-                                    }
-                                }
-                            },
+                            //series: {
+                            //    marker: {
+                            //        fillColor: {
+                            //            radialGradient: { cx: 0.4, cy: 0.3, r: 0.7 },
+                            //            stops: [
+                            //                [0, 'rgba(255,255,255,0.5)'],
+                            //                [1, 'rgba(69,114,167,0.5)']
+                            //            ]
+                            //        }
+                            //    }
+                            //},
                             bubble: {
                                 tooltip: {
                                     headerFormat: '<b>{series.name}</b><br>',
