@@ -1,5 +1,5 @@
 ﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" headersVisibility="Column" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="200"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'"></wj-flex-grid-column>

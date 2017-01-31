@@ -19,6 +19,7 @@ export class ConnectionsServerFilter {
     @Input() statType: string;
     @Input() hideDatePanel: boolean;
     @Input() hideServerControl: boolean;
+    @Input() hideStatControl: boolean;
     endDate: Date = new Date();
     startDate: Date = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate() - 7);
 
@@ -58,6 +59,10 @@ export class ConnectionsServerFilter {
         }
         if (this.hideServerControl == true && this.hideServerControl == true) {
             var v2 = <HTMLDivElement>document.getElementById("dtFilter");
+            v2.style.display = "none";
+        }
+        if (this.hideStatControl == true) {
+            var v2 = <HTMLDivElement>document.getElementById("dtStat");
             v2.style.display = "none";
         }
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
@@ -103,9 +108,12 @@ export class ConnectionsServerFilter {
         var newStartDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate());
         var newEndDate = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate());
 
-        var URL = this.widgetURL + selectedServers + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
-        if (selectedStats != "")
-            URL += "&statName=" + selectedStats;
+        var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers;
+        if (this.hideStatControl != true) {
+            URL += `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
+            if (selectedStats != "")
+                URL += "&statName=" + selectedStats;
+        }
      
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())

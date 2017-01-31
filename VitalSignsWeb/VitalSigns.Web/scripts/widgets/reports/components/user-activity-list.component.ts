@@ -1,7 +1,9 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
-import {WidgetComponent} from '../../../core/widgets';
+import { WidgetComponent } from '../../../core/widgets';
+import { WidgetService } from '../../../core/widgets/services/widget.service';
+
 import {RESTService} from '../../../core/services';
 
 import {CommunityActivity} from '../models/community-activity';
@@ -22,10 +24,16 @@ export class UserActivityList implements WidgetComponent, OnInit {
     userActivity: any;
     objectTypes: any;
 
-    constructor(private service: RESTService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService) { }
 
-    loadData() {
-        this.service.get(this.settings.url)
+    refresh(serviceUrl?: string) {
+
+        this.loadData(serviceUrl);
+
+    }
+
+    loadData(serviceUrl?: string) {
+        this.service.get(serviceUrl || this.settings.url)
         .subscribe(
             (data) => {
                 this.userActivity = data.data[0];

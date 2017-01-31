@@ -11,6 +11,9 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
+        <connections-server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" 
+                                   [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel"
+                                   [(hideStatControl)]="currentHideStatControl"></connections-server-filter>
         <div class="reportsPage">
             <h1>Internal Champions & Key Influencers</h1>
             <h5><b>(last 90 days)</b></h5>

@@ -19,6 +19,12 @@ declare var injectSVG: any;
 export class ConnectionsUserActivityReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = true;
+    currentHideStatControl: boolean = true;
+    currentDeviceType: string = "IBM Connections";
+    currentWidgetName: string = `connectionsUserActivityReport`;
+    currentWidgetURL: string = `/reports/connections/user_activity`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -39,7 +45,7 @@ export class ConnectionsUserActivityReport extends WidgetController {
                     id: 'connectionsUserActivityReport',
                     title: '',
                     name: 'UserActivityList',
-                    settings: { url: `/reports/connections/user_activity`}
+                    settings: { url: this.currentWidgetURL}
                 }
             ];
             injectSVG();
