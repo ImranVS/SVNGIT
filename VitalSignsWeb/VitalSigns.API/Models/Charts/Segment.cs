@@ -16,6 +16,10 @@ namespace VitalSigns.API.Models.Charts
         [BsonElement("label")]
         public string Label { get; set; }
 
+        [JsonProperty("label2")]
+        [BsonElement("label2")]
+        public string Label2 { get; set; }
+
         [JsonProperty("value")]
         [BsonElement("value")]
         public double? Value { get; set; }

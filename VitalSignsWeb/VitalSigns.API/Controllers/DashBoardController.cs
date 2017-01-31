@@ -1402,12 +1402,20 @@ namespace VitalSigns.API.Controllers
         public APIResponse ConnectionsUsers(string deviceid)
         {
             List<UserList> result = new List<UserList>();
+            FilterDefinition<IbmConnectionsObjects> filterDef;
 
             try
             {
                 connectionsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
-                FilterDefinition<IbmConnectionsObjects> filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Users"),
+                if (!string.IsNullOrEmpty(deviceid))
+                {
+                    filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Users"),
                     connectionsRepository.Filter.Eq(x => x.DeviceId, deviceid));
+                }
+                else
+                {
+                    filterDef = connectionsRepository.Filter.Eq(x => x.Type, "Users");
+                }
                 result = connectionsRepository.Find(filterDef)
                     .Select(x => new UserList
                     {

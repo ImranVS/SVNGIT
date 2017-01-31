@@ -22,6 +22,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("user_name")]
         public string UserName { get; set; }
+
+        [JsonProperty("object_created_date")]
+        public DateTime ObjectCreatedDate { get; set; }
     }
 
     public class UserAdoptionPivot
@@ -32,11 +35,20 @@ namespace VitalSigns.API.Models
         [JsonProperty("user_name")]
         public string UserName { get; set; }
 
+        [JsonProperty("object_value")]
+        public int ObjectValue { get; set; }
+
+        [JsonProperty("object_type")]
+        public string ObjectType { get; set; }
+
         [JsonProperty("object_values")]
         public List<int> ObjectValues { get; set; }
 
         [JsonProperty("total")]
         public int Total { get; set; }
+
+        [JsonProperty("object_created_date")]
+        public DateTime ObjectCreatedDate { get; set; }
     }
 
     public class UserList
@@ -86,7 +98,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        //[JsonProperty("activity")]
-        //public string Activity { get; set; }
+        [JsonProperty("activity")]
+        public string Activity { get; set; }
     }
 }
