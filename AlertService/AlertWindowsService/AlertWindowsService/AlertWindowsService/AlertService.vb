@@ -631,7 +631,7 @@ Public Class VitalSignsAlertService
                                     ElseIf sendlist.SendVia = "SNMP Trap" Then
                                         dr("SendSNMPTrap") = True
                                     End If
-                                    dr("HoursIndicator") = sendlist.BId
+                                    dr("HoursIndicator") = 0 'sendlist.BId
                                     dr("StartTime") = ""
                                     dr("Duration") = 0
                                     dr("Day") = ""
