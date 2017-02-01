@@ -343,6 +343,7 @@ Public Class MaintenanceDll
         Dim businessId As String = ""
         Dim filterdefBusinessHours As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.BusinessHours)
         Dim currentBH As VSNext.Mongo.Entities.BusinessHours
+        Dim businessHours As List(Of VSNext.Mongo.Entities.BusinessHours)
 
         Try
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
@@ -356,13 +357,16 @@ Public Class MaintenanceDll
                 filterdefBusinessHours = repoBusinessHours.Filter.Where(Function(i) i.Id.Equals(server.BusinessHoursId))
             End If
 
-            Dim businessHours As List(Of VSNext.Mongo.Entities.BusinessHours) = repoBusinessHours.All().ToList()
-            For Each BH As VSNext.Mongo.Entities.BusinessHours In businessHours
-                If BH.ObjectId.ToString = businessId Then
-                    currentBH = BH
-                    Exit For
-                End If
-            Next
+            businessHours = repoBusinessHours.All().ToList()
+            If Not businessHours Is Nothing Then
+                For Each BH As VSNext.Mongo.Entities.BusinessHours In businessHours
+                    If BH.ObjectId.ToString = businessId Then
+                        currentBH = BH
+                        Exit For
+                    End If
+                Next
+            End If
+
             Dim bCurrentDay As Boolean = False
             Dim bcurrntTime As Boolean = False
             If currentBH IsNot Nothing Then
