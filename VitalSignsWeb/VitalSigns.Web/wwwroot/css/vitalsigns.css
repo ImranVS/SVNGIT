@@ -761,7 +761,7 @@
 
 .reportsBrowser {
     background: rgb(204,204,204);
-    padding: 1cm;
+    padding: 0.5cm;
     height: 100%;
     overflow: auto;
 }
@@ -772,7 +772,7 @@
     margin: 0 auto;
     margin-bottom: 0.5cm;
     box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
-    width: 21cm;
+    width: 22cm;
     min-height: 29.7cm;
     padding: 1cm 1.5cm 2.5cm 1.5cm;
 }
