@@ -4130,11 +4130,11 @@ SkipTask:
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Updating DominoDailyStat table with Mem.PercentAvailable as " & (100 - PercentRAMinUse) & "% of memory used.")
                 UpdateDominoDailyStatTable(MyDominoServer, "Mem.PercentAvailable", (100 - PercentRAMinUse))
 
-                If PercentRAMinUse > MyDominoServer.Memory_Threshold And InStr(MyDominoServer.OperatingSystem.ToUpper, "WINDOWS") > 0 Then
+                If PercentRAMinUse > (MyDominoServer.Memory_Threshold * 100) And InStr(MyDominoServer.OperatingSystem.ToUpper, "WINDOWS") > 0 Then
                     'Unix servers are supposed to use all available memory.
                     MyDominoServer.Status = "Low Memory: " & PercentRAMinUse & "% used."
                     If MyDominoServer.Memory_Threshold <> 0 Then
-                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Memory", "The server is reporting low memory.  The statistic Platform.Memory.RAM.PctUtil reports that " & PercentRAMinUse & "% of memory is currently in use.  Your alert threshold for this server is " & MyDominoServer.Memory_Threshold & "%. Consistent low memory often leads to a server crash.", MyDominoServer.Location)
+                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Memory", "The server is reporting low memory.  The statistic Platform.Memory.RAM.PctUtil reports that " & PercentRAMinUse & "% of memory is currently in use.  Your alert threshold for this server is " & (MyDominoServer.Memory_Threshold * 100) & "%. Consistent low memory often leads to a server crash.", MyDominoServer.Location)
                     End If
                 Else
                     ' myAlert.ResetAlert("Domino", MyDominoServer.Name, "Memory", MyDominoServer.Location)
