@@ -113,13 +113,15 @@ export class AlertSettings implements WidgetComponent, OnInit {
     }
 
     refreshCheckedEvents() {
-        if (this.flex.collectionView) {
-            //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();
-            for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
-                var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
-                var val = this.selected_events.filter((record) => record == item.Id);
-                if (item.NotificationOnRepeat && val.length == 0) {
-                    this.selected_events.push(item.Id);
+        if (this.flex != null) {
+            if (this.flex.collectionView) {
+                //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();
+                for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+                    var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+                    var val = this.selected_events.filter((record) => record == item.Id);
+                    if (item.NotificationOnRepeat && val.length == 0) {
+                        this.selected_events.push(item.Id);
+                    }
                 }
             }
         }
