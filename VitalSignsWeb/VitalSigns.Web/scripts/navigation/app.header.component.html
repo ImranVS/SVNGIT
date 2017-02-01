@@ -38,33 +38,30 @@
     <div id="notificationBtWrapper" class="headerBlock" *ngIf="deviceSummary">
         <a #sysMsg >
             <span aria-hidden="true" class="glyphicon glyphicon-bell" (click)="showSystemMessages()"></span>
-            <span class="badge" (click)="showSystemMessages()">{{deviceSummary.systemMessages}}</span>
+            <span class="notifVitalSignNumber badge" (click)="showSystemMessages()">{{deviceSummary.systemMessages}}</span>
         </a>
 
         <wj-popup #frmDialogSysMsg class="model-content col-sm-4"  [owner]="sysMsg" [showTrigger]="'Click'" [hideTrigger]="'None'">
-            <h3 class="popover-title">
-                System Messages
-                <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
-            </h3>
-            <div class="popover-content" *ngIf="systemMessages">
-                <!--<table >
-                <thead><tr>Message</tr></thead>
-                <tbody>
-                    <tr></tr>
-                </tbody>
-            </table>-->
-                <div class="aServer" *ngFor="let message of systemMessages">
-                    <p><b>{{message.CreatedDate}} </b> {{message.Details}}</p>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    System Messages
+                    <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
                 </div>
-                <div class="aServer" *ngIf="systemMessages.length=='0'">
-                <label>No System Messages Found</label>    
+                <div class="panel-body" *ngIf="systemMessages">
+                    <div class="aServer" *ngFor="let message of systemMessages">
+                        <p><b>{{message.CreatedDate}} </b> {{message.Details}}</p>
+                    </div>
+                    <div class="aServer" *ngIf="systemMessages.length=='0'">
+                        <label>No System Messages Found</label>
+                    </div>
                 </div>
-                    <div>&nbsp;</div>
+                <div class="panel-footer" *ngIf="systemMessages">
                     <div class="form-actions">
                         <button type="button" class="btn btn-primary" name="Dismiss" (click)="dismissSystemMessages(frmDialogSysMsg);" [disabled]="!(systemMessages.length>0)">Dismiss</button>
                     </div>
                 </div>
-        </wj-popup>
+            </div>
+</wj-popup>
     </div>
 
     <div id="userWrapper" class="headerBlock">
