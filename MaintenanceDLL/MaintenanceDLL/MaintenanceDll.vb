@@ -48,8 +48,8 @@ Public Class MaintenanceDll
             dt1.Columns.Add("EndDate")
             dt1.Columns.Add("MaintType")
             dt1.Columns.Add("MaintDaysList")
-            filterMaint = repoMaint.Filter.And(repoMaint.Filter.Gte(Of DateTime)(dt.Date, Convert.ToDateTime(Function(j) j.StartDate)),
-                                                   repoMaint.Filter.Lte(Of DateTime)(dt.Date, Convert.ToDateTime(Function(j) j.EndDate)))
+            filterMaint = repoMaint.Filter.And(repoMaint.Filter.Lte(Function(j) j.StartDate, dt.Date),
+                                                   repoMaint.Filter.Gte(Function(j) j.EndDate, dt.Date))
             maintEntity = repoMaint.Find(filterMaint).ToArray()
             If maintEntity.Length > 0 Then
                 filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Of String)(Function(j) j.DeviceName, DeviceName),
@@ -70,7 +70,7 @@ Public Class MaintenanceDll
                                     dr("StartTime") = maintEntity(x).StartTime
                                     dr("Duration") = maintEntity(x).Duration
                                     dr("EndDate") = maintEntity(x).EndDate
-                                    dr("MaintType") = maintEntity(x).MaintenanceFrequency
+                                    dr("MaintType") = maintEntity(x).MaintainType
                                     dr("MaintDaysList") = maintEntity(x).MaintenanceDaysList
                                     dt1.Rows.Add(dr)
                                 End If
@@ -135,7 +135,7 @@ Public Class MaintenanceDll
                             '7/30/2016 NS modified for VSPLUS-3127
                             'Daily
                             'First, check whether today falls within the date interval
-                            If Today >= StartDate And Today <= EndDate Then
+                            If Today >= StartDate.Date And Today <= EndDate.Date Then
                                 MyStartTime = Now.Date + StartTime.TimeOfDay
                                 MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
                                 MaxTime = MyEndTime.TimeOfDay
@@ -170,7 +170,7 @@ Public Class MaintenanceDll
                             Dim wkType As Array = MaintDayList.Split(",")
                             '8/2/2016 NS modified for VSPLUS-3144
                             'First, check whether today falls within the date interval
-                            If Today >= StartDate And Today <= EndDate Then
+                            If Today >= StartDate.Date And Today <= EndDate.Date Then
                                 MyStartTime = Now.Date + StartTime.TimeOfDay
                                 MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
                                 MaxTime = MyEndTime.TimeOfDay
@@ -211,7 +211,7 @@ Public Class MaintenanceDll
                             'Monthly
                             Dim x, y As Integer
                             'First, check whether today falls within the date interval
-                            If Today >= StartDate And Today <= EndDate Then
+                            If Today >= StartDate.Date And Today <= EndDate.Date Then
                                 x = MaintDayList.IndexOf(",")
                                 y = MaintDayList.IndexOf(":")
                                 MyStartTime = Now.Date + StartTime.TimeOfDay
@@ -340,6 +340,10 @@ Public Class MaintenanceDll
         Dim vsobj As New VSAdaptor
         Dim isoffhours As Boolean
 
+        Dim businessId As String = ""
+        Dim filterdefBusinessHours As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.BusinessHours)
+        Dim currentBH As VSNext.Mongo.Entities.BusinessHours
+
         Try
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
             Dim repoBusinessHours As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.BusinessHours)(connectionString)
@@ -347,10 +351,12 @@ Public Class MaintenanceDll
             Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repo.Project.Include(Function(i) i.BusinessHoursId)
             Dim projectDefBusinessHours As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repo.Project.Include(Function(i) i.BusinessHoursId)
             Dim server As VSNext.Mongo.Entities.Server = repo.Find(filterdef, projectDef).FirstOrDefault()
-            Dim businessId As String = server.BusinessHoursId
-            Dim filterdefBusinessHours As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.BusinessHours) = repoBusinessHours.Filter.Where(Function(i) i.Id.Equals(server.BusinessHoursId))
+            If Not server Is Nothing Then
+                businessId = server.BusinessHoursId
+                filterdefBusinessHours = repoBusinessHours.Filter.Where(Function(i) i.Id.Equals(server.BusinessHoursId))
+            End If
+
             Dim businessHours As List(Of VSNext.Mongo.Entities.BusinessHours) = repoBusinessHours.All().ToList()
-            Dim currentBH As VSNext.Mongo.Entities.BusinessHours
             For Each BH As VSNext.Mongo.Entities.BusinessHours In businessHours
                 If BH.ObjectId.ToString = businessId Then
                     currentBH = BH
