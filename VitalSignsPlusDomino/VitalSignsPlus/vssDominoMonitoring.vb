@@ -3603,9 +3603,9 @@ WaitHere:
                             Else
                                 tNow = Now
                             End If
-                            System.Runtime.InteropServices.Marshal.ReleaseComObject(notesDateTime)
                         Catch ex As Exception
                             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Exception calculating server time : " & ex.Message)
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(notesDateTime)
                             tNow = Now
                         End Try
 
@@ -3706,6 +3706,9 @@ WaitHere:
                 End If
 SkipTask:
             Next
+            If notesDateTime IsNot Nothing Then
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(notesDateTime)
+            End If
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error looping through monitored tasks:  " & ex.Message)
         End Try
