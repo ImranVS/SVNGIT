@@ -59,7 +59,7 @@ Public Class MaintenanceDll
                 If serversEntity.Length > 0 Then
                     For x As Integer = 0 To maintEntity.Length - 1
                         For i As Integer = 0 To serversEntity.Length - 1
-                            For j As Integer = 0 To serversEntity(i).MaintenanceWindows.Count
+                            For j As Integer = 0 To serversEntity(i).MaintenanceWindows.Count - 1
                                 If serversEntity(i).MaintenanceWindows(j) = maintEntity(x).Id Then
                                     dr = dt1.NewRow()
                                     dr("ID") = serversEntity(i).MaintenanceWindows(j)
