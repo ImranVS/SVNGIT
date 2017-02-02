@@ -6324,6 +6324,8 @@ namespace VitalSigns.API.Controllers
                         server.DeviceType = "Domino";
                         server.LocationId = serverImport.Location;
                         server.IsEnabled = true;
+                        server.MemoryThreshold = serverImport.MemoryThreshold != null ? Math.Round(Convert.ToDouble(serverImport.MemoryThreshold)/100, 1) : 0.9;
+                        server.CpuThreshold = serverImport.CpuThreshold != null ? Math.Round(Convert.ToDouble(serverImport.CpuThreshold) / 100, 1) : 0.9;
                         List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
                         foreach (var serverTask in serverImport.ServerTasks)
                         {
