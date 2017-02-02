@@ -1,11 +1,11 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {Router, ActivatedRoute} from '@angular/router';
-
+import { AppComponentService } from '../../../core/services';
 
 @Component({
     templateUrl: '/app/configurator/components/serverImport/server-import-domino.component.html',
@@ -15,6 +15,7 @@ import {Router, ActivatedRoute} from '@angular/router';
     ]
 })
 export class DominoServerImport implements OnInit{
+    @ViewChild('location') location: wijmo.input.ComboBox;
     dominoServerImportData: any;
     dominoServer: string;
     errorMessage: any;
@@ -28,12 +29,20 @@ export class DominoServerImport implements OnInit{
     public file: any;
     public url: string;
     selectedFiles: any;
+    isSelected: any;
+    selObj: { isChecked: false };
+
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute,
+        appComponentService: AppComponentService) {
         this.url = '/configurator/upload_file';
+        this.isSelected = [
+            { isChecked: false }
+        ];
+        this.selObj = { isChecked: false };
     }
     ngOnInit() {
         this.dataProvider.get('/configurator/get_domino_import')
@@ -54,7 +63,10 @@ export class DominoServerImport implements OnInit{
                 else {
                     this.dominoServerImportData.servers = response.data.serverList;
                     this.deviceLocationData = response.data.locationList;
-                   
+                    for (let server of this.dominoServerImportData.servers) {
+                        server.is_checked = false;
+                    }
+                    //this.resize(this.isSelected, this.dominoServerImportData.servers.length, false);
                 }
 
             },
@@ -65,6 +77,7 @@ export class DominoServerImport implements OnInit{
     }
     step1Click(): void {
         this.currentStep = "2";
+        this.dominoServerImportData.location = this.location.selectedItem.value;
     }
 
      step2Click(): void {
@@ -75,10 +88,16 @@ export class DominoServerImport implements OnInit{
          this.dataProvider.put('/configurator/save_domino_servers', this.dominoServerImportData)
              .subscribe(
              response => {      
+                 if (response.status == "Success") {
                      this.currentStep = "4";
+                 }
+                 else {
+                     //this.appComponentService.showErrorMessage(response.message);
+                     this.errorMessage = response.message;
+                 }
              },
              (error) => this.errorMessage = <any>error
-
+                
              );
        
      }
@@ -120,4 +139,17 @@ export class DominoServerImport implements OnInit{
              this.formData.append("file-" + i.toString(), inputValue.target.files[i]);
          }
      } 
+
+     selectAll() {
+         for (let server of this.dominoServerImportData.servers) {
+             server.is_checked = true;
+         }
+     }
+
+     deselectAll() {
+         for (let server of this.dominoServerImportData.servers) {
+             server.is_checked = false;
+         }
+     }
 }
+    

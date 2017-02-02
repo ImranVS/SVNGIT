@@ -1,104 +1,102 @@
 ﻿<div class="widgetWrapper" *ngIf="dominoServerImportData">
     <!--Step 1-->
     <div *ngIf="currentStep=='1'">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <b> Specify Domino Directory Server or Load Servers from a CSV File</b>
-            </div>
-
+        <div class="alert alert-info col-lg-12">
+            Enter the Domino Directory Server value and click 'Load Servers' or load a CSV file
+            by clicking the 'Browse...' button and click 'Load from CSV' to get a list of servers to import.
         </div>
-        <div class="panel-body">
-            <div class="alert alert-info col-lg-12">
-                Enter the Domino Directory Server value and click 'Load Servers' or load a CSV file
-                by clicking the 'Browse...' button and click 'Load from CSV' to get a list of servers to import.
-            </div>
-            <div class="row">
-                <div class="form-group col-sm-6">
-                    <label for="dominoServer" class="control-label col-sm-3">Domino Directory Server:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" required name="dominoServer" [(ngModel)]="dominoServerImportData.domino_server">
-                    </div>
-                </div>
-                <div class="form-group col-sm-6">
-                    <div class="col-sm-10">
-                        <button class="btn btn-primary" type="button" name="load_servers" (click)="loadServers()">Load Servers</button>
-                    </div>
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label for="dominoServer" class="control-label col-sm-4">Domino Directory Server</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" required name="dominoServer" [(ngModel)]="dominoServerImportData.domino_server">
                 </div>
             </div>
-            <b>Or</b>
-            <div class="row">
-                <div class="form-group col-sm-6">
-                    <label for="domino_server_csv" class="control-label col-sm-3">Load from a CSV file:</label>
-                    <div class="col-sm-8">
-                        <input type="file" class="form-control" required name="domino_server_csv" (change)="changeListener($event)">
-                    </div>
-                </div>
-                <div class="form-group col-sm-6">
-                    <div class="col-sm-10">
-                        <button class="btn btn-primary" type="submit" name="load_from_csv" (click)="uploadFiles($event)">Load From CSV</button>
-                    </div>
+            <div class="form-group col-sm-6">
+                <div class="col-sm-10">
+                    <button class="btn btn-primary" type="button" name="load_servers" (click)="loadServers()">Load Servers</button>
                 </div>
             </div>
-
         </div>
-        <div class="row" *ngIf="errorMessage">
-            <div id="errorDiv" class="alert alert-danger">
-                Error:{{errorMessage}}
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <label class="control-label col-sm-3">or</label>
             </div>
-            <div id="errorinfoDiv" class="info">
-                Please check the following possible issues to ensure the Import Wizard is able to
-                function correctly:<br />
-                <br />
-                1. VitalSigns cannot access the Notes ID. Check the values in the Path environment
-                variable to make sure it has a reference to the Notes program directory and the
-                Notes.ini location directory.<br />
-                2. A Notes process is running and locking up the Notes ID. Run Kill Notes as an
-                administrator or end all currently running Notes processes.<br />
-                3. The IIS_USRS user does not have access rights to the Notes directory folder (must
-                have at least read access).<br />
-                4. Incorrect value in the KeyFileName parameter in Notes.ini. Make sure the path
-                and file name of the Notes ID file are correct.<br />
-                5. The Notes.ini file specifies an ID file located on a mapped drive, rather than
-                on a local drive. Move the ID to the local drive and correct Notes.ini.<br />
-                6. Incorrectly entered Notes password. Try logging into the Notes client with the
-                same ID and password, make sure you can access the names.nsf DB on the server you
-                are trying to use in the Import Wizard.<br />
-                7. The server connection document for the server above is missing or incorrect.
-                Check the Domino connection documents to ensure the server document exists and is
-                configured correctly.
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label for="domino_server_csv" class="control-label col-sm-4">Load from a CSV file</label>
+                <div class="col-sm-8">
+                    <input type="file" class="form-control" required name="domino_server_csv" (change)="changeListener($event)">
+                </div>
             </div>
-
+            <div class="form-group col-sm-6">
+                <div class="col-sm-10">
+                    <button class="btn btn-primary" type="submit" name="load_from_csv" (click)="uploadFiles($event)">Load From CSV</button>
+                </div>
+            </div>
+        </div>
+        <div id="errorDiv" class="alert alert-danger" *ngIf="errorMessage">
+            Error: {{errorMessage}}
+        </div>
+        <div id="errorinfoDiv" class="alert alert-info" *ngIf="errorMessage">
+            Please check the following possible issues to ensure the Import Wizard is able to
+            function correctly:<br />
+            <br />
+            1. VitalSigns cannot access the Notes ID. Check the values in the Path environment
+            variable to make sure it has a reference to the Notes program directory and the
+            Notes.ini location directory.<br />
+            2. A Notes process is running and locking up the Notes ID. Run Kill Notes as an
+            administrator or end all currently running Notes processes.<br />
+            3. The IIS_IUSRS user does not have access rights to the Notes directory folder (must
+            have at least read access).<br />
+            4. Incorrect value in the KeyFileName parameter in Notes.ini. Make sure the path
+            and file name of the Notes ID file are correct.<br />
+            5. The Notes.ini file specifies an ID file located on a mapped drive, rather than
+            on a local drive. Move the ID to the local drive and correct Notes.ini.<br />
+            6. Incorrectly entered Notes password. Try logging into the Notes client with the
+            same ID and password, make sure you can access the names.nsf DB on the server you
+            are trying to use in the Import Wizard.<br />
+            7. The server connection document for the server above is missing or incorrect.
+            Check the Domino connection documents to ensure the server document exists and is
+            configured correctly.
         </div>
         <div *ngIf="dominoServerImportData.servers.length>0">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <b> Step 1 - Import Servers and Assign Locations</b>
+                    Step 1 - Import Servers and Assign Locations
                 </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="location">Locations&nbsp;&nbsp;</label>
+                        <wj-combo-box displayMemberPath="text" selectedValuePath="value" name="location" [itemsSource]="deviceLocationData"
+                                      [(ngModel)]="dominoServerImportData.location" placeholder="Select Location" #location>
 
-            </div>
-            <div class="panel-body">
-
-                <div class="form-group">
-                    <label for="location">Locations&nbsp;&nbsp;</label>
-                    <wj-combo-box displayMemberPath="text" selectedValuePath="value" name="location" [itemsSource]="deviceLocationData"
-                                  [(ngModel)]="dominoServerImportData.location" placeholder="Select Location">
-
-                    </wj-combo-box>
-                </div>
-                <div class="alert alert-info col-lg-12">Any server not on the list has already been imported.</div>
-                <div class="row">
-                    <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
-                        <label>
-                            <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.selected">
-                            {{server.device_name}}
-                        </label>
+                        </wj-combo-box>
+                    </div>
+                    <div class="alert alert-info col-lg-12">Any server not on the list has already been imported.</div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <button class="btn btn-primary" type="button" name="selectall" (click)="selectAll()">Select All</button>
+                            <button class="btn btn-primary" type="button" name="deselectall" (click)="deselectAll()">Deselect All</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        &nbsp;
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
+                            <label>
+                                <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.is_checked">
+                                {{server.device_name}}
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="panel-footer">
-                <button class="btn btn-primary" type="button" name="next" (click)="step1Click()">Next</button>
-
-            </div>
+                <div class="panel-footer">
+                    <button class="btn btn-primary" type="button" name="next" (click)="step1Click()">Next</button>
+                </div>
+            </div>           
         </div>
     </div>
 
@@ -106,158 +104,152 @@
     <div *ngIf="currentStep=='2'">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <b> Step 3 - Server Attributes</b>
+                Step 2 - Server Attributes
             </div>
-
-        </div>
-        <div class="panel-body">
-
-
-
-            <div class="panel panel-default">
-
-                <div class="panel-heading">Scan Settings</div>
-                <div class="panel-body">
-
-                    <div class="row">
-                        <div *ngFor="let attribute of dominoServerImportData.device_attributes |filterDeviceAttributes:scanSettings">
-
-                            <div class="form-group col-sm-12">
-                                <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-1">
-                                    <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                    </div>
-                                    <div *ngIf="attribute.type=='CheckBox'">
-                                        <input type="checkbox" [(ngModel)]="attribute.default_value">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">Mail Settings</div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div *ngFor="let attribute of  dominoServerImportData.device_attributes |filterDeviceAttributes:mailSettings">
-
-                            <div class="form-group col-sm-12">
-                                <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-1">
-                                    <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                    </div>
-                                    <div *ngIf="attribute.type=='CheckBox'">
-                                        <input type="checkbox" [(ngModel)]="attribute.default_value">
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading"></div>
             <div class="panel-body">
-                <div class="row">
-                    <div class="form-group col-sm-12">
-                        <label class="control-label col-sm-3">Memory Threshold</label>
-                        <div class="col-sm-1">
-                            <input type="text" [(ngModel)]="dominoServerImportData.memory_threshold" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group col-sm-12">
-                        <label class="control-label col-sm-3">CPU Threshold</label>
-                        <div class="col-sm-1">
-                            <input type="text" [(ngModel)]="dominoServerImportData.cpu_threshold" class="form-control">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Scan Settings</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div *ngFor="let attribute of dominoServerImportData.device_attributes |filterDeviceAttributes:scanSettings">
+                                <div class="form-group col-sm-12">
+                                    <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                                    <div class="col-sm-1">
+                                        <div *ngIf="attribute.type=='TextBox'">
+                                            <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                        </div>
+                                        <div *ngIf="attribute.type=='CheckBox'">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Mail Settings</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div *ngFor="let attribute of  dominoServerImportData.device_attributes |filterDeviceAttributes:mailSettings">
+                                <div class="form-group col-sm-12">
+                                    <div *ngIf="attribute.type=='TextBox'">
+                                        <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                                        <div class="form-group col-sm-1">
+                                            <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div *ngIf="attribute.type=='CheckBox'">
+                                        <!--<input type="checkbox" [(ngModel)]="attribute.default_value">-->
+                                        <div class="funkyradio col-sm-6">
+                                            <div class="funkyradio-default">
+                                                <input type="checkbox" id="'mailSettings_' + attribute.default_value" [(ngModel)]="attribute.default_value">
+                                                <label class="control-label" for="'mailSettings_' + attribute.default_value">{{attribute.attribute_name}}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Memory and CPU</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label class="control-label col-sm-3">Memory Threshold</label>
+                                <div class="col-sm-1">
+                                    <input type="text" [(ngModel)]="dominoServerImportData.memory_threshold" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label class="control-label col-sm-3">CPU Threshold</label>
+                                <div class="col-sm-1">
+                                    <input type="text" [(ngModel)]="dominoServerImportData.cpu_threshold" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Selected Severs</div>
+                    <div class="panel-body">
+                        <div class="form-group col-sm-12">
+                            <div *ngFor="let server of dominoServerImportData.servers; let i=index">
+                                <label *ngIf="server.is_checked" class="col-sm-3">{{server.device_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>            
             </div>
-        </div>
-        <b>Selected Severs</b>
-        <div class="row">
-
-
-            <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
-                <label *ngIf="server.selected">
-                    <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.selected">
-                    {{server.device_name}}
-                </label>
-            </div>
-        </div>
-        <div class="panel-footer">
-            <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
-        </div>
+            <div class="panel-footer">
+                    <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
+                </div>
+        </div>       
     </div>
+
     <!--Step 3-->
     <div *ngIf="currentStep=='3'">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <b> Step 3 - Server Tasks</b>
+                Step 3 - Server Tasks
             </div>
-        </div>
-        <div class="panel-body">
-            <div *ngIf="dominoServerImportData.server_tasks" class="form-horizontal">
+            <div class="panel-body">
+                <div *ngIf="dominoServerImportData.server_tasks" class="form-horizontal">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-4" *ngFor="let serverTask of dominoServerImportData.server_tasks; let i=index">
+                                    <label>
+                                        <input type="checkbox" class="checkbox-inline" name="{{serverTask.task_name}}" [(ngModel)]="serverTask.is_selected">
+                                        {{serverTask.task_name}}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Selected Severs
+                    </div>
                     <div class="panel-body">
-                        <div class="row">
-                            <div class="col-sm-4" *ngFor="let serverTask of dominoServerImportData.server_tasks; let i=index">
-                                <label>
-                                    <input type="checkbox" class="checkbox-inline" name="{{serverTask.task_name}}" [(ngModel)]="serverTask.is_selected">
-                                    {{serverTask.task_name}}
-                                </label>
+                        <div class="form-group col-sm-12">
+                            <div *ngFor="let server of dominoServerImportData.servers; let i=index">
+                                <label *ngIf="server.is_checked" class="col-sm-3">{{server.device_name}}</label>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <b>Selected Severs</b>
-        <div class="row">
-            <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
-                <label *ngIf="server.selected">
-                    <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.selected">
-                    {{server.device_name}}
-                </label>
+            <div class="panel-footer">
+                <button class="btn btn-primary" type="button" name="next" (click)="step3Click()">Next</button>
             </div>
-        </div>
-        <div class="panel-footer">
-            <button class="btn btn-primary" type="button" name="next" (click)="step3Click()">Next</button>
         </div>
     </div>
 
-    <!--Step 3-->
+    <!--Step 4-->
     <div *ngIf="currentStep=='4'">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <b> Step 3 - Finish</b>
+                Step 4 - Finish
             </div>
-        </div>
-        <div class="panel-body">
-            <b>Following Severs were imported successfully</b>
-            <div class="row">
-
-                <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
-                    <label *ngIf="server.selected">
-                        <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.selected">
-                        {{server.device_name}}
-                    </label>
+            <div class="panel-body">
+                <div class="panel-heading">
+                    The following severs were imported successfully:
                 </div>
+                <div class="panel-body">
+                    <div class="form-group col-sm-12">
+                        <div *ngFor="let server of dominoServerImportData.servers; let i=index">
+                            <label *ngIf="server.is_checked" class="col-sm-3">{{server.device_name}}</label>
+                        </div>
+                    </div>
+                </div>        
             </div>
-        </div>
-
-        <div class="panel-footer">
-            <button class="btn btn-primary" type="button" name="next" (click)="step4Click()">Finish</button>
+            <div class="panel-footer">
+                <button class="btn btn-primary" type="button" name="next" (click)="step4Click()">Finish</button>
+            </div>
         </div>
     </div>
 </div>
