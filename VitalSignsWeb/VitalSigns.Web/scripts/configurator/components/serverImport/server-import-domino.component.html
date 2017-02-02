@@ -87,7 +87,7 @@
                     <div class="row">
                         <div class="col-sm-3" *ngFor="let server of dominoServerImportData.servers; let i=index">
                             <label>
-                                <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.is_checked">
+                                <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.is_selected">
                                 {{server.device_name}}
                             </label>
                         </div>
@@ -177,7 +177,7 @@
                     <div class="panel-body">
                         <div class="form-group col-sm-12">
                             <div *ngFor="let server of dominoServerImportData.servers; let i=index">
-                                <label *ngIf="server.is_checked" class="col-sm-3">{{server.device_name}}</label>
+                                <label *ngIf="server.is_selected" class="col-sm-3">{{server.device_name}}</label>
                             </div>
                         </div>
                     </div>
@@ -217,7 +217,7 @@
                     <div class="panel-body">
                         <div class="form-group col-sm-12">
                             <div *ngFor="let server of dominoServerImportData.servers; let i=index">
-                                <label *ngIf="server.is_checked" class="col-sm-3">{{server.device_name}}</label>
+                                <label *ngIf="server.is_selected" class="col-sm-3">{{server.device_name}}</label>
                             </div>
                         </div>
                     </div>
@@ -242,7 +242,7 @@
                 <div class="panel-body">
                     <div class="form-group col-sm-12">
                         <div *ngFor="let server of dominoServerImportData.servers; let i=index">
-                            <label *ngIf="server.is_checked" class="col-sm-3">{{server.device_name}}</label>
+                            <label *ngIf="server.is_selected" class="col-sm-3">{{server.device_name}}</label>
                         </div>
                     </div>
                 </div>        

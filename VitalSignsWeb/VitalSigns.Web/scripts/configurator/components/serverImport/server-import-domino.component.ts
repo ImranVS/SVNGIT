@@ -64,7 +64,7 @@ export class DominoServerImport implements OnInit{
                     this.dominoServerImportData.servers = response.data.serverList;
                     this.deviceLocationData = response.data.locationList;
                     for (let server of this.dominoServerImportData.servers) {
-                        server.is_checked = false;
+                        server.is_selected = false;
                     }
                     //this.resize(this.isSelected, this.dominoServerImportData.servers.length, false);
                 }
@@ -142,13 +142,13 @@ export class DominoServerImport implements OnInit{
 
      selectAll() {
          for (let server of this.dominoServerImportData.servers) {
-             server.is_checked = true;
+             server.is_selected = true;
          }
      }
 
      deselectAll() {
          for (let server of this.dominoServerImportData.servers) {
-             server.is_checked = false;
+             server.is_selected = false;
          }
      }
 }
