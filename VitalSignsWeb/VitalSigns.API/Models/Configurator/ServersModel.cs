@@ -26,7 +26,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("ip_address")]
         public string IpAddress { get; set; }
 
-        [JsonProperty("selected")]
+        [JsonProperty("is_checked")]
         public bool IsSelected { get; set; }
 
 

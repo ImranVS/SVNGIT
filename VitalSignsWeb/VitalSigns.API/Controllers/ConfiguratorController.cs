@@ -6323,7 +6323,7 @@ namespace VitalSigns.API.Controllers
                         server.DeviceName = serverModel.DeviceName;
                         server.DeviceType = "Domino";
                         server.LocationId = serverImport.Location;
-
+                        server.IsEnabled = true;
                         List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
                         foreach (var serverTask in serverImport.ServerTasks)
                         {
@@ -6402,11 +6402,11 @@ namespace VitalSigns.API.Controllers
                         // serversRepository.Insert(server);
                     }
                 }
-                Response = Common.CreateResponse("Success");
+                Response = Common.CreateResponse("Success", Common.ResponseStatus.Success.ToDescription(), "Servers imported successfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server import has failed. \n Error Message :" + exception.Message);
             }
             return Response;
         }
