@@ -42,6 +42,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string AggregationType { get; set; }
 
+        [DataMember]
+        [BsonElement("human_friendly_name")]
+        [BsonIgnoreIfNull]
+        public string HumanFriendlyName { get; set; }
+
 
     }
 }

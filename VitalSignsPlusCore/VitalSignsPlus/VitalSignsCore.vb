@@ -6709,7 +6709,7 @@ CleanUp:
         End Try
 
     End Sub
-    Public Sub addSummaryStats(myServer As MonitoredItems.MonitoredDevice, statName As String, statVal As String)
+    Public Sub addSummaryStats(myServer As MonitoredItems.MonitoredDevice, statName As String, statVal As String, Optional humanFriendlyName As String = Nothing)
         Try
             Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
@@ -6719,6 +6719,7 @@ CleanUp:
             SummaryStats.DeviceId = myServer.ServerObjectID
             SummaryStats.DeviceType = myServer.ServerType
             SummaryStats.StatDate = DateTime.Now()
+            SummaryStats.HumanFriendlyName = humanFriendlyName
             repo.Insert(SummaryStats)
         Catch ex As Exception
 
@@ -6733,7 +6734,7 @@ CleanUp:
          "SELECT COUNT(*) TAG_COUNT, COUNT(DISTINCT NAME) DISTINCT_TAG_COUNT FROM SNCOMM.TAG;" &
          "SELECT COUNT(*) TOP_TAG_COUNT, NAME FROM SNCOMM.TAG GROUP BY NAME ORDER BY TOP_TAG_COUNT DESC FETCH FIRST 20 ROWS ONLY;" &
          "SELECT COUNT(*) NUM_OF_COMMUNITIES_CREATED_YESTERDAY FROM SNCOMM.COMMUNITY WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY AND DELETE_STATE = 0;" &
-         "select c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY WHERE c.DELETE_STATE = 0;" &
+         "SELECT c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE, c.PLAIN_DESCR, c.COMMUNITY_TYPE, t.OWNER_COUNT, t.MEMBER_COUNT, f.FOLLOWING_COUNT FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(SUM(CASE WHEN ROLE = 1 THEN 1 ELSE 0 END),0) OWNER_COUNT, COALESCE(SUM(CASE WHEN ROLE = 0 THEN 1 ELSE 0 END),0) MEMBER_COUNT FROM SNCOMM.MEMBER m GROUP BY COMMUNITY_UUID) as t on t.COMMUNITY_UUID = c.COMMUNITY_UUID INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(COUNT(*),0) FOLLOWING_COUNT FROM SNCOMM.Following GROUP BY COMMUNITY_UUID) as f on f.COMMUNITY_UUID = c.COMMUNITY_UUID WHERE c.DELETE_STATE = 0;" &
          "Select mp.Display, mp.DIRECTORY_UUID, c.Name, (CASE WHEN m.Role = 1 THEN 'Owner' ELSE 'Member' END) MemberType from sncomm.community c inner join sncomm.member m on c.community_uuid = m.community_uuid and c.delete_state = 0 inner join sncomm.memberprofile mp on mp.member_uuid = m.member_uuid;" &
          "SELECT r.REF_UUID, r.COMMUNITY_UUID, r.NAME, 'Bookmark' as Type,  r.CREATED, r.LASTMOD, mp.DIRECTORY_UUID FROM SNCOMM.REF r INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = r.CREATED_BY;"
 
@@ -6772,70 +6773,64 @@ CleanUp:
 
             'sql = "INSERT INTO TABLENAME (ServerId, StatName, StatValue, Category, DateTime) VALUES "
 
-            Dim dict As New Dictionary(Of String, String)
+            Dim tupleList As New List(Of Tuple(Of String, String, String))()
             Try
                 Dim counter As Integer = 0
                 Dim adapter As New VSAdaptor()
                 For Each row As DataRow In ds.Tables(0).Rows
                     If {"private", "public", "publicInviteOnly"}.Contains(ds.Tables(0).Rows(counter)("COMMUNITY_TYPE")) Then
-                        dict.Add("COMMUNITY_TYPE_" & ds.Tables(0).Rows(counter)("COMMUNITY_TYPE"), ds.Tables(0).Rows(counter)("Num_Of_Communities"))
+                        Dim str As String = ""
+                        Select Case ds.Tables(0).Rows(counter)("COMMUNITY_TYPE").ToString()
+                            Case "private"
+                                str = "private"
+                            Case "public"
+                                str = "public"
+                            Case "publicInviteOnly"
+                                str = "moderated"
+                        End Select
+
+                        tupleList.Add(Tuple.Create("COMMUNITY_TYPE_" & ds.Tables(0).Rows(counter)("COMMUNITY_TYPE").ToString(), ds.Tables(0).Rows(counter)("Num_Of_Communities").ToString(), "Number Of " + str + " communities"))
                     Else
                         'Add a print statement here
                     End If
                     counter += 1
                 Next
 
-                dict.Add("COMMUNITY_LOGIN_LAST_MONTH", ds.Tables(1).Rows(0)("COMMUNITY_LOGIN_LAST_MONTH"))
-                dict.Add("COMMUNITY_LOGIN_LAST_WEEK", ds.Tables(1).Rows(0)("COMMUNITY_LOGIN_LAST_WEEK"))
-                dict.Add("COMMUNITY_LOGIN_LAST_DAY", ds.Tables(1).Rows(0)("COMMUNITY_LOGIN_LAST_DAY"))
+                tupleList.Add(Tuple.Create("COMMUNITY_LOGIN_LAST_MONTH", ds.Tables(1).Rows(0)("COMMUNITY_LOGIN_LAST_MONTH").ToString(), "Logins In the past month"))
+                tupleList.Add(Tuple.Create("COMMUNITY_LOGIN_LAST_WEEK", ds.Tables(1).Rows(0)("COMMUNITY_LOGIN_LAST_WEEK").ToString(), "Logins In the past week"))
+                tupleList.Add(Tuple.Create("COMMUNITY_LOGIN_LAST_DAY", ds.Tables(1).Rows(0)("COMMUNITY_LOGIN_LAST_DAY").ToString(), "Logins In the past day"))
 
-                dict.Add("NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH", ds.Tables(2).Rows(0)("NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH"))
+                tupleList.Add(Tuple.Create("NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH", ds.Tables(2).Rows(0)("NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH").ToString(), "Communities made in the past month"))
 
-                dict.Add("COMMUNITY_TAG_COUNT", ds.Tables(3).Rows(0)("TAG_COUNT"))
-                dict.Add("DISTINCT_COMMUNITY_TAG_COUNT", ds.Tables(3).Rows(0)("DISTINCT_TAG_COUNT"))
+                tupleList.Add(Tuple.Create("COMMUNITY_TAG_COUNT", ds.Tables(3).Rows(0)("TAG_COUNT").ToString(), "Number of community tags"))
+                tupleList.Add(Tuple.Create("DISTINCT_COMMUNITY_TAG_COUNT", ds.Tables(3).Rows(0)("DISTINCT_TAG_COUNT").ToString(), "Number of distinct community tags"))
 
 
                 counter = 0
                 If (ds.Tables(4).Rows.Count > 0) Then
-                    'sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfCommunityTagUses';INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
-                    'Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsTopStats)(connectionString)
-                    'Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsTopStats) = repo.Filter.Where(Function(i) i.Type.Equals("NumOfCommunityTagUses"))
-                    'repo.Delete(filterdef)
-                    'sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfEntryTagUses'; INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
                     For Each row As DataRow In ds.Tables(4).Rows
-                        'sql += "('" & myServer.ID & "', '" & myServer.Name & "', '" & counter & "', '" & row("Name").ToString() & "', '" & row("TOP_TAG_COUNT").ToString() & "', 'NumOfCommunityTagUses', GetDate()),"
-                        'Dim IbmConnectionsTopStats As New VSNext.Mongo.Entities.IbmConnectionsTopStats
-                        'IbmConnectionsTopStats.DeviceId = myServer.ServerObjectID
-                        'IbmConnectionsTopStats.DeviceName = myServer.Name
-                        'IbmConnectionsTopStats.Ranking = counter
-                        'IbmConnectionsTopStats.Name = row("Name").ToString()
-                        'IbmConnectionsTopStats.UsageCount = row("TOP_TAG_COUNT").ToString()
-                        'IbmConnectionsTopStats.Type = "NumOfCommunityTagUses"
-                        'repo.Insert(IbmConnectionsTopStats)
-                        'counter += 1
-                        addSummaryStats(myServer, "NumOfCommunityTagUses." + row("Name").ToString(), row("TOP_TAG_COUNT").ToString())
+                        tupleList.Add(Tuple.Create("NumOfCommunityTagUses." + row("Name").ToString(), row("TOP_TAG_COUNT").ToString(), "Community tag " + row("Name").ToString() + " usage count"))
                     Next
                     'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
                 End If
 
-                dict.Add("NUM_OF_COMMUNITIES_COMMUNITIES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_COMMUNITIES_CREATED_YESTERDAY"))
+                tupleList.Add(Tuple.Create("NUM_OF_COMMUNITIES_COMMUNITIES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_COMMUNITIES_CREATED_YESTERDAY").ToString(), "Number of communities created yesterday"))
 
 
                 'sql = "INSERT INTO IbmConnectionsSummaryStats (ServerName, Date, StatName, StatValue, WeekNumber, MonthNumber, YearNumber, DayNumber) VALUES "
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
-                For Each key In dict.Keys
-                    Dim Name As String = key
-                    Dim Val As String = dict(key)
+                For Each stat In tupleList
+                    Dim Name As String = stat.Item1
+                    Dim Val As String = stat.Item2
+                    Dim HumanFriendlyName As String = stat.Item3
 
-                    If String.Equals(myServer.IPAddress, "https://connections-as.jnittech.com:9444", StringComparison.CurrentCultureIgnoreCase) Then
-                        If key = "NUM_OF_COMMUNITIES_COMMUNITIES_CREATED_YESTERDAY" Then
+                    If myServer.IPAddress.ToLower().Contains(".jnittech.com") Then
+                        If Name = "NUM_OF_COMMUNITIES_COMMUNITIES_CREATED_YESTERDAY" Then
                             Val = Int(20 * Rnd()) + 1
                         End If
                     End If
-
-                    'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
                     addSummaryStats(myServer, Name.ToUpper(), Val)
                 Next
 
@@ -6869,22 +6864,6 @@ CleanUp:
                         If Not tags.Contains(tag) Then
                             tags.Add(tag)
                         End If
-                        'cmd = New SqlClient.SqlCommand()
-                        'cmd.Connection = sqlConn
-                        'cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                        'cmd.Parameters.AddWithValue("@TagName", tag)
-
-                        'cmd.ExecuteNonQuery()
-
-                        'cmd = New SqlClient.SqlCommand()
-                        'cmd.Connection = sqlConn
-                        'cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID = @CommGUID AND" & _
-                        '" Type = 'Community' AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
-                        'cmd.Parameters.AddWithValue("@TagName", tag)
-                        'cmd.Parameters.AddWithValue("@CommGUID", row("COMMUNITY_UUID").ToString())
-                        'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-
-                        'cmd.ExecuteNonQuery()
                     Next
 
                     Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
@@ -6901,45 +6880,18 @@ CleanUp:
                     IbmConnectionsObjects.OwnerId = userId2
                     IbmConnectionsObjects.GUID = row("COMMUNITY_UUID").ToString()
                     IbmConnectionsObjects.tags = tags
-                    IbmConnectionsObjects.Community = row("COMMUNITY_TYPE").ToString()
+                    IbmConnectionsObjects.CommunityType = row("COMMUNITY_TYPE").ToString()
                     IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
                     IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
+                    IbmConnectionsObjects.NumOfFollowers = row("FOLLOWING_COUNT").ToString()
+                    IbmConnectionsObjects.NumOfMembers = row("MEMBER_COUNT").ToString()
+                    IbmConnectionsObjects.NumOfOwners = row("OWNER_COUNT").ToString()
+                    IbmConnectionsObjects.ObjectUrl = myServer.IPAddress + "/communities/service/html/communitystart?communityUuid=" + row("COMMUNITY_UUID").ToString()
 
                     repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
 
-                    'cmd = New SqlClient.SqlCommand()
-                    'cmd.Connection = sqlConn
-                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
-                    '    "(@Name, 'Community', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @ObjGUID)"
-                    'cmd.Parameters.AddWithValue("@Name", row("NAME").ToString())
-                    'cmd.Parameters.AddWithValue("@Created", row("CREATED").ToString())
-                    'cmd.Parameters.AddWithValue("@Modified", row("LASTMOD").ToString())
-                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                    'cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_UUID").ToString())
-                    'cmd.Parameters.AddWithValue("@ObjGUID", row("COMMUNITY_UUID").ToString())
-                    'cmd.ExecuteNonQuery()
                     Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(row("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
                     Dim projectDefIbmConnectionsObjects2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
-                    'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                    'Dim sxs2 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).Take(1)
-                    'Dim id2 As String = sxs2.Id
-
-                    'Dim IbmConnectionsCommunity As New VSNext.Mongo.Entities.IbmConnectionsCommunity
-                    'IbmConnectionsCommunity.id = id2
-                    'IbmConnectionsCommunity.CommunityName = row("COMMUNITY_TYPE").ToString()
-                    'repoIbmConnectionsCommunity.Insert(IbmConnectionsCommunity)
-
-
-                    'cmd = New SqlClient.SqlCommand()
-                    'cmd.Connection = sqlConn
-                    'cmd.CommandText = "INSERT INTO IbmConnectionsCommunity (ObjectID, CommunityType) VALUES " & _
-                    '    "((SELECT ID FROM IbmConnectionsObjects WHERE GUID = @ObjGUID AND ServerID = @ServerId), @CommunityType)"
-                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                    'cmd.Parameters.AddWithValue("@ObjGUID", row("COMMUNITY_UUID").ToString())
-                    'cmd.Parameters.AddWithValue("@CommunityType", row("COMMUNITY_TYPE").ToString())
-                    'cmd.ExecuteNonQuery()
-
-
 
                     For Each bookmarkRow As DataRow In ds.Tables(8).Select("COMMUNITY_UUID = '" & row("COMMUNITY_UUID").ToString() & "'")
                         Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
@@ -6967,31 +6919,7 @@ CleanUp:
                         IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
                         repoIbmConnectionsObjects.Insert(IbmConnectionsObjects2)
 
-                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Doing bookmarks for " & row("COMMUNITY_UUID").ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                        'cmd = New SqlClient.SqlCommand()
-                        'cmd.Connection = sqlConn
-                        'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, ParentObjectID,GUID) VALUES " & _
-                        '    "(@Name, 'Bookmark', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE " & _
-                        '    "GUID = @CommGUID AND ServerID = @ServerId ORDER BY ID DESC), @BookmarkGUID)"
-                        'cmd.Parameters.AddWithValue("@Name", bookmarkRow("NAME").ToString())
-                        'cmd.Parameters.AddWithValue("@Created", bookmarkRow("CREATED").ToString())
-                        'cmd.Parameters.AddWithValue("@Modified", bookmarkRow("LASTMOD").ToString())
-                        'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                        'cmd.Parameters.AddWithValue("@GUID", bookmarkRow("DIRECTORY_UUID").ToString())
-                        'cmd.Parameters.AddWithValue("@CommGUID", row("COMMUNITY_UUID").ToString())
-                        'cmd.Parameters.AddWithValue("@BookmarkGUID", bookmarkRow("REF_UUID").ToString())
-
-                        'Dim s As String = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, ParentObjectID,GUID) VALUES " & _
-                        '    "(@Name, 'Bookmark', @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE " & _
-                        '    "GUID = @CommGUID AND ServerID = @ServerId ORDER BY ID DESC), @BookmarkGUID)".Replace("@Name", bookmarkRow("NAME").ToString()).Replace("@Created", bookmarkRow("CREATED").ToString()).Replace("@Modified", bookmarkRow("LASTMOD").ToString()).Replace("@ServerId", myServer.ID).Replace("@GUID", bookmarkRow("DIRECTORY_UUID").ToString()).Replace("@CommGUID", row("COMMUNITY_UUID").ToString()).Replace("@BookmarkGUID", bookmarkRow("REF_UUID").ToString())
-
-                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Doing bookmarks for " & row("COMMUNITY_UUID").ToString() & ". sql = " & s, LogUtilities.LogUtils.LogLevel.Normal)
-
-                        'cmd.ExecuteNonQuery()
-
                     Next
-
-
 
                 Next
                 'End Using
@@ -7029,25 +6957,7 @@ CleanUp:
                         .Set(Function(i) i.users, commUsers)
 
                     repoIbmConnectionsObjects.Update(filterdefIbmConnectionsObjects2, updatedef)
-                    'Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                    'IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
-                    'IbmConnectionsObjects.DeviceName = myServer.Name
-                    'IbmConnectionsObjects.Type = "Community"
-                    'IbmConnectionsObjects.OwnerId = userId
-                    'IbmConnectionsObjects.GUID = row("COMMUNITY_UUID").ToString()
-                    'IbmConnectionsObjects.tags = tags
-                    'repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
 
-
-                    'Dim cmd As New SqlClient.SqlCommand()
-                    'cmd.Connection = sqlConn
-                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjectUsers (ObjectId, UserId) VALUES((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE Name = @CommName AND " & _
-                    '    "Type = 'Community' AND ServerID = @ServerId), (SELECT TOP 1 ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId));"
-                    'cmd.Parameters.AddWithValue("@CommName", row("NAME").ToString())
-                    'cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_UUID").ToString())
-                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-
-                    'cmd.ExecuteNonQuery()
                 Next
 
                 Dim listOfComms As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects).ToList()
@@ -7060,11 +6970,6 @@ CleanUp:
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Community Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
-
-
-
-
-
 
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetCommunityStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)

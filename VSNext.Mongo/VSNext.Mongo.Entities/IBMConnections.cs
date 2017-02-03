@@ -60,63 +60,98 @@ namespace VSNext.Mongo.Entities
     {
         [DataMember]
         [BsonElement("name")]
+        [BsonIgnoreIfNull]
         public string Name { get; set; }
 
         [DataMember]
         [BsonElement("device_name")]
+        [BsonIgnoreIfNull]
         public string DeviceName { get; set; }
 
 
         [DataMember]
         [BsonElement("device_id")]
         [BsonRepresentation(BsonType.ObjectId)]
+        [BsonIgnoreIfNull]
         public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("ownerid")]
+        [BsonIgnoreIfNull]
         public string OwnerId { get; set; }
 
         [DataMember]
         [BsonElement("guid")]
+        [BsonIgnoreIfNull]
         public string GUID { get; set; }
 
 
         [DataMember]
         [BsonElement("type")]
+        [BsonIgnoreIfNull]
         public string Type { get; set; }
 
         [DataMember]
         [BsonElement("parent_guid")]
+        [BsonIgnoreIfNull]
         public string ParentGUID { get; set; }
 
         [DataMember]
         [BsonElement("tags")]
+        [BsonIgnoreIfNull]
         public List<string> tags { get; set; }
 
         [DataMember]
         [BsonElement("users")]
         [BsonRepresentation(BsonType.ObjectId)]
+        [BsonIgnoreIfNull]
         public List<string> users { get; set; }
 
         [DataMember]
-        [BsonElement("community")]
-        public string Community { get; set; }
+        [BsonElement("community_type")]
+        [BsonIgnoreIfNull]
+        public string CommunityType { get; set; }
 
         [DataMember]
         [BsonElement("object_created_date")]
+        [BsonIgnoreIfNull]
         public DateTime ObjectCreatedDate { get; set; }
 
         [DataMember]
         [BsonElement("object_modified_date")]
+        [BsonIgnoreIfNull]
         public DateTime ObjectModifiedDate { get; set; }
 
         [DataMember]
         [BsonElement("is_active")]
+        [BsonIgnoreIfNull]
         public bool IsActive { get; set; }
 
         [DataMember]
         [BsonElement("is_internal")]
+        [BsonIgnoreIfNull]
         public bool IsInternal { get; set; }
+
+        [DataMember]
+        [BsonElement("num_of_followers")]
+        [BsonIgnoreIfNull]
+        public int NumOfFollowers { get; set; }
+
+        [DataMember]
+        [BsonElement("num_of_owners")]
+        [BsonIgnoreIfNull]
+        public int NumOfOwners { get; set; }
+
+        [DataMember]
+        [BsonElement("num_of_members")]
+        [BsonIgnoreIfNull]
+        public int NumOfMembers { get; set; }
+
+        [DataMember]
+        [BsonElement("object_url")]
+        [BsonIgnoreIfNull]
+        public string ObjectUrl { get; set; }
+
     }
 
     //[DataContract]
