@@ -152,6 +152,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string ObjectUrl { get; set; }
 
+        [DataMember]
+        [BsonElement("description")]
+        [BsonIgnoreIfNull]
+        public string Description { get; set; }
+
     }
 
     //[DataContract]
