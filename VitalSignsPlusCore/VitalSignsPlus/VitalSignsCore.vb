@@ -6831,7 +6831,7 @@ CleanUp:
                             Val = Int(20 * Rnd()) + 1
                         End If
                     End If
-                    addSummaryStats(myServer, Name.ToUpper(), Val)
+                    addSummaryStats(myServer, Name.ToUpper(), Val, HumanFriendlyName)
                 Next
 
 
@@ -6887,6 +6887,7 @@ CleanUp:
                     IbmConnectionsObjects.NumOfMembers = row("MEMBER_COUNT").ToString()
                     IbmConnectionsObjects.NumOfOwners = row("OWNER_COUNT").ToString()
                     IbmConnectionsObjects.ObjectUrl = myServer.IPAddress + "/communities/service/html/communitystart?communityUuid=" + row("COMMUNITY_UUID").ToString()
+                    IbmConnectionsObjects.Description = row("PLAIN_DESCR").ToString()
 
                     repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
 
