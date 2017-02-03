@@ -39,7 +39,7 @@ export class ResponseTimeReport extends WidgetController {
         this.widgets = [
             {
                 id: 'blogs',
-                title: 'Response Times',
+                title: '',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
@@ -48,7 +48,7 @@ export class ResponseTimeReport extends WidgetController {
                         chart: {
                             renderTo: 'blogs',
                             type: 'bar',
-                            height: 240
+                            height: 540
                         },
                         title: { text: '' },
                         subtitle: { text: '' },

@@ -46,6 +46,14 @@ export class AnyStatisticFilter {
         this.select.emit(this.widgetService.getProperty('gridUrl'));
 
     }
+
+    set widgetTitle(name: string) {
+
+        this.widgetService.setProperty('widgetTitle', name);
+
+        this.select.emit(this.widgetService.getProperty('widgetTitle'));
+
+    }
     
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
@@ -112,6 +120,7 @@ export class AnyStatisticFilter {
 
         if (arr.length > 1 && arr.some(function (x) { return (x.firstChild != null ? x.firstChild.localName.toString().includes("wj-flex-grid") : false); })) {
             this.gridUrl = URL;
+            this.widgetTitle = this.statisticDropdown.value;
         } else {
             this.widgetService.refreshWidget(this.widgetName, URL)
                 .catch(error => console.log(error));

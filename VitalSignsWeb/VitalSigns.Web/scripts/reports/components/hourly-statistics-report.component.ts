@@ -98,7 +98,7 @@ export class HourlyStatisticsReport extends WidgetController {
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false

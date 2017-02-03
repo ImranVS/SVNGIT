@@ -1,5 +1,5 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute,Router} from '@angular/router';
 import {WidgetController, WidgetContract} from '../../core/widgets';
 import {WidgetService} from '../../core/widgets/services/widget.service';
 import {RESTService} from '../../core/services/rest.service';
@@ -30,14 +30,18 @@ export class StatisticsReport extends WidgetController {
     currentWidgetName: string = `report`;
     currentWidgetURL: string = `/reports/summarystats_chart?statName=${this.statname}`;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute,
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
+        private router: Router,
+        private route: ActivatedRoute,
         protected urlHelpers: helpers.UrlHelperService) {
 
-        super(resolver, widgetService);
+        super(resolver, widgetService, true, router, route);
 
     }
 
     ngOnInit() {
+
+        super.ngOnInit();
 
         this.route.queryParams.subscribe(params => {
             this.statname = params['statname'];
@@ -101,7 +105,7 @@ export class StatisticsReport extends WidgetController {
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false

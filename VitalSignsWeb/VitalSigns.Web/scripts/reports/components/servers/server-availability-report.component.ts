@@ -1,5 +1,5 @@
-﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+﻿import { Component, ComponentFactoryResolver, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {WidgetController, WidgetContract} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services/rest.service';
@@ -28,14 +28,18 @@ export class ServerAvailabilityReport extends WidgetController {
     currentWidgetURL: string = `/reports/server_availability?statName=${this.statname}`;
     currentWidgetName: string = "report";
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute,
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
+        private router: Router,
+        private route: ActivatedRoute,
         protected urlHelpers: helpers.UrlHelperService) {
 
-        super(resolver, widgetService);
+        super(resolver, widgetService, true, router, route);
 
     }
 
     ngOnInit() {
+
+        super.ngOnInit();
 
         this.route.queryParams.subscribe(params => {
             this.statname = params['statname'];

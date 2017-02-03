@@ -1,14 +1,14 @@
-﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" #flex >
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex >
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Description'" [binding]="'description'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Location'" [binding]="'location_id'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'P'" [binding]="'pending_mail'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'D'" [binding]="'dead_mail'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'H'" [binding]="'held_mail'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Pending Mail'" [binding]="'pending_mail'" [width]="150" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Dead Mail'" [binding]="'dead_mail'" [width]="150" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Held Mail'" [binding]="'held_mail'" [width]="150" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" [width]="150" align="right"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"

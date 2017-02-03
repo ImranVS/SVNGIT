@@ -53,4 +53,10 @@ export class AnyStatisticReport extends WidgetController {
         
 
     }
+
+    onPropertyChanged(key: string, value: any) {
+        if (key === 'widgetTitle') {
+            this.widgets[0].title = value;
+        }
+    }
 }

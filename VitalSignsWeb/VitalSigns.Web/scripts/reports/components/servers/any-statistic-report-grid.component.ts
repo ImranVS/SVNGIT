@@ -71,7 +71,7 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
 
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(newData.data));
                 //this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));
-                this.data.pageSize = 10;
+                //this.data.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
             );
@@ -106,7 +106,7 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
 
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(newData.data));
                     //this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));
-                    this.data.pageSize = 10;
+                    //this.data.pageSize = 10;
                 },
                 (error) => this.errorMessage = <any>error
                 );

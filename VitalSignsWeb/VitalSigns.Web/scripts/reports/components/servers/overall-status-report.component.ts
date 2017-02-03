@@ -39,7 +39,7 @@ export class OverallStatusReport extends WidgetController {
         this.widgets = [
             {
                 id: 'overallStatusGrid',
-                title: 'Overall Status',
+                title: '',
                 name: 'OverallStatusReportGrid',
                 settings: {}
             }
