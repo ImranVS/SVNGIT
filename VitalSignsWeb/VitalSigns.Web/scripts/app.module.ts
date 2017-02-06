@@ -399,6 +399,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         tabs.ServiceOutagesTab,
         tabs.ServiceEventsTab,
         tabs.URLHealthTab,
+        tabs.WebSphereOverallTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -547,6 +548,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         tabs.ServiceClusterHealthTab,
         tabs.ServiceEventsTab,
         tabs.URLHealthTab,
+        tabs.WebSphereOverallTab,
         tabs.ServiceOutagesTab
     ],
     bootstrap: [

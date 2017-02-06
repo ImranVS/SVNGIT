@@ -1,5 +1,5 @@
 ﻿
-import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
+import {Component, OnInit, ComponentFactoryResolver, ComponentFactory, ElementRef, ComponentRef, ViewChild, ViewContainerRef, Injector} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {Router} from '@angular/router';
@@ -14,7 +14,10 @@ import {ServiceTab} from '../models/service-tab.interface';
 import * as ServiceTabs from '../service-tab.collection';
 import { WidgetService } from '../../core/widgets/services/widget.service';
 import {AppComponentService} from '../../core/services';
-import {ServicesViewService} from '../services/services-view.service';
+import { ServicesViewService } from '../services/services-view.service';
+
+declare var injectSVG: any;
+
 @Component({
     templateUrl: '/app/services/components/service-details.component.html',
     providers: [
@@ -101,7 +104,7 @@ export class ServiceDetails implements OnInit {
 
         });
 
-      
+        injectSVG();
        
         
     }

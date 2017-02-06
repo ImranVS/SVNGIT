@@ -2,6 +2,7 @@
 export * from './components/no-selected-service.component';
 export * from './components/service-overall-tab.component';
 export * from './components/service-url-health.component';
+export * from './components/service-websphere-overall-tab.component';
 
 
 export * from '../dashboards/components/ibm-connections/ibm-connections-overview-tab.component';

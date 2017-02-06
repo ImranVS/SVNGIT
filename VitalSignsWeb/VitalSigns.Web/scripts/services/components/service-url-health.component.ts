@@ -39,7 +39,7 @@ export class URLHealthTab extends WidgetController implements OnInit, ServiceTab
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -48,7 +48,7 @@ export class URLHealthTab extends WidgetController implements OnInit, ServiceTab
                             },
                             categories: [],
                             title: {
-                                text: 'Time'
+                                //text: 'Time'
                             }
                         },
                         yAxis: {
@@ -83,7 +83,7 @@ export class URLHealthTab extends WidgetController implements OnInit, ServiceTab
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -92,7 +92,7 @@ export class URLHealthTab extends WidgetController implements OnInit, ServiceTab
                             },
                             categories: [],
                             title: {
-                                text: 'Time'
+                                //text: 'Time'
                             }
                         },
                         yAxis: {
