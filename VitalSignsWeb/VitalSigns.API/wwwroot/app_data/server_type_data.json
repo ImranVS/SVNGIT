@@ -270,6 +270,13 @@
         "tabs": [
           {
             "tab_id": 1,
+            "title": "Overall",
+            "type": "Dashboard",
+            "component": "WebSphereOverallTab",
+            "path": "/app/services/components/service-websphere-overall-tab.component"
+          },
+          {
+            "tab_id": 1,
             "title": "Device Attributes",
             "type": "Configurator",
             "component": "ServerAttribute",

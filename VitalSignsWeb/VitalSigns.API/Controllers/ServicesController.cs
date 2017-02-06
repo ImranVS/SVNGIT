@@ -661,7 +661,7 @@ namespace VitalSigns.API.Controllers
                         {
                             case "SUM":
 
-                                var statsSum = dailyRepository.Find(expression);
+                                var statsSum = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
                                 var statsSumData = statsSum
                                               .GroupBy(row => row.StatName)
                                               .Select(grp => new
@@ -675,7 +675,7 @@ namespace VitalSigns.API.Controllers
 
                             case "AVG":
 
-                                var statsAvg = dailyRepository.Find(expression);
+                                var statsAvg = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
 
                                 if (isChart)
                                 {
@@ -721,7 +721,7 @@ namespace VitalSigns.API.Controllers
 
                             case "COUNT":
 
-                                var statsCount = dailyRepository.Find(expression);
+                                var statsCount = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
                                 var statsCountData = statsCount
                                        .GroupBy(row => row.StatName)
                                        .Select(grp => new
@@ -735,7 +735,7 @@ namespace VitalSigns.API.Controllers
 
                             case "HOURLY":
 
-                                var statsHourly = dailyRepository.Find(expression);
+                                var statsHourly = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
                                 var result = statsHourly
                                        .GroupBy(row => new
                                        {
@@ -755,7 +755,7 @@ namespace VitalSigns.API.Controllers
 
                                     segments = new List<Segment>();
                                     serie = new Serie();
-                                    for (int hour = 1; hour <= 24; hour++)
+                                    for (int hour = 24; hour >= 1; hour--)
                                     {
                                         var item = result.Where(x => x.Hour == hour).FirstOrDefault();
                                         var output = result.Where(x => x.Hour == hour && x.StatName == name).ToList();
@@ -805,7 +805,8 @@ namespace VitalSigns.API.Controllers
                     if (string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
                     {
 
-                        var result = dailyRepository.Find(expression).Select(x => new StatsData
+                        var result = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn)
+                            .Select(x => new StatsData
                         {
                             DeviceId = x.DeviceId,
                             StatName = x.StatName,
@@ -827,7 +828,7 @@ namespace VitalSigns.API.Controllers
                         {
                             case "SUM":
 
-                                var statsSum = dailyRepository.Find(expression);
+                                var statsSum = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
 
                                 var statsSumData = statsSum
                                               .GroupBy(row => row.StatName)
@@ -845,7 +846,7 @@ namespace VitalSigns.API.Controllers
 
                             case "AVG":
 
-                                var statsAvg = dailyRepository.Find(expression);
+                                var statsAvg = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
 
                                 var statsAvgData = statsAvg
                                           .GroupBy(row => row.StatName)
@@ -858,7 +859,7 @@ namespace VitalSigns.API.Controllers
                                 Response = Common.CreateResponse(statsAvgData);
                                 break;
                             case "COUNT":
-                                var statsCount = dailyRepository.Find(expression);
+                                var statsCount = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
 
                                 var statsCountData = statsCount
                                        .GroupBy(row => row.StatName)
@@ -871,7 +872,7 @@ namespace VitalSigns.API.Controllers
                                 Response = Common.CreateResponse(statsCountData);
                                 break;
                             case "HOURLY":
-                                var statsHourly = dailyRepository.Find(expression);
+                                var statsHourly = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
 
 
                                 var result = statsHourly
@@ -903,7 +904,7 @@ namespace VitalSigns.API.Controllers
 
                                     List<Segment> segments = new List<Segment>();
                                     Serie serie = new Serie();
-                                    for (int hour = 1; hour <= 24; hour++)
+                                    for (int hour = 24; hour >= 1; hour--)
                                     {
                                         // To do
                                         // string hourString =hour<12?hour.ToString()+ " A.M " 
