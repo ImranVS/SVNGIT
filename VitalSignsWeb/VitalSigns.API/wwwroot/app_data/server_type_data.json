@@ -276,6 +276,13 @@
             "path": "/app/services/components/service-websphere-overall-tab.component"
           },
           {
+            "tab_id": 2,
+            "title": "Events",
+            "type": "Dashboard",
+            "component": "ServiceEventsTab",
+            "path": "/app/services/components/service-events-tab.component"
+          },
+          {
             "tab_id": 1,
             "title": "Device Attributes",
             "type": "Configurator",
