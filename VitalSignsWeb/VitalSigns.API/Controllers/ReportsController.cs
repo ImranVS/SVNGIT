@@ -969,43 +969,69 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("community_users")]
-        public APIResponse GetCommunityUsers()
+        public APIResponse GetCommunityUsers(string deviceId = "")
         {
-            connectionsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
-            List<IBMConnCommunityUsersList> result = null;
-            FilterDefinition<IbmConnectionsObjects> filterDef = connectionsRepository.Filter.Eq(x => x.Type, "Community");
-            result = connectionsRepository.Find(filterDef)
-                             .AsQueryable()
-                             .Select(x => new IBMConnCommunityUsersList
-                             {
-                                 ServerName = x.DeviceName,
-                                 Name = x.Name,
-                                 users = x.users,
-                             }).ToList();
-
-            List<IBMConnCommunityUsersList> result2 = new List<IBMConnCommunityUsersList>(); ;
-            foreach (IBMConnCommunityUsersList l in result)
+            FilterDefinition<IbmConnectionsObjects> filterDef;
+            List<String> listOfDevices;
+            try
             {
-                if (l.users != null)
+                connectionsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                List<IBMConnCommunityUsersList> result = null;
+                if (!string.IsNullOrEmpty(deviceId))
                 {
-                    foreach (string s in l.users)
+                    listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+                    filterDef = connectionsRepository.Filter.And(connectionsRepository.Filter.Eq(x => x.Type, "Community"),
+                        connectionsRepository.Filter.In(x => x.DeviceId, listOfDevices));
+                }
+                else
+                {               
+                    filterDef = connectionsRepository.Filter.Eq(x => x.Type, "Community");
+                }
+                result = connectionsRepository.Find(filterDef)
+                                 .AsQueryable()
+                                 .Select(x => new IBMConnCommunityUsersList
+                                 {
+                                     ServerName = x.DeviceName,
+                                     Name = x.Name,
+                                     users = x.users,
+                                     CommunityType = x.CommunityType,
+                                     NumOfMembers = x.NumOfMembers,
+                                     NumOfFollowers = x.NumOfFollowers
+                                 }).ToList();
+
+                List<IBMConnCommunityUsersList> result2 = new List<IBMConnCommunityUsersList>();
+                foreach (IBMConnCommunityUsersList l in result)
+                {
+                    if (l.users != null)
                     {
-                        IBMConnCommunityUsersList ibm2 = new IBMConnCommunityUsersList();
-                        ibm2.ServerName = l.ServerName;
-                        ibm2.Name = l.Name;
-                        FilterDefinition<IbmConnectionsObjects> filterDef2 = connectionsRepository.Filter.Eq(x => x.Type, "Users") & connectionsRepository.Filter.Eq(x => x.Id, s);
-                        List<string> us = connectionsRepository.Find(filterDef2)
-                                    .AsQueryable()
-                                    .Select(x => x.Name).ToList();
-                        foreach (string s1 in us)
-                            ibm2.user = s1;
-                        ibm2.users = us;
-                        result2.Add(ibm2);
+                        foreach (string s in l.users)
+                        {
+                            IBMConnCommunityUsersList ibm2 = new IBMConnCommunityUsersList();
+                            ibm2.ServerName = l.ServerName;
+                            ibm2.Name = l.Name;
+                            FilterDefinition<IbmConnectionsObjects> filterDef2 = connectionsRepository.Filter.Eq(x => x.Type, "Users") & connectionsRepository.Filter.Eq(x => x.Id, s);
+                            List<string> us = connectionsRepository.Find(filterDef2)
+                                        .AsQueryable()
+                                        .Select(x => x.Name).ToList();
+                            foreach (string s1 in us)
+                                ibm2.user = s1;
+                            ibm2.users = us;
+                            ibm2.CommunityType = l.CommunityType;
+                            ibm2.NumOfMembers = l.NumOfMembers;
+                            ibm2.NumOfFollowers = l.NumOfFollowers;
+                            result2.Add(ibm2);
+                        }
                     }
                 }
+                Response = Common.CreateResponse(result2.OrderBy(x => x.Name));
+                return Response;
             }
-            Response = Common.CreateResponse(result2.OrderBy(x => x.Name));
-            return Response;
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
         }
 
 
