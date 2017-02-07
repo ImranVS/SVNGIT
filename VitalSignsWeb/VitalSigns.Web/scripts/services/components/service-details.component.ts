@@ -17,6 +17,7 @@ import {AppComponentService} from '../../core/services';
 import { ServicesViewService } from '../services/services-view.service';
 
 declare var injectSVG: any;
+declare var jQuery: any;
 
 @Component({
     templateUrl: '/app/services/components/service-details.component.html',
@@ -95,7 +96,12 @@ export class ServiceDetails implements OnInit {
                   this.data=response.data
                     this.selectTab(this.service.tabs[0]);
                     this.deviceName = response.data.name;
-                    this.deviceId=response.data.id
+                    this.deviceId = response.data.id;
+
+                    jQuery('#selectedServerIcon SVG').remove();
+                    jQuery('#selectedServerIcon .helper').after(`<img class="svgInject" src="${this.service.icon}" title="${this.service.name}" alt="${this.service.name}" />`);
+
+                    injectSVG();
                  
                 },
                 error => this.errorMessage = <any>error
@@ -103,9 +109,6 @@ export class ServiceDetails implements OnInit {
 
 
         });
-
-        injectSVG();
-       
         
     }
 
