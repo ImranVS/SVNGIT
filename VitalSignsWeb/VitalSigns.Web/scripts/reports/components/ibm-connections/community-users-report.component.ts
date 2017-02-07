@@ -19,6 +19,13 @@ declare var injectSVG: any;
 export class CommunityUsersReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
+    currentStatType: string = "";
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = true;
+    currentHideStatControl: boolean = true;
+    currentDeviceType: string = "IBM Connections";
+    currentWidgetName: string = `communityUsers`;
+    currentWidgetURL: string = `/reports/community_users`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 

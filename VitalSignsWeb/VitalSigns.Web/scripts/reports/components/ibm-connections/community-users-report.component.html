@@ -11,10 +11,11 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
+        <connections-server-filter [(statType)]="currentStatType" [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel" [(hideStatControl)]="currentHideStatControl"></connections-server-filter>
         <div class="reportsPage">
-            <h1>Community Users Report</h1>
+            <h1>Community Users</h1>
             <div *ngFor="let widget of widgets">
-                <h3>{{widget.title}}</h3>
+                <!--<h3>{{widget.title}}</h3>-->
                 <div id="{{widget.id}}">
                     <my-widget [contract]="widget"></my-widget>
                 </div>

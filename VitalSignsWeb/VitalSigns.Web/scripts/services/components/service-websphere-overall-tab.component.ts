@@ -75,7 +75,7 @@ export class WebSphereOverallTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statname=AveragThreadCount&deviceId=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statname=AverageThreadCount&deviceId=${this.serviceId}&operation=hourly`,
                     dateformat: 'time',
                     chart: {
                         chart: {
@@ -141,7 +141,7 @@ export class WebSphereOverallTab extends WidgetController implements OnInit, Ser
                         },
                         yAxis: {
                             title: {
-                                text: 'Response Time (ms)'
+                                text: 'ms'
                             }
                         },
                         legend: {

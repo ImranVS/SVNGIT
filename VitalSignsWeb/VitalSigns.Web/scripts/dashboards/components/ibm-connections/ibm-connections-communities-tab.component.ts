@@ -111,7 +111,15 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                             labels: {
                                 step: 1
                             },
-                            categories: []
+                            categories: [],
+                            title: {
+                                //text: 'Time'
+                            }
+                        },
+                        yAxis: {
+                            title: {
+                                //text: 'Time'
+                            }
                         },
                         legend: {
                             enabled: false

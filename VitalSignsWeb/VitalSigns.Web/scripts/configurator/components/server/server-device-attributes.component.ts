@@ -40,14 +40,15 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     serverType: string;
     Types: string;
     platform: string;
-    scanSettings: string = "Scan Settings"
-    mailSettings: string = "Mail Settings"
-    travelerSettings: string = "Traveler Settings"
-    optionalSettings: string = "Optional Settings"
-    webSphereSettings: string = "WebSphere Settings"
-    chatSettings: string = "Chat Settings"
-    searchText: string = "Optional Search Text"
-    usernameorPassword: string = "Optional Username/Password"
+    costAttr: string = "Cost Settings";
+    scanSettings: string = "Scan Settings";
+    mailSettings: string = "Mail Settings";
+    travelerSettings: string = "Traveler Settings";
+    optionalSettings: string = "Optional Settings";
+    webSphereSettings: string = "WebSphere Settings";
+    chatSettings: string = "Chat Settings";
+    searchText: string = "Optional Search Text";
+    usernameorPassword: string = "Optional Username/Password";
     visiblity: boolean;
     documentschecked: boolean;
     module: any;

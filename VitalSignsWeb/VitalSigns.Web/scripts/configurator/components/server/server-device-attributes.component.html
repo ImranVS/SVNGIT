@@ -119,6 +119,26 @@
     </div>
 
 </div>
+<!-- Cost Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div class="panel panel-default">
+        <div class="panel-heading">Cost Settings</div>
+        <div class="panel-body">
+            <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || serverAttributes.device_type =='URL' || serverAttributes.device_type=='IBM Connections'">
+                <div class="form-group">
+                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:costAttr">
+                        <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Scan Settings -->
 <div *ngIf="serverAttributes" class="form-horizontal">
     <div class="panel panel-default">
