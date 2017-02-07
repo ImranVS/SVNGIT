@@ -5,7 +5,7 @@
             <!--<div class="form-group col-lg-12">-->
             <div class="form-group col-sm-9">
                 <div class="serverStatus {{service.status}}" [innerHTML]="getStatusDescription(service.status)"></div>
-                <div class="serverIcon">
+                <div class="serverIcon" id="selectedServerIcon">
                     <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
                 </div>
                 <h2>{{service.name}}</h2>
