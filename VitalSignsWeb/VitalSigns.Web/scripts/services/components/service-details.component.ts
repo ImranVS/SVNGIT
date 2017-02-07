@@ -124,24 +124,24 @@ export class ServiceDetails implements OnInit {
 
     }
     deleteServer() {
-       
-        this.dataProvider.delete('/configurator/delete_server/' + this.deviceId)
-            .subscribe(
-            response => {
-                if (response.status == "Success") {
-                    this.router.navigate(['services/' + this.module]);
-                    this.servicesViewService.refreshServicesList();
-                    this.appComponentService.showSuccessMessage(response.message);
-                  
-                } else {
-                    this.appComponentService.showErrorMessage(response.message);
-                }
+        if (confirm("Are you sure want to delete this record?")) {
+            this.dataProvider.delete('/configurator/delete_server/' + this.deviceId)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.router.navigate(['services/' + this.module]);
+                        this.servicesViewService.refreshServicesList();
+                        this.appComponentService.showSuccessMessage(response.message);
 
-            }, error => {
-                var errorMessage = <any>error;
-                this.appComponentService.showErrorMessage(errorMessage);
-            });
-       
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
+        }
     }
    
     scanNow() {
