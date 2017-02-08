@@ -115,37 +115,37 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("object_created_date")]
         [BsonIgnoreIfNull]
-        public DateTime ObjectCreatedDate { get; set; }
+        public DateTime? ObjectCreatedDate { get; set; }
 
         [DataMember]
         [BsonElement("object_modified_date")]
         [BsonIgnoreIfNull]
-        public DateTime ObjectModifiedDate { get; set; }
+        public DateTime? ObjectModifiedDate { get; set; }
 
         [DataMember]
         [BsonElement("is_active")]
         [BsonIgnoreIfNull]
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
         [DataMember]
         [BsonElement("is_internal")]
         [BsonIgnoreIfNull]
-        public bool IsInternal { get; set; }
+        public bool? IsInternal { get; set; }
 
         [DataMember]
         [BsonElement("num_of_followers")]
         [BsonIgnoreIfNull]
-        public int NumOfFollowers { get; set; }
+        public int? NumOfFollowers { get; set; }
 
         [DataMember]
         [BsonElement("num_of_owners")]
         [BsonIgnoreIfNull]
-        public int NumOfOwners { get; set; }
+        public int? NumOfOwners { get; set; }
 
         [DataMember]
         [BsonElement("num_of_members")]
         [BsonIgnoreIfNull]
-        public int NumOfMembers { get; set; }
+        public int? NumOfMembers { get; set; }
 
         [DataMember]
         [BsonElement("object_url")]
@@ -157,7 +157,36 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public string Description { get; set; }
 
+        [DataMember]
+        [BsonElement("children")]
+        [BsonIgnoreIfNull]
+        public List<IbmConnectionChildren> Children { get; set; }
     }
+
+    public class IbmConnectionChildren
+    {
+
+        public IbmConnectionChildren()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
+        [DataMember]
+        [BsonElement("type")]
+        [BsonIgnoreIfNullAttribute]
+        public string Type { get; set; }
+
+        [DataMember]
+        [BsonElement("count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? Count { get; set; }
+
+    }
+
 
     //[DataContract]
     //[Serializable]
@@ -172,7 +201,7 @@ namespace VSNext.Mongo.Entities
     //    [BsonElement("guid")]
     //    public string GUID { get; set; }
 
-       
+
     //    [DataMember]
     //    [BsonElement("tag_name")]
     //    public string TagName { get; set; }

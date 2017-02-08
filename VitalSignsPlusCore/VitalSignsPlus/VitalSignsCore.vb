@@ -6107,7 +6107,7 @@ CleanUp:
             GetLibraryStats(myServer)
 
             'This should be last
-            'GetHomepageStats(myServer)
+            ConsolidateConnectionObjects(myServer)
 
         Catch ex As Exception
 
@@ -7285,11 +7285,12 @@ CleanUp:
             sql += " SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE com.COMMUNITYUUID IN ('" & str & "') AND node.STATE = 0 AND NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
 
         Catch ex As Exception
-
+            sql += " SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE node.STATE = 0 AND NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
         End Try
 
         sql += "SELECT node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODE node INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE node.FORUMUUID IN (Select FORUMUUID FROM FORUM.DF_NODE WHERE NODEALIAS != 'community' AND NODETYPE = 'application/forum' AND STATE = 0 AND DELSTATE = 0) AND node.NODEALIAS != 'community' AND node.STATE = 0 AND node.DELSTATE = 0 AND node.NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
         sql += "SELECT NAME, NODEUUID FROM FORUM.DF_TAG;"
+        sql += "SELECT COUNT(*) COUNT, FORUMID, TOPICID from FORUM.DF_SUBSCRIPTION GROUP BY FORUMID, TOPICID"
 
 
         Dim Category As String = "File"
@@ -7322,21 +7323,21 @@ CleanUp:
             End Try
 
 
-            Dim dict As New Dictionary(Of String, String)
+            Dim dict As New Dictionary(Of String, String)()
             Try
                 Dim adapter As New VSAdaptor()
 
-                dict.Add("NUM_OF_FORUMS_FORUMS", ds.Tables(0).Rows(0)("NUM_OF_FORUMS_FORUMS"))
+                dict.Add("NUM_OF_FORUMS_FORUMS", ds.Tables(0).Rows(0)("NUM_OF_FORUMS_FORUMS").ToString())
 
-                dict.Add("NUM_OF_FORUMS_TOPICS", ds.Tables(1).Rows(0)("NUM_OF_FORUMS_TOPICS"))
+                dict.Add("NUM_OF_FORUMS_TOPICS", ds.Tables(1).Rows(0)("NUM_OF_FORUMS_TOPICS").ToString())
 
-                dict.Add("NUM_OF_FORUMS_REPLIES", ds.Tables(2).Rows(0)("NUM_OF_FORUMS_REPLIES"))
+                dict.Add("NUM_OF_FORUMS_REPLIES", ds.Tables(2).Rows(0)("NUM_OF_FORUMS_REPLIES").ToString())
 
-                dict.Add("NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY", ds.Tables(3).Rows(0)("NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY"))
+                dict.Add("NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY", ds.Tables(3).Rows(0)("NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY").ToString())
 
-                dict.Add("NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY", ds.Tables(4).Rows(0)("NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY"))
+                dict.Add("NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY", ds.Tables(4).Rows(0)("NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY").ToString())
                 Try
-                    dict.Add("NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY"))
+                    dict.Add("NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY").ToString())
 
                 Catch ex As Exception
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Forum Stats-1. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -7348,13 +7349,13 @@ CleanUp:
 
                 Dim sqlCols As String = ""
                 Dim sqlVals As String = ""
-                For Each key In dict.Keys
-                    Dim Name As String = key
-                    Dim Val As String = dict(key)
+                For Each stat In dict
+                    Dim Name As String = stat.Key
+                    Dim Val As String = stat.Value
 
-                    If String.Equals(myServer.IPAddress, "https://connections-as.jnittech.com:9444", StringComparison.CurrentCultureIgnoreCase) Then
+                    If myServer.IPAddress.ToLower().Contains(".jnittech.com") Then
 
-                        If key = "NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY" Or key = "NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY" Or key = "NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY" Then
+                        If Name = "NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY" Or Name = "NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY" Or Name = "NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY" Then
                             Val = Int(20 * Rnd()) + 1
                         End If
                     End If
@@ -7424,6 +7425,15 @@ CleanUp:
                             tagList.Add(tagRow("NAME").ToString)
                         Next
 
+                        If {"Forum Topic", "Forum"}.Contains(type) Then
+                            Dim selectStatement As String = ""
+                            If (type = "Forum") Then
+                                selectStatement = "FORUMID='" & entity.GUID & "' AND TOPICID='00000000-0000-0000-0000-000000000000'"
+                            ElseIf type = "Forum Topic" Then
+                                selectStatement = "FORUMID='" & parentObjectId & "' AND TOPICID='" & entity.GUID & "'"
+                            End If
+                            entity.NumOfFollowers = ds.Tables(9).Select(selectStatement).ToList()(0)("COUNT").ToString()
+                        End If
 
                         entity.tags = tagList
 
@@ -7487,6 +7497,15 @@ CleanUp:
                             tagList.Add(tagRow("NAME").ToString)
                         Next
 
+                        If {"Forum Topic", "Forum"}.Contains(type) Then
+                            Dim selectStatement As String = ""
+                            If (type = "Forum") Then
+                                selectStatement = "FORUMID='" & entity.GUID & "' AND TOPICID='00000000-0000-0000-0000-000000000000'"
+                            ElseIf type = "Forum Topic" Then
+                                selectStatement = "FORUMID='" & parentObjectId & "' AND TOPICID='" & entity.GUID & "'"
+                            End If
+                            entity.NumOfFollowers = ds.Tables(9).Select(selectStatement).ToList()(0)("COUNT").ToString()
+                        End If
 
                         entity.tags = tagList
 
@@ -7523,9 +7542,9 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_WIKIS_PAGES_CREATED_YESTERDAY FROM WIKIS.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS FROM WIKIS.MEDIA_REVISION;" &
             "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY FROM WIKIS.MEDIA_REVISION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
-            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID, wiki.EXTERNAL_CONTAINER_ID FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID;" &
+            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID, wiki.EXTERNAL_CONTAINER_ID, notifications.COUNT FOLLOWERS FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID INNER JOIN (SELECT HEX(LIBRARY_ID) LIBRARY_ID, COUNT(*) COUNT FROM WIKIS.LIBRARY_NOTIFICATION GROUP BY HEX(LIBRARY_ID)) notifications ON notifications.LIBRARY_ID = HEX(wiki.ID);" &
             "SELECT HEX(lib.LIBRARY_ID) as LIBRARY_ID, tag.TAG FROM WIKIS.LIBRARY_TO_TAG lib INNER JOIN WIKIS.TAG tag ON tag.ID = lib.TAG_ID;" &
-            "SELECT HEX(media.ID) as ID, media.LABEL, 'Wiki Entry' as TYPE, media.CREATE_DATE, media.LAST_UPDATE, user.DIRECTORY_ID, HEX(media.LIBRARY_ID) as LIBRARY_ID FROM WIKIS.MEDIA media INNER JOIN WIKIS.USER user ON user.ID = media.OWNER_USER_ID;"
+            "SELECT HEX(media.ID) as ID, media.LABEL, 'Wiki Entry' as TYPE, media.CREATE_DATE, media.LAST_UPDATE, user.DIRECTORY_ID, HEX(media.LIBRARY_ID) as LIBRARY_ID, notifications.COUNT FOLLOWERS FROM WIKIS.MEDIA media INNER JOIN WIKIS.USER user ON user.ID = media.OWNER_USER_ID LEFT OUTER JOIN (SELECT HEX(MEDIA_ID) MEDIA_ID, COUNT(*) COUNT FROM WIKIS.MEDIA_NOTIFICATION GROUP BY HEX(MEDIA_ID)) notifications ON notifications.MEDIA_ID = HEX(media.ID);"
 
 
         Dim Category As String = "WIKIS"
@@ -7616,22 +7635,15 @@ CleanUp:
                         IbmConnectionsObjects.ParentGUID = dictOfCommunityIds(row("EXTERNAL_CONTAINER_ID").ToString())
                     End If
 
+                    If (row("FOLLOWERS") <> DBNull.Value) And (row("FOLLOWERS").ToString() <> Nothing) Then
+                        IbmConnectionsObjects.NumOfFollowers = Convert.ToInt32(row("FOLLOWERS").ToString())
+                    Else
+                        IbmConnectionsObjects.NumOfFollowers = 0
+                    End If
+
 
                     repo.Insert(IbmConnectionsObjects)
-                    'Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
 
-                    'cmd = New SqlClient.SqlCommand()
-                    'cmd.Connection = sqlConn
-                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID) VALUES " & _
-                    '    "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @UserGUID AND ServerID = @ServerId), @ObjectGUID)"
-                    'cmd.Parameters.AddWithValue("@Name", row("LABEL").ToString())
-                    'cmd.Parameters.AddWithValue("@Created", row("CREATE_DATE").ToString())
-                    'cmd.Parameters.AddWithValue("@Modified", row("LAST_UPDATE").ToString())
-                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                    'cmd.Parameters.AddWithValue("@UserGUID", row("DIRECTORY_ID").ToString())
-                    'cmd.Parameters.AddWithValue("@ObjectGUID", HexToGUID(row("ID").ToString()))
-                    'cmd.Parameters.AddWithValue("@Type", "Wiki")
-                    'cmd.ExecuteNonQuery()
 
                 Next
                 Dim myServerName As String = myServer.Name
@@ -7650,31 +7662,14 @@ CleanUp:
                         tags.Add(tagRow("TAG").ToString())
                     End If
 
-                    'tags.Add(tagRow("TAG").ToString())
                     updatedef = repo.Updater _
                                 .Set(Function(i) i.tags, tags)
                     repo.Update(filterdef, updatedef)
-                    '    cmd = New SqlClient.SqlCommand()
-                    '    cmd.Connection = sqlConn
-                    '    cmd.CommandText = "IF NOT EXISTS ( SELECT 1 FROM IbmConnectionsTags WHERE Tag = @TagName) BEGIN INSERT INTO IbmConnectionsTags (Tag) VALUES (@TagName) END"
-                    '    cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
-                    '    cmd.ExecuteNonQuery()
-
-                    '    cmd = New SqlClient.SqlCommand()
-                    '    cmd.Connection = sqlConn
-                    '    cmd.CommandText = "INSERT INTO IbmConnectionsObjectTags (ObjectId, TagId) VALUES ((SELECT TOP 1 ID FROM IbmConnectionsObjects WHERE GUID=@ObjectGUID AND" & _
-                    '    " Type = @Type AND ServerID = @ServerId ORDER BY ID DESC), (SELECT TOP 1 ID FROM IbmConnectionsTags WHERE Tag = @TagName))"
-                    '    cmd.Parameters.AddWithValue("@TagName", tagRow("TAG").ToString())
-                    '    cmd.Parameters.AddWithValue("@ObjectGUID", HexToGUID(tagRow("LIBRARY_ID").ToString()))
-                    '    cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                    '    cmd.Parameters.AddWithValue("@Type", "Wiki")
-                    '    cmd.ExecuteNonQuery()
 
                 Next
 
                 For Each row As DataRow In ds.Tables(8).Rows()
 
-                    'Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                     Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                     IbmConnectionsObjects.Name = row("LABEL").ToString()
                     IbmConnectionsObjects.DeviceName = myServer.Name
@@ -7686,21 +7681,13 @@ CleanUp:
                     IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
                     IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
 
-                    repo.Insert(IbmConnectionsObjects)
+                    If (row("FOLLOWERS") <> DBNull.Value) And (row("FOLLOWERS").ToString() <> Nothing) Then
+                        IbmConnectionsObjects.NumOfFollowers = Convert.ToInt32(row("FOLLOWERS").ToString())
+                    Else
+                        IbmConnectionsObjects.NumOfFollowers = 0
+                    End If
 
-                    'cmd = New SqlClient.SqlCommand()
-                    'cmd.Connection = sqlConn
-                    'cmd.CommandText = "INSERT INTO IbmConnectionsObjects (Name, Type, DateCreated, DateLastModified, ServerID, OwnerId, GUID, ParentObjectID) VALUES " & _
-                    '    "(@Name, @Type, @Created, @Modified, @ServerId, (SELECT ID FROM IbmConnectionsUsers WHERE GUID = @GUID AND ServerID = @ServerId), @EntryGUID, (SELECT ID FROM IbmConnectionsObjects WHERE GUID = @WikiGUID AND ServerID = @ServerId))"
-                    'cmd.Parameters.AddWithValue("@Name", row("LABEL").ToString())
-                    'cmd.Parameters.AddWithValue("@Created", row("CREATE_DATE").ToString())
-                    'cmd.Parameters.AddWithValue("@Modified", row("LAST_UPDATE").ToString())
-                    'cmd.Parameters.AddWithValue("@ServerId", myServer.ID)
-                    'cmd.Parameters.AddWithValue("@GUID", row("DIRECTORY_ID").ToString())
-                    'cmd.Parameters.AddWithValue("@EntryGUID", HexToGUID(row("ID").ToString()))
-                    'cmd.Parameters.AddWithValue("@WikiGUID", HexToGUID(row("LIBRARY_ID").ToString()))
-                    'cmd.Parameters.AddWithValue("@Type", "Wiki Entry")
-                    'cmd.ExecuteNonQuery()
+                    repo.Insert(IbmConnectionsObjects)
 
                 Next
 
@@ -7978,6 +7965,43 @@ CleanUp:
 
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetLibraryStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub ConsolidateConnectionObjects(ByRef myServer As MonitoredItems.IBMConnect)
+
+        Try
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repository.Filter.Eq(Function(x) x.DeviceId, myServer.ServerObjectID)
+            Dim entities As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repository.Find(filterDef).ToList()
+            Dim parentEntity As VSNext.Mongo.Entities.IbmConnectionsObjects
+            Dim childrenList As List(Of VSNext.Mongo.Entities.IbmConnectionChildren)
+
+            For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjects In entities
+                Dim currEntity As VSNext.Mongo.Entities.IbmConnectionsObjects = entity
+                While currEntity.ParentGUID IsNot Nothing
+                    parentEntity = entities.Where(Function(x) x.Id = currEntity.ParentGUID).First()
+                    childrenList = parentEntity.Children
+                    If childrenList Is Nothing Then
+                        childrenList = New List(Of VSNext.Mongo.Entities.IbmConnectionChildren)()
+                    End If
+
+                    If childrenList.Where(Function(x) x.Type = entity.Type).Count = 0 Then
+                        childrenList.Add(New VSNext.Mongo.Entities.IbmConnectionChildren() With {.Count = 0, .Type = entity.Type})
+                    End If
+
+                    childrenList.Find(Function(x) x.Type = entity.Type).Count += 1
+
+                    parentEntity.Children = childrenList
+                    currEntity = parentEntity
+                End While
+            Next
+
+            repository.Replace(entities)
+
+        Catch ex As Exception
+
         End Try
 
     End Sub
