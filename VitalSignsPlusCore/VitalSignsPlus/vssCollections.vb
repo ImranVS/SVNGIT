@@ -3523,7 +3523,7 @@ Partial Public Class VitalSignsPlusCore
 
                     Try
                         WriteAuditEntry(Now.ToString & " Getting server credentials.", LogLevel.Verbose)
-                        If entity.CredentialsId Is Nothing Then
+                        If entity.DatabaseSettingsCredentialsId Is Nothing Then
                             .DBUserName = ""
                             .DBPassword = ""
                         Else
