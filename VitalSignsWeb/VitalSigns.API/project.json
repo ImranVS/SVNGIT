@@ -29,6 +29,7 @@
   "frameworks": {
     "dnx451": {
       "dependencies": {
+        "AlertLibrary": "1.0.0-*",
         "Ionic.Zip": "1.0.0-*",
         "VitalSignsLicensing": "1.0.0-*",
         "VitalSignsWebSphereDLL": "1.0.0-*",

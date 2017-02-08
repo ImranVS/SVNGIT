@@ -3,6 +3,21 @@
   "version": 2,
   "targets": {
     "DNX,Version=v4.5.1": {
+      "AlertLibrary/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "DateUtils": "1.0.0",
+          "LogUtil": "1.0.0",
+          "VSFramework": "1.0.0",
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
+      "DateUtils/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1"
+      },
       "interop.domino.dll/1.0.0": {
         "type": "package",
         "compile": {
@@ -1809,6 +1824,21 @@
       }
     },
     "DNX,Version=v4.5.1/win7-x86": {
+      "AlertLibrary/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "DateUtils": "1.0.0",
+          "LogUtil": "1.0.0",
+          "VSFramework": "1.0.0",
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
+      "DateUtils/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1"
+      },
       "interop.domino.dll/1.0.0": {
         "type": "package",
         "compile": {
@@ -3618,6 +3648,21 @@
       }
     },
     "DNX,Version=v4.5.1/win7-x64": {
+      "AlertLibrary/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "DateUtils": "1.0.0",
+          "LogUtil": "1.0.0",
+          "VSFramework": "1.0.0",
+          "VSNext.Mongo.Entities": "1.0.0",
+          "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
+      "DateUtils/1.0.0": {
+        "type": "project",
+        "framework": "DNX,Version=v4.5.1"
+      },
       "interop.domino.dll/1.0.0": {
         "type": "package",
         "compile": {
@@ -5428,6 +5473,14 @@
     }
   },
   "libraries": {
+    "AlertLibrary/1.0.0": {
+      "type": "project",
+      "path": "../wrap/AlertLibrary/project.json"
+    },
+    "DateUtils/1.0.0": {
+      "type": "project",
+      "path": "../wrap/DateUtils/project.json"
+    },
     "Ionic.Zip/1.0.0": {
       "type": "project",
       "path": "../wrap/Ionic.Zip/project.json"
@@ -7339,6 +7392,7 @@
       "Microsoft.AspNet.Diagnostics >= 1.0.0-rc1-final"
     ],
     "DNX,Version=v4.5.1": [
+      "AlertLibrary >= 1.0.0-*",
       "Ionic.Zip >= 1.0.0-*",
       "VitalSignsLicensing >= 1.0.0-*",
       "VitalSignsWebSphereDLL >= 1.0.0-*",

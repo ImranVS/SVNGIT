@@ -18,6 +18,7 @@ using Ionic.Zip;
 using Microsoft.AspNet.Authorization;
 using System.Web.Security;
 using VitalSignsWebSphereDLL;
+using VitalSignsLicensing;
 
 namespace VitalSigns.API.Controllers
 {
@@ -5832,21 +5833,22 @@ namespace VitalSigns.API.Controllers
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
                 foreach (var id in devicesList)
                 {
-
-                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
-
-                    var updateDefination = serversRepository.Updater.Set(p => p.AssignedNode, platform);
-
-                    var result = serversRepository.Update(filterDefination, updateDefination);
-                    
+                    if (id != "")
+                    {
+                        FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
+                        var updateDefination = serversRepository.Updater.Set(p => p.AssignedNode, platform);
+                        var result = serversRepository.Update(filterDefination, updateDefination);
+                    }    
                 }
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Nodes Assigned successfully");
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Nodes assigned successfully");
             }
 
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Saving log scan server information has failed.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Node assignment has failed.\n Error Message :" + exception.Message);
             }
             return Response;
 
