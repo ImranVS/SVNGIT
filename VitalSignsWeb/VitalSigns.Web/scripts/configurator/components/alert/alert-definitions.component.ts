@@ -135,6 +135,19 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         }
     }
 
+    refreshCheckedDevices() {
+        for (var _i = 0; _i < this.formObject.server_ids.length; _i++) {
+            this.formObject.is_selected_server[_i] = false;
+        }
+        for (var _j = 0; _j < this.devices.length; _j++) {
+            var item = this.devices[_j];
+            var ind2 = this.formObject.server_ids.indexOf(item);
+            if (ind2 != -1) {
+                this.formObject.is_selected_server[ind2] = true;
+            }
+        }
+    }
+
     get pageSize(): number {
         return this.data.pageSize;
     }
@@ -350,18 +363,8 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     }
 
     changeInDevices(devices: any) {
-        
+        this.devices = devices;
         this.checkedDevices = devices;
-        for (var _i = 0; _i < this.formObject.server_ids.length; _i++) {
-            this.formObject.is_selected_server[_i] = false;
-        }
-        for (var _j = 0; _j < devices.length; _j++) {
-            var item = devices[_j];
-            var ind2 = this.formObject.server_ids.indexOf(item);
-            if (ind2 != -1) {
-                this.formObject.is_selected_server[ind2] = true;
-            }
-        }
     }
 
     saveDefinition(dlg: wijmo.input.Popup) {
@@ -369,6 +372,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         this.refreshCheckedHours();
         this.refreshCheckedEscalation();
         this.refreshCheckedEvents();
+        this.refreshCheckedDevices();
         var selected_servers = this.checkedDevices;
         if (this.selected_events.length == 0 || this.selected_hours.length == 0 || selected_servers.length == 0) {
             this.errorMessage = "No selection made. Please select at least one Hours and Destinations entry, one Events entry, and one Devices entry.";

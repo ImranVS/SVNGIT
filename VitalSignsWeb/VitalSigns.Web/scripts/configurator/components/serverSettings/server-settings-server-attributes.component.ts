@@ -29,6 +29,7 @@ export class DeviceAttributes implements OnInit {
     deviceTypeData: any;
     errorMessage: any;
     selectedDeviceType: any;
+    checkedDevices: any;
     currentForm: FormGroup;
     protected service: RESTService;
     protected appComponentService: AppComponentService;
@@ -66,10 +67,10 @@ export class DeviceAttributes implements OnInit {
      
         
     }  
-  
-    changeInDevices(devices: string) {
+
+    changeInDevices(devices: any) {
         this.devices = devices;
-       
+        this.checkedDevices = devices;
     }
 
     onCellEditEnding(grid: wijmo.grid.FlexGrid, e: wijmo.grid.CellEditEndingEventArgs) {

@@ -27,6 +27,7 @@ export class ServersLocation implements OnInit {
     data: wijmo.collections.CollectionView;
     devices: string[] = [];
     deviceTypeNames: any;
+    rows: wijmo.grid.RowCollection;
     @Input() isVisible: boolean = false;
 
     @Input() public set deviceList(val: string[]) {
@@ -97,6 +98,27 @@ export class ServersLocation implements OnInit {
             this.data.pageSize = value;
             this.data.refresh();
         }
+    }
+    selectAll() {
+        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+            //item.is_selected = true;
+            //this.flex.collectionView.sourceCollection[_i].is_selected = true;
+            this.devices.push(item.id);
+        }  
+        this.checkedDevices.emit(this.devices);
+        //this.flex.refresh();
+    }
+
+    deselectAll() {
+        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+            //item.is_selected = false;
+            //this.flex.collectionView.sourceCollection[_i].is_selected = false;
+            this.devices.splice(this.devices.indexOf(item.id), 1);
+        }
+        this.checkedDevices.emit(this.devices);
+        //this.flex.refresh();
     }
     onDeviceListChange(deviceType: string) {
         this.deviceType = deviceType;

@@ -96,13 +96,22 @@ export class Nodes extends GridBase {
     }
   
     applySetting() {
-
-        var postData = {
-            "setting": this.selectedNode,
-            "value": [''],
-            "devices": this.devices,
-        };
-
+        var devices = [''];
+        var postData;
+        if (this.devices != null) {
+            postData = {
+                "setting": this.selectedNode,
+                "value": [''],
+                "devices": this.devices
+            };
+        }
+        else {
+            postData = {
+                "setting": this.selectedNode,
+                "value": [''],
+                "devices": devices
+            };
+        }
         this.nodesHealth.setValue(postData);
         this.service.put('/configurator/save_nodes_servers', postData)
             .subscribe(
@@ -121,6 +130,14 @@ export class Nodes extends GridBase {
     changeInDevices(server: string) {
 
         this.devices = server;
+    }
+
+    onItemsSourceChanged() {
+        var row = this.flex.columnHeaders.rows[0];
+        row.wordWrap = true;
+        // autosize first header row
+        this.flex.autoSizeRow(0, true);
+
     }
 }
 

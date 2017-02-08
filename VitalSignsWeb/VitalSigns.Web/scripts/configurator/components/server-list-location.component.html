@@ -1,4 +1,13 @@
 ﻿<div class="form-group">
+    <div class="row">
+        <div class="col-sm-3">
+            <button class="btn btn-primary" type="button" name="selectall" (click)="selectAll()">Select All</button>
+            <button class="btn btn-primary" type="button" name="deselectall" (click)="deselectAll()">Deselect All</button>
+        </div>
+    </div>
+    <div>
+        &nbsp;
+    </div>
     <wj-flex-grid #flex [itemsSource]="data" selectionMode="ListBox" headersVisibility ="Column" >
         <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true"> 
             <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
