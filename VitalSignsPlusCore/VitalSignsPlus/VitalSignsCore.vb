@@ -2750,7 +2750,7 @@ Public Class VitalSignsPlusCore
                 Dim myServer As MonitoredItems.WebSphere
                 myServer = CType(SelectServerToMonitor(MyWebSphereServers), MonitoredItems.WebSphere)
 
-                If myServer Is Nothing Then
+                If myServer Is Nothing Or InMaintenance("WebSphere", myServer.Name) = True Then
                     '    WriteAuditEntry(Now.ToString & " >>> No ST servers are due for monitoring now.  >>>>")
                     CurrentWebSphere = ""
                     GoTo CleanUp
@@ -3315,7 +3315,7 @@ CleanUp:
     End Function
 #End Region
 
-#Region "IBM Connect Monitoring"
+#Region "IBM Connectons Monitoring"
 
 
     'Ensure the error catching is working as intended (has not been fully tested)
@@ -3339,7 +3339,7 @@ CleanUp:
                 Dim myServer As MonitoredItems.IBMConnect
                 myServer = CType(SelectServerToMonitor(MyIBMConnectServers), MonitoredItems.IBMConnect)
 
-                If myServer Is Nothing Then
+                If myServer Is Nothing Or InMaintenance("IBM Connections", myServer.Name) = True Then
                     CurrentIBMConnect = ""
                     GoTo CleanUp
                 Else
