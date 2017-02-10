@@ -3169,7 +3169,7 @@ Partial Public Class VitalSignsPlusCore
 
 #Region "IBMConnect"
 
-    Private Sub UpdateIBMConenctStatusTable(ByRef myServer As MonitoredItems.IBMConnect)
+    Private Sub UpdateIBMConnectionStatusTable(ByRef myServer As MonitoredItems.IBMConnect)
         '*************************************************************
         'Update the Status Table
         '*************************************************************

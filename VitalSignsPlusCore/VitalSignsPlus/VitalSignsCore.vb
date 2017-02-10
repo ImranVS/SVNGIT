@@ -2750,11 +2750,22 @@ Public Class VitalSignsPlusCore
                 Dim myServer As MonitoredItems.WebSphere
                 myServer = CType(SelectServerToMonitor(MyWebSphereServers), MonitoredItems.WebSphere)
 
-                If myServer Is Nothing Or InMaintenance("WebSphere", myServer.Name) = True Then
-                    '    WriteAuditEntry(Now.ToString & " >>> No ST servers are due for monitoring now.  >>>>")
+                If myServer Is Nothing Then
                     CurrentWebSphere = ""
                     GoTo CleanUp
-                Else
+                End If
+
+
+                If InMaintenance("WebSphere", myServer.Name) = True Then
+                    '    WriteAuditEntry(Now.ToString & " >>> No ST servers are due for monitoring now.  >>>>")
+                    myServer.Status = "Maintenance"
+                    myServer.StatusCode = "Maintenance"
+                    myServer.ResponseDetails = "The server is currently in a scheduled maintenance window and will not be scanned."
+                    myServer.LastScan = Date.Now
+                    UpdateWebSphereStatusTable(myServer)
+                    myServer.IsBeingScanned = False
+                    CurrentWebSphere = ""
+                    GoTo CleanUp
                     '   WriteAuditEntry(Now.ToString & " >>> Selected " & myServer.Name)
                 End If
                 WriteAuditEntryWebSphere(Now.ToString & " Scanning " & myServer.Name)
@@ -3339,7 +3350,18 @@ CleanUp:
                 Dim myServer As MonitoredItems.IBMConnect
                 myServer = CType(SelectServerToMonitor(MyIBMConnectServers), MonitoredItems.IBMConnect)
 
-                If myServer Is Nothing Or InMaintenance("IBM Connections", myServer.Name) = True Then
+                If myServer Is Nothing Then
+                    CurrentIBMConnect = ""
+                    GoTo CleanUp
+                End If
+
+                If InMaintenance("IBM Connections", myServer.Name) = True Then
+                    myServer.Status = "Maintenance"
+                    myServer.StatusCode = "Maintenance"
+                    myServer.ResponseDetails = "The server is currently in a scheduled maintenance window and will not be scanned."
+                    myServer.LastScan = Date.Now
+                    UpdateIBMConnectionStatusTable(myServer)
+                    myServer.IsBeingScanned = False
                     CurrentIBMConnect = ""
                     GoTo CleanUp
                 Else
@@ -3410,7 +3432,7 @@ CleanUp:
 
                 myServer.LastScan = Date.Now
 
-                UpdateIBMConenctStatusTable(myServer)
+                UpdateIBMConnectionStatusTable(myServer)
 
 
                 myServer.IsBeingScanned = False
