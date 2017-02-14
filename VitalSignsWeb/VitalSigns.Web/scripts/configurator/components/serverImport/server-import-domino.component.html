@@ -64,7 +64,7 @@
         <div *ngIf="dominoServerImportData.servers.length>0">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Step 1 - Import Servers and Assign Locations
+                    Select Servers and Assign Locations
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
@@ -104,7 +104,7 @@
     <div *ngIf="currentStep=='2'">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Step 2 - Server Attributes
+                Server Attributes
             </div>
             <div class="panel-body">
                 <div class="panel panel-default">
@@ -173,7 +173,7 @@
                     </div>
                 </div>
                 <div class="panel panel-default">
-                    <div class="panel-heading">Selected Severs</div>
+                    <div class="panel-heading">Selected Servers</div>
                     <div class="panel-body">
                         <div class="form-group col-sm-12">
                             <div *ngFor="let server of dominoServerImportData.servers; let i=index">
@@ -193,7 +193,7 @@
     <div *ngIf="currentStep=='3'">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Step 3 - Server Tasks
+                Server Tasks
             </div>
             <div class="panel-body">
                 <div *ngIf="dominoServerImportData.server_tasks" class="form-horizontal">
@@ -233,11 +233,11 @@
     <div *ngIf="currentStep=='4'">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Step 4 - Finish
+                Finish
             </div>
             <div class="panel-body">
                 <div class="panel-heading">
-                    The following severs were imported successfully:
+                    The following servers were imported successfully:
                 </div>
                 <div class="panel-body">
                     <div class="form-group col-sm-12">

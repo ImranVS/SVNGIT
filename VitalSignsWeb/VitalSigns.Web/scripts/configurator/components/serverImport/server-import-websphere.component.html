@@ -1,34 +1,35 @@
-﻿
-<div class="widgetWrapper">
+﻿<div class="widgetWrapper">
     <!--Step 1-->
     <div *ngIf="currentStep=='1'">
         <div class="panel panel-default">
-            <div class="panel-heading">
-                <b> Specify Domino Directory Server or Load Servers from a CSV File</b>
-            </div>
-
-        </div>
-        <div class="panel-body">
-            <div>
-                <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+            <div class="panel-body">
+                <div class="grid-sort-group">
+                    <!-- edit details in a popup -->
+                    <button class="btn btn-success" (click)="editCellInfo(frmDialog)">
+                        Edit
+                    </button>
+                    <button class="btn btn-success" (click)="addCellInfo(frmDialog)">
+                        Add
+                    </button>
+                    <button class="btn btn-success" (click)="delteCellInfo();">
+                        Delete
+                    </button>
+                    <button class="btn btn-success" (click)="RefreshCell();">
+                        Refresh
+                    </button>
+                </div>
+                <div>&nbsp;</div>
+                <!--<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>-->
                 <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [isReadOnly]="true">
                     <wj-flex-grid-filter></wj-flex-grid-filter>
-                    <wj-flex-grid-column [header]="'Cell Name'" [binding]="'cell_name'" [width]="180">
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200">
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Host Name'" [binding]="'host_name'" [width]="250">
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Connection Type'" [binding]="'connection_type'" [width]="150">
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Port No.'" [binding]="'port_no'" [width]="150">
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Global Security'" [binding]="'global_security'" [width]="180">
-                    </wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Credentials'" [binding]="'credentials_name'" [width]="200">
-                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Cell Name'" [binding]="'cell_name'" [width]="180"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Host Name'" [binding]="'host_name'" [width]="250"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Connection Type'" [binding]="'connection_type'" [width]="150"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Port No.'" [binding]="'port_no'" [width]="100"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Global Security'" [binding]="'global_security'" [width]="150"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Credentials'" [binding]="'credentials_name'" [width]="200"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Realm'" [binding]="'realm'" [width]="200"></wj-flex-grid-column>
-
                 </wj-flex-grid>
                 <div class="btn-group" *ngIf="data != null">
                     <button type="button" class="btn btn-default"
@@ -65,26 +66,8 @@ data.pageIndex + 1 | number
                         <wj-menu-item [value]="50">50</wj-menu-item>
                     </wj-menu>
                 </div>
-            </div>
-            <div class="well grid-sort-group">
-
-                <!-- edit details in a popup -->
-                <button class="btn btn-success" (click)="editCellInfo(frmDialog)">
-                    Edit
-                </button>
-                <button class="btn btn-success" (click)="addCellInfo(frmDialog)">
-                    Add
-                </button>
-                <button class="btn btn-success" (click)="delteCellInfo();">
-                    Delete
-                </button>
-                <button class="btn btn-success" (click)="RefreshCell();">
-                    Refresh
-                </button>
-            </div>
-            <div>
+                <div>&nbsp;</div>
                 <wj-flex-grid #flex1 [itemsSource]="webSphereServerNodeData" selectionMode="ListBox" headersVisibility="Column">
-
                     <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true">
                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                             <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" />
@@ -133,134 +116,125 @@ webSphereServerNodeData.pageIndex + 1 | number
                     </wj-menu>
                 </div>
             </div>
-        </div>
-        <div class="panel-footer">
-            <button class="btn btn-primary" type="button" name="next" (click)="step1Click()">Next</button>
+            <div class="panel-footer">
+                <button class="btn btn-primary" type="button" name="next" (click)="step1Click()">Next</button>
+            </div>
         </div>
     </div>
+
     <!--Step 2-->
     <div *ngIf="currentStep=='2'">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <b> Step 2 - Set Monitoring Defaults</b>
+                Server Attributes
             </div>
-
-        </div>
-        <div class="panel-body">
-
-
-
-            <div class="panel panel-default">
-
-                <div class="panel-heading">Scan Settings</div>
-                <div class="panel-body">
-
-                    <div class="row">
-                        <div *ngFor="let attribute of  websphereData.device_attributes |filterDeviceAttributes:scanSettings">
-
-                            <div class="form-group col-sm-12">
-                                <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-1">
-                                    <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                    </div>
-                                    <div *ngIf="attribute.type=='CheckBox'">
-                                        <input type="checkbox" [(ngModel)]="attribute.default_value">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">WebSphere Settings</div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div *ngFor="let attribute of  websphereData.device_attributes |filterDeviceAttributes:webSphereSettings">
-
-                            <div class="form-group col-sm-12">
-                                <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                                <div class="col-sm-1">
-                                    <div *ngIf="attribute.type=='TextBox'">
-                                        <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
-                                    </div>
-                                    <div *ngIf="attribute.type=='CheckBox'">
-                                        <input type="checkbox" [(ngModel)]="attribute.default_value">
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading"></div>
             <div class="panel-body">
-                <div class="row">
-                    <div class="form-group col-sm-12">
-                        <label class="control-label col-sm-3">Memory Threshold</label>
-                        <div class="col-sm-1">
-                            <input type="text" [(ngModel)]="websphereData.memory_threshold" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group col-sm-12">
-                        <label class="control-label col-sm-3">CPU Threshold</label>
-                        <div class="col-sm-1">
-                            <input type="text" [(ngModel)]="websphereData.cpu_threshold" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-                <b>The following server(s) will be assigned monitoring defaults selected above:</b>
-                <div class="row">
-                    <div class="col-sm-3" *ngFor="let server of  websphereData.selected_servers; let i=index">
-                        <label>
-                            {{server.server_name}}
-                        </label>
-                    </div>
-                </div>
-                <div class="panel-footer">
-                    <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
-                </div>
-            </div>
-            <!--Step 3-->
-            <div *ngIf="currentStep=='3'">
                 <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <b> Step 3 - Finish</b>
+                    <div class="panel-heading">Scan Settings</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div *ngFor="let attribute of  websphereData.device_attributes |filterDeviceAttributes:scanSettings">
+                                <div class="form-group col-sm-12">
+                                    <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                                    <div class="col-sm-1">
+                                        <div *ngIf="attribute.type=='TextBox'">
+                                            <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                        </div>
+                                        <div *ngIf="attribute.type=='CheckBox'">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
                     </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">WebSphere Settings</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div *ngFor="let attribute of  websphereData.device_attributes |filterDeviceAttributes:webSphereSettings">
+                                <div class="form-group col-sm-12">
+                                    <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                                    <div class="col-sm-1">
+                                        <div *ngIf="attribute.type=='TextBox'">
+                                            <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                        </div>
+                                        <div *ngIf="attribute.type=='CheckBox'">
+                                            <input type="checkbox" [(ngModel)]="attribute.default_value">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Memory and CPU Settings</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label class="control-label col-sm-3">Memory Threshold</label>
+                                <div class="col-sm-1">
+                                    <input type="text" [(ngModel)]="websphereData.memory_threshold" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label class="control-label col-sm-3">CPU Threshold</label>
+                                <div class="col-sm-1">
+                                    <input type="text" [(ngModel)]="websphereData.cpu_threshold" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Selected Servers</div>
+                    <div class="panel-body">
+                        <div class="form-group col-sm-12">
+                            <div *ngFor="let server of  websphereData.selected_servers; let i=index">
+                                <label>{{server.server_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+            <div class="panel-footer">
+                <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!--Step 3-->
+    <div *ngIf="currentStep=='3'">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Finish
+            </div>
+            <div class="panel-body">
+                <div class="panel-heading">
+                    The following servers were imported successfully:
                 </div>
                 <div class="panel-body">
-                    <b>Following Severs were imported successfully</b>
-                    <div class="row">
-                        <div class="col-sm-3" *ngFor="let server of  websphereData.selected_servers; let i=index">
-                            <label>
-                                {{server.server_name}}
-                            </label>
+                    <div class="form-group col-sm-12">
+                        <div *ngFor="let server of  websphereData.selected_servers; let i=index">
+                            <label>{{server.server_name}}</label>
                         </div>
                     </div>
                 </div>
-
-                <div class="panel-footer">
-                    <button class="btn btn-primary" type="button" name="next" (click)="step3Click()">Finish</button>
-                </div>
             </div>
-
-            <wj-popup class="modal-content col-sm-10" #frmDialog>
-
+            <div class="panel-footer">
+                <button class="btn btn-primary" type="button" name="next" (click)="step3Click()">Finish</button>
+            </div>
+        </div>  
+    </div>
+    <wj-popup class="modal-content col-sm-7" #frmDialog>
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <b> {{formTitle}}</b>
-
+                        {{formTitle}}
                         <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                     </div>
                     <form (ngSubmit)="saveCellInfo(frmDialog)" #frmCell="ngForm" class="form-horizontal">
@@ -300,13 +274,16 @@ webSphereServerNodeData.pageIndex + 1 | number
                             </div>
                             <div class="row">
                                 <div class="form-group col-sm-6">
-                                    <label for="super_admin" class="control-label col-sm-5">Global Security</label>
-                                    <div class="col-sm-7">
-                                        <input type="checkbox" class="checkbox-inline" id="global_security" [(ngModel)]="currentEditItem.global_security" name="global_security">
+                                    <div class="col-sm-5">&nbsp;</div>
+                                    <div class="funkyradio col-sm-7">
+                                        <div class="funkyradio-default">
+                                            <input type="checkbox" class="checkbox-inline" id="global_security" name="global_security" [(ngModel)]="currentEditItem.global_security">
+                                            <label for="global_security">Global Security</label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-sm-6" *ngIf="currentEditItem.global_security">
-                                    <label for="credentails" class="control-label col-sm-5"> Credentials</label>
+                                    <label for="credentails" class="control-label col-sm-5">Credentials</label>
                                     <div class="col-sm-7">
                                         <wj-combo-box name="credential" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
                                                       [(ngModel)]="currentEditItem.credentials_id" [(text)]="currentEditItem.credentials_name" placeholder="Select Credential">
@@ -330,4 +307,4 @@ webSphereServerNodeData.pageIndex + 1 | number
                     </form>
                 </div>
             </wj-popup>
-        </div>
+</div>

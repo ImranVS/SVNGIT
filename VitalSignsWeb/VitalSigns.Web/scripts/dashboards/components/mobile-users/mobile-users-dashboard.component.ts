@@ -24,16 +24,16 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
             id: 'mobileUsersGrid',
             title: 'All Mobile Users',
             name: 'MobileUsersGrid',
-            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
+            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             settings: {}
         },
-        {
-            id: 'mobileUsersKeyUserGrid',
-            title: 'Key Mobile Users',
-            name: 'MobileUsersKeyUserGrid',
-            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
-            settings: {}
-        },
+        //{
+        //    id: 'mobileUsersKeyUserGrid',
+        //    title: 'Key Mobile Users',
+        //    name: 'MobileUsersKeyUserGrid',
+        //    css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
+        //    settings: {}
+        //},
         {
             id: 'mobileDevicesChart',
             title: 'Mobile devices',

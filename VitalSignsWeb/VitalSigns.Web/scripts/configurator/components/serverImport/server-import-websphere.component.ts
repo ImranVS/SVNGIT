@@ -105,6 +105,7 @@ export class WebSphereServerImport extends GridBase implements OnInit {
             if (item.is_selected) {               
 
                 this.websphereData.selected_servers.push({
+                    "cell_id": item.cell_id,
                     "node_id": item.node_id,
                     "server_id": item.server_id,
                     "server_name": item.server_name
