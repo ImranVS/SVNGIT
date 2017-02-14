@@ -163,65 +163,21 @@ namespace VitalSigns.API.Controllers
             List<string> keyUsersList = new List<string>();
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             List<MobileUserDevice> result = null;
-            if (!isKey)
-            {
-                result = mobileDevicesRepository.Collection
-                                 .AsQueryable()
-                                 .Select(x => new MobileUserDevice
-                                 {
-                                     Id = x.Id,
-                                     UserName = x.UserName,
-                                     Device = x.DeviceName,
-                                     Notification = x.NotificationType,
-                                     OperatingSystem = x.OSType,
-                                     LastSyncTime = x.LastSyncTime,
-                                     Access = x.Access,
-                                     DeviceId = x.DeviceID,
-
-
-                                     //IsSelected = false
-                                 }).ToList();
-            }
-            else
-            {
-                FilterDefinition<MobileDevices> filterDef = mobileDevicesRepository.Filter.Ne(x => x.ThresholdSyncTime, null);
-                result = mobileDevicesRepository.Find(filterDef)
-                                 .Select(x => new MobileUserDevice
-                                 {
-                                     Id = x.Id,
-                                     UserName = x.UserName,
-                                     Device = x.DeviceName,
-                                     Notification = x.NotificationType,
-                                     OperatingSystem = x.OSType,
-                                     LastSyncTime = x.LastSyncTime,
-                                     Access = x.Access,
-                                     DeviceId = x.DeviceID
-                                 }).ToList();
-            }
-
-
-            maintenanceRepository = new Repository<Maintenance>(ConnectionString);
-            var maintainWindows = maintenanceRepository.All().Select(x => new MaintenanceModel
-            {
-                Id = x.Id,
-
-
-            }).ToList();
-
-            mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
-            var keyUsers = mobileDevicesRepository.Collection.AsQueryable().Select(x => new { KeyuserID = x.Id, MaintenanceWindows = x.MaintenanceWindows });
-            foreach (var maintenaceWindow in maintainWindows)
-            {
-                keyUsersList = new List<string>();
-                var innerkeyUsers = keyUsers.Where(x => x.MaintenanceWindows.Contains(maintenaceWindow.Id)).ToList();
-                foreach (var keyUser in innerkeyUsers)
+            result = mobileDevicesRepository.Collection
+                .AsQueryable()
+                .Select(x => new MobileUserDevice
                 {
-                    keyUsersList.Add(keyUser.KeyuserID);
-                }
-                maintenaceWindow.KeyUsers = keyUsersList;
-            }
-
-            Response = Common.CreateResponse(result.OrderBy(x => x.UserName));
+                    Id = x.Id,
+                    UserName = x.UserName,
+                    Device = x.DeviceName,
+                    Notification = x.NotificationType,
+                    OperatingSystem = x.OSType,
+                    LastSyncTime = x.LastSyncTime,
+                    Access = x.Access,
+                    DeviceId = x.DeviceID,
+                    ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime
+                }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+            Response = Common.CreateResponse(result);
             return Response;
         }
 
@@ -1055,41 +1011,37 @@ namespace VitalSigns.API.Controllers
         [HttpGet("{deviceid}/traveler_mailstats")]
         public APIResponse Travelerstats(string deviceid)
         {
-            travelerStatsRepository = new Repository<TravelerStatusSummary>(ConnectionString);
+            List<TravelerHealth> result = new List<TravelerHealth>();
             try
             {
-
-
+                travelerStatsRepository = new Repository<TravelerStatusSummary>(ConnectionString);
                 Expression<Func<TravelerStatusSummary, bool>> expression = (p => p.DeviceId == deviceid);
-                var result = travelerStatsRepository.Find(expression).Select(x => new TravelerHealth
+                var maxDateList = travelerStatsRepository.Find(expression).OrderByDescending(p => p.DateUpdated).Take(1).ToList();
+                if (maxDateList.Count > 0)
                 {
-                    DeviceId = x.DeviceId,
-                    MailServerName = x.MailServerName,
-                    c_000_001 = x.c_000_001,
-                    c_001_002 = x.c_001_002,
-                    c_002_005 = x.c_002_005,
-                    c_005_010 = x.c_005_010,
-                    c_010_030 = x.c_010_030,
-                    c_030_060 = x.c_030_060,
-                    c_060_120 = x.c_060_120,
-                    c_120_INF = x.c_120_INF,
-                    DateUpdated = Convert.ToString(x.DateUpdated)
-
-
-                }).ToList();
-
+                    expression = (p => p.DeviceId == deviceid && p.DateUpdated == maxDateList[0].DateUpdated);
+                    result = travelerStatsRepository.Find(expression).Select(x => new TravelerHealth
+                    {
+                        DeviceId = x.DeviceId,
+                        MailServerName = x.MailServerName,
+                        c_000_001 = x.c_000_001,
+                        c_001_002 = x.c_001_002,
+                        c_002_005 = x.c_002_005,
+                        c_005_010 = x.c_005_010,
+                        c_010_030 = x.c_010_030,
+                        c_030_060 = x.c_030_060,
+                        c_060_120 = x.c_060_120,
+                        c_120_INF = x.c_120_INF,
+                        DateUpdated = Convert.ToString(x.DateUpdated)
+                    }).ToList();
+                }
                 Response = Common.CreateResponse(result);
-
             }
-
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), exception.Message);
             }
-
             return Response;
-
-
         }
 
         [HttpGet("{device_id}/clusterhealth")]

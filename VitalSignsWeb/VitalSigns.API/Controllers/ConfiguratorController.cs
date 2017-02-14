@@ -1325,7 +1325,7 @@ namespace VitalSigns.API.Controllers
                     Unitofmeasurement = x.Unitofmeasurement,
                     IsSelected = false,
                     IsPercentage = x.IsPercentage
-                }).ToList();
+                }).OrderBy(x => x.AttributeName).ToList();
                 Response = Common.CreateResponse(result);
             }
 
@@ -6967,6 +6967,7 @@ namespace VitalSigns.API.Controllers
                     {
                         Server server = new Server();
                         server.Id = serverModel.ServerId;
+                        server.CellId = serverModel.CellId;
                         server.NodeId = serverModel.NodeId;
                         server.DeviceName = serverModel.ServerName;
                         server.DeviceType = "WebSphere";

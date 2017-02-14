@@ -984,7 +984,7 @@ namespace VitalSigns.API.Controllers
                         connectionsRepository.Filter.In(x => x.DeviceId, listOfDevices));
                 }
                 else
-                {               
+                {
                     filterDef = connectionsRepository.Filter.Eq(x => x.Type, "Community");
                 }
                 result = connectionsRepository.Find(filterDef)
@@ -995,8 +995,8 @@ namespace VitalSigns.API.Controllers
                                      Name = x.Name,
                                      users = x.users,
                                      CommunityType = x.CommunityType,
-                                     NumOfMembers = x.NumOfMembers,
-                                     NumOfFollowers = x.NumOfFollowers
+                                     NumOfMembers = x.NumOfMembers.Value,
+                                     NumOfFollowers = x.NumOfFollowers.Value
                                  }).ToList();
 
                 List<IBMConnCommunityUsersList> result2 = new List<IBMConnCommunityUsersList>();
@@ -1626,15 +1626,15 @@ namespace VitalSigns.API.Controllers
                             row.DeviceName,
                             row.OwnerId,
                             row.Type,
-                            row.ObjectCreatedDate.Month,
-                            row.ObjectCreatedDate.Year
+                            row.ObjectCreatedDate.Value.Month,
+                            row.ObjectCreatedDate.Value.Year
                         })
                         .Select(x => new UserAdoption
                         {
                             ServerName = x.Key.DeviceName,
                             ObjectName = x.Key.Type,
                             ObjectValue = x.Count(),
-                            ObjectCreatedDate = new DateTime(x.Key.Year, x.Key.Month,1),
+                            ObjectCreatedDate = new DateTime(x.Key.Year, x.Key.Month, 1),
                             UserName = user
                         }).ToList();
                     if (res.Count > 0)
@@ -1658,7 +1658,7 @@ namespace VitalSigns.API.Controllers
                                         };
                                         result.Add(ua);
                                     }
-                                } 
+                                }
                             }
                         }
                     }
@@ -1755,11 +1755,53 @@ namespace VitalSigns.API.Controllers
             double inc = 0.0;
             //inc = 1.0 / (double)(objList.Count + 1);
             inc = 1.0 / 20.0;
-            for (int i=0; i < listsize; i++)
+            for (int i = 0; i < listsize; i++)
             {
-                coords.Add(inc * (i+1) * (-1));
+                coords.Add(inc * (i + 1) * (-1));
             }
             return coords;
+        }
+
+        [HttpGet("connections/most_popular_content")]
+        public APIResponse ConnectionsPopularContentMonthly(string userNames = "")
+        {
+            try
+            {
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                var listOfObjects = connectionsObjectsRepository.Collection.Aggregate()
+                    .Match(x => (x.Type == "Blog" || x.Type == "Forum") && x.Children != null)
+                    .Unwind(x => x.Children)
+                    .Sort(new BsonDocument("children.count", -1)).ToList();
+                List<Segment> segmentList = new List<Segment>();
+
+                foreach (var doc in listOfObjects)
+                {
+                    var children = doc["children"];
+                    Segment segment = new Segment()
+                    {
+                        Label = doc["name"].AsString,
+                        Value = children[1].AsInt32
+                    };
+                    segmentList.Add(segment);
+                }
+                Serie serie = new Serie();
+                serie.Title = "total";
+                serie.Segments = segmentList;
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+                Chart chart = new Chart();
+                chart.Title = "";
+                chart.Series = series;
+                Response = Common.CreateResponse(chart);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
         }
     }
 }
