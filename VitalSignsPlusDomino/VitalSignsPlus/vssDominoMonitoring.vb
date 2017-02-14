@@ -3272,7 +3272,7 @@ WaitHere:
                         Catch ex As Exception
                             myDateString = "No date provided"
                         End Try
-                        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " I have isolated the date as  " & myDateString)
+                        WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " I have isolated the date as  " & myDateString, LogLevel.Verbose)
                         If myDateString <> "No date provided" Then
                             Dim myTimeOnly As String
                             Dim myDateOnly As String
