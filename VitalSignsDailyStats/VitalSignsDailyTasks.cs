@@ -111,6 +111,8 @@ namespace VitalSignsDailyStats
                 validLocationsRepository = _unitOfWork.Repository<ValidLocation>();
                 consolidationResultsRepository = _unitOfWork.Repository<ConsolidationResults>();
                 mobileDeviceTranslationsRepository = _unitOfWork.Repository<MobileDeviceTranslations>();
+                OutagesRepository = _unitOfWork.Repository<Outages>();
+                eventsRepository = _unitOfWork.Repository<EventsDetected>();
                 try
                 {
                     if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[cultureName]))
@@ -764,7 +766,7 @@ namespace VitalSignsDailyStats
                         TravelerServerName= travelerStatData.FirstOrDefault().TravelerServerName,
 
                     });
-                    var min = travelerStatsRepository.All().Where(x => x.DateUpdated < DateTime.Now).Min(x => x.DateUpdated).ToString();
+                    var min = travelerStatsRepository.Find(x => true).Where(x => x.DateUpdated < DateTime.Now).Min(x => x.DateUpdated).ToString();
 
                     Expression<Func<TravelerStats, bool>> minExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(min) && p.DeviceId == item.deviceId);
                     var travelerStatDataforMin = travelerStatsRepository.Find(minExpression).ToList();
@@ -788,7 +790,7 @@ namespace VitalSignsDailyStats
 
                         });
                     }
-                    var max = travelerStatsRepository.All().Where(x => x.DateUpdated < DateTime.Now).Max(x => x.DateUpdated).ToString();
+                    var max = travelerStatsRepository.Find(x => true).Where(x => x.DateUpdated < DateTime.Now).Max(x => x.DateUpdated).ToString();
 
                     Expression<Func<TravelerStats, bool>> maxExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(max) && p.DeviceId == item.deviceId);
                     var travelerStatDataforMax = travelerStatsRepository.Find(maxExpression).ToList();
@@ -914,12 +916,11 @@ namespace VitalSignsDailyStats
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
-                                       DeviceType=x.key.DeviceType,
-                                       AggregationType = dailyTask.AggregationType.ToUpper()
+                                       DeviceType=x.key.DeviceType
                                    //StatDate= SearchDate
 
 
-                               }).ToList();
+                               }).ToList().Select(x => { x.AggregationType = dailyTask.AggregationType.ToUpper(); return x; }).ToList(); ;
                                 if (avgResult.Count > 0)
                                 {
                                     foreach (var item in avgResult)
@@ -942,11 +943,10 @@ namespace VitalSignsDailyStats
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
-                                       DeviceType=x.key.DeviceType,
-                                       AggregationType = dailyTask.AggregationType.ToUpper()
+                                       DeviceType=x.key.DeviceType
 
                                        //  StatDate = SearchDate
-                                   }).ToList();
+                                   }).ToList().Select(x => { x.AggregationType = dailyTask.AggregationType.ToUpper(); return x; }).ToList(); ;
                                 if (sumResult.Count > 0)
                                 {
                                     foreach (var item in sumResult)
@@ -966,10 +966,9 @@ namespace VitalSignsDailyStats
                                        StatName = x.key.StatName,
                                        StatValue = x.value,
                                        DeviceName = x.key.DeviceName,
-                                       DeviceType=x.key.DeviceType,
-                                       AggregationType = dailyTask.AggregationType.ToUpper()
+                                       DeviceType=x.key.DeviceType
 
-                                   }).ToList();
+                                   }).ToList().Select(x => { x.AggregationType = dailyTask.AggregationType.ToUpper(); return x; }).ToList(); ;
                                 if (maxResult.Count > 0)
                                 {
                                     foreach (var item in maxResult)
