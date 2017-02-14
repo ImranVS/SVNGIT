@@ -82,6 +82,15 @@
                             <div class="form-group">
                                 <label for="events">Events</label>
                                 <br />
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <button class="btn btn-primary" type="button" name="selectall" (click)="selectAll()">Select All</button>
+                                        <button class="btn btn-primary" type="button" name="deselectall" (click)="deselectAll()">Deselect All</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    &nbsp;
+                                </div>
                                 <wj-flex-grid [itemsSource]="eventsdata" selectionMode="Row" headersVisibility="Column" #flex3>
                                     <wj-flex-grid-filter></wj-flex-grid-filter>
                                     <!--<wj-flex-grid-column [header]="'Select'" [binding]="'selected_event'" align="center">

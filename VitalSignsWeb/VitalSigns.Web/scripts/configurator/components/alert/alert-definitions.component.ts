@@ -412,4 +412,28 @@ export class AlertDefinitions extends GridBase implements OnInit  {
             dlg.hide();
         }
     }
+
+    selectAll() {
+        for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
+            item.is_selected_event = true;
+            //var val = this.selected_events.filter((record) => record == item.id);
+            //if (val.length == 0) {
+            //    this.selected_events.push(item.id);
+            //}
+        }
+        this.flex3.refresh();
+    }
+
+    deselectAll() {
+        for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
+            item.is_selected_event = false;
+            //var val = this.selected_events.filter((record) => record == item.id);
+            //if (val.length != 0) {
+            //    this.selected_events.splice(this.selected_events.indexOf(item.id), 1);
+            //}
+        }
+        this.flex3.refresh();
+    }
 }
