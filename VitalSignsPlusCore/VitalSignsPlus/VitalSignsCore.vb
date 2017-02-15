@@ -2771,6 +2771,7 @@ Public Class VitalSignsPlusCore
                 WriteAuditEntryWebSphere(Now.ToString & " Scanning " & myServer.Name)
                 myServer.Status = "OK"
                 myServer.ResponseDetails = "This server passed all tests"
+                myServer.AlertCondition = False
 
                 Dim Cells As VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.Cells_ServerStats
                 Try
@@ -2800,6 +2801,7 @@ Public Class VitalSignsPlusCore
                         WriteAuditEntryWebSphere(Now.ToString & " Could not conenct to the server for " & myServer.Name & ".")
                         myServer.Status = "Not Responding"
                         myServer.StatusCode = "Not Responding"
+                        myServer.AlertCondition = True
                         myServer.ResponseDetails = "Could not connect to the server"
                         SendWebSphereNotRespondingAlert(myServer, False)
                     Else
@@ -3371,6 +3373,7 @@ CleanUp:
                 myServer.Status = "OK"
                 myServer.StatusCode = "OK"
                 myServer.ResponseDetails = "This instance passed all tests"
+                myServer.AlertCondition = False
 
                 If TestIBMConnectResponding(myServer) = True Then
                     myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Not Responding", myServer.Location, "The server is responding", myServer.ServerType)
@@ -6007,7 +6010,7 @@ CleanUp:
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Failed to connect in TestResponding. " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                 isResponding = False
-
+                myServer.AlertCondition = True
             Finally
 
                 If webresp IsNot Nothing Then
@@ -6021,6 +6024,7 @@ CleanUp:
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Failed to connect in TestResponding 2. " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
         End Try
+
         Return isResponding
     End Function
 
