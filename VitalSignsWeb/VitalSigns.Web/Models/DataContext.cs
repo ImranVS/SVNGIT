@@ -20,7 +20,7 @@ namespace VitalSigns.API.Models
 
         static DataContext()
         {
-            _client = new MongoClient(Startup.ConnectionString);
+            _client = new MongoClient(Startup.ConnectionString.EndsWith("/") ? Startup.ConnectionString + Startup.DatabaseName : Startup.ConnectionString + "/" + Startup.DatabaseName);
             _database = _client.GetDatabase(DATABASE_NAME);
         }
 

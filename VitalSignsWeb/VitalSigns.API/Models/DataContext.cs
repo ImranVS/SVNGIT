@@ -16,10 +16,10 @@ namespace VitalSigns.API.Models
         // TODO: put this into an IoC container
         private static readonly IMongoClient _client;
         private static readonly IMongoDatabase _database;
-
+        
         static DataContext()
         {
-            _client = new MongoClient(Startup.ConnectionString);
+            _client = new MongoClient(Startup.ConnectionString.EndsWith("/") ? Startup.ConnectionString + Startup.DataBaseName : Startup.ConnectionString + "/" + Startup.DataBaseName);
             _database = _client.GetDatabase(Startup.DataBaseName);
         }
 
