@@ -2301,6 +2301,33 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpGet("get_last_update")]
+        public APIResponse GetLastUpdate()
+        {
+            try
+            {
+                DateTime now = new DateTime();
+                now = DateTime.UtcNow;
+                statusRepository = new Repository<Status>(ConnectionString);
+                var result = statusRepository.Collection.AsQueryable().Select(x => new ServerStatus
+                {
+                    LastUpdated = x.LastUpdated.Value
+                }).OrderByDescending(x => x.LastUpdated).FirstOrDefault();
+                if (result != null)
+                {
+                    var status = now.Subtract(result.LastUpdated.Value).Minutes < 30 ? "ok" : (now.Subtract(result.LastUpdated.Value).Minutes >= 30 && now.Subtract(result.LastUpdated.Value).Minutes < 45 ? "late" : "verylate");
+                    result.Status = status;
+                }
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting the last update information has failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
     }
 }
 

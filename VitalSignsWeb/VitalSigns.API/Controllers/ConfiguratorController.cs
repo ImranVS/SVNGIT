@@ -5404,6 +5404,7 @@ namespace VitalSigns.API.Controllers
                             serverLocation.LocationName = x.GetValue("result", BsonValue.Create(string.Empty))[0]["location_name"].ToString();
                         }
                         serverLocation.IsSelected = false;
+                        serverLocation.Category = x.GetValue("category", BsonString.Create(string.Empty)).ToString();
                     }
                     serverLocations.Add(serverLocation);
                 }
@@ -7030,6 +7031,8 @@ namespace VitalSigns.API.Controllers
                         // serversRepository.Insert(server);
                     }
                 }
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
                 Response = Common.CreateResponse("Success");
             }
             catch (Exception exception)

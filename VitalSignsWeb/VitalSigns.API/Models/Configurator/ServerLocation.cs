@@ -31,5 +31,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("is_selected")]
         public bool IsSelected { get; set; }
+
+        [JsonProperty("category")]
+        public string Category { get; set; }
     }
 }
