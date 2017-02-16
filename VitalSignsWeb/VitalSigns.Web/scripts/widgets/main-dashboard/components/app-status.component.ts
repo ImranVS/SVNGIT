@@ -3,14 +3,15 @@ import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
-
+import * as helpers from '../../../core/services/helpers/helpers';
 declare var injectSVG: any;
 
 @Component({
     templateUrl: './app/widgets/main-dashboard/components/app-status.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        helpers.DateTimeHelper
     ]
 })
 export class AppStatus implements WidgetComponent, OnInit, AfterViewChecked {
@@ -20,12 +21,12 @@ export class AppStatus implements WidgetComponent, OnInit, AfterViewChecked {
 
     appStatus: any;
 
-    constructor(private service: RESTService) { }
+    constructor(private service: RESTService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     loadData() {
-        this.service.get('http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/status_widget/' + this.settings.serviceId)
+        this.service.get(`/dashboard/get_last_update`)
             .subscribe(
-            data => this.appStatus = data,
+            response => this.appStatus = this.datetimeHelpers.toLocalDateTime(response.data),
             error => this.errorMessage = <any>error
             );
     }

@@ -8,7 +8,8 @@
     <div>
         &nbsp;
     </div>
-    <wj-flex-grid #flex [itemsSource]="data" selectionMode="ListBox" headersVisibility ="Column" >
+    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility ="Column" >
+        <wj-flex-grid-filter></wj-flex-grid-filter>
         <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true"> 
             <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                 <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" /> 
@@ -18,6 +19,7 @@
         <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" is-read-only="true" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Description'" [binding]="'description'" is-read-only="true" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" is-read-only="true" [visible]="false"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Category'" [binding]="'category'" is-read-only="true"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Assigned Node Name'" [visible]="isVisible"  [binding]="'assigned_node'" [width]="200"></wj-flex-grid-column>
         <wj-flex-grid-column [header]="'Current Node Name'"  [visible]="isVisible" [binding]="'current_node'" [width]="200"></wj-flex-grid-column>
     </wj-flex-grid>

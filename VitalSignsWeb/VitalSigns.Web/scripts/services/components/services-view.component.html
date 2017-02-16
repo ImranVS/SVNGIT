@@ -30,7 +30,6 @@
 </div>
 
 <div id="zeusContent" class="noPadding twoColumns30-70">
-
     <div class="twoColumn30 serversList">
         <div id="serversFilters">
             <search-server-list (name)="searchText=$event" (type)="searchType=$event" (status)="searchStatus=$event" (location)="searchLocation=$event"></search-server-list>
@@ -40,7 +39,7 @@
                 <b> {{filterCount}}</b> servers found.
             </div>
         </div>
-        <div id="serversListWrapper" style="overflow-y: auto;">
+        <div id="serversListWrapper">
             <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" *ngFor="let service of services |searchserverlist:searchText :searchType :searchStatus :searchLocation; let i = index;" (click)="selectService(service)">
                 <div class="serverIcon">
                     <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
@@ -54,7 +53,6 @@
             </div>
         </div>
     </div>
-
     <div class="twoColumn70 serverDetailWrapper" style="overflow-x: auto;">
         <wj-popup class="col-md-7 modal-content" #frmDialog>
             <div class="panel panel-default">
@@ -99,7 +97,7 @@
                                 <div class="col-sm-7">
 
                                     <wj-combo-box displayMemberPath="text" selectedValuePath="value" name="location" [itemsSource]="deviceLocationData"
-                                                  formControlName="location_id" placeholder="Select Location"   [isEditable]="true">
+                                                  formControlName="location_id" placeholder="Select Location" [isEditable]="true">
                                     </wj-combo-box>
                                 </div>
                             </div>

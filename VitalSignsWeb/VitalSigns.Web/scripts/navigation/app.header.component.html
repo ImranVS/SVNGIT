@@ -11,6 +11,20 @@
     </div>
 </div>
 <div id="zeusHeaderRightWrapper" *ngIf="authService.isLoggedIn">  
+    <div id="statusWrapper" class="headerBlock">
+        <div class="col-lg-12 col-md-12" style="padding: 1px">
+            <div class="widgetWrapper h-xs-48 zeusColorReactBg" data-widget-type="widgetImageText" *ngIf="appStatus"
+                 [class.zeusColorReact-success]="appStatus.status == 'ok'"
+                 [class.zeusColorReact-warning]="appStatus.status == 'late'"
+                 [class.zeusColorReact-danger]="appStatus.status == 'verylate'">
+                <img class="svgInject" src="/img/dashboard/HourGlass.svg" title="Most recent scan" alt="Most recent scan" style="width: 30px" />
+                <div>
+                    <div class="widgetImageText-text" *ngIf="appStatus">{{appStatus.last_updated}}</div>
+                    <div class="widgetImageText-text">Most recent scan</div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="noResponseNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
         <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Not Responding'}" class="widgetFooter zeusColorReactBg">
             <span class="notifVitalSignNumber badge">{{deviceSummary.notResponding}}</span>

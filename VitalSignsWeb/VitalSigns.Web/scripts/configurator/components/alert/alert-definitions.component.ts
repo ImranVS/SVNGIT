@@ -436,4 +436,16 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         }
         this.flex3.refresh();
     }
+
+    collapse(flex) {
+        flex.collapseGroupsToLevel(0);
+    }
+
+    expand(flex) {
+        var rows = flex.rows;
+        for (var rowIdx = 0; rowIdx < rows.length; rowIdx++) {
+            var rootRow = rows[rowIdx];
+            if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
+        }
+    }
 }

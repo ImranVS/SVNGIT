@@ -1,7 +1,6 @@
-﻿import {Component, AfterViewChecked, OnChanges, SimpleChange, Input, ViewChildren,OnInit} from '@angular/core';
+﻿import { Component, AfterViewChecked, OnChanges, SimpleChange, Input, ViewChildren,OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-
 import {RESTService} from '../core/services';
 
 import {AuthenticationService} from '../profiles/services/authentication.service';
@@ -31,6 +30,7 @@ export class AppHeader implements OnChanges,OnInit {
     appComponentService: AppComponentService;
     error = '';
     success = '';
+    appStatus: any;
 
     constructor(
         private service: RESTService,
@@ -51,7 +51,11 @@ export class AppHeader implements OnChanges,OnInit {
                 console.log("in service Error");
             }
             );
-
+        this.service.get(`/dashboard/get_last_update`)
+            .subscribe(
+            response => this.appStatus = this.datetimeHelpers.toLocalDateTime(response.data),
+            error => this.errorMessage = <any>error
+            );
     }
     ngOnInit() {
         window.setInterval(() => {
