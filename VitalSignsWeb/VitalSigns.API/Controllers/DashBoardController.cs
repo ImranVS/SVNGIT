@@ -41,6 +41,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<Location> locationRepository;
         private IRepository<NameValue> namevalueRepository;
         private IRepository<IbmConnectionsObjects> connectionsRepository;
+        private IRepository<ClusterDatabaseDetails> clusterDatabaseRepository;
+        private IRepository<ServerOther> serverOtherRepository;
 
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         /// <summary>
@@ -561,6 +563,7 @@ namespace VitalSigns.API.Controllers
                     result = statusRepository.Find(expression).Select(x => new TravelerHealth
                     {
                         DeviceId = x.DeviceId,
+                        TravelerStatus = x.TravelerStatus,
                         ResourceConstraint = x.ResourceConstraint,
                         TravelerDetails = x.TravelerDetails,
                         TravelerHeartBeat = x.TravelerHeartBeat,
@@ -2325,6 +2328,140 @@ namespace VitalSigns.API.Controllers
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting the last update information has failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("database-replication-health")]
+        public APIResponse GetDatabaseReplicationHealth()
+        {
+            try
+            {
+                DateTime now = new DateTime();
+                now = DateTime.UtcNow;
+                statusRepository = new Repository<Status>(ConnectionString);
+                var result = statusRepository.Collection.AsQueryable().Select(x => new ServerStatus
+                {
+                    DeviceId = x.DeviceId,
+                    Name = x.DeviceName,
+                    Status = x.CurrentStatus,
+                    LastUpdated = x.LastUpdated.Value
+                }).ToList();
+                
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting the database replication health information has failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("database-problems")]
+        public APIResponse GetDatabaseProblems(string clusterId, bool isChart = false, bool isDocCount = true)
+        {
+            double maxdoccount = 0;
+            try
+            {
+                DateTime now = new DateTime();
+                now = DateTime.UtcNow;
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                //Will have to replace the look up with ID later
+                var dbs = serverOtherRepository.All().Where(x => x.Type == "Notes Database Replica" && x.Name == clusterId).ToList();
+                clusterDatabaseRepository = new Repository<ClusterDatabaseDetails>(ConnectionString);
+                var result = clusterDatabaseRepository.All().Where(x => x.ClusterName == clusterId)
+                    .Select(x => new NotesDatabaseReplicationModel
+                    {
+                        ClusterName = x.ClusterName,
+                        DatabaseName = x.DatabaseName,
+                        DatabaseStatus = "OK",
+                        ReplicaId = x.ReplicaID,                        
+                        DocumentCountA = x.DocumentCountA,
+                        DocumentCountB = x.DocumentCountB,
+                        DatabaseSizeA = x.DatabaseSizeA,
+                        DatabaseSizeB = x.DatabaseSizeB
+                    }).ToList();
+                if (result.Count > 0 && dbs.Count > 0)
+                {
+                    foreach (var res in result)
+                    {
+                        maxdoccount = Math.Max(res.DocumentCountA.Value, res.DocumentCountB.Value);
+                        res.DominoServerA = dbs[0].DominoServerA;
+                        res.DominoServerB = dbs[0].DominoServerB;
+                        if (maxdoccount != 0)
+                        {
+                            if (Convert.ToDouble(Math.Abs(res.DocumentCountA.Value - res.DocumentCountB.Value)) / maxdoccount * 100 >= dbs[0].DifferenceThreshold)
+                            {
+                                res.DatabaseStatus = "Problem";
+                            }
+                        }
+                    }
+                }
+                if (!isChart)
+                {      
+                    Response = Common.CreateResponse(result);
+                }
+                else
+                {
+                    result = result.OrderBy(x => x.DatabaseName).ToList();
+
+                    List<Segment> segmentListA = new List<Segment>();
+                    List<Segment> segmentListB = new List<Segment>();
+                    Segment segment = new Segment();
+                    foreach (var doc in result)
+                    {
+                        if (isDocCount)
+                        {
+                            segment = new Segment()
+                            {
+                                Label = doc.DatabaseName,
+                                Value = Convert.ToDouble(doc.DocumentCountA)
+                            };
+                            segmentListA.Add(segment);
+                            segment = new Segment()
+                            {
+                                Label = doc.DatabaseName,
+                                Value = Convert.ToDouble(doc.DocumentCountB)
+                            };
+                            segmentListB.Add(segment);
+                        }
+                        else
+                        {
+                            segment = new Segment()
+                            {
+                                Label = doc.DatabaseName,
+                                Value = Convert.ToDouble(doc.DatabaseSizeA)
+                            };
+                            segmentListA.Add(segment);
+                            segment = new Segment()
+                            {
+                                Label = doc.DatabaseName,
+                                Value = Convert.ToDouble(doc.DatabaseSizeB)
+                            };
+                            segmentListB.Add(segment);
+                        }
+                    }
+                    List<Serie> series = new List<Serie>();
+                    Serie serie = new Serie();
+                    serie.Title = result[0].DominoServerA;
+                    serie.Segments = segmentListA;
+                    series.Add(serie);
+                    serie = new Serie();
+                    serie.Title = result[0].DominoServerB;
+                    serie.Segments = segmentListB;
+                    series.Add(serie);
+
+                    Chart chart = new Chart();
+                    chart.Title = "";
+                    chart.Series = series;
+
+                    Response = Common.CreateResponse(chart);
+                } 
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting the database size information has failed .\n Error Message :" + exception.Message);
             }
             return Response;
         }
