@@ -15,7 +15,8 @@ export * from './dashboards/components/key-metrics/hardware-stats-grid.component
 export * from './dashboards/components/key-metrics/disk-health-grid.component';
 export * from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
 export * from './dashboards/components/mail-delivery-status/exchange-mail-delivery-status.component';
-
+export * from './dashboards/components/key-metrics/database-replication-grid.component';
+export * from './dashboards/components/key-metrics/database-problems-grid.component';
 
 export * from './reports/components/financial/cost-per-user-pivot-grid.component';
 

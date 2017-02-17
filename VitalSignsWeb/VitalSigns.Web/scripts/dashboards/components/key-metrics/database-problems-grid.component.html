@@ -1,0 +1,66 @@
+﻿<!--<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>-->
+<wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [isReadOnly]="true" 
+              [headersVisibility]="1" (itemsSourceChanged)="onItemsSourceChanged()" (selectionChanged)="onSelectionChanged($event)" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Database File'" [binding]="'database_name'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Replica ID'" [binding]="'replica_id'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Doc Count A'" [binding]="'document_count_a'" align="right" [width]="180">
+        <!--<template wjFlexGridCellTemplate [cellType]="'ColumnHeader'" let-cell="cell"
+                  *ngIf="customColumnHeader">
+            {{cell.item.domino_server_a}} (document count)
+        </template>-->
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.database_status">
+                <span *ngSwitchCase="'Problem'" class="label label-pill label-danger">{{cell.item.document_count_a}}</span>
+                <span *ngSwitchDefault>{{cell.item.document_count_a}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Doc Count B'" [binding]="'document_count_b'" align="right" [width]="180">
+        <!--<template wjFlexGridCellTemplate [cellType]="'ColumnHeader'" let-cell="cell"
+                  *ngIf="customColumnHeader">
+            {{cell.item.domino_server_b}} (document count)
+        </template>-->
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.database_status">
+                <span *ngSwitchCase="'Problem'" class="label label-pill label-danger">{{cell.item.document_count_b}}</span>
+                <span *ngSwitchDefault>{{cell.item.document_count_b}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'DB Size A'" [binding]="'database_size_a'" align="right" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'DB Size B'" [binding]="'database_size_b'" align="right" [width]="180"></wj-flex-grid-column>
+</wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{data.pageIndex + 1 | number}} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>

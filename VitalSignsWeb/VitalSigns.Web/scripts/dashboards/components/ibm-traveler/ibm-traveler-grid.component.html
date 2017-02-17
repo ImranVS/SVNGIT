@@ -8,11 +8,12 @@
             <div [ngSwitch]="cell.item.traveler_status">
                 <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Maintenance'" class="label label-pill label-info">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Not Scanned'" class="label label-pill label-info">{{cell.item.traveler_status}}</span>
-                <span *ngSwitchDefault class="label label-pill label-warning">{{cell.item.traveler_status}}</span>
+                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.traveler_status}}</span>
             </div>
         </template>
     </wj-flex-grid-column>
@@ -24,13 +25,13 @@
                 <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.resource_constraint}}</span>
                 <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.resource_constraint}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.resource_constraint}}</span>
-                <span *ngSwitchDefault class="label label-pill label-warning">{{cell.item.resource_constraint}}</span>
+                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.resource_constraint}}</span>
             </div>
         </template>
     </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Details'" [binding]="'traveler_details'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Heart Beat'" [binding]="'traveler_heartbeat'" align="center"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Traveler Servlet'" [binding]="'traveler_servlet'" align="center">
+    <wj-flex-grid-column [header]="'Traveler Servlet'" [binding]="'traveler_servlet'" align="center" [width]="180">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div [ngSwitch]="cell.item.traveler_servlet">
                 <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_servlet}}</span>
@@ -38,7 +39,7 @@
                 <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_servlet}}</span>
                 <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_servlet}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_servlet}}</span>
-                <span *ngSwitchDefault class="label label-pill label-warning">{{cell.item.traveler_servlet}}</span>
+                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.traveler_servlet}}</span>
             </div>
         </template>
     </wj-flex-grid-column>
@@ -53,7 +54,7 @@
                 <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.http_status}}</span>
                 <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.http_status}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.http_status}}</span>
-                <span *ngSwitchDefault class="label label-pill label-warning">{{cell.item.http_status}}</span>
+                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.http_status}}</span>
             </div>
         </template>
     </wj-flex-grid-column>
@@ -63,9 +64,10 @@
                 <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_devices_api_status}}</span>
                 <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.traveler_devices_api_status}}</span>
                 <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
                 <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_devices_api_status}}</span>
-                <span *ngSwitchDefault class="label label-pill label-warning">{{cell.item.traveler_devices_api_status}}</span>
+                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.traveler_devices_api_status}}</span>
             </div>
         </template>
     </wj-flex-grid-column>

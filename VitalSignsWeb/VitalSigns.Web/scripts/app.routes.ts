@@ -19,6 +19,7 @@ import { OverallDatabaseDashboard } from './dashboards/components/key-metrics/ov
 import { HardwareStatsDashboard } from './dashboards/components/key-metrics/hardware-stats-dashboard.component';
 import { UsersDashboard } from './dashboards/components/key-metrics/users-dashboard.component';
 import { ServerDaysUp } from './dashboards/components/key-metrics/server-days-up-dashboard.component';
+import { DatabaseReplicationHealth } from './dashboards/components/key-metrics/database-replication-health.component';
 
 import { MSActiveDirectoryDashboard } from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -150,6 +151,7 @@ export * from './dashboards/components/key-metrics/overall-database-dashboard.co
 export * from './dashboards/components/key-metrics/hardware-stats-dashboard.component';
 export * from './dashboards/components/key-metrics/users-dashboard.component';
 export * from './dashboards/components/key-metrics/server-days-up-dashboard.component';
+export * from './dashboards/components/key-metrics/database-replication-health.component';
 
 export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -312,6 +314,10 @@ const appRoutes: Routes = [
             {
                 path: 'dashboard/sametimestat',
                 component: SametimeStatistics
+            },
+            {
+                path: 'dashboard/dbreplicationhealth',
+                component: DatabaseReplicationHealth
             },
 
             {

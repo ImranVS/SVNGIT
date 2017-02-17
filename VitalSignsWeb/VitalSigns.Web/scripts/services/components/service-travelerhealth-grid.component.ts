@@ -59,7 +59,7 @@ export class ServiceTravelerHealthGrid implements OnInit {
             },
             (error) => this.errorMessage = <any>error
         );
-        this.toolTip.getTooltip(this.flex, 0, 1);
+        this.toolTip.getTooltip(this.flex, 0, 2);
     }
 
     getAccessColor(access: string) {
