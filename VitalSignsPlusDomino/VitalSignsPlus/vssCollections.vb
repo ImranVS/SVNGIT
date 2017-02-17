@@ -2184,7 +2184,7 @@ Partial Public Class VitalSignsPlusDomino
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
                             Try
-                                .Server_A_Name = listOfDominoServers.Where(Function(x) x.ObjectId.Equals(entity.DominoServerA)).ToList()(0).DeviceName
+                                .Server_A_Name = listOfDominoServers.Where(Function(x) x.DeviceName.Equals(entity.DominoServerA)).ToList()(0).DeviceName
                             Catch ex As Exception
                                 .Server_A_Name = ""
                             End Try
@@ -2199,7 +2199,7 @@ Partial Public Class VitalSignsPlusDomino
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
                             Try
-                                .Server_B_Name = listOfDominoServers.Where(Function(x) x.ObjectId.Equals(entity.DominoServerB)).ToList()(0).DeviceName
+                                .Server_B_Name = listOfDominoServers.Where(Function(x) x.DeviceName.Equals(entity.DominoServerB)).ToList()(0).DeviceName
                             Catch ex As Exception
                                 .Server_B_Name = ""
                             End Try
@@ -2214,7 +2214,7 @@ Partial Public Class VitalSignsPlusDomino
                             '   WriteAuditEntry(Now.ToString & " " & .Name & " Domino server Dead Mail threshold not set, using default of 50.")
                         Else
                             Try
-                                .Server_C_Name = listOfDominoServers.Where(Function(x) x.ObjectId.Equals(entity.DominoServerC)).ToList()(0).DeviceName
+                                .Server_C_Name = listOfDominoServers.Where(Function(x) x.DeviceName.Equals(entity.DominoServerC)).ToList()(0).DeviceName
                             Catch ex As Exception
                                 .Server_C_Name = ""
                             End Try
