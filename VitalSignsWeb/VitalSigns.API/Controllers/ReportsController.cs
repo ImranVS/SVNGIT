@@ -995,6 +995,7 @@ namespace VitalSigns.API.Controllers
                                      Name = x.Name,
                                      users = x.users,
                                      CommunityType = x.CommunityType,
+                                     NumOfOwners = x.NumOfOwners,
                                      NumOfMembers = x.NumOfMembers.Value,
                                      NumOfFollowers = x.NumOfFollowers.Value
                                  }).ToList();
@@ -1017,6 +1018,7 @@ namespace VitalSigns.API.Controllers
                                 ibm2.user = s1;
                             ibm2.users = us;
                             ibm2.CommunityType = l.CommunityType;
+                            ibm2.NumOfOwners = l.NumOfOwners;
                             ibm2.NumOfMembers = l.NumOfMembers;
                             ibm2.NumOfFollowers = l.NumOfFollowers;
                             result2.Add(ibm2);

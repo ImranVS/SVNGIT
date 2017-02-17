@@ -175,6 +175,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("community_type")]
         public string CommunityType { get; set; }
 
+        [JsonProperty("num_of_owners")]
+        public int? NumOfOwners { get; set; }
+
         [JsonProperty("num_of_members")]
         public int NumOfMembers { get; set; }
 
