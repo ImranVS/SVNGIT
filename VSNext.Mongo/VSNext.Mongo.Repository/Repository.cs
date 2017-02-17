@@ -308,7 +308,7 @@ namespace VSNext.Mongo.Repository
         private readonly string _collectionName;
         public Repository(string connectionString, string databaseName, string collectionName)
         {
-            _client = new MongoClient(connectionString);
+            _client = new MongoClient(connectionString.EndsWith("/") ? connectionString + databaseName : connectionString + "/" + databaseName);
             _database = _client.GetDatabase(databaseName);
             _collectionName = collectionName;
         }
