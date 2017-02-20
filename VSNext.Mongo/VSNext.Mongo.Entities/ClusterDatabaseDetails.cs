@@ -78,5 +78,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string ReplicaID { get; set; }
 
+        [DataMember]
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
+
     }
 }
