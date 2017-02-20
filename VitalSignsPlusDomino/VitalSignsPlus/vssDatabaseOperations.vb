@@ -644,7 +644,7 @@ Partial Public Class VitalSignsPlusDomino
     '9/30/2015 NS modified for VSPLUS-2150
     Private Sub UpdateClusterDataTable(ByVal ClusterName As String, ByVal DatabaseTitle As String, ByVal DatabaseName As String,
             ByVal SACount As Int32, ByVal SBCount As Int32, ByVal SCCount As Int32, ByVal SASize As Long, ByVal SBSize As Long,
-            ByVal SCSize As Long, ByVal Desc As String, ByVal lastScanned As DateTime, ByVal ReplicaID As String)
+            ByVal SCSize As Long, ByVal Desc As String, ByVal lastScanned As DateTime, ByVal ReplicaID As String, ByVal DeviceId As String)
         Dim strSQL As String = ""
         Dim objVSAdaptor As New VSAdaptor
         Try
@@ -662,7 +662,8 @@ Partial Public Class VitalSignsPlusDomino
                 .DocumentCountA = SACount,
                 .DocumentCountB = SBCount,
                 .DocumentCountC = SCCount,
-                .ReplicaID = ReplicaID
+                .ReplicaID = ReplicaID,
+                .DeviceId = DeviceId
             }
 
             repository.Insert(entity)

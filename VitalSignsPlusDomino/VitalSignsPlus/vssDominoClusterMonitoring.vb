@@ -1355,7 +1355,7 @@ ReleaseCOMObjects:
                     '9/30/2015 NS modified for VSPLUS-2150
                     UpdateClusterDataTable(Cluster.Name, dbtitle, db.Database_FileName, db.Server_A_Doc_Count, db.Server_B_Doc_Count,
                                            db.Server_C_Doc_Count, db.Server_A_Size / 1024 / 1024, db.Server_B_Size / 1024 / 1024,
-                                           db.Server_C_Size / 1024 / 1024, myComment, DateTime.Now(), db.ReplicaID)
+                                           db.Server_C_Size / 1024 / 1024, myComment, DateTime.Now(), db.ReplicaID, Cluster.ServerObjectID)
                 Else
                     WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " The database " & db.Database_Title & " (" & db.Database_FileName & ") qualifies for one of the exclusion criteria. It will not be reported.")
                 End If
