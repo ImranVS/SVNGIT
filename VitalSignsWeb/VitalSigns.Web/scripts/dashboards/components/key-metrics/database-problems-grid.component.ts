@@ -56,6 +56,9 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
                     cols[7].visible = false;
                 }
                 else {
+                    var cols = this.flex.columns;
+                    cols[4].visible = true;
+                    cols[7].visible = true;
                     this.flex.columns[4].header = this.data.items[0].domino_server_c + ' (document count)';
                     this.flex.columns[7].header = this.data.items[0].domino_server_c + ' (database size)';
                 }
@@ -96,6 +99,9 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
                         cols[7].visible = false;
                     }
                     else {
+                        var cols = this.flex.columns;
+                        cols[4].visible = true;
+                        cols[7].visible = true;
                         this.flex.columns[4].header = this.data.items[0].domino_server_c + ' (document count)';
                         this.flex.columns[7].header = this.data.items[0].domino_server_c + ' (database size)';
                     }

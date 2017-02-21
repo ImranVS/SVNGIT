@@ -36,21 +36,21 @@
        
 </div>
 
-<div class="col-lg-3 col-md-6 zeusColorReact-primary">
+<div class="col-lg-3 col-md-6 zeusColorReact-mail">
     <a [routerLink]="['/dashboard/mail-delivery-status']">
-        <div class="widgetWrapper h-xs-108" data-widget-type="widgetImageText">
+        <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
             <!--<img class="svgInject zeusColorReactFill" src="/img/dashboard/Email.svg" title="Email" alt="Email" />-->
             <div style="padding: 0 3px;">
-                <div class="widgetImageText-head zeusColorReactText" *ngIf="usersessionsStatus" align="right">{{usersessionsStatus.pendingMail }}</div>
-                <div class="widgetImageText-text zeusColorReactText" align="right">Pending mail</div>
+                <div class="widgetImageText-head" *ngIf="usersessionsStatus" align="right">{{usersessionsStatus.pendingMail }}</div>
+                <div class="widgetImageText-text" align="right">Pending mail</div>
             </div>
             <div style="padding: 0 3px;">
-                <div class="widgetImageText-head zeusColorReactText" *ngIf="usersessionsStatus" align="right">{{usersessionsStatus.deadMail }}</div>
-                <div class="widgetImageText-text zeusColorReactText" align="right">Dead mail</div>
+                <div class="widgetImageText-head" *ngIf="usersessionsStatus" align="right">{{usersessionsStatus.deadMail }}</div>
+                <div class="widgetImageText-text" align="right">Dead mail</div>
             </div>
             <div style="padding: 0 3px;">
-                <div class="widgetImageText-head zeusColorReactText" *ngIf="usersessionsStatus" align="right">{{usersessionsStatus.heldMail }}</div>
-                <div class="widgetImageText-text zeusColorReactText" align="right">Held mail</div>
+                <div class="widgetImageText-head" *ngIf="usersessionsStatus" align="right">{{usersessionsStatus.heldMail }}</div>
+                <div class="widgetImageText-text" align="right">Held mail</div>
             </div>
         </div>
         </a>

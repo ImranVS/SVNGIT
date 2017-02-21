@@ -30,15 +30,6 @@ export class DatabaseReplicationHealth extends WidgetController implements OnIni
                 settings: {
 
                 }
-            },
-            {
-                id: 'databaseProblemsGrid',
-                title: 'Potential Replication Problems',
-                name: 'DatabaseProblemsGrid',
-                css: 'col-xs-12 col-sm-12  col-md-12 col-lg-12',
-                settings: {
-
-                }
             }
         ];
         injectSVG();

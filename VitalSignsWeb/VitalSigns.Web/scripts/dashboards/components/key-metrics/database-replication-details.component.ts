@@ -23,6 +23,15 @@ export class DatabaseReplicationDetails extends WidgetController implements OnIn
         this.serviceId = this.widgetService.getProperty('serviceId');
         this.widgets = [
             {
+                id: 'databaseProblemsGrid',
+                title: 'Potential Replication Problems',
+                name: 'DatabaseProblemsGrid',
+                css: 'col-xs-12 col-sm-12  col-md-12 col-lg-12',
+                settings: {
+
+                }
+            },
+            {
                 id: 'documentCount',
                 title: 'Document Count',
                 name: 'ChartComponent',
@@ -121,13 +130,10 @@ export class DatabaseReplicationDetails extends WidgetController implements OnIn
 
             this.serviceId = value;
 
-            var date = new Date();
-            var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
-
-            this.widgetService.refreshWidget('activities', `/services/summarystats?statName=[NUM_OF_ACTIVITIES_ACTIVITIES_CREATED_YESTERDAY,NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY,ACTIVITY_LOGINS_LAST_DAY]&deviceid=${this.serviceId}`)
+            this.widgetService.refreshWidget('documentCount', `/dashboard/database-problems?clusterId=${this.serviceId}&isChart=true&isDocCount=true`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('top5CommunitiesActivities', `/dashboard/connections/most_active_object?deviceid=${this.serviceId}&type=Activity&count=5`)
+            this.widgetService.refreshWidget('databaseSize', `/dashboard/database-problems?clusterId=${this.serviceId}&isChart=true&isDocCount=false`)
                 .catch(error => console.log(error));
 
         }
