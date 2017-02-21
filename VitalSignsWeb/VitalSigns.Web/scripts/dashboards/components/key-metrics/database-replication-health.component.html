@@ -16,17 +16,41 @@
     <div class="clearfix"></div>
 </div>
 <div id="zeusContent" class="container-fluid">
-        <div class="row">
+    <div class="col-xs-12 col-sm-12  col-md-12 col-lg-12">
+        <div class="widgetWrapper">
+            <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
+            <div class="widgetContent" id="databaseReplicationGrid">
+                <vs-db-rep-grid (select)="onSelect($event)">loading...</vs-db-rep-grid>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12  col-md-12 col-lg-12" *ngIf="serviceId">
+        <div class="widgetWrapper">
+            <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
+            <div class="widgetContent" id="databaseReplicationProblemsGrid">
+                <vs-db-rep-problems-grid>loading...</vs-db-rep-problems-grid>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12  col-md-12 col-lg-12" *ngIf="serviceId">
+        <div class="widgetWrapper">
+            <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
+            <div class="widgetContent" id="databaseReplicationDetails">
+                <database-replication-details>loading...</database-replication-details>
+            </div>
+        </div>
+    </div>
+        <!--<div class="row">
             <div class="{{widget.css}}" *ngFor="let widget of widgets">
                 <div class="widgetWrapper">
                     <div class="widgetTitle" *ngIf="widget.title != ''">
                         {{widget.title}}
                     </div>
-                    <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
+                    <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
                     <div class="widgetContent" id="{{widget.id}}">
-                        <my-widget [contract]="widget">loading...</my-widget>
+                        <my-widget [contract]="widget" (select)="onSelect($event)">loading...</my-widget>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
 </div>

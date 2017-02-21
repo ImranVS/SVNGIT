@@ -51,6 +51,7 @@ import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
 import {OverallDatabaseDetails} from './dashboards/components/key-metrics/overall-database-details.component';
 import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
+import { DatabaseReplicationDetails } from './dashboards/components/key-metrics/database-replication-details.component';
 
 import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
 
@@ -157,6 +158,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         IBMConnectionsDetails,
         IBMSametimeDetails,
         OverallDatabaseDetails,
+        DatabaseReplicationDetails,
         SearchServerList,
         ServersLocation,
         SearchDeviceListPipe,

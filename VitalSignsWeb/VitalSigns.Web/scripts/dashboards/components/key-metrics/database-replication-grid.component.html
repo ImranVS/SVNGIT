@@ -5,7 +5,7 @@
 <wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [isReadOnly]="true" 
               [headersVisibility]="1" (itemsSourceChanged)="onItemsSourceChanged()" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
-    <wj-flex-grid-column [header]="'Cluster Name'" [binding]="'device_name'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Cluster Name'" [binding]="'name'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" align="center" [width]="180">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div [ngSwitch]="cell.item.status">
@@ -19,7 +19,7 @@
             </div>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Failure Threshold'" [binding]="'resource_constraint'" align="right" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Failure Threshold'" [binding]="'failure_threshold'" align="right" [width]="180"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="180"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Next Scan'" [binding]="'last_updated'" [width]="180"></wj-flex-grid-column>
 </wj-flex-grid>
