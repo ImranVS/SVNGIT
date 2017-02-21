@@ -8,7 +8,7 @@ using VSNext.Mongo.Entities;
 using MongoDB.Driver;
 using System.Configuration;
 namespace VitalSignsLicensing
-{
+{    
     /// <summary>
     /// designed: Dhanraj Seri
     /// Date: 08/30/2016
@@ -16,6 +16,18 @@ namespace VitalSignsLicensing
     /// </summary>
     public class Licensing
     {
+
+        private class AllServers
+        {
+            public string CurrentNode;
+            public string DeviceType;
+            public string DeviceName;
+            public string DeviceId;
+            public double LicenseCost;
+            public Boolean? IsEnabled;
+            public string CollectionName;
+            public string AssignedNode;
+        }
         //string cs = "mongodb://192.168.1.10:27017/vitalsigns_reference";
         string cs = ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
         //List<ServerType> deviceTypeList;
@@ -56,32 +68,79 @@ namespace VitalSignsLicensing
                 else
                     myAlert.ResetSysMessage(msg);
                     
+                //Gets the servers from the server and server_other collections
                 VSNext.Mongo.Repository.Repository<Server> repo = new VSNext.Mongo.Repository.Repository<Server>(cs);
-                FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repo.Filter.Where(i => i.IsEnabled == true);
-                ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDef = repo.Project.Include(i => i.CurrentNode).Include(i => i.DeviceType).Include(i => i.LicenseCost).Include(i => i.DeviceName);
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repo.Filter.Where( i => true);
+                ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDef = repo.Project
+                    .Include(i => i.CurrentNode)
+                    .Include(i => i.AssignedNode)
+                    .Include(i => i.DeviceType)
+                    .Include(i => i.LicenseCost)
+                    .Include(i => i.DeviceName)
+                    .Include(i => i.IsEnabled)
+                    .Include(i => i.Id);
                 List<Server> serverList = repo.Find(filterdef, projectDef).ToList();
-                   
-                //first set all servers node to -1 and cost to 0
-                serverList= serverList.Select(c => {c.CurrentNode = "-1"; c.CostPerUser =0; return c;}).ToList();
 
-                if (nodesListAlive.Count > 0)
+
+                VSNext.Mongo.Repository.Repository<ServerOther> repoServerOther = new VSNext.Mongo.Repository.Repository<ServerOther>(cs);
+                FilterDefinition<VSNext.Mongo.Entities.ServerOther> filterdefServerOther = repoServerOther.Filter.Where(i => true);
+                ProjectionDefinition<VSNext.Mongo.Entities.ServerOther> projectDefServerOther = repoServerOther.Project
+                    .Include(i => i.CurrentNode)
+                    .Include(i => i.AssignedNode)
+                    .Include(i => i.Type)
+                    .Include(i => i.LicenseCost)
+                    .Include(i => i.Name)
+                    .Include(i => i.IsEnabled)
+                    .Include(i => i.Id);
+                List<ServerOther> serverOtherList = repoServerOther.Find(filterdefServerOther, projectDefServerOther).ToList();
+
+                //first set all servers node to -1 and cost to 0
+                serverList = serverList.Select(c => {c.CurrentNode = null; c.LicenseCost = 0; return c;}).ToList();
+                serverOtherList = serverOtherList.Select(c => { c.CurrentNode = null; c.LicenseCost = 0; return c; }).ToList();
+
+                //makes one large list
+                List<AllServers> listOfAllServers = serverList.Select(x => 
+                    new AllServers()
+                    {
+                        CurrentNode = x.CurrentNode,
+                        AssignedNode = x.AssignedNode,
+                        DeviceType = x.DeviceType,
+                        IsEnabled = x.IsEnabled,
+                        LicenseCost = x.LicenseCost,
+                        DeviceName = x.DeviceName,
+                        DeviceId = x.Id,
+                        CollectionName = "Server"
+                    }).ToList().Concat(
+                    serverOtherList.Select(x => 
+                    new AllServers()
+                    {
+                        CurrentNode = x.CurrentNode,
+                        AssignedNode = x.AssignedNode,
+                        DeviceType = x.Type,
+                        IsEnabled = x.IsEnabled,
+                        LicenseCost = x.LicenseCost.HasValue ? x.LicenseCost.Value : 0,
+                        DeviceName = x.Name,
+                        DeviceId = x.Id,
+                        CollectionName = "ServerOther"
+                    }).ToList()).ToList();
+
+
+                if (listOfAllServers.Count > 0)
                 {
 
-                    VSNext.Mongo.Repository.Repository<Server> repo2 = new VSNext.Mongo.Repository.Repository<Server>(cs);
                     //loop thru each server and assign node
-                    foreach (Server s in serverList)
+                    foreach (AllServers s in listOfAllServers)
                     {
-                        FilterDefinition<VSNext.Mongo.Entities.Server> filterdef1 = repo2.Filter.Where(i => i.DeviceName == s.DeviceName);
-                        UpdateDefinition<VSNext.Mongo.Entities.Server> updatedef1 = default(UpdateDefinition<VSNext.Mongo.Entities.Server>);
+                        if(s.DeviceName == "Certification Log1")
+                        {
+
+                        }
                         string n = "-1";
                         double licenseCost = 0;
-                        if (isFreeLicenseAvailable(s.DeviceType, validUnits, serverList))
-                        {
-                            FilterDefinition<VSNext.Mongo.Entities.Server> filterdefType = repo.Filter.Where(i => i.IsEnabled == true && i.DeviceType==s.DeviceType);
-                            ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDefType = repo.Project.Include(i => i.CurrentNode).Include(i => i.DeviceType).Include(i => i.LicenseCost).Include(i => i.DeviceName);
-                            List<Server> serverListType = repo.Find(filterdefType, projectDefType).ToList();
 
-                            n = getFreeNode(s, nodesListAlive, serverList, serverListType);
+                        if (s.IsEnabled.HasValue && s.IsEnabled.Value && isFreeLicenseAvailable(s.DeviceType, validUnits, listOfAllServers))
+                        {
+                            n = getFreeNode(s, nodesListAlive, listOfAllServers);
                             licenseCost = getLicenseCost(s.DeviceType);
                             if (n == "")
                             {
@@ -89,13 +148,27 @@ namespace VitalSignsLicensing
                                 licenseCost = 0;
                             }
                         }
-                        updatedef1 = repo2.Updater
-                              .Set(i => i.LicenseCost, licenseCost)
-                              .Set(i => i.CurrentNode, n);
-                        repo2.Update(filterdef1, updatedef1);
+
+                        //based on CollectionName, updates the particular documents
+                        if(s.CollectionName == "Server")
+                        {
+                            Repository<Server> repo1 = new Repository<Server>(cs);
+                            FilterDefinition<Server> filterDef1 = repo1.Filter.Eq(x => x.Id, s.DeviceId);
+                            UpdateDefinition<Server> updateDef1 = repo1.Updater.Set(x => x.LicenseCost, licenseCost).Set(x => x.CurrentNode, n);
+                            repo1.Update(filterDef1, updateDef1);
+                        }
+                        else if(s.CollectionName == "ServerOther")
+                        {
+                            Repository<ServerOther> repo1 = new Repository<ServerOther>(cs);
+                            FilterDefinition<ServerOther> filterDef1 = repo1.Filter.Eq(x => x.Id, s.DeviceId);
+                            UpdateDefinition<ServerOther> updateDef1 = repo1.Updater.Set(x => x.LicenseCost, licenseCost).Set(x => x.CurrentNode, n);
+                            repo1.Update(filterDef1, updateDef1);
+                        }
+
                         s.CurrentNode = n;
                         s.LicenseCost = licenseCost;
                     }
+
                 }
                 else
                     revokeNodeFromAllServers();
@@ -118,6 +191,14 @@ namespace VitalSignsLicensing
                     .Set(i => i.CurrentNode, "-1")
                     .Set(i => i.LicenseCost, 0);
                 repo.Update(filterdef, updatedef);
+
+                VSNext.Mongo.Repository.Repository<ServerOther> repoOther = new VSNext.Mongo.Repository.Repository<ServerOther>(cs);
+                FilterDefinition<VSNext.Mongo.Entities.ServerOther> filterdefOther = repoOther.Filter.Where(i => i.IsEnabled == true);
+                UpdateDefinition<VSNext.Mongo.Entities.ServerOther> updatedefOther = default(UpdateDefinition<VSNext.Mongo.Entities.ServerOther>);
+                updatedefOther = repoOther.Updater
+                    .Set(i => i.CurrentNode, "-1")
+                    .Set(i => i.LicenseCost, 0);
+                repoOther.Update(filterdefOther, updatedefOther);
             }
             catch
             {
@@ -155,7 +236,8 @@ namespace VitalSignsLicensing
             checkNodeHealth();
             assignNodesToServers();
         }
-        private string getFreeNode(Server s1, List<Nodes> nodesListAlive, List<Server> serverListAll, List<Server> serverTypeListAll)
+
+        private string getFreeNode(AllServers s1, List<Nodes> nodesListAlive, List<AllServers> serverListAll)
         {
             string returnNode = "";
             try
@@ -205,14 +287,12 @@ namespace VitalSignsLicensing
                 VSNext.Mongo.Repository.Repository<Server> repoServers = new VSNext.Mongo.Repository.Repository<Server>(cs);
                 double useLoadFactor = 100;
                 //get the appropriate node
+
+                List<AllServers> serverTypeListAll = serverListAll.Where(x => x.IsEnabled == true && x.DeviceType == s1.DeviceType).ToList();
                 foreach (Nodes s in nodesListAlive)
                 {
-                    //List<Server> serverListNode = repoServers.Find(i => i.IsEnabled == true && i.CurrentNode == s.Name).ToList();
-                    FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repoServers.Filter.Where(i => i.IsEnabled == true && i.CurrentNode == s.Name && i.DeviceType ==s1.DeviceType );
-                    ProjectionDefinition<VSNext.Mongo.Entities.Server> projectDef = repoServers.Project.Include(i => i.CurrentNode);
-                    List<Server> serverListNode = repoServers.Find(filterdef, projectDef).ToList();
-
-                    //List<Server> serverListAll = repoServers.Find(i => i.IsEnabled == true).ToList();
+                    List<AllServers> serverListNode = serverListAll.Where(x => x.IsEnabled == true && x.CurrentNode == s.Name && x.DeviceType == s1.DeviceType).ToList();
+                    
                     //if load on the node is less or the node is set as preferred node
                     if (serverListNode.Count == 0)
                     {
@@ -247,10 +327,11 @@ namespace VitalSignsLicensing
 
             return returnNode;
         }
-        private bool isFreeLicenseAvailable(string deviceType, int units, List<Server> serverList)
+        
+        private bool isFreeLicenseAvailable(string deviceType, int units, List<AllServers> serverList)
         {
-            
-            
+
+
 
             bool licAvailable = false;
             try
@@ -260,12 +341,12 @@ namespace VitalSignsLicensing
                 try
                 {
 
-                VSNext.Mongo.Entities.Enums.ServerType t = Enum.GetValues(typeof(VSNext.Mongo.Entities.Enums.ServerType))
-                .Cast<VSNext.Mongo.Entities.Enums.ServerType>()
-                .FirstOrDefault(v => v.ToDescription() == deviceType);
-                 tempCost = t.getLicenseCost();
+                    VSNext.Mongo.Entities.Enums.ServerType t = Enum.GetValues(typeof(VSNext.Mongo.Entities.Enums.ServerType))
+                    .Cast<VSNext.Mongo.Entities.Enums.ServerType>()
+                    .FirstOrDefault(v => v.ToDescription() == deviceType);
+                    tempCost = t.getLicenseCost();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     tempCost = 0;
                 }
@@ -278,21 +359,22 @@ namespace VitalSignsLicensing
                 {
                 }
 
-                
+
                 //    totalCost += s.LicenseCost;
                 double remainingUnits = units - totalCost;
                 if (remainingUnits >= tempCost)
-                    licAvailable= true;
+                    licAvailable = true;
                 else
-                    licAvailable= false;
+                    licAvailable = false;
             }
             catch
             {
 
             }
             return licAvailable;
-            
+
         }
+
         private int checkLicenseValidity(List<License> licenseList)
         {
             int units = 0;
