@@ -2340,14 +2340,34 @@ namespace VitalSigns.API.Controllers
                 DateTime now = new DateTime();
                 now = DateTime.UtcNow;
                 statusRepository = new Repository<Status>(ConnectionString);
-                var result = statusRepository.Collection.AsQueryable().Select(x => new ServerStatus
+                var result = statusRepository.Collection.AsQueryable().Where(x => x.DeviceType == "Notes Database Replica")
+                    .Select(x => new ServerStatus
                 {
                     DeviceId = x.DeviceId,
                     Name = x.DeviceName,
                     Status = x.CurrentStatus,
                     LastUpdated = x.LastUpdated.Value
                 }).ToList();
-                
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                var result2 = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Notes Database Replica")
+                    .Select(x => new ServerStatus
+                    {
+                        Name = x.Name,
+                        FailureThreshold = x.DifferenceThreshold
+                    }).ToList();
+                if (result.Count > 0 && result2.Count > 0)
+                {
+                    foreach (var res in result)
+                    {
+                        foreach (var res2 in result2)
+                        {
+                            if (res.Name == res2.Name)
+                            {
+                                res.FailureThreshold = res2.FailureThreshold;
+                            }
+                        }
+                    }
+                }
                 Response = Common.CreateResponse(result);
             }
 
@@ -2362,42 +2382,69 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetDatabaseProblems(string clusterId, bool isChart = false, bool isDocCount = true)
         {
             double maxdoccount = 0;
+            List<NotesDatabaseReplicationModel> result = new List<NotesDatabaseReplicationModel>();
+
             try
             {
                 DateTime now = new DateTime();
                 now = DateTime.UtcNow;
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 //Will have to replace the look up with ID later
-                var dbs = serverOtherRepository.All().Where(x => x.Type == "Notes Database Replica" && x.Name == clusterId).ToList();
+                var dbs = serverOtherRepository.All().Where(x => x.Type == "Notes Database Replica" && x.Id == clusterId).ToList();
                 clusterDatabaseRepository = new Repository<ClusterDatabaseDetails>(ConnectionString);
-                var result = clusterDatabaseRepository.All().Where(x => x.ClusterName == clusterId)
+                if (dbs.Count > 0)
+                {
+                    result = clusterDatabaseRepository.All().Where(x => x.ClusterName == dbs[0].Name)
                     .Select(x => new NotesDatabaseReplicationModel
                     {
                         ClusterName = x.ClusterName,
                         DatabaseName = x.DatabaseName,
                         DatabaseStatus = "OK",
-                        ReplicaId = x.ReplicaID,                        
+                        ReplicaId = x.ReplicaID,
                         DocumentCountA = x.DocumentCountA,
                         DocumentCountB = x.DocumentCountB,
+                        DocumentCountC = x.DocumentCountC,
                         DatabaseSizeA = x.DatabaseSizeA,
-                        DatabaseSizeB = x.DatabaseSizeB
-                    }).ToList();
-                if (result.Count > 0 && dbs.Count > 0)
-                {
-                    foreach (var res in result)
+                        DatabaseSizeB = x.DatabaseSizeB,
+                        DatabaseSizeC = x.DatabaseSizeC
+                    }).OrderBy(x => x.DatabaseName).ToList();
+                    if (result.Count > 0 && dbs.Count > 0)
                     {
-                        maxdoccount = Math.Max(res.DocumentCountA.Value, res.DocumentCountB.Value);
-                        res.DominoServerA = dbs[0].DominoServerA;
-                        res.DominoServerB = dbs[0].DominoServerB;
-                        if (maxdoccount != 0)
+                        foreach (var res in result)
                         {
-                            if (Convert.ToDouble(Math.Abs(res.DocumentCountA.Value - res.DocumentCountB.Value)) / maxdoccount * 100 >= dbs[0].DifferenceThreshold)
+                            if (!string.IsNullOrEmpty(res.DominoServerC))
                             {
-                                res.DatabaseStatus = "Problem";
+                                maxdoccount = Math.Max(res.DocumentCountC.Value, Math.Max(res.DocumentCountA.Value, res.DocumentCountB.Value));
+                                res.DominoServerA = dbs[0].DominoServerA;
+                                res.DominoServerB = dbs[0].DominoServerB;
+                                res.DominoServerC = dbs[0].DominoServerC;
+                                if (maxdoccount != 0)
+                                {
+                                    if (Convert.ToDouble(Math.Abs(res.DocumentCountA.Value - res.DocumentCountB.Value)) / maxdoccount * 100 >= dbs[0].DifferenceThreshold ||
+                                        Convert.ToDouble(Math.Abs(res.DocumentCountA.Value - res.DocumentCountC.Value)) / maxdoccount * 100 >= dbs[0].DifferenceThreshold ||
+                                        Convert.ToDouble(Math.Abs(res.DocumentCountB.Value - res.DocumentCountC.Value)) / maxdoccount * 100 >= dbs[0].DifferenceThreshold)
+                                    {
+                                        res.DatabaseStatus = "Problem";
+                                    }
+                                }
                             }
+                            else
+                            {
+                                maxdoccount = Math.Max(res.DocumentCountA.Value, res.DocumentCountB.Value);
+                                res.DominoServerA = dbs[0].DominoServerA;
+                                res.DominoServerB = dbs[0].DominoServerB;
+                                if (maxdoccount != 0)
+                                {
+                                    if (Convert.ToDouble(Math.Abs(res.DocumentCountA.Value - res.DocumentCountB.Value)) / maxdoccount * 100 >= dbs[0].DifferenceThreshold)
+                                    {
+                                        res.DatabaseStatus = "Problem";
+                                    }
+                                }
+                            }   
                         }
                     }
                 }
+                
                 if (!isChart)
                 {      
                     Response = Common.CreateResponse(result);
@@ -2408,6 +2455,7 @@ namespace VitalSigns.API.Controllers
 
                     List<Segment> segmentListA = new List<Segment>();
                     List<Segment> segmentListB = new List<Segment>();
+                    List<Segment> segmentListC = new List<Segment>();
                     Segment segment = new Segment();
                     foreach (var doc in result)
                     {
@@ -2425,6 +2473,15 @@ namespace VitalSigns.API.Controllers
                                 Value = Convert.ToDouble(doc.DocumentCountB)
                             };
                             segmentListB.Add(segment);
+                            if (!string.IsNullOrEmpty(doc.DominoServerC))
+                            {
+                                segment = new Segment()
+                                {
+                                    Label = doc.DatabaseName,
+                                    Value = Convert.ToDouble(doc.DocumentCountC)
+                                };
+                                segmentListC.Add(segment);
+                            }
                         }
                         else
                         {
@@ -2440,6 +2497,15 @@ namespace VitalSigns.API.Controllers
                                 Value = Convert.ToDouble(doc.DatabaseSizeB)
                             };
                             segmentListB.Add(segment);
+                            if (!string.IsNullOrEmpty(doc.DominoServerC))
+                            {
+                                segment = new Segment()
+                                {
+                                    Label = doc.DatabaseName,
+                                    Value = Convert.ToDouble(doc.DatabaseSizeC)
+                                };
+                                segmentListC.Add(segment);
+                            }
                         }
                     }
                     List<Serie> series = new List<Serie>();
@@ -2451,7 +2517,13 @@ namespace VitalSigns.API.Controllers
                     serie.Title = result[0].DominoServerB;
                     serie.Segments = segmentListB;
                     series.Add(serie);
-
+                    if (segmentListC.Count > 0)
+                    {
+                        serie = new Serie();
+                        serie.Title = result[0].DominoServerC;
+                        serie.Segments = segmentListC;
+                        series.Add(serie);
+                    }
                     Chart chart = new Chart();
                     chart.Title = "";
                     chart.Series = series;

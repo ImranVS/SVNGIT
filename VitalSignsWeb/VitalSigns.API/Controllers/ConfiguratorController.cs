@@ -5383,6 +5383,7 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetAllServersWithLocation()
         {
             serversRepository = new Repository<Server>(ConnectionString);
+            serverOtherRepository = new Repository<ServerOther>(ConnectionString);
             List<ServerLocation> serverLocations = new List<ServerLocation>();
             try
             {
@@ -5396,6 +5397,27 @@ namespace VitalSigns.API.Controllers
                         serverLocation.Id = x["_id"].AsObjectId.ToString();
                         serverLocation.DeviceName = x.GetValue("device_name", BsonString.Create(string.Empty)).ToString();
                         serverLocation.DeviceType = x.GetValue("device_type", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.Description = x.GetValue("description", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.AssignedNode = x.GetValue("assigned_node", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.CurrentNode = x.GetValue("current_node", BsonString.Create(string.Empty)).ToString();
+                        if (x.GetValue("result", BsonValue.Create(string.Empty)).AsBsonArray.Values.Count() > 0)
+                        {
+                            serverLocation.LocationName = x.GetValue("result", BsonValue.Create(string.Empty))[0]["location_name"].ToString();
+                        }
+                        serverLocation.IsSelected = false;
+                        serverLocation.Category = x.GetValue("category", BsonString.Create(string.Empty)).ToString();
+                    }
+                    serverLocations.Add(serverLocation);
+                }
+                var result2 = serverOtherRepository.Collection.Aggregate()
+                                                         .Lookup("location", "location_id", "_id", "result").ToList();
+                foreach (var x in result2)
+                {
+                    ServerLocation serverLocation = new ServerLocation();
+                    {
+                        serverLocation.Id = x["_id"].AsObjectId.ToString();
+                        serverLocation.DeviceName = x.GetValue("name", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.DeviceType = x.GetValue("type", BsonString.Create(string.Empty)).ToString();
                         serverLocation.Description = x.GetValue("description", BsonString.Create(string.Empty)).ToString();
                         serverLocation.AssignedNode = x.GetValue("assigned_node", BsonString.Create(string.Empty)).ToString();
                         serverLocation.CurrentNode = x.GetValue("current_node", BsonString.Create(string.Empty)).ToString();
@@ -5828,6 +5850,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 nodesRepository = new Repository<Nodes>(ConnectionString);
                 string selectedNode = Convert.ToString(devicesettings.Setting);
                 var platform = nodesRepository.Collection.AsQueryable().Where(x => x.Id == selectedNode).Select(x => x.Name).FirstOrDefault();
@@ -5840,6 +5863,15 @@ namespace VitalSigns.API.Controllers
                         var updateDefination = serversRepository.Updater.Set(p => p.AssignedNode, platform);
                         var result = serversRepository.Update(filterDefination, updateDefination);
                     }    
+                }
+                foreach (var id in devicesList)
+                {
+                    if (id != "")
+                    {
+                        FilterDefinition<ServerOther> filterDefination2 = Builders<ServerOther>.Filter.Where(p => p.Id == id);
+                        var updateDefination2 = serverOtherRepository.Updater.Set(p => p.AssignedNode, platform);
+                        var result = serverOtherRepository.Update(filterDefination2, updateDefination2);
+                    }
                 }
                 Licensing licensing = new Licensing();
                 licensing.refreshServerCollectionWrapper();

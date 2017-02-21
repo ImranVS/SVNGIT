@@ -26,16 +26,25 @@ namespace VitalSigns.API.Models
         [JsonProperty("domino_server_b")]
         public string DominoServerB { get; set; }
 
+        [JsonProperty("domino_server_c")]
+        public string DominoServerC { get; set; }
+
         [JsonProperty("document_count_a")]
         public int? DocumentCountA { get; set; }
 
         [JsonProperty("document_count_b")]
         public int? DocumentCountB { get; set; }
 
+        [JsonProperty("document_count_c")]
+        public int? DocumentCountC { get; set; }
+
         [JsonProperty("database_size_a")]
         public double? DatabaseSizeA { get; set; }
 
         [JsonProperty("database_size_b")]
         public double? DatabaseSizeB { get; set; }
+
+        [JsonProperty("database_size_c")]
+        public double? DatabaseSizeC { get; set; }
     }
 }

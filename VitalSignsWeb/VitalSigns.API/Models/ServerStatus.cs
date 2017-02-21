@@ -21,6 +21,7 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("status")]
         public string Status { get; set; }
+
         [JsonProperty("status_code")]
         public string StatusCode { get; set; }
 
@@ -61,6 +62,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("is_enabled")]
         public bool? IsEnabled { get; set; }
 
+        [JsonProperty("failure_threshold")]
+        public int? FailureThreshold { get; set; }
 
         [JsonProperty("tabs")]
         public List<Tab> Tabs { get; set; }
