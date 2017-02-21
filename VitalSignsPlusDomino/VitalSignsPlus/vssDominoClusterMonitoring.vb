@@ -1317,8 +1317,9 @@ ReleaseCOMObjects:
             If Cluster.Status = "Server Down" Then Exit Sub
             Dim myDatabaseCollection As MonitoredItems.DominoMailClusterDatabaseCollection = Cluster.DatabaseCollection
             ' Remove Cluster details for the Cluster ID. 
-            cleanUpClusterDetailedTable(Cluster.Name)
-
+            If myDatabaseCollection.Count > 0 Then
+                cleanUpClusterDetailedTable(Cluster.ServerObjectID)
+            End If
             '4/20/2016 NS added for VSPLUS-2724
             Dim proceed As Boolean
             For Each db As MonitoredItems.DominoMailClusterDatabase In myDatabaseCollection

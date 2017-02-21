@@ -621,7 +621,7 @@ Partial Public Class VitalSignsPlusDomino
 
 #Region "Domino-related Database Updating"
 
-    Private Sub cleanUpClusterDetailedTable(ByVal ClusterName As String)
+    Private Sub cleanUpClusterDetailedTable(ByVal ClusterId As String)
         Dim strSQL As String = ""
         Dim objVSAdaptor As New VSAdaptor
         Try
@@ -629,7 +629,7 @@ Partial Public Class VitalSignsPlusDomino
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ClusterDatabaseDetails)(connectionString)
             Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ClusterDatabaseDetails)
 
-            filterDef = repository.Filter.Where(Function(x) x.ClusterName = ClusterName)
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceId, ClusterId)
             repository.Delete(filterDef)
 
 
