@@ -1700,6 +1700,7 @@ Public Class VSMaster
     Protected Sub SendPulse()
         Dim NodeName As String = ""
         Dim strSQL As String
+        Dim hour As Int32 = -1
 
 
         'Gets the version of the Master Service to compare with the DB
@@ -1710,21 +1711,6 @@ Public Class VSMaster
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error in SendPulse while getting the Product Version.  Error: " & ex.Message.ToString())
         End Try
-
-        'Gets the version of the VS scripts last executed
-        'Dim dbVersion As String = ""
-        'Try
-        '    strSQL = "select Value from VS_MANAGEMENT WHERE Category='VS_VERSION'"
-        '    Dim ds As New DataSet()
-        '    ds.Tables.Add("VersionValue")
-
-        '    vsobj.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "VersionValue")
-
-        '    dbVersion = ds.Tables("VersionValue").Rows(0)(0).ToString()
-
-        'Catch ex As Exception
-        '    WriteAuditEntry(Now.ToString & " Error in SendPulse while getting the VS DB Version.  Error: " & ex.Message.ToString())
-        'End Try
 
         Dim VSWebVersion As String = ""
         Try
@@ -1771,6 +1757,8 @@ Public Class VSMaster
          "VSService_Core 64-bit"
         }
 
+
+
         Dim status As String
         Do
             If NodeName = "" Then
@@ -1785,38 +1773,12 @@ Public Class VSMaster
                 Try
                     Dim vsLic As New VitalSignsLicensing.Licensing
                     vsLic.doMasterPing(NodeName, hostname)
-                    'Dim isConfiged As Integer = 0
-                    'If (VSWebVersion = dbVersion) Then
-                    '    isConfiged = 1
-                    'End If
 
-                    'strSQL = " IF NOT EXISTS(SELECT * FROM Nodes WHERE Name='" & NodeName & "') "
-                    'strSQL += " INSERT INTO Nodes (Name, IsConfiguredPrimaryNode) VALUES ('" & NodeName & "','" & isConfiged.ToString() & "') "
-
-
-                    'Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Nodes)(connectionString)
-                    'Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Nodes) = repository.Filter.Eq(Function(x) x.Name, NodeName)
-                    'Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Nodes) = repository.Updater.Set(Function(x) x.Pulse, Now)
-
-                    'If (hostname <> "") Then
-                    '    updateDef = updateDef.Set(Function(x) x.HostName, hostname)
-                    'End If
-                    ''If (productVersion <> "") Then
-                    ''    updateDef = updateDef.Set(Function(x) x.Version, productVersion)
-                    ''End If
-
-                    'repository.Update(filterDef, updateDef)
 
                 Catch ex As Exception
                     WriteAuditEntry(Now.ToString & " Error in SendPulse while updating Nodes table.  Error: " & ex.Message.ToString())
                 End Try
-                'If (VSWebVersion = dbVersion) Then
-                '    Try
-                '        strSQL = "Update Nodes Set IsConfiguredPrimaryNode = 1 WHERE Name='" & NodeName & "' "
-                '    Catch ex As Exception
 
-                '    End Try
-                'End If
                 Dim list As New List(Of VSNext.Mongo.Entities.ServiceStatus)
 
                 For i As Integer = 0 To serviceNames.Count - 1
@@ -1849,6 +1811,17 @@ Public Class VSMaster
             End If
             ' do system messages thread
             'doDBSystemMessages()
+
+            If (hour <> DateTime.Now.Hour) Then
+                Try
+                    Dim licDLL As New VitalSignsLicensing.Licensing()
+                    licDLL.refreshServerCollectionWrapper()
+                Catch ex As Exception
+
+                End Try
+                hour = DateTime.Now.Hour
+            End If
+
             Thread.Sleep(1000 * 60)
         Loop
 
