@@ -1565,9 +1565,10 @@ namespace VitalSigns.API.Controllers
                             found = true;
                             var bson2 = server.ToBsonDocument();
                             var fieldvalue = 0.0;
-                            if (bson2[fieldName] != null)
+                            var tempVal = bson2.GetValue(fieldName, new BsonDouble(0.0));
+                            if (tempVal != null && tempVal.ToString() != "")
                             {
-                                fieldvalue = bson2[fieldName].ToDouble();
+                                fieldvalue = Convert.ToDouble(tempVal);
                             }
                             if (stats.Value != 0)
                             {
@@ -2412,12 +2413,13 @@ namespace VitalSigns.API.Controllers
                     {
                         foreach (var res in result)
                         {
+                            res.DominoServerA = dbs[0].DominoServerA;
+                            res.DominoServerB = dbs[0].DominoServerB;
+                            res.DominoServerC = dbs[0].DominoServerC;
+
                             if (!string.IsNullOrEmpty(res.DominoServerC))
                             {
                                 maxdoccount = Math.Max(res.DocumentCountC.Value, Math.Max(res.DocumentCountA.Value, res.DocumentCountB.Value));
-                                res.DominoServerA = dbs[0].DominoServerA;
-                                res.DominoServerB = dbs[0].DominoServerB;
-                                res.DominoServerC = dbs[0].DominoServerC;
                                 if (maxdoccount != 0)
                                 {
                                     if (Convert.ToDouble(Math.Abs(res.DocumentCountA.Value - res.DocumentCountB.Value)) / maxdoccount * 100 >= dbs[0].DifferenceThreshold ||
@@ -2431,8 +2433,6 @@ namespace VitalSigns.API.Controllers
                             else
                             {
                                 maxdoccount = Math.Max(res.DocumentCountA.Value, res.DocumentCountB.Value);
-                                res.DominoServerA = dbs[0].DominoServerA;
-                                res.DominoServerB = dbs[0].DominoServerB;
                                 if (maxdoccount != 0)
                                 {
                                     if (Convert.ToDouble(Math.Abs(res.DocumentCountA.Value - res.DocumentCountB.Value)) / maxdoccount * 100 >= dbs[0].DifferenceThreshold)
