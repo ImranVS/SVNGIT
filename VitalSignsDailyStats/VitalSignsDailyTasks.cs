@@ -699,8 +699,20 @@ namespace VitalSignsDailyStats
         {
             try
             {
-
-                int GoBackDays = 3;
+                
+                int GoBackDays;
+                RegistryHandler registry = new RegistryHandler();
+                string registryName = "Daily Service Lookback Day Count";
+                try
+                {
+                    
+                    GoBackDays = Convert.ToInt32(registry.ReadFromRegistry(registryName).ToString());
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("Exception in ConsolidateStatistics when getting lookback count. Error: " + ex.ToString());
+                    GoBackDays = 3;
+                }
 
                 int n = 0;
                 for (n = GoBackDays; n >= 1; n--)
@@ -708,6 +720,16 @@ namespace VitalSignsDailyStats
                     WriteAuditEntry("\r\n" + "\r\n" + "*************************************  ---> Processing " + DateTime.Today.AddDays(-n).ToString());
 
                     ProcessSpecificDate(DateTime.Today.AddDays(-n), "DATEADD(dd,-" + n.ToString() + ",GETDATE())");
+                }
+
+                try
+                {
+
+                    registry.WriteToRegistry(registryName, "3");
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("Exception in ConsolidateStatistics when setting lookback count. Error: " + ex.ToString());
                 }
 
                 try
