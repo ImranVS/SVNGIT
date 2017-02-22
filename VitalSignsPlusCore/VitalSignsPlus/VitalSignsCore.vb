@@ -6150,7 +6150,7 @@ CleanUp:
             Dim serverId As String = myServer.ServerObjectID
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
             Dim repoUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-            Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(j) j.DeviceId.Equals(serverId) And j.Type.Equals(type))
+            Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(j) j.DeviceId, serverId) And repo.Filter.Eq(Function(j) j.Type, type)
             If type = "Bookmark" Then
                 filterdef = filterdef And repo.Filter.Exists(Function(x) x.ParentGUID, False) Or repo.Filter.Ne(Function(x) x.ParentGUID, Nothing)
             ElseIf type = "Community" Then
@@ -6215,7 +6215,7 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
 
-                    ClearConnectionObjectTables(myServer, Category)
+                    ClearConnectionObjectTables(myServer, "Activity")
 
                     Dim cols As String = ""
                     Dim i As Integer = 0
@@ -6398,7 +6398,8 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
 
-                    ClearConnectionObjectTables(myServer, Category)
+                    ClearConnectionObjectTables(myServer, "Blog")
+                    ClearConnectionObjectTables(myServer, "Blog Entry")
                     ' Dim adapter As New VSAdaptor()
 
                     dict.Add("Num_Of_Published_Blogs", ds.Tables(0).Rows(0)("Num_Of_Published_Blogs"))
@@ -6552,12 +6553,12 @@ CleanUp:
                         Dim projectDefIbmConnections4 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Project.Include(Function(i) i.Id)
                         'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
                         Try
-                            Dim s As VSNext.Mongo.Entities.IbmConnectionsObjects = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).FirstOrDefault()
+                            Dim s As VSNext.Mongo.Entities.IbmConnectionsObjects = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).First()
 
                             'For Each s As VSNext.Mongo.Entities.IbmConnectionsObjects In serverList
                             ParentObjectID = s.Id
                         Catch ex As Exception
-
+                            ParentObjectID = Nothing
                         End Try
 
                         'Next
@@ -6566,7 +6567,7 @@ CleanUp:
                         IbmConnectionsObjects4.Name = row("TITLE").ToString()
                         IbmConnectionsObjects4.DeviceName = myServer.Name
                         IbmConnectionsObjects4.DeviceId = myServer.ServerObjectID
-                        IbmConnectionsObjects4.GUID = row("EXTID").ToString()
+                        IbmConnectionsObjects4.GUID = row("ID").ToString()
                         IbmConnectionsObjects4.OwnerId = connectionsUserId
                         'IbmConnectionsObjects4.owner = row("EXTID").ToString()
                         IbmConnectionsObjects4.ParentGUID = ParentObjectID
@@ -6645,7 +6646,7 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
 
-                    ClearConnectionObjectTables(myServer, Category)
+                    ClearConnectionObjectTables(myServer, "Community")
                     Dim counter As Integer = 0
                     Dim adapter As New VSAdaptor()
                     For Each row As DataRow In ds.Tables(0).Rows
@@ -7024,6 +7025,7 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
+                    ClearConnectionObjectTables(myServer, "Bookmark")
                     Dim adapter As New VSAdaptor()
 
                     dict.Add("NUM_OF_BOOKMARKS_BOOKMARKS", ds.Tables(0).Rows(0)("NUM_OF_BOOKMARKS_BOOKMARKS"))
@@ -7156,6 +7158,9 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
+                    ClearConnectionObjectTables(myServer, "Forum")
+                    ClearConnectionObjectTables(myServer, "Forum Topic")
+                    ClearConnectionObjectTables(myServer, "Fourum Reply")
                     Dim adapter As New VSAdaptor()
 
                     dict.Add("NUM_OF_FORUMS_FORUMS", ds.Tables(0).Rows(0)("NUM_OF_FORUMS_FORUMS").ToString())
@@ -7260,7 +7265,12 @@ CleanUp:
                                 ElseIf type = "Forum Topic" Then
                                     selectStatement = "FORUMID='" & parentObjectId & "' AND TOPICID='" & entity.GUID & "'"
                                 End If
-                                entity.NumOfFollowers = ds.Tables(9).Select(selectStatement).ToList()(0)("COUNT").ToString()
+                                Try
+                                    entity.NumOfFollowers = ds.Tables(9).Select(selectStatement).ToList()(0)("COUNT").ToString()
+                                Catch ex As Exception
+                                    entity.NumOfFollowers = 0
+                                End Try
+
                             End If
 
                             entity.tags = tagList
@@ -7332,7 +7342,12 @@ CleanUp:
                                 ElseIf type = "Forum Topic" Then
                                     selectStatement = "FORUMID='" & parentObjectId & "' AND TOPICID='" & entity.GUID & "'"
                                 End If
-                                entity.NumOfFollowers = ds.Tables(9).Select(selectStatement).ToList()(0)("COUNT").ToString()
+                                Try
+                                    entity.NumOfFollowers = ds.Tables(9).Select(selectStatement).ToList()(0)("COUNT").ToString()
+                                Catch ex As Exception
+                                    entity.NumOfFollowers = 0
+                                End Try
+
                             End If
 
                             entity.tags = tagList
@@ -7407,7 +7422,8 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
-
+                    ClearConnectionObjectTables(myServer, "Wiki")
+                    ClearConnectionObjectTables(myServer, "Wiki Entry")
                     Dim adapter As New VSAdaptor()
 
                     dict.Add("NUM_OF_WIKIS_WIKIS", ds.Tables(0).Rows(0)("NUM_OF_WIKIS_WIKIS"))
@@ -7459,7 +7475,7 @@ CleanUp:
                             IbmConnectionsObjects.ParentGUID = dictOfCommunityIds(row("EXTERNAL_CONTAINER_ID").ToString())
                         End If
 
-                        If (row("FOLLOWERS") <> DBNull.Value) And (row("FOLLOWERS").ToString() <> Nothing) Then
+                        If (Not IsDBNull(row("FOLLOWERS"))) And (row("FOLLOWERS").ToString() <> Nothing) And row("FOLLOWERS").ToString() <> "" Then
                             IbmConnectionsObjects.NumOfFollowers = Convert.ToInt32(row("FOLLOWERS").ToString())
                         Else
                             IbmConnectionsObjects.NumOfFollowers = 0
@@ -7505,7 +7521,7 @@ CleanUp:
                         IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
                         IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
 
-                        If (row("FOLLOWERS") <> DBNull.Value) And (row("FOLLOWERS").ToString() <> Nothing) Then
+                        If (Not IsDBNull(row("FOLLOWERS"))) And (row("FOLLOWERS").ToString() <> Nothing) And row("FOLLOWERS").ToString() <> "" Then
                             IbmConnectionsObjects.NumOfFollowers = Convert.ToInt32(row("FOLLOWERS").ToString())
                         Else
                             IbmConnectionsObjects.NumOfFollowers = 0
@@ -7584,6 +7600,7 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
+                    ClearConnectionObjectTables(myServer, "Users")
                     Dim adapter As New VSAdaptor()
 
                     dict.Add("NUM_OF_PROFILES_WITH_NO_PICTURE", ds.Tables(0).Rows(0)("NUM_OF_PROFILES_WITH_NO_PICTURE"))
@@ -7807,7 +7824,7 @@ CleanUp:
             repository.Replace(entities)
 
         Catch ex As Exception
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in ConsolidateConnectionObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
 
     End Sub
@@ -7881,7 +7898,7 @@ CleanUp:
             Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repo.Find(filterdef, projectDef).FirstOrDefault()
             id = sxs.Id
         Catch ex As Exception
-
+            id = Nothing
         End Try
 
         Return id
