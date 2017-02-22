@@ -365,8 +365,12 @@ Update:
                                                                                  .[Set](Function(i) i.Description, StatusDetails) _
                                                                                  .[Set](Function(i) i.ResponseTime, Integer.Parse(myURL.ResponseTime.ToString())) _
                                                                                  .[Set](Function(i) i.ResponseThreshold, Integer.Parse(myURL.ResponseThreshold.ToString())) _
-                                                                                 .[Set](Function(i) i.Details, StatusDetails)
-            repo.Update(filterdef, updatedef)
+                                                                                 .[Set](Function(i) i.Details, StatusDetails) _
+                                                                                 .[Set](Function(i) i.DeviceType, myURL.ServerType) _
+                                                                                 .[Set](Function(i) i.UpCount, Integer.Parse(myURL.UpCount)) _
+                                                                                 .[Set](Function(i) i.UpPercent, Integer.Parse(myURL.UpPercentCount)) _
+                                                                                 .[Set](Function(i) i.DeviceId, myURL.ServerObjectID)
+            repo.Upsert(filterdef, updatedef)
 
 
 
