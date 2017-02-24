@@ -1,0 +1,21 @@
+{
+    "sql_query": "Select S.ServerName,ST.ServerType,StatName,StatValue from [VSS_Statistics].[dbo].DeviceDailyStats DDS Inner Join[vitalsigns].[dbo].[Servers] S on S.ServerName=DDS.ServerName Inner Join[vitalsigns].[dbo].[ServerTypes] ST on S.ServerTypeId=ST.ID AND ST.ServerType=DDS.DeviceType",
+    "mappings": [
+        {
+            "sql_column": "DeviceType",
+            "mongodb_field": "device_type"
+        },
+        {
+            "sql_column": "StatName",
+            "mongodb_field": "stat_name"
+        },
+        {
+            "sql_column": "StatValue",
+            "mongodb_field": "stat_value"
+        },
+        {
+            "sql_column": "ServerName",
+            "mongodb_field": "device_name"
+        }
+    ]
+}

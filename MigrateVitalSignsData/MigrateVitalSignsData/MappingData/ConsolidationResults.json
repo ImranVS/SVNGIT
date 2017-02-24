@@ -1,0 +1,13 @@
+﻿{
+  "sql_query": "SELECT [ID],[ScanDate],[Result] FROM [VSS_Statistics].[dbo].[ConsolidationResults]",
+  "mappings": [
+    {
+      "sql_column": "ScanDate",
+      "mongodb_field": "scan_date"
+    },
+    {
+      "sql_column": "Result",
+      "mongodb_field": "result"
+    }
+  ]
+}

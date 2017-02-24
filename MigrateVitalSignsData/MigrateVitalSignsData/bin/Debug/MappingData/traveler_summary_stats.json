@@ -1,0 +1,41 @@
+{
+  "sql_query": "SELECT [ID],[Int000001],[Int001002],[Int002005],[Int005010],[Int010030],[Int030060],[Int060120],[Int120INF] FROM [VSS_Statistics].[dbo].[TravelerSummaryStats]",
+  "mappings": [
+
+    //tenant_id           information needed
+    {
+      "sql_column": "Int000001",
+      "mongodb_field": "[000-001]"
+    },
+    {
+      "sql_column": "Int001002",
+      "mongodb_field": "[001-002]"
+    },
+    {
+      "sql_column": "Int002005",
+      "mongodb_field": "[002-005]"
+    },
+    {
+      "sql_column": "Int005010",
+      "mongodb_field": "[005-010]"
+    },
+    {
+      "sql_column": "Int010030",
+      "mongodb_field": "[010-030]"
+    },
+    {
+      "sql_column": "Int030060",
+      "mongodb_field": "[030-060]"
+    },
+    {
+      "sql_column": "Int060120",
+      "mongodb_field": "[060-120]"
+    },
+    {
+      "sql_column": "Int120INF",
+      "mongodb_field": "[120-INF]"
+    }
+  ]
+
+
+}

@@ -1,0 +1,93 @@
+{
+  "sql_query": "SELECT [ServerName], st.ServerType,  [Description], lr.Location AS locationid, [IPAddress],  hr.Type, [MonthlyOperatingCost],[IdealUserCount],ds.Enabled, ds.[RetryInterval], ds.[OffHoursScanInterval], ds.[Category], ds.[ResponseThreshold], ds.[FailureThreshold],ds.[DBHostName], cr.[AliasName] AS credentialsid FROM [vitalsigns].[dbo].[Servers] sr INNER JOIN [vitalsigns].[dbo].[ServerTypes] st  ON sr.ServerTypeID = st.ID INNER JOIN [vitalsigns].[dbo].[IBMConnectionsServers] ds ON sr.ID = ds.ServerID  LEFT JOIN [vitalsigns].[dbo].Locations lr  ON sr.LocationID = lr.ID left JOIN [vitalsigns].[dbo].[Credentials] cr  ON cr.[ID] = ds.CredentialID left JOIN [vitalsigns].[dbo].[HoursIndicator] hr  ON hr.ID = sr.[BusinesshoursID]",
+
+  "mappings": [
+    {
+        "sql_column": "ServerName",
+        "mongodb_field": "device_name"
+    },
+    {
+      "sql_column": "ServerType",
+      "mongodb_field": "device_type"
+    },
+    {
+      "sql_column": "Description",
+      "mongodb_field": "description"
+    },
+    {
+      "sql_column": "locationid",
+      "mongodb_field": "location_id"
+    },
+    {
+      "sql_column": "IPAddress",
+      "mongodb_field": "ip_address"
+    },
+    {
+      "sql_column": "Type",
+      "mongodb_field": "business_hours_id"
+    },
+    {
+      "sql_column": "MonthlyOperatingCost",
+      "mongodb_field": "monthly_operating_cost"
+    },
+    {
+      "sql_column": "IdealUserCount",
+      "mongodb_field": "ideal_user_count"
+    },
+    {
+      "sql_column": "Enabled",
+      "mongodb_field": "is_enabled"
+    },
+    {
+      "sql_column": "[Scan Interval]",
+      "mongodb_field": "scan_interval"
+    },
+    {
+      "sql_column": "RetryInterval",
+      "mongodb_field": "retry_interval"
+    },
+    {
+      "sql_column": "OffHoursScanInterval",
+      "mongodb_field": "off_hours_scan_interval"
+    },
+    {
+      "sql_column": "Category",
+      "mongodb_field": "category"
+    },
+    {
+      "sql_column": "CPU_Threshold",
+      "mongodb_field": "cpu_threshold"
+    },
+    {
+      "sql_column": "Memory_Threshold",
+      "mongodb_field": "memory_threshold"
+    },
+    {
+      "sql_column": "ResponseThreshold",
+      "mongodb_field": "response_time"
+    },
+    {
+      "sql_column": "FailureThreshold",
+      "mongodb_field": "consecutive_failures_before_alert"
+    },
+
+    {
+      "sql_column": "credentialsid",
+      "mongodb_field": "credentials_id"
+    },
+    {
+      "sql_column": "DBHostName",
+      "mongodb_field": "database_settings_host_name"
+    },
+    {
+      "sql_column": "DBCredentialsID",
+      "mongodb_field": "database_settings_credentials_id"
+    },
+    {
+      "sql_column": "DBPort",
+      "mongodb_field": "database_settings_port"
+    }
+  ]
+
+
+}

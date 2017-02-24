@@ -1,0 +1,160 @@
+{
+  "sql_query": "SELECT  [ServerName],st.ServerType,[Description],lr.Location as locationid,[IPAddress],hr.Type,[MonthlyOperatingCost],[IdealUserCount],ds.Enabled,ds.[Scan Interval],ds.[RetryInterval],ds.[OffHoursScanInterval],ds.[Category],ds.[CPU_Threshold],ds.[Memory_Threshold],ds.[ResponseThreshold],ds.[FailureThreshold],ds.[PendingThreshold],ds.[DeadThreshold],ds.[MailDirectory],ds.[DeadMailDeleteThreshold],ds.[HeldThreshold],ds.[ScanDBHealth],ds.[Cluster_Rep_Delays_Threshold],ds.[ServerDaysAlert],ds.[RequireSSL],ds.[ExternalAlias],ds.[CheckMailThreshold],ds.[scanlog],ds.[scanagentlog],ds.[SendRouterRestart],ds.[EXJStartTime],ds.[EXJDuration],ds.[EXJLookBackDuration],ds.[EXJEnabled],ds.[AvailabilityIndexThreshold],ds.[ScanTravelerServer],cr.[AliasName] as credentialsid FROM [vitalsigns].[dbo].[Servers] sr inner join [vitalsigns].[dbo].[ServerTypes]  st on sr.ServerTypeID=st.ID inner join  [vitalsigns].[dbo].Locations lr on sr.LocationID=lr.ID inner join  [vitalsigns].[dbo].[DominoServers] ds on sr.ID=ds.ServerID inner join [vitalsigns].[dbo].[Credentials] cr  on cr.[ID]=ds.CredentialsID inner join [vitalsigns].[dbo].[HoursIndicator] hr  on hr.ID=sr.[BusinesshoursID]",
+
+  "mappings": [
+    {
+      "sql_column": "ServerName",
+      "mongodb_field": "device_name"
+    },
+    {
+      "sql_column": "ServerType",
+      "mongodb_field": "device_type"
+    },
+    {
+      "sql_column": "Description",
+      "mongodb_field": "description"
+    },
+    {
+      "sql_column": "locationid",
+      "mongodb_field": "location_id"
+    },
+    {
+      "sql_column": "IPAddress",
+      "mongodb_field": "ip_address"
+    },
+    {
+      "sql_column": "Type",
+      "mongodb_field": "business_hours_id"
+    },
+    {
+      "sql_column": "MonthlyOperatingCost",
+      "mongodb_field": "monthly_operating_cost"
+    },
+    {
+      "sql_column": "IdealUserCount",
+      "mongodb_field": "ideal_user_count"
+    },
+    {
+      "sql_column": "Enabled",
+      "mongodb_field": "is_enabled"
+    },
+    {
+      "sql_column": "[Scan Interval]",
+      "mongodb_field": "scan_interval"
+    },
+    {
+      "sql_column": "RetryInterval",
+      "mongodb_field": "retry_interval"
+    },
+    {
+      "sql_column": "OffHoursScanInterval",
+      "mongodb_field": "off_hours_scan_interval"
+    },
+    {
+      "sql_column": "Category",
+      "mongodb_field": "category"
+    },
+    {
+      "sql_column": "CPU_Threshold",
+      "mongodb_field": "cpu_threshold"
+    },
+    {
+      "sql_column": "Memory_Threshold",
+      "mongodb_field": "memory_threshold"
+    },
+    {
+      "sql_column": "ResponseThreshold",
+      "mongodb_field": "response_time"
+    },
+    {
+      "sql_column": "FailureThreshold",
+      "mongodb_field": "consecutive_failures_before_alert"
+    },
+    {
+      "sql_column": "PendingThreshold",
+      "mongodb_field": "pending_mail_threshold"
+    },
+    {
+      "sql_column": "DeadThreshold",
+      "mongodb_field": "dead_mail_threshold"
+    },
+    {
+      "sql_column": "MailDirectory",
+      "mongodb_field": "mail_directory"
+    },
+    {
+      "sql_column": "DeadMailDeleteThreshold",
+      "mongodb_field": "dead_mail_delete_threshold"
+    },
+    {
+      "sql_column": "HeldThreshold",
+      "mongodb_field": "held_mail_threshold"
+    },
+    {
+      "sql_column": "ScanDBHealth",
+      "mongodb_field": "scan_db_health"
+    },
+    {
+      "sql_column": "Cluster_Rep_Delays_Threshold",
+      "mongodb_field": "cluster_replication_delay_threshold"
+    },
+    {
+      "sql_column": "ServerDaysAlert",
+      "mongodb_field": "server_days_alert"
+    },
+    {
+      "sql_column": "RequireSSL",
+      "mongodb_field": "require_ssl"
+    },
+    {
+      "sql_column": "ExternalAlias",
+      "mongodb_field": "traveler_external_alias"
+    },
+    {
+      "sql_column": "CheckMailThreshold",
+      "mongodb_field": "check_mail_threshold"
+    },
+    {
+      "sql_column": "scanlog",
+      "mongodb_field": "scan_log"
+    },
+    {
+      "sql_column": "scanagentlog",
+      "mongodb_field": "scan_agent_log"
+    },
+    {
+      "sql_column": "SendRouterRestart",
+      "mongodb_field": "send_router_restart"
+    },
+    {
+      "sql_column": "EXJStartTime",
+      "mongodb_field": "exjournal_start_time"
+    },
+    {
+      "sql_column": "EXJDuration",
+      "mongodb_field": "exjournal_duration"
+    },
+    {
+      "sql_column": "EXJLookBackDuration",
+      "mongodb_field": "exjournal_lookback_duration"
+    },
+    {
+      "sql_column": "EXJEnabled",
+      "mongodb_field": "exjournal_enabled"
+    },
+    {
+      "sql_column": "AvailabilityIndexThreshold",
+      "mongodb_field": "availability_index_threshold"
+    },
+    {
+      "sql_column": "ScanTravelerServer",
+      "mongodb_field": "scan_traveler_server"
+    },
+    {
+      "sql_column": "credentialsid",
+      "mongodb_field": "credentials_id"
+    }
+  ]
+
+
+}

@@ -1,0 +1,43 @@
+{
+  "sql_query": "SELECT [ID],[TravelerServicePoolName],[ServerName],[DataStore],[Port],[UserName],[Password],IntegratedSecurity = (case when [IntegratedSecurity]= 'true' then 1 else 0 end ),[TestScanServer],[DatabaseName] FROM [vitalsigns].[dbo].[Traveler_HA_Datastore]",
+  "mappings": [
+    {
+      "sql_column": "TravelerServicePoolName",
+      "mongodb_field": "traveler_service_pool_name"
+    },
+    {
+      "sql_column": "ServerName",
+      "mongodb_field": "device_name"
+    },
+    {
+      "sql_column": "DataStore",
+      "mongodb_field": "data_store"
+    },
+    {
+      "sql_column": "Port",
+      "mongodb_field": "port"
+    },
+    {
+      "sql_column": "UserName",
+      "mongodb_field": "user_name"
+    },
+    {
+      "sql_column": "Password",
+      "mongodb_field": "password"
+    },
+    {
+      "sql_column": "IntegratedSecurity",
+      "mongodb_field": "integrated_security"
+    },
+    {
+      "sql_column": "TestScanServer",
+      "mongodb_field": "test_scan_server"
+    },
+    {
+      "sql_column": "DatabaseName",
+      "mongodb_field": "database_name"
+    }
+  ]
+
+
+}

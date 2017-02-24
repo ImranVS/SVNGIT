@@ -1,0 +1,17 @@
+﻿{
+    "sql_query": "SELECT NodeName, HostName FROM WebSphereNode",
+
+    "mappings": [
+        {
+            "sql_column": "NodeName",
+            "mongodb_field": "device_name"
+        },
+       
+        {
+            "sql_column": "HostName",
+            "mongodb_field": "ip_address"
+        }
+    ]
+
+
+}
