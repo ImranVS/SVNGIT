@@ -149,299 +149,111 @@ Partial Public Class VitalSignsPlusDomino
 		GC.Collect()
 	End Sub
 
-    '12/12/16 WS Moved to VSServices
-    'Private Function SelectNotesMailToMonitor() As MonitoredItems.DominoMailProbe
-    '	WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Selecting a NotesMail Probe for monitoring >>>>", LogLevel.Verbose)
-    '	Dim tNow As DateTime
-    '	tNow = Now
-    '	Dim tScheduled As DateTime
-
-    '	Dim timeOne, timeTwo As DateTime
-
-    '	' Dim myDevice As MonitoredItems.DominoMailProbe
-    '	Dim SelectedMailProbe As MonitoredItems.DominoMailProbe
-
-    '	Dim MailProbeOne As MonitoredItems.DominoMailProbe
-    '	Dim MailProbeTwo As MonitoredItems.DominoMailProbe
-
-    '	Dim myRegistry As New RegistryHandler
-    '	Dim n As Integer
-
-    '	'this for/next loop is for debug, disable later
-    '	WriteDeviceHistoryEntry("All", "NotesMail Probes", vbCrLf & vbCrLf)
-    '       WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " ********  Scan candidates ********")
-
-    '       Try
-    '           For n = 0 To MyNotesMailProbes.Count - 1
-    '               MailProbeOne = MyNotesMailProbes.Item(n)
-    '               WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> " & MailProbeOne.Name & " scheduled for " & MailProbeOne.NextScan & " and status is " & MailProbeOne.Status, LogLevel.Verbose)
-    '           Next
-    '       Catch ex As Exception
-
-    '	End Try
-
-
-    '	Dim strSQL As String = ""
-    '	Dim ServerType As String = "NotesMailProbe"
-    '	Dim serverName As String = ""
-
-    '	Try
-    '		strSQL = "Select svalue from ScanSettings where sname = 'Scan" & ServerType & "ASAP'"
-    '		Dim ds As New DataSet()
-    '		ds.Tables.Add("ScanASAP")
-    '		Dim objVSAdaptor As New VSAdaptor
-    '		objVSAdaptor.FillDatasetAny("VitalSigns", "VitalSigns", strSQL, ds, "ScanASAP")
-
-    '		For Each row As DataRow In ds.Tables("ScanASAP").Rows
-    '			Try
-    '				serverName = row(0).ToString()
-    '			Catch ex As Exception
-    '				Continue For
-    '			End Try
-
-    '			For n = 0 To MyNotesMailProbes.Count - 1
-    '				MailProbeOne = MyNotesMailProbes.Item(n)
-
-    '				If MailProbeOne.Name = serverName And MailProbeOne.IsBeingScanned = False And MailProbeOne.Enabled Then
-    '					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> " & serverName & " was marked 'Scan ASAP' so that will be scanned next.")
-    '					strSQL = "DELETE FROM ScanSettings where sname = 'Scan" & ServerType & "ASAP' and svalue='" & serverName & "'"
-    '					objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "VitalSigns", strSQL)
-
-    '					Return MailProbeOne
-    '					Exit Function
-
-    '				End If
-    '			Next
-    '		Next
-
-    '	Catch ex As Exception
-
-    '	End Try
-
-
-    '       Try
-    '           'Any server Not Scanned should be scanned right away.  Select the first one you encounter
-    '           For n = 0 To MyNotesMailProbes.Count - 1
-    '               MailProbeOne = MyNotesMailProbes.Item(n)
-
-    '               If MailProbeOne.Status = "Not Scanned" Or MailProbeOne.Status = "Master Service Stopped." & MailProbeOne.Enabled = True Then
-    '                   WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Selecting NotesMail Probe " & MailProbeOne.Name & " because its status is not yet scanned.")
-    '                   Return MailProbeOne
-    '                   Exit Function
-    '               End If
-    '           Next
-    '       Catch ex As Exception
-    '           WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Exception selecting an un scanned probe " & ex.ToString)
-    '       End Try
-
-
-    '       Try
-    '           'start with the first two servers
-    '           MailProbeOne = MyNotesMailProbes.Item(0)
-    '           If MyNotesMailProbes.Count > 1 Then MailProbeTwo = MyNotesMailProbes.Item(1)
-    '       Catch ex As Exception
-
-    '       End Try
-
-
-
-    '	'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-    '	If MyNotesMailProbes.Count > 2 Then
-    '		Try
-    '			For n = 2 To MyNotesMailProbes.Count - 1
-    '				'   WriteAuditEntry(Now.ToString & " N is " & n)
-    '				timeOne = CDate(MailProbeOne.NextScan)
-    '				timeTwo = CDate(MailProbeTwo.NextScan)
-    '				If DateTime.Compare(timeOne, timeTwo) < 0 Then
-    '					'time one is earlier than time two, so keep server 1
-    '					MailProbeTwo = MyNotesMailProbes.Item(n)
-    '				Else
-    '					'time two is later than time one, so keep server 2
-    '					MailProbeOne = MyNotesMailProbes.Item(n)
-    '				End If
-    '			Next
-    '		Catch ex As Exception
-    '			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Error selecting a NotesMail Probe... " & ex.Message)
-    '		End Try
-    '	Else
-    '		'There were only two servers, so use those going forward
-    '	End If
-
-    '       Try
-    '           WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Down to two NotesMail Probes... " & MailProbeOne.Name & " and " & MailProbeTwo.Name)
-    '       Catch ex As Exception
-
-    '       End Try
-
-    '       Try
-    '           'Of the two remaining devices, pick the one with earliest scheduled time for next scan
-    '           If Not (MailProbeTwo Is Nothing) Then
-    '               timeOne = CDate(MailProbeOne.NextScan)
-    '               timeTwo = CDate(MailProbeTwo.NextScan)
-
-    '               If DateTime.Compare(timeOne, timeTwo) < 0 Then
-    '                   'time one is earlier than time two, so keep server 1
-    '                   SelectedMailProbe = MailProbeOne
-    '                   tScheduled = CDate(MailProbeOne.NextScan)
-    '               Else
-    '                   SelectedMailProbe = MailProbeTwo
-    '                   tScheduled = CDate(MailProbeTwo.NextScan)
-    '               End If
-
-    '               WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " >>> Down to one NotesMail Probe... " & SelectedMailProbe.Name & " to scan at " & SelectedMailProbe.NextScan & ". Status is " & SelectedMailProbe.Status)
-    '           Else
-    '               SelectedMailProbe = MailProbeOne
-    '               tScheduled = CDate(MailProbeOne.NextScan)
-    '           End If
-    '       Catch ex As Exception
-
-    '       End Try
-
-
-    '       Try
-    '           tNow = Now
-    '           tScheduled = CDate(SelectedMailProbe.NextScan)
-    '           If DateTime.Compare(tNow, tScheduled) < 0 Then
-    '               If SelectedMailProbe.Status <> "Not Scanned" Then
-    '                   WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " No NotesMail Probes are scheduled for monitoring, next scan is not due until " & SelectedMailProbe.NextScan)
-    '                   SelectedMailProbe = Nothing
-    '               ElseIf SelectedMailProbe.Status = "Not Scanned" Then
-    '                   WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " selected NotesMail Probe: " & SelectedMailProbe.Name & " because it is not scanned.")
-    '               End If
-    '           Else
-    '               WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " selected NotesMail Probe: " & SelectedMailProbe.Name & " due to be scanned at " & SelectedMailProbe.NextScan & ".")
-    '           End If
-    '       Catch ex As Exception
-
-    '       End Try
-
-
-
-    '	'Release Memory
-    '	tNow = Nothing
-    '	tScheduled = Nothing
-    '	n = Nothing
-
-    '	timeOne = Nothing
-    '	timeTwo = Nothing
-
-    '	MailProbeOne = Nothing
-    '	MailProbeTwo = Nothing
-
-    '	'return selectedserver
-    '	'SelectNotesMailToMonitor = SelectedMailProbe
-    '	'Exit Function
-    '	Return SelectedMailProbe
-
-    '	Exit Function
-
-    'End Function
-
     Private Sub SendNotesMailProbe(ByRef MyNotesMailProbe As MonitoredItems.DominoMailProbe)
-		'This function sends a NotesMail message to a test mailbox
-		Dim strResponse, StatusDetails As String
-		Dim Percent As Double = 100
-		Dim strSQL As String
-		Dim myKey As String
+        'This function sends a NotesMail message to a test mailbox
+        Dim strResponse, StatusDetails As String
+        Dim Percent As Double = 100
+        Dim strSQL As String
+        Dim myKey As String
 
-		WriteDeviceHistoryEntry("All", "NotesMail Probes", vbCrLf & vbCrLf)
-		WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Sending out the next available NotesMail Probe.")
-		If MyNotesMailProbe Is Nothing Then Exit Sub
+        WriteDeviceHistoryEntry("All", "NotesMail Probes", vbCrLf & vbCrLf)
+        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Sending out the next available NotesMail Probe.")
+        If MyNotesMailProbe Is Nothing Then Exit Sub
 
-		Try
-			If MyNotesMailProbe.Enabled = False Then
-				With MyNotesMailProbe
-					.Status = "Disabled"
-					.ResponseDetails = "Monitoring is disabled for this NotesMail Probe."
-				End With
+        Try
+            If MyNotesMailProbe.Enabled = False Then
+                With MyNotesMailProbe
+                    .Status = "Disabled"
+                    .ResponseDetails = "Monitoring is disabled for this NotesMail Probe."
+                End With
 
-				WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Skipping " & MyNotesMailProbe.Name & " because it is disabled for scanning.")
+                WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Skipping " & MyNotesMailProbe.Name & " because it is disabled for scanning.")
 
-				Exit Sub
-			End If
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe module is sending  a message to " & MyNotesMailProbe.Name)
+                Exit Sub
+            End If
+            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Probe module is sending  a message to " & MyNotesMailProbe.Name)
 
-		Catch ex As Exception
-			WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor error: " & ex.Message)
-		End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor error: " & ex.Message)
+        End Try
 
 
-		Select Case MyNotesMailProbe.SourceServer
-			Case "SMTP"
-				'Send the message via an SMTP server
-				Dim myRegistry As New RegistryHandler
-				Dim mailman As New Chilkat.MailMan
+        Select Case MyNotesMailProbe.SourceServer
+            Case "SMTP"
+                'Send the message via an SMTP server
+                Dim myRegistry As New RegistryHandler
+                Dim mailman As New Chilkat.MailMan
 
-				' mailman.UnlockComponent("UAForbeMAIL_JtAVMAaSDDkR")
-				mailman.UnlockComponent("MZLDADMAILQ_8nzv7Kxb4Rpx")
-				With mailman
-					Try
-						.SmtpHost = myRegistry.ReadFromRegistry("SMTP Host")
-						'  WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Ready to send message via: " & .SmtpHost)
-						' .Host = "smtp.comcast.net"
-						If CType(myRegistry.ReadFromRegistry("SMTP Authentication"), Boolean) = True Then
-							.SmtpUsername = myRegistry.ReadFromRegistry("SMTP Username")
-							.SmtpPassword = Trim(MySMTPPassword)
-							If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SMTP Host requires authentication. ")
-						End If
-					Catch ex As Exception
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error configuring SMTP server for sending message:  " & ex.Message)
-					End Try
-				End With
+                ' mailman.UnlockComponent("UAForbeMAIL_JtAVMAaSDDkR")
+                mailman.UnlockComponent("MZLDADMAILQ_8nzv7Kxb4Rpx")
+                With mailman
+                    Try
+                        .SmtpHost = myRegistry.ReadFromRegistry("SMTP Host")
+                        '  WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Ready to send message via: " & .SmtpHost)
+                        ' .Host = "smtp.comcast.net"
+                        If CType(myRegistry.ReadFromRegistry("SMTP Authentication"), Boolean) = True Then
+                            .SmtpUsername = myRegistry.ReadFromRegistry("SMTP Username")
+                            .SmtpPassword = Trim(MySMTPPassword)
+                            If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SMTP Host requires authentication. ")
+                        End If
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error configuring SMTP server for sending message:  " & ex.Message)
+                    End Try
+                End With
 
-				'Unique identifier for the message
-				myKey = "NotesMail Probe Key=" & Now.Ticks.ToString & " (" & MyNotesMailProbe.Name & ")"
+                'Unique identifier for the message
+                myKey = "NotesMail Probe Key=" & Now.Ticks.ToString & " (" & MyNotesMailProbe.Name & ")"
 
-				Try
-					Dim email As New Chilkat.Email
-					Dim myBody As String
-					With MyNotesMailProbe
-						myBody = "This is a test message used to verify NotesMail delivery.  Do not delete. " & vbCrLf
-						myBody += vbCrLf & " Sent: " & Now.ToLongDateString & " at " & Now.ToShortTimeString
-						myBody += vbCrLf & ", Due no later than: " & Now.AddMinutes(.DeliveryThreshold)
-						myBody += vbCrLf & " Sent via: " & .SourceServer
-						email.Body = myBody
-						email.Subject = myKey
+                Try
+                    Dim email As New Chilkat.Email
+                    Dim myBody As String
+                    With MyNotesMailProbe
+                        myBody = "This is a test message used to verify NotesMail delivery.  Do not delete. " & vbCrLf
+                        myBody += vbCrLf & " Sent: " & Now.ToLongDateString & " at " & Now.ToShortTimeString
+                        myBody += vbCrLf & ", Due no later than: " & Now.AddMinutes(.DeliveryThreshold)
+                        myBody += vbCrLf & " Sent via: " & .SourceServer
+                        email.Body = myBody
+                        email.Subject = myKey
 
-						email.AddTo("Mail Probe", MyNotesMailProbe.NotesMailAddress)
-						email.From = MyNotesMailProbe.eMailAddress
-						email.ReplyTo = "Do Not Reply"
-					End With
+                        email.AddTo("Mail Probe", MyNotesMailProbe.NotesMailAddress)
+                        email.From = MyNotesMailProbe.eMailAddress
+                        email.ReplyTo = "Do Not Reply"
+                    End With
 
-					' Send mail.
-					Dim success As Boolean
-					success = mailman.SendEmail(email)
-					If success Then
-						'      WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Sent mail!")
+                    ' Send mail.
+                    Dim success As Boolean
+                    success = mailman.SendEmail(email)
+                    If success Then
+                        '      WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Sent mail!")
                         'MyNotesMailProbe.Status = "Sent"
-						'  MyNotesMailProbe.LastScan = Now.ToString
-						MyNotesMailProbe.ResponseDetails = "Sent test message was via " & mailman.SmtpHost & " at " & Now.ToShortTimeString
-					Else
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error sending mail probe: " & mailman.LastErrorText)
-						MyNotesMailProbe.ResponseDetails = "Unable to send test message via " & mailman.SmtpHost & " because  " & mailman.LastErrorText
-						MyNotesMailProbe.Status = "Failed"
-						'     MyNotesMailProbe.LastScan = Now.ToString
-					End If
+                        '  MyNotesMailProbe.LastScan = Now.ToString
+                        MyNotesMailProbe.ResponseDetails = "Sent test message was via " & mailman.SmtpHost & " at " & Now.ToShortTimeString
+                    Else
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error sending mail probe: " & mailman.LastErrorText)
+                        MyNotesMailProbe.ResponseDetails = "Unable to send test message via " & mailman.SmtpHost & " because  " & mailman.LastErrorText
+                        MyNotesMailProbe.Status = "Failed"
+                        '     MyNotesMailProbe.LastScan = Now.ToString
+                    End If
 
-					email = Nothing
-					success = False
-					myBody = Nothing
+                    email = Nothing
+                    success = False
+                    myBody = Nothing
 
-				Catch ex As Exception
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error sending mail " & ex.Message)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error sending mail " & ex.Message)
                 End Try
 
-				mailman.Dispose()
-				myRegistry = Nothing
+                mailman.Dispose()
+                myRegistry = Nothing
 
-			Case Else
-				'*********** Domino COM objects, must be released at end of SUB
+            Case Else
+                '*********** Domino COM objects, must be released at end of SUB
 
-				Dim docMail As Domino.NotesDocument
-				Dim MailBox As Domino.NotesDatabase
-				Dim rtItem As Domino.NotesRichTextItem
-				Dim embedded As Domino.NotesEmbeddedObject
-				Dim myLocalDb As Domino.NotesDatabase
+                Dim docMail As Domino.NotesDocument
+                Dim MailBox As Domino.NotesDatabase
+                Dim rtItem As Domino.NotesRichTextItem
+                Dim embedded As Domino.NotesEmbeddedObject
+                Dim myLocalDb As Domino.NotesDatabase
 
 
                 'Send message via Domino server
@@ -469,72 +281,72 @@ Partial Public Class VitalSignsPlusDomino
                     End If
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error Connecting to mail2.box database on " & MyNotesMailProbe.SourceServer & ". " & ex.Message)
-                End Try	
+                End Try
 
-				If MailBox Is Nothing Then
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer)
-					MyNotesMailProbe.Status = "Failed"
+                If MailBox Is Nothing Then
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer)
+                    MyNotesMailProbe.Status = "Failed"
                     myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer, MyNotesMailProbe.Location)
-					MyNotesMailProbe.ResponseDetails = " NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer
-					GoTo Cleanup
-				End If
+                    MyNotesMailProbe.ResponseDetails = " NotesMailProbe Mail probe could not connect to mail.box file on " & MyNotesMailProbe.SourceServer
+                    GoTo Cleanup
+                End If
 
 
-				Try
-					myLocalDb = NotesSession.GetDatabase("", "AlertSend.NSF", False)
-				Catch ex As Exception
-					'   WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error Connecting to Local Alerts database " & ex.Message)
-				End Try
+                Try
+                    myLocalDb = NotesSession.GetDatabase("", "AlertSend.NSF", False)
+                Catch ex As Exception
+                    '   WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error Connecting to Local Alerts database " & ex.Message)
+                End Try
 
-				Try
-					If myLocalDb Is Nothing Then
-						Dim dir As Domino.NotesDbDirectory
-						Dim db As Domino.NotesDatabase
-						dir = NotesSession.GetDbDirectory("")
-						db = dir.CreateDatabase("AlertSend.NSF", True)
-						db.Title = ProductName & " Service Alerts"
-						System.Runtime.InteropServices.Marshal.ReleaseComObject(dir)
-						System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-						myLocalDb = NotesSession.GetDatabase("", "AlertSend.NSF", False)
-					End If
-				Catch ex As Exception
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error Creating to Local Alerts database " & ex.Message)
-				End Try
+                Try
+                    If myLocalDb Is Nothing Then
+                        Dim dir As Domino.NotesDbDirectory
+                        Dim db As Domino.NotesDatabase
+                        dir = NotesSession.GetDbDirectory("")
+                        db = dir.CreateDatabase("AlertSend.NSF", True)
+                        db.Title = ProductName & " Service Alerts"
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(dir)
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+                        myLocalDb = NotesSession.GetDatabase("", "AlertSend.NSF", False)
+                    End If
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error Creating to Local Alerts database " & ex.Message)
+                End Try
 
 
-				Try
-					docMail = myLocalDb.CreateDocument
-					docMail.Save(False, False)
-					myKey = "NotesMail Probe Key=" & docMail.UniversalID & " (" & MyNotesMailProbe.Name & ")"
+                Try
+                    docMail = myLocalDb.CreateDocument
+                    docMail.Save(False, False)
+                    myKey = "NotesMail Probe Key=" & docMail.UniversalID & " (" & MyNotesMailProbe.Name & ")"
 
-					'   docMail = MailBox.CreateDocument
-					If docMail Is Nothing Then
-						WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Warning: NotesMailProbe could not create test message on " & MyNotesMailProbe.SourceServer)
-						MyNotesMailProbe.Status = "Failed"
-						MyNotesMailProbe.ResponseDetails = "Could not create test message."
+                    '   docMail = MailBox.CreateDocument
+                    If docMail Is Nothing Then
+                        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Warning: NotesMailProbe could not create test message on " & MyNotesMailProbe.SourceServer)
+                        MyNotesMailProbe.Status = "Failed"
+                        MyNotesMailProbe.ResponseDetails = "Could not create test message."
                         myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could create the test message on the VitalSigns monitoring station. ", MyNotesMailProbe.Location)
-						GoTo Cleanup
-					End If
+                        GoTo Cleanup
+                    End If
 
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Sending out NotesMail Probe with subject line of  " & myKey & " to " & MyNotesMailProbe.NotesMailAddress)
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Sending out NotesMail Probe with ReplyTo of  " & myKey & " to " & MyNotesMailProbe.ReplyTo)
-					Dim myBody As String
-					With MyNotesMailProbe
-						Try
-							docMail.ReplaceItemValue("SendTo", .NotesMailAddress)
-							docMail.ReplaceItemValue("Recipients", .NotesMailAddress)
-							' docMail.ReplaceItemValue("CopyTo", "Alan Forbes")
-							docMail.ReplaceItemValue("Subject", myKey)
-							docMail.ReplaceItemValue("From", NotesSession.CommonUserName)
-							' docMail.ReplaceItemValue("From", .eMailAddress)
-							If .ReplyTo <> "" Then
-								docMail.ReplaceItemValue("ReplyTo", .ReplyTo)
-								docMail.ReplaceItemValue("Principal", .ReplyTo)
-							End If
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Sending out NotesMail Probe with subject line of  " & myKey & " to " & MyNotesMailProbe.NotesMailAddress)
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Sending out NotesMail Probe with ReplyTo of  " & myKey & " to " & MyNotesMailProbe.ReplyTo)
+                    Dim myBody As String
+                    With MyNotesMailProbe
+                        Try
+                            docMail.ReplaceItemValue("SendTo", .NotesMailAddress)
+                            docMail.ReplaceItemValue("Recipients", .NotesMailAddress)
+                            ' docMail.ReplaceItemValue("CopyTo", "Alan Forbes")
+                            docMail.ReplaceItemValue("Subject", myKey)
+                            docMail.ReplaceItemValue("From", NotesSession.CommonUserName)
+                            ' docMail.ReplaceItemValue("From", .eMailAddress)
+                            If .ReplyTo <> "" Then
+                                docMail.ReplaceItemValue("ReplyTo", .ReplyTo)
+                                docMail.ReplaceItemValue("Principal", .ReplyTo)
+                            End If
 
-						Catch ex As Exception
+                        Catch ex As Exception
 
-						End Try
+                        End Try
 
                         Try
                             myBody = "This is a test message used to verify NotesMail delivery.  Do not delete. " & vbCrLf
@@ -546,99 +358,102 @@ Partial Public Class VitalSignsPlusDomino
 
                         End Try
 
-						Try
-							'Attach the file, if any
-							If MyNotesMailProbe.FileName <> "" Then
-								rtItem = docMail.CreateRichTextItem("Body")
-								rtItem.AppendText(myBody)
-								rtItem.AppendText("Attachments follow:" & vbCrLf)
-								embedded = rtItem.EmbedObject(Domino.EMBED_TYPE.EMBED_ATTACHMENT, "", MyNotesMailProbe.FileName)
-							Else
-								rtItem = docMail.CreateRichTextItem("Body")
-								rtItem.AppendText(myBody)
-								'docMail.ReplaceItemValue("Body", myBody)
-							End If
+                        Try
+                            'Attach the file, if any
+                            If MyNotesMailProbe.FileName <> "" Then
+                                rtItem = docMail.CreateRichTextItem("Body")
+                                rtItem.AppendText(myBody)
+                                rtItem.AppendText("Attachments follow:" & vbCrLf)
+                                embedded = rtItem.EmbedObject(Domino.EMBED_TYPE.EMBED_ATTACHMENT, "", MyNotesMailProbe.FileName)
+                            Else
+                                rtItem = docMail.CreateRichTextItem("Body")
+                                rtItem.AppendText(myBody)
+                                'docMail.ReplaceItemValue("Body", myBody)
+                            End If
 
-						Catch ex As Exception
+                        Catch ex As Exception
 
-						End Try
+                        End Try
 
-						Try
-							docMail.ReplaceItemValue("Principal", ProductName)
-							docMail.ReplaceItemValue("PostedDate", Now.ToString)
-						Catch ex As Exception
+                        Try
+                            docMail.ReplaceItemValue("Principal", ProductName)
+                            docMail.ReplaceItemValue("PostedDate", Now.ToString)
+                        Catch ex As Exception
 
-						End Try
+                        End Try
 
-						Try
-							docMail.Save(False, False)
+                        Try
+                            docMail.Save(False, False)
                             docMail.CopyToDatabase(MailBox)
                             '5/6/2016 NS uncommented out status setting below
                             MyNotesMailProbe.Status = "Sent"
                             .ResponseDetails = "Sent test message via mailbox on " & .SourceServer & " at " & Now.ToShortTimeString
                             docMail.Remove(True)
                         Catch ex As Exception
-							MyNotesMailProbe.Status = "Failure on Sending"
-							.ResponseDetails = "Test message could not be sent due to error: " & ex.ToString
+                            WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error at save/copytodatabase in SendNotesMailProbe. Error: " & ex.Message.ToString())
+                            MyNotesMailProbe.Status = "Failure on Sending"
+                            .ResponseDetails = "Test message could not be sent due to error: " & ex.ToString
                             myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not transfer the test message to the mail.box file on " & MyNotesMailProbe.SourceServer, MyNotesMailProbe.Location)
 
-						End Try
-					End With
+                        End Try
+                    End With
 
 
-				Catch ex As Exception
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor error creating message: " & ex.Message)
-					MyNotesMailProbe.Status = "Failed"
-					MyNotesMailProbe.ResponseDetails = "Error sending the test message " & ex.Message
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor error creating message: " & ex.Message)
+                    MyNotesMailProbe.Status = "Failed"
+                    MyNotesMailProbe.ResponseDetails = "Error sending the test message " & ex.Message
                     myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not create test message " & ex.ToString, MyNotesMailProbe.Location)
 
-				Finally
+                Finally
 
-					strResponse = Nothing
-					StatusDetails = Nothing
-					Percent = Nothing
-				End Try
+                    strResponse = Nothing
+                    StatusDetails = Nothing
+                    Percent = Nothing
+                End Try
 
 Cleanup:
-				Try
-					System.Runtime.InteropServices.Marshal.ReleaseComObject(docMail)
-				Catch ex As Exception
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SendNotesMailProbe Module Error releasing Notes objects at 3: " & ex.Message)
-				End Try
-				Try
-					System.Runtime.InteropServices.Marshal.ReleaseComObject(MailBox)
-				Catch ex As Exception
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SendNotesMailProbe Module Error releasing Notes objects at 4: " & ex.Message)
-				End Try
+                Try
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(docMail)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SendNotesMailProbe Module Error releasing Notes objects at 3: " & ex.Message)
+                End Try
+                Try
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(MailBox)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SendNotesMailProbe Module Error releasing Notes objects at 4: " & ex.Message)
+                End Try
 
-				Try
-					System.Runtime.InteropServices.Marshal.ReleaseComObject(myLocalDb)
-				Catch ex As Exception
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SendNotesMailProbe Module Error releasing Notes objects at 4: " & ex.Message)
-				End Try
-				Try
-					System.Runtime.InteropServices.Marshal.ReleaseComObject(rtItem)
-				Catch ex As Exception
-					WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SendNotesMailProbe Module Error releasing Notes objects at 5: " & ex.Message)
-				End Try
+                Try
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(myLocalDb)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SendNotesMailProbe Module Error releasing Notes objects at 4: " & ex.Message)
+                End Try
+                Try
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(rtItem)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " SendNotesMailProbe Module Error releasing Notes objects at 5: " & ex.Message)
+                End Try
 
-				Try
-					System.Runtime.InteropServices.Marshal.ReleaseComObject(embedded)
-				Catch ex As Exception
-					'   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" SendNotesMailProbe Module Error releasing Notes objects at 6: " & ex.Message)
-				End Try
+                Try
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(embedded)
+                Catch ex As Exception
+                    '   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" SendNotesMailProbe Module Error releasing Notes objects at 6: " & ex.Message)
+                End Try
 
-		End Select
+        End Select
 
-		WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor  is opening the history database")
-		'Record the details of this sent message in the NotesMail History table
+        WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " NotesMail Monitor  is opening the history database")
+        'Record the details of this sent message in the NotesMail History table
 
 
-		'     WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" NotesMail Monitor  says History table is " & OleDbConnectionServers.State.ToString)
+        '     WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" NotesMail Monitor  says History table is " & OleDbConnectionServers.State.ToString)
 
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.NotesMailProbeHistory)(connectionString)
             Dim entity As New VSNext.Mongo.Entities.NotesMailProbeHistory() With {
+                .SentDateTime = Now.ToString(),
+                .SentTo = MyNotesMailProbe.NotesMailAddress,
                 .DeliveryThresholdMinutes = MyNotesMailProbe.DeliveryThreshold,
                 .SubjectKey = myKey,
                 .DeviceID = MyNotesMailProbe.ServerObjectID,
@@ -648,18 +463,18 @@ Cleanup:
                 .TargetDatabase = MyNotesMailProbe.TargetDatabase
             }
             repository.Insert(entity)
-            
+
 
         Catch ex As Exception
             WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error inserting NotesMail History table with NotesMail Probe info: " & ex.Message)
         End Try
 
-		strSQL = Nothing
-		myKey = Nothing
+        strSQL = Nothing
+        myKey = Nothing
 
-	End Sub
+    End Sub
 
-	Public Sub CheckNotesMailDeliveryTimes()
+    Public Sub CheckNotesMailDeliveryTimes()
 		'This function checks sent NotesMail probes and updates their status
 		WriteDeviceHistoryEntry("All", "NotesMail Probes", vbCrLf & vbCrLf)
 		WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & "***********  Checking for NotesMail Delivery")
@@ -715,7 +530,7 @@ Cleanup:
         End Try
 
         Try
-            listOfEntities = listOfEntities.Where(Function(x) x.Status = "Sent")
+            listOfEntities = listOfEntities.Where(Function(x) x.Status = "Sent").ToList()
 
             WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Check NotesMail Delivery Times is examining " & listOfEntities.Count & " entities in List.")
             For Each entity As VSNext.Mongo.Entities.NotesMailProbeHistory In listOfEntities
@@ -766,16 +581,16 @@ Cleanup:
                 End Try
 
                 Try
-                    tSentDate = entity.SentDateTime
+                    tSentDate = entity.SentDateTime.Value
                     WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Message was sent: " & tSentDate.ToLongTimeString, LogLevel.Verbose)
-                    intDeliveryThreshold = entity.DeliveryThresholdMinutes
+                    intDeliveryThreshold = entity.DeliveryThresholdMinutes.Value
                     WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Message has " & intDeliveryThreshold.ToString & " minutes.", LogLevel.Verbose)
                     tScheduled = tSentDate.AddMinutes(intDeliveryThreshold)
                     WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Message must arrive before: " & tScheduled.ToLongTimeString, LogLevel.Verbose)
                     'See if message arrived
                     MailBox = myLocalSession.GetDatabase(entity.TargetServer, entity.TargetDatabase, False)
                 Catch ex As Exception
-                    'MailBox = Nothing
+                    WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Could not connect to: " & entity.TargetServer & ":" & entity.TargetDatabase & ". Exception : " & ex.Message.ToString())
                 End Try
 
 
@@ -795,7 +610,7 @@ Cleanup:
                         myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", "NotesMailProbe Mail probe could not connect to target Notes database: " & entity.TargetServer & ":" & entity.TargetDatabase, MyNotesMailProbe.Location)
 
                         'Update statistics Table
-                        UpdateNotesMailStatistics(MyNotesMailProbe.ServerObjectID, "DeliveryTime.Seconds", 0)
+                        UpdateNotesMailStatistics(MyNotesMailProbe, "DeliveryTime.Seconds", 0)
                     End If
 
                 Else
@@ -877,7 +692,7 @@ Cleanup:
                                 'If delivered in less than a second, set it to 1, to distinguish from failures, which get 0
                                 MyResponseTime = 1
                             End If
-                            UpdateNotesMailStatistics(MyNotesMailProbe.ServerObjectID, "DeliveryTime.Seconds", MyResponseTime)
+                            UpdateNotesMailStatistics(MyNotesMailProbe, "DeliveryTime.Seconds", MyResponseTime)
                             MyResponseTime = Nothing
 
                         Else
@@ -895,7 +710,7 @@ Cleanup:
                             MyNotesMailProbe.ResponseDetails = " Found the test message in the Target database, but it was delivered late at: " & docMail.GetItemValue("DeliveredDate")(0)
                             myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Slow", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
                             'Update Stats Table
-                            UpdateNotesMailStatistics(MyNotesMailProbe.ServerObjectID, "DeliveryTime.Seconds", Math.Abs(DeliveryTime.Seconds))
+                            UpdateNotesMailStatistics(MyNotesMailProbe, "DeliveryTime.Seconds", Math.Abs(DeliveryTime.Seconds))
                         End If
 
                         'Update the history table
@@ -1228,71 +1043,36 @@ Cleanup:
 
 		Dim strSQL As String
 		Dim Percent As Decimal
-		Dim statusDetails As String
-
-
-		'COMMENTED BY MUKUND 28Feb12
-		'Dim myCommand As New OleDb.OleDbCommand
-		'Dim myConnection As New OleDb.OleDbConnection
-		''Dim myAdapter As New OleDb.OleDbDataAdapter
-
-		'With myConnection
-		'    .ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & myPath
-		'    .Open()
-		'End With
-
-		'Do Until myConnection.State = ConnectionState.Open
-		'    myConnection.Open()
-		'Loop
-		'myPath = Nothing
-
-		''   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" NotesMail Probe has an open connection to the status database.")
-		'myCommand.Connection = myConnection
-		''***
-		'WRITTEN BY MUKUND 28Feb12
-		Dim objVSAdaptor As New VSAdaptor
-		Dim StatusCode As String
-		For Each NotesMailProbe As MonitoredItems.DominoMailProbe In MyNotesMailProbes
-			Try
-				With NotesMailProbe
-					Select Case .Status
-						Case "Sent"
-							StatusCode = "OK"
-						Case "Slow"
-							StatusCode = "Issue"
-						Case "Delivered Late"
-							StatusCode = "Issue"
-						Case "Failed"
-                            StatusCode = "Not Responding"
+        Dim statusDetails As String
+        Dim objVSAdaptor As New VSAdaptor
+        For Each NotesMailProbe As MonitoredItems.DominoMailProbe In MyNotesMailProbes
+            Try
+                With NotesMailProbe
+                    Select Case .Status
+                        Case "Sent"
+                            .StatusCode = "OK"
+                        Case "Slow"
+                            .StatusCode = "Issue"
+                        Case "Delivered Late"
+                            .StatusCode = "Issue"
+                        Case "Failed"
+                            .StatusCode = "Not Responding"
                         Case "Maintenance"
-                            StatusCode = "Maintenance"
+                            .StatusCode = "Maintenance"
                             .ResponseDetails = "Either the source or destination server is in maintenance."
                         Case "Not Scanned"
-                            StatusCode = "Maintenance"
-						Case Else
-							StatusCode = "OK"
-					End Select
-					Percent = NotesMailProbe.ResponseTime / NotesMailProbe.DeliveryThreshold
+                            .StatusCode = "Maintenance"
+                        Case Else
+                            .StatusCode = "OK"
+                    End Select
+                    Percent = NotesMailProbe.ResponseTime / NotesMailProbe.DeliveryThreshold
                     '    WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" Response Time: " & NotesMailProbe.ResponseTime & " /  Delivery Threshold: " & NotesMailProbe.DeliveryThreshold & " = Percent of Threshold = " & Percent)
                     '5/5/2016 NS modified - inserting a NotesMail Probe into StatusDetail fails because of a TypeANDName mismatch
                     'Changed TypeANDName -NMP to -NotesMail Probe
-                    strSQL = "Update Status SET DownCount= " & .DownCount & _
-                     ", Status='" & .Status & "', Upcount=" & .UpCount & _
-                     ", UpPercent= " & .UpPercentCount & _
-                     ", LastUpdate='" & .LastScan & _
-                     "', ResponseTime='" & Str(.ResponseTime) & _
-                     "', Details='" & .ResponseDetails & _
-                     " ', NextScan='" & .NextScan & _
-                     " ', StatusCode='" & StatusCode & _
-                     "', ResponseThreshold='" & .ResponseThreshold & _
-                     "', MyPercent='" & (Percent * 100) & _
-                     "', Name='" & .Name & _
-                     "', Location='Mail Probe' " & _
-                     "  WHERE TypeANDName='" & .Name & "-NotesMail Probe' "
                     'TypeANDName is the key
 
                     Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = .Name & "-" & .ServerType)
+                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name & "-" & .ServerType)
                     Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                          .Set(Function(x) x.DownCount, .DownCount) _
                                                                                          .Set(Function(x) x.CurrentStatus, .Status) _
@@ -1304,21 +1084,26 @@ Cleanup:
                                                                                          .Set(Function(x) x.StatusCode, .StatusCode) _
                                                                                          .Set(Function(x) x.ResponseThreshold, Convert.ToInt32(.ResponseThreshold)) _
                                                                                          .Set(Function(x) x.MyPercent, Percent * 100) _
-                                                                                         .Set(Function(x) x.Location, "Mail Probe")
+                                                                                         .Set(Function(x) x.Location, "Mail Probe") _
+                                                                                         .Set(Function(x) x.DeviceId, .ServerObjectID) _
+                                                                                         .Set(Function(x) x.DeviceName, .Name) _
+                                                                                         .Set(Function(x) x.DeviceType, .ServerType) _
+                                                                                         .Set(Function(x) x.Category, .Category) _
+                                                                                         .Set(Function(x) x.Description, .Description) _
+                                                                                         .Set(Function(x) x.DownCount, .DownCount) _
+                                                                                         .Set(Function(x) x.Location, .Location) _
+                                                                                         .Set(Function(x) x.UpCount, .UpCount)
+                    repository.Upsert(filterDef, updateDef)
 
-                    repository.Update(filterDef, updateDef)
-
-
-
-				End With
-			Catch ex As Exception
+                End With
+            Catch ex As Exception
                 WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Error while executing NotesMail Probe update statement: " & ex.Message)
-			End Try
+            End Try
 
 
-		Next
+        Next
 
-		Try
+        Try
 			'myConnection.Close()
 			'myCommand.Dispose()
 			'myConnection.Dispose()
@@ -1331,23 +1116,9 @@ Cleanup:
 		GC.Collect()
 	End Sub
 
-    Private Sub UpdateNotesMailStatistics(ByVal ProbeID As String, ByVal StatName As String, ByVal StatValue As Double)
+    Private Sub UpdateNotesMailStatistics(ByRef myServer As MonitoredItems.DominoMailProbe, ByVal StatName As String, ByVal StatValue As Double)
         WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Updating NotesMail statistics table")
 
-        'COMMENTED BY MUKUND 28Feb12
-        'Dim myConnection As New Data.OleDb.OleDbConnection
-        'myConnection.ConnectionString = Me.OleDbConnectionStatistics.ConnectionString
-        ''   WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" myConnection string is " & myConnection.ConnectionString)
-
-        'Do While myConnection.State <> ConnectionState.Open
-        '    myConnection.Open()
-        'Loop
-
-        ''     WriteDeviceHistoryEntry("All", "NotesMail Probes", now.tostring &" myConnection state is " & myConnection.State.ToString)
-        'Dim myCommand As New OleDb.OleDbCommand
-        'myCommand.Connection = myConnection
-
-        'WRITTEN BY MUKUND 28Feb12
         Dim objVSAdaptor As New VSAdaptor
 
         Dim strSQL As String
@@ -1357,7 +1128,9 @@ Cleanup:
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
             Dim entity As New VSNext.Mongo.Entities.DailyStatistics With {
-                .DeviceId = ProbeID,
+                .DeviceId = myServer.ServerObjectID,
+                .DeviceName = myServer.Name,
+                .DeviceType = myServer.ServerType,
                 .StatName = StatName,
                 .StatValue = StatValue
             }
