@@ -1455,15 +1455,15 @@ namespace VitalSigns.API.Controllers
                 {
                     if (!doc["_id"].IsBsonNull)
                     {
-                        if (doc["_id"].ToString() == "Not Responding")
+                        if (doc["_id"].ToString() == "Not Responding" || doc["_id"].ToString() == "Red" || doc["_id"].ToString() == "Fail")
                         {
                             color = "rgba(239, 58, 36, 1)";
                         }
-                        else if (doc["_id"].ToString() == "OK")
+                        else if (doc["_id"].ToString() == "OK" || doc["_id"].ToString() == "Green")
                         {
                             color = "rgba(95, 190, 127, 1)";
                         }
-                        else if (doc["_id"].ToString() == "Issue")
+                        else if (doc["_id"].ToString() == "Issue" || doc["_id"].ToString() == "Yellow")
                         {
                             //color = "rgba(255, 195, 0, 1)";
                             color = "rgba(249, 156, 28, 1)";
