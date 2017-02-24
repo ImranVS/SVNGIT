@@ -289,6 +289,13 @@
         "component": "NotesMailProbeOverallTab",
         "path": "/app/dashboards/components/mail/notesmail-probe-overall-tab.component",
         "type": "Dashboard"
+      },
+      {
+        "tab_id": 2,
+        "title": "Events",
+        "type": "Dashboard",
+        "component": "ServiceEventsTab",
+        "path": "/app/services/components/service-events-tab.component"
       }
     ]
   },
@@ -407,7 +414,7 @@
       },
       {
         "tab_id": 2,
-        "title": "Events History",
+        "title": "Events",
         "component": "ServiceEventsTab",
         "path": "/app/services/components/service-events-tab.component",
         "type": "Dashboard"
