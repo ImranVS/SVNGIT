@@ -904,6 +904,17 @@ html.zeus, .zeus body {
 .zeusColorReact-danger.zeusColorReactFill, 
 .zeusColorReact-danger.zeusColorReactFill * {fill: #ef3a24;}
 
+
+.zeusColorReact-mail .zeusColorReactBg,
+.zeusColorReact-mail.zeusColorReactBg {background-color: #658ac6;}
+
+.zeusColorReact-mail .zeusColorReactText,
+.zeusColorReact-mail.zeusColorReactText {color: #658ac6;}
+
+.zeusColorReact-mail .zeusColorReactFill, 
+.zeusColorReact-mail .zeusColorReactFill *,
+.zeusColorReact-mail.zeusColorReactFill, 
+.zeusColorReact-mail.zeusColorReactFill *  {fill: #658ac6;}
 /*==========  Height class manager  ==========*/
 
 .h-auto {height: auto;}
