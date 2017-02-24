@@ -194,12 +194,6 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
                         series: []
                     }
                 }
-            },
-            {
-                id: 'communityUser',
-                title: '',
-                name: 'IBMConnectionsCommunityUser',
-                css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             }
         ];
     

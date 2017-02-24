@@ -111,6 +111,8 @@ export * from './configurator/components/ibmDomino/Ibm-custom-statistics.compone
 export * from './configurator/components/ibmDomino/Ibm-domino-log-file-scanning.component'
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component'
 
+//mail
+export * from './configurator/components/mail/notesmail-probes.component'
 
 //reports
 export * from './reports/components/servers/any-statistic-report-grid.component'

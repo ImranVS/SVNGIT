@@ -17,7 +17,7 @@
                  [class.zeusColorReact-success]="appStatus.status == 'ok'"
                  [class.zeusColorReact-warning]="appStatus.status == 'late'"
                  [class.zeusColorReact-danger]="appStatus.status == 'verylate'">
-                <img class="svgInject" src="/img/dashboard/HourGlass.svg" title="Most recent scan" alt="Most recent scan" style="width: 30px" />
+                <img class="svgInject" src="/img/dashboard/Clock.svg" title="Most recent scan" alt="Most recent scan" style="width: 30px" />
                 <div>
                     <div class="widgetImageText-text" *ngIf="appStatus">{{appStatus.last_updated}}</div>
                     <div class="widgetImageText-text">Most recent scan</div>

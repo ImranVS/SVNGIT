@@ -376,6 +376,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.UserActivityList,
         widgets.IBMConnectionsUserComparison,
         widgets.IBMConnectionsCommunityUser,
+        widgets.NotesMailProbes,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -407,6 +408,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         tabs.ServiceEventsTab,
         tabs.URLHealthTab,
         tabs.WebSphereOverallTab,
+        tabs.NotesMailProbeOverallTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -529,6 +531,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.UserActivityList,
         widgets.IBMConnectionsUserComparison,
         widgets.IBMConnectionsCommunityUser,
+        widgets.NotesMailProbes,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -558,7 +561,8 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         tabs.ServiceEventsTab,
         tabs.URLHealthTab,
         tabs.WebSphereOverallTab,
-        tabs.ServiceOutagesTab
+        tabs.ServiceOutagesTab,
+        tabs.NotesMailProbeOverallTab
     ],
     bootstrap: [
         AppComponent

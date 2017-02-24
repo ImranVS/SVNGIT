@@ -191,7 +191,13 @@ export class IBMConnectionsCommunitiesTab extends WidgetController implements On
                 id: 'userComparison',
                 title: 'User Comparison',
                 name: 'IBMConnectionsUserComparison',
-                css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
+                css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
+            },
+            {
+                id: 'communityUser',
+                title: 'Users by Community',
+                name: 'IBMConnectionsCommunityUser',
+                css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
             }
         ];
         injectSVG();

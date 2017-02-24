@@ -21,6 +21,8 @@ export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-ta
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component';
 
+export * from '../dashboards/components/mail/notesmail-probe-overall-tab.component';
+
 export * from '../dashboards/components/key-metrics/overall-database-all-tab.component';
 export * from '../dashboards/components/key-metrics/overall-database-problems-tab.component';
 export * from '../dashboards/components/key-metrics/overall-database-by-template-tab.component';
