@@ -6152,9 +6152,9 @@ CleanUp:
             Dim repoUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
             Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(j) j.DeviceId, serverId) And repo.Filter.Eq(Function(j) j.Type, type)
             If type = "Bookmark" Then
-                filterdef = filterdef And repo.Filter.Exists(Function(x) x.ParentGUID, False) Or repo.Filter.Ne(Function(x) x.ParentGUID, Nothing)
+                filterdef = filterdef And (repo.Filter.Exists(Function(x) x.ParentGUID, False) Or repo.Filter.Ne(Function(x) x.ParentGUID, Nothing))
             ElseIf type = "Community" Then
-                filterdef = filterdef Or (repo.Filter.Exists(Function(x) x.ParentGUID) And repo.Filter.Eq(Function(x) x.Type, "Bookmark"))
+                filterdef = filterdef Or ((repo.Filter.Exists(Function(x) x.ParentGUID) And repo.Filter.Eq(Function(x) x.Type, "Bookmark")))
             End If
             repo.Delete(filterdef)
 
@@ -6519,6 +6519,7 @@ CleanUp:
                         End Try
                         'For Each s As VSNext.Mongo.Entities.IbmConnectionsUsers In serverList
                         'Next
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Processign blog ID : " & row("ID").ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
                         Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
                         IbmConnectionsObjects2.Name = row("NAME").ToString()
                         IbmConnectionsObjects2.DeviceName = myServer.Name
@@ -6528,10 +6529,14 @@ CleanUp:
                         IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMODIFIED").ToString())
                         IbmConnectionsObjects2.OwnerId = connectionsUserId
                         IbmConnectionsObjects2.GUID = row("ID").ToString()
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Checking for parent object", LogUtilities.LogUtils.LogLevel.Verbose)
                         If (ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count > 0) Then
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Num of entries as a parent : " & ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count(), LogUtilities.LogUtils.LogLevel.Verbose)
                             Dim parentGUID As String = ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
                             IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
                         End If
+
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Checking for tags", LogUtilities.LogUtils.LogLevel.Verbose)
                         Dim tags As New List(Of String)
 
                         For Each tagRow As DataRow In ds.Tables(19).Select("WEBSITEID = '" & row("ID").ToString() & "'")
