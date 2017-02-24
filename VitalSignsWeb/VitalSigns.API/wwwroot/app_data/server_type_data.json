@@ -281,11 +281,16 @@
   },
   {
     "server_type": "NotesMail Probe",
-    "icon": "/img/servers/Paintbrush.svg",
+    "icon": "/img/servers/Mail.svg",
     "tabs": [
-
+      {
+        "tab_id": 1,
+        "title": "Overall",
+        "component": "NotesMailProbeOverallTab",
+        "path": "/app/dashboards/components/mail/notesmail-probe-overall-tab.component",
+        "type": "Dashboard"
+      }
     ]
-
   },
   {
     "server_type": "Mobile Users",

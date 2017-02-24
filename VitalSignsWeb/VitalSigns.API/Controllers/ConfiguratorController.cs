@@ -3240,7 +3240,6 @@ namespace VitalSigns.API.Controllers
 
         #endregion
 
-
         #region IBM Domino Settings
         /// <summary>
         /// Returns IBM Domino Settings
@@ -5286,6 +5285,133 @@ namespace VitalSigns.API.Controllers
         #endregion
 
         #endregion
+
+        #region Mail
+        [HttpGet("notesmail_probes_list")]
+        public APIResponse GetNotesMailProbes()
+        {
+            List<NotesMailProbesModel> result = new List<NotesMailProbesModel>();
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                result = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == "NotesMail Probe")
+                    .Select(x => new NotesMailProbesModel
+                {
+                    Id = x.Id,
+                    Name = x.DeviceName,
+                    IsEnabled = x.IsEnabled,
+                    Category = x.Category,
+                    Threshold = x.DeliveryThreshold,
+                    ScanInterval = x.ScanInterval,
+                    OffHoursInterval = x.OffHoursScanInterval,
+                    RetryInterval = x.RetryInterval,
+                    SourceServer = x.SourceServer,
+                    DestinationServer = x.TargetServer,
+                    SendTo = x.SendToAddress,
+                    EchoService = x.SendToEchoService,
+                    ReplyTo = x.ReplyToAddress,
+                    DestinationDatabase = x.TargetDatabase
+                }).OrderBy(x => x.Name).ToList();
+
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting NotesMail probes has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_notesmail_probes")]
+        public APIResponse UpdateNotesMailPobes([FromBody]NotesMailProbesModel notesMailProbe)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> filterExpression;
+                if (string.IsNullOrEmpty(notesMailProbe.Id))
+                {
+                    filterExpression = (p => p.DeviceName == notesMailProbe.Name && p.DeviceType == "NotesMail Probe");
+                }
+                else
+                {
+                    filterExpression = (p => p.DeviceName == notesMailProbe.Name && p.Id != notesMailProbe.Id && p.DeviceType == "NotesMail Probe");
+                }
+                var existedData = serversRepository.Find(filterExpression).Select(x => x.DeviceName).FirstOrDefault();
+                if (existedData == null)
+                {
+                    if (string.IsNullOrEmpty(notesMailProbe.Id))
+                    {
+                        Server notesMailProbes = new Server
+                        {
+                            DeviceName = notesMailProbe.Name,
+                            DeviceType = "NotesMail Probe",
+                            IsEnabled = notesMailProbe.IsEnabled,
+                            Category = notesMailProbe.Category,
+                            DeliveryThreshold = notesMailProbe.Threshold,
+                            ScanInterval = notesMailProbe.ScanInterval,
+                            OffHoursScanInterval = notesMailProbe.OffHoursInterval,
+                            RetryInterval = notesMailProbe.RetryInterval,
+                            SourceServer = notesMailProbe.SourceServer,
+                            TargetServer = notesMailProbe.DestinationServer,
+                            SendToAddress = notesMailProbe.SendTo,
+                            SendToEchoService = notesMailProbe.EchoService,
+                            ReplyToAddress = notesMailProbe.ReplyTo,
+                            TargetDatabase = notesMailProbe.DestinationDatabase
+                        };
+                        string id = serversRepository.Insert(notesMailProbes);
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "NotesMail Probe inserted successfully.");
+                    }
+                    else
+                    {
+                        FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == notesMailProbe.Id);
+                        var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, notesMailProbe.Name)
+                            .Set(p => p.IsEnabled, notesMailProbe.IsEnabled)
+                            .Set(p => p.Category, notesMailProbe.Category)
+                            .Set(p => p.DeliveryThreshold, notesMailProbe.Threshold)
+                            .Set(p => p.ScanInterval, notesMailProbe.ScanInterval)
+                            .Set(p => p.OffHoursScanInterval, notesMailProbe.OffHoursInterval)
+                            .Set(p => p.RetryInterval, notesMailProbe.RetryInterval)
+                            .Set(p => p.SourceServer, notesMailProbe.SourceServer)
+                            .Set(p => p.TargetServer, notesMailProbe.DestinationServer)
+                            .Set(p => p.SendToAddress, notesMailProbe.SendTo)
+                            .Set(p => p.SendToEchoService, notesMailProbe.EchoService)
+                            .Set(p => p.ReplyToAddress, notesMailProbe.ReplyTo)
+                            .Set(p => p.TargetDatabase, notesMailProbe.DestinationDatabase);
+                        var result = serversRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "NotesMail Probe updated successfully.");
+                    }
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "A NotesMail probe with the same name already exists.");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "NotesMail Probe update has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpDelete("notesmail_probe/{Id}")]
+        public APIResponse DeleteNotesMailProbe(string Id)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == Id);
+                serversRepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "NotesMail Probe deleted sucessfully");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "NotesMail Probe deletion has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
+
         /// <summary>
         /// 
         /// </summary>
