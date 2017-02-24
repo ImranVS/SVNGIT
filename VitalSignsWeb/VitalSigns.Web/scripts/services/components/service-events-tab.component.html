@@ -1,7 +1,7 @@
 ﻿<div class="row">
     <div class="{{widget.css}}" *ngFor="let widget of widgets">
         <div class="widgetWrapper">
-            <div class="widgetTitle">
+            <div class="widgetTitle" *ngIf="widget.title != ''">
                 {{widget.title}}
             </div>
             <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->

@@ -33,7 +33,7 @@ export class NotesMailProbeOverallTab extends WidgetController implements OnInit
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`,
+                    url: `/services/statistics?statName=DeliveryTime.Seconds&deviceid=${this.serviceId}&operation=hourly`,
                     dateformat: 'hour',
                     chart: {
                         chart: {
@@ -72,7 +72,7 @@ export class NotesMailProbeOverallTab extends WidgetController implements OnInit
 
             this.serviceId = value;
 
-            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=DeliveryTime.Seconds&deviceid=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
         }
 
