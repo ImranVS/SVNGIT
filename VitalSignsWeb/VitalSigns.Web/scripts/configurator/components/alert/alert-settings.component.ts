@@ -149,4 +149,32 @@ export class AlertSettings implements WidgetComponent, OnInit {
         } 
         this.selected_events = [];
     }
+
+    selectAll() {
+        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+            item.NotificationOnRepeat = true;
+        }
+        this.flex.refresh();
+    }
+
+    deselectAll() {
+        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+            item.NotificationOnRepeat = false;
+        }
+        this.flex.refresh();
+    }
+
+    collapse(flex) {
+        flex.collapseGroupsToLevel(0);
+    }
+
+    expand(flex) {
+        var rows = flex.rows;
+        for (var rowIdx = 0; rowIdx < rows.length; rowIdx++) {
+            var rootRow = rows[rowIdx];
+            if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
+        }
+    }
 }

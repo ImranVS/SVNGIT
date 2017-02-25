@@ -1,4 +1,4 @@
-﻿import {Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, ViewChild, ViewChildren } from '@angular/core';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
@@ -10,7 +10,9 @@ import {AppComponentService} from '../../../core/services';
         RESTService
     ]
 })
-export class ServerCredentials extends GridBase implements OnInit {  
+export class ServerCredentials extends GridBase implements OnInit {
+    @ViewChild('flex') flex;
+    @ViewChildren('somespwd') somespwd;
     errorMessage: string;
     selectedDeviceType: string;  
     ServerCredentialId: string;
@@ -50,13 +52,12 @@ export class ServerCredentials extends GridBase implements OnInit {
         this.currentEditItem.user_id = "";
         this.currentEditItem.device_type = "";
         this.currentEditItem.password = "";
-       
+        this.currentEditItem.is_modified = false;
     }
     editServerCredential(dlg: wijmo.input.Popup) {
-     
         this.editGridRow(dlg);
         this.currentEditItem.is_modified = false;
-        this.currentEditItem.password = "****";
+        //this.currentEditItem.password = "****";
       //  this.currentEditItem.confirm_password = "****";   
     }
     valuechange(newValue) {
@@ -66,6 +67,32 @@ export class ServerCredentials extends GridBase implements OnInit {
         }
         else {
             this.currentEditItem.is_modified = true;
+        }
+    }
+
+    savePwd(dialog: wijmo.input.Popup) {
+        var pwd = this.somespwd.first.nativeElement.value;
+        if (pwd == "") {
+            this.appComponentService.showErrorMessage("You must enter a password");
+        } else {
+            this.currentEditItem.password = pwd;
+            this.currentEditItem.is_modified = true;
+            this.service.put('/configurator/save_credentials', this.currentEditItem)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage("Password updated successfully");
+                    }
+                    else {
+                        this.appComponentService.showErrorMessage("Error updating the password");
+                    }
+                    this.currentEditItem.is_modified = false;
+                },
+                (error) => {
+                    this.errorMessage = <any>error
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                });
+            dialog.hide();
         }
     }
 }

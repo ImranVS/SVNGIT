@@ -29,8 +29,29 @@
                         </div>
                         <div class="form-group col-lg-12">
                             <label for="notes_password" class="control-label col-sm-6 col-md-6 col-lg-4">Notes Password</label>
-                            <div class="col-sm-6 col-md-6 col-lg-8">
+                            <!--<div class="col-sm-6 col-md-6 col-lg-8">
                                 <input type="password" class="form-control" #notespassword id="notes_password" name="notes_password" formControlName="notes_password" (keypress)="valuechange($event,ibmDominoSettingsForm.value)">
+                            </div>-->
+                            <div class="col-sm-6 col-md-6 col-lg-8">
+                                <button #pwd type="button" class="btn btn-primary">
+                                    Enter Password
+                                </button>
+                                <wj-popup #frmDialog class="popover" [owner]="pwd" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                                    <h3 class="popover-title">
+                                        Password
+                                        <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                                    </h3>
+                                    <div class="popover-content">
+                                        <div class="input-group">
+                                            <label for="notes_password" class="control-label">Please enter a Notes password below</label>
+                                            <input #notespwd class="form-control" name="notes_password" type="password" required />
+                                        </div>
+                                        <div>&nbsp;</div>
+                                        <div class="form-actions">
+                                            <button type="button" class="btn btn-primary" name="save" (click)="savePwd(frmDialog);">Save</button>
+                                        </div>
+                                    </div>
+                                </wj-popup>
                             </div>
                         </div>
                         <div class="form-group col-lg-12">

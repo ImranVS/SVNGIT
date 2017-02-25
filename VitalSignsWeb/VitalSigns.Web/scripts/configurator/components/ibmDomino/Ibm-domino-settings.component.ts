@@ -15,7 +15,7 @@ import {RESTService} from '../../../core/services';
     ]
 })
 export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
-
+    @ViewChildren('notespwd') notespwd;
     @ViewChildren('name') inputName;
     @ViewChild('message') message;
     insertMode: boolean = false;
@@ -68,7 +68,8 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
     onSubmit(nameValue: any): void {
         this.errorMessage = "";
         this.successMessage = "";
-        nameValue.is_modified = this.isModified;
+        //nameValue.is_modified = this.isModified;
+        nameValue.is_modified = false;
         this.dataProvider.put('/Configurator/save_ibm_domino_settings', nameValue)
             .subscribe(
             response => {
@@ -89,6 +90,35 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
         }
         else {
             this.isModified= true;         
+        }
+    }
+
+    savePwd(dialog: wijmo.input.Popup) {
+        var pwd = this.notespwd.first.nativeElement.value;
+        if (pwd == "") {
+            this.appComponentService.showErrorMessage("You must enter a password");
+        } else {
+            this.ibmDominoSettingsForm.value.notes_password = pwd;
+            this.ibmDominoSettingsForm.value.is_modified = true;
+            this.dataProvider.put('/configurator/save_ibm_domino_settings', this.ibmDominoSettingsForm.value)
+                .subscribe(
+                response => {
+                    this.dataProvider.get('/configurator/get_ibm_domino_settings')
+                        .subscribe(
+                        response => {
+                            if (response.status == "Success") {
+                                this.appComponentService.showSuccessMessage("Notes password updated successfully");
+                            }
+                            else {
+                                this.appComponentService.showErrorMessage("Error updating the Notes password");
+                            }
+                        },
+                        (error) => {
+                            this.errorMessage = <any>error
+                            this.appComponentService.showErrorMessage(this.errorMessage);
+                        });
+                });
+            dialog.hide();
         }
     }
 }
