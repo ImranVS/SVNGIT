@@ -230,8 +230,8 @@ namespace VitalSigns.API.Controllers
                     Alias = x.Alias,
                     UserId = x.UserId,
                     DeviceType = x.DeviceType,
-                    Id = x.Id
-
+                    Id = x.Id,
+                    IsModified = false
 
 
                 }).ToList();
@@ -258,23 +258,10 @@ namespace VitalSigns.API.Controllers
             {
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 Expression<Func<Credentials, bool>> filterExpression;
-                if (string.IsNullOrEmpty(serverCredential.Id))
+                byte[] password;
+                string bytepwd = "";
+                if (!string.IsNullOrEmpty(serverCredential.Password))
                 {
-                    filterExpression = (p => p.Alias == serverCredential.Alias);
-
-
-                }
-                else
-                {
-                    filterExpression = (p => p.Alias == serverCredential.Alias && p.Id != serverCredential.Id);
-
-
-                }
-                var existedData = credentialsRepository.Find(filterExpression).Select(x => x.Alias).FirstOrDefault();
-                if (existedData == null)
-                {
-                    byte[] password;
-
                     password = tripleDes.Encrypt(serverCredential.Password);
 
                     System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
@@ -282,46 +269,52 @@ namespace VitalSigns.API.Controllers
                     {
                         stringBuilder.AppendFormat("{0}, ", b);
                     }
-                    string bytepwd = stringBuilder.ToString();
+                    bytepwd = stringBuilder.ToString();
                     int n = bytepwd.LastIndexOf(", ");
                     bytepwd = bytepwd.Substring(0, n);
+                }
+                
+                if (serverCredential.IsModified)
+                {
+                    FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
+                    var updateDefination = credentialsRepository.Updater
+                        .Set(p => p.Password, bytepwd);
+                    var result = credentialsRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Password updated successfully");
+                }
+                else
+                {
                     if (string.IsNullOrEmpty(serverCredential.Id))
                     {
-                        Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = bytepwd, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
-
-
-                        string id = credentialsRepository.Insert(serverCredentials);
-                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server Credential inserted successfully");
+                        filterExpression = (p => p.Alias == serverCredential.Alias);
                     }
                     else
                     {
-
-                        if (!serverCredential.IsModified)
+                        filterExpression = (p => p.Alias == serverCredential.Alias && p.Id != serverCredential.Id);
+                    }
+                    var existedData = credentialsRepository.Find(filterExpression).Select(x => x.Alias).FirstOrDefault();
+                    if (existedData == null)
+                    {
+                        if (string.IsNullOrEmpty(serverCredential.Id))
                         {
-                            FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
-                            var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
-                                                               .Set(p => p.DeviceType, serverCredential.DeviceType)
-
-                                                               .Set(p => p.UserId, serverCredential.UserId);
-                            var result = credentialsRepository.Update(filterDefination, updateDefination);
-                            Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server Credential updated successfully");
+                            Credentials serverCredentials = new Credentials { Alias = serverCredential.Alias, Password = bytepwd, DeviceType = serverCredential.DeviceType, UserId = serverCredential.UserId };
+                            string id = credentialsRepository.Insert(serverCredentials);
+                            Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server credentials inserted successfully");
                         }
                         else
                         {
                             FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
                             var updateDefination = credentialsRepository.Updater.Set(p => p.Alias, serverCredential.Alias)
-                                                                     .Set(p => p.DeviceType, serverCredential.DeviceType)
-                                                                     .Set(p => p.Password, bytepwd)
-                                                                     .Set(p => p.UserId, serverCredential.UserId);
+                                .Set(p => p.DeviceType, serverCredential.DeviceType)
+                                .Set(p => p.UserId, serverCredential.UserId);
                             var result = credentialsRepository.Update(filterDefination, updateDefination);
-                            Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server Credential updated successfully");
+                            Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server credentials updated successfully");
                         }
-
                     }
-                }
-                else
-                {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This alias name already exists.");
+                    else
+                    {
+                        Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This alias already exists");
+                    }
                 }
             }
             catch (Exception exception)
@@ -1351,7 +1344,7 @@ namespace VitalSigns.API.Controllers
                 UpdateDefinition<BsonDocument> updateDefinition = null;
                 if (deviceAttributes.Count() == 0)
                 {
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Error.ToDescription(), "Please select at least one Attribute.");
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Error.ToDescription(), "Please select at least one attribute.");
                 }
                 else
                 {
@@ -1410,15 +1403,12 @@ namespace VitalSigns.API.Controllers
                             }
                         }
                     }
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server Attributes Updated Successfully.");
+                    //2/24/2017 NS added for VSPLUS-3506
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server attributes updated successfully");
                 }
                 // var result = repository.Collection.UpdateMany(filter, updateDefinition);
-
-
-
-
-
-
             }
             catch (Exception exception)
             {
@@ -1513,7 +1503,7 @@ namespace VitalSigns.API.Controllers
 
                             if (name == "exists")
                             {
-                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Task Name  name already exists. Enter another one.");
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This task name already exists. Please enter a different one.");
                             }
                             else
                             {
@@ -1530,7 +1520,10 @@ namespace VitalSigns.API.Controllers
                                     dominoServerTask.SendRestartCmdOffhours = serverTask.IsRestartASAP;
                                     dominoServerTask.SendExitCmd = serverTask.IsDisallow;
                                     dominoServerTasks.Add(dominoServerTask);
-                                    Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks added Successfully.");
+                                    //2/24/2017 NS added for VSPLUS-3506
+                                    Licensing licensing = new Licensing();
+                                    licensing.refreshServerCollectionWrapper();
+                                    Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Domino server tasks added successfully");
                                 }
                             }
                             if (setting.Equals("remove"))
@@ -1538,25 +1531,21 @@ namespace VitalSigns.API.Controllers
                                 var dominoServerTaskRemove = dominoServerTasks.Where(x => x.TaskId == serverTask.Id).ToList();
                                 foreach (var item in dominoServerTaskRemove)
                                     dominoServerTasks.Remove(item);
-                                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks deleted Successfully.");
+                                //2/24/2017 NS added for VSPLUS-3506
+                                Licensing licensing = new Licensing();
+                                licensing.refreshServerCollectionWrapper();
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Domino server tasks removed successfully");
                             }
 
                         }
-
-
-
                         updateDefinition = serversRepository.Updater.Set(p => p.ServerTasks, dominoServerTasks);
                         var result = serversRepository.Update(server, updateDefinition);
-
-
                     }
                     // Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings are not selected");
-
-
                 }
                 else
                 {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Devices were not selected");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "No devices were selected");
                 }
             }
 
@@ -1710,15 +1699,15 @@ namespace VitalSigns.API.Controllers
                         }
 
                     }
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Disk settings sucessfully updated.");
-
-
+                    //2/24/2017 NS added for VSPLUS-3506
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Disk settings sucessfully updated");
                 }
                 else
                 {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Devices were not selected");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "No devices were selected");
                 }
-
             }
 
             catch (Exception exception)
@@ -1797,21 +1786,21 @@ namespace VitalSigns.API.Controllers
                         if (updateDefinition != null)
                         {
                             var result = serversRepository.Update(filterDefination, updateDefinition);
+                            //2/24/2017 NS added for VSPLUS-3506
+                            Licensing licensing = new Licensing();
+                            licensing.refreshServerCollectionWrapper();
                             Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Settings updated successfully");
                         }
                         else
                         {
-                            Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings are not selected");
+                            Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Settings were not updated");
                         }
                     }
-
                 }
                 else
                 {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Devices were not selected");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "No devices were selected");
                 }
-
-
             }
             catch (Exception exception)
             {
@@ -2258,15 +2247,14 @@ namespace VitalSigns.API.Controllers
                 //   UpdateDefinition<BsonDocument> updateserverDefinition = Builders<BsonDocument>.Update.Set(devicename=devicename,, category, ipaddress, isenabled, location, description);
                 //  var serverresult = repository.Collection.UpdateMany(filter, updateserverDefinition);
                 var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, deviceAttributes.DeviceName)
-                                                                  .Set(p => p.Category, deviceAttributes.Category)
-                                                                  .Set(p => p.IPAddress, deviceAttributes.IPAddress)
-                                                                  .Set(p => p.LocationId, deviceAttributes.LocationId)
-                                                                  .Set(p => p.Description, deviceAttributes.Description)
-                                                                  .Set(p => p.IsEnabled, deviceAttributes.IsEnabled)
-                                                                  .Set(p => p.RequireSSL, deviceAttributes.RequireSSL)
-                                                                  .Set(p => p.Platform, deviceAttributes.Platform)
-                                                                  .Set(p => p.CredentialsId, deviceAttributes.CredentialsId);
-
+                    .Set(p => p.Category, deviceAttributes.Category)
+                    .Set(p => p.IPAddress, deviceAttributes.IPAddress)
+                    .Set(p => p.LocationId, deviceAttributes.LocationId)
+                    .Set(p => p.Description, deviceAttributes.Description)
+                    .Set(p => p.IsEnabled, deviceAttributes.IsEnabled)
+                    .Set(p => p.RequireSSL, deviceAttributes.RequireSSL)
+                    .Set(p => p.Platform, deviceAttributes.Platform)
+                    .Set(p => p.CredentialsId, deviceAttributes.CredentialsId);
 
                 var serverresult = serversRepository.Update(filterDefination, updateDefination);
 
@@ -2326,31 +2314,29 @@ namespace VitalSigns.API.Controllers
                                 //    booloutput = "true";
                                 //}
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                    .Set(field, booloutput);
+                                    .Set(field, booloutput);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
-
-
                             if (datatype == "string")
                             {
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                    .Set(field, value);
+                                    .Set(field, value);
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
                             if (datatype == "ObjectId")
                             {
                                 UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                    .Set(field, ObjectId.Parse(value));
+                                    .Set(field, ObjectId.Parse(value));
                                 var result = repository.Collection.UpdateMany(filter, updateDefinition);
                             }
-
                         }
-
                     }
+                    //2/24/2017 NS added for VSPLUS-3506
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
                     Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server attributes updated successfully");
                 }
             }
-
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Saving server attributes has failed.\n Error Message :" + exception.Message);
@@ -2513,18 +2499,17 @@ namespace VitalSigns.API.Controllers
                         var result = serversRepository.Update(server, updateDefinition);
                     }
 
-
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Server Disk Settings updated successfully.");
+                    //2/24/2017 NS added for VSPLUS-3506
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Server disk settings updated successfully");
 
                 }
-
                 else
                 {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Servers were not selected");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "No servers were selected");
                 }
-
             }
-
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving server disk settings has failed.\n Error Message :" + exception.Message);
@@ -2648,7 +2633,7 @@ namespace VitalSigns.API.Controllers
                 }
                 if (name == "exists")
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This  Task Name   already exists. Enter another one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This task name already exists. Please enter a different one.");
                 }
                 else
                 {
@@ -2669,7 +2654,10 @@ namespace VitalSigns.API.Controllers
                         dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
                         serverTasks = server.ServerTasks;
                         serverTasks.Add(dominoServerTask);
-                        Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks inserted Successfully");
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Domino server tasks inserted successfully");
 
                     }
                     else
@@ -2689,18 +2677,15 @@ namespace VitalSigns.API.Controllers
                             }
                         }
                         serverTasks = server.ServerTasks;
-                        Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Domino Server Tasks updated Successfully");
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Domino server tasks updated successfully");
                     }
-
-
-
                     var updateDefinitaion = serversRepository.Updater.Set(p => p.ServerTasks, serverTasks);
                     var filterDefination = Builders<Server>.Filter.Where(p => p.Id == servertasks.DeviceId);
                     serversRepository.Update(filterDefination, updateDefinitaion);
-
                 }
-
-
             }
             catch (Exception exception)
             {
@@ -2732,7 +2717,9 @@ namespace VitalSigns.API.Controllers
                     var updateDefinition = serversRepository.Updater.Set(p => p.ServerTasks, dominoServerTasks);
                     var result = serversRepository.Update(server, updateDefinition);
                 }
-
+                //2/24/2017 NS added for VSPLUS-3506
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
                 Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Server tasks deleted successfully");
             }
 
@@ -2886,43 +2873,52 @@ namespace VitalSigns.API.Controllers
                     if (advancedSettings.DeviceType == "Domino")
                     {
                         var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold/100)
-                                                                 .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold/100)
-                                                                 .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
-                                                                 .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold)
-                                                                 .Set(p => p.ClusterReplicationQueueThreshold, advancedSettings.ClusterReplicationQueueThreshold);
+                            .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold/100)
+                            .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
+                            .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold)
+                            .Set(p => p.ClusterReplicationQueueThreshold, advancedSettings.ClusterReplicationQueueThreshold);
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully.");
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");
                     }
                     else if (advancedSettings.DeviceType == "Sametime")
                     {
                         var updateDefination = serversRepository.Updater.Set(p => p.ProxyServerType, advancedSettings.ProxyServerType)
-                                                              .Set(p => p.ProxyServerprotocol, advancedSettings.ProxyServerprotocol)
-                                                              .Set(p => p.DbmsHostName, advancedSettings.DbmsHostName)
-                                                              .Set(p => p.DbmsName, advancedSettings.DbmsName)
-                                                               .Set(p => p.DbmsPort, advancedSettings.DbmsPort)
-                                                              .Set(p => p.CollectExtendedStatistics, advancedSettings.CollectExtendedStatistics)
-                                                              .Set(p => p.CollectMeetingStatistics, advancedSettings.CollectMeetingStatistics)
-                                                               .Set(p => p.ExtendedStatisticsPort, advancedSettings.ExtendedStatisticsPort)
-                                                              .Set(p => p.DbmsHostName, advancedSettings.DbmsHostName)
-                                                              .Set(p => p.MeetingHostName, advancedSettings.MeetingHostName)
-                                                              .Set(p => p.MeetingPort, advancedSettings.MeetingPort)
-                                                               .Set(p => p.MeetingRequireSSL, advancedSettings.MeetingRequireSSL)
-                                                              .Set(p => p.ConferenceHostName, advancedSettings.ConferenceHostName)
-                                                              .Set(p => p.ConferencePort, advancedSettings.ConferencePort)
-                                                               .Set(p => p.ConferenceRequireSSL, advancedSettings.ConferenceRequireSSL)
-                                                               .Set(p => p.CollectConferenceStatistics, advancedSettings.CollectConferenceStatistics)
-                                                               .Set(p => p.Db2SettingsCredentialsId, advancedSettings.Db2SettingsCredentialsId);
+                            .Set(p => p.ProxyServerprotocol, advancedSettings.ProxyServerprotocol)
+                            .Set(p => p.DbmsHostName, advancedSettings.DbmsHostName)
+                            .Set(p => p.DbmsName, advancedSettings.DbmsName)
+                            .Set(p => p.DbmsPort, advancedSettings.DbmsPort)
+                            .Set(p => p.CollectExtendedStatistics, advancedSettings.CollectExtendedStatistics)
+                            .Set(p => p.CollectMeetingStatistics, advancedSettings.CollectMeetingStatistics)
+                            .Set(p => p.ExtendedStatisticsPort, advancedSettings.ExtendedStatisticsPort)
+                            .Set(p => p.DbmsHostName, advancedSettings.DbmsHostName)
+                            .Set(p => p.MeetingHostName, advancedSettings.MeetingHostName)
+                            .Set(p => p.MeetingPort, advancedSettings.MeetingPort)
+                            .Set(p => p.MeetingRequireSSL, advancedSettings.MeetingRequireSSL)
+                            .Set(p => p.ConferenceHostName, advancedSettings.ConferenceHostName)
+                            .Set(p => p.ConferencePort, advancedSettings.ConferencePort)
+                            .Set(p => p.ConferenceRequireSSL, advancedSettings.ConferenceRequireSSL)
+                            .Set(p => p.CollectConferenceStatistics, advancedSettings.CollectConferenceStatistics)
+                            .Set(p => p.Db2SettingsCredentialsId, advancedSettings.Db2SettingsCredentialsId);
 
                         var result = serversRepository.Update(filterDefination, updateDefination, new UpdateOptions { IsUpsert = true });
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully.");
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");
                     }
                     else if (advancedSettings.DeviceType == "IBM Connections")
                     {
                         var updateDefination = serversRepository.Updater.Set(p => p.DatabaseSettingsHostName, advancedSettings.DatabaseSettingsHostName)
-                                                             .Set(p => p.DatabaseSettingsPort, advancedSettings.DatabaseSettingsPort)
-                                                             .Set(p => p.DatabaseSettingsCredentialsId, advancedSettings.DatabaseSettingsCredentialsId);
+                            .Set(p => p.DatabaseSettingsPort, advancedSettings.DatabaseSettingsPort)
+                            .Set(p => p.DatabaseSettingsCredentialsId, advancedSettings.DatabaseSettingsCredentialsId);
                         var result = serversRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully.");
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");
                     }
                 }
                 catch (Exception exception)
@@ -3008,7 +3004,10 @@ namespace VitalSigns.API.Controllers
 
                     };
                     string id = serverOtherRepository.Insert(customstatistic);
-                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "custom statistics inserted successfully");
+                    //2/24/2017 NS added for VSPLUS-3506
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Custom statistics inserted successfully");
                 }
                 else
                 {
@@ -3022,6 +3021,9 @@ namespace VitalSigns.API.Controllers
                                                                .Set(p => p.TypeOfStatistic, customstat.TypeOfStatistic)
                                                                .Set(p => p.EqualOrNotEqual, customstat.EqualOrNotEqual);
                     var result = serverOtherRepository.Update(filterDefination, updateDefination);
+                    //2/24/2017 NS added for VSPLUS-3506
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
                     Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Custom statistics updated successfully");
                 }
             }
@@ -3046,6 +3048,9 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
+                //2/24/2017 NS added for VSPLUS-3506
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
                 Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Custom statistics deleted successfully");
             }
             catch (Exception exception)
@@ -3137,14 +3142,10 @@ namespace VitalSigns.API.Controllers
                 if (string.IsNullOrEmpty(notesDatabaseReplica.Id))
                 {
                     filterExpression = (p => p.Name == notesDatabaseReplica.Name && p.Type== "Notes Database Replica");
-
-
                 }
                 else
                 {
                     filterExpression = (p => p.Name == notesDatabaseReplica.Name && p.Id != notesDatabaseReplica.Id && p.Type == "Notes Database Replica");
-
-
                 }
                 var existedData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
                 if (existedData == null)
@@ -3170,40 +3171,41 @@ namespace VitalSigns.API.Controllers
                             ScanInterval = notesDatabaseReplica.ScanInterval,
                             OffHoursScanInterval = notesDatabaseReplica.OffHoursScanInterval
                         };
-
-
                         string id = serverOtherRepository.Insert(notesDatabase);
-                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica inserted successfully.");
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes database replica inserted successfully");
                     }
                     else
                     {
                         FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabaseReplica.Id);
                         var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerA, notesDatabaseReplica.DominoServerA)
-                                                                 .Set(p => p.DominoServerAFileMask, notesDatabaseReplica.DominoServerAFileMask)
-                                                                 .Set(p => p.DominoServerAExcludeFolders, notesDatabaseReplica.DominoServerAExcludeFolders)
-                                                                 .Set(p => p.DominoServerB, notesDatabaseReplica.DominoServerB)
-                                                                  .Set(p => p.DominoServerBFileMask, notesDatabaseReplica.DominoServerBFileMask)
-                                                                   .Set(p => p.DominoServerBExcludeFolders, notesDatabaseReplica.DominoServerBExcludeFolders)
-                                                                   .Set(p => p.DominoServerC, notesDatabaseReplica.DominoServerC)
-                                                                  .Set(p => p.DominoServerCFileMask, notesDatabaseReplica.DominoServerCFileMask)
-                                                                   .Set(p => p.DominoServerCExcludeFolders, notesDatabaseReplica.DominoServerCExcludeFolders)
-                                                                    .Set(p => p.Name, notesDatabaseReplica.Name)
-                                                                    .Set(p => p.IsEnabled, notesDatabaseReplica.IsEnabled)
-                                                                    .Set(p => p.Category, notesDatabaseReplica.Category)
-                                                                    .Set(p => p.ScanInterval, notesDatabaseReplica.ScanInterval)
-                                                                    .Set(p => p.OffHoursScanInterval, notesDatabaseReplica.OffHoursScanInterval)
-                                                                  .Set(p => p.DifferenceThreshold, notesDatabaseReplica.DifferenceThreshold)
-                                                                 ;
+                            .Set(p => p.DominoServerAFileMask, notesDatabaseReplica.DominoServerAFileMask)
+                            .Set(p => p.DominoServerAExcludeFolders, notesDatabaseReplica.DominoServerAExcludeFolders)
+                            .Set(p => p.DominoServerB, notesDatabaseReplica.DominoServerB)
+                            .Set(p => p.DominoServerBFileMask, notesDatabaseReplica.DominoServerBFileMask)
+                            .Set(p => p.DominoServerBExcludeFolders, notesDatabaseReplica.DominoServerBExcludeFolders)
+                            .Set(p => p.DominoServerC, notesDatabaseReplica.DominoServerC)
+                            .Set(p => p.DominoServerCFileMask, notesDatabaseReplica.DominoServerCFileMask)
+                            .Set(p => p.DominoServerCExcludeFolders, notesDatabaseReplica.DominoServerCExcludeFolders)
+                            .Set(p => p.Name, notesDatabaseReplica.Name)
+                            .Set(p => p.IsEnabled, notesDatabaseReplica.IsEnabled)
+                            .Set(p => p.Category, notesDatabaseReplica.Category)
+                            .Set(p => p.ScanInterval, notesDatabaseReplica.ScanInterval)
+                            .Set(p => p.OffHoursScanInterval, notesDatabaseReplica.OffHoursScanInterval)
+                            .Set(p => p.DifferenceThreshold, notesDatabaseReplica.DifferenceThreshold);
                         var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes Database Replica updated successfully.");
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes database replica updated successfully");
                     }
                 }
                 else
                 {
-                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This name already exists.");
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "This name already exists");
                 }
-
-
             }
             catch (Exception exception)
             {
@@ -3228,7 +3230,9 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
-
+                //2/24/2017 NS added for VSPLUS-3506
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
                 Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Notes database replica deleted sucessfully");
             }
             catch (Exception exception)
@@ -3321,34 +3325,31 @@ namespace VitalSigns.API.Controllers
                         string bytepwd = newstr.ToString();
                         int n = bytepwd.LastIndexOf(", ");
                         bytepwd = bytepwd.Substring(0, n);
-                        var password = new List<NameValue> {
-                                                                new NameValue { Name = "Password", Value = bytepwd}
-                                                             };
+                        var password = new List<NameValue> { new NameValue { Name = "Password", Value = bytepwd}
+                        };
                         var passwordResult = Common.SaveNameValues(password);
+                        Response = Common.CreateResponse(passwordResult, Common.ResponseStatus.Success.ToDescription(), "Notes password updated successfully");
                     }
-
-                    var ibmDominoSettings = new List<NameValue> { new NameValue { Name = "Notes Program Directory", Value = dominoSettings.NotesProgramDirectory },
-                                                                new NameValue { Name = "Notes User ID", Value = dominoSettings.NotesUserID },
-                                                                new NameValue { Name = "Notes.ini", Value = dominoSettings.NotesIni},
-
-                                                                new NameValue { Name = "Enable Domino Console Commands", Value = Convert.ToString(dominoSettings.EnableDominoConsoleCommands)},
-                                                                new NameValue { Name = "Enable ExJournal", Value =  Convert.ToString(dominoSettings.EnableExJournal)},
-                                                                 new NameValue { Name = "ExJournal Threshold", Value = dominoSettings.ExJournalThreshold},
-                                                                  new NameValue { Name = "ConsecutiveTelnet", Value = dominoSettings.ConsecutiveTelnet}
-                                                             };
-                    var result = Common.SaveNameValues(ibmDominoSettings);
-                    //  Response = Common.CreateResponse(result);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "IBM Domino settings updated successfully.");
-
+                    else
+                    {
+                        var ibmDominoSettings = new List<NameValue> { new NameValue { Name = "Notes Program Directory", Value = dominoSettings.NotesProgramDirectory },
+                            new NameValue { Name = "Notes User ID", Value = dominoSettings.NotesUserID },
+                            new NameValue { Name = "Notes.ini", Value = dominoSettings.NotesIni},
+                            new NameValue { Name = "Enable Domino Console Commands", Value = Convert.ToString(dominoSettings.EnableDominoConsoleCommands)},
+                            new NameValue { Name = "Enable ExJournal", Value =  Convert.ToString(dominoSettings.EnableExJournal)},
+                            new NameValue { Name = "ExJournal Threshold", Value = dominoSettings.ExJournalThreshold},
+                            new NameValue { Name = "ConsecutiveTelnet", Value = dominoSettings.ConsecutiveTelnet}
+                        };
+                        var result = Common.SaveNameValues(ibmDominoSettings);
+                        //  Response = Common.CreateResponse(result);
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "IBM Domino settings updated successfully.");
+                    }
                 }
                 catch (Exception exception)
                 {
                     Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving IBM Domino settings has failed.\n Error Message :" + exception.Message);
                 }
-
                 return Response;
-
-
             }
             catch (Exception exception)
             {
@@ -3419,19 +3420,15 @@ namespace VitalSigns.API.Controllers
                 else
                 {
                     filterExpression = (p => p.Name == notesDatabase.Name && p.Id != notesDatabase.Id && p.Type == "Notes Database");
-
                 }
                 var existsData = serverOtherRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
 
                 if (string.IsNullOrEmpty(existsData))
                 {
-
                     if (string.IsNullOrEmpty(notesDatabase.Id))
                     {
-
                         ServerOther notesDatabases = new ServerOther
                         {
-
                             DominoServerName = notesDatabase.DominoServerName,
                             Name = notesDatabase.Name,
                             DatabaseFileName = notesDatabase.DatabaseFileName,
@@ -3446,41 +3443,34 @@ namespace VitalSigns.API.Controllers
                             ReplicationDestination = notesDatabase.ReplicationDestination
                             //DominoServerId = notesDatabase.DominoServerId
                         };
-
-
                         string id = serverOtherRepository.Insert(notesDatabases);
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes database inserted successfully");
                     }
-
                     else
                     {
                         FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == notesDatabase.Id);
                         var updateDefination = serverOtherRepository.Updater.Set(p => p.DominoServerName, notesDatabase.DominoServerName)
-                                                                   .Set(p => p.Name, notesDatabase.Name)
-                                                                  .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
-                                                                 .Set(p => p.TriggerType, notesDatabase.TriggerType)
-                                                                 .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
-                                                                 .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
-                                                                .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
-                                                                .Set(p => p.TriggerValue, notesDatabase.TriggerValue)
-                                                                 .Set(p => p.RetryInterval, notesDatabase.RetryInterval)
-                                                                  .Set(p => p.InitiateReplication, notesDatabase.InitiateReplication)
-                                                                 .Set(p => p.ReplicationDestination, notesDatabase.ReplicationDestination);
-
+                            .Set(p => p.Name, notesDatabase.Name)
+                            .Set(p => p.DatabaseFileName, notesDatabase.DatabaseFileName)
+                            .Set(p => p.TriggerType, notesDatabase.TriggerType)
+                            .Set(p => p.ScanInterval, notesDatabase.ScanInterval)
+                            .Set(p => p.OffHoursScanInterval, notesDatabase.OffHoursScanInterval)
+                            .Set(p => p.IsEnabled, notesDatabase.IsEnabled)
+                            .Set(p => p.TriggerValue, notesDatabase.TriggerValue)
+                            .Set(p => p.RetryInterval, notesDatabase.RetryInterval)
+                            .Set(p => p.InitiateReplication, notesDatabase.InitiateReplication)
+                            .Set(p => p.ReplicationDestination, notesDatabase.ReplicationDestination);
                         var result = serverOtherRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes database updated successfully");
                     }
-
-
-
                 }
                 else
                 {
                     Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This name already exists. Please enter a different one.");
                 }
-
-
-
             }
             catch (Exception exception)
             {
@@ -3503,12 +3493,14 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
-                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Notes databases record deleted succesfully.");
-
+                //2/24/2017 NS added for VSPLUS-3506
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
+                Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Notes database record deleted succesfully");
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of a Notes database record has failed .\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of a Notes database record has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -3718,7 +3710,7 @@ namespace VitalSigns.API.Controllers
             {
                 if (devicesettings.Setting == null && devicesettings.Devices == null && devicesettings.Value == null)
                 {
-                    Response = Common.CreateResponse(false,Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition  inserted successfully");
+                    Response = Common.CreateResponse(false,Common.ResponseStatus.Success.ToDescription(), "Keyword created successfully");
                 }
                 else
                 {
@@ -3727,7 +3719,7 @@ namespace VitalSigns.API.Controllers
                     string settingValue = Convert.ToString(devicesettings.Value);
                     if(string.IsNullOrEmpty(settingValue))
                     {
-                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please enter domino event defination");
+                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please enter a Domino event definition");
 
                     }
                     else
@@ -3775,7 +3767,10 @@ namespace VitalSigns.API.Controllers
 
                                 ServerOther logscanserver = new ServerOther { Name = settingValue, Type = "Domino Log Scanning", LogFileKeywords = logscannings, LogFileServers = devicesList };
                                 string newid = serverOtherRepository.Insert(logscanserver);
-                                Response = Common.CreateResponse(newid, Common.ResponseStatus.Success.ToDescription(), "Domino Event Definition  inserted successfully");
+                                //2/24/2017 NS added for VSPLUS-3506
+                                Licensing licensing = new Licensing();
+                                licensing.refreshServerCollectionWrapper();
+                                Response = Common.CreateResponse(newid, Common.ResponseStatus.Success.ToDescription(), "Event definition inserted successfully");
                             }
                             if (id != ("-1"))
                             {
@@ -3804,7 +3799,10 @@ namespace VitalSigns.API.Controllers
                                                                                   .Set(p => p.Type, "Domino Log Scanning");
 
                                         var result = serverOtherRepository.Collection.UpdateMany(filterDefination, updateDefination);
-                                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Domino Event Log Scanning updated successfully");
+                                        //2/24/2017 NS added for VSPLUS-3506
+                                        Licensing licensing = new Licensing();
+                                        licensing.refreshServerCollectionWrapper();
+                                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Event definition updated successfully");
 
                                     }
 
@@ -3815,7 +3813,7 @@ namespace VitalSigns.API.Controllers
                         }
                         else if (existsData == settingValue)
                         {
-                            Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This event definition " + "" + existsData + " " + "already exists. Please enter a different one.");
+                            Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "The event definition " + "" + existsData + " " + "already exists. Please enter a different one.");
                         }
 
                         if (logfiles.Count == 0)
@@ -3849,8 +3847,10 @@ namespace VitalSigns.API.Controllers
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
                 serverOtherRepository.Delete(expression);
+                //2/24/2017 NS added for VSPLUS-3506
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
                 Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino event definition deleted successfully");
-
             }
             catch (Exception exception)
             {
@@ -3884,10 +3884,11 @@ namespace VitalSigns.API.Controllers
                     dominoServerTasks.Remove(serverTaskDelete);
                     var updateDefinition = serverOtherRepository.Updater.Set(p => p.LogFileKeywords, dominoServerTasks);
                     var result = serverOtherRepository.Update(server, updateDefinition);
+                    //2/24/2017 NS added for VSPLUS-3506
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
                     Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Domino event log scanning deleted successfully");
                 }
-
-
             }
             catch (Exception exception)
             {
@@ -5689,8 +5690,10 @@ namespace VitalSigns.API.Controllers
                 Server server = serversRepository.Get(ibmsimulations.Id);
                 var updateDefination = serversRepository.Updater.Set(p => p.SimulationTests, nameValuePairs);
                 var result = serversRepository.Update(server, updateDefination);
+                //2/24/2017 NS added for VSPLUS-3506
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
                 Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Simulation tests updated successfully");
-
             }
             catch (Exception exception)
             {
@@ -6545,26 +6548,24 @@ namespace VitalSigns.API.Controllers
                                         booloutput = true;
                                     }
                                     UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                        .Set(field, booloutput);
+                                        .Set(field, booloutput);
                                     var result = repository.Collection.UpdateMany(filter, updateDefinition);
                                 }
-
-
                                 if (datatype == "string")
                                 {
                                     UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                        .Set(field, value);
+                                        .Set(field, value);
                                     var result = repository.Collection.UpdateMany(filter, updateDefinition);
                                 }
-
-
                             }
-
                         }
 
                         // serversRepository.Insert(server);
                     }
                 }
+                //2/24/2017 NS added for VSPLUS-3506
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
                 Response = Common.CreateResponse("Success", Common.ResponseStatus.Success.ToDescription(), "Servers imported successfully");
             }
             catch (Exception exception)
@@ -7169,19 +7170,15 @@ namespace VitalSigns.API.Controllers
                                         booloutput = true;
                                     }
                                     UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                        .Set(field, booloutput);
+                                        .Set(field, booloutput);
                                     var result = repository.Collection.UpdateMany(filter, updateDefinition);
                                 }
-
-
                                 if (datatype == "string")
                                 {
                                     UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                        .Set(field, value);
+                                        .Set(field, value);
                                     var result = repository.Collection.UpdateMany(filter, updateDefinition);
                                 }
-
-
                             }
 
                         }

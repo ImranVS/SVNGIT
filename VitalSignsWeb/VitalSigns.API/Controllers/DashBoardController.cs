@@ -165,8 +165,11 @@ namespace VitalSigns.API.Controllers
             List<string> keyUsersList = new List<string>();
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             List<MobileUserDevice> result = null;
-            result = mobileDevicesRepository.Collection
+            if (isKey)
+            {
+                result = mobileDevicesRepository.Collection
                 .AsQueryable()
+                .Where(x => x.ThresholdSyncTime != null)
                 .Select(x => new MobileUserDevice
                 {
                     Id = x.Id,
@@ -177,8 +180,26 @@ namespace VitalSigns.API.Controllers
                     LastSyncTime = x.LastSyncTime,
                     Access = x.Access,
                     DeviceId = x.DeviceID,
-                    ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime
+                    ThresholdSyncTime = x.ThresholdSyncTime
                 }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+            }
+            else
+            {
+                result = mobileDevicesRepository.Collection
+                    .AsQueryable()
+                    .Select(x => new MobileUserDevice
+                    {
+                        Id = x.Id,
+                        UserName = x.UserName,
+                        Device = x.DeviceName,
+                        Notification = x.NotificationType,
+                        OperatingSystem = x.OSType,
+                        LastSyncTime = x.LastSyncTime,
+                        Access = x.Access,
+                        DeviceId = x.DeviceID,
+                        ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime
+                    }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+            }          
             Response = Common.CreateResponse(result);
             return Response;
         }
