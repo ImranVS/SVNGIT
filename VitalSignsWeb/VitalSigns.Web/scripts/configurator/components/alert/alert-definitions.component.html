@@ -37,7 +37,7 @@
                         <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                     </div>
                     <form (ngSubmit)="saveDefinition(frmDialog)" #frmUser="ngForm">
-                        <div class="modal-body">
+                        <div class="panel-body">
                             <div class="form-group">
                                 <label for="notification_name">Definition Name</label>
                                 <input type="text" class="form-control" #name id="notification_name" required name="notification_name" [(ngModel)]="formObject.notification_name">

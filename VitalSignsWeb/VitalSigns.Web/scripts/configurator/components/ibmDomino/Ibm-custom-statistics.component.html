@@ -178,9 +178,9 @@ data.pageIndex + 1 | number
                                     <div class="panel-heading">Domino Servers</div>
                                     <div class="panel-body">
                                         <div class="row">
-                                            <div class="col-sm-11">
+                                            <div class="col-sm-12">
                                                 <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
-                                                <div>&nbsp;</div>
+                                                <div *ngIf="devices.length==0">&nbsp;</div>
                                                 <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType"></server-location-list>
                                             </div>
                                         </div>
