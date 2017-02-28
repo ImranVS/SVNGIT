@@ -206,13 +206,13 @@ namespace VitalSigns.API.Controllers
             {
                 var serviceIcons = Common.GetServerTypeIcons();
                 var servers = serverRepository.Collection.AsQueryable()
-                                                        .Select(x => new ServerStatus
-                                                        {
-                                                            Id = x.Id,
-                                                            IsEnabled = x.IsEnabled,
-                                                            Type = x.DeviceType,
-                                                            Name = x.DeviceName,
-                                                        }).OrderBy(x=>x.Name).ToList(); ;
+                    .Select(x => new ServerStatus
+                    {
+                        Id = x.Id,
+                        IsEnabled = x.IsEnabled,
+                        Type = x.DeviceType,
+                        Name = x.DeviceName,
+                    }).OrderBy(x=>x.Name).ToList(); ;
                 foreach (var server in servers)
                 {
 
@@ -1596,7 +1596,6 @@ namespace VitalSigns.API.Controllers
         [HttpGet("server_list_selectlist_data")]
         public APIResponse GetDeviceListDropDownData()
         {
-
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);

@@ -287,7 +287,7 @@
         "tab_id": 1,
         "title": "Overall",
         "component": "NotesMailProbeOverallTab",
-        "path": "/app/dashboards/components/mail/notesmail-probe-overall-tab.component",
+        "path": "/app/services/components/service-notesmail-probe-health.component",
         "type": "Dashboard"
       },
       {
