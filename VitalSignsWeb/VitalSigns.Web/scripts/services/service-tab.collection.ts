@@ -3,6 +3,7 @@ export * from './components/no-selected-service.component';
 export * from './components/service-overall-tab.component';
 export * from './components/service-url-health.component';
 export * from './components/service-websphere-overall-tab.component';
+export * from './components/service-notesmail-probe-health.component';
 
 
 export * from '../dashboards/components/ibm-connections/ibm-connections-overview-tab.component';
@@ -20,8 +21,6 @@ export * from '../dashboards/components/ibm-sametime/ibm-sametime-chats-tab.comp
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component';
-
-export * from '../dashboards/components/mail/notesmail-probe-overall-tab.component';
 
 export * from '../dashboards/components/key-metrics/overall-database-all-tab.component';
 export * from '../dashboards/components/key-metrics/overall-database-problems-tab.component';

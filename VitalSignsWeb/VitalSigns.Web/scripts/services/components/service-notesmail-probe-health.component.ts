@@ -1,54 +1,60 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
-import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
-import {WidgetService} from '../../../core/widgets/services/widget.service';
+import {WidgetController, WidgetContainer, WidgetContract} from '../../core/widgets';
+import {WidgetService} from '../../core/widgets/services/widget.service';
 
-import {ServiceTab} from '../../../services/models/service-tab.interface';
+import {ServiceTab} from '../models/service-tab.interface';
 
 declare var injectSVG: any;
 
 @Component({
-    selector: 'notesmail-probe-tab-overall',
-    templateUrl: '/app/dashboards/components/mail/notesmail-probe-overall-tab.component.html',
+    selector: 'tab-overall',
+    templateUrl: '/app/services/components/service-notesmail-probe-health.component.html',
+    providers: [WidgetService]
 })
 export class NotesMailProbeOverallTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
+    deviceId: any;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
-
         super(resolver, widgetService);
-
     }
     
     ngOnInit() {
-
-        this.serviceId = this.widgetService.getProperty('serviceId');
-        
+    
         this.widgets = [
             {
-                id: 'responseTimes',
+                id: 'responseTime',
                 title: 'Response Time',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
+                css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=DeliveryTime.Seconds&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'hour',
+                    url: `/services/statistics?statname=DeliveryTime.Seconds&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
-                            renderTo: 'responseTimes',
+                            renderTo: 'responseTime',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
                                 step: 6
                             },
-                            categories: []
+                            categories: [],
+                            title: {
+                                //text: 'Time'
+                            }
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'ms'
+                            }
                         },
                         legend: {
                             enabled: false
@@ -64,20 +70,8 @@ export class NotesMailProbeOverallTab extends WidgetController implements OnInit
                 }
             }
         ];
+    
         injectSVG();
-    }
-    onPropertyChanged(key: string, value: any) {
-
-        if (key === 'serviceId') {
-
-            this.serviceId = value;
-
-            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=DeliveryTime.Seconds&deviceid=${this.serviceId}&operation=hourly`)
-                .catch(error => console.log(error));
-        }
-
-        super.onPropertyChanged(key, value);
-
     }
 
 }

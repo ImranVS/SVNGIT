@@ -130,12 +130,12 @@ export class ServicesView implements OnInit, AfterViewChecked {
             .subscribe(
             response => {
                 if (this.module == "dashboard") {                  
-                  var value=  response.data.filter((item) => item.is_enabled == true);
-                  this.services = value;
-                 
+                    var value = response.data.filter((item) => item.is_enabled == true);
+                    this.services = value;
                 }
                 else {
-                    this.services = response.data;
+                    var value = response.data.filter((item) => item.type != 'NotesMail Probe');
+                    this.services = value;
                   
                 } 
                 this.services = this.datetimeHelpers.toLocalDateTime(this.services);

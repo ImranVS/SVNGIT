@@ -1,12 +1,13 @@
 ﻿import { Component, AfterViewChecked, OnChanges, SimpleChange, Input, ViewChildren,OnInit} from '@angular/core';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../core/services';
 
 import {AuthenticationService} from '../profiles/services/authentication.service';
 import {Observable} from 'rxjs/Observable';
 declare var injectSVG: any;
-declare var bootstrapZeus: any;
+declare var bootstrapZeus: any;
+
 import {AppComponentService} from '../core/services';
 import * as helpers from '../core/services/helpers/helpers';
 
@@ -16,7 +17,8 @@ import * as helpers from '../core/services/helpers/helpers';
     providers: [
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper
+        helpers.DateTimeHelper,
+        helpers.UrlHelperService
     ]
 })
 export class AppHeader implements OnChanges,OnInit {
@@ -35,7 +37,9 @@ export class AppHeader implements OnChanges,OnInit {
     constructor(
         private service: RESTService,
         private router: Router,
-        private authService: AuthenticationService, appComponentService: AppComponentService, private datetimeHelpers: helpers.DateTimeHelper) {
+        private route: ActivatedRoute,
+        private authService: AuthenticationService, appComponentService: AppComponentService,
+        private datetimeHelpers: helpers.DateTimeHelper, protected urlHelpers: helpers.UrlHelperService) {
         this.appComponentService = appComponentService;
     }
     
@@ -67,7 +71,7 @@ export class AppHeader implements OnChanges,OnInit {
     changeDeviceName() {
 
         if (this.deviceName != "") {
-            this.router.navigateByUrl('services/dashboard?devicename='+this.deviceName);
+            this.router.navigateByUrl(`services/dashboard?devicename=${this.deviceName}`);
         }
     }
        
