@@ -1521,8 +1521,8 @@ ReleaseCOMObjects:
                                                                                                     .Set(Function(x) x.UpCount, .UpCount) _
                                                                                                     .Set(Function(x) x.UpPercent, .UpPercentCount) _
                                                                                                     .Set(Function(x) x.Description, myLocation) _
-                                                                                                    .Set(Function(x) x.UserCount, Convert.ToInt32(.TotalDatabasesInError)) _
-                                                                                                    .Set(Function(x) x.DeadMail, Convert.ToInt32(.TotalDatabasesInError))
+                                                                                                    .Set(Function(x) x.UserCount, Convert.ToInt32(.TotalDatabasesInError))
+                '.Set(Function(x) x.DeadMail, Convert.ToInt32(.TotalDatabasesInError))
                 repository.Upsert(filterDef, updateDef)
 
 
