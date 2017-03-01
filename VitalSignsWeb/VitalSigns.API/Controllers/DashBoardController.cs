@@ -1823,17 +1823,17 @@ namespace VitalSigns.API.Controllers
                 {
                     DeviceName = x.DeviceName,
                     Category = x.Category,
-                    LastUpdated = x.LastUpdated.Value.ToString(DateFormat),
-                    PendingMail = x.PendingMail == null ? 0 : x.PendingMail,
-                    DeadMail = x.DeadMail == null ? 0 : x.DeadMail,
-                    HeldMail = x.HeldMail == null ? 0 : x.HeldMail,
+                    LastUpdated = x.LastUpdated,
+                    PendingMail = x.PendingMail,
+                    DeadMail = x.DeadMail,
+                    HeldMail = x.HeldMail,
                     Location = x.Location,
                     StatusCode = x.StatusCode,
-                    PendingThreshold = x.PendingThreshold == null ? 0 : x.PendingThreshold,
-                    DeadThreshold = x.DeadThreshold == null ? 0 : x.DeadThreshold,
-                    HeldThreshold = x.HeldThreshold == null ? 0 : x.HeldThreshold
+                    PendingThreshold = x.PendingThreshold,
+                    DeadThreshold = x.DeadThreshold,
+                    HeldThreshold = x.HeldThreshold
 
-                }).ToList().OrderBy(x => x.DeviceName).OrderByDescending(x => x.PendingMail == null ? 0 : x.PendingMail);
+                }).ToList().OrderBy(x => x.DeviceName).OrderByDescending(x => x.PendingMail);
                 Response = Common.CreateResponse(result);
             }
 
