@@ -67,7 +67,7 @@ export class NotesMailProbes extends GridBase implements OnInit {
     }
 
     deleteNotesMailProbes() {
-        this.delteGridRow('/configurator/delete_notesmail_probes/');
+        this.delteGridRow('/configurator/delete_server/');
     }
 
     onItemsSourceChanged() {
