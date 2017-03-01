@@ -41,8 +41,7 @@ namespace VitalSignsLicensing
             try
             {
 
-                //VSNext.Mongo.Repository.Repository<ServerType> repoDeviceLic = new VSNext.Mongo.Repository.Repository<ServerType>(cs);
-                //List<ServerType> deviceTypeList = repoDeviceLic.All().ToList();
+                VSNext.Mongo.Repository.Repository<Status> repoStatus = new VSNext.Mongo.Repository.Repository<Status>(cs);
 
                 VSNext.Mongo.Repository.Repository<Nodes> repoLiveNodes = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
                 List<Nodes> nodesListAlive = repoLiveNodes.Find(i => i.IsAlive == true).ToList();
@@ -131,11 +130,8 @@ namespace VitalSignsLicensing
                     //loop thru each server and assign node
                     foreach (AllServers s in listOfAllServers)
                     {
-                        if(s.DeviceName == "Certification Log1")
-                        {
 
-                        }
-                        string n = "-1";
+                        string n = null;
                         double licenseCost = 0;
 
                         if (s.IsEnabled.HasValue && s.IsEnabled.Value && isFreeLicenseAvailable(s.DeviceType, validUnits, listOfAllServers))
@@ -167,6 +163,11 @@ namespace VitalSignsLicensing
 
                         s.CurrentNode = n;
                         s.LicenseCost = licenseCost;
+
+                        if(n == null)
+                        {
+                            repoStatus.Delete(repoStatus.Filter.Eq(x => x.DeviceId, s.DeviceId));
+                        }
                     }
 
                 }
