@@ -36,6 +36,7 @@ namespace VitalSigns.API.Controllers
             List<WebSphereNode> nodes = new List<WebSphereNode>();
             List<WebSphereServer> servers = new List<WebSphereServer>();
             BsonDocument bsondoc = new BsonDocument();
+            FilterDefinition<DailyStatistics> filterdefStats;
 
             try
             {
@@ -54,7 +55,7 @@ namespace VitalSigns.API.Controllers
                                 List<String> ids = node.WebSphereServers.Select(x => x.ServerId).ToList();
                                 FilterDefinition<Status> filterdefStatus = statusRepository.Filter.And(statusRepository.Filter.Eq(x => x.DeviceType, devicetype),
                                     statusRepository.Filter.In(x => x.DeviceId, ids));
-                                FilterDefinition<DailyStatistics> filterdefStats = dailyRepository.Filter.And(dailyRepository.Filter.In(x => x.DeviceId, ids),
+                                filterdefStats = dailyRepository.Filter.And(dailyRepository.Filter.In(x => x.DeviceId, ids),
                                     dailyRepository.Filter.Gte(x => x.CreatedOn, DateTime.Now.Date));
                                 var statuslist = statusRepository.Find(filterdefStatus).AsQueryable().OrderBy(x => x.DeviceName);
                                 var statsList = dailyRepository.Collection.Aggregate()
@@ -95,13 +96,39 @@ namespace VitalSigns.API.Controllers
                         else
                         {
                             expressionStatus = (p => p.DeviceType == devicetype && p.DeviceId == node.NodeId);
+                            filterdefStats = dailyRepository.Filter.And(dailyRepository.Filter.Eq(x => x.DeviceId, node.NodeId),
+                                    dailyRepository.Filter.Gte(x => x.CreatedOn, DateTime.Now.Date));
                             var statuslist = statusRepository.Find(expressionStatus).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                            var statsList = dailyRepository.Collection.Aggregate()
+                                        .Match(filterdefStats)
+                                        .Group(r => new { statName = r.StatName, deviceId = r.DeviceId }, g =>
+                                            new {
+                                                Key = g.Key,
+                                                avgValue = g.Average(x => x.StatValue)
+                                            })
+                                        .Project(r => new StatsData()
+                                        {
+                                            DeviceId = r.Key.deviceId,
+                                            StatName = r.Key.statName,
+                                            StatValue = r.avgValue
+                                        }).ToList();
                             foreach (Status status in statuslist)
                             {
+                                bsondoc = status.ToBsonDocument();
                                 var x = new ExpandoObject() as IDictionary<string, Object>;
-                                foreach (var field in status.ToBsonDocument())
+                                foreach (var field in bsondoc)
                                 {
-                                    x.Add(field.Name, Math.Round(Convert.ToDouble(field.Value.ToString()),2));
+                                    x.Add(field.Name, field.Value.ToString());
+                                }
+                                foreach (StatsData stats in statsList)
+                                {
+                                    if (stats.DeviceId == status.DeviceId)
+                                    {
+                                        var bson2 = stats.ToBsonDocument();
+                                        var statname = bson2["StatName"].ToString();
+                                        var statvalue = Math.Round(Convert.ToDouble(bson2["StatValue"].ToString()), 2);
+                                        x.Add(statname, statvalue);
+                                    }
                                 }
                                 result.Add(x);
                             }
