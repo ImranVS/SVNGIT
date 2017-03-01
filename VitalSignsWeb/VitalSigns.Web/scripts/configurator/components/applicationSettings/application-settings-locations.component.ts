@@ -81,20 +81,22 @@ export class Location extends GridBase implements OnInit  {
 
 
        // this.delteGridRow('/Configurator/delete_location/');
-        this.service.delete('/Configurator/delete_location/' + this.flex.collectionView.currentItem.id)
-            .subscribe(
-            response => {
-                if (response.status == "Success") {
-                    this.appComponentService.showSuccessMessage(response.message);
-                } else {
-                    this.appComponentService.showErrorMessage(response.message);
-                }
+        if (confirm("Are you sure want to delete this record?")) {
+            this.service.delete('/Configurator/delete_location/' + this.flex.collectionView.currentItem.id)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage(response.message);
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
 
-            }, error => {
-                var errorMessage = <any>error;
-                this.appComponentService.showErrorMessage(errorMessage);
-            });
-
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                });
+            (<wijmo.collections.CollectionView>this.flex.collectionView).remove(this.flex.collectionView.currentItem);
+        }
     }
 
     addlocations(dlg: wijmo.input.Popup) {
