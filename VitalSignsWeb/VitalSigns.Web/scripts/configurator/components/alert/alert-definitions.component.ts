@@ -40,6 +40,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     devices: string[] = [];
     _deviceList: any;
     checkedDevices: any;
+    selDeviceTypes: string = "Domino,Sametime,URL,WebSphere,IBM Connections";
 
     formObject: any = {
         id: null,

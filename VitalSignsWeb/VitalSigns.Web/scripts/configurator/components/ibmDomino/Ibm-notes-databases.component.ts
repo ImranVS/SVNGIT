@@ -58,7 +58,9 @@ export class NotesDatabases extends GridBase implements OnInit {
     }
     saveNotesDatabase(dlg: wijmo.input.Popup) {  
         this.serversChecked();
-        this.currentEditItem.replication_destination = this.usersByserver;  
+        if (this.usersByserver != null) {
+            this.currentEditItem.replication_destination = this.usersByserver;  
+        }
         this.saveGridRow('/configurator/save_notes_databases', dlg);
     }
     deleteNotesDatabase() {
@@ -66,12 +68,14 @@ export class NotesDatabases extends GridBase implements OnInit {
     }
 
     serversChecked() {
-        let options = this.selectserver.nativeElement.options;
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) {
-                var ind1 = options[i].value.indexOf("'");
-                var ind2 = options[i].value.lastIndexOf("'");
-                this.usersByserver.push(options[i].value.substring(ind1 + 1, ind2));
+        if (this.selectserver != null) {
+            let options = this.selectserver.nativeElement.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].selected) {
+                    var ind1 = options[i].value.indexOf("'");
+                    var ind2 = options[i].value.lastIndexOf("'");
+                    this.usersByserver.push(options[i].value.substring(ind1 + 1, ind2));
+                }
             }
         }
     }

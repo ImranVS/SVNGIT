@@ -248,7 +248,7 @@ data.pageIndex + 1 | number
                                 Devices
                             </div>
                             <div class="panel-body">
-                                <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices"></server-location-list>                         
+                                <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceTypes)]="selDeviceTypes"></server-location-list>                         
                             </div>
                         </div>
                         <div class="panel panel-default">
