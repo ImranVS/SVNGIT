@@ -13,8 +13,8 @@ import * as helpers from '../../core/services/helpers/helpers';
       </div>
       <ul>
         <li *ngFor='let node of nodes' (click)='drillDown(node)' [class.hasChild]='node.nodes'>
-          <a [routerLink]="this.urlHelpers.getUrlPath(node.url)" [queryParams]="this.urlHelpers.getUrlQueryParams(node.url)" [class.link-active]='node.active'>{{node.title}}</a>
-          <div *ngIf='node.nodes && node.nodes.length > 0' class='drill-down'></div>
+          <a  *ngIf='node.disabled != true' [routerLink]="this.urlHelpers.getUrlPath(node.url)" [queryParams]="this.urlHelpers.getUrlQueryParams(node.url)" [class.link-active]='node.active'>{{node.title}}</a>
+          <div *ngIf='node.nodes && node.nodes.length > 0 && node.disabled != true' class='drill-down'></div>
         </li>
       </ul>
     </div>

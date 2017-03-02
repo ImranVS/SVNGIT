@@ -26,7 +26,7 @@ import * as helpers from '../core/services/helpers/helpers';
         <div class='search-results' [@slideSearch]="searchState">
         <ul>
             <li *ngFor='let node of searchResults'>
-            <a [routerLink]="this.urlHelpers.getUrlPath(node.url)" [queryParams]="this.urlHelpers.getUrlQueryParams(node.url)" [innerHtml]='node.highlight'></a>
+            <a *ngIf="node.disabled != true" [routerLink]="this.urlHelpers.getUrlPath(node.url)" [queryParams]="this.urlHelpers.getUrlQueryParams(node.url)" [innerHtml]='node.highlight'></a>
             </li>
         </ul>
         </div>
