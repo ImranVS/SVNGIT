@@ -119,3 +119,18 @@
 { "_id" : { "$oid" : "581cb85a09dabf8c0f69763a" }, "created_on" : { "$date" : "2016-11-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Http.Sessions" }
 { "_id" : { "$oid" : "581d163b09dabf8c0f69763c" }, "created_on" : { "$date" : "2016-11-03T10:32:18.000+0000" }, "aggregation_type" : "Max", "statName" : "Http.PeakConnections" }
 { "_id" : { "$oid" : "581d165509dabf8c0f69763d" }, "created_on" : { "$date" : "2016-11-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Http.Workers" }
+{ "_id" : { "$oid" : "58630524929750e96c6c577f" }, "aggregation_type" : "AVG", "statName" : "ActiveThreadCount" }
+{ "_id" : { "$oid" : "5863055d929750e96c6c5780" }, "aggregation_type" : "AVG", "statName" : "CurrentHeapSize" }
+{ "_id" : { "$oid" : "58b46a1d4e01bee5d8624546" }, "aggregation_type" : "AVG", "statName" : "DeliveryTime.Seconds" }
+{ "_id" : { "$oid" : "58b98b904e01bee5d8624a24" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "MAX", "statName" : "Traveler.Push.Users.Total" }
+{ "_id" : { "$oid" : "58b98bd94e01bee5d8624a25" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "ClearedHungThreadCount" }
+{ "_id" : { "$oid" : "58b98be74e01bee5d8624a26" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "CurrentHungThreadCount" }
+{ "_id" : { "$oid" : "58b98bf44e01bee5d8624a27" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Memory" }
+{ "_id" : { "$oid" : "58b98bfc4e01bee5d8624a28" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "MemoryUsed" }
+{ "_id" : { "$oid" : "58b98c0c4e01bee5d8624a29" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "MemoryFree" }
+{ "_id" : { "$oid" : "58b98c1a4e01bee5d8624a2a" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "InitialHeap" }
+{ "_id" : { "$oid" : "58b98c7e4e01bee5d8624a2b" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "MaximumHeap" }
+{ "_id" : { "$oid" : "58b98cb14e01bee5d8624a2c" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "ProcessCPUUsage" }
+{ "_id" : { "$oid" : "58b98cc14e01bee5d8624a2d" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "UpTime" }
+{ "_id" : { "$oid" : "58b98ccb4e01bee5d8624a2e" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "AverageThreadCount" }
+{ "_id" : { "$oid" : "58b98ced4e01bee5d8624a2f" }, "created_on" : { "$date" : "2017-03-03T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "DeclaredHungThreadCount" }
