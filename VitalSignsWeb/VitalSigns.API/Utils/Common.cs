@@ -178,6 +178,12 @@ namespace VitalSigns.API
             Boolean SSL = false;
             string emailUserId = "";
             string emailPassword = "";
+            string strEncryptedPassword = "";
+            string Password = "";
+            byte[] myPass;
+            
+            VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+
             try
             {
                 Repository<VSNext.Mongo.Entities.NameValue> nameValueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
@@ -189,14 +195,33 @@ namespace VitalSigns.API
                 SSL = Convert.ToBoolean(list.Where(x => x.Name == "PrimarySSL").First().Value);
                 emailUserId = list.Where(x => x.Name == "PrimaryUserId").First().Value;
                 emailPassword = list.Where(x => x.Name == "Primarypwd").First().Value;
-                
+                //3/2/2017 NS modified for VSPLUS-3250
+                //Password decoded
+                strEncryptedPassword = emailPassword;
+                string[] str1 = strEncryptedPassword.Split(',');
+                byte[] bstr1 = new byte[str1.Length];
+                for (int i=0; i < str1.Length; i++)
+                {
+                    bstr1[i] = Convert.ToByte(str1[i]);
+                }
+                myPass = bstr1;
+                if (strEncryptedPassword != null)
+                {
+                    Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
+                }
+                else
+                {
+                    Password = "";
+                }
+                emailPassword = Password;
+
                 try
                 {
                     return sendnewPasswordEmail(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
                 }
                 catch (Exception ex)
                 {
-
+                    throw ex;
                 }
                 
                 filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "SecondaryHostName", "SecondaryUserId", "SecondaryPwd", "SecondaryPort", "SecondarySSL" });
@@ -207,7 +232,25 @@ namespace VitalSigns.API
                 SSL = Convert.ToBoolean(list.Where(x => x.Name == "SecondarySSL").First().Value);
                 emailUserId = list.Where(x => x.Name == "SecondaryUserId").First().Value;
                 emailPassword = list.Where(x => x.Name == "SecondaryPwd").First().Value;
-                
+                //3/2/2017 NS modified for VSPLUS-3250
+                //Password decoded
+                strEncryptedPassword = emailPassword;
+                str1 = strEncryptedPassword.Split(',');
+                bstr1 = new byte[str1.Length - 1];
+                for (int i = 0; i < str1.Length; i++)
+                {
+                    bstr1[i] = Convert.ToByte(str1[i]);
+                }
+                myPass = bstr1;
+                if (strEncryptedPassword != null)
+                {
+                    Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
+                }
+                else
+                {
+                    Password = "";
+                }
+                emailPassword = Password;
 
                 try
                 {

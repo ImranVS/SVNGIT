@@ -41,5 +41,8 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("used_by_servers")]
         public List<string> UsedByServers { get; set; }
 
+        [JsonProperty("is_modified")]
+        public bool IsModified { get; set; }
+
     }
 }

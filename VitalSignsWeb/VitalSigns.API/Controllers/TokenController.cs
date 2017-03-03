@@ -98,7 +98,7 @@ namespace VitalSigns.API.Controllers
                     var result = maintainUsersRepository.Update(filterDefination, updatePassword);
 
                   (new Common()).SendPasswordEmail(emailId, password);
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Password Reset done successfully and check your email");
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Password reset successful. Please check your email.");
                 }
                 else
                 {
@@ -107,7 +107,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error occured value reset the password:" + exception);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error occured while resetting the password: " + exception);
             }
             return Response;
         }

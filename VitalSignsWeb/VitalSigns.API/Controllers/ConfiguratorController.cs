@@ -1238,7 +1238,7 @@ namespace VitalSigns.API.Controllers
                         maintainUsers.Hash = hashedPassword;
                         string id = maintainUsersRepository.Insert(maintainUsers);
                         (new Common()).SendPasswordEmail(maintainuser.Email, password);
-                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Maintain Users inserted successfully");
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "User information inserted successfully");
                     }
                     else
                     {
@@ -3949,33 +3949,67 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
-                if (string.IsNullOrEmpty(travelerdatas.Id))
+                byte[] password;
+                string bytepwd = "";
+                if (!string.IsNullOrEmpty(travelerdatas.Password))
                 {
-                    TravelerDTS travelerds = new TravelerDTS { TravelerServicePoolName = travelerdatas.TravelerServicePoolName, DeviceName = travelerdatas.DeviceName, DataStore = travelerdatas.DataStore, DatabaseName = travelerdatas.DatabaseName, Port = travelerdatas.Port, UserName = travelerdatas.UserName, Password = travelerdatas.Password, IntegratedSecurity = travelerdatas.IntegratedSecurity, TestScanServer = travelerdatas.TestScanServer };//, UsedByServers = travelerdatas.UsedByServers };
-                    string id = travelerdatastoreRepository.Insert(travelerds);
-                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "traveler data inserted successfully");
+                    password = tripleDes.Encrypt(travelerdatas.Password);
+
+                    System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+                    foreach (byte b in password)
+                    {
+                        stringBuilder.AppendFormat("{0}, ", b);
+                    }
+                    bytepwd = stringBuilder.ToString();
+                    int n = bytepwd.LastIndexOf(", ");
+                    bytepwd = bytepwd.Substring(0, n);
+                }
+                travelerdatastoreRepository = new Repository<TravelerDTS>(ConnectionString);
+                if (travelerdatas.IsModified)
+                {        
+                    FilterDefinition<TravelerDTS> filterDefination = Builders<TravelerDTS>.Filter.Where(p => p.Id == travelerdatas.Id);
+                    var updateDefination = travelerdatastoreRepository.Updater
+                        .Set(p => p.Password, bytepwd);
+                    var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Password updated successfully");
                 }
                 else
                 {
-                    FilterDefinition<TravelerDTS> filterDefination = Builders<TravelerDTS>.Filter.Where(p => p.Id == travelerdatas.Id);
-                    var updateDefination = travelerdatastoreRepository.Updater.Set(p => p.TravelerServicePoolName, travelerdatas.TravelerServicePoolName)
-                                                             .Set(p => p.DeviceName, travelerdatas.DeviceName)
-                                                             .Set(p => p.DataStore, travelerdatas.DataStore)
-                                                             .Set(p => p.DatabaseName, travelerdatas.DatabaseName)
-                                                             .Set(p => p.Port, travelerdatas.Port)
-                                                             .Set(p => p.UserName, travelerdatas.UserName)
-                                                             .Set(p => p.Password, travelerdatas.Password)
-                                                             .Set(p => p.IntegratedSecurity, travelerdatas.IntegratedSecurity)
-                                                             .Set(p => p.TestScanServer, travelerdatas.TestScanServer);
-                    //.Set(p => p.UsedByServers, travelerdatas.UsedByServers);
-                    var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Traveler data updated successfully");
-                }
+                    if (string.IsNullOrEmpty(travelerdatas.Id))
+                    {
+                        TravelerDTS travelerds = new TravelerDTS {
+                            TravelerServicePoolName = travelerdatas.TravelerServicePoolName,
+                            DeviceName = travelerdatas.DeviceName,
+                            DataStore = travelerdatas.DataStore,
+                            DatabaseName = travelerdatas.DatabaseName,
+                            Port = travelerdatas.Port,
+                            UserName = travelerdatas.UserName,
+                            Password = bytepwd,
+                            IntegratedSecurity = travelerdatas.IntegratedSecurity,
+                            TestScanServer = travelerdatas.TestScanServer };//, UsedByServers = travelerdatas.UsedByServers };
+                        string id = travelerdatastoreRepository.Insert(travelerds);
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Traveler data store inserted successfully");
+                    }
+                    else
+                    {
+                        FilterDefinition<TravelerDTS> filterDefination = Builders<TravelerDTS>.Filter.Where(p => p.Id == travelerdatas.Id);
+                        var updateDefination = travelerdatastoreRepository.Updater.Set(p => p.TravelerServicePoolName, travelerdatas.TravelerServicePoolName)
+                            .Set(p => p.DeviceName, travelerdatas.DeviceName)
+                            .Set(p => p.DataStore, travelerdatas.DataStore)
+                            .Set(p => p.DatabaseName, travelerdatas.DatabaseName)
+                            .Set(p => p.Port, travelerdatas.Port)
+                            .Set(p => p.UserName, travelerdatas.UserName)
+                            .Set(p => p.IntegratedSecurity, travelerdatas.IntegratedSecurity)
+                            .Set(p => p.TestScanServer, travelerdatas.TestScanServer);
+                        //.Set(p => p.UsedByServers, travelerdatas.UsedByServers);
+                        var result = travelerdatastoreRepository.Update(filterDefination, updateDefination);
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Traveler data store updated successfully");
+                    }
+                }               
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving traveler data has failed.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving traveler data store has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -4028,12 +4062,71 @@ namespace VitalSigns.API.Controllers
                 AlertSettingsModel alertSettings = listAlertSettings.AlertSettings;
                 List<string> selectedEvents = listAlertSettings.SelectedEvents;
 
-                try
+                if (alertSettings.PrimaryModified || alertSettings.SecondaryModified)
                 {
-                    var alertData = new List<NameValue> { new NameValue { Name = "PrimaryHostName", Value = alertSettings.PrimaryHostName },
+                    byte[] password;
+                    string bytepwd = "";
+
+                    if (alertSettings.PrimaryModified)
+                    {
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(alertSettings.PrimaryPwd))
+                            {
+                                password = tripleDes.Encrypt(alertSettings.PrimaryPwd);
+
+                                System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+                                foreach (byte b in password)
+                                {
+                                    stringBuilder.AppendFormat("{0}, ", b);
+                                }
+                                bytepwd = stringBuilder.ToString();
+                                int n = bytepwd.LastIndexOf(", ");
+                                bytepwd = bytepwd.Substring(0, n);
+                                var alertData = new List<NameValue> { new NameValue { Name = "Primarypwd", Value = bytepwd } };
+                                var result = Common.SaveNameValues(alertData);
+                                Response = Common.CreateResponse(true, "Success", "Password was successully updated");
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            Response = Common.CreateResponse(null, "Error", "Saving a password has failed.\n Error Message :" + exception.Message);
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(alertSettings.SecondaryPwd))
+                            {
+                                password = tripleDes.Encrypt(alertSettings.SecondaryPwd);
+
+                                System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+                                foreach (byte b in password)
+                                {
+                                    stringBuilder.AppendFormat("{0}, ", b);
+                                }
+                                bytepwd = stringBuilder.ToString();
+                                int n = bytepwd.LastIndexOf(", ");
+                                bytepwd = bytepwd.Substring(0, n);
+                                var alertData = new List<NameValue> { new NameValue { Name = "SecondaryPwd", Value = bytepwd } };
+                                var result = Common.SaveNameValues(alertData);
+                                Response = Common.CreateResponse(true, "Success", "Password was successully updated");
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            Response = Common.CreateResponse(null, "Error", "Saving a password has failed.\n Error Message :" + exception.Message);
+                        }
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        var alertData = new List<NameValue> { new NameValue { Name = "PrimaryHostName", Value = alertSettings.PrimaryHostName },
                         new NameValue { Name = "PrimaryFrom", Value = alertSettings.PrimaryForm },
                         new NameValue { Name = "PrimaryUserId", Value = alertSettings.PrimaryUserId},
-                        new NameValue { Name = "Primarypwd", Value = alertSettings.PrimaryPwd},
                         new NameValue { Name = "PrimaryPort", Value =Convert.ToString(alertSettings.PrimaryPort)},
                         new NameValue { Name = "SmsForm", Value =  alertSettings.SmsForm},
                         new NameValue { Name = "PrimaryAuth", Value =Convert.ToString(alertSettings.PrimaryAuth)},
@@ -4041,7 +4134,6 @@ namespace VitalSigns.API.Controllers
                         new NameValue { Name = "SecondaryHostName", Value =  Convert.ToString(alertSettings.SecondaryHostName)},
                         new NameValue { Name = "SecondaryFrom", Value = alertSettings.SecondaryForm},
                         new NameValue { Name = "SecondaryUserId", Value = alertSettings.SecondaryUserId},
-                        new NameValue { Name = "SecondaryPwd", Value =  Convert.ToString(alertSettings.SecondaryPwd)},
                         new NameValue { Name = "SecondaryPort", Value = alertSettings.SecondaryPort},
                         new NameValue { Name = "SecondaryAuth", Value = Convert.ToString(alertSettings.SecondaryAuth)},
                         new NameValue { Name = "SecondarySSL", Value =  Convert.ToString(alertSettings.SecondarySSL)},
@@ -4058,27 +4150,28 @@ namespace VitalSigns.API.Controllers
                         new NameValue { Name = "AlertAboutRecurrencesOnly",Value=Convert.ToString(alertSettings.AlertAboutRecurrencesOnly)},
                         new NameValue {Name = "NumberOfRecurrences", Value= alertSettings.NumberOfRecurrences.ToString()}
                     };
-                    var result = Common.SaveNameValues(alertData);
-                    eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
-                    filterDef = eventsMasterRepository.Filter.Eq(x => x.NotificationOnRepeat, true);
-                    updateEvents = eventsMasterRepository.Updater.Set(x => x.NotificationOnRepeat, false);
-                    eventsMasterRepository.Update(filterDef, updateEvents);
-                    if (Convert.ToBoolean(alertSettings.AlertAboutRecurrencesOnly))
-                    {
-                        foreach (var selectedEvent in selectedEvents)
+                        var result = Common.SaveNameValues(alertData);
+                        eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
+                        filterDef = eventsMasterRepository.Filter.Eq(x => x.NotificationOnRepeat, true);
+                        updateEvents = eventsMasterRepository.Updater.Set(x => x.NotificationOnRepeat, false);
+                        eventsMasterRepository.Update(filterDef, updateEvents);
+                        if (Convert.ToBoolean(alertSettings.AlertAboutRecurrencesOnly))
                         {
-                            filterDef = eventsMasterRepository.Filter.And(eventsMasterRepository.Filter.Eq(x => x.Id, selectedEvent));
-                            updateEvents = eventsMasterRepository.Updater.Set(x => x.NotificationOnRepeat, true);
-                            eventsMasterRepository.Update(filterDef, updateEvents);
+                            foreach (var selectedEvent in selectedEvents)
+                            {
+                                filterDef = eventsMasterRepository.Filter.And(eventsMasterRepository.Filter.Eq(x => x.Id, selectedEvent));
+                                updateEvents = eventsMasterRepository.Updater.Set(x => x.NotificationOnRepeat, true);
+                                eventsMasterRepository.Update(filterDef, updateEvents);
+                            }
                         }
-                    }
 
-                    Response = Common.CreateResponse(true, "OK", "Alert settings were successully updated.");
-                }
-                catch (Exception exception)
-                {
-                    Response = Common.CreateResponse(null, "Error", "Saving alert settings has failed .\n Error Message :" + exception.Message);
-                }
+                        Response = Common.CreateResponse(true, "OK", "Alert settings were successully updated.");
+                    }
+                    catch (Exception exception)
+                    {
+                        Response = Common.CreateResponse(null, "Error", "Saving alert settings has failed .\n Error Message :" + exception.Message);
+                    }
+                }           
                 return Response;
             }
             catch (Exception exception)

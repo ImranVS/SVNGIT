@@ -29,6 +29,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("primary_pwd")]
         public string PrimaryPwd { get; set; }
 
+        [JsonProperty("primary_modified")]
+        public bool PrimaryModified { get; set; }
+
         [JsonProperty("secondary_host_name")]
         public string SecondaryHostName { get; set; }
 
@@ -40,6 +43,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("secondary_pwd")]
         public string SecondaryPwd { get; set; }
+
+        [JsonProperty("secondary_modified")]
+        public bool SecondaryModified { get; set; }
 
         [JsonProperty("secondary_port")]
         public string SecondaryPort { get; set; }
