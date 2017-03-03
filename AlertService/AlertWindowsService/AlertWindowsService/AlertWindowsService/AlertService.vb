@@ -1833,11 +1833,37 @@ Public Class VitalSignsAlertService
      ByVal AlertType As String, ByVal SendTo As String, ByVal CC As String, ByVal BCC As String, ByVal PFrom As String,
      ByVal SubjectStr As String) As Boolean
         Dim success As Boolean = True
+        '3/2/2017 NS added for VSPLUS-3520
+        'Password decryption
+        Dim strEncryptedPassword As String
+        Dim Password As String
+        Dim myPass As Byte()
+        Dim str1() As String
+        Dim mySecrets As New VSFramework.TripleDES
+
+        Try
+            strEncryptedPassword = Ppwd
+            str1 = strEncryptedPassword.Split(",")
+            Dim bstr1(str1.Length - 1) As Byte
+            For j As Integer = 0 To str1.Length - 1
+                bstr1(j) = str1(j).ToString()
+            Next
+            myPass = bstr1
+            If Not strEncryptedPassword Is Nothing Then
+                Password = mySecrets.Decrypt(myPass) 'password in clear text, stored in memory now
+            Else
+                Password = Nothing
+            End If
+        Catch ex As Exception
+            Password = ""
+            WriteServiceHistoryEntry(Now.ToString & " Error decrypting the password in SendMail: " & ex.Message, LogLevel.Normal)
+        End Try
+
         With mailMan
             .SmtpHost = PHostName
             .SmtpPort = Pport
             If PAuth = True And boolHSBC = False Then
-                .SmtpPassword = Ppwd
+                .SmtpPassword = Password
                 .SmtpUsername = PEmail
             End If
         End With
