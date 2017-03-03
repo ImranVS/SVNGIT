@@ -764,11 +764,11 @@ namespace VitalSignsDailyStats
             {
                 List<TravelerStatusSummary> summaryList = new List<TravelerStatusSummary>();
 
-                var result = travelerStatsRepository.Collection.Aggregate().Group(x => x.DeviceId, g => new { deviceId = g.Key }).ToList();
+                var result = travelerStatsRepository.Collection.Aggregate().Group(x => new { x.DeviceId, x.MailServerName }, g => new { deviceId = g.Key.DeviceId, MailServerName = g.Key.MailServerName }).ToList();
              
                 foreach (var item in result)
                 {
-                    Expression<Func<TravelerStats, bool>> Expression = (p => p.MailServerName != "" && p.DateUpdated < DateTime.Now && p.DeviceId == item.deviceId);
+                    Expression<Func<TravelerStats, bool>> Expression = (p => p.MailServerName == item.MailServerName && p.DateUpdated < DateTime.Now && p.DeviceId == item.deviceId);
                     var travelerStatData = travelerStatsRepository.Find(Expression).ToList();
                     summaryList.Add(new TravelerStatusSummary
                     {
@@ -790,7 +790,7 @@ namespace VitalSignsDailyStats
                     });
                     var min = travelerStatsRepository.Find(x => true).Where(x => x.DateUpdated < DateTime.Now).Min(x => x.DateUpdated).ToString();
 
-                    Expression<Func<TravelerStats, bool>> minExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(min) && p.DeviceId == item.deviceId);
+                    Expression<Func<TravelerStats, bool>> minExpression = (p => p.MailServerName == item.MailServerName && p.DateUpdated == Convert.ToDateTime(min) && p.DeviceId == item.deviceId);
                     var travelerStatDataforMin = travelerStatsRepository.Find(minExpression).ToList();
                     if (travelerStatDataforMin.Count > 0)
                     {
@@ -814,7 +814,7 @@ namespace VitalSignsDailyStats
                     }
                     var max = travelerStatsRepository.Find(x => true).Where(x => x.DateUpdated < DateTime.Now).Max(x => x.DateUpdated).ToString();
 
-                    Expression<Func<TravelerStats, bool>> maxExpression = (p => p.MailServerName != "" && p.DateUpdated == Convert.ToDateTime(max) && p.DeviceId == item.deviceId);
+                    Expression<Func<TravelerStats, bool>> maxExpression = (p => p.MailServerName == item.MailServerName && p.DateUpdated == Convert.ToDateTime(max) && p.DeviceId == item.deviceId);
                     var travelerStatDataforMax = travelerStatsRepository.Find(maxExpression).ToList();
                     if (travelerStatDataforMax.Count > 0)
                     {
