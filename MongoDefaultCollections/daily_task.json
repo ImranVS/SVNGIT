@@ -51,7 +51,6 @@
 { "_id" : { "$oid" : "57d13e3270149b11d4c64de7" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Create.File.TimeMs" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64de8" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Create.Forum.TimeMs" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64de9" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Create.Wiki.TimeMs" }
-{ "_id" : { "$oid" : "57d13e3270149b11d4c64dea" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "ResponseTime" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64deb" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Search.Profile.TimeMs" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64dec" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "AD@QueryLatency" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64ded" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "CAS@ActiveSync#User.Count" }
@@ -72,11 +71,8 @@
 { "_id" : { "$oid" : "57d13e3270149b11d4c64dfc" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Lync@ChatLatency" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64dfd" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Lync@GroupChatLatency" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64dfe" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Mail_DeliverySuccessRate" }
-{ "_id" : { "$oid" : "57d13e3270149b11d4c64dff" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Mem.PercentAvailable" }
-{ "_id" : { "$oid" : "57d13e3270149b11d4c64e00" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "Mem.PercentUsed" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e01" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "NetworkBytesReceivedPerSec" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e02" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "NetworkBytesSentPerSec" }
-{ "_id" : { "$oid" : "57d13e3270149b11d4c64e03" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "ResponseTime" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e04" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "SP@ActiveSessions" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e05" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "SP@ActiveThreads" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e06" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "AVG", "statName" : "SP@ApplicationRestarts" }
@@ -101,7 +97,6 @@
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e19" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "MAX", "statName" : "CAS@ActiveSync#User.Count" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e1a" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "MAX", "statName" : "CAS@OWAClient#User.Count" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e1b" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "MAX", "statName" : "CAS@RPCClient#User.Count" }
-{ "_id" : { "$oid" : "57d13e3270149b11d4c64e1c" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "Max", "statName" : "Platform.System.PctCombinedCpuUtil" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e1d" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "SUM", "statName" : "CAS@ActiveSync#User.Count" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e1e" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "SUM", "statName" : "CAS@OWAClient#User.Count" }
 { "_id" : { "$oid" : "57d13e3270149b11d4c64e1f" }, "created_on" : { "$date" : "2016-09-08T10:32:18.000+0000" }, "aggregation_type" : "SUM", "statName" : "CAS@RPCClient#User.Count" }
