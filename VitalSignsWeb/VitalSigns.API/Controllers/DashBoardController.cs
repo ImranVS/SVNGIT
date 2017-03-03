@@ -2368,7 +2368,8 @@ namespace VitalSigns.API.Controllers
                     DeviceId = x.DeviceId,
                     Name = x.DeviceName,
                     Status = x.CurrentStatus,
-                    LastUpdated = x.LastUpdated.Value
+                    LastUpdated = x.LastUpdated.Value,
+                    NextScan = x.NextScan 
                 }).ToList();
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 var result2 = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Notes Database Replica")
