@@ -1503,7 +1503,7 @@ namespace VitalSigns.API.Controllers
 
                             if (name == "exists")
                             {
-                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This task name already exists. Please enter a different one.");
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "One of the selected tasks is already assigned to the server(s). Please select another one.");
                             }
                             else
                             {
@@ -1551,7 +1551,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving domino server task has failed. \n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Adding/removing Domino server task(s) has failed. \n Error Message :" + exception.Message);
             }
             return Response;
         }
