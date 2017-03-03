@@ -2758,6 +2758,36 @@ Partial Public Class VitalSignsPlusDomino
         Dim RowsAffected As Integer
         Dim myResult As String = "Pass"
 
+        '3/2/2017 NS added for VSPLUS-3520
+        'Password decryption
+        Dim strEncryptedPassword As String
+        Dim Password As String
+        Dim myPass As Byte()
+        Dim str1() As String
+        Dim mySecrets As New VSFramework.TripleDES
+
+        Try
+            If Not IsNothing(BE) Then
+                strEncryptedPassword = BE.Password
+                str1 = strEncryptedPassword.Split(",")
+                Dim bstr1(str1.Length - 1) As Byte
+                For j As Integer = 0 To str1.Length - 1
+                    bstr1(j) = str1(j).ToString()
+                Next
+                myPass = bstr1
+                If Not strEncryptedPassword Is Nothing Then
+                    Password = mySecrets.Decrypt(myPass) 'password in clear text, stored in memory now
+                Else
+                    Password = Nothing
+                End If
+            Else
+                Password = Nothing
+            End If
+        Catch ex As Exception
+            Password = ""
+            WriteAuditEntry(Now.ToString & " Error decrypting the password.  " & ex.ToString)
+        End Try
+
         Try
             If InStr(BE.DataStore, "SQL") Then
 
@@ -2765,8 +2795,8 @@ Partial Public Class VitalSignsPlusDomino
                 Dim myCommand As New SqlClient.SqlCommand
                 Dim sConnectionString As String = ""
 
-                sConnectionString = "Data Source=" & BE.ServerName & ", " & BE.Port & "; Integrated Security=" & BE.IntegratedSecurity & ";Initial Catalog=" + BE.DatabaseName.ToString() + " ;Persist Security Info=False;User ID=" & _
-                 BE.UserName & ";Password=" & BE.Password & ";Min Pool Size=20;Max Pool Size=500; Connection Timeout=30;"
+                sConnectionString = "Data Source=" & BE.ServerName & ", " & BE.Port & "; Integrated Security=" & BE.IntegratedSecurity & ";Initial Catalog=" + BE.DatabaseName.ToString() + " ;Persist Security Info=False;User ID=" &
+                 BE.UserName & ";Password=" & Password & ";Min Pool Size=20;Max Pool Size=500; Connection Timeout=30;"
                 'WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Connection string is " & sConnectionString)
 
                 mySqlConnection.ConnectionString = sConnectionString
@@ -2798,7 +2828,7 @@ Partial Public Class VitalSignsPlusDomino
                 'SERVER=srvrName:1234;DATABASE=testdb;UID=userName;PWD=userPass;
                 'sConnectionString = "Data Source=" & BE.ServerName & ", " & BE.Port & "; Integrated Security=" & BE.IntegratedSecurity & ";Initial Catalog=TravelerHA ;Persist Security Info=False;User ID=" & _
                 '	BE.UserName & ";Password=" & BE.Password & ";Min Pool Size=20;Max Pool Size=500; Connection Timeout=30;"
-                sConnectionString = "SERVER=" & BE.ServerName & ":" & BE.Port.ToString & ";DATABASE=" + BE.DatabaseName.ToString() + ";UID=" & BE.UserName & ";PWD=" & BE.Password & ";"
+                sConnectionString = "SERVER=" & BE.ServerName & ":" & BE.Port.ToString & ";DATABASE=" + BE.DatabaseName.ToString() + ";UID=" & BE.UserName & ";PWD=" & Password & ";"
                 'WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Connection string is " & sConnectionString)
 
                 Dim myDB2Connection As New IBM.Data.DB2.DB2Connection
