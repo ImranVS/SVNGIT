@@ -94,10 +94,13 @@ export class AppHeader implements OnChanges,OnInit {
             this.service.get('/Token/reset_password?emailId=' + this.authService.CurrentUser.email + '&password=' + passwordVal)
                 .subscribe(
                 response => {
-                    this.appComponentService.showSuccessMessage("Password change successfuly");
+                    this.appComponentService.showSuccessMessage("Password changed successfuly");
                     this.password = "";                  
                 },
-                error => this.errorMessage = <any>error
+                error => {
+                    this.errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                }
             );
             dialog.hide();
         }

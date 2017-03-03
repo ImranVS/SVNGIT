@@ -1,4 +1,4 @@
-﻿import {Component, OnInit,ViewChild} from '@angular/core';
+﻿import {Component, OnInit,ViewChild, ViewChildren} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -19,6 +19,8 @@ export class TravelerDataStore extends GridBase implements OnInit {
     testTravelerServers: any;
     usersByserver: any = [];
     checkedItems: any[];
+    @ViewChildren('somespwd') somespwd;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
 
     constructor(service: RESTService, appComponentService: AppComponentService) {
         super(service, appComponentService);
@@ -73,5 +75,31 @@ export class TravelerDataStore extends GridBase implements OnInit {
         this.currentEditItem.test_scan_server = "";
         this.currentEditItem.used_by_servers = [];
         this.checkedItems = [];
+    }
+
+    savePwd(dialog: wijmo.input.Popup) {
+        var pwd = this.somespwd.first.nativeElement.value;
+        if (pwd == "") {
+            this.appComponentService.showErrorMessage("You must enter a password");
+        } else {
+            this.currentEditItem.password = pwd;
+            this.currentEditItem.is_modified = true;
+            this.service.put('/configurator/save_traveler_data_store', this.currentEditItem)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage(response.message);
+                    }
+                    else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+                    this.currentEditItem.is_modified = false;
+                },
+                (error) => {
+                    this.errorMessage = <any>error
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                });
+            dialog.hide();
+        }
     }
 }

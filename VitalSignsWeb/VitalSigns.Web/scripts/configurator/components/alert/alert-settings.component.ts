@@ -6,8 +6,9 @@ import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import {SuccessErrorMessageComponent} from '../../../core/components/success-error-message-component';
-import { BrowserModule  } from '@angular/platform-browser';
-
+import { BrowserModule } from '@angular/platform-browser';
+import { GridBase } from '../../../core/gridBase';
+import { AppComponentService } from '../../../core/services';
 
 @Component({
     templateUrl: '/app/configurator/components/alert/alert-settings.component.html',
@@ -17,11 +18,13 @@ import { BrowserModule  } from '@angular/platform-browser';
     ]
 })
 
-export class AlertSettings implements WidgetComponent, OnInit {
+export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
     @Input() settings: any;
     @ViewChildren('name') inputName;
     @ViewChild('message') message;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    @ViewChildren('primary_pwd') primary_pwd;
+    @ViewChildren('secondary_pwd') secondary_pwd;
     insertMode: boolean = false;
     alertSettings: FormGroup;
     errorMessage: string;
@@ -39,8 +42,8 @@ export class AlertSettings implements WidgetComponent, OnInit {
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
-        private route: ActivatedRoute) { 
-
+        private route: ActivatedRoute, appComponentService: AppComponentService) { 
+        super(dataProvider, appComponentService);
         this.alertSettings = this.formBuilder.group({
             'primary_host_name': [''],
             'primary_from': [''],
@@ -49,13 +52,15 @@ export class AlertSettings implements WidgetComponent, OnInit {
             'primary_auth': [''],
             'primary_ssl': [''], 
             'primary_pwd': [''], 
+            'primary_modified': [''],
             'secondary_host_name': [''],
             'secondary_from': [''],
             'secondary_user_id': [''], 
-            'secondary_pwd': [''],
             'secondary_port': [''],
             'secondary_auth': [''], 
             'secondary_ssl': [''],
+            'secondary_pwd': [''], 
+            'secondary_modified': [''],
             'sms_account_sid': [''],
             'sms_auth_token': [''], 
             'sms_from': [''],
@@ -135,16 +140,21 @@ export class AlertSettings implements WidgetComponent, OnInit {
         var selected_events = this.selected_events;
         if (this.selected_events.length == 0 && this.recurrencesChecked) {
             this.errorMessage = "No selection made. Please select at least one Events entry.";
-            this.message.toggleVisibility(true, this.errorMessage);
+            //this.message.toggleVisibility(true, this.errorMessage);
+            this.appComponentService.showErrorMessage(this.errorMessage);
         }
         if (!this.errorMessage) {
             this.dataProvider.put('/configurator/save_alert_settings', { alert_settings, selected_events })
                 .subscribe(
                 response => {
-                    this.successMessage = response.message;
-                    this.message.toggleVisibility(false, this.successMessage);
+                    //this.successMessage = response.message;
+                    //this.message.toggleVisibility(false, this.successMessage);
+                    this.appComponentService.showSuccessMessage(response.message);
                 },
-            (error) => this.errorMessage = <any>error
+                (error) => {
+                    this.errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                }
             );
         } 
         this.selected_events = [];
@@ -175,6 +185,78 @@ export class AlertSettings implements WidgetComponent, OnInit {
         for (var rowIdx = 0; rowIdx < rows.length; rowIdx++) {
             var rootRow = rows[rowIdx];
             if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
+        }
+    }
+
+    savePwdPrimary(dialog: wijmo.input.Popup) {
+        var pwd = this.primary_pwd.first.nativeElement.value;
+        if (pwd == "") {
+            this.errorMessage = "You must enter a password";
+            this.message.toggleVisibility(true, this.errorMessage);
+        } else {
+            this.alertSettings.value.primary_pwd = pwd;
+            this.alertSettings.value.primary_modified = true;
+            var selected_events = this.selected_events;
+            var alert_settings = this.alertSettings.value;
+            this.dataProvider.put('/configurator/save_alert_settings', { alert_settings, selected_events })
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        //this.successMessage = "Password updated successfully";
+                        //this.message.toggleVisibility(false, this.successMessage);
+                        this.appComponentService.showSuccessMessage(response.message);
+                    }
+                    else {
+                        //this.errorMessage = "Error updating the password";
+                        //this.message.toggleVisibility(true, this.errorMessage);
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+                    this.alertSettings.value.primary_modified = false;
+                    this.alertSettings.value.secondary_modified = false;
+                },
+                (error) => {
+                    this.errorMessage = <any>error
+                    //this.errorMessage = this.errorMessage;
+                    //this.message.toggleVisibility(true, this.errorMessage);
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                });
+            dialog.hide();
+        }
+    }
+
+    savePwdSecondary(dialog: wijmo.input.Popup) {
+        var pwd = this.secondary_pwd.first.nativeElement.value;
+        if (pwd == "") {
+            this.errorMessage = "You must enter a password";
+            this.message.toggleVisibility(true, this.errorMessage);
+        } else {
+            this.alertSettings.value.secondary_pwd = pwd;
+            this.alertSettings.value.secondary_modified = true;
+            var selected_events = this.selected_events;
+            var alert_settings = this.alertSettings.value;
+            this.dataProvider.put('/configurator/save_alert_settings', { alert_settings, selected_events })
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        //this.successMessage = "Password updated successfully";
+                        //this.message.toggleVisibility(false, this.successMessage);
+                        this.appComponentService.showSuccessMessage(response.message);
+                    }
+                    else {
+                        //this.errorMessage = "Error updating the password";
+                        //this.message.toggleVisibility(true, this.errorMessage);
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+                    this.alertSettings.value.primary_modified = false;
+                    this.alertSettings.value.secondary_modified = false;
+                },
+                (error) => {
+                    this.errorMessage = <any>error
+                    //this.errorMessage = this.errorMessage;
+                    //this.message.toggleVisibility(true, this.errorMessage);
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                });
+            dialog.hide();
         }
     }
 }
