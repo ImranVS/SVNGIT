@@ -23,6 +23,8 @@ using System;
 //using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using VSNext.Mongo.Entities;
+
 namespace VitalSignsMicrosoftClasses
 {
 	public class Office365MAIN
@@ -601,9 +603,56 @@ repo.Upsert(filterdef, updatedef);
 			Boolean nodeScan=false;
 			if (ConfigurationManager.AppSettings["VSNodeName"] != null)
 				NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
-			
-			StringBuilder SQL = new StringBuilder();
-			SQL.Append("select O365.ID,o365.Name,Category,ScanInterval,OffHoursScanInterval,ResponseThreshold,RetryInterval,UserName,PW,O365.ServerTypeId,ST.ServerType,Mode,ServerName,Cred.UserId,Cred.Password ");
+
+            List<VSNext.Mongo.Entities.Server> listOfServers = new List<Server>();
+            List<VSNext.Mongo.Entities.Status> listOfStatus = new List<Status>();
+            List<VSNext.Mongo.Entities.Credentials> listOfCredentials = new List<Credentials>();
+            List<VSNext.Mongo.Entities.Location> listOfLocations = new List<Location>();
+
+            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
+            FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription()) &
+                 repository.Filter.In(x => x.CurrentNode, new string[] { NodeName, "-1" });
+
+            ProjectionDefinition<VSNext.Mongo.Entities.Server> projectionDef = repository.Project
+                .Include(x => x.Id)
+                .Include(x => x.DeviceName)
+                .Include(x => x.Category)
+                .Include(x => x.OffHoursScanInterval)
+                .Include(x => x.RetryInterval)
+                .Include(x => x.ScanInterval)
+                .Include(x => x.ResponseTime)
+                .Include(x => x.CredentialsId)
+                .Include(x => x.Mode)
+                .Include(x => x.DirectorySyncServerName)
+                .Include(x => x.DirectorySyncCredentialsId)
+                .Include(x => x.LocationId)
+                .Include(x => x.IsEnabled)
+                .Include(x => x.DeviceType)
+                .Include(x => x.CurrentNode)
+                .Include(x => x.SimulationTests);
+
+            listOfServers = repository.Find(filterDef, projectionDef).ToList();
+
+            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repositoryStatus = new VSNext.Mongo.Repository.Repository<Status>(DB.GetMongoConnectionString());
+            FilterDefinition<VSNext.Mongo.Entities.Status> filterDefStatus = repositoryStatus.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription());
+            ProjectionDefinition<VSNext.Mongo.Entities.Status> projectionDefStatus = repositoryStatus.Project
+                .Include(x => x.StatusCode)
+                .Include(x => x.CurrentStatus)
+                .Include(x => x.LastUpdated)
+                .Include(x => x.DeviceType)
+                .Include(x => x.DeviceName);
+
+            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList();
+
+            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Credentials> repositoryCredentials = new VSNext.Mongo.Repository.Repository<Credentials>(DB.GetMongoConnectionString());
+            listOfCredentials = repositoryCredentials.Find(x => true).ToList();
+            VSNext.Mongo.Repository.Repository <VSNext.Mongo.Entities.Location> repositoryLocation = new VSNext.Mongo.Repository.Repository<Location>(DB.GetMongoConnectionString());
+            listOfLocations = repositoryLocation.Find(x => true).ToList();
+
+
+            StringBuilder SQL = new StringBuilder();
+			SQL.Append("select O365.ID,o365.Name,Category,ScanInterval,OffHoursScanInterval,ResponseThreshold,RetryInterval,UserName,PW,O365.ServerTypeId, " +
+                "ST.ServerType,Mode,ServerName,Cred.UserId,Cred.Password ");
 			if (nodeScan)
 				SQL.Append(",L.Location Location ");
 			else
@@ -616,34 +665,210 @@ repo.Upsert(filterdef, updatedef);
 
 		
 			SQL.Append(" WHERE enabled=1 ");
-			DataTable dtServers = DB.GetData(SQL.ToString());
+			//DataTable dtServers = DB.GetData(SQL.ToString());
 			//Loop through servers
-			if (dtServers.Rows.Count > 0)
+			if (listOfServers.Count > 0)
 			{
 				int updatedServers = 0;
 				int newServers = 0;
 
 				// adds/updates new servers
-				for (int i = 0; i < dtServers.Rows.Count; i++)
+				for (int i = 0; i < listOfServers.Count; i++)
 				{
-					DataRow DR = dtServers.Rows[i];
-					MonitoredItems.Office365Server oldServer = myOffice365Servers.SearchByName(DR["Name"].ToString());
+					//DataRow DR = dtServers.Rows[i];
+                    VSNext.Mongo.Entities.Server currServer = listOfServers[i];
+                    VSNext.Mongo.Entities.Status currStatus = listOfStatus.First(x => x.DeviceId == currServer.Id);
+					MonitoredItems.Office365Server oldServer = myOffice365Servers.SearchByName(currServer.DeviceName);
 					if (oldServer == null)
 					{
 						oldServer = new MonitoredItems.Office365Server();
-						oldServer = SetO365ServerSettings(oldServer, DR);
 						myOffice365Servers.Add(oldServer);
 						newServers++;
 					}
 					else
 					{
-                        oldServer = SetO365ServerSettings(oldServer, DR);
-                        myOffice365Servers.Delete(DR["Name"].ToString());
+                        myOffice365Servers.Delete(currServer.DeviceName);
                         myOffice365Servers.Add(oldServer);
 						updatedServers++;
 					}
 
-				}
+                    try
+                    {
+
+                        oldServer.IPAddress = serverURL;
+                        oldServer.Name = currServer.DeviceName;
+                        oldServer.ServerObjectID = currServer.Id;
+                        if (currServer.CredentialsId != null)
+                        {
+                            try
+                            {
+                                var creds = listOfCredentials.First(x => x.Id == currServer.CredentialsId);
+                                oldServer.UserName = creds.UserId;
+                                oldServer.Password = Common.decodePasswordFromEncodedString(creds.Password, oldServer.Name);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                            
+                        }
+
+                        if (currServer.DirectorySyncCredentialsId != null)
+                        {
+                            try
+                            {
+                                var creds = listOfCredentials.First(x => x.Id == currServer.DirectorySyncCredentialsId);
+                                oldServer.DirSyncUID = creds.UserId;
+                                oldServer.DirSyncPWD = Common.decodePasswordFromEncodedString(creds.Password, oldServer.Name);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+
+                        }
+
+                        oldServer.Mode = currServer.Mode;
+                        oldServer.DirSyncServerName = currServer.DirectorySyncServerName;
+                        oldServer.VersionNo = "NA";
+                        oldServer.ADFSMode = false;  //set it to false initially
+                        oldServer.ADFSRedirectTest = false;  //set it to false initially
+
+                        oldServer.ResponseThreshold = long.Parse(currServer.ResponseTime.HasValue ? currServer.ResponseTime.Value.ToString() : "0");
+                        oldServer.ScanInterval = currServer.ScanInterval.Value;
+                        oldServer.OffHoursScanInterval = currServer.OffHoursScanInterval.Value;
+                        oldServer.RetryInterval = currServer.RetryInterval.Value;
+
+                        if(currStatus != null)
+                        {
+                            oldServer.LastScan = currStatus.LastUpdated.HasValue ? currStatus.LastUpdated.Value : DateTime.Now;
+                            oldServer.Status = String.IsNullOrWhiteSpace(currStatus.CurrentStatus) ? "Not Scanned" : currStatus.CurrentStatus;
+                            oldServer.StatusCode = String.IsNullOrWhiteSpace(currStatus.StatusCode) ? "Maintenance" : currStatus.StatusCode;
+                            
+                        }
+
+                        oldServer.ServerType = currServer.DeviceType;
+                        if(currServer.LocationId != null)
+                        {
+                            try
+                            {
+                                oldServer.Location = listOfLocations.Find(x => x.Id == currServer.LocationId).LocationName;
+                            }
+                            catch(Exception ex)
+                            {
+
+                            }
+                        }
+
+                        if (NodeName != "")
+                            oldServer.Category = NodeName;
+                        else
+                            oldServer.Category = currServer.Category;
+                        oldServer.Enabled = true;
+
+                        Common.WriteDeviceHistoryEntry("All", serverType, "In SetO365ServerSettings: 1", Common.LogLevel.Normal);
+                        CommonDB db = new CommonDB();
+                        DataTable dt = db.GetData("Select Tests, EnableSimulationTests, ResponseThreshold from Office365Tests where ServerId=" + oldServer.ServerId + "");
+
+                        oldServer.EnableAutoDiscoveryTest = false;
+                        oldServer.EnableMailFlow = false;
+                        oldServer.EnableInboxTest = false;
+                        oldServer.EnableOWATest = false;
+                        oldServer.EnableSMTPTest = false;
+                        oldServer.EnableMAPIConnectivityTest = false;
+                        oldServer.EnableCreateTaskTest = false;
+                        oldServer.EnableCreateFolderTest = false;
+                        oldServer.EnableOneDriveUploadTest = false;
+                        oldServer.EnableOneDriveDownloadTest = false;
+                        oldServer.EnableCreateSiteTest = false;
+                        oldServer.EnableCreateCalEntryTest = false;
+                        oldServer.DirSyncExportTest = false;
+                        oldServer.DirSyncImportTest = false;
+                    
+                        foreach (NameValuePair row in currServer.SimulationTests)
+                        {
+                            Common.WriteDeviceHistoryEntry("All", serverType, "In SetO365ServerSettings: 1" + row.Name.ToString(), Common.LogLevel.Normal);
+
+                            switch (row.Name.ToString())
+                            {
+                                case "Mail Flow Test":
+                                    oldServer.EnableMailFlow = true;
+                                    oldServer.MailFlowThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                case "Inbox":
+                                    oldServer.EnableInboxTest = true;
+                                    oldServer.InboxThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                case "OWA":
+                                    oldServer.EnableOWATest = true;
+                                    oldServer.ComposeEmailThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                case "SMTP":
+                                    oldServer.EnableSMTPTest = true;
+                                    //oldServer.ComposeEmailThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
+                                    break;
+                                case "POP3":
+                                    oldServer.EnablePOPTest = Convert.ToBoolean(row.Value);
+                                    break;
+                                case "IMAP":
+                                    oldServer.EnableIMAPTest = Convert.ToBoolean(row.Value);
+                                    break;
+                                case "Auto Discovery":
+                                    oldServer.EnableAutoDiscoveryTest = true;
+                                    break;
+                                case "MAPI Connectivity":
+                                    oldServer.EnableMAPIConnectivityTest = true;
+                                    break;
+                                case "Create Task":
+                                    oldServer.EnableCreateTaskTest = true;
+                                    oldServer.CreateTaskThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                case "Create Folder Test":
+                                    oldServer.EnableCreateFolderTest = true;
+                                    oldServer.CreateFolderThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                case "OneDrive Upload Test":
+                                    oldServer.EnableOneDriveUploadTest = true;
+                                    oldServer.OneDriveUplaodThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                case "OneDrive Download Test":
+                                    oldServer.EnableOneDriveDownloadTest = true;
+                                    oldServer.OneDriveDownlaodThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                //case "OneDrive Search":
+                                //    oldServer.EnableOneDriveSearchTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
+                                //    oldServer.OneDriveSearchThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
+                                //    break;
+                                case "Create Site Test":
+                                    oldServer.EnableCreateSiteTest = true;
+                                    oldServer.CreateSiteThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                case "Create Calendar":
+                                    oldServer.EnableCreateCalEntryTest = true;
+                                    oldServer.CreateCalEntryThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                                //case "Resolve User":
+                                //    oldServer.EnableResolveUserTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
+                                //    oldServer.ResolveUserThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
+                                //    break;
+                                case "Dir Sync Imp/Export Test":
+                                    oldServer.DirSyncExportTest = true;
+                                    oldServer.DirSyncExportThreshold = Convert.ToInt32(row.Value);
+                                    oldServer.DirSyncImportTest = true;
+                                    oldServer.DirSyncImportThreshold = Convert.ToInt32(row.Value);
+                                    break;
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Common.WriteDeviceHistoryEntry("All", serverType, "Error in SetO365ServerSettings: " + ex.ToString(), Common.LogLevel.Normal);
+                    }
+
+
+
+                }
 
 				Common.WriteDeviceHistoryEntry("All",serverType , "There are " + myOffice365Servers.Count + " servers in the collection.  " + newServers + " were new and " + updatedServers + " were updated.");
 			}
@@ -656,128 +881,6 @@ repo.Upsert(filterdef, updatedef);
 			//At this point we have all Servers with ALL the information(including Threshold settings)
 		}
 
-		private MonitoredItems.Office365Server SetO365ServerSettings(MonitoredItems.Office365Server MyO365Server, DataRow DR)
-		{
-			try
-			{
-				MyO365Server.IPAddress = serverURL;
-				MyO365Server.Name = DR["Name"].ToString();
-				MyO365Server.ServerId = DR["ID"].ToString();
-				MyO365Server.UserName = DR["UserName"].ToString();
-				MyO365Server.Password = Common.decodePasswordFromEncodedString(DR["PW"].ToString(), MyO365Server.Name);
-				MyO365Server.DirSyncPWD = Common.decodePasswordFromEncodedString(DR["Password"].ToString(), MyO365Server.Name);
-				MyO365Server.DirSyncUID = DR["UserId"].ToString();
-				MyO365Server.Mode = DR["Mode"].ToString();
-				MyO365Server.DirSyncServerName = DR["ServerName"].ToString();
-				//MyO365Server.Location = DR["Location"].ToString();
-				//MyO365Server.Role = new String[0];
-				MyO365Server.VersionNo = "NA";
-				MyO365Server.ADFSMode = false;  //set it to false initially
-				MyO365Server.ADFSRedirectTest = false;  //set it to false initially
-				
-				MyO365Server.ResponseThreshold = long.Parse(DR["ResponseThreshold"].ToString());
-				MyO365Server.ScanInterval = int.Parse(DR["ScanInterval"].ToString());
-				MyO365Server.OffHoursScanInterval = int.Parse(DR["OffHoursScanInterval"].ToString());
-				MyO365Server.RetryInterval = int.Parse(DR["RetryInterval"].ToString());
-
-				MyO365Server.LastScan = DateTime.Now;
-				MyO365Server.Status = "Not Scanned";
-				MyO365Server.StatusCode = "Maintenance";
-				MyO365Server.ServerType = DR["ServerType"].ToString();
-				MyO365Server.Location = DR["Location"].ToString();
-				//MyExchangeServer.FailureThreshold = int.Parse(DR["ConsFailuresBefAlert"].ToString());
-				if (NodeName !="")
-					MyO365Server.Category =NodeName;
-				else
-					MyO365Server.Category = DR["Category"].ToString();
-				MyO365Server.ServerTypeId = int.Parse(DR["ServerTypeId"].ToString());
-				MyO365Server.Enabled = true;
-				Common.WriteDeviceHistoryEntry("All", serverType, "In SetO365ServerSettings: 1", Common.LogLevel.Normal);
-				CommonDB db = new CommonDB();
-				DataTable dt = db.GetData("Select Tests, EnableSimulationTests, ResponseThreshold from Office365Tests where ServerId=" + MyO365Server.ServerId + "");
-
-				foreach (DataRow row in dt.Rows)
-				{
-					Common.WriteDeviceHistoryEntry("All", serverType, "In SetO365ServerSettings: 1" + row["Tests"].ToString(), Common.LogLevel.Normal);
-
-					switch (row["Tests"].ToString())
-					{
-						case "Mail Flow Test":
-							MyO365Server.EnableMailFlow = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.MailFlowThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						case "Inbox":
-							MyO365Server.EnableInboxTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.InboxThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						case "OWA":
-							MyO365Server.EnableOWATest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.ComposeEmailThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						case "SMTP":
-							MyO365Server.EnableSMTPTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							//MyO365Server.ComposeEmailThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						case "POP3":
-							MyO365Server.EnablePOPTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							break;
-						case "IMAP":
-							MyO365Server.EnableIMAPTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							break;
-						case "Auto Discovery":
-							MyO365Server.EnableAutoDiscoveryTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							break;
-						case "MAPI Connectivity":
-							MyO365Server.EnableMAPIConnectivityTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							break;
-						case "Create Task":
-							MyO365Server.EnableCreateTaskTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.CreateTaskThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						case "Create Folder Test":
-							MyO365Server.EnableCreateFolderTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.CreateFolderThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						case "OneDrive Upload Test":
-							MyO365Server.EnableOneDriveUploadTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.OneDriveUplaodThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						case "OneDrive Download Test":
-							MyO365Server.EnableOneDriveDownloadTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.OneDriveDownlaodThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						//case "OneDrive Search":
-						//    MyO365Server.EnableOneDriveSearchTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-						//    MyO365Server.OneDriveSearchThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-						//    break;
-						case "Create Site Test":
-							MyO365Server.EnableCreateSiteTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.CreateSiteThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						case "Create Calendar":
-							MyO365Server.EnableCreateCalEntryTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.CreateCalEntryThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-						//case "Resolve User":
-						//    MyO365Server.EnableResolveUserTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-						//    MyO365Server.ResolveUserThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-						//    break;
-						case "Dir Sync Imp/Export Test":
-							MyO365Server.DirSyncExportTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.DirSyncExportThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							MyO365Server.DirSyncImportTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
-							MyO365Server.DirSyncImportThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
-							break;
-					}
-				}
-
-			}
-			catch(Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry("All", serverType, "Error in SetO365ServerSettings: " + ex.ToString(), Common.LogLevel.Normal);
-			}
-			return MyO365Server;
-		}
 
 		protected void InitStatusTable(MonitoredItems.Office365ServersCollection collection)
 		{

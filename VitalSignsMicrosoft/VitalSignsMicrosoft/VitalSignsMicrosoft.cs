@@ -33,13 +33,13 @@ namespace VitalSignsExchange
 			myRegistry.WriteToRegistry("VS Microsoft Service Start", (DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString()));
 
 			MicrosoftHelperObject MSObj = getMicrosoftHelperObject();
-
+                
                 ExchangeMAIN exMain = new ExchangeMAIN();
 				Thread MasterExchangeThread = new Thread(() => exMain.StartProcess(MSObj));
                 MasterExchangeThread.IsBackground = true;
                 MasterExchangeThread.Priority = ThreadPriority.Normal;
 				MasterExchangeThread.Name = "Master Exchange Thread";
-                MasterExchangeThread.Start();
+                //MasterExchangeThread.Start();
                 Thread.Sleep(2000);
 
 				ActiveDirectoryMAIN adMain = new ActiveDirectoryMAIN();
@@ -47,7 +47,7 @@ namespace VitalSignsExchange
 				MasterActiveDirectoryThread.IsBackground = true;
 				MasterActiveDirectoryThread.Priority = ThreadPriority.Normal;
 				MasterActiveDirectoryThread.Name = "Master AD Thread";
-				MasterActiveDirectoryThread.Start();
+				//MasterActiveDirectoryThread.Start();
 				Thread.Sleep(2000);
 
 				SharepointMAIN spMain = new SharepointMAIN();
@@ -55,7 +55,7 @@ namespace VitalSignsExchange
 				MasterSharePointThread.IsBackground = true;
 				MasterSharePointThread.Priority = ThreadPriority.Normal;
 				MasterSharePointThread.Name = "Master SP Thread";
-				MasterSharePointThread.Start();
+				//MasterSharePointThread.Start();
 				Thread.Sleep(2000);
 
 				Office365MAIN o365Main = new Office365MAIN();
@@ -71,7 +71,7 @@ namespace VitalSignsExchange
 				winMainThread.IsBackground = true;
 				winMainThread.Priority = ThreadPriority.Normal;
 				winMainThread.Name = "Master Win Thread";
-				winMainThread.Start();
+				//winMainThread.Start();
 				Thread.Sleep(2000);
 
 				MonitorTables monTbls = new MonitorTables(ref adMain, ref exMain, ref spMain, ref winMain, ref o365Main);
