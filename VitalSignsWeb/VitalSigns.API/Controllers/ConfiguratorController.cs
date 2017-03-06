@@ -2303,7 +2303,8 @@ namespace VitalSigns.API.Controllers
                             }
                             if (datatype == "bool")
                             {
-                                string booloutput = (attribute.DefaultboolValues == false ? "false" : "true");
+                                //3/6/2017 NS modified for VSPLUS-3521
+                                bool booloutput = (attribute.DefaultboolValues == false ? false : true);
                                 //string booloutput;
                                 //if (defaultvalues == false)
                                 //{
