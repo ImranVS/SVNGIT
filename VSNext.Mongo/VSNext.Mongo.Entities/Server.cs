@@ -786,6 +786,12 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string DirectorySyncServerName { get; set; }
 
+        [DataMember]
+        [BsonElement("directory_sync_credentials_id")]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DirectorySyncCredentialsId { get; set; }
+
         //In URL
         //[DataMember]
         //[BsonElement("username")]
