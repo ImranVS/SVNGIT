@@ -24,7 +24,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
     
     ngOnInit() {
         
-        this.serviceId = this.widgetService.getProperty('serviceId');
+        //this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
             {
@@ -33,15 +33,15 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'activeMeetingsUsers',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -74,7 +74,7 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
 
             this.serviceId = value;
 
-            this.widgetService.refreshWidget('activeMeetingsUsers', `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('activeMeetingsUsers', `/services/statistics?statName=[Numberofactivemeetings,Currentnumberofusersinsidemeetings]&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
         }

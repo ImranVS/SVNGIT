@@ -24,7 +24,7 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
     
     ngOnInit() {
 
-        this.serviceId = this.widgetService.getProperty('serviceId');
+        //this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
             {
@@ -33,15 +33,15 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofall1x1calls&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=Totalcountofall1x1calls&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'oneOnOneCalls',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -69,15 +69,15 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=Totalcountofallmultiusercalls&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'multiUserCalls',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -105,15 +105,15 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Totalcountofallcalls&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=Totalcountofallcalls&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'allCalls',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -141,15 +141,15 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'allCallsAllUsers',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -177,15 +177,15 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'allOneOnOneCallsUsers',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -213,15 +213,15 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'allMultiUserCallsUsers',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -255,19 +255,19 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
 
             this.serviceId = value;
 
-            this.widgetService.refreshWidget('multiUserCalls', `/services/statistics?statName=Totalcountofallmultiusercalls&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('multiUserCalls', `/services/statistics?statName=Totalcountofallmultiusercalls&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('allCalls', `/services/statistics?statName=Totalcountofallcalls&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('allCalls', `/services/statistics?statName=Totalcountofallcalls&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('allCallsAllUsers', `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('allCallsAllUsers', `/services/statistics?statName=[Countofallcalls,Countofallusers]&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('allOneOnOneCallsUsers', `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('allOneOnOneCallsUsers', `/services/statistics?statName=[Countofall1x1calls,Countofall1x1users]&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('allMultiUserCallsUsers', `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('allMultiUserCallsUsers', `/services/statistics?statName=[Countofallmultiusercalls,Countofallmultiuserusers]&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
         }

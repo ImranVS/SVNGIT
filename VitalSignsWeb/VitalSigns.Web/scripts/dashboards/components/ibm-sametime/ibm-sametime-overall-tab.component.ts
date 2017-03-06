@@ -26,7 +26,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
     
     ngOnInit() {
 
-        this.serviceId = this.widgetService.getProperty('serviceId');
+        //this.serviceId = this.widgetService.getProperty('serviceId');
         
         this.widgets = [
             {
@@ -35,15 +35,15 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=ResponseTime&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'responseTimes',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -71,15 +71,15 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Users&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=Users&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'dailyUserLogins',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -110,10 +110,10 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
 
             this.serviceId = value;
 
-            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('dailyUserLogins', `/services/statistics?statName=Users&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('dailyUserLogins', `/services/statistics?statName=Users&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
         }

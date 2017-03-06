@@ -30,16 +30,16 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
 
             this.serviceId = value;
 
-            this.widgetService.refreshWidget('nWayChats', `/services/statistics?statName=Numberofnwaychats&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('nWayChats', `/services/statistics?statName=Numberofnwaychats&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('activeNWayChats', `/services/statistics?statName=Numberofactivenwaychats&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('activeNWayChats', `/services/statistics?statName=Numberofactivenwaychats&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('openChatSessions', `/services/statistics?statName=Numberofopenchatsessions&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('openChatSessions', `/services/statistics?statName=Numberofopenchatsessions&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('chatMessages', `/services/statistics?statName=Numberofchatmessages&deviceid=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('chatMessages', `/services/statistics?statName=Numberofchatmessages&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
         }
@@ -50,7 +50,7 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
 
     ngOnInit() {
 
-        this.serviceId = this.widgetService.getProperty('serviceId');
+        //this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [
             {
@@ -59,15 +59,15 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Numberofnwaychats&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=Numberofnwaychats&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'nWayChats',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -95,15 +95,15 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Numberofactivenwaychats&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=Numberofactivenwaychats&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'activeNWayChats',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -131,15 +131,15 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Numberofopenchatsessions&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=Numberofopenchatsessions&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'openChatSessions',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
@@ -167,15 +167,15 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Numberofchatmessages&deviceid=${this.serviceId}&operation=hourly`,
-                    dateformat: 'datetime',
+                    url: `/services/statistics?statName=Numberofchatmessages&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'chatMessages',
                             type: 'areaspline',
                             height: 300
                         },
-                        colors: ['#5fbe7f'],
+                        //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
