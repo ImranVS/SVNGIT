@@ -2062,7 +2062,7 @@ Partial Public Class VitalSignsPlusCore
                         If entity.AlertIfStringFound Is Nothing Then
                             .AlertStringFound = "0"
                         Else
-                            .AlertStringFound = entity.AlertIfStringFound.ToString()
+                            .AlertStringFound = IIf(entity.AlertIfStringFound, "1", "0")
                         End If
                     Catch ex As Exception
                         .AlertStringFound = "0"

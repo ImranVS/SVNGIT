@@ -66,7 +66,7 @@ Imports MongoDB.Driver
 
 Public Class VitalSignsPlusCore
     Inherits VSServices
-    Dim BuildNumber As Integer = 2275
+    Dim BuildNumber As Integer = 2276
     Dim ProductName As String 'value set in start up 
     Dim CompanyName As String = "RPR Wyatt"
 
@@ -260,6 +260,8 @@ Public Class VitalSignsPlusCore
     'WS added for VSPLUS-2239
     Dim SametimeProcess As Process
 
+    Dim JavaPath As String
+
     Protected Overrides Sub ServiceOnStart(ByVal args() As String)
         Try
             sCultureString = ConfigurationManager.AppSettings(connectionStringName).ToString()
@@ -344,6 +346,25 @@ Public Class VitalSignsPlusCore
 
         Catch ex As Exception
             EventLog.WriteEntry("VitalSigns Core Services", ex.ToString(), EventLogEntryType.Error)
+        End Try
+
+
+
+        Try
+            Dim installPath As String = GetJavaInstallationPath()
+
+            ' We have a winner
+            If System.IO.File.Exists(installPath) Then
+                JavaPath = installPath
+                WriteAuditEntry(Now.ToString & " Calculated Java path as " & JavaPath, LogLevel.Normal)
+            Else
+                JavaPath = "C:\Program Files\Java\jre7\bin\java.exe"
+                WriteAuditEntry(Now.ToString & " Calculated Java path but it didn't work so defaulting to  " & JavaPath, LogLevel.Normal)
+            End If
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Exception getting the Java path.  Is Java installed?  Error: " & ex.ToString)
+            JavaPath = "C:\Program Files\Java\jre7\bin\java.exe"
         End Try
 
         'Get the passwords from the registry
@@ -669,6 +690,37 @@ Public Class VitalSignsPlusCore
             WriteAuditEntry(Now.ToString & " IBM Connect monitoring is DISABLED...")
         End If
     End Sub
+
+    Private Function GetJavaInstallationPath() As String
+        WriteAuditEntry(Now.ToString & " In GetJavaInstallationPath...")
+
+        Dim environmentPath As String = Environment.GetEnvironmentVariable("CLASS")
+        Try
+            WriteAuditEntry(Now.ToString & " Environment variable CLASS path is " & environmentPath)
+            If Not String.IsNullOrEmpty(environmentPath) Then
+                Return environmentPath & "\java.exe"
+            End If
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Exception getting environment variable CLASS:  " & ex.ToString)
+            WriteAuditEntry(Now.ToString & " ***  If you have a user environment variable for CLASS, copy that and make a system-wide variable CLASS pointing to the JAVA bin folder.")
+            WriteAuditEntry(Now.ToString & " ***   For more information visit https://rprvitalsigns.atlassian.net/wiki/display/V4UG/IBM+Sametime+Requirements")
+        End Try
+
+        Try
+            Dim javaKey As String = "SOFTWARE\JavaSoft\Java Runtime Environment\"
+            Using rk As Microsoft.Win32.RegistryKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(javaKey)
+                Dim currentVersion As String = rk.GetValue("CurrentVersion").ToString()
+                Using key As Microsoft.Win32.RegistryKey = rk.OpenSubKey(currentVersion)
+                    Return key.GetValue("JavaHome").ToString()
+                End Using
+            End Using
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Exception querying the registry " & ex.ToString)
+            Return "C:\Program Files\Java\jre7\"
+        End Try
+
+    End Function
+
 
 
 #Region "Maintenance Windows and Business Hours"
@@ -9027,7 +9079,8 @@ CleanUp:
 
         Dim strResults As String = ""
         Dim ProcessProperties As New ProcessStartInfo
-        ProcessProperties.FileName = "java"
+        ProcessProperties.FileName = JavaPath
+
         ' ProcessProperties.Arguments = "-classpath .;SameTime.jar;STComm.jar com.rpr.sametime.SametimeTest azphxweb1.rprwyatt.com ""One Sametime/RPRWyatt""  rprwyatt123 azphxweb1.rprwyatt.com ""Two Sametime/RPRWyatt"" rprwyatt123" 'command line arguments
         dtSametimeLastUpdate = Now
         Dim Arguments As String = "-classpath .;SameTime.jar;STComm.jar com.rpr.sametime.SametimeTest ""STServer"" ""STUser1""  ""STPW1"" STServer ""STUser2"" ""STPW2""" 'command line arguments
