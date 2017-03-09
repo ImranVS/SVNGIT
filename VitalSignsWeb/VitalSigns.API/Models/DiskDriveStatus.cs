@@ -59,5 +59,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("avg_daily_growth")]
         public double? AvgDailyGrowth { get; set; }
+
+        [JsonProperty("days_remain")]
+        public string DaysRemain { get; set; }
     }
 }

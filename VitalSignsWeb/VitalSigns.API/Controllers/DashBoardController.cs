@@ -367,7 +367,7 @@ namespace VitalSigns.API.Controllers
 
         [HttpGet("overall/disk-space")]
 
-        public APIResponse GetStatusOfServerDiskDrives(string id = "")
+        public APIResponse GetStatusOfServerDiskDrives(string deviceId = "")
         {
             //List<dynamic> disksizes = new List<dynamic>();
             DateTime maxDt = new DateTime();
@@ -376,6 +376,7 @@ namespace VitalSigns.API.Controllers
             double currValue = 0;
             int count = 0;
             double avgDailyGrowth = 0;
+            string daysRemain = "";
             
             try
             {
@@ -384,9 +385,9 @@ namespace VitalSigns.API.Controllers
                 summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
                 statusRepository = new Repository<Status>(ConnectionString);
 
-                if (id != "")
+                if (deviceId != "")
                 {
-                    Expression<Func<Status, bool>> expression = (p => p.Disks != null && p.DeviceId == id);
+                    Expression<Func<Status, bool>> expression = (p => p.Disks != null && p.DeviceId == deviceId);
                     var results = statusRepository.Find(expression).AsQueryable().ToList();
                     if (results.Count > 0)
                     {
@@ -399,7 +400,7 @@ namespace VitalSigns.API.Controllers
                             {
                                 avgDailyGrowth = 0;
                                 var disksizes = summaryStatisticsRepository.Collection.AsQueryable()
-                                    .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == id)
+                                    .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == deviceId)
                                     .OrderByDescending(x => x.StatDate).ToList();
                                 if (disksizes.Count > 0)
                                 {
@@ -435,6 +436,11 @@ namespace VitalSigns.API.Controllers
                                     Threshold = drive.Threshold,
                                     AvgDailyGrowth = avgDailyGrowth
                                 });
+                            }
+                            foreach (var disk in serverDiskStatus.Drives)
+                            {
+                                daysRemain = disk.AvgDailyGrowth <= 0 ? "INF" : Math.Round((disk.DiskFree * 1024 / disk.AvgDailyGrowth).Value, 0).ToString();
+                                disk.DaysRemain = daysRemain;
                             }
                             serverDiskStatusList.Add(serverDiskStatus);
                         }
@@ -499,6 +505,11 @@ namespace VitalSigns.API.Controllers
                                     Threshold = drive.Threshold,
                                     AvgDailyGrowth = avgDailyGrowth
                                 });
+                            }
+                            foreach (var disk in serverDiskStatus.Drives)
+                            {
+                                daysRemain = disk.AvgDailyGrowth <= 0 ? "INF" : Math.Round((disk.DiskFree * 1024 / disk.AvgDailyGrowth).Value, 0).ToString();
+                                disk.DaysRemain = daysRemain;
                             }
                             serverDiskStatusList.Add(serverDiskStatus);
                         }

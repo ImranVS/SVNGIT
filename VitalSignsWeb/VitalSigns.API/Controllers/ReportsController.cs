@@ -243,57 +243,68 @@ namespace VitalSigns.API.Controllers
                 DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
                 DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1).ToUniversalTime();
 
+                var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+
                 summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
 
                 var filterDef = summaryRepository.Filter.Eq(x => x.DeviceType, type) &
-                    summaryRepository.Filter.Eq(x => x.StatName, statName) &
+                    summaryRepository.Filter.In(x => x.StatName, statNames) &
                     summaryRepository.Filter.Gte(p => p.StatDate, dtStart) &
                     summaryRepository.Filter.Lte(p => p.StatDate, dtEnd);
 
-                var results = summaryRepository.Find(filterDef).ToList();
+                var results = summaryRepository.Find(filterDef).OrderBy(p => p.DeviceName).OrderBy(p => p.StatDate).ToList();
 
                 var list = new List<IDictionary<string, object>>();
                 foreach (var deviceId in results.Select(x => x.DeviceId).Distinct())
                 {
                     double aggregatedValue = 0;
                     string aggregationDisplay = "";
-
-                    switch (aggregationType.ToLower())
+                    
+                    foreach (var stat in statNames)
                     {
-                        case "sum":
-                            aggregatedValue = results.Where(x => x.DeviceId == deviceId).Sum(x => x.StatValue);
-                            aggregationDisplay = "Total";
-                            break;
-                        case "avg":
-                            aggregatedValue = results.Where(x => x.DeviceId == deviceId).Average(x => x.StatValue);
-                            aggregationDisplay = "Average";
-                            break;
-                        case "max":
-                            aggregatedValue = results.Where(x => x.DeviceId == deviceId).Max(x => x.StatValue);
-                            aggregationDisplay = "Max";
-                            break;
-                        case "min":
-                            aggregatedValue = results.Where(x => x.DeviceId == deviceId).Min(x => x.StatValue);
-                            aggregationDisplay = "Min";
-                            break;
-                        default:
-                            throw new Exception("No matching aggregation type.");
+                        var res = results.Where(x => x.DeviceId == deviceId && x.StatName == stat).ToList();
+                        if (res.Count > 0)
+                        {
+                            switch (aggregationType.ToLower())
+                            {
+                                case "sum":
+                                    aggregatedValue = results.Where(x => x.DeviceId == deviceId && x.StatName == stat).Sum(x => x.StatValue);
+                                    aggregationDisplay = "Total";
+                                    break;
+                                case "avg":
+                                    aggregatedValue = results.Where(x => x.DeviceId == deviceId && x.StatName == stat).Average(x => x.StatValue);
+                                    aggregationDisplay = "Average";
+                                    break;
+                                case "max":
+                                    aggregatedValue = results.Where(x => x.DeviceId == deviceId && x.StatName == stat).Max(x => x.StatValue);
+                                    aggregationDisplay = "Max";
+                                    break;
+                                case "min":
+                                    aggregatedValue = results.Where(x => x.DeviceId == deviceId && x.StatName == stat).Min(x => x.StatValue);
+                                    aggregationDisplay = "Min";
+                                    break;
+                                default:
+                                    throw new Exception("No matching aggregation type.");
+                            }
+
+                            var expandoObj = new ExpandoObject() as IDictionary<string, Object>;
+
+                            
+                            foreach (var entity in results.Where(x => x.DeviceId == deviceId && x.StatName == stat))
+                            {
+                                //expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
+                                expandoObj.Add(entity.StatDate.Value.ToString(DateFormat), entity.StatValue);
+                            }
+                            expandoObj.Add("Device Name", results.Where(x => x.DeviceId == deviceId && x.StatName == stat).ToList()[0].DeviceName);
+                            
+                            expandoObj.Add(aggregationDisplay, aggregatedValue);
+                            if (statNames.Count > 1)
+                            {
+                                expandoObj.Add("Statistic", stat);
+                            }
+                            list.Add(expandoObj);
+                        }
                     }
-
-
-                    var expandoObj = new ExpandoObject() as IDictionary<string, Object>;
-
-                    expandoObj.Add("Device Name", results.Where(x => x.DeviceId == deviceId).ToList()[0].DeviceName);
-                    foreach (var entity in results.Where(x => x.DeviceId == deviceId))
-                    {
-                        //expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
-                        expandoObj.Add(entity.StatDate.Value.ToString(DateFormat), entity.StatValue);
-                    }
-                    expandoObj.Add(aggregationDisplay, aggregatedValue);
-
-
-
-                    list.Add(expandoObj);
                 }
                 Response = Common.CreateResponse(list);
                 return Response;
@@ -310,7 +321,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("summarystats_chart")]
-        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "", string type = "")
+        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "", string type = "", string aggregation = "")
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
             if (startDate == "")
@@ -360,6 +371,10 @@ namespace VitalSigns.API.Controllers
                 else if (listOfTypes.Count > 0)
                 {
                     filterDef = filterDef & summaryRepository.Filter.In(p => p.DeviceType, listOfTypes);
+                }
+                if (!string.IsNullOrWhiteSpace(aggregation))
+                {
+                    filterDef = filterDef & summaryRepository.Filter.Eq(p => p.AggregationType, aggregation);
                 }
                 var result = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
 

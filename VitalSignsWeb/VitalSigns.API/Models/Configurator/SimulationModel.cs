@@ -55,4 +55,64 @@ namespace VitalSigns.API.Models
         public bool SearchProfile { get; set; }
 
     }
+
+    public class TestsModel
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("mail_flow_threshold")]
+        public int MailFlowThreshold { get; set; }
+
+        [JsonProperty("create_folder_threshold")]
+        public int CreateFolderThreshold { get; set; }
+
+        [JsonProperty("create_site_threshold")]
+        public int CreateSiteThreshold { get; set; }
+
+        [JsonProperty("onedrive_upload_treshold")]
+        public int OneDriveUploadThreshold { get; set; }
+
+        [JsonProperty("onedrive_download_threshold")]
+        public int OneDriveDownloadThreshold { get; set; }
+
+        [JsonProperty("mail_flow")]
+        public bool MailFlow { get; set; }
+
+        [JsonProperty("create_folder")]
+        public bool CreateFolder { get; set; }
+
+        [JsonProperty("create_site")]
+        public bool CreateSite { get; set; }
+
+        [JsonProperty("onedrive_upload")]
+        public bool OneDriveUpload { get; set; }
+
+        [JsonProperty("onedrive_download")]
+        public bool OneDriveDownload { get; set; }
+
+        [JsonProperty("smtp")]
+        public bool SMTP { get; set; }
+
+        [JsonProperty("auto_discovery")]
+        public bool AutoDiscovery { get; set; }
+
+        [JsonProperty("create_calendar")]
+        public bool CreateCalendar { get; set; }
+
+        [JsonProperty("imap")]
+        public bool IMAP { get; set; }
+
+        [JsonProperty("pop3")]
+        public bool POP3 { get; set; }
+
+        [JsonProperty("mapi_connectivity")]
+        public bool MAPIConnectivity { get; set; }
+
+        [JsonProperty("inbox")]
+        public bool Inbox { get; set; }
+
+        [JsonProperty("owa")]
+        public bool OWA { get; set; }
+    }
 }

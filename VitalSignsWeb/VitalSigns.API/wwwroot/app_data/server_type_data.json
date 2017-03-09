@@ -272,6 +272,14 @@
 
   },
   {
+    "server_type": "Mobile Users",
+    "icon": "/img/servers/Paintbrush.svg",
+    "tabs": [
+
+    ]
+
+  },
+  {
     "server_type": "Network Device",
     "icon": "/img/servers/Paintbrush.svg",
     "tabs": [
@@ -300,12 +308,52 @@
     ]
   },
   {
-    "server_type": "Mobile Users",
+    "server_type": "Office365",
     "icon": "/img/servers/Paintbrush.svg",
     "tabs": [
-
+      {
+        "tab_id": 1,
+        "title": "Device Attributes",
+        "type": "Configurator",
+        "component": "ServerAttribute",
+        "path": "/app/configurator/components/server/server-device-attributes.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Tests/Options",
+        "type": "Configurator",
+        "component": "TestsOptions",
+        "path": "/app/configurator/components/server/server-tests-options.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "Maintenance Window",
+        "type": "Configurator",
+        "component": "MaintenanceWindows",
+        "path": "/app/configurator/components/server/server-maintenance-windows.component"
+      },
+      {
+        "tab_id": 4,
+        "title": "Events",
+        "type": "Configurator",
+        "component": "ServerEvents",
+        "path": "/app/configurator/components/server/server-events.component"
+      },
+      {
+        "tab_id": 1,
+        "title": "Overall",
+        "type": "Dashboard",
+        "component": "Office365OverallTab",
+        "path": "/app/dashboards/components/office365/office365-overall-tab.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Mail Stats",
+        "type": "Dashboard",
+        "component": "Office365MailStatsTab",
+        "path": "/app/dashboards/components/office365/office365-mail-stats-tab.component"
+      }
     ]
-
   },
   {
     "server_type": "Sametime",
@@ -601,15 +649,6 @@
 
 //},
 
-
-//{
-//  "server_type": "Office365",
-//  "icon": "/img/servers/Paintbrush.svg",
-//  "tabs": [
-
-//  ]
-
-//},
 
 //{
 //  "server_type": "BES",

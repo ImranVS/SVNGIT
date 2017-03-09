@@ -56,6 +56,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("platform")]
         public string Platform { get; set; }
 
+        [JsonProperty("mode")]
+        public string Mode { get; set; }
+
         [JsonProperty("device_attributes")]
         public List<DeviceAttributesModel> DeviceAttributes { get; set; }
     }

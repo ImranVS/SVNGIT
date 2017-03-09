@@ -1852,7 +1852,8 @@ namespace VitalSigns.API.Controllers
                     Devicetype = s.DeviceType,
                     CellId = s.CellId,
                     NodeId = s.NodeId,
-                    CredentialsId = s.CredentialsId
+                    CredentialsId = s.CredentialsId,
+                    Mode = s.Mode
 
                     // CellName = serversRepository.Collection.Find(filter).AsQueryable().Select(x => x.NodeId).FirstOrDefault(),
                     //   NodeName = serversRepository.Collection.AsQueryable().Select(x => x.NodeIds).FirstOrDefault()
@@ -2254,6 +2255,7 @@ namespace VitalSigns.API.Controllers
                     .Set(p => p.IsEnabled, deviceAttributes.IsEnabled)
                     .Set(p => p.RequireSSL, deviceAttributes.RequireSSL)
                     .Set(p => p.Platform, deviceAttributes.Platform)
+                    .Set(p => p.Mode, deviceAttributes.Mode)
                     .Set(p => p.CredentialsId, deviceAttributes.CredentialsId);
 
                 var serverresult = serversRepository.Update(filterDefination, updateDefination);
@@ -5851,6 +5853,133 @@ namespace VitalSigns.API.Controllers
             {
                 Response = Common.CreateResponse(null, "Error", "Getting simulation tests has failed.\n Error Message :" + exception.Message);
             }
+            return Response;
+        }
+
+        [HttpGet("{device_id}/get_tests")]
+        public APIResponse GetTests(string device_id)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                var simulationSettings = new List<string> { "Mail Flow", "Create Folder", "Create Site", "OneDrive Upload", "OneDrive Download",  };
+                TestsModel tests = new TestsModel();
+                tests.Id = device_id;
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.Id == device_id).FirstOrDefault();
+                if (result.SimulationTests != null)
+                {
+                    if (result.SimulationTests.Where(x => x.Name == "Mail Flow").Count() > 0)
+                    {
+                        tests.MailFlow = true;
+                        tests.MailFlowThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Mail Flow"));
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Create Folder").Count() > 0)
+                    {
+                        tests.CreateFolder = true;
+                        tests.CreateFolderThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Folder"));
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Create Site").Count() > 0)
+                    {
+                        tests.CreateSite = true;
+                        tests.CreateSiteThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Site"));
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "OneDrive Upload").Count() > 0)
+                    {
+                        tests.OneDriveUpload = true;
+                        tests.OneDriveUploadThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "OneDrive Upload"));
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "OneDrive Download").Count() > 0)
+                    {
+                        tests.OneDriveDownload = true;
+                        tests.OneDriveDownloadThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "OneDrive Download"));
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "SMTP").Count() > 0)
+                    {
+                        tests.SMTP = true;
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Auto Discovery").Count() > 0)
+                    {
+                        tests.AutoDiscovery = true;
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Create Calendar").Count() > 0)
+                    {
+                        tests.CreateCalendar = true;
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "IMAP").Count() > 0)
+                    {
+                        tests.IMAP = true;
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "POP3").Count() > 0)
+                    {
+                        tests.POP3 = true;
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "MAPI Connectivity").Count() > 0)
+                    {
+                        tests.MAPIConnectivity = true;
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "Inbox").Count() > 0)
+                    {
+                        tests.Inbox = true;
+                    }
+                    if (result.SimulationTests.Where(x => x.Name == "OWA").Count() > 0)
+                    {
+                        tests.OWA = true;
+                    }
+                }
+                Response = Common.CreateResponse(tests);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Getting tests has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_tests")]
+        public APIResponse SaveTests([FromBody]TestsModel tests)
+        {
+            List<NameValuePair> nameValuePairs = new List<NameValuePair>();
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                if (tests.MailFlow)
+                    nameValuePairs.Add(new NameValuePair { Name = "Mail Flow", Value = Convert.ToString(tests.MailFlowThreshold) });
+                if (tests.CreateFolder)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create Folder", Value = Convert.ToString(tests.CreateFolderThreshold) });
+                if (tests.CreateSite)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create Site", Value = Convert.ToString(tests.CreateSiteThreshold) });
+                if (tests.OneDriveUpload)
+                    nameValuePairs.Add(new NameValuePair { Name = "OneDrive Upload", Value = Convert.ToString(tests.OneDriveUpload) });
+                if (tests.OneDriveDownload)
+                    nameValuePairs.Add(new NameValuePair { Name = "OneDrive Download", Value = Convert.ToString(tests.OneDriveDownload) });
+                if (tests.SMTP)
+                    nameValuePairs.Add(new NameValuePair { Name = "SMTP" });
+                if (tests.AutoDiscovery)
+                    nameValuePairs.Add(new NameValuePair { Name = "Auto Discovery" });
+                if (tests.CreateCalendar)
+                    nameValuePairs.Add(new NameValuePair { Name = "Create Calendar" });
+                if (tests.IMAP)
+                    nameValuePairs.Add(new NameValuePair { Name = "IMAP" });
+                if (tests.POP3)
+                    nameValuePairs.Add(new NameValuePair { Name = "POP3" });
+                if (tests.MAPIConnectivity)
+                    nameValuePairs.Add(new NameValuePair { Name = "MAPI Connectivity" });
+                if (tests.Inbox)
+                    nameValuePairs.Add(new NameValuePair { Name = "Inbox" });
+                if (tests.OWA)
+                    nameValuePairs.Add(new NameValuePair { Name = "OWA" });
+                Server server = serversRepository.Get(tests.Id);
+                var updateDefination = serversRepository.Updater.Set(p => p.SimulationTests, nameValuePairs);
+                var result = serversRepository.Update(server, updateDefination);
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
+                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Tests updated successfully");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving tests has failed.\n Error Message :" + exception.Message);
+            }
+
             return Response;
         }
         #endregion
