@@ -49,6 +49,9 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     chatSettings: string = "Chat Settings";
     searchText: string = "Optional Search Text";
     usernameorPassword: string = "Optional Username/Password";
+    usernamePwd: string = "Username/Password";
+    dirsyncAttr: string = "Directory Sync Settings";
+    mode: string = "";
     visiblity: boolean;
     documentschecked: boolean;
     module: any;
@@ -178,6 +181,10 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
             this.platform = "WebSphere";
         }
         this.router.navigateByUrl('/services/configurator/' + this.deviceId +'?platform=' + this.platform);
+    }
+
+    handleClick2(index: any) {
+        this.mode = index;
     }
 
 

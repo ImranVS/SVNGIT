@@ -32,8 +32,13 @@
             <wj-combo-box name="all_server_selector" [itemsSource]="all_servers" displayMemberPath="name" selectedValuePath="id" #all_server_selector>
             </wj-combo-box>
         </div>
+        <div id="dtAggregation" style="display:inline-block">
+            <span class="headerBlock">Aggregation:</span>
+            <wj-combo-box name="aggregation_selector" [itemsSource]="aggregation" #aggregation_selector>
+            </wj-combo-box>
+        </div>
         <div id="dtFilter" style="display:inline-block">
-            <button class="btn btn-success" (click)="applyFilters(server_selector,interval_selector,mail_server_selector,all_server_selector)">Filter</button>
+            <button class="btn btn-success" (click)="applyFilters(server_selector,interval_selector,mail_server_selector,all_server_selector,aggregation_selector)">Filter</button>
         </div>
     </div>
 </div>

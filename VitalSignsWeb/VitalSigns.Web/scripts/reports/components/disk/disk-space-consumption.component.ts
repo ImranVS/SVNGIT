@@ -1,7 +1,8 @@
 ﻿import { Component, ComponentFactoryResolver, OnInit } from '@angular/core';
+import { WidgetService } from '../../../core/widgets/services/widget.service';
 
 import { RESTService } from '../../../core/services/rest.service';
-
+import * as helpers from '../../../core/services/helpers/helpers';
 declare var Highcharts: any;
 
 declare var injectSVG: any;
@@ -9,7 +10,9 @@ declare var injectSVG: any;
 @Component({
     templateUrl: '/app/reports/components/disk/disk-space-consumption.component.html',
     providers: [
-        RESTService
+        WidgetService,
+        RESTService,
+        helpers.UrlHelperService
     ]
 })
 export class DiskSpaceConsumptionReport implements OnInit {
@@ -54,7 +57,8 @@ export class DiskSpaceConsumptionReport implements OnInit {
     currentWidgetName: string = `avgcpuutilchart`;
     currentWidgetURL: string = `/dashboard/overall/disk-space`;
 
-    constructor(private service: RESTService) { }
+    constructor(private service: RESTService, protected widgetService: WidgetService,
+        protected urlHelpers: helpers.UrlHelperService) { }
 
     renderChart(ref: any) {
 

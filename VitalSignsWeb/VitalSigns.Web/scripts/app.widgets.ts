@@ -8,6 +8,7 @@ export * from './dashboards/components/ibm-websphere/ibm-websphere-grid.componen
 export * from './dashboards/components/ibm-websphere/ibm-websphere-node-grid.component';
 export * from './dashboards/components/ibm-websphere/ibm-websphere-server-grid.component';
 export * from './dashboards/components/ibm-traveler/ibm-traveler-grid.component';
+export * from './dashboards/components/office365/office365-grid.component';
 
 export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.component';
 export * from './dashboards/components/key-metrics/overall-database-grid.component';
@@ -69,6 +70,7 @@ export * from './configurator/components/serverSettings/server-settings-disk-set
 
 //server
 export * from './configurator/components/server/server-simulation-tests.compoment'
+export * from './configurator/components/server/server-tests-options.component'
 export * from './configurator/components/server/server-device-attributes.component'
 
 export * from './configurator/components/server/server-maintenance-windows.component'

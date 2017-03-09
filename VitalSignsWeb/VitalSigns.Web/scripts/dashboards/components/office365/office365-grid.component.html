@@ -1,7 +1,7 @@
 ﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
-    <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="240"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="160" align="center">
+    <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <span *ngIf="cell.item.status == 'OK'" class="label label-pill label-success">OK</span>
             <span *ngIf="cell.item.status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
@@ -16,8 +16,8 @@
             </div>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" align="right" [width]="80"></wj-flex-grid-column>
-    <wj-flex-grid-column header="Tests" [binding]="headerText" [width]="550">
+    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column header="Tests" [binding]="headerText" [width]="400">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-item="item" let-cell="cell">
             <!--<div  class="list-group">
                 <div *ngFor="let htext of cell.item.headerText; let i = index">

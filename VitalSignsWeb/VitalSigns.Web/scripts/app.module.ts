@@ -52,6 +52,7 @@ import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-samet
 import {OverallDatabaseDetails} from './dashboards/components/key-metrics/overall-database-details.component';
 import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
 import { DatabaseReplicationDetails } from './dashboards/components/key-metrics/database-replication-details.component';
+import { Office365Details } from './dashboards/components/office365/office365-details.component';
 
 import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
 
@@ -59,15 +60,15 @@ import {ReportsBrowser} from './reports/components/reports-browser.component';
 import {NoSelectedReport} from './reports/components/no-selected-report.component';
 import {SampleReport} from './reports/components/sample-report.component';
 import {DiskHealthReport} from './reports/components/disk/disk-health.component';
-import {MailFileStatisticsReport} from './reports/components/mail/mail-file-statistics.component';
-import {DiskAvailabilityTrendReport} from './reports/components/disk/disk-availability-trend.component';
+import { MailFileStatisticsReport } from './reports/components/mail/mail-file-statistics.component';
+import { MailVolumeReport } from './reports/components/mail/mail-volume-report.component';
+import { DiskAvailabilityTrendReport } from './reports/components/disk/disk-availability-trend.component';
+import { CPUUtilizationReport } from './reports/components/disk/cpu-utilization.component';
 import {ServerUtilizationReport} from './reports/components/financial/server-utilization.component';
 import {AnyStatisticReport} from './reports/components/servers/any-statistic-report.component';
 import {StatisticsReport} from './reports/components/statistics-report.component';
 import {ResponseTimeReport} from './reports/components/servers/response-time-report.component';
 import {ConsoleCommands} from './reports/components/ibm-domino/console-commands-report.component';
-import {AvgCPUUtil} from './reports/components/ibm-domino/avg-cpu-util.component';
-import {MaxCPUUtil} from './reports/components/ibm-domino/max-cpu-util.component';
 import {DailyServerTrans} from './reports/components/ibm-domino/daily-server-trans.component';
 import {ClusterSecQueue} from './reports/components/ibm-domino/cluster-sec-queue.component';
 import {DominoResponseTimes} from './reports/components/ibm-domino/domino-response-times.component';
@@ -157,6 +158,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         SiteMapNode,
         IBMConnectionsDetails,
         IBMSametimeDetails,
+        Office365Details,
         OverallDatabaseDetails,
         DatabaseReplicationDetails,
         SearchServerList,
@@ -169,14 +171,14 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         SampleReport,
         DiskHealthReport,
         MailFileStatisticsReport,
+        MailVolumeReport,
         DiskAvailabilityTrendReport,
+        CPUUtilizationReport,
         ServerUtilizationReport,
         AnyStatisticReport,
         StatisticsReport,
         ResponseTimeReport,
         ConsoleCommands,
-        AvgCPUUtil,
-        MaxCPUUtil,
         DailyServerTrans,
         ClusterSecQueue,
         DominoResponseTimes,
@@ -256,9 +258,8 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         dashboards.ServicesView,
         dashboards.ProfilesList,
         dashboards.ProfilesForm,
-        dashboards.Office365Overall,
+        dashboards.Office365Dashboard,
         dashboards.Office365PasswordSettings,
-        dashboards.OfficeMailStatistics,
         dashboards.ApplicationSettings,
         dashboards.Alerts,
         dashboards.LogsTabs,
@@ -287,6 +288,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.IBMWebsphereNodeGrid,
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
+        widgets.Office365Grid,
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
         widgets.OverallDatabaseGrid,
@@ -330,6 +332,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.ServiceNMServerTasksGrid,
         widgets.ServiceEventsGrid,
         widgets.SimulationTests,
+        widgets.TestsOptions,
         widgets.AlertHistory,
         widgets.Logs,
         widgets.ViewLogs,
@@ -409,6 +412,8 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         tabs.URLHealthTab,
         tabs.WebSphereOverallTab,
         tabs.NotesMailProbeOverallTab,
+        tabs.Office365OverallTab,
+        tabs.Office365MailStatsTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -440,6 +445,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.IBMWebsphereNodeGrid,
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
+        widgets.Office365Grid,
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
         widgets.OverallDatabaseGrid,
@@ -484,6 +490,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.ServiceEventsGrid,
         widgets.ServerAttribute,
         widgets.SimulationTests,
+        widgets.TestsOptions,
         widgets.AlertHistory,
         widgets.Logs,
         widgets.ViewLogs,
@@ -562,7 +569,9 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         tabs.URLHealthTab,
         tabs.WebSphereOverallTab,
         tabs.ServiceOutagesTab,
-        tabs.NotesMailProbeOverallTab
+        tabs.NotesMailProbeOverallTab,
+        tabs.Office365OverallTab,
+        tabs.Office365MailStatsTab
     ],
     bootstrap: [
         AppComponent

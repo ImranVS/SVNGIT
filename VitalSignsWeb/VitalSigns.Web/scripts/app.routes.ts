@@ -26,8 +26,8 @@ import { MSExchangeDashboard } from './dashboards/components/ms-exchange/ms-exch
 import { MSSharePointDashboard } from './dashboards/components/ms-sharepoint/ms-sharepoint-dashboard.component';
 
 import { Office365Dashboard } from './dashboards/components/office365/office365-dashboard.component';
-import { Office365Overall } from './dashboards/components/office365/office365-overall.component';
-import { OfficeMailStatistics } from './dashboards/components/office365/office365-mail-statistics.component';
+import { Office365OverallTab } from './dashboards/components/office365/office365-overall-tab.component';
+import { Office365MailStatsTab } from './dashboards/components/office365/office365-mail-stats-tab.component';
 import { Office365PasswordSettings } from './dashboards/components/office365/office365-password-settings.component';
 
 import { CloudServicesDashboard } from './dashboards/components/cloud-services-dashboard.component';
@@ -64,14 +64,14 @@ import { NoSelectedReport } from './reports/components/no-selected-report.compon
 import { SampleReport } from './reports/components/sample-report.component';
 import { DiskHealthReport } from './reports/components/disk/disk-health.component';
 import { MailFileStatisticsReport } from './reports/components/mail/mail-file-statistics.component';
+import { MailVolumeReport } from './reports/components/mail/mail-volume-report.component';
 import { DiskAvailabilityTrendReport } from './reports/components/disk/disk-availability-trend.component';
+import { CPUUtilizationReport } from './reports/components/disk/cpu-utilization.component';
 import { ServerUtilizationReport } from './reports/components/financial/server-utilization.component';
 import { AnyStatisticReport } from './reports/components/servers/any-statistic-report.component';
 import { StatisticsReport } from './reports/components/statistics-report.component';
 import { ResponseTimeReport } from './reports/components/servers/response-time-report.component';
 import { ConsoleCommands } from './reports/components/ibm-domino/console-commands-report.component';
-import { AvgCPUUtil } from './reports/components/ibm-domino/avg-cpu-util.component';
-import { MaxCPUUtil } from './reports/components/ibm-domino/max-cpu-util.component';
 import { DailyServerTrans } from './reports/components/ibm-domino/daily-server-trans.component';
 import { ClusterSecQueue } from './reports/components/ibm-domino/cluster-sec-queue.component';
 import { DominoResponseTimes } from './reports/components/ibm-domino/domino-response-times.component';
@@ -159,8 +159,8 @@ export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.compone
 export * from './dashboards/components/ms-sharepoint/ms-sharepoint-dashboard.component';
 
 export * from './dashboards/components/office365/office365-dashboard.component';
-export * from './dashboards/components/office365/office365-overall.component';
-export * from './dashboards/components/office365/office365-mail-statistics.component';
+export * from './dashboards/components/office365/office365-overall-tab.component';
+export * from './dashboards/components/office365/office365-mail-stats-tab.component';
 export * from './dashboards/components/office365/office365-password-settings.component';
 
 export * from './dashboards/components/cloud-services-dashboard.component';
@@ -256,21 +256,7 @@ const appRoutes: Routes = [
             },
             {
                 path: 'dashboard/office365',
-                component: Office365Dashboard,
-                children: [
-                    {
-                        path: '',
-                        component: Office365Overall
-                    },
-                    {
-                        path: 'mail-statistics',
-                        component: OfficeMailStatistics
-                    },
-                    {
-                        path: 'password-settings',
-                        component: Office365PasswordSettings
-                    }
-                ]
+                component: Office365Dashboard
             },
             {
                 path: 'dashboard/cloud',
@@ -357,8 +343,16 @@ const appRoutes: Routes = [
                         component: MailFileStatisticsReport
                     },
                     {
+                        path: 'mailvolume',
+                        component: MailVolumeReport
+                    },
+                    {
                         path: 'diskavailabilitytrend',
                         component: DiskAvailabilityTrendReport
+                    },
+                    {
+                        path: 'cpuutilization',
+                        component: CPUUtilizationReport
                     },
                     {
                         path: 'serverutilization',
@@ -379,14 +373,6 @@ const appRoutes: Routes = [
                     {
                         path: 'consolecommand',
                         component: ConsoleCommands
-                    },
-                    {
-                        path: 'avgcpuutil',
-                        component: AvgCPUUtil
-                    },
-                    {
-                        path: 'maxcpuutil',
-                        component: MaxCPUUtil
                     },
                     {
                         path: 'dailyservertrans',

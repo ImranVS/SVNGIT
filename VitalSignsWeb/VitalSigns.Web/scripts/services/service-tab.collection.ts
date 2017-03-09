@@ -22,6 +22,9 @@ export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-ta
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component';
 
+export * from '../dashboards/components/office365/office365-overall-tab.component';
+export * from '../dashboards/components/office365/office365-mail-stats-tab.component';
+
 export * from '../dashboards/components/key-metrics/overall-database-all-tab.component';
 export * from '../dashboards/components/key-metrics/overall-database-problems-tab.component';
 export * from '../dashboards/components/key-metrics/overall-database-by-template-tab.component';
@@ -40,6 +43,7 @@ export * from './components/service-clusterhealth-tab.component';
 //servers
 
 export * from '../configurator/components/server/server-simulation-tests.compoment'
+export * from '../configurator/components/server/server-tests-options.component'
 export * from '../configurator/components/server/server-maintenance-windows.component'
 export * from '../configurator/components/server/server-disk-settings.component'
 export * from '../configurator/components/server/server-advanced-settings.component'

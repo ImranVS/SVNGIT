@@ -106,6 +106,7 @@ export class ServerFilter {
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
         //    .catch(error => console.log(error));
+
         this.widgetService.refreshWidget(this.widgetName, URL )
             .catch(error => console.log(error));
 

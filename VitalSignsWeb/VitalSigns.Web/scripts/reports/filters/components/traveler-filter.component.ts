@@ -20,6 +20,7 @@ export class TravelerFilter {
     @Input() hideMailServerControl: boolean;
     @Input() hideServerControl: boolean;
     @Input() hideAllServerControl: boolean;
+    @Input() hideAggregationControl: boolean = true;
     endDate: Date = new Date();
     startDate: Date = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate() - 7);
     currentDate: Date = new Date();
@@ -28,9 +29,11 @@ export class TravelerFilter {
     all_servers: any;
     errorMessage: any;
     intervals: any;
+    aggregation: any;
 
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) {
         this.intervals = ["000-001", "001-002", "002-005", "005-010", "010-030", "030-060", "060-120", "120-Inf"];
+        this.aggregation = ["AVG", "MAX"];
     }
 
     ngOnInit() {
@@ -78,27 +81,24 @@ export class TravelerFilter {
             var v1 = <HTMLDivElement>document.getElementById("selInterval");
             v1.style.display = "none";
         }
+        if (this.hideAggregationControl == true) {
+            var v1 = <HTMLDivElement>document.getElementById("dtAggregation");
+            v1.style.display = "none";
+        }
     }
 
     applyFilters(server_sel: wijmo.input.ComboBox, interval_sel: wijmo.input.ComboBox, mail_server_sel: wijmo.input.ComboBox,
-        all_server_sel: wijmo.input.ComboBox) {
+        all_server_sel: wijmo.input.ComboBox, aggregation_sel: wijmo.input.ComboBox) {
+        var URL = "";
         if (this.hideDatePanel == true && this.hideSingleDatePanel == true) {
             if (this.hideIntervalControl == false) {
-                var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + interval_sel.selectedValue;          
-                this.widgetService.refreshWidget(this.widgetName, URL)
-                    .catch(error => console.log(error));
+                URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + interval_sel.selectedValue;          
             }
             else if (this.hideMailServerControl == false && this.hideServerControl == false) {
-                var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + mail_server_sel.selectedValue;
-              
-                this.widgetService.refreshWidget(this.widgetName, URL)
-                    .catch(error => console.log(error));
+                URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + mail_server_sel.selectedValue;
             }
             else if (this.hideAllServerControl == false) {
-                var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue;
-              
-                this.widgetService.refreshWidget(this.widgetName, URL)
-                    .catch(error => console.log(error));
+                URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue;
             }
         }
         else {
@@ -133,26 +133,23 @@ export class TravelerFilter {
 
             if (this.hideSingleDatePanel == true) {
                 if (this.hideServerControl == false){
-                    var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
-
-                    this.widgetService.refreshWidget(this.widgetName, URL)
-                        .catch(error => console.log(error));
+                    URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
                 }
                 else {
-                    var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
-
-                    this.widgetService.refreshWidget(this.widgetName, URL)
-                        .catch(error => console.log(error));
+                    URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
                 }
             }
             else {
-                var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&year=` + newCurrentDate.getFullYear();
-             
-                this.widgetService.refreshWidget(this.widgetName, URL)
-                    .catch(error => console.log(error));
+                URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&year=` + newCurrentDate.getFullYear();
             }
             
         }
+        if (this.hideAggregationControl == false) {
+            URL = URL + `&aggregation=` + aggregation_sel.selectedValue;
+        }
+
+        this.widgetService.refreshWidget(this.widgetName, URL)
+            .catch(error => console.log(error));
 
     }
 

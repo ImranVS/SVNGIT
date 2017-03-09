@@ -31,6 +31,7 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+    columns: any;
 
     constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
@@ -50,9 +51,7 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
     ngOnInit() {
 
         var displayDate = (new Date()).toISOString().slice(0, 10);
-        var startDate = new Date(2016, 10, 5).toISOString();
-        var endDate = new Date(2016, 10, 20).toISOString();
-        this.service.get(`${this.gridUrl}?type=IBM Connections&aggregationType=sum&statName=NUM_OF_FORUMS_FORUMS&startDate=${startDate}&endDate=${endDate}`)
+        this.service.get(`/reports/summarystats_aggregation?type=Domino&aggregationType=sum&statName=[Mail.TotalRouted,Mail.Transferred,Mail.Delivered]`)
             .subscribe(
             (data) => {
                 var newData = this.datetimeHelpers.toLocalDate(data);
@@ -75,11 +74,31 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-
-
     }
 
     itemsSourceChangedHandler() {
+        var flex = this.flex;
+        var aggregateRow = new wijmo.grid.GroupRow();
+        aggregateRow.cssClass = 'wj-aggregate-row';
+        flex.rows.push(aggregateRow);
+
+        // update totals now and whenever the data changes
+        if (aggregateRow) {
+            for (var i = 0; i < flex.columns.length; i++) {
+                var col = flex.columns[i];
+                col.aggregate = "Sum";
+                if (col.binding && col.aggregate) {
+                    var value = wijmo.getAggregate(col.aggregate, flex.collectionView.items, col.binding)
+                    if (value > 0) {
+                        flex.setCellData(aggregateRow.index, col.index, value, false);
+                    }
+                    if (i == 0) {
+                        flex.setCellData(aggregateRow.index, col.index, "Total", false);
+                    }
+                }
+            }
+        }
+
         this.flex.autoSizeColumns();
     }
 

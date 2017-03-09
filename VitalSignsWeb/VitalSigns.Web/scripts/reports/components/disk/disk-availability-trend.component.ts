@@ -4,7 +4,7 @@ import {WidgetController, WidgetContract} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 
 import {RESTService} from '../../../core/services/rest.service';
-
+import * as helpers from '../../../core/services/helpers/helpers';
 declare var injectSVG: any;
 
 
@@ -13,7 +13,8 @@ declare var injectSVG: any;
     templateUrl: '/app/reports/components/disk/disk-availability-trend.component.html',
     providers: [
         WidgetService,
-        RESTService
+        RESTService,
+        helpers.UrlHelperService
     ]
 })
 export class DiskAvailabilityTrendReport extends WidgetController {
@@ -29,7 +30,8 @@ export class DiskAvailabilityTrendReport extends WidgetController {
     currentWidgetName: string = `diskTrendChart`;
     currentWidgetURL: string;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
+        protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
 

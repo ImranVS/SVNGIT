@@ -14,9 +14,9 @@
         <traveler-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl"
                          [(hideMailServerControl)]="currentHideMailServerControl" [(hideIntervalControl)]="currentHideIntervalControl"
                          [(hideDatePanel)]="currentHideDTControl" [(hideAllServerControl)]="currentHideAllServerControl"
-                         [(hideSingleDatePanel)]="currentHideSingleDTControl"></traveler-filter>
+                         [(hideSingleDatePanel)]="currentHideSingleDTControl" [(hideAggregationControl)]="currentHideAggregationControl"></traveler-filter>
         <div class="reportsPage">
-            <h1>Disk Availability - Annual Trend</h1>
+            <h1>CPU Utilization</h1>
             <div *ngFor="let widget of widgets">
                 <h3>{{widget.title}}</h3>
                 <div id="{{widget.id}}">

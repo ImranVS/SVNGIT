@@ -5,7 +5,7 @@
             <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
                 [routerLinkActive]="['selected']"
                 [routerLinkActiveOptions]="{exact: true}">
-                <a [routerLink]="[node.url]">{{node.title}}</a>
+                <a [routerLink]="this.urlHelpers.getUrlPath(node.url)" [queryParams]="this.urlHelpers.getUrlQueryParams(node.url)">{{node.title}}</a>
             </li>
 
         </ul>
@@ -53,6 +53,16 @@
                                     <td align="right">{{drive.avg_daily_growth}}</td>
                                     <td>&nbsp;</td>
                                     <td>MB</td>
+                                    <td>&nbsp;</td>
+                                    <td *ngIf="drive.days_remain=='INF'"><img src="/img/reports/up_g.gif" /></td>
+                                    <td *ngIf="drive.days_remain!='INF'"><img src="/img/reports/down_r.gif" /></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td align="right"><b>{{drive.days_remain}}</b> days remain</td>
+                                    <td colspan="6">&nbsp;</td>
                                 </tr>
                             </tbody>
                         </table>
