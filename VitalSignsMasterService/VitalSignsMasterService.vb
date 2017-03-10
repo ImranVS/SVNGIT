@@ -2433,7 +2433,7 @@ Public Class VSMaster
             '             boolCore64Service = False
             '         End If
             boolDominoService = True
-            boolMicrosoftService = False
+            boolMicrosoftService = True
             boolCore64Service = True
 
             Try
