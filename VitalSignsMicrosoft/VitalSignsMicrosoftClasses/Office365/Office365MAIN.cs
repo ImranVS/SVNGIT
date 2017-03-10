@@ -81,14 +81,20 @@ namespace VitalSignsMicrosoftClasses
 				//creates colelction and starts thread to monitor changes for the colelction
 				CommonDB db = new CommonDB();
 
-				if (db.RecordExists("SELECT * FROM SelectedFeatures sf WHERE sf.FeatureID in (SELECT ID FROM Features WHERE Name='" + "Office 365" + "')"))
+				if (true || db.RecordExists("SELECT * FROM SelectedFeatures sf WHERE sf.FeatureID in (SELECT ID FROM Features WHERE Name='" + "Office 365" + "')"))
 				{
-					DataTable dt = db.GetData("select svalue from dbo.Settings where sname='Office365URL'");
-						if (dt.Rows.Count >0)
-							if(dt.Rows[0][0].ToString() != "")
-								serverURL =dt.Rows[0][0].ToString();
+                    VSFramework.RegistryHandler mySettings = new RegistryHandler();
+                    try
+                    {
+                        var office365UrlSetting = mySettings.ReadFromRegistry("Office365URL");
+                        if (office365UrlSetting != null && !String.IsNullOrWhiteSpace(office365UrlSetting.ToString()))
+                            serverURL = office365UrlSetting.ToString();
+                    }
+                    catch(Exception ex)
+                    {
 
-
+                    }
+                    
 					Common.WriteDeviceHistoryEntry("All", serverType, "Server is marked for scanning so will start Server Related Tasks", Common.LogLevel.Normal);
 					CreateOffice365ServersCollection();
 					InitStatusTable(myOffice365Servers);
@@ -193,225 +199,227 @@ namespace VitalSignsMicrosoftClasses
 
 		}
 		
-		public MonitoredItems.Office365Server SelectServerToMonitor()
-		{
-			MonitoredItems.Office365Server SelectedServer = null;
+//		public MonitoredItems.Office365Server SelectServerToMonitor()
+//		{
+            
 
-			try
-			{
+//            MonitoredItems.Office365Server SelectedServer = null;
 
-
-				DateTime tNow = DateTime.Now;
-				DateTime tScheduled;
-
-				DateTime timeOne;
-				DateTime timeTwo;
+//			try
+//			{
 
 
-				MonitoredItems.Office365Server ServerOne = null;
-				MonitoredItems.Office365Server ServerTwo = null;
+//				DateTime tNow = DateTime.Now;
+//				DateTime tScheduled;
 
-				RegistryHandler myRegistry = new RegistryHandler();
-				String ScanASAP = "";
-				//2494
-				String strSQL = "";
-				String ServerType = "Office365";
-				CommonDB db = new CommonDB();
-				String serverName = "";
-
-				try
-				{
+//				DateTime timeOne;
+//				DateTime timeTwo;
 
 
-					strSQL = "Select svalue from ScanSettings where sname = 'Scan" + ServerType + "ASAP'";
-					DataTable dt = db.GetData(strSQL);
-					foreach (DataRow row in dt.Rows)
-					{
-						try
-						{
-							serverName = row[0].ToString();
-						}
-						catch (Exception ex)
-						{
-							continue;
-						}
+//				MonitoredItems.Office365Server ServerOne = null;
+//				MonitoredItems.Office365Server ServerTwo = null;
 
-						for (int n = 0; n < myOffice365Servers.Count; n++)
-						{
-							ServerOne = myOffice365Servers.get_Item(n);
-							if (ServerOne.Name == serverName && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-							{
-								Common.WriteDeviceHistoryEntry("All", "Office365", serverName + " was marked 'Scan ASAP' so it will be scanned next.");
+//				RegistryHandler myRegistry = new RegistryHandler();
+//				String ScanASAP = "";
+//				//2494
+//				String strSQL = "";
+//				String ServerType = "Office365";
+//				CommonDB db = new CommonDB();
+//				String serverName = "";
 
-								strSQL = "DELETE FROM ScanSettings where sname = 'Scan" + ServerType + "ASAP' and svalue='" + serverName + "'";
-								db.Execute(strSQL);
-
-								return ServerOne;
-							}
-
-						}
-					}
-
-				}
-				catch (Exception ex)
-				{
-
-				}
-
-//2494
-				try
-				{
-					ScanASAP = myRegistry.ReadFromRegistry("ScanOffice365ASAP").ToString();
-				}
-				catch (Exception ex)
-				{
-					ScanASAP = "";
-				}
+//				try
+//				{
 
 
-				//Searches for the server marked as ScanASAP, if it exists
-				for (int n = 0; n < myOffice365Servers.Count; n++)
-				{
-					ServerOne = myOffice365Servers.get_Item(n);
-					if (ServerOne.Name == ScanASAP && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-					{
-						Common.WriteDeviceHistoryEntry("All", serverType, ScanASAP + " was marked 'Scan ASAP' so it will be scanned next.");
-						myRegistry.WriteToRegistry("ScanADASAP", "n/a");
+//					strSQL = "Select svalue from ScanSettings where sname = 'Scan" + ServerType + "ASAP'";
+//					DataTable dt = db.GetData(strSQL);
+//					foreach (DataRow row in dt.Rows)
+//					{
+//						try
+//						{
+//							serverName = row[0].ToString();
+//						}
+//						catch (Exception ex)
+//						{
+//							continue;
+//						}
 
-						//ServerOne.ScanASAP = true;
+//						for (int n = 0; n < myOffice365Servers.Count; n++)
+//						{
+//							ServerOne = myOffice365Servers.get_Item(n);
+//							if (ServerOne.Name == serverName && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
+//							{
+//								Common.WriteDeviceHistoryEntry("All", "Office365", serverName + " was marked 'Scan ASAP' so it will be scanned next.");
 
-						return ServerOne;
-					}
+//								strSQL = "DELETE FROM ScanSettings where sname = 'Scan" + ServerType + "ASAP' and svalue='" + serverName + "'";
+//								db.Execute(strSQL);
 
-				}
+//								return ServerOne;
+//							}
 
+//						}
+//					}
 
-				//Searches for the first enounter of a Not Responding server that is due for a scan
-				for (int n = 0; n < myOffice365Servers.Count; n++)
-				{
-					ServerOne = myOffice365Servers.get_Item(n);
-					if (ServerOne.Status == "Not Responding" && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-					{
-						tScheduled = ServerOne.NextScan;
-						if (DateTime.Compare(tNow, tScheduled) > 0)
-						{
-							Common.WriteDeviceHistoryEntry("All", serverType, "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".  Next scheduled scan is at " + tScheduled.ToString());
-							return ServerOne;
-						}
-					}
-				}
+//				}
+//				catch (Exception ex)
+//				{
 
+//				}
 
-				//Searches for the first encounter of a server that has not been scanned yet
-				for (int n = 0; n < myOffice365Servers.Count; n++)
-				{
-					ServerOne = myOffice365Servers.get_Item(n);
-					if ((ServerOne.Status == "Not Scanned" || ServerOne.Status == "Master Service Stopped.") && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-					{
-						Common.WriteDeviceHistoryEntry("All", serverType, "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".");
-						return ServerOne;
-					}
-				}
-
-
-				//Searches for all servers that are due for a scan
-				List<MonitoredItems.Office365Server> ScanCanidates = new List<MonitoredItems.Office365Server>();
-
-				foreach (MonitoredItems.Office365Server srv in myOffice365Servers)
-				{
-					if (srv.IsBeingScanned == false && ServerOne.Enabled)
-					{
-						tNow = DateTime.Now;
-						tScheduled = srv.NextScan;
-						if (DateTime.Compare(tNow, tScheduled) > 0)
-						{
-							ScanCanidates.Add(srv);
-						}
-					}
-				}
-
-				if (ScanCanidates.Count == 0)
-				{
-					Thread.Sleep(10000);
-					return null;
-				}
+////2494
+//				try
+//				{
+//					ScanASAP = myRegistry.ReadFromRegistry("ScanOffice365ASAP").ToString();
+//				}
+//				catch (Exception ex)
+//				{
+//					ScanASAP = "";
+//				}
 
 
+//				//Searches for the server marked as ScanASAP, if it exists
+//				for (int n = 0; n < myOffice365Servers.Count; n++)
+//				{
+//					ServerOne = myOffice365Servers.get_Item(n);
+//					if (ServerOne.Name == ScanASAP && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
+//					{
+//						Common.WriteDeviceHistoryEntry("All", serverType, ScanASAP + " was marked 'Scan ASAP' so it will be scanned next.");
+//						myRegistry.WriteToRegistry("ScanADASAP", "n/a");
 
-				//Start with the first two servers
-				ServerOne = ScanCanidates.ElementAt(0);
-				if (ScanCanidates.Count > 1)
-					ServerTwo = ScanCanidates.ElementAt(1);
+//						//ServerOne.ScanASAP = true;
 
-				if (ScanCanidates.Count > 2)
-				{
-					try
-					{
-						for (int n = 2; n < ScanCanidates.Count - 1; n++)
-						{
-							timeOne = ServerOne.NextScan;
-							timeTwo = ServerTwo.NextScan;
-							if (DateTime.Compare(timeOne, timeTwo) < 0)
-							{
-								//time on one is earlier, so keep one
-								ServerTwo = ScanCanidates.ElementAt(n);
-							}
-							else
-							{
-								//time on two is ealier, so keep two
-								ServerOne = ScanCanidates.ElementAt(n);
-							}
-						}
-					}
-					catch (Exception ex)
-					{
-						Common.WriteDeviceHistoryEntry("All", serverType, "Error Selecting Server... " + ex.Message);
-					}
-				}
+//						return ServerOne;
+//					}
 
-				if (ServerTwo != null)
-				{
-					timeOne = ServerOne.NextScan;
-					timeTwo = ServerTwo.NextScan;
+//				}
 
-					if (DateTime.Compare(timeOne, timeTwo) < 0)
-					{
-						SelectedServer = ServerOne;
-						tScheduled = ServerOne.NextScan;
-					}
-					else
-					{
-						SelectedServer = ServerTwo;
-						tScheduled = ServerTwo.NextScan;
-					}
-					tNow = DateTime.Now;
-				}
-				else
-				{
-					SelectedServer = ServerOne;
-					tScheduled = ServerOne.NextScan;
-				}
 
-				tScheduled = SelectedServer.NextScan;
-				if (DateTime.Compare(tNow, tScheduled) < 0)
-				{
-					if (SelectedServer.Status != "Not Scanned")
-					{
-						SelectedServer = null;
-					}
-				}
-				else
-				{
-					TimeSpan mySpan = tNow - tScheduled;
-				}
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry("All", serverType, "Getting the server to monitor" + ex.Message.ToString(), Common.LogLevel.Normal);
-			}
-			return SelectedServer;
+//				//Searches for the first enounter of a Not Responding server that is due for a scan
+//				for (int n = 0; n < myOffice365Servers.Count; n++)
+//				{
+//					ServerOne = myOffice365Servers.get_Item(n);
+//					if (ServerOne.Status == "Not Responding" && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
+//					{
+//						tScheduled = ServerOne.NextScan;
+//						if (DateTime.Compare(tNow, tScheduled) > 0)
+//						{
+//							Common.WriteDeviceHistoryEntry("All", serverType, "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".  Next scheduled scan is at " + tScheduled.ToString());
+//							return ServerOne;
+//						}
+//					}
+//				}
 
-		}
+
+//				//Searches for the first encounter of a server that has not been scanned yet
+//				for (int n = 0; n < myOffice365Servers.Count; n++)
+//				{
+//					ServerOne = myOffice365Servers.get_Item(n);
+//					if ((ServerOne.Status == "Not Scanned" || ServerOne.Status == "Master Service Stopped.") && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
+//					{
+//						Common.WriteDeviceHistoryEntry("All", serverType, "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".");
+//						return ServerOne;
+//					}
+//				}
+
+
+//				//Searches for all servers that are due for a scan
+//				List<MonitoredItems.Office365Server> ScanCanidates = new List<MonitoredItems.Office365Server>();
+
+//				foreach (MonitoredItems.Office365Server srv in myOffice365Servers)
+//				{
+//					if (srv.IsBeingScanned == false && ServerOne.Enabled)
+//					{
+//						tNow = DateTime.Now;
+//						tScheduled = srv.NextScan;
+//						if (DateTime.Compare(tNow, tScheduled) > 0)
+//						{
+//							ScanCanidates.Add(srv);
+//						}
+//					}
+//				}
+
+//				if (ScanCanidates.Count == 0)
+//				{
+//					Thread.Sleep(10000);
+//					return null;
+//				}
+
+
+
+//				//Start with the first two servers
+//				ServerOne = ScanCanidates.ElementAt(0);
+//				if (ScanCanidates.Count > 1)
+//					ServerTwo = ScanCanidates.ElementAt(1);
+
+//				if (ScanCanidates.Count > 2)
+//				{
+//					try
+//					{
+//						for (int n = 2; n < ScanCanidates.Count - 1; n++)
+//						{
+//							timeOne = ServerOne.NextScan;
+//							timeTwo = ServerTwo.NextScan;
+//							if (DateTime.Compare(timeOne, timeTwo) < 0)
+//							{
+//								//time on one is earlier, so keep one
+//								ServerTwo = ScanCanidates.ElementAt(n);
+//							}
+//							else
+//							{
+//								//time on two is ealier, so keep two
+//								ServerOne = ScanCanidates.ElementAt(n);
+//							}
+//						}
+//					}
+//					catch (Exception ex)
+//					{
+//						Common.WriteDeviceHistoryEntry("All", serverType, "Error Selecting Server... " + ex.Message);
+//					}
+//				}
+
+//				if (ServerTwo != null)
+//				{
+//					timeOne = ServerOne.NextScan;
+//					timeTwo = ServerTwo.NextScan;
+
+//					if (DateTime.Compare(timeOne, timeTwo) < 0)
+//					{
+//						SelectedServer = ServerOne;
+//						tScheduled = ServerOne.NextScan;
+//					}
+//					else
+//					{
+//						SelectedServer = ServerTwo;
+//						tScheduled = ServerTwo.NextScan;
+//					}
+//					tNow = DateTime.Now;
+//				}
+//				else
+//				{
+//					SelectedServer = ServerOne;
+//					tScheduled = ServerOne.NextScan;
+//				}
+
+//				tScheduled = SelectedServer.NextScan;
+//				if (DateTime.Compare(tNow, tScheduled) < 0)
+//				{
+//					if (SelectedServer.Status != "Not Scanned")
+//					{
+//						SelectedServer = null;
+//					}
+//				}
+//				else
+//				{
+//					TimeSpan mySpan = tNow - tScheduled;
+//				}
+//			}
+//			catch (Exception ex)
+//			{
+//				Common.WriteDeviceHistoryEntry("All", serverType, "Getting the server to monitor" + ex.Message.ToString(), Common.LogLevel.Normal);
+//			}
+//			return SelectedServer;
+
+//		}
 		private void MonitorO365Server(int threadNum)
 		{
 			Common.WriteDeviceHistoryEntry("All", serverType, "Getting the server to monitor1", Common.LogLevel.Normal);
@@ -426,7 +434,7 @@ namespace VitalSignsMicrosoftClasses
 
 
 					Common.WriteDeviceHistoryEntry("All", serverType, "Getting the server to monitor", Common.LogLevel.Normal);
-					MonitoredItems.Office365Server thisServer = SelectServerToMonitor();
+					MonitoredItems.Office365Server thisServer = Common.SelectServerToMonitor(myOffice365Servers) as MonitoredItems.Office365Server;
 					try
 					{
 						if (thisServer != null && !thisServer.IsBeingScanned)
@@ -579,7 +587,8 @@ updatedef = repo.Updater
     .Set(i => i.DominoVersion,  ServerType)
     .Set(i => i.OperatingSystem, myServer.OperatingSystem)
     .Set(i => i.CPU, 0)
-    .Set(i => i.Memory, 0);
+    .Set(i => i.Memory, 0)
+    .Set(i => i.DeviceId, myServer.ServerObjectID);
 repo.Upsert(filterdef, updatedef);
 
 //=======================================================
@@ -631,6 +640,7 @@ repo.Upsert(filterdef, updatedef);
                 .Include(x => x.CurrentNode)
                 .Include(x => x.SimulationTests);
 
+
             listOfServers = repository.Find(filterDef, projectionDef).ToList();
 
             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repositoryStatus = new VSNext.Mongo.Repository.Repository<Status>(DB.GetMongoConnectionString());
@@ -677,7 +687,7 @@ repo.Upsert(filterdef, updatedef);
 				{
 					//DataRow DR = dtServers.Rows[i];
                     VSNext.Mongo.Entities.Server currServer = listOfServers[i];
-                    VSNext.Mongo.Entities.Status currStatus = listOfStatus.First(x => x.DeviceId == currServer.Id);
+                    
 					MonitoredItems.Office365Server oldServer = myOffice365Servers.SearchByName(currServer.DeviceName);
 					if (oldServer == null)
 					{
@@ -739,12 +749,28 @@ repo.Upsert(filterdef, updatedef);
                         oldServer.OffHoursScanInterval = currServer.OffHoursScanInterval.Value;
                         oldServer.RetryInterval = currServer.RetryInterval.Value;
 
-                        if(currStatus != null)
+                        try
                         {
-                            oldServer.LastScan = currStatus.LastUpdated.HasValue ? currStatus.LastUpdated.Value : DateTime.Now;
-                            oldServer.Status = String.IsNullOrWhiteSpace(currStatus.CurrentStatus) ? "Not Scanned" : currStatus.CurrentStatus;
-                            oldServer.StatusCode = String.IsNullOrWhiteSpace(currStatus.StatusCode) ? "Maintenance" : currStatus.StatusCode;
-                            
+                            VSNext.Mongo.Entities.Status currStatus = listOfStatus.First(x => x.DeviceId == currServer.Id);
+                            if (currStatus != null)
+                            {
+                                oldServer.LastScan = currStatus.LastUpdated.HasValue ? currStatus.LastUpdated.Value : DateTime.Now;
+                                oldServer.Status = String.IsNullOrWhiteSpace(currStatus.CurrentStatus) ? "Not Scanned" : currStatus.CurrentStatus;
+                                oldServer.StatusCode = String.IsNullOrWhiteSpace(currStatus.StatusCode) ? "Maintenance" : currStatus.StatusCode;
+
+                            }
+                            else
+                            {
+                                oldServer.LastScan = DateTime.Now;
+                                oldServer.Status = "Not Scanned";
+                                oldServer.StatusCode = "Maintenance";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            oldServer.LastScan = DateTime.Now;
+                            oldServer.Status = "Not Scanned";
+                            oldServer.StatusCode = "Maintenance";
                         }
 
                         oldServer.ServerType = currServer.DeviceType;
@@ -767,8 +793,6 @@ repo.Upsert(filterdef, updatedef);
                         oldServer.Enabled = true;
 
                         Common.WriteDeviceHistoryEntry("All", serverType, "In SetO365ServerSettings: 1", Common.LogLevel.Normal);
-                        CommonDB db = new CommonDB();
-                        DataTable dt = db.GetData("Select Tests, EnableSimulationTests, ResponseThreshold from Office365Tests where ServerId=" + oldServer.ServerId + "");
 
                         oldServer.EnableAutoDiscoveryTest = false;
                         oldServer.EnableMailFlow = false;
@@ -784,14 +808,13 @@ repo.Upsert(filterdef, updatedef);
                         oldServer.EnableCreateCalEntryTest = false;
                         oldServer.DirSyncExportTest = false;
                         oldServer.DirSyncImportTest = false;
-                    
                         foreach (NameValuePair row in currServer.SimulationTests)
                         {
                             Common.WriteDeviceHistoryEntry("All", serverType, "In SetO365ServerSettings: 1" + row.Name.ToString(), Common.LogLevel.Normal);
 
                             switch (row.Name.ToString())
                             {
-                                case "Mail Flow Test":
+                                case "Mail Flow":
                                     oldServer.EnableMailFlow = true;
                                     oldServer.MailFlowThreshold = Convert.ToInt32(row.Value);
                                     break;
@@ -823,15 +846,15 @@ repo.Upsert(filterdef, updatedef);
                                     oldServer.EnableCreateTaskTest = true;
                                     oldServer.CreateTaskThreshold = Convert.ToInt32(row.Value);
                                     break;
-                                case "Create Folder Test":
+                                case "Create Folder":
                                     oldServer.EnableCreateFolderTest = true;
                                     oldServer.CreateFolderThreshold = Convert.ToInt32(row.Value);
                                     break;
-                                case "OneDrive Upload Test":
+                                case "OneDrive Upload":
                                     oldServer.EnableOneDriveUploadTest = true;
                                     oldServer.OneDriveUplaodThreshold = Convert.ToInt32(row.Value);
                                     break;
-                                case "OneDrive Download Test":
+                                case "OneDrive Download":
                                     oldServer.EnableOneDriveDownloadTest = true;
                                     oldServer.OneDriveDownlaodThreshold = Convert.ToInt32(row.Value);
                                     break;
@@ -839,7 +862,7 @@ repo.Upsert(filterdef, updatedef);
                                 //    oldServer.EnableOneDriveSearchTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
                                 //    oldServer.OneDriveSearchThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
                                 //    break;
-                                case "Create Site Test":
+                                case "Create Site":
                                     oldServer.EnableCreateSiteTest = true;
                                     oldServer.CreateSiteThreshold = Convert.ToInt32(row.Value);
                                     break;
@@ -851,7 +874,7 @@ repo.Upsert(filterdef, updatedef);
                                 //    oldServer.EnableResolveUserTest = Convert.ToBoolean(row["EnableSimulationTests"].ToString());
                                 //    oldServer.ResolveUserThreshold = Convert.ToInt32(row["ResponseThreshold"].ToString());
                                 //    break;
-                                case "Dir Sync Imp/Export Test":
+                                case "Dir Sync Imp/Export":
                                     oldServer.DirSyncExportTest = true;
                                     oldServer.DirSyncExportThreshold = Convert.ToInt32(row.Value);
                                     oldServer.DirSyncImportTest = true;
@@ -932,7 +955,8 @@ repo.Upsert(filterdef, updatedef);
                              .Set(i => i.DominoVersion, type)
                              .Set(i => i.OperatingSystem, server.OperatingSystem)
                              .Set(i => i.CPU, 0)
-                             .Set(i => i.Memory, 0);
+                             .Set(i => i.Memory, 0)
+                             .Set(i => i.DeviceId, server.ServerObjectID);
                          repo.Upsert(filterdef, updatedef);
 
 						//we do not want to insert a row without a location

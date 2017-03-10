@@ -8,6 +8,8 @@ using System.Data;
 using System.Threading;
 using System.Globalization;
 using MongoDB.Driver;
+using VSNext.Mongo.Entities;
+
 namespace VitalSignsMicrosoftClasses
 {
 	class CommonDB
@@ -17,6 +19,8 @@ namespace VitalSignsMicrosoftClasses
 
         public static readonly String DB_VITALSIGNS = "VitalSigns";
         public static readonly String DB_VSS_STATISTICS = "VSS_Statistics";
+
+        private static string mongoConnectionString = "";
 
 		//Determines the verbosity of the log file
 		//enum LogLevel
@@ -34,16 +38,7 @@ namespace VitalSignsMicrosoftClasses
 
 		public CommonDB()
 		{
-			//InitializeComponent();
-			try
-			{
-				sqlcon = myxmlAdapter.GetDBConnectionString("VitalSigns");
-				con = new SqlConnection(sqlcon);
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry("ALL", "Microsoft", "Error in CommonDB. Error: " + ex.Message, Common.LogLevel.Normal);
-			}
+			
 		}
 
         public CommonDB(String dbName)
@@ -167,6 +162,8 @@ namespace VitalSignsMicrosoftClasses
 
         public string GetMongoConnectionString()
         {
+            if(String.IsNullOrWhiteSpace(mongoConnectionString))
+                mongoConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
             return System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
             
             //return "mongodb://192.168.1.10:27017/vitalsigns_reference";
@@ -174,12 +171,12 @@ namespace VitalSignsMicrosoftClasses
 
 		public void UpdateAllTests(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server, string ServerType)
 		{
-			
-				//drs
-				ProcessStatusDetails(AllTestsList, Server, ServerType);
-				//ProcessSQLStatements(AllTestsList, Server, ServerType);
-                ProcessMongoStatements(AllTestsList, Server, ServerType);
-				ProcessAlerts(AllTestsList, Server, ServerType);
+
+            //drs
+            ProcessStatusDetails(AllTestsList, Server, ServerType);
+            //ProcessSQLStatements(AllTestsList, Server, ServerType);
+            ProcessMongoStatements(AllTestsList, Server, ServerType);
+            ProcessAlerts(AllTestsList, Server, ServerType);
 
 			}
         private void ProcessMongoStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server, string ServerType)
@@ -237,15 +234,16 @@ namespace VitalSignsMicrosoftClasses
                 string Details = "";
                 CommonDB DB = new CommonDB();
                 //Delete the StatusDetails for this server here
-				if (!Server.FastScan)
-				{
-				if (serverType =="Office365")
-					strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + Server.Location + "'";
-				else
-                    strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + serverType + "' AND Category != 'Mailbox' AND TestName not in ('" + (Server.HourlyAlerts != null ? string.Join("','", Array.ConvertAll(Server.HourlyAlerts.ToArray(), i => i.AlertType.ToString().Replace('_', ' '))) : "") + "')";
+				//if (!Server.FastScan)
+				//{
+
+				//if (serverType =="Office365")
+				//	strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + Server.Location + "'";
+				//else
+    //                strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + serverType + "' AND Category != 'Mailbox' AND TestName not in ('" + (Server.HourlyAlerts != null ? string.Join("','", Array.ConvertAll(Server.HourlyAlerts.ToArray(), i => i.AlertType.ToString().Replace('_', ' '))) : "") + "')";
                 
-                DB.Execute(strSQL);
-				}
+    //            //DB.Execute(strSQL);
+				//}
                 //first get all the fails
                 foreach (Alerting T in AllTestsList.AlertDetails)//.TakeWhile(j => j.Result == commonEnums.ServerResult.Fail))
                 {
@@ -338,11 +336,6 @@ namespace VitalSignsMicrosoftClasses
 				if (Details.Length > 255)
 					Details = Details.Substring(0, 250) + "...";
 
-				if (serverType == "Office365")
-					strSQL = " SELECT * FROM STATUS WHERE TYPEANDNAME='" + Server.Name + "-" + Server.Location + "'";
-				else
-					strSQL = " SELECT * FROM STATUS WHERE TYPEANDNAME='" + Server.Name + "-" + serverType + "'";
-
 				if(Server.GetType() == typeof(MonitoredItems.ExchangeServer))
 				{
 					MonitoredItems.ExchangeServer exServer = Server as MonitoredItems.ExchangeServer;
@@ -353,72 +346,8 @@ namespace VitalSignsMicrosoftClasses
 				}
 				}
 
-				bool  isExist = DB.RecordExists(strSQL);
-				if (isExist)
-				{
-                //finally Update the Status table with OverallStatus for this server
-                strSQL = "UPDATE STATUS SET " + 
-					"STATUS='" + OverallStatus + "', " + 
-					"DETAILS='" + Details + "', " +
-					"STATUSCODE='" + OverallStatus + "', " +
-					"LASTUPDATE='" + DateTime.Now.ToString() + "', " +
-					"Name='" + Server.Name +"', " +
-					"UserCount='" + Server.UserCount.ToString() + "', " +
-					"ResponseTime='" + Server.ResponseTime.ToString() + "', " +
-					"SecondaryRole='', " +
-					"Location='" + Server.Location + "', " +
-					"Category='" + Server.Category + "', " +
-					"ResponseThreshold='" + Server.ResponseThreshold.ToString() + "', " +
-					"DominoVersion='" + serverType +" " + (Server.VersionNo=="0" ? "Version Unknown" : Server.VersionNo) + "', " +
-					"OperatingSystem='" + Server.OperatingSystem + "', " +
-					"NextScan='" + Server.NextScan.ToString() + "' " ;
-					if (serverType == "Office365")
-						strSQL += " WHERE TYPEANDNAME='" + Server.Name + "-" + Server.Location + "'";
-					else
-						strSQL += " WHERE TYPEANDNAME='" + Server.Name + "-" + serverType + "'"; 
-                int retCount = DB.Execute(strSQL);
-				}
-				else
-                {
-                    //insert 
-					if (serverType == "Office365")
-					{
-						strSQL = "" +
-					   "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, " +
-					   "TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, " +
-					   "SecondaryRole," +
-					   "ResponseThreshold, " +
-					   "DominoVersion, OperatingSystem, NextScan, Details) " +
-					   "VALUES ('" + Server.Name + "', '" + OverallStatus + "', '" + OverallStatus + "', '" + DateTime.Now.ToString() + "','" + serverType + "','" + Server.Location + "','" + Server.Category + "','" +
-					   Server.Name + "-" + Server.Location + "', 'Microsoft " + serverType + " Server', '" + Server.UserCount.ToString() + "', '" + Server.ResponseTime.ToString() + "', " +
-					   "'', " +
-					   "'" + Server.ResponseThreshold.ToString() + "', " +
-					   "'" + Server.ServerType + " " + Server.VersionNo + "', '" + Server.OperatingSystem + "', '" + Server.NextScan.ToString() + "', '" + Details + "' )";
-					}
-					else
-					{
-						strSQL = "" +
-						   "INSERT INTO STATUS (NAME, STATUS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, " +
-						   "TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, " +
-						   "SecondaryRole," +
-						   "ResponseThreshold, " +
-						   "DominoVersion, OperatingSystem, NextScan, Details) " +
-						   "VALUES ('" + Server.Name + "', '" + OverallStatus + "', '" + OverallStatus + "', '" + DateTime.Now.ToString() + "','" + serverType + "','" + Server.Location + "','" + Server.Category + "','" +
-						   Server.Name + "-" + serverType + "', 'Microsoft " + serverType + " Server', '" + Server.UserCount.ToString() + "', '" + Server.ResponseTime.ToString() + "', " +
-						   "'', " +
-						   "'" + Server.ResponseThreshold.ToString() + "', " +
-						   "'" + Server.ServerType + " " + Server.VersionNo + "', '" + Server.OperatingSystem + "', '" + Server.NextScan.ToString() + "', '" + Details + "' )";
-
-					}
-                    DB.Execute(strSQL);
-
-                    
-
-                }
-
-
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
-                mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
+                mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceId == Server.ServerObjectID);
                 mongoStatement.updateDef = mongoStatement.repo.Updater
                     .Set(i => i.DeviceName, Server.Name)
                     .Set(i => i.CurrentStatus, Server.Status)
@@ -435,45 +364,10 @@ namespace VitalSignsMicrosoftClasses
                     .Set(i => i.ResponseThreshold, int.Parse(Server.ResponseThreshold.ToString()))
                     .Set(i => i.SoftwareVersion, Server.VersionNo)
                     .Set(i => i.OperatingSystem, Server.OperatingSystem)
-                    .Set(i => i.Details, Details);
+                    .Set(i => i.Details, Details)
+                    .Set(i => i.TypeAndName, Server.TypeANDName);
 
                 mongoStatement.Execute();
-
-                int TestFailures = 0;
-                foreach (TestList T in AllTestsList.StatusDetails)
-                     
-                {
-                    //loop thru all the servers and update the status details
-                   
-                    int DetailsLenth = T.Details.Length;
-                    if (DetailsLenth > 100)
-                        DetailsLenth = 100;
-                    //if (T.TestName.ToString().Contains("Services"))
-                    //{
-
-                    //    string[] newStrings = Details.Split(new string[] { " " }, StringSplitOptions.None);
-                    //    string services = "";
-                       
-                    //    services = newStrings[2].ToString();
-                    //    T.TestName = T.TestName + ":" + services;
-                    //    strSQL = "Insert INTO StatusDetail (TypeAndName, Category, TestName, Result, Details, LastUpdate) VALUES ( '" + Server.Name + "-" + serverType + "', '" + T.Category + "', '" + T.TestName.ToString() + "', '" + T.Result.ToString() + "', '" + T.Details.ToString().Substring(0, DetailsLenth) + "', '" + DateTime.Now.ToString() + "')";
-                    //}
-                    //else
-                    //{
-                        strSQL = "Insert INTO StatusDetail (TypeAndName, Category, TestName, Result, Details, LastUpdate) VALUES ( '" + Server.Name + "-" + serverType + "', '" + T.Category + "', '" + T.TestName.ToString() + "', '" + T.Result.ToString() + "', '" + T.Details.ToString().Substring(0, DetailsLenth) + "', '" + DateTime.Now.ToString() + "')";
-                    //}
-                    try
-                    {
-                       // DB.Execute(strSQL);
-                    }
-                    catch (Exception ex)
-                    {
-						Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error Executing Query =  " + strSQL + " with error message of " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                    }
-                }
-
-               
-
 
             }
             catch (Exception ex)
@@ -503,12 +397,13 @@ namespace VitalSignsMicrosoftClasses
 
                 // TODO: Start transaction
                 List<Alerting> AlertStmts = AllTestsList.AlertDetails;
-
+                Common.WriteDeviceHistoryEntry(ServerType, Server.Name, "Alert count: " + AlertStmts.Count(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                 foreach (Alerting AlertStmt in AlertStmts)
                 {
 
                     try
                     {
+                        Common.WriteDeviceHistoryEntry(ServerType, Server.Name, "Alert: " + AlertStmt.AlertType + "...Details: " + AlertStmt.Details, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                         if (AlertStmt.ResetAlertQueue == commonEnums.ResetAlert.No)
                         {
 

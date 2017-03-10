@@ -125,40 +125,51 @@ namespace VitalSignsMicrosoftClasses
 			doADFSCheck(Server, ref AllTestsList);
 			try
 			{
-
-				if (Server.EnableCreateCalEntryTest)
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "EnableCreateCalEntryTest: " + Server.EnableCreateCalEntryTest, Common.LogLevel.Normal);
+                if (Server.EnableCreateCalEntryTest)
 					try
 					{ doNewTaskTest(Server, ref AllTestsList); }
 					catch (Exception ex)
 					{ Common.WriteDeviceHistoryEntry(Server.ServerType,Server.Name, "Error with doNewTaskTest: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnableOWATest)
+
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "EnableOWATest: " + Server.EnableOWATest, Common.LogLevel.Normal);
+                if (Server.EnableOWATest)
 					try
 					{ doComposeMailTest(Server, ref AllTestsList); }
 					catch (Exception ex)
 					{ Common.WriteDeviceHistoryEntry(Server.ServerType,Server.Name, "Error with doComposeMailTest: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnableMailFlow)
+
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "EnableMailFlow: " + Server.EnableMailFlow, Common.LogLevel.Normal);
+                if (Server.EnableMailFlow)
 					try
 					{ doMailFlowTest(Server, ref AllTestsList);}
 					catch (Exception ex)
 					{ Common.WriteDeviceHistoryEntry(Server.ServerType,Server.Name, "Error with doMailFlowTest: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnableInboxTest)
+
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "EnableInboxTest: " + Server.EnableInboxTest, Common.LogLevel.Normal);
+                if (Server.EnableInboxTest)
 					try
 					{ doInboxTest(Server, ref AllTestsList); }
 					catch (Exception ex)
 					{ Common.WriteDeviceHistoryEntry(Server.ServerType,Server.Name, "Error with doInboxTest: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnableOneDriveUploadTest)
+
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "EnableOneDriveUploadTest: " + Server.EnableOneDriveUploadTest, Common.LogLevel.Normal);
+                if (Server.EnableOneDriveUploadTest)
 					try
 					{ uploadFile(Server, ref AllTestsList); }
 					catch (Exception ex)
 					{ Common.WriteDeviceHistoryEntry(Server.ServerType,Server.Name, "Error with uploadFile: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnableOneDriveDownloadTest)
+
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "EnableOneDriveDownloadTest: " + Server.EnableOneDriveDownloadTest, Common.LogLevel.Normal);
+                if (Server.EnableOneDriveDownloadTest)
 					try
-					{
-						
+					{	
 						downloadSPFile(Server, ref AllTestsList); }
 					catch (Exception ex)
 					{ Common.WriteDeviceHistoryEntry(Server.ServerType,Server.Name, "Error with downloadSPFile: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnableCreateFolderTest)
+
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "EnableCreateFolderTest: " + Server.EnableCreateFolderTest, Common.LogLevel.Normal);
+                if (Server.EnableCreateFolderTest)
 					try
 					{ createFolderTest(Server, ref AllTestsList); }
 					catch (Exception ex)

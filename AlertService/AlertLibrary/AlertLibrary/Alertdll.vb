@@ -191,7 +191,7 @@ Public Class Alertdll
                 Next
                 If DeviceList Then
                     If DeviceType = "Office365" Then
-                        UpdateStatusDetails(Location, DeviceName, AlertType, Details, Location, Category, "Fail", NowTime)
+                        UpdateStatusDetails(Location, DeviceName, AlertType, Details, Location, Category, "Fail", NowTime, isOffice365:=True)
                     Else
                         UpdateStatusDetails(DeviceType, DeviceName, AlertType, Details, Location, Category, "Fail", NowTime)
                     End If
@@ -206,7 +206,7 @@ Public Class Alertdll
     End Sub
     'Mukund 14Jul14, VSPLUS-814 - StatusDetail insert/update sql
     Private Sub UpdateStatusDetails(ByVal DeviceType As String, ByVal DeviceName As String, ByVal AlertType As String, ByVal Details As String, ByVal Location As String,
-      ByVal Category As String, ByVal Result As String, ByVal NowTime As String)
+      ByVal Category As String, ByVal Result As String, ByVal NowTime As String, Optional ByVal isOffice365 As Boolean = False)
         Dim connString As String = GetDBConnection()
         Dim repoStatusDetails As New Repository(Of StatusDetails)(connString)
         Dim repoServer As New Repository(Of Server)(connString)
@@ -220,8 +220,13 @@ Public Class Alertdll
 
         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Updating status_details for " & DeviceName & ", " & DeviceType, LogLevel.Verbose)
         Try
-            filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.DeviceName, DeviceName) And
-                repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType)
+            filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.DeviceName, DeviceName)
+            If (Not isOffice365) Then
+                filterDefServer = filterDefServer And repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType)
+            Else
+                filterDefServer = filterDefServer And repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription())
+            End If
+
             serversEntity = repoServer.Find(filterDefServer).ToArray()
             If serversEntity.Count > 0 Then
                 WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Found servers ", LogLevel.Verbose)
@@ -245,7 +250,15 @@ Public Class Alertdll
                     repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
                 Else
                     'insert
-                    Dim entity As New StatusDetails With {.DeviceId = serverID, .Type = DeviceType, .category = IIf(Category = "", DeviceType, Category), .TestName = AlertType, .Result = Result, .LastUpdate = Now, .Details = Details}
+                    Dim entity As New StatusDetails With {
+                        .DeviceId = serverID,
+                        .Type = DeviceType,
+                        .category = IIf(Category = "", DeviceType, Category),
+                        .TestName = AlertType,
+                        .Result = Result,
+                        .LastUpdate = Now,
+                        .Details = Details
+                    }
                     repoStatusDetails.Insert(entity)
                 End If
             End If
@@ -325,7 +338,7 @@ Public Class Alertdll
             End If
             'VSPLUS-930,Mukund, 15Sep14 pass Category, Details parameters
             If DeviceType = "Office365" Then
-                UpdateStatusDetails(Location, DeviceName, AlertType, Details, Location, Category, "Pass", NowTime)
+                UpdateStatusDetails(Location, DeviceName, AlertType, Details, Location, Category, "Pass", NowTime, isOffice365:=True)
             Else
                 UpdateStatusDetails(DeviceType, DeviceName, AlertType, Details, Location, Category, "Pass", NowTime)
             End If

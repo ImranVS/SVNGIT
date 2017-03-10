@@ -35,7 +35,7 @@ namespace VitalSignsMicrosoftClasses
 		public string nodeName = "";
 		DateTime time = DateTime.Now;              // Use current time
 		string format = "t";
-		DataTable Ostranslationdata = new DataTable();
+        List<VSNext.Mongo.Entities.MobileDeviceTranslations> listOfOsTranslations = new List<VSNext.Mongo.Entities.MobileDeviceTranslations>();
 		#region main
 		public void checkServer(MonitoredItems.Office365Server Server, ref TestResults AllTestsList, ReturnPowerShellObjects results)
 		{
@@ -170,6 +170,7 @@ namespace VitalSignsMicrosoftClasses
 		}
 		private void doSPOTests(Parameters p)
 		{
+            return;
 			createSPOSite(p.myServer, ref p.TS, p.PSO);
 			removeSPOSite(p.myServer, ref p.TS, p.PSO);
 		}
@@ -1197,11 +1198,13 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 
 			try
 			{
-				CommonDB db = new CommonDB();
-				if (db.RecordExists("SELECT * FROM [vitalsigns].[dbo].[OSTypeTranslation]"))
-				{
-					Ostranslationdata = db.GetData("select * from [vitalsigns].[dbo].[OSTypeTranslation]");
-				}
+                CommonDB db = new CommonDB();
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.MobileDeviceTranslations> repoTranslations = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.MobileDeviceTranslations>(db.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.MobileDeviceTranslations> filterDefTranslations = repoTranslations.Filter.Eq(x => x.Type, "OS");
+                List<VSNext.Mongo.Entities.MobileDeviceTranslations> tempList = repoTranslations.Find(filterDefTranslations).ToList();
+                if (tempList.Count > 0)
+                    listOfOsTranslations = tempList.ToList();
+
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
@@ -1239,7 +1242,9 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 							myDevice.DeviceType = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
 							myDevice.DeviceOS = ps.Properties["DeviceOS"].Value == null ? "" : ps.Properties["DeviceOS"].Value.ToString();
 							myDevice.DeviceUserAgent = ps.Properties["DeviceUserAgent"].Value == null ? "" : ps.Properties["DeviceUserAgent"].Value.ToString();
-							string[] aDeviceType = null;
+                            myDevice.LastSuccessSync = ps.Properties["LastSuccessSync"].Value == null ? "" : ps.Properties["LastSuccessSync"].Value.ToString();
+
+                            string[] aDeviceType = null;
 							string DeviceType = "";
 							string OsType = "";
 							string[] DeviceName = null;
@@ -1283,22 +1288,9 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 								TranslatedValue = string.IsNullOrEmpty(TranslatedValue) ? myDevice.DeviceOS : TranslatedValue;
 								if ((myDevice.DeviceOS).ToLower().Contains("ios"))
 								{
-									string keyField = "OSType";
 
-
-									DataRow[] dr = Ostranslationdata.Select(keyField + " = '" + OsType + "'");
-									if (dr.Length > 0)
-									{
-										List<string> lstResult = (from table in Ostranslationdata.AsEnumerable()
-																  where table.Field<string>("OSType") == OsType && table.Field<string>("OSName") == OSName
-																  select table.Field<string>("TranslatedValue")).ToList();
-										if (lstResult.Count > 0)
-											TranslatedValue = lstResult[0];
-									}
-									else
-									{
-										TranslatedValue = myDevice.DeviceOS;
-									}
+                                    tempList = listOfOsTranslations.Where(x => x.OriginalValue == OSName && x.OSType == OsType).ToList();
+                                    TranslatedValue = tempList.Count > 0 ? tempList[0].TranslatedValue : myDevice.DeviceOS;
 								}
 							}
 
@@ -1315,25 +1307,8 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 							// myDevice.Identity = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
 							myDevice.DeviceAccessState = ps.Properties["DeviceAccessState"].Value == null ? "" : ps.Properties["DeviceAccessState"].Value.ToString();
 							if (myDevice.DeviceAccessState == "Allowed") { myDevice.DeviceAccessState = "Allow"; }
-                            //strSQL = "IF EXISTS ( " +
-                            //            "SELECT * FROM [vitalsigns].[dbo].[Traveler_Devices] where " +
-                            //            "DeviceID='" + myDevice.DeviceID + "') " +
-                            //            "begin " +
+                           
 
-                            //            "update [vitalsigns].[dbo].[Traveler_Devices] set " +
-                            //            "[UserName]='" + Username + "',  [Security_Policy]='" + myDevice.DevicePolicyApplied + "', [DeviceName]='" + myDevice.DeviceModel + "', " +
-                            //            " [OS_Type]= '" + myDevice.DeviceOS + "',[OS_Type_Min]= '" + TranslatedValue + "', [Client_Build]='" + myDevice.DeviceActiveSyncVersion + "', [device_type]='" + myDevice.DeviceType + "', " +
-                            //            "[ServerName]='" + myServer.Name + "', [Access]='" + myDevice.DeviceAccessState + "', [DeviceID]='" + myDevice.DeviceID + "', [LastUpdated]='" + DateTime.Now + "' " +
-                            //            "where DeviceID='" + myDevice.DeviceID + "' " +
-
-                            //            "end  else " +
-
-                            //            "begin " +
-                            //            "INSERT INTO vitalsigns.dbo.Traveler_Devices (UserName, Security_Policy, DeviceName, LastSyncTime, OS_Type, Client_Build, device_type, ServerName, Access, DeviceID, LastUpdated, IsActive,OS_Type_Min) " +
-                            //            " VALUES ('" + Username + "', '" + myDevice.DevicePolicyApplied + "', '" + myDevice.DeviceModel + "',  NULL, '" + myDevice.DeviceOS + "', '" +
-                            //            myDevice.DeviceActiveSyncVersion + "', '" + myDevice.DeviceType + "', '" + myServer.Name + "', '" + myDevice.DeviceAccessState + "', '" + myDevice.DeviceID + "', '" + DateTime.Now + "', 1,'" + TranslatedValue + "') end";
-
-                            //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL + strSQLValues });
                             MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
                             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
                             mongoStatement.updateDef = mongoStatement.repo.Updater
@@ -1358,7 +1333,9 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						catch (Exception ex)
 						{
 							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: Error while processing data for User: " + Username + " : Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
-						}
+                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: Error while processing data for User: " + Username + " : Exception: " + ex.StackTrace, Common.LogLevel.Normal);
+                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: Error while processing data for User: " + Username + " : Exception: " + ex, Common.LogLevel.Normal);
+                        }
 
 					}
 
@@ -1392,20 +1369,17 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
             CommonDB db = new CommonDB();
 			try
 			{
-                //get key devices
-                //if (db.RecordExists("SELECT * FROM [vitalsigns].[dbo].[MobileUserThreshold]"))
-                //{
-                    dt = db.GetData("select DeviceId,SyncTimeThreshold from [vitalsigns].[dbo].[MobileUserThreshold]");
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        if (keyDevices=="")
-                            keyDevices= "'" + dr[0].ToString() + "'";
-                        else
-                            keyDevices += ",'" + dr[0].ToString() + "'";
-
-                        dict.Add(dr[0].ToString(), dr[1].ToString());
-                    }
-                //}
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.MobileDevices> repositoryMobileDevices = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.MobileDevices>(db.GetMongoConnectionString());
+                List<VSNext.Mongo.Entities.MobileDevices> tempList = repositoryMobileDevices.Find(x => true).ToList();
+                foreach(VSNext.Mongo.Entities.MobileDevices entity in tempList)
+                {
+                    if (keyDevices == "")
+                        keyDevices = "'" + entity.DeviceID + "'";
+                    else
+                        keyDevices += ",'" + entity.DeviceID + "'";
+                    dict.Add(entity.DeviceID, entity.ThresholdSyncTime.ToString());
+                }
+                
             }
             catch
             {
@@ -1415,11 +1389,13 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
                 try
                 {
 
-				if (db.RecordExists("SELECT * FROM [vitalsigns].[dbo].[OSTypeTranslation]"))
-				{
-					Ostranslationdata = db.GetData("select * from [vitalsigns].[dbo].[OSTypeTranslation]");
-				}
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsersHourly: Starting.", Common.LogLevel.Normal);
+                    VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.MobileDeviceTranslations> repoTranslations = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.MobileDeviceTranslations>(db.GetMongoConnectionString());
+                    FilterDefinition<VSNext.Mongo.Entities.MobileDeviceTranslations> filterDefTranslations = repoTranslations.Filter.Eq(x => x.Type, "OS");
+                    List<VSNext.Mongo.Entities.MobileDeviceTranslations> tempList = repoTranslations.Find(filterDefTranslations).ToList();
+                    if (tempList.Count > 0)
+                        listOfOsTranslations = tempList.ToList();
+
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsersHourly: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-MobileDevice";
@@ -1518,23 +1494,10 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 							TranslatedValue = string.IsNullOrEmpty(TranslatedValue) ? myDevice.DeviceOS : TranslatedValue;
 							if ((myDevice.DeviceOS).ToLower().Contains("ios"))
 							{
-								string keyField = "OSType";
+                                    tempList = listOfOsTranslations.Where(x => x.OriginalValue == OSName && x.OSType == OsType).ToList();
+                                    TranslatedValue = tempList.Count > 0 ? tempList[0].TranslatedValue : myDevice.DeviceOS;
 
-
-								DataRow[] dr = Ostranslationdata.Select(keyField + " = '" + OsType + "'");
-								if (dr.Length > 0)
-								{
-									List<string> lstResult = (from table in Ostranslationdata.AsEnumerable()
-															  where table.Field<string>("OSType") == OsType && table.Field<string>("OSName") == OSName
-															  select table.Field<string>("TranslatedValue")).ToList();
-									if (lstResult.Count > 0)
-										TranslatedValue = lstResult[0];
-								}
-								else
-								{
-									TranslatedValue = myDevice.DeviceOS;
-								}
-							}
+                            }
 						}
 						myDevice.LastSuccessSync = ps.Properties["LastSuccessSync"].Value == null ? "" : ps.Properties["LastSuccessSync"].Value.ToString();
 						myDevice.DeviceUserAgent = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
@@ -1586,6 +1549,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
                             .Set(i => i.Access, myDevice.DeviceAccessState)
                             .Set(i => i.IsActive, true)
                             .Set(i => i.SyncType, "ActiveSync");
+
                         AllTestsList.MongoEntity.Add(mongoStatement);
                             string val = dict[myDevice.DeviceID].ToString();
                             DateTime dtNowUtc = DateTime.UtcNow;

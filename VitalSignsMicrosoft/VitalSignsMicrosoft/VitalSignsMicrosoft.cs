@@ -28,37 +28,44 @@ namespace VitalSignsExchange
         {
             try
             {
-			//Sowjanya 1558 ticket
-			var myRegistry = new VSFramework.RegistryHandler();
-			myRegistry.WriteToRegistry("VS Microsoft Service Start", (DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString()));
+			    //Sowjanya 1558 ticket
+			    var myRegistry = new VSFramework.RegistryHandler();
+			    myRegistry.WriteToRegistry("VS Microsoft Service Start", (DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString()));
 
-			MicrosoftHelperObject MSObj = getMicrosoftHelperObject();
-                
-                ExchangeMAIN exMain = new ExchangeMAIN();
-				Thread MasterExchangeThread = new Thread(() => exMain.StartProcess(MSObj));
-                MasterExchangeThread.IsBackground = true;
-                MasterExchangeThread.Priority = ThreadPriority.Normal;
-				MasterExchangeThread.Name = "Master Exchange Thread";
+			    MicrosoftHelperObject MSObj = getMicrosoftHelperObject();
+                ExchangeMAIN exMain = null;
+                ActiveDirectoryMAIN adMain = null;
+                MonitorTables monTbls = null;
+                WindowsMAIN winMain = null;
+                Office365MAIN o365Main = null;
+                SharepointMAIN spMain = null;
+
+
+                //exMain = new ExchangeMAIN();
+				//Thread MasterExchangeThread = new Thread(() => exMain.StartProcess(MSObj));
+                //MasterExchangeThread.IsBackground = true;
+                //MasterExchangeThread.Priority = ThreadPriority.Normal;
+				//MasterExchangeThread.Name = "Master Exchange Thread";
                 //MasterExchangeThread.Start();
-                Thread.Sleep(2000);
+                //Thread.Sleep(2000);
 
-				ActiveDirectoryMAIN adMain = new ActiveDirectoryMAIN();
-				Thread MasterActiveDirectoryThread = new Thread(() => adMain.StartProcess(MSObj));
-				MasterActiveDirectoryThread.IsBackground = true;
-				MasterActiveDirectoryThread.Priority = ThreadPriority.Normal;
-				MasterActiveDirectoryThread.Name = "Master AD Thread";
+				//adMain = new ActiveDirectoryMAIN();
+				//Thread MasterActiveDirectoryThread = new Thread(() => adMain.StartProcess(MSObj));
+				//MasterActiveDirectoryThread.IsBackground = true;
+				//MasterActiveDirectoryThread.Priority = ThreadPriority.Normal;
+				//MasterActiveDirectoryThread.Name = "Master AD Thread";
 				//MasterActiveDirectoryThread.Start();
-				Thread.Sleep(2000);
+				//Thread.Sleep(2000);
 
-				SharepointMAIN spMain = new SharepointMAIN();
-				Thread MasterSharePointThread = new Thread(() => spMain.StartProcess(MSObj));
-				MasterSharePointThread.IsBackground = true;
-				MasterSharePointThread.Priority = ThreadPriority.Normal;
-				MasterSharePointThread.Name = "Master SP Thread";
-				//MasterSharePointThread.Start();
-				Thread.Sleep(2000);
+				//spMain = new SharepointMAIN();
+				//Thread MasterSharePointThread = new Thread(() => spMain.StartProcess(MSObj));
+				//MasterSharePointThread.IsBackground = true;
+				//MasterSharePointThread.Priority = ThreadPriority.Normal;
+				//MasterSharePointThread.Name = "Master SP Thread";
+			    //MasterSharePointThread.Start();
+				//Thread.Sleep(2000);
 
-				Office365MAIN o365Main = new Office365MAIN();
+				o365Main = new Office365MAIN();
 				Thread MasterO365Thread = new Thread(() => o365Main.StartProcess(MSObj));
 				MasterO365Thread.IsBackground = true;
 				MasterO365Thread.Priority = ThreadPriority.Normal;
@@ -66,15 +73,15 @@ namespace VitalSignsExchange
 				MasterO365Thread.Start();
 				Thread.Sleep(2000);
 
-				WindowsMAIN winMain = new WindowsMAIN();
-				Thread winMainThread = new Thread(() => winMain.StartProcess(MSObj));
-				winMainThread.IsBackground = true;
-				winMainThread.Priority = ThreadPriority.Normal;
-				winMainThread.Name = "Master Win Thread";
+				//winMain = new WindowsMAIN();
+				//Thread winMainThread = new Thread(() => winMain.StartProcess(MSObj));
+				//winMainThread.IsBackground = true;
+				//winMainThread.Priority = ThreadPriority.Normal;
+				//winMainThread.Name = "Master Win Thread";
 				//winMainThread.Start();
-				Thread.Sleep(2000);
+				//Thread.Sleep(2000);
 
-				MonitorTables monTbls = new MonitorTables(ref adMain, ref exMain, ref spMain, ref winMain, ref o365Main);
+				monTbls = new MonitorTables(ref adMain, ref exMain, ref spMain, ref winMain, ref o365Main);
 				Thread monitorChanges = new Thread(new ThreadStart(monTbls.CheckForTableChanges));
 				monitorChanges.IsBackground = true;
 				monitorChanges.Priority = ThreadPriority.Normal;
