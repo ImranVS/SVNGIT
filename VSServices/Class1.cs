@@ -173,6 +173,7 @@ namespace RPRWyatt.VitalSigns.Services
                     VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes>(connectionString);
                     FilterDefinition<VSNext.Mongo.Entities.Nodes> filterDef = repository.Filter.Eq(x => x.Name, NodeName);
                     UpdateDefinition<VSNext.Mongo.Entities.Nodes> updateDef = repository.Updater.Set(x => x.AssemblyInfo, listAssemblyInfo);
+                    
                     repository.Update(filterDef, updateDef);
                 }
                 catch (Exception ex)
@@ -191,8 +192,6 @@ namespace RPRWyatt.VitalSigns.Services
 		public static void CheckForInsufficentLicenses(Object objServers, string ServerType, string ServerTypeForTypeAndName)
 		{
 			MonitoredItems.MonitoredDevicesCollection servers = objServers as MonitoredItems.MonitoredDevicesCollection;
-			
-			String sql = "";
 			VSFramework.VSAdaptor adapter = new VSFramework.VSAdaptor();
             try
             {
@@ -201,11 +200,11 @@ namespace RPRWyatt.VitalSigns.Services
                     for (int i = 0; i < servers.Count; i++)
                     {
                         MonitoredItems.MonitoredDevice server = servers.get_Item(i);
-                        Type t = server.GetType();
+                        
                         if (server.InsufficentLicenses)
                         {
-
-                            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>();
+                            
+                            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>(connectionString);
                             FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.DeviceType.Equals(server.ServerType) && p.DeviceName.Equals(server.Name));
                             UpdateDefinition<VSNext.Mongo.Entities.Status> updateDef = repository.Updater
                                 .Set(p => p.CurrentStatus, "Insufficient Licenses")
@@ -219,9 +218,9 @@ namespace RPRWyatt.VitalSigns.Services
                             servers.Delete(server.Name);
                             i--;
                         }
-                        if (!server.isMasterRunning)
+                        else if (!server.isMasterRunning)
                         {
-                            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>();
+                            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>(connectionString);
                             FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.DeviceType.Equals(server.ServerType) && p.DeviceName.Equals(server.Name));
                             UpdateDefinition<VSNext.Mongo.Entities.Status> updateDef = repository.Updater
                                 .Set(p => p.CurrentStatus, "Insufficient Licenses")
@@ -388,6 +387,10 @@ namespace RPRWyatt.VitalSigns.Services
                 return VSServices.UpdateServiceCollection(ServerType, NodeName);
             }
 
+            public MonitoredItems.MonitoredDevice SelectServerToMonitor(MonitoredItems.MonitoredDevicesCollection collection)
+            {
+                return VSServices.SelectServerToMonitor(collection);
+            }
         }
 
 	}
