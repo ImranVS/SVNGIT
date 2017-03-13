@@ -1,6 +1,6 @@
 ﻿import { Component, ComponentFactoryResolver, OnInit } from '@angular/core';
 import { WidgetService } from '../../../core/widgets/services/widget.service';
-
+import { WidgetController, WidgetContract } from '../../../core/widgets';
 import { RESTService } from '../../../core/services/rest.service';
 import * as helpers from '../../../core/services/helpers/helpers';
 declare var Highcharts: any;
@@ -15,8 +15,9 @@ declare var injectSVG: any;
         helpers.UrlHelperService
     ]
 })
-export class DiskSpaceConsumptionReport implements OnInit {
+export class DiskSpaceConsumptionReport extends WidgetController implements OnInit {
     contextMenuSiteMap: any;
+    serviceId: any;
     private data: any[];
     private drives: any[] = [];
 
@@ -57,8 +58,10 @@ export class DiskSpaceConsumptionReport implements OnInit {
     currentWidgetName: string = `avgcpuutilchart`;
     currentWidgetURL: string = `/dashboard/overall/disk-space`;
 
-    constructor(private service: RESTService, protected widgetService: WidgetService,
-        protected urlHelpers: helpers.UrlHelperService) { }
+    constructor(protected resolver: ComponentFactoryResolver, private service: RESTService, protected widgetService: WidgetService,
+        protected urlHelpers: helpers.UrlHelperService) {
+        super(resolver, widgetService);
+    }
 
     renderChart(ref: any) {
 
@@ -117,5 +120,28 @@ export class DiskSpaceConsumptionReport implements OnInit {
         injectSVG();
         
 
+    }
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+            let i = 0;
+            this.service.get(`/dashboard/overall/disk-space?deviceId=${this.serviceId}`)
+                .subscribe((response) => {
+                    //data: any[];
+                    response.data.forEach(server => server.drives.forEach(drive => {
+
+                        drive.id = i++;
+
+                        this.drives.push(drive);
+
+                    }));
+
+                    this.data = response.data;
+
+                });
+        }
     }
 }

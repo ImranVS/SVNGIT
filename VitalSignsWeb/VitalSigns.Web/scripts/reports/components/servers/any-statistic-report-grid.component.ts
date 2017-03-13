@@ -49,9 +49,10 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
     
 
     ngOnInit() {
-
+        //this.gridUrl = this.widgetService.getProperty('gridUrl');
+        this.gridUrl = `/reports/summarystats_aggregation?type=Domino&aggregationType=sum&statName=[Mail.Transferred,Mail.TotalRouted,Mail.Delivered]`;
         var displayDate = (new Date()).toISOString().slice(0, 10);
-        this.service.get(`/reports/summarystats_aggregation?type=Domino&aggregationType=sum&statName=[Mail.TotalRouted,Mail.Transferred,Mail.Delivered]`)
+        this.service.get(this.gridUrl)
             .subscribe(
             (data) => {
                 var newData = this.datetimeHelpers.toLocalDate(data);

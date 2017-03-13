@@ -1,8 +1,9 @@
-﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
+﻿import { Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
-import {AppNavigator} from '../../../navigation/app.navigator.component';
+import { AppNavigator } from '../../../navigation/app.navigator.component';
+import { Office365Grid } from './office365-grid.component';
 import { ActivatedRoute } from '@angular/router';
 import { ServiceTab } from '../../../services/models/service-tab.interface';
 declare var injectSVG: any;
@@ -16,6 +17,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
 
     widgets: WidgetContract[];
     serviceId: string;
+    nodeName: string;
     
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
@@ -23,13 +25,69 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
     }
 
     ngOnInit() {
-        this.route.params.subscribe(params => {
-            if (params['service'])
-                this.serviceId = params['service'];
-            else
-                this.serviceId = this.widgetService.getProperty('serviceId');
-        });
+        //this.route.params.subscribe(params => {
+        //    if (params['service'])
+        //        this.serviceId = params['service'];
+        //    else
+        //        this.serviceId = this.widgetService.getProperty('serviceId');
+        //});
+        var res = this.serviceId.split(';');
+        if (res.length > 1) {
+            this.nodeName = res[1];
+        }
         this.widgets = [
+            {
+                id: 'mailServices',
+                title: 'Mail services',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-4',
+                settings: {
+                    url: `/services/statistics?deviceId=${res[0]}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`,
+                    dateformat: 'time',
+                    chart: {
+                        chart: {
+                            renderTo: 'mailServices',
+                            type: 'line',
+                            height: 240
+                        },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            categories: []
+                        },
+                        yAxis: {
+                            min: 0,
+                            endOnTick: false,
+                            allowDecimals: false,
+                            title: {
+                                enabled: false
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
             {
                 id: 'dailyUserLogins',
                 title: 'Daily user logins',
@@ -143,6 +201,23 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
             }
         ]
         injectSVG();
+    }
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            var serviceId = value;
+            var res = serviceId.split(';');
+            if (res.length > 1) {
+                this.nodeName = res[1];
+            }
+            
+            this.widgetService.refreshWidget('mailServices', `/services/statistics?deviceId=${res[0]}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`)
+                .catch(error => console.log(error));
+
+        }
+
     }
 
 }

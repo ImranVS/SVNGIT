@@ -9,6 +9,7 @@ import {WidgetService} from '../../../core/widgets/services/widget.service';
     templateUrl: '/app/reports/filters/components/server-filter.component.html',
 })
 export class ServerFilter {
+    @Output() select: EventEmitter<string> = new EventEmitter<string>();
     @ViewChildren('multisel1') multisel1: wijmo.input.MultiSelect;
     selectedServers: any;
     serverType: string;
@@ -26,6 +27,21 @@ export class ServerFilter {
     errorMessage: any;
     
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
+
+    get serviceId(): string {
+
+        return this.widgetService.getProperty('serviceId');
+
+    }
+
+    set serviceId(id: string) {
+
+        this.widgetService.setProperty('serviceId', id);
+
+        this.select.emit(this.widgetService.getProperty('serviceId'));
+
+    }
+
     ngOnInit() {
         this.route.queryParams.subscribe(params => {
             this.statName = params['statname'];
@@ -69,6 +85,7 @@ export class ServerFilter {
             else 
                 selectedServers += "," + item.id;
         }
+        this.serviceId = selectedServers;
         var selStartDate = (this.startDate.getDate()).toString();
         var selStartMonth = (this.startDate.getMonth()+1).toString();
         if (selStartDate.length == 1)

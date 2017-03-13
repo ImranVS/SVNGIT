@@ -62,7 +62,7 @@ export class Office365Grid implements WidgetComponent, OnInit {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = 10;
                 this.data.moveCurrentToPosition(0);
-                this.serviceId = this.data.currentItem.device_id;
+                this.serviceId = this.data.currentItem.device_id + ';' + this.data.currentItem.category;
             },
             (error) => this.errorMessage = <any>error
             );
@@ -72,15 +72,14 @@ export class Office365Grid implements WidgetComponent, OnInit {
     
 
     onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {
-
-        this.serviceId = event.panel.grid.selectedItems[0].device_id;
-
+        this.serviceId = event.panel.grid.selectedItems[0].device_id + ';' + event.panel.grid.selectedItems[0].category;
     }
-    refreshChart(event: wijmo.grid.CellRangeEventArgs) {
 
-        this.widgetService.refreshWidget('dailyActivities', `/services/summarystats?statName=[BLOGS_CREATED_LAST_DAY,COMMENT_CREATED_LAST_DAY,ENTRY_CREATED_LAST_DAY]&deviceid=${event.panel.grid.selectedItems[0].device_id}`)
-            .catch(error => console.log(error));
-        this.widgetService.refreshWidget('top5Tags', `/services/top_tags?deviceId=${event.panel.grid.selectedItems[0].device_id}`)
+    refreshChart(event: wijmo.grid.CellRangeEventArgs) {
+        var nodeName = event.panel.grid.selectedItems[0].category;
+        var deviceid = event.panel.grid.selectedItems[0].device_id;
+
+        this.widgetService.refreshWidget('mailServices', `/services/statistics?deviceId=${deviceid}&statName=[POP@` + nodeName + `,IMAP@` + nodeName + `,SMTP@` + nodeName + `]$operation=HOURLY&isChart=true`)
             .catch(error => console.log(error));
     }
 }

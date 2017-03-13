@@ -1,4 +1,4 @@
-﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
+﻿import { Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 import {WidgetController, WidgetContract} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services/rest.service';
@@ -20,9 +20,7 @@ declare var injectSVG: any;
 export class MailVolumeReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-
-    gridUrl: string = `/reports/summarystats_aggregation`;
-
+    gridUrl: string = `/reports/summarystats_aggregation?type=Domino&aggregationType=sum&statName=[Mail.Transferred,Mail.TotalRouted,Mail.Delivered]`;
     currentWidgetName: string = `anyStatisticsGrid`;
     currentWidgetURL: string = this.gridUrl;
 
@@ -41,11 +39,6 @@ export class MailVolumeReport extends WidgetController {
             data => this.contextMenuSiteMap = data,
             error => console.log(error)
             );
-        var todaysDate = new Date();
-        var endDate = todaysDate.toISOString();
-        todaysDate.setMonth(todaysDate.getMonth() - 1);
-        var startDate = todaysDate.toISOString();
-        this.gridUrl = `/reports/summarystats_aggregation?type=Domino&aggregationType=sum&statName=Mail.TotalRouted&startDate=${startDate}&endDate=${endDate}`;
         this.widgets = [
             {
                 id: 'anyStatisticsGrid',

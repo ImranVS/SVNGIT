@@ -44,7 +44,7 @@ export class AnyStatisticReport extends WidgetController {
         this.widgets = [
             {
                 id: 'anyStatisticsGrid',
-                title: 'Any Statistic',
+                title: '',
                 name: 'AnyStatisticReportGrid',
                 settings: {}
             }
