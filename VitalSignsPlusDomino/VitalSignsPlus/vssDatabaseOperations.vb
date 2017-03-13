@@ -170,7 +170,7 @@ Partial Public Class VitalSignsPlusDomino
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
                 Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, .Name + "-" + .ServerType)
                 Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
-                                                                                     .Set(Function(x) x.StatusCode, "Maintenance") _
+                                                                                     .Set(Function(x) x.StatusCode, myDominoServer.StatusCode) _
                                                                                      .Set(Function(x) x.Category, .Category) _
                                                                                      .Set(Function(x) x.DeadMail, .DeadMail) _
                                                                                      .Set(Function(x) x.Description, .Description) _
