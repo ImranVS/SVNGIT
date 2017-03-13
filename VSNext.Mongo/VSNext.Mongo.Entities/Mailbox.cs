@@ -70,12 +70,12 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("last_logon_time")]
         [BsonIgnoreIfNullAttribute]
-        public DateTime  LastLogonTime { get; set; }
+        public DateTime? LastLogonTime { get; set; }
 
         [DataMember]
         [BsonElement("last_logoff_time")]
         [BsonIgnoreIfNullAttribute]
-        public DateTime LastLogoffTime { get; set; }
+        public DateTime? LastLogoffTime { get; set; }
 
         [DataMember]
         [BsonElement("mailbox_type")]
@@ -85,7 +85,7 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("is_active")]
         [BsonIgnoreIfNullAttribute]
-        public Boolean IsActive { get; set; }
+        public Boolean? IsActive { get; set; }
     }
 
 }

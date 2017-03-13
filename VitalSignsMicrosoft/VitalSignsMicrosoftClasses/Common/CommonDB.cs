@@ -517,7 +517,12 @@ namespace VitalSignsMicrosoftClasses
 			ProcessSQLStatements(AllTestsList, Server, Server.ServerType);
 		}
 
-		public void NotRespondingQueries(MonitoredItems.MicrosoftServer Server, string ServerType, String Details = "")
+        public void ProcessMongoStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server)
+        {
+            ProcessMongoStatements(AllTestsList, Server, Server.ServerType);
+        }
+
+        public void NotRespondingQueries(MonitoredItems.MicrosoftServer Server, string ServerType, String Details = "")
 		{
 			string strSQL = "";
             try

@@ -934,16 +934,15 @@ repo.Upsert(filterdef, updatedef);
                          //       "'Microsoft " + type + " Server', '" + server.Name + "-" + server.Location + "', '" + server.StatusCode + "')End";
                          //db.Execute(SqlStr);
                          VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>(connectionString);
-                         string TypeAndName = server.Name + "-" + type;
-                         FilterDefinition<VSNext.Mongo.Entities.Status> filterdef = repo.Filter.Where(i => i.TypeAndName == TypeAndName);
+                         FilterDefinition<VSNext.Mongo.Entities.Status> filterdef = repo.Filter.Where(i => i.DeviceId == server.ServerObjectID);
                          UpdateDefinition<VSNext.Mongo.Entities.Status> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Status>);
                          updatedef = repo.Updater
                              .Set(i => i.DeviceName, server.Name)
-                              .Set(i => i.CurrentStatus, server.Status)
-                              .Set(i => i.StatusCode, server.StatusCode)
-                              .Set(i => i.LastUpdated, DateTime.Now)
+                             .Set(i => i.CurrentStatus, server.Status)
+                             .Set(i => i.StatusCode, server.StatusCode)
+                             .Set(i => i.LastUpdated, DateTime.Now)
                              .Set(i => i.Category, server.Category)
-                             .Set(i => i.TypeAndName, TypeAndName)
+                             .Set(i => i.TypeAndName, server.TypeANDName)
                              .Set(i => i.Description, "Microsoft " + type + " Server.")
                              .Set(i => i.Details, "This server has not yet been scanned.")
                              .Set(i => i.DeviceType, type)
@@ -1093,19 +1092,19 @@ repo.Upsert(filterdef, updatedef);
 						Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Hourly Task started.", Common.LogLevel.Normal);
 						//Office365Common.getMobileUsersHourly(testServer, ref AllTestResults, results);
 						Office365Common.getUserswithLicencesandServices(testServer, ref AllTestResults, results);
-                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
                          AllTestResults = new TestResults();
                         Office365Common.getMsolUsers(testServer, ref AllTestResults, results);
-                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
                          AllTestResults = new TestResults();
                         Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
-                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
                         AllTestResults = new TestResults();
                         Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
-                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
                         AllTestResults = new TestResults();
                         Office365Common.getMailboxeDetails(testServer, ref AllTestResults, results);
-                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
 						//Office365Common.Deletesummarystatsdata(testServer, ref AllTestResults, testServer.ServerType);
 						//Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
 						//Office365Common.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myOffice365Servers, results);
@@ -1177,10 +1176,10 @@ repo.Upsert(filterdef, updatedef);
                         //Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
                         //Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
 						Office365Common.getMailboxes(testServer, ref AllTestResults, results);
-                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
                         AllTestResults = new TestResults();
 						Office365Common.getMailStatusInfo(testServer, ref AllTestResults, results);
-                        DB.ProcessSQLStatements(AllTestResults, DummyServerForLogs);
+                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
 					//	Office365Common.getUserswithLicencesandServices(testServer, ref AllTestResults, results);
 
 					}
@@ -1207,12 +1206,12 @@ repo.Upsert(filterdef, updatedef);
 				else
 				{
 					//no server was found to be used to scan
-					Common.WriteDeviceHistoryEntry(serverType, "All", " Daily Task No server found to scan ", Common.LogLevel.Normal);
+					Common.WriteDeviceHistoryEntry("All", serverType, " Daily Task No server found to scan ", Common.LogLevel.Normal);
 				}
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(serverType, "All", " Daily Task Ended with an error: " + ex.Message.ToString(), Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry("All", serverType, " Daily Task Ended with an error: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 
 		}

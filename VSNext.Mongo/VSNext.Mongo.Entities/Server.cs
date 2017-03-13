@@ -814,11 +814,6 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public List<string> PassFailTests { get; set; }
 
-        [DataMember]
-        [BsonElement("tests")]
-        [BsonIgnoreIfNullAttribute]
-        public List<Tests> Tests { get; set; }
-
         #endregion
 
         #region WebSphereCell

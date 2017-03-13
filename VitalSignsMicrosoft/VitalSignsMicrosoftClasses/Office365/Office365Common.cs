@@ -729,52 +729,8 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 							string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
 							string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
 							string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
-							string LastLogonTime = ps.Properties["LastLogonTime"].Value == null ? "" : ps.Properties["LastLogonTime"].Value.ToString();
-							string LastLogoffTime = ps.Properties["LastLogoffTime"].Value == null ? "" : ps.Properties["LastLogoffTime"].Value.ToString();
-
-
-							SQLBuild objSQL = new SQLBuild();
-							objSQL.ifExistsSQLSelect = "SELECT * FROM ExchangeMailFiles WHERE Server='" + myServer.Name + "' AND DisplayName='" + DisplayName + "'";
-							objSQL.onFalseDML = "INSERT INTO ExchangeMailFiles ([ScanDate],[Database],[DisplayName],[Server],[TotalItemSizeInMB],[ItemCount],[StorageLimitStatus]) VALUES " +
-								"('" + DateTime.Now + "','" + Database + "','" + DisplayName + "','" + myServer.Name + "'," + totalItemSize + "," + ItemCount + ",'" + StorageLimitStatus + "')";
-
-
-
-
-							objSQL.onTrueDML = "UPDATE ExchangeMailFiles set [ScanDate]='" + DateTime.Now + "',[Database]='" + Database + "',[TotalItemSizeInMB]=" + totalItemSize +
-								",[ItemCount]=" + ItemCount + ",[StorageLimitStatus]='" + StorageLimitStatus + "' Where Server='" + myServer.Name.ToString() + "' AND DisplayName='" + DisplayName + "'";
-							string sqlQuery = objSQL.GetSQL(objSQL);
-							AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-							//string sqlQuery = "INSERT INTO ExchangeMailFiles ([ScanDate],[Database],[DisplayName],[Server],[TotalItemSizeInMB],[ItemCount],[StorageLimitStatus]) VALUES " +
-							//    "('" + DateTime.Now + "','" + Database + "','" + DisplayName + "','" + myServer.Name + "','" + totalItemSize + "','" + ItemCount + "','" + StorageLimitStatus + "')";
-
-
-							//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-							// Details
-							//sqlQuery = "INSERT INTO dbo.O365AdditionalMailDetails ([Server],[LastLogonTime],[LastLoggoffTime],[DisplayName]) VALUES " +
-							//    "('" + myServer.Name + "','" + LastLogonTime + "','" + LastLogoffTime + "','" + DisplayName + "')";
-
-
-							//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-                            ////SQLBuild objSQL2 = new SQLBuild();
-                            ////objSQL2.ifExistsSQLSelect = "SELECT * FROM O365AdditionalMailDetails WHERE Server='" + myServer.Name + "' AND DisplayName='" + DisplayName + "'";
-                            ////if (LastLogonTime != "")
-                            ////    objSQL2.onFalseDML = "INSERT INTO dbo.O365AdditionalMailDetails ([Server],[LastLogonTime],[LastLoggoffTime],[DisplayName]) VALUES " +
-                            ////        "('" + myServer.Name + "','" + LastLogonTime + "','" + LastLogoffTime + "','" + DisplayName + "')";
-                            ////else
-                            ////    objSQL2.onFalseDML = "INSERT INTO dbo.O365AdditionalMailDetails ([Server],[DisplayName]) VALUES " +
-                            ////    "('" + myServer.Name + "','" + DisplayName + "')";
-
-                            ////if (LastLogonTime != "")
-                            ////    objSQL2.onTrueDML = "UPDATE dbo.O365AdditionalMailDetails set [LastLogonTime]='" + LastLogonTime + "',[LastLoggoffTime]='" + LastLogoffTime + "' Where Server='" + myServer.Name.ToString() + "' AND DisplayName='" + DisplayName + "'";
-                            ////else
-                            ////    objSQL2.onTrueDML = "UPDATE dbo.O365AdditionalMailDetails set DisplayName='" + DisplayName + "' Where Server='" + myServer.Name.ToString() + "' AND DisplayName='" + DisplayName + "'";
-
-                            ////string sqlQuery2 = objSQL2.GetSQL(objSQL2);
-                            ////AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery2, DatabaseName = "VSS_Statistics" });
+							string LastLogonTime = ps.Properties["LastLogonTime"].Value == null ? null : ps.Properties["LastLogonTime"].Value.ToString();
+							string LastLogoffTime = ps.Properties["LastLogoffTime"].Value == null ? null : ps.Properties["LastLogoffTime"].Value.ToString();
 
                             MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
                             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == myServer.Name);
@@ -787,8 +743,8 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
                                 .Set(i => i.TotalItemSizeMb, Convert.ToDouble(totalItemSize))
                                 .Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
                                 .Set(i => i.StorageLimitStatus, StorageLimitStatus)
-                                .Set(i => i.LastLogonTime , Convert.ToDateTime(LastLogonTime))
-                                .Set(i => i.LastLogoffTime, Convert.ToDateTime(LastLogoffTime));
+                                .Set(i => i.LastLogonTime , LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?)
+                                .Set(i => i.LastLogoffTime, LastLogoffTime == null ? null : Convert.ToDateTime(LastLogoffTime) as DateTime?);
 
                             AllTestsList.MongoEntity.Add(mongoStatement);
 						}
@@ -804,7 +760,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 				//myServer.ADQueryTest = "Fail";
 				//Common.makeAlert(false, myServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestsList, myServer.ServerType);
 			}
@@ -813,7 +769,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 		{
 			try
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Starting.", Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxesDetails: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-Mailbox | Get-MailboxStatistics | Select DisplayName,Database,TotalItemSize,ItemCount,StorageLimitStatus,ServerName,LastLogonTime,LastLogoffTime";
@@ -927,7 +883,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 		{
 			try
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku: Starting.", Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-Command| where {$_.Name -like '*Msol*'}";
@@ -1590,7 +1546,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 		{
 			try
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Starting.", Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailStatusInfo: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-MessageTrace -StartDate ([DateTime]::Today.AddDays(-1)) -EndDate ([DateTime]::Today) | Select Received,SenderAddress,RecipientAddress,Size";
@@ -3018,7 +2974,16 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			{
 				//get the
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSummaryStats: Starting.", Common.LogLevel.Normal);
-				string SqlQuery = "select COUNT(*) CNT from O365AdditionalMailDetails  where LastLogonTime > GETDATE()-1 and Server='" + myServer.Name + "'";
+                CommonDB db = new CommonDB();
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Mailbox> repoMailbox = new VSNext.Mongo.Repository.Repository< VSNext.Mongo.Entities.Mailbox>(db.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Mailbox> filterDef = repoMailbox.Filter.Eq(i => i.DeviceName, myServer.Name) & repoMailbox.Filter.Lte(x => x.LastLogonTime, DateTime.Now.AddDays(-1));
+                int activeMailboxes = repoMailbox.Find(filterDef).Count();
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "ActiveUsersCount", activeMailboxes.ToString()));
+
+
+                
+                /*
+                //string SqlQuery = "select COUNT(*) CNT from O365AdditionalMailDetails  where LastLogonTime > GETDATE()-1 and Server='" + myServer.Name + "'";
 				string SqlQuery2 = "update dbo.O365AdditionalMailDetails set InActiveDaysCount=DATEDIFF(D,lastlogontime,getdate()) where lastlogontime is not null and Server='" + myServer.Name + "'";
 
 				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = SqlQuery2, DatabaseName = "VSS_Statistics" });
@@ -3045,7 +3010,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				}
 
 				//string sSQL="insert into dbo.MicrosoftSummaryStats ('"+ myServer.Name + "','" + myServer.ServerTypeId.ToString() +"',"
-
+                */
 			}
 			catch (Exception ex)
 			{
