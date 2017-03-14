@@ -1612,53 +1612,70 @@ namespace VSNext.Mongo.Entities
     public class Office365MSOLUsers : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public int ServerId { get; set; }
-
-        [DataMember]
         [BsonElement("display_name")]
+        [BsonIgnoreIfNull]
         public string DisplayName { get; set; }
 
         [DataMember]
         [BsonElement("first_name")]
+        [BsonIgnoreIfNull]
         public string FirstName { get; set; }
 
         [DataMember]
         [BsonElement("last_name")]
+        [BsonIgnoreIfNull]
         public string LastName { get; set; }
 
         [DataMember]
         [BsonElement("user_principal_name")]
+        [BsonIgnoreIfNull]
         public string UserPrincipalName { get; set; }
 
         [DataMember]
         [BsonElement("user_type")]
+        [BsonIgnoreIfNull]
         public string UserType { get; set; }
 
         [DataMember]
         [BsonElement("title")]
+        [BsonIgnoreIfNull]
         public string Title { get; set; }
 
         [DataMember]
         [BsonElement("is_licensed")]
-        public string IsLicensed { get; set; }
+        [BsonIgnoreIfNull]
+        public Boolean? IsLicensed { get; set; }
+
+        [DataMember]
+        [BsonElement("license")]
+        [BsonIgnoreIfNull]
+        public String License { get; set; }
 
         [DataMember]
         [BsonElement("department")]
+        [BsonIgnoreIfNull]
         public string Department { get; set; }
 
         [DataMember]
         [BsonElement("strong_password_required")]
-        public string StrongPasswordRequired { get; set; }
+        [BsonIgnoreIfNull]
+        public Boolean? StrongPasswordRequired { get; set; }
 
         [DataMember]
         [BsonElement("passwprd_never_expires")]
-        public string PasswordNeverExpires { get; set; }
+        [BsonIgnoreIfNull]
+        public Boolean? PasswordNeverExpires { get; set; }
 
         [DataMember]
         [BsonElement("group_member_type")]
+        [BsonIgnoreIfNull]
         public string GroupMemberType { get; set; }
 
+        [DataMember]
+        [BsonElement("device_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        [BsonIgnoreIfNull]
+        public string DeviceId { get; set; }
     }
 
     [DataContract]

@@ -39,118 +39,118 @@ namespace VitalSignsMicrosoftClasses
 		#region main
 		public void checkServer(MonitoredItems.Office365Server Server, ref TestResults AllTestsList, ReturnPowerShellObjects results)
 		{
-			if (ConfigurationManager.AppSettings["VSNodeName"] != null)
-				nodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
+                if (ConfigurationManager.AppSettings["VSNodeName"] != null)
+                    nodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
 
-			if (Server.Mode == "ADFS")
-				doADFSTest(Server, ref AllTestsList);
+                if (Server.Mode == "ADFS")
+                    doADFSTest(Server, ref AllTestsList);
 
-			using (results)
-			{
+                using (results)
+                {
 
-				Parameters p = new Parameters();
-				p.myServer = Server;
-				p.PSO = results;
-				p.TS = AllTestsList;
-                getMsolAccountSku(Server, ref AllTestsList, results);
-                //getMsolCompanyInfo(Server, ref AllTestsList, results);
-				//getUserswithLicencesandServices(Server, ref AllTestsList, results);
-				//getServiceStatus(Server, ref AllTestsList, results);
-				//getMobileStats(p);//soma
-				//Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
-				if (Server.EnableAutoDiscoveryTest)
-					try
-					{
-						TestAutoDiscovery(Server, ref AllTestsList);
-					}
-					catch (Exception ex)
-					{ Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with Auto Discovery Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
+                    Parameters p = new Parameters();
+                    p.myServer = Server;
+                    p.PSO = results;
+                    p.TS = AllTestsList;
+                    getMsolAccountSku(Server, ref AllTestsList, results);
+                    //getMsolCompanyInfo(Server, ref AllTestsList, results);
+                    //getUserswithLicencesandServices(Server, ref AllTestsList, results);
+                    //getServiceStatus(Server, ref AllTestsList, results);
+                    //getMobileStats(p);//soma
+                    //Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
+                    if (Server.EnableAutoDiscoveryTest)
+                        try
+                        {
+                            TestAutoDiscovery(Server, ref AllTestsList);
+                        }
+                        catch (Exception ex)
+                        { Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with Auto Discovery Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
 
-				if (Server.EnableIMAPTest)
-					try
-					{
-						TestIMAP(Server, ref AllTestsList);
-					}
-					catch (Exception ex)
-					{ Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with IMAP Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnableSMTPTest)
-					try
-					{
-						TestSMTP(Server, ref AllTestsList);
-					}
-					catch (Exception ex)
+                    if (Server.EnableIMAPTest)
+                        try
+                        {
+                            TestIMAP(Server, ref AllTestsList);
+                        }
+                        catch (Exception ex)
+                        { Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with IMAP Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
+                    if (Server.EnableSMTPTest)
+                        try
+                        {
+                            TestSMTP(Server, ref AllTestsList);
+                        }
+                        catch (Exception ex)
 
-					{ Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with SMTP Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnablePOPTest)
-					try
-					{
-						TestPOP(Server, ref AllTestsList);
-					}
-					catch (Exception ex)
-					{ Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with POP Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				if (Server.EnableMAPIConnectivityTest)
-					try
-					{
-						TestMAPIConectivity(Server, ref AllTestsList, results);
-					}
-					catch (Exception ex)
-					{ Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with MAPIConnectivity Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
-				doLyncTests(p);
-				if (Server.EnableCreateSiteTest)
-				{
-					doSPOTests(p);
-				}
-
-
-				//o365Th = new Thread(() => getMailBoxStats(p));
-				//o365Th.Name = Server.Name + " getMailBoxStats";
-				//WaitForThread(o365Th, Server);
-				//getMailBoxStats(p);
-
-				//o365Th = new Thread(() => getMobileStats(p));
-				//o365Th.Name = Server.Name + " getMobileStats";
-				//WaitForThread(o365Th, Server);
-				getMobileStats(p);
-                getMobileUsersHourly(p.myServer, ref p.TS, p.PSO);
-				//Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "do REST API Tests ", Common.LogLevel.Normal);
-
-				//o365Th = new Thread(() => doAPITests(p));
-				//o365Th.Name = Server.Name + " doAPITests";
-				//WaitForThread(o365Th, Server);
-
-				//getMailboxes(Server, ref AllTestsList, results);
-				//getMailboxeDetails(Server, ref AllTestsList, results);
-				
-				//getAllUsers(Server, ref AllTestsList, results);
-				//getMobileUsers(Server, ref AllTestsList, results);
-				//getMailboxActivity(Server, ref AllTestsList, results);
+                        { Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with SMTP Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
+                    if (Server.EnablePOPTest)
+                        try
+                        {
+                            TestPOP(Server, ref AllTestsList);
+                        }
+                        catch (Exception ex)
+                        { Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with POP Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
+                    if (Server.EnableMAPIConnectivityTest)
+                        try
+                        {
+                            TestMAPIConectivity(Server, ref AllTestsList, results);
+                        }
+                        catch (Exception ex)
+                        { Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error with MAPIConnectivity Test: " + ex.Message.ToString(), Common.LogLevel.Normal); }
+                    doLyncTests(p);
+                    if (Server.EnableCreateSiteTest)
+                    {
+                        doSPOTests(p);
+                    }
 
 
-				//getLyncStats(Server, ref AllTestsList, results);
-				//getLyncDevices(Server, ref AllTestsList, results);
-				//getLyncPAVTimeReport(Server, ref AllTestsList, results);
-				//getLyncConferenceReport(Server, ref AllTestsList, results);
-				//getLyncP2PSessionReport(Server, ref AllTestsList, results);
-				//doO365RESTApiTests(Server, ref AllTestsList);
+                    //o365Th = new Thread(() => getMailBoxStats(p));
+                    //o365Th.Name = Server.Name + " getMailBoxStats";
+                    //WaitForThread(o365Th, Server);
+                    //getMailBoxStats(p);
 
-				if (Server.Mode == "Dir Sync" && Server.DirSyncServerName != "")
-				{
-					ReturnPowerShellObjects PSO = null;
-					PSO = Common.PrereqForWindows(Server.DirSyncServerName, Server.DirSyncUID, Server.DirSyncPWD, "Windows", Server.DirSyncServerName, commonEnums.ServerRoles.Empty);
-					using (PSO)
-					{
-						System.Security.SecureString securePassword = Common.String2SecureString(Server.DirSyncPWD);
-						PSCredential creds = new PSCredential(Server.DirSyncUID, securePassword);
-						getDirSyncStats(Server, creds, Server.DirSyncServerName, AllTestsList, PSO);
-					}
+                    //o365Th = new Thread(() => getMobileStats(p));
+                    //o365Th.Name = Server.Name + " getMobileStats";
+                    //WaitForThread(o365Th, Server);
+                    getMobileStats(p);
+                    getMobileUsersHourly(p.myServer, ref p.TS, p.PSO);
+                    //Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "do REST API Tests ", Common.LogLevel.Normal);
+
+                    //o365Th = new Thread(() => doAPITests(p));
+                    //o365Th.Name = Server.Name + " doAPITests";
+                    //WaitForThread(o365Th, Server);
+
+                    //getMailboxes(Server, ref AllTestsList, results);
+                    //getMailboxeDetails(Server, ref AllTestsList, results);
+
+                    //getAllUsers(Server, ref AllTestsList, results);
+                    //getMobileUsers(Server, ref AllTestsList, results);
+                    //getMailboxActivity(Server, ref AllTestsList, results);
 
 
-				}
+                    //getLyncStats(Server, ref AllTestsList, results);
+                    //getLyncDevices(Server, ref AllTestsList, results);
+                    //getLyncPAVTimeReport(Server, ref AllTestsList, results);
+                    //getLyncConferenceReport(Server, ref AllTestsList, results);
+                    //getLyncP2PSessionReport(Server, ref AllTestsList, results);
+                    //doO365RESTApiTests(Server, ref AllTestsList);
 
-				//updateResults(Server, ref AllTestsList);
+                    if (Server.Mode == "Dir Sync" && Server.DirSyncServerName != "")
+                    {
+                        ReturnPowerShellObjects PSO = null;
+                        PSO = Common.PrereqForWindows(Server.DirSyncServerName, Server.DirSyncUID, Server.DirSyncPWD, "Windows", Server.DirSyncServerName, commonEnums.ServerRoles.Empty);
+                        using (PSO)
+                        {
+                            System.Security.SecureString securePassword = Common.String2SecureString(Server.DirSyncPWD);
+                            PSCredential creds = new PSCredential(Server.DirSyncUID, securePassword);
+                            getDirSyncStats(Server, creds, Server.DirSyncServerName, AllTestsList, PSO);
+                        }
 
-			}
-			//}
+
+                    }
+
+                    //updateResults(Server, ref AllTestsList);
+
+                }
+                //}
 
 			GC.Collect();
 		}
@@ -1036,21 +1036,22 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 		{
 			try
 			{
-                            MongoStatementsInsert<VSNext.Mongo.Entities.Office365MSOLUsers> msi = new MongoStatementsInsert<VSNext.Mongo.Entities.Office365MSOLUsers>();
+                MongoStatementsInsert<VSNext.Mongo.Entities.Office365MSOLUsers> msi = new MongoStatementsInsert<VSNext.Mongo.Entities.Office365MSOLUsers>();
 
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMSOLGroups: Starting.", Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolUsers: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				String str = "Get-MSOLUser -All | Select DisplayName,FirstName,LastName,UserPrincipalName,StrongPasswordRequired,PasswordNeverExpires,UserType,Title,IsLicensed,Department,{$_.Licenses.AccountSkuId},LastUpdated";
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
 				results = powershellobj.PS.Invoke();
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMSOLGroups Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolUsers Results: " + results.Count.ToString(), Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
-				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				if (results.Count > 0)
 				{
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.O365MSOLUsers where ServerId=" + myServer.ServerId.ToString(), DatabaseName = "Vitalsigns" });
+                    MongoStatementsDelete<VSNext.Mongo.Entities.Office365MSOLUsers> mongoDelete = new MongoStatementsDelete<VSNext.Mongo.Entities.Office365MSOLUsers>();
+                    mongoDelete.filterDef = mongoDelete.repo.Filter.Eq(x => x.DeviceId, myServer.ServerObjectID);
+                    AllTestsList.MongoEntity.Add(mongoDelete);
 					foreach (PSObject ps in results)
 					{
 						string displayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
@@ -1066,7 +1067,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 							string title = ps.Properties["Title"].Value == null ? "" : ps.Properties["Title"].Value.ToString();
 							string isLicensed = ps.Properties["IsLicensed"].Value == null ? "0" : ps.Properties["IsLicensed"].Value.ToString();
 							string department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
-							string license = "";
+							string license = null;
 							if (StrongPasswordRequired.ToLower() == "true")
 							{
 								StrongPasswordRequired = "1";
@@ -1090,48 +1091,30 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 								isLicensed = "0";
 
 							if (isLicensed == "1")
-								license = ps.Properties["$_.Licenses.AccountSkuId"].Value == null ? "" : ps.Properties["$_.Licenses.AccountSkuId"].Value.ToString();
-
-							string sqlQuery = "INSERT INTO dbo.O365MSOLUsers ([ServerId],[DisplayName],[FirstName],[LastName],[UserPrincipalName],StrongPasswordRequired,PasswordNeverExpires,UserType,Title,IsLicensed,Department,LastUpdated,License) VALUES " +
-								"(" + myServer.ServerId + ",'" + displayName.Replace("'", "''") + "','" + firstName.Replace("'", "''") + "','" + lastName.Replace("'", "''") + "','" + userPrincipleName.Replace("'", "''") + "','" + StrongPasswordRequired + "','" + PasswordNeverExpires + "','" + userType + "','" + title.Replace("'", "''") + "','" + isLicensed + "','" + department.Replace("'", "''") + "','" + DateTime.Now.ToString() + "','" + license + "')";
-
-
+								license = ps.Properties["$_.Licenses.AccountSkuId"].Value == null ? null : ps.Properties["$_.Licenses.AccountSkuId"].Value.ToString();
+                            
                             VSNext.Mongo.Entities.Office365MSOLUsers Office365MSOLUsers = new VSNext.Mongo.Entities.Office365MSOLUsers();
-                            Office365MSOLUsers.ServerId = int.Parse(myServer.ServerId);
+                            Office365MSOLUsers.DeviceId = myServer.ServerObjectID;
                             Office365MSOLUsers.FirstName = firstName;
                             Office365MSOLUsers.LastName = lastName ;
                             Office365MSOLUsers.DisplayName = displayName;
                             Office365MSOLUsers.UserPrincipalName = userPrincipleName;
-                            Office365MSOLUsers.StrongPasswordRequired = StrongPasswordRequired;
-                            Office365MSOLUsers.PasswordNeverExpires = PasswordNeverExpires;
+                            Office365MSOLUsers.StrongPasswordRequired = StrongPasswordRequired == "0" ? false : true;
+                            Office365MSOLUsers.PasswordNeverExpires = PasswordNeverExpires == "0" ? false : true;
                             Office365MSOLUsers.UserType = userType;
                             Office365MSOLUsers.Title = title;
-                            Office365MSOLUsers.IsLicensed = isLicensed;
+                            Office365MSOLUsers.IsLicensed = isLicensed == "0" ? false : true;
+                            Office365MSOLUsers.License = license;
                             Office365MSOLUsers.Department = department;
 
                             msi.listOfEntities.Add(Office365MSOLUsers);
                             
-
-							//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "Vitalsigns" });
-                            //MongoStatementsInsert<VSNext.Mongo.Entities.Office365MSOLUsers> updateStatement = new MongoStatementsInsert<VSNext.Mongo.Entities.Office365MSOLUsers>();
-
-                            //updateStatement.listOfEntities = updateStatement.repo.Updater.Set(i => i.ServerId, Convert.ToInt32(myServer.ServerId)).Set(i => i.FirstName, firstName)
-                            //    .Set(i => i.LastName, lastName)
-                            //    .Set(i => i.DisplayName, displayName)
-                            //    .Set(i => i.UserPrincipalName, userPrincipleName)
-                            //.Set(i => i.StrongPasswordRequired, StrongPasswordRequired)
-                            //.Set(i => i.PasswordNeverExpires, PasswordNeverExpires)
-                            //.Set(i => i.UserType, userType)
-                            //.Set(i => i.Title, title)
-                            //.Set(i => i.IsLicensed, isLicensed)
-                            //.Set(i => i.Department, department);
-
-                            //AllTestsList.MongoEntity.Add(updateStatement);
+                            
 						}
                            
 						catch (Exception ex)
 						{
-							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMSOLGroups: Exception getting user: " + displayName + " Ex:" + ex.Message.ToString(), Common.LogLevel.Verbose);
+							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolUsers: Exception getting user: " + displayName + " Ex:" + ex.Message.ToString(), Common.LogLevel.Normal);
 						}
 
 					}
@@ -1143,7 +1126,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMSOLGroups: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolUsers: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 
