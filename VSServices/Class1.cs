@@ -353,26 +353,32 @@ namespace RPRWyatt.VitalSigns.Services
 
             try
             {
-                
+
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes>(connectionString);
+
                 FilterDefinition<VSNext.Mongo.Entities.Nodes> filterDef = repository.Filter.Eq(i => i.Name, NodeName);
-                if (repository.Find(filterDef).ToList()[0].CollectionResets.Contains(ServerType))
+                if (repository.Find(filterDef).ToList()[0].CollectionResets.Where(x => x.DeviceType == ServerType.ToString() && x.Reset.HasValue && x.Reset.Value).Count() > 0)
                 {
-                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updateDef = repository.Updater.PullFilter(i => i.CollectionResets, new FilterDefinitionBuilder<VSNext.Mongo.Entities.Enums.ServerType>().Eq(p => p, ServerType));
+                    FilterDefinitionBuilder<VSNext.Mongo.Entities.CollectionReset> filterDefBuilder = new FilterDefinitionBuilder<VSNext.Mongo.Entities.CollectionReset>();
+
+                    filterDef = filterDef & repository.Filter.ElemMatch(x => x.CollectionResets, filterDefBuilder.Eq(x => x.DeviceType, ServerType.ToString()));
+
+                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updateDef = repository.Updater.Set(i => i.CollectionResets.ElementAt(-1).DateCleared, DateTime.Now)
+                        .Set(i => i.CollectionResets.ElementAt(-1).Reset, false);
                     try
                     {
                         repository.Update(filterDef, updateDef);
                     }
                     catch (Exception ex) { }
-                    return true; 
+                    return true;
                 }
-                    
+
                 return false;
             }
             catch (Exception ex)
             { }
             return false;
-        } 
+        }
 
         public class MicrosoftHelperObject
 		{

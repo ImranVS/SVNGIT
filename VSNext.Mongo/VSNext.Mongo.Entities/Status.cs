@@ -1662,7 +1662,7 @@ namespace VSNext.Mongo.Entities
         public Boolean? StrongPasswordRequired { get; set; }
 
         [DataMember]
-        [BsonElement("passwprd_never_expires")]
+        [BsonElement("password_never_expires")]
         [BsonIgnoreIfNull]
         public Boolean? PasswordNeverExpires { get; set; }
 

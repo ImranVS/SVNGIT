@@ -135,7 +135,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("collection_resets")]
         [BsonIgnoreIfNull]
-        public List<Enums.ServerType> CollectionResets { get; set; }
+        //[BsonRepresentation(BsonType.String)]
+        public List<CollectionReset> CollectionResets { get; set; }
 
         [DataMember]
         [BsonElement("domino_thread_killed_count")]
@@ -151,6 +152,29 @@ namespace VSNext.Mongo.Entities
         [BsonElement("assembly_info")]
         [BsonIgnoreIfNull]
         public List<AssemblyInfo> AssemblyInfo { get; set; }
+    }
+
+    public class CollectionReset
+    {
+        [DataMember]
+        [BsonElement("device_type")]
+        [BsonIgnoreIfNull]
+        public string DeviceType { get; set; }
+
+        [DataMember]
+        [BsonElement("date_queued")]
+        [BsonIgnoreIfNull]
+        public DateTime? DateQueued { get; set; }
+
+        [DataMember]
+        [BsonElement("date_cleared")]
+        [BsonIgnoreIfNull]
+        public DateTime? DateCleared { get; set; }
+
+        [DataMember]
+        [BsonElement("reset")]
+        [BsonIgnoreIfNull]
+        public Boolean? Reset { get; set; }
     }
 
     public class ServiceStatus
