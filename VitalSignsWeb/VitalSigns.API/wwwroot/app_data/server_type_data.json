@@ -352,7 +352,29 @@
         "type": "Dashboard",
         "component": "Office365MailStatsTab",
         "path": "/app/dashboards/components/office365/office365-mail-stats-tab.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
+      },
+      {
+        "tab_id": 4,
+        "title": "User Scenario Tests",
+        "type": "Dashboard",
+        "component": "Office365UserScenarioTestsTab",
+        "path": "/app/dashboards/components/office365/office365-user-scenario-tests-tab.component"
+      },
+      {
+        "tab_id": 5,
+        "title": "Password Settings",
+        "type": "Dashboard",
+        "component": "Office365PasswordSettingsTab",
+        "path": "/app/dashboards/components/office365/office365-password-settings.component"
       }
+
     ]
   },
   {

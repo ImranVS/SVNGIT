@@ -626,29 +626,39 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("statistics")]
-        public APIResponse GetDailyStat(string deviceId, string statName, string operation, bool isChart = false)
+        public APIResponse GetDailyStat(string deviceId, string statName, string operation, bool isChart = false, bool getNode = false)
         {
 
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
-
+            statusRepository = new Repository<Status>(ConnectionString);
             try
             {
                 var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
+                if (!string.IsNullOrEmpty(statName) && getNode)
+                {
+                    Expression<Func<Status, bool>> expressionstatus = (p => p.DeviceId == deviceId);
+                    var resultstatus = statusRepository.Find(expressionstatus).ToList();
+                    if (resultstatus.Count > 0)
+                    {
+                        statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Replace("null", resultstatus[0].Category).Split(',');
+                    }
+                }
                 if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
                     Expression<Func<DailyStatistics, bool>> expression = (p => statNames.Contains(p.StatName));
+
                     if (string.IsNullOrEmpty(operation))
                     {
-                    var result = dailyRepository.Find(expression).Select(x => new StatsData
-                    {
-                        DeviceId = x.DeviceId,
-                        StatName = x.StatName,
-                        StatValue = x.StatValue
+                        var result = dailyRepository.Find(expression).Select(x => new StatsData
+                        {
+                            DeviceId = x.DeviceId,
+                            StatName = x.StatName,
+                            StatValue = x.StatValue
 
-                    }).OrderBy(x => x.StatName).ToList();
+                        }).OrderBy(x => x.StatName).ToList();
 
 
-                    Response = Common.CreateResponse(result);
+                        Response = Common.CreateResponse(result);
                     }
                     else
                     {
@@ -695,15 +705,15 @@ namespace VitalSigns.API.Controllers
                                         });
                                     }
 
-                                serie = new Serie();
-                                serie.Title = "test";
-                                serie.Segments = segments;
-                                series.Add(serie);
+                                    serie = new Serie();
+                                    serie.Title = "test";
+                                    serie.Segments = segments;
+                                    series.Add(serie);
 
-                                chart = new Chart();
-                                chart.Title = "";
-                                chart.Series = series;
-                                Response = Common.CreateResponse(chart);
+                                    chart = new Chart();
+                                    chart.Title = "";
+                                    chart.Series = series;
+                                    Response = Common.CreateResponse(chart);
                                 }
                                 else
                                 {
@@ -780,8 +790,8 @@ namespace VitalSigns.API.Controllers
                                                 serie.Segments = segments;
                                             }
                                         }
-                else
-                {
+                                        else
+                                        {
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
                                             serie.Title = name;
                                             serie.Segments = segments;
@@ -807,12 +817,12 @@ namespace VitalSigns.API.Controllers
 
                         var result = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn)
                             .Select(x => new StatsData
-                        {
-                            DeviceId = x.DeviceId,
-                            StatName = x.StatName,
-                            StatValue = x.StatValue
+                            {
+                                DeviceId = x.DeviceId,
+                                StatName = x.StatName,
+                                StatValue = x.StatValue
 
-                        }).OrderBy(x => x.StatName).ToList();
+                            }).OrderBy(x => x.StatName).ToList();
 
                         Response = Common.CreateResponse(result);
 
@@ -820,10 +830,7 @@ namespace VitalSigns.API.Controllers
                     }
                     else if (!string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
                     {
-
                         // StatsData statsData;
-
-
                         switch (operation.ToUpper())
                         {
                             case "SUM":
@@ -890,11 +897,6 @@ namespace VitalSigns.API.Controllers
 
                                        }).ToList();
 
-
-
-
-
-
                                 // DateTime moment = DateTime.Now.Hour;
                                 // int onhour = moment.Hour;
                                 List<Serie> series = new List<Serie>();
@@ -933,44 +935,26 @@ namespace VitalSigns.API.Controllers
                                                 serie.Title = name;
                                                 serie.Segments = segments;
                                             }
-
                                         }
                                         else
                                         {
-
                                             // TimeSpan timespan = new TimeSpan(hour);
-
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
                                             serie.Title = name;
                                             serie.Segments = segments;
-
                                         }
-
-
-
-
-
                                     }
                                     series.Add(serie);
                                 }
-
                                 Chart chart = new Chart();
                                 chart.Title = statName;
                                 chart.Series = series;
-
-
-
                                 Response = Common.CreateResponse(chart);
                                 break;
                         }
-
-
                     }
                 }
                 return Response;
-
-
-
             }
             catch (Exception exception)
             {
