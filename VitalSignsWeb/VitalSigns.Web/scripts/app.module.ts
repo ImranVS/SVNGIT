@@ -259,7 +259,6 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         dashboards.ProfilesList,
         dashboards.ProfilesForm,
         dashboards.Office365Dashboard,
-        dashboards.Office365PasswordSettings,
         dashboards.ApplicationSettings,
         dashboards.Alerts,
         dashboards.LogsTabs,
@@ -289,6 +288,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
         widgets.Office365Grid,
+        widgets.Office365PasswordsGrid,
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
         widgets.OverallDatabaseGrid,
@@ -413,7 +413,9 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         tabs.WebSphereOverallTab,
         tabs.NotesMailProbeOverallTab,
         tabs.Office365OverallTab,
+        tabs.Office365UserScenarioTestsTab,
         tabs.Office365MailStatsTab,
+        tabs.Office365PasswordSettingsTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -446,6 +448,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
         widgets.Office365Grid,
+        widgets.Office365PasswordsGrid,
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
         widgets.OverallDatabaseGrid,
@@ -571,7 +574,9 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         tabs.ServiceOutagesTab,
         tabs.NotesMailProbeOverallTab,
         tabs.Office365OverallTab,
-        tabs.Office365MailStatsTab
+        tabs.Office365MailStatsTab,
+        tabs.Office365UserScenarioTestsTab,
+        tabs.Office365PasswordSettingsTab
     ],
     bootstrap: [
         AppComponent

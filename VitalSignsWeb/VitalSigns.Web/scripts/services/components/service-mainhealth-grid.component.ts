@@ -1,11 +1,12 @@
-﻿import {Component, Input, OnInit, ViewChild} from '@angular/core';
+﻿import { Component, Input, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../core/widgets';
 import {WidgetService} from '../../core/widgets/services/widget.service';
 import {RESTService} from '../../core/services';
 import {AppNavigator} from '../../navigation/app.navigator.component';
-import {ServiceTab} from '../models/service-tab.interface';
+import { ServiceTab } from '../models/service-tab.interface';
+import { Office365Grid } from '../../dashboards/components/office365/office365-grid.component';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
@@ -25,13 +26,15 @@ declare var injectSVG: any;
         helpers.GridTooltip
     ]
 })
-export class ServiceMainHealthGrid implements OnInit {
+export class ServiceMainHealthGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
     deviceId: any;
+    serviceId: string;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
 
+    
     constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute,
         protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip) { }
 
@@ -47,10 +50,23 @@ export class ServiceMainHealthGrid implements OnInit {
     }
 
     ngOnInit() {
-        this.route.params.subscribe(params => {
-            this.deviceId = params['service'];
-
-        });
+        var serviceId = this.widgetService.getProperty('serviceId');
+        if (serviceId) {
+            var res = serviceId.split(';');
+            this.deviceId = res[0];
+        }
+        else {
+            this.route.params.subscribe(params => {
+                if (params['service'])
+                    this.deviceId = params['service'];
+                else {
+                    if (this.serviceId) {
+                        var res = this.serviceId.split(';');
+                        this.deviceId = res[0];
+                    }
+                }
+            });
+        }    
         this.service.get('/DashBoard/'+ this.deviceId +'/health-assessment')
             .subscribe(
             (response) => {
@@ -81,4 +97,22 @@ export class ServiceMainHealthGrid implements OnInit {
             .catch(error => console.log(error));
 
     }
+
+    onPropertyChanged(key: string, value: any) {
+        if (key === 'serviceId') {
+            this.serviceId = value;
+            this.service.get('/DashBoard/' + this.deviceId + '/health-assessment')
+                .subscribe(
+                (response) => {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
+                    this.data.pageSize = 10;
+                },
+                (error) => this.errorMessage = <any>error
+                );
+            // Create custom tooltip
+            this.toolTip.getTooltip(this.flex, 1, 3);
+        }
+
+    }
+
 }

@@ -9,6 +9,7 @@ export * from './dashboards/components/ibm-websphere/ibm-websphere-node-grid.com
 export * from './dashboards/components/ibm-websphere/ibm-websphere-server-grid.component';
 export * from './dashboards/components/ibm-traveler/ibm-traveler-grid.component';
 export * from './dashboards/components/office365/office365-grid.component';
+export * from './dashboards/components/office365/office365-passwords-grid.component';
 
 export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.component';
 export * from './dashboards/components/key-metrics/overall-database-grid.component';

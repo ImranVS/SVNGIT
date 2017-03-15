@@ -49,6 +49,10 @@ export class IBMSametimeChatsTab extends WidgetController implements OnInit, Ser
     }
 
     ngOnInit() {
+        var serviceId = this.widgetService.getProperty('serviceId');
+        if (serviceId) {
+            this.serviceId = serviceId;
+        }
 
         //this.serviceId = this.widgetService.getProperty('serviceId');
 

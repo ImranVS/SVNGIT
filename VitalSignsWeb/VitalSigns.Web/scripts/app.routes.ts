@@ -27,8 +27,9 @@ import { MSSharePointDashboard } from './dashboards/components/ms-sharepoint/ms-
 
 import { Office365Dashboard } from './dashboards/components/office365/office365-dashboard.component';
 import { Office365OverallTab } from './dashboards/components/office365/office365-overall-tab.component';
+import { Office365UserScenarioTestsTab } from './dashboards/components/office365/office365-user-scenario-tests-tab.component';
 import { Office365MailStatsTab } from './dashboards/components/office365/office365-mail-stats-tab.component';
-import { Office365PasswordSettings } from './dashboards/components/office365/office365-password-settings.component';
+import { Office365PasswordSettingsTab } from './dashboards/components/office365/office365-password-settings.component';
 
 import { CloudServicesDashboard } from './dashboards/components/cloud-services-dashboard.component';
 
@@ -160,6 +161,7 @@ export * from './dashboards/components/ms-sharepoint/ms-sharepoint-dashboard.com
 
 export * from './dashboards/components/office365/office365-dashboard.component';
 export * from './dashboards/components/office365/office365-overall-tab.component';
+export * from './dashboards/components/office365/office365-user-scenario-tests-tab.component';
 export * from './dashboards/components/office365/office365-mail-stats-tab.component';
 export * from './dashboards/components/office365/office365-password-settings.component';
 

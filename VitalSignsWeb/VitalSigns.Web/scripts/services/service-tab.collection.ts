@@ -23,7 +23,9 @@ export * from '../dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.c
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component';
 
 export * from '../dashboards/components/office365/office365-overall-tab.component';
+export * from '../dashboards/components/office365/office365-user-scenario-tests-tab.component';
 export * from '../dashboards/components/office365/office365-mail-stats-tab.component';
+export * from '../dashboards/components/office365/office365-password-settings.component';
 
 export * from '../dashboards/components/key-metrics/overall-database-all-tab.component';
 export * from '../dashboards/components/key-metrics/overall-database-problems-tab.component';

@@ -23,7 +23,11 @@ export class IBMSametimeMeetingsTab extends WidgetController implements OnInit, 
     }
     
     ngOnInit() {
-        
+        var serviceId = this.widgetService.getProperty('serviceId');
+        if (serviceId) {
+            this.serviceId = serviceId;
+        }
+
         //this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.widgets = [

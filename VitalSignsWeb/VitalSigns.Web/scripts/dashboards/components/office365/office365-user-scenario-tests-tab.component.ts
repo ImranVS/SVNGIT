@@ -10,10 +10,10 @@ declare var injectSVG: any;
 
 
 @Component({
-    templateUrl: '/app/dashboards/components/office365/office365-overall-tab.component.html'
+    templateUrl: '/app/dashboards/components/office365/office365-user-scenario-tests-tab.component.html'
     //providers: [WidgetService]
 })
-export class Office365OverallTab extends WidgetController implements OnInit, ServiceTab {
+export class Office365UserScenarioTestsTab extends WidgetController implements OnInit, ServiceTab {
 
     widgets: WidgetContract[];
     serviceId: string;
@@ -36,25 +36,39 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 this.serviceId = res[0];
             }
         });
-        var url = "";
+        var urlmail = "";
         if (this.nodeName) {
-            url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@` + this.nodeName + `,MailFlow@` + this.nodeName + `,Inbox@` + this.nodeName + `,ComposeEmail@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
         }
         else {
-            url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@null,IMAP@null,SMTP@null]&operation=HOURLY&isChart=true&getNode=true`;
+            urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@null,MailFlow@null,Inbox@null,ComposeEmail@null]&operation=HOURLY&isChart=true&getNode=true`;
+        }
+        var urlsite = "";
+        if (this.nodeName) {
+            urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+        }
+        else {
+            urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@null]&operation=HOURLY&isChart=true&getNode=true`;
+        }
+        var urlfolder = "";
+        if (this.nodeName) {
+            urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@` + this.nodeName + `,CreateFolder@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+        }
+        else {
+            urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@null,CreateFolder@null]&operation=HOURLY&isChart=true&getNode=true`;
         }
         this.widgets = [
             {
-                id: 'mailServices',
-                title: 'Mail services',
+                id: 'mailScenarioTests',
+                title: 'Mail scenario tests',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-4',
                 settings: {
-                    url: url,
+                    url: urlmail,
                     dateformat: 'time',
                     chart: {
                         chart: {
-                            renderTo: 'mailServices',
+                            renderTo: 'mailScenarioTests',
                             type: 'line',
                             height: 340
                         },
@@ -98,15 +112,16 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 }
             },
             {
-                id: 'dailyUserLogins',
-                title: 'Daily user logins',
+                id: 'siteTests',
+                title: 'Site tests',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-4',
                 settings: {
-                    url: '/mobile_user_devices/count_by_type',
+                    url: urlsite,
+                    dateformat: 'time',
                     chart: {
                         chart: {
-                            renderTo: 'dailyUserLogins',
+                            renderTo: 'siteTests',
                             type: 'line',
                             height: 340
                         },
@@ -120,7 +135,8 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'ms'
                             }
                         },
                         plotOptions: {
@@ -136,7 +152,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
@@ -149,16 +165,17 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 }
             },
             {
-                id: 'lastLogon',
-                title: 'Last logon',
+                id: 'folderTests',
+                title: 'Folder creation tests',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-4',
                 settings: {
-                    url: '/mobile_user_devices/count_by_type',
+                    url: urlfolder,
+                    dateformat: 'time',
                     chart: {
                         chart: {
-                            renderTo: 'lastLogon',
-                            type: 'pie',
+                            renderTo: 'folderTests',
+                            type: 'line',
                             height: 340
                         },
                         title: { text: '' },
@@ -171,7 +188,8 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'ms'
                             }
                         },
                         plotOptions: {
@@ -184,19 +202,10 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                             },
                             series: {
                                 pointPadding: 0
-                            },
-                            pie: {
-                                allowPointSelect: true,
-                                cursor: 'pointer',
-                                dataLabels: {
-                                    enabled: false
-                                },
-                                showInLegend: true,
-                                innerSize: '70%'
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
@@ -208,6 +217,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                     }
                 }
             }
+
         ]
         injectSVG();
     }
@@ -223,12 +233,12 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
             }
             var url = "";
             if (this.nodeName) {
-                url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+                url = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@` + this.nodeName + `,MailFlow@` + this.nodeName + `,Inbox@` + this.nodeName + `,ComposeEmail@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
             }
             else {
-                url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@null,IMAP@null,SMTP@null]&operation=HOURLY&isChart=true&getNode=true`;
+                url = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@null,MailFlow@null,Inbox@null,ComposeEmail@null]&operation=HOURLY&isChart=true&getNode=true`;
             }
-            this.widgetService.refreshWidget('mailServices', url)
+            this.widgetService.refreshWidget('mailScenarioTests', url)
                 .catch(error => console.log(error));
 
         }

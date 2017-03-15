@@ -23,6 +23,10 @@ export class IBMSametimeConferencesTab extends WidgetController implements OnIni
     }
     
     ngOnInit() {
+        var serviceId = this.widgetService.getProperty('serviceId');
+        if (serviceId) {
+            this.serviceId = serviceId;
+        }
 
         //this.serviceId = this.widgetService.getProperty('serviceId');
 
