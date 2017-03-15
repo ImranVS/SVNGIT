@@ -39,6 +39,8 @@ namespace VitalSignsMicrosoftClasses
 		#region main
 		public void checkServer(MonitoredItems.Office365Server Server, ref TestResults AllTestsList, ReturnPowerShellObjects results)
 		{
+            try
+            {
                 if (ConfigurationManager.AppSettings["VSNodeName"] != null)
                     nodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
 
@@ -151,6 +153,11 @@ namespace VitalSignsMicrosoftClasses
 
                 }
                 //}
+            }
+            catch(Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error in checkServer. Error: " + ex.Message, Common.LogLevel.Normal);
+            }
 
 			GC.Collect();
 		}
@@ -170,7 +177,6 @@ namespace VitalSignsMicrosoftClasses
 		}
 		private void doSPOTests(Parameters p)
 		{
-            return;
 			createSPOSite(p.myServer, ref p.TS, p.PSO);
 			removeSPOSite(p.myServer, ref p.TS, p.PSO);
 		}
@@ -733,11 +739,9 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 							string LastLogoffTime = ps.Properties["LastLogoffTime"].Value == null ? null : ps.Properties["LastLogoffTime"].Value.ToString();
 
                             MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
-                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == myServer.Name);
+                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceId == myServer.ServerObjectID);
                             mongoStatement.updateDef = mongoStatement.repo.Updater
-                                //.Set(i => i.IssueWarningQuota, IssueWarningQuota)
-                                //.Set(i => i.ProhibitSendQuota, ProhibitSendQuota)
-                                //.Set(i => i.ProhibitSendReceiveQuota, ProhibitSendReceiveQuota)
+                                .Set(i => i.DeviceName, myServer.Name)
                                 .Set(i => i.DisplayName, DisplayName)
                                 .Set(i => i.DatabaseName, Database)
                                 .Set(i => i.TotalItemSizeMb, Convert.ToDouble(totalItemSize))
@@ -841,7 +845,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
                             //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery2, DatabaseName = "VSS_Statistics" });
 
                             MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
-                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == myServer.Name);
+                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceId == myServer.ServerObjectID);
                             mongoStatement.updateDef = mongoStatement.repo.Updater
                                 .Set(i => i.IssueWarningQuota, IssueWarningQuota)
                                 .Set(i => i.ProhibitSendQuota, ProhibitSendQuota)
@@ -850,11 +854,6 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
                                 .Set(i => i.DatabaseName, Database)
                                 .Set(i => i.IsActive, IsInactiveMailbox)
                                 .Set(i => i.MailboxType, RecipientTypeDetails);
-                                //.Set(i => i.TotalItemSizeMb, Convert.ToDouble(totalItemSize))
-                                //.Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
-                                //.Set(i => i.StorageLimitStatus, StorageLimitStatus)
-                                //.Set(i => i.LastLogonTime, Convert.ToDateTime(LastLogonTime))
-                                //.Set(i => i.LastLogoffTime, Convert.ToDateTime(LastLogoffTime));
 
                             AllTestsList.MongoEntity.Add(mongoStatement);
 
@@ -2358,25 +2357,29 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 
-				string str = "New-SPOSite -Title 'VSTest' -Url 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest' -Owner '" + myServer.UserName + "' -StorageQuota '500' ";
+				string str = "New-SPOSite -Title 'VSTest' -Url 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2' -Owner '" + myServer.UserName + "' -StorageQuota '500' ";
 
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
 				start = DateTime.Now.Ticks;
-				results = powershellobj.PS.Invoke();
-				done = DateTime.Now.Ticks;
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite before 1", Common.LogLevel.Normal);
+                results = powershellobj.PS.Invoke();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite after 1", Common.LogLevel.Normal);
+                done = DateTime.Now.Ticks;
 				elapsed = new TimeSpan(done - start);
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite Results: " + results.Count.ToString(), Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 
-				str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest'";
+				str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2'";
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
-				results = powershellobj.PS.Invoke();
-				if (results.Count > 0)
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite before 2", Common.LogLevel.Normal);
+                results = powershellobj.PS.Invoke();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite after 2", Common.LogLevel.Normal);
+                if (results.Count > 0)
 				{
                     if ((myServer.CreateSiteThreshold != 0) && (myServer.CreateSiteThreshold > 0) && (myServer.CreateSiteThreshold < elapsed.TotalMilliseconds))
                         //Common.makeAlert(false, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Successfully created a test site, but it did not meet the threshold time of " + myServer.CreateSiteThreshold.ToString() + " ms", "Performance");
@@ -2408,8 +2411,8 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-Command| where {$_.Name -like '*Msol*'}";
-				string str = "Remove-SPOSite  -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest' -Confirm:$false " + "\n";
-				str += " Remove-SPODeletedSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest' -Confirm:$false ";
+				string str = "Remove-SPOSite  -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2' -Confirm:$false " + "\n";
+				str += " Remove-SPODeletedSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2' -Confirm:$false ";
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
@@ -2418,7 +2421,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "removeSPOSite Results: " + results.Count.ToString(), Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-				str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest'";
+				str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2'";
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
@@ -2959,7 +2962,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSummaryStats: Starting.", Common.LogLevel.Normal);
                 CommonDB db = new CommonDB();
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Mailbox> repoMailbox = new VSNext.Mongo.Repository.Repository< VSNext.Mongo.Entities.Mailbox>(db.GetMongoConnectionString());
-                FilterDefinition<VSNext.Mongo.Entities.Mailbox> filterDef = repoMailbox.Filter.Eq(i => i.DeviceName, myServer.Name) & repoMailbox.Filter.Lte(x => x.LastLogonTime, DateTime.Now.AddDays(-1));
+                FilterDefinition<VSNext.Mongo.Entities.Mailbox> filterDef = repoMailbox.Filter.Eq(i => i.DeviceId, myServer.ServerObjectID) & repoMailbox.Filter.Lte(x => x.LastLogonTime, DateTime.Now.AddDays(-1));
                 int activeMailboxes = repoMailbox.Find(filterDef).Count();
                 AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "ActiveUsersCount", activeMailboxes.ToString()));
 
