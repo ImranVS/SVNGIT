@@ -57,12 +57,19 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
         else {
             urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@null,CreateFolder@null]&operation=HOURLY&isChart=true&getNode=true`;
         }
+        var urlonedrive = "";
+        if (this.nodeName) {
+            urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@` + this.nodeName + `,OneDriveDownload@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+        }
+        else {
+            urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@null,OneDriveDownload@null]&operation=HOURLY&isChart=true&getNode=true`;
+        }
         this.widgets = [
             {
                 id: 'mailScenarioTests',
                 title: 'Mail scenario tests',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-4',
+                css: 'col-xs-12 col-sm-6',
                 settings: {
                     url: urlmail,
                     dateformat: 'time',
@@ -115,7 +122,7 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
                 id: 'siteTests',
                 title: 'Site tests',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-4',
+                css: 'col-xs-12 col-sm-6',
                 settings: {
                     url: urlsite,
                     dateformat: 'time',
@@ -168,13 +175,66 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
                 id: 'folderTests',
                 title: 'Folder creation tests',
                 name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-4',
+                css: 'col-xs-12 col-sm-6',
                 settings: {
                     url: urlfolder,
                     dateformat: 'time',
                     chart: {
                         chart: {
                             renderTo: 'folderTests',
+                            type: 'line',
+                            height: 340
+                        },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            categories: []
+                        },
+                        yAxis: {
+                            min: 0,
+                            endOnTick: false,
+                            allowDecimals: false,
+                            title: {
+                                enabled: true,
+                                text: 'ms'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
+                            }
+                        },
+                        legend: {
+                            enabled: true
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+            {
+                id: 'oneDriveTests',
+                title: 'OneDrive tests',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-6',
+                settings: {
+                    url: urlonedrive,
+                    dateformat: 'time',
+                    chart: {
+                        chart: {
+                            renderTo: 'oneDriveTests',
                             type: 'line',
                             height: 340
                         },
@@ -231,16 +291,42 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
             if (res.length > 1) {
                 this.nodeName = res[1];
             }
-            var url = "";
+            var urlmail = "";
             if (this.nodeName) {
-                url = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@` + this.nodeName + `,MailFlow@` + this.nodeName + `,Inbox@` + this.nodeName + `,ComposeEmail@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+                urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@` + this.nodeName + `,MailFlow@` + this.nodeName + `,Inbox@` + this.nodeName + `,ComposeEmail@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
             }
             else {
-                url = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@null,MailFlow@null,Inbox@null,ComposeEmail@null]&operation=HOURLY&isChart=true&getNode=true`;
+                urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@null,MailFlow@null,Inbox@null,ComposeEmail@null]&operation=HOURLY&isChart=true&getNode=true`;
             }
-            this.widgetService.refreshWidget('mailScenarioTests', url)
+            var urlsite = "";
+            if (this.nodeName) {
+                urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            }
+            else {
+                urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@null]&operation=HOURLY&isChart=true&getNode=true`;
+            }
+            var urlfolder = "";
+            if (this.nodeName) {
+                urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@` + this.nodeName + `,CreateFolder@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            }
+            else {
+                urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@null,CreateFolder@null]&operation=HOURLY&isChart=true&getNode=true`;
+            }
+            var urlonedrive = "";
+            if (this.nodeName) {
+                urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@` + this.nodeName + `,OneDriveDownload@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            }
+            else {
+                urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@null,OneDriveDownload@null]&operation=HOURLY&isChart=true&getNode=true`;
+            }
+            this.widgetService.refreshWidget('oneDriveTests', urlmail)
                 .catch(error => console.log(error));
-
+            this.widgetService.refreshWidget('siteTests', urlsite)
+                .catch(error => console.log(error));
+            this.widgetService.refreshWidget('folderTests', urlfolder)
+                .catch(error => console.log(error));
+            this.widgetService.refreshWidget('mailScenarioTests', urlonedrive)
+                .catch(error => console.log(error));
         }
 
     }

@@ -32,6 +32,109 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
         });
         this.widgets = [
             {
+                id: 'top5ActiveMailboxes',
+                title: 'Top 5 mailboxes',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-6',
+                settings: {
+                    url: `/services/top_mailboxes?deviceId=${this.serviceId}`,
+                    chart: {
+                        chart: {
+                            renderTo: 'top5ActiveMailboxes',
+                            type: 'bar',
+                            height: 340
+                        },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            categories: []
+                        },
+                        yAxis: {
+                            min: 0,
+                            endOnTick: false,
+                            allowDecimals: false,
+                            title: {
+                                enabled: true,
+                                text: 'GB'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+            {
+                id: 'top5InactiveMailboxes',
+                title: 'Top 5 inactive mailboxes',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-6',
+                settings: {
+                    url: '/mobile_user_devices/count_by_type',
+                    chart: {
+                        chart: {
+                            renderTo: 'top5InactiveMailboxes',
+                            type: 'bar',
+                            height: 340
+                        },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            categories: []
+                        },
+                        yAxis: {
+                            min: 0,
+                            endOnTick: false,
+                            allowDecimals: false,
+                            title: {
+                                enabled: false
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+            {
                 id: 'mailboxTypes',
                 title: 'Mailbox types',
                 name: 'ChartComponent',
@@ -84,179 +187,17 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
                 }
             },
             {
-                id: 'top5ActiveMailboxes',
-                title: 'Top 5 mailboxes',
+                id: 'activeInactiveUsers',
+                title: 'Active/Inactive users',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6',
                 settings: {
                     url: '/mobile_user_devices/count_by_type',
                     chart: {
                         chart: {
-                            renderTo: 'top5ActiveMailboxes',
-                            type: 'bar',
-                            height: 240
-                        },
-                        title: { text: '' },
-                        subtitle: { text: '' },
-                        xAxis: {
-                            categories: []
-                        },
-                        yAxis: {
-                            min: 0,
-                            endOnTick: false,
-                            allowDecimals: false,
-                            title: {
-                                enabled: false
-                            }
-                        },
-                        plotOptions: {
-                            bar: {
-                                dataLabels: {
-                                    enabled: false
-                                },
-                                groupPadding: 0.1,
-                                borderWidth: 0
-                            },
-                            series: {
-                                pointPadding: 0
-                            }
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        },
-                        series: []
-                    }
-                }
-            },
-            {
-                id: 'activeUsers',
-                title: 'Active users',
-                name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6',
-                settings: {
-                    url: '/mobile_user_devices/count_by_type',
-                    chart: {
-                        chart: {
-                            renderTo: 'activeUsers',
+                            renderTo: 'activeInactiveUsers',
                             type: 'pie',
-                            height: 240
-                        },
-                        title: { text: '' },
-                        subtitle: { text: '' },
-                        xAxis: {
-                            categories: []
-                        },
-                        yAxis: {
-                            min: 0,
-                            endOnTick: false,
-                            allowDecimals: false,
-                            title: {
-                                enabled: false
-                            }
-                        },
-                        plotOptions: {
-                            bar: {
-                                dataLabels: {
-                                    enabled: false
-                                },
-                                groupPadding: 0.1,
-                                borderWidth: 0
-                            },
-                            series: {
-                                pointPadding: 0
-                            },
-                            pie: {
-                                allowPointSelect: true,
-                                cursor: 'pointer',
-                                dataLabels: {
-                                    enabled: false
-                                },
-                                showInLegend: true,
-                                innerSize: '70%'
-                            }
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        },
-                        series: []
-                    }
-                }
-            },
-            {
-                id: 'top5InactiveMailboxes',
-                title: 'Top 5 inactive mailboxes',
-                name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6',
-                settings: {
-                    url: '/mobile_user_devices/count_by_type',
-                    chart: {
-                        chart: {
-                            renderTo: 'top5InactiveMailboxes',
-                            type: 'bar',
-                            height: 240
-                        },
-                        title: { text: '' },
-                        subtitle: { text: '' },
-                        xAxis: {
-                            categories: []
-                        },
-                        yAxis: {
-                            min: 0,
-                            endOnTick: false,
-                            allowDecimals: false,
-                            title: {
-                                enabled: false
-                            }
-                        },
-                        plotOptions: {
-                            bar: {
-                                dataLabels: {
-                                    enabled: false
-                                },
-                                groupPadding: 0.1,
-                                borderWidth: 0
-                            },
-                            series: {
-                                pointPadding: 0
-                            }
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        },
-                        series: []
-                    }
-                }
-            },
-            {
-                id: 'inactiveUsers',
-                title: 'Inactive users',
-                name: 'ChartComponent',
-                css: 'col-xs-12 col-sm-6',
-                settings: {
-                    url: '/mobile_user_devices/count_by_type',
-                    chart: {
-                        chart: {
-                            renderTo: 'inactiveUsers',
-                            type: 'pie',
-                            height: 240
+                            height: 340
                         },
                         title: { text: '' },
                         subtitle: { text: '' },

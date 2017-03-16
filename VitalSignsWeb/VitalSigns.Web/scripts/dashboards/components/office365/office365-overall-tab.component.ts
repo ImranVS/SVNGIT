@@ -154,7 +154,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-4',
                 settings: {
-                    url: '/mobile_user_devices/count_by_type',
+                    url: `/services/last_logon?deviceId=${this.serviceId}`,
                     chart: {
                         chart: {
                             renderTo: 'lastLogon',
@@ -196,7 +196,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
