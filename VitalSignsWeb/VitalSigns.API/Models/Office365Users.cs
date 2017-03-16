@@ -26,5 +26,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("pwd_never_expires")]
         public bool PwdNeverExpires { get; set; }
+
+        [JsonProperty("total_item_size_mb")]
+        public double? TotalItemSizeMB { get; set; }
     }
 }
