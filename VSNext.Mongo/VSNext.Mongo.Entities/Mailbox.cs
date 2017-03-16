@@ -92,6 +92,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("is_active")]
         [BsonIgnoreIfNullAttribute]
         public Boolean? IsActive { get; set; }
+
+        [DataMember]
+        [BsonElement("inactive_days_count")]
+        [BsonIgnoreIfNull]
+        public int? InactiveDaysCount { get; set; }
     }
 
 }
