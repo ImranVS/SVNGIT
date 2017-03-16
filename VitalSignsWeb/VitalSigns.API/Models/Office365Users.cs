@@ -29,5 +29,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("total_item_size_mb")]
         public double? TotalItemSizeMB { get; set; }
+
+        [JsonProperty("inactive_days_count")]
+        public int? InactiveDaysCount { get; set; }
     }
 }

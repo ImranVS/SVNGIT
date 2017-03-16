@@ -464,6 +464,145 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+        [HttpGet("top_inactive_mailboxes")]
+        public APIResponse GetTopInactiveMailboxes(string deviceId, int topx = 5, bool isChart = true)
+        {
+            List<Segment> result = new List<Segment>();
+            FilterDefinition<Mailbox> filterDef;
+            mailboxRepository = new Repository<Mailbox>(ConnectionString);
+            try
+            {
+                if (string.IsNullOrEmpty(deviceId))
+                {
+                    filterDef = mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                }
+                else
+                {
+                    filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
+                        mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                }
+                if (!isChart)
+                {
+                    var resultlist = mailboxRepository.Find(filterDef)
+                        .Select(x => new Office365Users
+                        {
+                            Name = x.DisplayName,
+                            TotalItemSizeMB = x.TotalItemSizeMb
+                        }).OrderBy(x => x.Name).ToList();
+                    Response = Common.CreateResponse(resultlist);
+                }
+                else
+                {
+                    var resultlist = mailboxRepository.Find(filterDef)
+                        .Select(x => new Office365Users
+                        {
+                            Name = x.DisplayName,
+                            InactiveDaysCount = x.InactiveDaysCount
+                        }).OrderByDescending(x => x.InactiveDaysCount).Take(topx).ToList();
+
+                    List<Segment> segments = new List<Segment>();
+                    Segment segment = new Segment();
+                    foreach (var doc in resultlist)
+                    {
+                        segment = new Segment()
+                        {
+                            Label = doc.Name,
+                            Value = doc.InactiveDaysCount
+                        };
+                        segments.Add(segment);
+                    }
+                    List<Serie> series = new List<Serie>();
+                    Serie serie = new Serie();
+                    serie.Title = "Count";
+                    serie.Segments = segments;
+                    series.Add(serie);
+                    Chart chart = new Chart();
+                    chart.Title = "";
+                    chart.Series = series;
+
+                    Response = Common.CreateResponse(chart);
+                }
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("active_inactive_users")]
+        public APIResponse GetActiveInactiveUsers(string deviceId, bool isChart = true)
+        {
+            List<Segment> result = new List<Segment>();
+            FilterDefinition<Mailbox> filterDef;
+            mailboxRepository = new Repository<Mailbox>(ConnectionString);
+            try
+            {
+                if (string.IsNullOrEmpty(deviceId))
+                {
+                    filterDef = mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                }
+                else
+                {
+                    filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
+                        mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                }
+                if (!isChart)
+                {
+                    var resultlist = mailboxRepository.Find(filterDef)
+                        .Select(x => new Office365Users
+                        {
+                            Name = x.DisplayName
+                        }).OrderBy(x => x.Name).ToList();
+                    Response = Common.CreateResponse(resultlist);
+                }
+                else
+                {
+                    result = mailboxRepository.Collection.Aggregate()
+                        .Match(filterDef)
+                        .Project(x => new { inactive = x.InactiveDaysCount > 7 ? "Inactive" : "Active"})
+                        .Group(x => new {x.inactive }, g => new { label = g.Key, value = g.Count() })
+                        .ToList()
+                        .Select(x => new Segment
+                        {
+                            Label = x.label.inactive,
+                            Value = x.value
+                        }).ToList();
+                    List<Serie> series = new List<Serie>();
+                    var segments = new List<Segment>();
+
+                    foreach (var item in result)
+                    {
+                        segments.Add(new Segment()
+                        {
+                            Label = item.Label,
+                            Value = item.Value
+                        });
+                    }
+
+                    Serie serie = new Serie();
+                    serie.Title = "Count";
+                    serie.Segments = segments;
+                    series.Add(serie);
+
+                    Chart chart = new Chart();
+                    chart.Title = "Active/Inactive users";
+                    chart.Series = series;
+
+                    Response = Common.CreateResponse(chart);
+                }
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
     }
 }
 

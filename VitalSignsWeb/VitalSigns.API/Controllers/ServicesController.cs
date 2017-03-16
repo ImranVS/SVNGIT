@@ -1297,14 +1297,14 @@ namespace VitalSigns.API.Controllers
                         }
                         
                         // Get test information from the status_details collection
-                        if (type == "IBM Connections")
+                        if (type == "IBM Connections" || type == "Office365")
                         {
                             statusDetailsRepository = new Repository<StatusDetails>(ConnectionString);
                             FilterDefinition<StatusDetails> filterDefDetails = statusDetailsRepository.Filter.Eq(p => p.Type, type);
                             statusdetails = statusDetailsRepository.Find(filterDefDetails).ToList();
                         }
 
-                        if (type != "IBM Connections")
+                        if (type != "IBM Connections" && type != "Office365")
                         {
                             foreach (Status status in list)
                             {
