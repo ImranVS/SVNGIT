@@ -89,7 +89,7 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6',
                 settings: {
-                    url: '/mobile_user_devices/count_by_type',
+                    url: `/services/top_inactive_mailboxes?deviceId=${this.serviceId}`,
                     chart: {
                         chart: {
                             renderTo: 'top5InactiveMailboxes',
@@ -106,7 +106,8 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'days since last login'
                             }
                         },
                         plotOptions: {
@@ -172,9 +173,7 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
                             }
                         },
                         legend: {
-                            labelFormatter: function () {
-                                return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
-                            }
+                            enabled: true
                         },
                         credits: {
                             enabled: false
@@ -192,7 +191,7 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6',
                 settings: {
-                    url: '/mobile_user_devices/count_by_type',
+                    url: `/services/active_inactive_users?deviceId=${this.serviceId}`,
                     chart: {
                         chart: {
                             renderTo: 'activeInactiveUsers',
@@ -234,7 +233,7 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
                             }
                         },
                         legend: {
-                            enabled: false
+                            enabled: true
                         },
                         credits: {
                             enabled: false
