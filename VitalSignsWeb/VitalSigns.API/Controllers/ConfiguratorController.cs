@@ -2266,72 +2266,75 @@ namespace VitalSigns.API.Controllers
                     {
                         if (!string.IsNullOrEmpty(attribute.FieldName))
                         {
-                            string field = attribute.FieldName;
-                            string value = attribute.DefaultValue;
-                            bool defaultvalues = attribute.DefaultboolValues;
-                            string datatype = attribute.DataType;
-                            if (field == "password")
+                            if (attribute.FieldName != "is_enabled")
                             {
-
-                                byte[] myPassWord;
-
-                                VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
-                                myPassWord = mySecrets.Encrypt(attribute.DefaultValue);
-
-                                System.Text.StringBuilder newString = new System.Text.StringBuilder();
-                                foreach (byte b in myPassWord)
+                                string field = attribute.FieldName;
+                                string value = attribute.DefaultValue;
+                                bool defaultvalues = attribute.DefaultboolValues;
+                                string datatype = attribute.DataType;
+                                if (field == "password")
                                 {
-                                    newString.AppendFormat("{0}, ", b);
-                                }
-                                string bytePassword = newString.ToString();
-                                int n = bytePassword.LastIndexOf(", ");
-                                bytePassword = bytePassword.Substring(0, n);
-                                value = bytePassword;
 
-                            }
-                            if (datatype == "int")
-                            {
-                                int outputvalue = Convert.ToInt32(value);
-                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                     .Set(field, outputvalue);
-                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                            }
-                            if (datatype == "double")
-                            {
-                                double outputvalue = Convert.ToDouble(value);
-                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                     .Set(field, outputvalue);
-                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                            }
-                            if (datatype == "bool")
-                            {
-                                //3/6/2017 NS modified for VSPLUS-3521
-                                bool booloutput = (attribute.DefaultboolValues == false ? false : true);
-                                //string booloutput;
-                                //if (defaultvalues == false)
-                                //{
-                                //    booloutput = "false";
-                                //}
-                                //else
-                                //{
-                                //    booloutput = "true";
-                                //}
-                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                    .Set(field, booloutput);
-                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                            }
-                            if (datatype == "string")
-                            {
-                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                    .Set(field, value);
-                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                            }
-                            if (datatype == "ObjectId")
-                            {
-                                UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                    .Set(field, ObjectId.Parse(value));
-                                var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                            }
+                                    byte[] myPassWord;
+
+                                    VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
+                                    myPassWord = mySecrets.Encrypt(attribute.DefaultValue);
+
+                                    System.Text.StringBuilder newString = new System.Text.StringBuilder();
+                                    foreach (byte b in myPassWord)
+                                    {
+                                        newString.AppendFormat("{0}, ", b);
+                                    }
+                                    string bytePassword = newString.ToString();
+                                    int n = bytePassword.LastIndexOf(", ");
+                                    bytePassword = bytePassword.Substring(0, n);
+                                    value = bytePassword;
+
+                                }
+                                if (datatype == "int")
+                                {
+                                    int outputvalue = Convert.ToInt32(value);
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "double")
+                                {
+                                    double outputvalue = Convert.ToDouble(value);
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                         .Set(field, outputvalue);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "bool")
+                                {
+                                    //3/6/2017 NS modified for VSPLUS-3521
+                                    bool booloutput = (attribute.DefaultboolValues == false ? false : true);
+                                    //string booloutput;
+                                    //if (defaultvalues == false)
+                                    //{
+                                    //    booloutput = "false";
+                                    //}
+                                    //else
+                                    //{
+                                    //    booloutput = "true";
+                                    //}
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                        .Set(field, booloutput);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "string")
+                                {
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                        .Set(field, value);
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                                if (datatype == "ObjectId")
+                                {
+                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                        .Set(field, ObjectId.Parse(value));
+                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                }
+                            }   
                         }
                     }
                     //2/24/2017 NS added for VSPLUS-3506
