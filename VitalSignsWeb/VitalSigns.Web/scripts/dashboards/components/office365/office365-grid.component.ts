@@ -66,7 +66,7 @@ export class Office365Grid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-        this.toolTip.getTooltip(this.flex, 0, 2);
+        this.toolTip.getTooltip(this.flex, 0, 3);
     }
 
     
