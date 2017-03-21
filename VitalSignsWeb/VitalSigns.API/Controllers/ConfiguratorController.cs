@@ -6655,7 +6655,11 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetDominoImportData()
         {
             DominoServerImportModel model = new DominoServerImportModel();
-            model.DominoServer = Common.GetNameValue("Primary Server").Value;
+            if (Common.GetNameValue("Primary Server") != null)
+            {
+                model.DominoServer = Common.GetNameValue("Primary Server").Value;
+
+            }
             model.Location = null;
 
             deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
