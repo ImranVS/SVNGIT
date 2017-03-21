@@ -1,10 +1,40 @@
 ﻿using System;
 using System.ComponentModel;
+using MongoDB.Driver;
+using MongoDB.Bson;
+using System.Collections.Generic;
 
 namespace VSNext.Mongo.Entities
 {
-   public  class Enums
+    public class Enums
     {
+
+        public static class Utility
+        {
+            public static T getEnumFromDescription<T>(string description)
+            {
+                var type = typeof(T);
+                if (!type.IsEnum) throw new InvalidOperationException();
+                foreach (var field in type.GetFields())
+                {
+                    var attribute = Attribute.GetCustomAttribute(field,
+                        typeof(DescriptionAttribute)) as DescriptionAttribute;
+                    if (attribute != null)
+                    {
+                        if (attribute.Description == description)
+                            return (T)field.GetValue(null);
+                    }
+                    else
+                    {
+                        if (field.Name == description)
+                            return (T)field.GetValue(null);
+                    }
+                }
+                throw new ArgumentException("Not found.", "description");
+                // or return default(T);
+            }
+        }
+
         /// <summary>
         /// Server type enumerations
         /// </summary>
@@ -78,6 +108,7 @@ namespace VSNext.Mongo.Entities
             SNMPDevices,
             [LicenseCost(1)]
             [Description("Office365")]
+            [CrossNodeScanning(true)]
             Office365,
             [LicenseCost(1.33)]
             [BaseServerType("WebSphere")]
@@ -133,10 +164,17 @@ namespace VSNext.Mongo.Entities
     {
         public static T GetAttribute<T>(this Enum value) where T : Attribute
         {
-            var type = value.GetType();
-            var memberInfo = type.GetMember(value.ToString());
-            var attributes = memberInfo[0].GetCustomAttributes(typeof(T), false);
-            return (T)attributes[0];
+            try
+            {
+                var type = value.GetType();
+                var memberInfo = type.GetMember(value.ToString());
+                var attributes = memberInfo[0].GetCustomAttributes(typeof(T), false);
+                return (T)attributes[0];
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
         }
              
         public static string ToDescription(this Enum value)
@@ -161,9 +199,14 @@ namespace VSNext.Mongo.Entities
             var attribute = value.GetAttribute<LicenseCost>();
             return attribute == null ? 0 : attribute.Cost;
         }
-        
-    }
 
+        public static bool getCrossNodeScanning(this Enum value)
+        {
+            var attribute = value.GetAttribute<CrossNodeScanning>();
+            return attribute == null ? false : attribute.boolCrossNodeScanning;
+        }
+
+    }
 
 
     /// <summary>
@@ -211,6 +254,21 @@ namespace VSNext.Mongo.Entities
         /// </summary>
         /// <value>The name of the base server type.</value>
         public virtual double Cost { get; private set; }
+    }
+
+    /// <summary>
+    /// Attribute used to specify if the type is scanned on multiple nodes
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, Inherited = true)]
+    public class CrossNodeScanning : Attribute
+    {
+        
+        public CrossNodeScanning(Boolean value)
+        {
+            boolCrossNodeScanning = value;
+        }
+
+        public virtual bool boolCrossNodeScanning { get; private set; }
     }
 
 

@@ -882,6 +882,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("last_update")]
         [BsonIgnoreIfNullAttribute]
         public DateTime? LastUpdate { get; set; }
+
+        [DataMember]
+        [BsonElement("node_name")]
+        [BsonIgnoreIfNull]
+        public string NodeName { get; set; }
     }
 
 
@@ -1506,8 +1511,8 @@ namespace VSNext.Mongo.Entities
     public class Office365 : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public string ServerId { get; set; }
+        [BsonElement("device_id")]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("total_active_user_mailboxes")]
@@ -1684,8 +1689,10 @@ namespace VSNext.Mongo.Entities
     public class Office365Groups : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public int ServerId { get; set; }
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("group_id")]
@@ -1711,11 +1718,22 @@ namespace VSNext.Mongo.Entities
     [DataContract]
     [Serializable]
     [CollectionName("o365_group_members")]
-    public class Office365GroupMembers : Entity
+    public class Office365GroupMembers
     {
         [DataMember]
         [BsonElement("user_principle_name")]
+        [BsonIgnoreIfNull]
         public string UserPrincipleName { get; set; }
+
+        [DataMember]
+        [BsonElement("display_name")]
+        [BsonIgnoreIfNull]
+        public string DisplayName { get; set; }
+
+        [DataMember]
+        [BsonElement("group_member_type")]
+        [BsonIgnoreIfNull]
+        public string GroupMemberType { get; set; }
     }
 
     [DataContract]
@@ -1724,8 +1742,10 @@ namespace VSNext.Mongo.Entities
     public class Office365LyncStats : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public int ServerId { get; set; }
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("account_name")]
@@ -1761,8 +1781,10 @@ namespace VSNext.Mongo.Entities
     public class Office365LyncDevices : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public int ServerId { get; set; }
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("account_name")]
@@ -1796,8 +1818,10 @@ namespace VSNext.Mongo.Entities
     public class Office365LyncPAVTimeReport : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public int ServerId { get; set; }
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("account_name")]
@@ -1819,8 +1843,10 @@ namespace VSNext.Mongo.Entities
     public class Office365LyncP2PSessionReport : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public int ServerId { get; set; }
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("account_name")]
@@ -1858,8 +1884,10 @@ namespace VSNext.Mongo.Entities
     public class Office365LyncConferenceReport : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public int ServerId { get; set; }
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("account_name")]
@@ -1897,8 +1925,10 @@ namespace VSNext.Mongo.Entities
     public class Office365UsersLicensesServices : Entity
     {
         [DataMember]
-        [BsonElement("server_id")]
-        public int ServerId { get; set; }
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
 
         [DataMember]
         [BsonElement("display_name")]

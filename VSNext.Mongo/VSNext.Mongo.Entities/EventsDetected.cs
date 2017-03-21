@@ -67,7 +67,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public List<NotificationsSent> NotificationsSent { get; set; }
 
-       
+        [DataMember]
+        [BsonElement("node_name")]
+        [BsonIgnoreIfNull]
+        public string NodeName { get; set; }
+
     }
 
     public class NotificationsSent : Entity

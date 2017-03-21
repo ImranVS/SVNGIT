@@ -6,6 +6,8 @@ Imports System.Configuration
 Imports VSFramework
 Imports LogUtilities.LogUtils
 Imports VSNext.Mongo
+Imports MongoDB.Driver
+Imports MongoDB.Bson
 Imports VSNext.Mongo.Entities
 Imports VSNext.Mongo.Repository
 
@@ -37,6 +39,18 @@ Public Class Alertdll
             WriteDeviceHistoryEntry("All", "Alerts", Now, "Error getting connection information: " & ex.Message)
         End Try
         Return connString
+    End Function
+#End Region
+#Region "NodeName"
+    Private Function GetNodeName() As String
+        'Return "mongodb://localhost/local"
+        Dim nodeName As String = ""
+        Try
+            nodeName = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "Alerts", Now, "Error getting connection information: " & ex.Message)
+        End Try
+        Return nodeName
     End Function
 #End Region
 #Region "Alerts"
@@ -101,7 +115,11 @@ Public Class Alertdll
                     filterEventsDetected = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
                         repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
                         repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
-                        repoEventsDetected.Filter.Gte(Of DateTime)(Function(i) i.EventDetected, Now().AddSeconds(-3600))
+                        repoEventsDetected.Filter.Gte(Of DateTime)(Function(i) i.EventDetected, Now().AddSeconds(-3600)) And
+                        (repoEventsDetected.Filter.Exists(Function(i) i.NodeName, False) Or repoEventsDetected.Filter.Eq(Function(i) i.NodeName, GetNodeName()))
+
+
+
                     repeatEventsEntity = repoEventsDetected.Find(filterEventsDetected).ToArray()
                     If repeatEventsEntity.Count > 0 Then
                         CurrentRepeatOccurrences = repeatEventsEntity(0).EventRepeatCount
@@ -120,7 +138,9 @@ Public Class Alertdll
                                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
                                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
                                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
-                                repoEventsDetected.Filter.Lt(Of DateTime)(Function(i) i.EventDetected, Now().AddSeconds(-3600))
+                                repoEventsDetected.Filter.Lt(Of DateTime)(Function(i) i.EventDetected, Now().AddSeconds(-3600)) And
+                                (repoEventsDetected.Filter.Exists(Function(i) i.NodeName, False) Or repoEventsDetected.Filter.Eq(Function(i) i.NodeName, GetNodeName()))
+
                             updateEventsDetected = repoEventsDetected.Updater.Set(Function(i) i.EventRepeatCount, 0)
                             repoEventsDetected.Update(filterEventsDetected, updateEventsDetected)
                             'Do not queue an alert yet as the current number of occurrences hasn't reached the threshold yet
@@ -142,7 +162,8 @@ Public Class Alertdll
                 filterEventsDetected = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
                     repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
                     repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
-                    repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType)
+                    repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
+                    (repoEventsDetected.Filter.Exists(Function(i) i.NodeName, False) Or repoEventsDetected.Filter.Eq(Function(i) i.NodeName, GetNodeName()))
                 eventsDetectedEntity = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsDetectedEntity.Count = 0 Then
                     'Get device_id from the server collection to insert the value into events_detected
@@ -154,6 +175,9 @@ Public Class Alertdll
                     End If
 
                     Dim entity As New EventsDetected With {.DeviceId = deviceId, .Device = DeviceName, .DeviceType = DeviceType, .EventType = AlertType, .EventDetected = Now, .Details = Details}
+                    If (Enums.Utility.getEnumFromDescription(Of Enums.ServerType)(DeviceType).getCrossNodeScanning()) Then
+                        entity.NodeName = GetNodeName()
+                    End If
                     repoEventsDetected.Insert(entity)
                     If AlertType = "Not Responding" Then
                         '6/15/2016 NS added
@@ -190,11 +214,7 @@ Public Class Alertdll
                     End If
                 Next
                 If DeviceList Then
-                    If DeviceType = "Office365" Then
-                        UpdateStatusDetails(Location, DeviceName, AlertType, Details, Location, Category, "Fail", NowTime, isOffice365:=True)
-                    Else
-                        UpdateStatusDetails(DeviceType, DeviceName, AlertType, Details, Location, Category, "Fail", NowTime)
-                    End If
+                    UpdateStatusDetails(DeviceType, DeviceName, AlertType, Details, Location, Category, "Fail", NowTime)
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error searching events: " & ex.Message)
@@ -206,7 +226,7 @@ Public Class Alertdll
     End Sub
     'Mukund 14Jul14, VSPLUS-814 - StatusDetail insert/update sql
     Private Sub UpdateStatusDetails(ByVal DeviceType As String, ByVal DeviceName As String, ByVal AlertType As String, ByVal Details As String, ByVal Location As String,
-      ByVal Category As String, ByVal Result As String, ByVal NowTime As String, Optional ByVal isOffice365 As Boolean = False)
+      ByVal Category As String, ByVal Result As String, ByVal NowTime As String)
         Dim connString As String = GetDBConnection()
         Dim repoStatusDetails As New Repository(Of StatusDetails)(connString)
         Dim repoServer As New Repository(Of Server)(connString)
@@ -217,36 +237,42 @@ Public Class Alertdll
         Dim statusEntity() As StatusDetails
         Dim serverID As String
         Dim category1 As String
+        Dim crossNodeScanning As Boolean = False
 
         WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Updating status_details for " & DeviceName & ", " & DeviceType, LogLevel.Verbose)
         Try
-            filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.DeviceName, DeviceName)
-            If (Not isOffice365) Then
-                filterDefServer = filterDefServer And repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType)
-            Else
-                filterDefServer = filterDefServer And repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription())
-            End If
+            filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.DeviceName, DeviceName) And
+                repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType)
 
             serversEntity = repoServer.Find(filterDefServer).ToArray()
             If serversEntity.Count > 0 Then
                 WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Found servers ", LogLevel.Verbose)
+                If (Enums.Utility.getEnumFromDescription(Of Enums.ServerType)(DeviceType).getCrossNodeScanning()) Then
+                    crossNodeScanning = True
+                End If
                 serverID = serversEntity(0).Id
                 filterDefStatusDetails = repoStatusDetails.Filter.Eq(Of String)(Function(i) i.DeviceId, serverID) And
-                repoStatusDetails.Filter.Eq(Of String)(Function(i) i.Type, DeviceType) And
-                repoStatusDetails.Filter.Eq(Of String)(Function(i) i.TestName, AlertType)
+                    repoStatusDetails.Filter.Eq(Of String)(Function(i) i.Type, DeviceType) And
+                    repoStatusDetails.Filter.Eq(Of String)(Function(i) i.TestName, AlertType)
+
+                If crossNodeScanning Then
+                    filterDefStatusDetails = filterDefStatusDetails And repoStatusDetails.Filter.Eq(Function(i) i.NodeName, GetNodeName())
+                End If
+
                 statusEntity = repoStatusDetails.Find(filterDefStatusDetails).ToArray()
                 If statusEntity.Count > 0 Then
                     'update
-                    updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.LastUpdate, Now)
-                    repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
                     category1 = IIf(Category = "", DeviceType, Category)
-                    updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.category, category1)
-                    repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
-                    updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.Details, Details)
-                    repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
-                    updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.Result, Result)
-                    repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
-                    updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.TestName, AlertType)
+                    updateDefStatusDetails = repoStatusDetails.Updater.Set(Function(i) i.LastUpdate, Now) _
+                        .Set(Function(i) i.category, category1) _
+                        .Set(Function(i) i.Details, Details) _
+                        .Set(Function(i) i.Result, Result) _
+                        .Set(Function(i) i.TestName, AlertType)
+
+                    If crossNodeScanning Then
+                        updateDefStatusDetails = updateDefStatusDetails.Set(Function(i) i.NodeName, GetNodeName())
+                    End If
+
                     repoStatusDetails.Update(filterDefStatusDetails, updateDefStatusDetails)
                 Else
                     'insert
@@ -259,6 +285,9 @@ Public Class Alertdll
                         .LastUpdate = Now,
                         .Details = Details
                     }
+                    If crossNodeScanning Then
+                        entity.NodeName = GetNodeName()
+                    End If
                     repoStatusDetails.Insert(entity)
                 End If
             End If
@@ -309,7 +338,8 @@ Public Class Alertdll
             filterDefEvents = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
-                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType)
+                repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
+                (repoEventsDetected.Filter.Exists(Function(i) i.NodeName, False) Or repoEventsDetected.Filter.Eq(Function(i) i.NodeName, GetNodeName()))
             eventsEntity = repoEventsDetected.Find(filterDefEvents).ToArray()
             If eventsEntity.Length > 0 Then
                 Try
@@ -337,11 +367,7 @@ Public Class Alertdll
                 End If
             End If
             'VSPLUS-930,Mukund, 15Sep14 pass Category, Details parameters
-            If DeviceType = "Office365" Then
-                UpdateStatusDetails(Location, DeviceName, AlertType, Details, Location, Category, "Pass", NowTime, isOffice365:=True)
-            Else
-                UpdateStatusDetails(DeviceType, DeviceName, AlertType, Details, Location, Category, "Pass", NowTime)
-            End If
+            UpdateStatusDetails(DeviceType, DeviceName, AlertType, Details, Location, Category, "Pass", NowTime)
         Catch ex As Exception
             WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error searching events at the time of Update: " & ex.Message)
             WriteAuditEntry(NowTime & " Error searching alerts: " & ex.Message)

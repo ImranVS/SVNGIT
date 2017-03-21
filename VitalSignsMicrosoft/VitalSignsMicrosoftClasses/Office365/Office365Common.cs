@@ -103,38 +103,9 @@ namespace VitalSignsMicrosoftClasses
                         doSPOTests(p);
                     }
 
-
-                    //o365Th = new Thread(() => getMailBoxStats(p));
-                    //o365Th.Name = Server.Name + " getMailBoxStats";
-                    //WaitForThread(o365Th, Server);
-                    //getMailBoxStats(p);
-
-                    //o365Th = new Thread(() => getMobileStats(p));
-                    //o365Th.Name = Server.Name + " getMobileStats";
-                    //WaitForThread(o365Th, Server);
                     getMobileStats(p);
                     getMobileUsersHourly(p.myServer, ref p.TS, p.PSO);
-                    //Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "do REST API Tests ", Common.LogLevel.Normal);
-
-                    //o365Th = new Thread(() => doAPITests(p));
-                    //o365Th.Name = Server.Name + " doAPITests";
-                    //WaitForThread(o365Th, Server);
-
-                    //getMailboxes(Server, ref AllTestsList, results);
-                    //getMailboxeDetails(Server, ref AllTestsList, results);
-
-                    //getAllUsers(Server, ref AllTestsList, results);
-                    //getMobileUsers(Server, ref AllTestsList, results);
-                    //getMailboxActivity(Server, ref AllTestsList, results);
-
-
-                    //getLyncStats(Server, ref AllTestsList, results);
-                    //getLyncDevices(Server, ref AllTestsList, results);
-                    //getLyncPAVTimeReport(Server, ref AllTestsList, results);
-                    //getLyncConferenceReport(Server, ref AllTestsList, results);
-                    //getLyncP2PSessionReport(Server, ref AllTestsList, results);
-                    //doO365RESTApiTests(Server, ref AllTestsList);
-
+                    
                     if (Server.Mode == "Dir Sync" && Server.DirSyncServerName != "")
                     {
                         ReturnPowerShellObjects PSO = null;
@@ -149,10 +120,8 @@ namespace VitalSignsMicrosoftClasses
 
                     }
 
-                    //updateResults(Server, ref AllTestsList);
 
                 }
-                //}
             }
             catch(Exception ex)
             {
@@ -421,7 +390,7 @@ namespace VitalSignsMicrosoftClasses
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Dir Sync Tests: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Dir Sync Tests: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 
 		}
@@ -469,7 +438,7 @@ namespace VitalSignsMicrosoftClasses
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Dir Sync Tests: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Dir Sync Last Run Tests: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 			return runStartTime;
 
@@ -497,7 +466,7 @@ namespace VitalSignsMicrosoftClasses
 				int iActiveUnits = 0;
 				string AccountName = "";
 				string LicenseType = "";
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: " + results.Count.ToString(), Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				if (results.Count > 0)
@@ -517,38 +486,20 @@ namespace VitalSignsMicrosoftClasses
 						if (ActiveUnits != "")
 							iActiveUnits += Convert.ToInt32(ActiveUnits);
 
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: AccountName:" + AccountName, Common.LogLevel.Normal);
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: ConsumedUnits:" + ConsumedUnits, Common.LogLevel.Normal);
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: ActiveUnits:" + ActiveUnits, Common.LogLevel.Normal);
+						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: AccountName:" + AccountName, Common.LogLevel.Verbose);
+						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: ConsumedUnits:" + ConsumedUnits, Common.LogLevel.Verbose);
+						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: ActiveUnits:" + ActiveUnits, Common.LogLevel.Verbose);
 
 
 
 					}
-					SQLBuild objSQL = new SQLBuild();
-					objSQL.ifExistsSQLSelect = "SELECT * FROM Office365AccountStats WHERE ServerId=" + myServer.ServerId;
-					objSQL.onFalseDML = "INSERT INTO Office365AccountStats (ServerId,AccountName, ActiveUnits, ConsumedUnits, WarningUnits, LicenseType, LastUpdatedDate) VALUES ('" + myServer.ServerId + "', '" + AccountName + "',";
-					objSQL.onFalseDML += iActiveUnits.ToString() + "," + iConsumedUnits.ToString() + "," + iWarningUnits.ToString() + ",'" + LicenseType + "','" + DateTime.Now + "')";
-
-                    VSNext.Mongo.Entities.Office365 o365 = new VSNext.Mongo.Entities.Office365();
-                    o365.ServerId = myServer.ServerId;
-                    o365.AccountName = AccountName;
-                    o365.ActiveUnits = iActiveUnits.ToString();
-                    o365.ConsumedUnits = iConsumedUnits;
-                    o365.WarningUnits = iWarningUnits;
-                    o365.LicenseType = LicenseType;
-
-
-					objSQL.onTrueDML = "UPDATE Office365AccountStats set AccountName='" + AccountName + "', ActiveUnits=" + iActiveUnits.ToString() + ", ConsumedUnits=" + iConsumedUnits.ToString() + ",WarningUnits=" + iWarningUnits.ToString() + ",LicenseType='" + LicenseType + "',LastUpdatedDate='" + DateTime.Now + "' Where ServerId=" + myServer.ServerId.ToString();
-					string sqlQuery = objSQL.GetSQL(objSQL);
-					//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-                    //list.Add(o365);
 
                     MongoStatementsUpsert<VSNext.Mongo.Entities.Office365> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365>();
-                    updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.AccountName == o365.AccountName && i.ServerId == o365.ServerId );
-                    updateStatement.updateDef = updateStatement.repo.Updater.Set(i => i.ActiveUnits, o365.AccountName).Set(i => i.ConsumedUnits, o365.ConsumedUnits)
-                        .Set(i => i.WarningUnits, o365.WarningUnits)
-                        .Set(i => i.LicenseType, o365.LicenseType)
-                        .Set(i => i.ServerId, o365.ServerId);
+                    updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.AccountName == AccountName && i.DeviceId == myServer.ServerObjectID );
+                    updateStatement.updateDef = updateStatement.repo.Updater
+                        .Set(i => i.ConsumedUnits, iConsumedUnits)
+                        .Set(i => i.WarningUnits, iWarningUnits)
+                        .Set(i => i.LicenseType, LicenseType);
 
                     AllTestsList.MongoEntity.Add(updateStatement);
 				}
@@ -556,7 +507,7 @@ namespace VitalSignsMicrosoftClasses
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 				//myServer.ADQueryTest = "Fail";
 			}
 		}
@@ -565,7 +516,7 @@ namespace VitalSignsMicrosoftClasses
 			try
 			{
                 List<VSNext.Mongo.Entities.Office365> list = new List<VSNext.Mongo.Entities.Office365>();
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Starting.", Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				string str = "Get-MsolCompanyInformation";
@@ -596,7 +547,7 @@ namespace VitalSignsMicrosoftClasses
 
 				results = powershellobj.PS.Invoke();
 
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: " + results.Count.ToString(), Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				if (results.Count > 0)
@@ -620,39 +571,22 @@ namespace VitalSignsMicrosoftClasses
 						//}
 						//string TechnicalNotificationEmails = ps.Properties["TechnicalNotificationEmails"].Value == null ? "" : ps.Properties["TechnicalNotificationEmails"].Value.ToString();
 						string TechnicalNotificationEmails = "";
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: DisplayName:" + DisplayName, Common.LogLevel.Normal);
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: TechnicalNotificationEmails:" + TechnicalNotificationEmails, Common.LogLevel.Normal);
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: Street:" + Street, Common.LogLevel.Normal);
+						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: DisplayName:" + DisplayName, Common.LogLevel.Verbose);
+						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: TechnicalNotificationEmails:" + TechnicalNotificationEmails, Common.LogLevel.Verbose);
+						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: Street:" + Street, Common.LogLevel.Verbose);
 
-						SQLBuild objSQL = new SQLBuild();
-						objSQL.ifExistsSQLSelect = "SELECT * FROM Office365AccountStats WHERE ServerId=" + myServer.ServerId;
-						objSQL.onFalseDML = "INSERT INTO Office365AccountStats (ServerId,CompanyDisplayName, PreferredLanguage, Street, City, State, Country,PostalCode,Telephone,TechnicalNotificationEmails,LastUpdatedDate) VALUES ('" + myServer.ServerId + "', '" + DisplayName + "','";
-						objSQL.onFalseDML += PreferredLanguage + "','" + Street + "','" + City + "','" + State + "','" + Country + "','" + PostalCode + "','" + TelephoneNumber + "','" + TechnicalNotificationEmails + "','" + DateTime.Now + "')";
-
-
-						objSQL.onTrueDML = "UPDATE Office365AccountStats set CompanyDisplayName='" + DisplayName + "', PreferredLanguage='" + PreferredLanguage + "', Street='" + Street + "',City='" + City + "',State='" + State + "',PostalCode='" + PostalCode + "',Telephone='" + TelephoneNumber + "',TechnicalNotificationEmails='" + TechnicalNotificationEmails + "',LastUpdatedDate='" + DateTime.Now + "' Where ServerId=" + myServer.ServerId.ToString();
-						string sqlQuery = objSQL.GetSQL(objSQL);
-						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-                        VSNext.Mongo.Entities.Office365 o365 = new VSNext.Mongo.Entities.Office365();
-                        o365.ServerId = myServer.ServerId;
-                        o365.PreferredLanguage = PreferredLanguage;
-                        o365.Street = Street.ToString();
-                        o365.City = City;
-                        o365.State = State;
-                        o365.PostalCode = PostalCode;
-                        o365.Telephone = TelephoneNumber;
-                        o365.Country = Country;
-                        o365.TechnicalNotificationEmails = TechnicalNotificationEmails;
 
                         MongoStatementsUpsert<VSNext.Mongo.Entities.Office365> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365>();
-                        updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.ServerId == o365.ServerId);
-                        updateStatement.updateDef = updateStatement.repo.Updater.Set(i => i.PreferredLanguage, o365.PreferredLanguage).Set(i => i.Street, o365.Street)
-                            .Set(i => i.City, o365.City)
-                            .Set(i => i.State, o365.State)
-                            .Set(i => i.PostalCode, o365.PostalCode)
-                            .Set(i => i.Telephone, o365.Telephone)
-                            .Set(i => i.Country, o365.Country)
-                             .Set(i => i.TechnicalNotificationEmails, o365.TechnicalNotificationEmails);
+                        updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.DeviceId == myServer.ServerObjectID);
+                        updateStatement.updateDef = updateStatement.repo.Updater
+                            .Set(i => i.PreferredLanguage, PreferredLanguage)
+                            .Set(i => i.Street, Street)
+                            .Set(i => i.City, City)
+                            .Set(i => i.State, State)
+                            .Set(i => i.PostalCode, PostalCode)
+                            .Set(i => i.Telephone, TelephoneNumber)
+                            .Set(i => i.Country, Country)
+                            .Set(i => i.TechnicalNotificationEmails, TechnicalNotificationEmails);
 
                         AllTestsList.MongoEntity.Add(updateStatement);
 
@@ -663,7 +597,7 @@ namespace VitalSignsMicrosoftClasses
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 				//myServer.ADQueryTest = "Fail";
 			}
 		}
@@ -678,14 +612,14 @@ namespace VitalSignsMicrosoftClasses
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Select DisplayName,Database,TotalItemSize,ItemCount,StorageLimitStatus,ServerName,LastLogonTime,LastLogoffTime";
                 string str ="$results=@() \n";
-str +="Get-Mailbox -ResultSize unlimited| select Database,ServerName,identity | % { \n";
-str +="$stats=Get-MailboxStatistics -Identity $_.identity |select TotalItemSize,ItemCount,StorageLimitStatus,LastLogonTime,LastLogoffTime,DisplayName \n";
-str +="$stats |Add-Member -Type NoteProperty -Name Database -Value $_.Database    \n";
-str +="$stats |Add-Member -Type NoteProperty -Name ServerName -Value $_.ServerName  \n";
-str +="$results +=($stats) \n";
-str +="} \n";
-str +="$results \n";
-str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
+                str +="Get-Mailbox -ResultSize unlimited| select Database,ServerName,identity | % { \n";
+                str +="$stats=Get-MailboxStatistics -Identity $_.identity |select TotalItemSize,ItemCount,StorageLimitStatus,LastLogonTime,LastLogoffTime,DisplayName \n";
+                str +="$stats |Add-Member -Type NoteProperty -Name Database -Value $_.Database    \n";
+                str +="$stats |Add-Member -Type NoteProperty -Name ServerName -Value $_.ServerName  \n";
+                str +="$results +=($stats) \n";
+                str +="} \n";
+                str +="$results \n";
+                str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				//Get - Mailbox | select *
 				//Get-Mailbox | select RecipientTypeDetails,ProhibitSendQuota,ProhibitSendReceiveQuota,IssueWarningQuota,IsInactiveMailbox
 				powershellobj.PS.Commands.Clear();
@@ -705,9 +639,6 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						if (DisplayName != "Discovery Search Mailbox")
 						{
 							string Database = ps.Properties["Database"].Value == null ? "" : ps.Properties["Database"].Value.ToString();
-							//string IssueWarningQuota = "Unlimited"; //ps.Properties["IssueWarningQuota"].Value == null ? "Unlimited" : ps.Properties["IssueWarningQuota"].Value.ToString();
-							//string ProhibitSendQuota = "Unlimited";// ps.Properties["ProhibitSendQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendQuota"].Value.ToString();
-							//string ProhibitSendReceiveQuota = "Unlimited";//ps.Properties["ProhibitSendReceiveQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendReceiveQuota"].Value.ToString();
 							string totalItemSize = ps.Properties["TotalItemSize"].Value == null ? "0" : ps.Properties["TotalItemSize"].Value.ToString();
 							try
 							{
@@ -730,8 +661,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 							catch
 							{
 							}
-
-							//string TotalItemSize = ps.Properties["TotalItemSize"].Value == null ? "0" : ps.Properties["TotalItemSize"].Value.ToString();
+                            
 							string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
 							string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
 							string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
@@ -783,8 +713,8 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
 				results = powershellobj.PS.Invoke();
-				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "DELETE FROM ExchangeMailFiles WHERE Server='" + myServer.Name + "'", DatabaseName = "VSS_Statistics" });
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxesDetails Results: " + results.Count.ToString(), Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				if (results.Count > 0)
@@ -811,39 +741,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 							//string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
 							//string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
 							string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
-
-							//string sqlQuery = "INSERT INTO ExchangeMailFiles ([ScanDate],[Database],[DisplayName],[Server],[IssueWarningQuota],[ProhibitSendQuota],[ProhibitSendReceiveQuota]) VALUES " +
-							//"('" + DateTime.Now + "','" + Database + "','" + DisplayName + "','" + myServer.Name + "','" + IssueWarningQuota + "','" + ProhibitSendQuota + "','" + ProhibitSendReceiveQuota + "')";
-
-
-							//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-                            //SQLBuild objSQL = new SQLBuild();
-                            //objSQL.ifExistsSQLSelect = "SELECT * FROM ExchangeMailFiles WHERE Server='" + myServer.Name + "' AND DisplayName='" + DisplayName + "'";
-                            //objSQL.onFalseDML = "INSERT INTO ExchangeMailFiles ([ScanDate],[Database],[DisplayName],[IssueWarningQuota],[ProhibitSendQuota],[ProhibitSendReceiveQuota],[Server]) VALUES " +
-                            //    "('" + DateTime.Now + "','" + Database + "','" + DisplayName + "','" + IssueWarningQuota + "','" + ProhibitSendQuota + "','" + ProhibitSendReceiveQuota + "','" + myServer.Name + "')";
-
-
-
-
-                            //objSQL.onTrueDML = "UPDATE ExchangeMailFiles set IssueWarningQuota='" + IssueWarningQuota + "',ProhibitSendQuota='" + ProhibitSendQuota + "',ProhibitSendReceiveQuota='" + ProhibitSendReceiveQuota +
-                            //    "',ScanDate='" + DateTime.Now + "' Where Server='" + myServer.Name.ToString() + "' AND DisplayName='" + DisplayName + "'";
-                            //string sqlQuery = objSQL.GetSQL(objSQL);
-                            //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-
-                            //// Details
-                            //SQLBuild objSQL2 = new SQLBuild();
-                            //objSQL2.ifExistsSQLSelect = "SELECT * FROM O365AdditionalMailDetails WHERE Server='" + myServer.Name + "' AND DisplayName='" + DisplayName + "'";
-                            //objSQL2.onFalseDML = "INSERT INTO dbo.O365AdditionalMailDetails ([Server],[MailBoxType],[IsActive],[DisplayName]) VALUES " +
-                            //    "('" + myServer.Name + "','" + RecipientTypeDetails + "','" + IsInactiveMailbox + "','" + DisplayName + "')";
-
-
-
-
-                            //objSQL2.onTrueDML = "UPDATE dbo.O365AdditionalMailDetails set MailBoxType='" + RecipientTypeDetails + "',IsActive='" + IsInactiveMailbox + "' Where Server='" + myServer.Name + "' AND DisplayName='" + DisplayName + "'";
-                            //string sqlQuery2 = objSQL2.GetSQL(objSQL2);
-                            //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery2, DatabaseName = "VSS_Statistics" });
-
+                            
                             MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
                             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceId == myServer.ServerObjectID);
                             mongoStatement.updateDef = mongoStatement.repo.Updater
@@ -873,7 +771,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxeDetails: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxeDetails: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 				//myServer.ADQueryTest = "Fail";
 				//Common.makeAlert(false, myServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestsList, myServer.ServerType);
 			}
@@ -893,7 +791,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				powershellobj.PS.AddScript(str);
 				results = powershellobj.PS.Invoke();
 
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity Results: " + results.Count.ToString(), Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				if (results.Count > 0)
@@ -906,7 +804,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
 
                         MongoStatementsUpsert<VSNext.Mongo.Entities.Office365> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365>();
-                        updateStatement.filterDef = updateStatement.repo.Filter.Where(i =>  i.ServerId == myServer.ServerId);
+                        updateStatement.filterDef = updateStatement.repo.Filter.Where(i =>  i.DeviceId == myServer.ServerObjectID);
                         updateStatement.updateDef = updateStatement.repo.Updater.Set(i => i.TotalActiveUserMailboxes, TotalActiveUserMailBoxes);
                         AllTestsList.MongoEntity.Add(updateStatement);
 
@@ -918,7 +816,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 
@@ -940,7 +838,9 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				System.Collections.ArrayList groupId = new System.Collections.ArrayList();
 				if (results.Count > 0)
 				{
-					AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.O365Groups where ServerId=" + myServer.ServerId.ToString(), DatabaseName = "Vitalsigns" });
+                    MongoStatementsDelete<VSNext.Mongo.Entities.Office365Groups> mongoDelete = new MongoStatementsDelete<VSNext.Mongo.Entities.Office365Groups>();
+                    mongoDelete.filterDef = mongoDelete.repo.Filter.Eq(x => x.DeviceId, myServer.ServerObjectID);
+                    AllTestsList.MongoEntity.Add(mongoDelete);
 					foreach (PSObject ps in results)
 					{
 						string objectId = ps.Properties["ObjectId"].Value == null ? "" : ps.Properties["ObjectId"].Value.ToString();
@@ -950,32 +850,17 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						string groupType = ps.Properties["GroupType"].Value == null ? "" : ps.Properties["GroupType"].Value.ToString();
 						string groupDescription = ps.Properties["Description"].Value == null ? "" : ps.Properties["Description"].Value.ToString();
 
-
-						string sqlQuery = "INSERT INTO dbo.O365Groups ([ServerId],[GroupId],[GroupName],[GroupType],[GroupDescription]) VALUES " +
-							"(" + myServer.ServerId + ",'" + objectId + "','" + displayName + "','" + groupType + "','" + groupDescription + "')";
-                        //VSNext.Mongo.Entities.Office365GroupMembers Office365Members = new VSNext.Mongo.Entities.Office365GroupMembers();
-                        //Office365Members.UserPrincipleName = "ddd";
-                        //VSNext.Mongo.Entities.Office365GroupMembers Office365Members2 = new VSNext.Mongo.Entities.Office365GroupMembers();
-                        //Office365Members2.UserPrincipleName = "eee";
-                        //MongoStatementsInsert<VSNext.Mongo.Entities.Office365GroupMembers> msil = new MongoStatementsInsert<VSNext.Mongo.Entities.Office365GroupMembers>();
-
-                        //msil.listOfEntities.Add(Office365Members);
-                        //msil.listOfEntities.Add(Office365Members2);
-
-
-						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "Vitalsigns" });
                         VSNext.Mongo.Entities.Office365Groups Office365 = new VSNext.Mongo.Entities.Office365Groups();
-                        Office365.ServerId = int.Parse(myServer.ServerId);
+                        Office365.DeviceId = myServer.ServerObjectID;
                         Office365.GroupId = objectId;
                         Office365.GroupName = displayName;
                         Office365.GroupType = groupType;
                         Office365.GroupDescription = groupDescription;
-                        //Office365.Members = msil.listOfEntities.ToArray();
 
                         msi.listOfEntities.Add(Office365);
 
 					}
-                    MongoStatementsInsert<VSNext.Mongo.Entities.Office365GroupMembers> msil = new MongoStatementsInsert<VSNext.Mongo.Entities.Office365GroupMembers>();
+                    
                     foreach (VSNext.Mongo.Entities.Office365Groups s in msi.listOfEntities)
 					{
 						str = "Get-MsolGroupMember -groupObjectid '" + s.GroupId + "' | Select DisplayName,EmailAddress,GroupMemberType";
@@ -986,35 +871,21 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						results = powershellobj.PS.Invoke();
 						if (results.Count > 0)
 						{
-							AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.O365UserGroups where GroupId='" + s.GroupId + "'", DatabaseName = "Vitalsigns" });
-                            VSNext.Mongo.Entities.Office365GroupMembers Office365Members = new VSNext.Mongo.Entities.Office365GroupMembers();
-							//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "delete from dbo.O365Groups where ServerId=" + myServer.ServerId.ToString(), DatabaseName = "Vitalsigns" });
+                            List<VSNext.Mongo.Entities.Office365GroupMembers> msil = new List<VSNext.Mongo.Entities.Office365GroupMembers>();
+                            
 							foreach (PSObject ps in results)
 							{
 								string displayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
 								string groupMemberType = ps.Properties["GroupMemberType"].Value == null ? "" : ps.Properties["GroupMemberType"].Value.ToString();
 								string EmailAddress = ps.Properties["EmailAddress"].Value == null ? "" : ps.Properties["EmailAddress"].Value.ToString();
-								//string groupDescription = ps.Properties["Description"].Value == null ? "" : ps.Properties["Description"].Value.ToString();
 
-								SQLBuild objSQL = new SQLBuild();
-								objSQL.ifExistsSQLSelect = "SELECT * FROM dbo.O365MSOLUsers WHERE ServerId='" + myServer.ServerId + "' AND DisplayName='" + displayName.Replace("'", "''") + "'";
-								objSQL.onFalseDML = "INSERT INTO dbo.O365MSOLUsers ([ServerId],[DisplayName],[UserPrincipalName],LastUpdated) VALUES " +
-									"(" + myServer.ServerId + ",'" + displayName.Replace("'", "''") + "','" + EmailAddress + "','" + DateTime.Now.ToString() + "')";
-
-
-								objSQL.onTrueDML = "UPDATE dbo.O365MSOLUsers set UserPrincipalName='" + EmailAddress + "' Where ServerId=" + myServer.ServerId.ToString() + " and DisplayName='" + displayName.Replace("'", "''") + "'";
-								string sqlQuery = objSQL.GetSQL(objSQL);
-								AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "Vitalsigns" });
-
-
-								string strInsert = "insert into dbo.O365UserGroups(groupid,UserPrincipalName) values('" + s.GroupId + "','" + EmailAddress + "')";
-								//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strInsert, DatabaseName = "Vitalsigns" });
-                                
+                                VSNext.Mongo.Entities.Office365GroupMembers Office365Members = new VSNext.Mongo.Entities.Office365GroupMembers();
                                 Office365Members.UserPrincipleName = EmailAddress;
-
-                                msil.listOfEntities.Add(Office365Members);
+                                Office365Members.DisplayName = displayName;
+                                Office365Members.GroupMemberType = groupMemberType;
+                                msil.Add(Office365Members);
 							}
-                            s.Members = msil.listOfEntities.ToArray();
+                            s.Members = msil.ToArray();
 						}
                         results = null;
                         GC.Collect();
@@ -1028,7 +899,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMSOLGroups: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMSOLGroups: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 		public void getMsolUsers(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
@@ -1271,8 +1142,6 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						catch (Exception ex)
 						{
 							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: Error while processing data for User: " + Username + " : Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
-                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: Error while processing data for User: " + Username + " : Exception: " + ex.StackTrace, Common.LogLevel.Normal);
-                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: Error while processing data for User: " + Username + " : Exception: " + ex, Common.LogLevel.Normal);
                         }
 
 					}
@@ -1755,7 +1624,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
                         //strSQL = "INSERT INTO vitalsigns.dbo.O365UserswithLicensesandServices (DisplayName, XMLConfiguration, ServerId) VALUES ('" + userLicense.DisplayName + "', '" + userLicense.XMLConfiguration + "', '" + myServer.ServerId + "')";
                         //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL, DatabaseName = "Vitalsigns" });
                          VSNext.Mongo.Entities.Office365UsersLicensesServices o365Server = new VSNext.Mongo.Entities.Office365UsersLicensesServices();
-                        o365Server.ServerId = Convert.ToInt32(myServer.ServerId);
+                        o365Server.DeviceId = myServer.ServerObjectID;
                         o365Server.DisplayName = userLicense.DisplayName;
                         o365Server.XMLConfiguration = userLicense.XMLConfiguration;
                        
@@ -2473,15 +2342,8 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncStats Results: AccountName:" + AccountName, Common.LogLevel.Normal);
 
-						string sqlQuery = "DELETE O365LyncStats WHERE SERVERID=" + myServer.ServerId.ToString();
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
-						sqlQuery = "INSERT INTO O365LyncStats (SERVERID,ACCOUNTNAME,ActiveUsers,ActiveIMUsers,ActiveAudioUsers,ActiveVideousers,ActiveApplicationSharingUsers,ActiveFileTransferUsers) VALUES(" + myServer.ServerId + ",'" + AccountName + "'," + ActiveUsers + "," + ActiveIMUsers + "," + ActiveAudioUsers + "," + ActiveVideousers + "," + ActiveApplicationSharingUsers + "," + ActiveFileTransferUsers + ")";
-						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-						//break;
-
                         VSNext.Mongo.Entities.Office365LyncStats o365Server = new VSNext.Mongo.Entities.Office365LyncStats();
-                        o365Server.ServerId = Convert.ToInt32(myServer.ServerId);
+                        o365Server.DeviceId = myServer.ServerObjectID;
                         o365Server.AccountName = AccountName;
                         o365Server.ActiveUsers = Convert.ToInt32(ActiveUsers);
                         o365Server.ActiveIMUsers = Convert.ToInt32(ActiveIMUsers);
@@ -2499,7 +2361,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncStats Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncStats Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 		public void getLyncDevices(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
@@ -2534,15 +2396,9 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						string iPadUsers = ps.Properties["iPadUsers"].Value == null ? "0" : ps.Properties["iPadUsers"].Value.ToString();
 
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncDevices Results: AccountName:" + AccountName, Common.LogLevel.Normal);
-
-						string sqlQuery = "DELETE O365LyncDevices WHERE SERVERID=" + myServer.ServerId.ToString();
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
-						sqlQuery = "INSERT INTO O365LyncDevices (SERVERID,ACCOUNTNAME,WindowsUsers,WindowsPhoneUsers,AndroidUsers,iPhoneUsers,iPadUsers) VALUES(" + myServer.ServerId + ",'" + AccountName + "'," + WindowsUsers + "," + WindowsPhoneUsers + "," + AndroidUsers + "," + iPhoneUsers + "," + iPadUsers + ")";
-						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
+                        
                         VSNext.Mongo.Entities.Office365LyncDevices o365Server = new VSNext.Mongo.Entities.Office365LyncDevices();
-                        o365Server.ServerId = Convert.ToInt32(myServer.ServerId);
+                        o365Server.DeviceId = myServer.ServerObjectID;
                         o365Server.AccountName = AccountName;
                         o365Server.WindowsUsers = Convert.ToInt32(WindowsUsers);
                         o365Server.WindowsPhoneUsers = Convert.ToInt32(WindowsPhoneUsers);
@@ -2559,7 +2415,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncDevices Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncDevices Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 		public void getLyncPAVTimeReport(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
@@ -2589,16 +2445,10 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						string TotalAudioMinutes = ps.Properties["TotalAudioMinutes"].Value == null ? "0" : ps.Properties["TotalAudioMinutes"].Value.ToString();
 						string TotalVideoMinutes = ps.Properties["TotalVideoMinutes"].Value == null ? "0" : ps.Properties["TotalVideoMinutes"].Value.ToString();
 
-
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncPAVTimeReport Results: AccountName:" + AccountName, Common.LogLevel.Normal);
-
-						string sqlQuery = "DELETE O365LYNCPAVTimeReport WHERE SERVERID=" + myServer.ServerId.ToString();
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
-						sqlQuery = "INSERT INTO O365LYNCPAVTimeReport (SERVERID,ACCOUNTNAME,TotalAudioMinutes,TotalVideoMinutes) VALUES(" + myServer.ServerId + ",'" + AccountName + "'," + TotalAudioMinutes + "," + TotalVideoMinutes + ")";
-						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+                        
                         VSNext.Mongo.Entities.Office365LyncPAVTimeReport o365Server = new VSNext.Mongo.Entities.Office365LyncPAVTimeReport();
-                        o365Server.ServerId = Convert.ToInt32(myServer.ServerId);
+                        o365Server.DeviceId = myServer.ServerObjectID;
                         o365Server.AccountName = AccountName;
                         o365Server.TotalAudioMinutes = Convert.ToInt32(TotalAudioMinutes);
                         o365Server.TotalVideoMinutes = Convert.ToInt32(TotalVideoMinutes);
@@ -2612,7 +2462,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncPAVTimeReport Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncPAVTimeReport Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 		public void getLyncConferenceReport(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
@@ -2648,14 +2498,9 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncConferenceReport Results: AccountName:" + AccountName, Common.LogLevel.Normal);
 
-						string sqlQuery = "DELETE O365LYNCConferenceReport WHERE SERVERID=" + myServer.ServerId.ToString();
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
-						sqlQuery = "INSERT INTO O365LYNCConferenceReport (SERVERID,ACCOUNTNAME,TotalConferences,AVConferences,IMConferences,ApplicationSharingConferences,WebConferences,TelephonyConferences) VALUES(" + myServer.ServerId + ",'" + AccountName + "'," + TotalConferences + "," + AVConferences + "," + IMConferences + "," + ApplicationSharingConferences + "," + WebConferences + "," + TelephonyConferences + ")";
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
                         VSNext.Mongo.Entities.Office365LyncConferenceReport o365Server = new VSNext.Mongo.Entities.Office365LyncConferenceReport();
                         o365Server.AccountName = AccountName;
-                        o365Server.ServerId = Convert.ToInt32(myServer.ServerId);
+                        o365Server.DeviceId = myServer.ServerObjectID;
                         o365Server.TotalConferences = Convert.ToInt32(TotalConferences);
                         o365Server.AVConferences = Convert.ToInt32(AVConferences);
                         o365Server.IMConferences = Convert.ToInt32(IMConferences);
@@ -2672,7 +2517,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncConferenceReport Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncConferenceReport Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 		public void getLyncP2PSessionReport(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
@@ -2707,14 +2552,9 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 						string P2PFileTransferSessions = ps.Properties["P2PFileTransferSessions"].Value == null ? "0" : ps.Properties["P2PFileTransferSessions"].Value.ToString();
 
 						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncP2PSessionReport Results: AccountName:" + AccountName, Common.LogLevel.Normal);
-
-						string sqlQuery = "DELETE O365LYNCP2PSessionReport WHERE SERVERID=" + myServer.ServerId.ToString();
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
-
-						sqlQuery = "INSERT INTO O365LYNCP2PSessionReport (SERVERID,ACCOUNTNAME,TotalP2PSessions,P2PIMSessions,P2PAudioSessions,P2PVideoSessions,P2PApplicationSharingSessions,P2PFileTransferSessions) VALUES(" + myServer.ServerId + ",'" + AccountName + "'," + TotalP2PSessions + "," + P2PIMSessions + "," + P2PAudioSessions + "," + P2PVideoSessions + "," + P2PApplicationSharingSessions + "," + P2PFileTransferSessions + ")";
-						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+                        
                         VSNext.Mongo.Entities.Office365LyncP2PSessionReport o365Server = new VSNext.Mongo.Entities.Office365LyncP2PSessionReport();
-                        o365Server.ServerId = Convert.ToInt32(myServer.ServerId);
+                        o365Server.DeviceId = myServer.ServerObjectID;
                         o365Server.AccountName = AccountName;
                         o365Server.TotalP2PSessions = Convert.ToInt32(TotalP2PSessions);
                         o365Server.P2PIMSessions = Convert.ToInt32(P2PIMSessions);
@@ -2732,7 +2572,7 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncP2PSessionReport Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getLyncP2PSessionReport Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 		#endregion
@@ -2962,47 +2802,23 @@ str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSummaryStats: Starting.", Common.LogLevel.Normal);
                 CommonDB db = new CommonDB();
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Mailbox> repoMailbox = new VSNext.Mongo.Repository.Repository< VSNext.Mongo.Entities.Mailbox>(db.GetMongoConnectionString());
-                FilterDefinition<VSNext.Mongo.Entities.Mailbox> filterDef = repoMailbox.Filter.Eq(i => i.DeviceId, myServer.ServerObjectID) & repoMailbox.Filter.Lte(x => x.LastLogonTime, DateTime.Now.AddDays(-1));
-                int activeMailboxes = repoMailbox.Find(filterDef).Count();
-                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "ActiveUsersCount", activeMailboxes.ToString()));
-
+                FilterDefinition<VSNext.Mongo.Entities.Mailbox> filterDef = repoMailbox.Filter.Eq(i => i.DeviceId, myServer.ServerObjectID);
+                List<VSNext.Mongo.Entities.Mailbox> listMailboxes = repoMailbox.Find(filterDef).ToList();
+                // & repoMailbox.Filter.Lte(x => x.LastLogonTime, DateTime.Now.AddDays(-1))
+                foreach(VSNext.Mongo.Entities.Mailbox mailbox in listMailboxes.Where(x => x.LastLogonTime.HasValue))
+                {
+                    MongoStatementsUpdate<VSNext.Mongo.Entities.Mailbox> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Mailbox>();
+                    mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(x => x.Id, mailbox.Id);
+                    mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(x => x.InactiveDaysCount, Convert.ToInt32((DateTime.Now - mailbox.LastLogonTime.Value).TotalDays));
+                    AllTestsList.MongoEntity.Add(mongoUpdate);
+                }
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoSummaryStats(myServer, "ActiveUsersCount", listMailboxes.Where(x => x.LastLogonTime.HasValue && x.LastLogonTime.Value < DateTime.Now.AddDays(-1)).Count().ToString()));
 
                 
-                /*
-                //string SqlQuery = "select COUNT(*) CNT from O365AdditionalMailDetails  where LastLogonTime > GETDATE()-1 and Server='" + myServer.Name + "'";
-				string SqlQuery2 = "update dbo.O365AdditionalMailDetails set InActiveDaysCount=DATEDIFF(D,lastlogontime,getdate()) where lastlogontime is not null and Server='" + myServer.Name + "'";
-
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = SqlQuery2, DatabaseName = "VSS_Statistics" });
-
-
-				CommonDB DB = new CommonDB("VSS_STATISTICS");
-				DataTable dtServers = DB.GetData(SqlQuery.ToString());
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSummaryStats: Count of LastLogonTime > GETDATE()-1." + dtServers.Rows.Count.ToString(), Common.LogLevel.Normal);
-				if (dtServers.Rows.Count > 0)
-				{
-
-					for (int i = 0; i < dtServers.Rows.Count; i++)
-					{
-						DataRow DR = dtServers.Rows[i];
-						string activeUsersCount = DR["CNT"].ToString();
-
-						DateTime dtNow = DateTime.Now;
-						int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-						string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftSummaryStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber) "
-								+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'ActiveUsersCount" + "'" + " ," + activeUsersCount +
-							   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ")";
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-					}
-				}
-
-				//string sSQL="insert into dbo.MicrosoftSummaryStats ('"+ myServer.Name + "','" + myServer.ServerTypeId.ToString() +"',"
-                */
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailStatus: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
-				//myServer.ADQueryTest = "Fail";
-				//Common.makeAlert(false, myServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestsList, myServer.ServerType);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailStatus: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
 	}

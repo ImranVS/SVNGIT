@@ -646,6 +646,7 @@ repo.Upsert(filterdef, updatedef);
             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repositoryStatus = new VSNext.Mongo.Repository.Repository<Status>(DB.GetMongoConnectionString());
             FilterDefinition<VSNext.Mongo.Entities.Status> filterDefStatus = repositoryStatus.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription());
             ProjectionDefinition<VSNext.Mongo.Entities.Status> projectionDefStatus = repositoryStatus.Project
+                .Include(x => x.DeviceId)
                 .Include(x => x.StatusCode)
                 .Include(x => x.CurrentStatus)
                 .Include(x => x.LastUpdated)

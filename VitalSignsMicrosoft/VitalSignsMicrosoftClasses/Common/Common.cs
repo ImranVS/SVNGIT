@@ -1942,6 +1942,9 @@ namespace VitalSignsMicrosoftClasses
             dailyStatistics.DeviceId = server.ServerObjectID;
             dailyStatistics.StatName = StatName;
             dailyStatistics.StatValue = double.Parse(StatValue);
+            dailyStatistics.DeviceType = server.ServerType;
+            dailyStatistics.StatDate = DateTime.Now;
+            dailyStatistics.DeviceName = server.Name;
 
             MongoStatementsInsert<SummaryStatistics> msi = new MongoStatementsInsert<SummaryStatistics>();
             msi.listOfEntities.Add(dailyStatistics);
