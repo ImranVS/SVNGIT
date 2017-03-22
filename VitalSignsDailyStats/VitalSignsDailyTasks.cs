@@ -764,8 +764,11 @@ namespace VitalSignsDailyStats
             {
                 List<TravelerStatusSummary> summaryList = new List<TravelerStatusSummary>();
 
-                var result = travelerStatsRepository.Collection.Aggregate().Group(x => new { x.DeviceId, x.MailServerName }, g => new { deviceId = g.Key.DeviceId, MailServerName = g.Key.MailServerName }).ToList();
-             
+                var result = travelerStatsRepository.Collection.Aggregate()
+                    .Group(x => new { x.DeviceId, x.MailServerName }, g => new { id = g.Key })
+                    .Project(x => new { deviceId = x.id.DeviceId, MailServerName = x.id.MailServerName })
+                    .ToList();
+
                 foreach (var item in result)
                 {
                     Expression<Func<TravelerStats, bool>> Expression = (p => p.MailServerName == item.MailServerName && p.DateUpdated < DateTime.Now && p.DeviceId == item.deviceId);
@@ -923,15 +926,18 @@ namespace VitalSignsDailyStats
                     {
                         string name = dailyTask.StatName;
                         SummaryStatistics summaryStatistic = new SummaryStatistics();
+
+                        Expression<Func<DailyStatistics, bool>> filterDef = (x => ((x.StatName == dailyTask.StatName)
+                            || (x.StatName.StartsWith(dailyTask.StatName + "@") && x.DeviceType == Enums.ServerType.Office365.ToDescription()))
+                            && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1));
+
                         switch (dailyTask.AggregationType.ToUpper())
                         {
 
                             case "AVG":
                                 var avgResult = dailyStatisticsRepository.Collection.Aggregate()
-                               .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
-
+                               		.Match(filterDef)
                                    .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Average(s => s.StatValue) })
-
                                    .Project(x => new SummaryStatistics
                                    {
                                        DeviceId = x.key.DeviceId,
@@ -957,7 +963,7 @@ namespace VitalSignsDailyStats
                                 break;
                             case "SUM":
                                 var sumResult = dailyStatisticsRepository.Collection.Aggregate()
-                                  .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
+                                   .Match(filterDef)
                                    .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Sum(s => s.StatValue) })
                                    .Project(x => new SummaryStatistics
                                    {
@@ -980,7 +986,7 @@ namespace VitalSignsDailyStats
                                 break;
                             case "MAX":
                                 var maxResult = dailyStatisticsRepository.Collection.Aggregate()
-                                    .Match(x => x.StatName == dailyTask.StatName && x.CreatedOn >= SearchDate && x.CreatedOn < SearchDate.AddDays(1))
+                                   .Match(filterDef)
                                    .Group(g => new { g.DeviceId, g.StatName, g.DeviceName,g.DeviceType }, g => new { key = g.Key, value = g.Max(s => s.StatValue) })
                                    .Project(x => new SummaryStatistics
                                    {
