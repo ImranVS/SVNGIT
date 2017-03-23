@@ -722,7 +722,7 @@ Public Class VitalSignsDBHealth
                 WriteAuditEntry(Now.ToString & " Started Analyzing " & Server.Name)
                 WriteAuditEntry(Now.ToString & " *****************************************************************")
                 WriteAuditEntry(vbCrLf)
-                Server.LastDBHealthScan = Date.Today.Date
+                Server.LastDBHealthScan = Date.Now
                 AnalyzeServer(Server)
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Exception @ #2 :" & ex.ToString)
@@ -791,13 +791,13 @@ NextServer:
                 Continue For
             End If
 
-            For n = 45 To 1 Step -1
+            For n = 45 To 0 Step -1
                 Dim mydate As DateTime = Date.Today.AddDays(-n)
 
                 'WriteAuditEntry(Now.ToString & " " & server.Name & " was last scanned " & server.LastDBHealthScan.Date)
 
-                If server.LastDBHealthScan.Date = mydate.Date And server.LastDBHealthScan.Date <> Date.Today.Date Then
-                    server.LastDBHealthScan = Date.Today  'prevents it from being selected again today in the later selection
+                If server.LastDBHealthScan.Date = mydate.Date And server.LastDBHealthScan < Now.AddHours(-3) Then
+                    server.LastDBHealthScan = Now  'prevents it from being selected again today in the later selection
                     server.IsBeingScanned = True
                     Return server
                 End If
@@ -850,7 +850,7 @@ NextServer:
 
             If myPercent < 0.9 And server.Enabled = True And server.IsBeingScanned = False Then
                 server.IsBeingScanned = True
-                server.LastDBHealthScan = Date.Today
+                server.LastDBHealthScan = Date.Now
                 WriteAuditEntry(Now.ToString & "  " & server.Name & " did not complete the last scan cycle, so I am scanning it again.", LogLevel.Verbose)
                 Return server
             End If
