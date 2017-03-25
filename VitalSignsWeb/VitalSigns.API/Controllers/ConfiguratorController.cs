@@ -5874,27 +5874,32 @@ namespace VitalSigns.API.Controllers
                     if (result.SimulationTests.Where(x => x.Name == "Mail Flow").Count() > 0)
                     {
                         tests.MailFlow = true;
-                        tests.MailFlowThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Mail Flow"));
+                        var tempval = result.SimulationTests.FirstOrDefault(x => x.Name == "Mail Flow");
+                        tests.MailFlowThreshold = Convert.ToInt32(tempval.Value);
                     }
                     if (result.SimulationTests.Where(x => x.Name == "Create Folder").Count() > 0)
                     {
                         tests.CreateFolder = true;
-                        tests.CreateFolderThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Folder"));
+                        var tempval = result.SimulationTests.FirstOrDefault(x => x.Name == "Create Folder");
+                        tests.CreateFolderThreshold = Convert.ToInt32(tempval.Value);
                     }
                     if (result.SimulationTests.Where(x => x.Name == "Create Site").Count() > 0)
                     {
                         tests.CreateSite = true;
-                        tests.CreateSiteThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Create Site"));
+                        var tempval = result.SimulationTests.FirstOrDefault(x => x.Name == "Create Site");
+                        tests.CreateSiteThreshold = Convert.ToInt32(tempval.Value);
                     }
                     if (result.SimulationTests.Where(x => x.Name == "OneDrive Upload").Count() > 0)
                     {
                         tests.OneDriveUpload = true;
-                        tests.OneDriveUploadThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "OneDrive Upload"));
+                        var tempval = result.SimulationTests.FirstOrDefault(x => x.Name == "OneDrive Upload");
+                        tests.OneDriveUploadThreshold = Convert.ToInt32(tempval.Value);
                     }
                     if (result.SimulationTests.Where(x => x.Name == "OneDrive Download").Count() > 0)
                     {
                         tests.OneDriveDownload = true;
-                        tests.OneDriveDownloadThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "OneDrive Download"));
+                        var tempval = result.SimulationTests.FirstOrDefault(x => x.Name == "OneDrive Download");
+                        tests.OneDriveDownloadThreshold = Convert.ToInt32(tempval.Value);
                     }
                     if (result.SimulationTests.Where(x => x.Name == "SMTP").Count() > 0)
                     {
@@ -5952,9 +5957,9 @@ namespace VitalSigns.API.Controllers
                 if (tests.CreateSite)
                     nameValuePairs.Add(new NameValuePair { Name = "Create Site", Value = Convert.ToString(tests.CreateSiteThreshold) });
                 if (tests.OneDriveUpload)
-                    nameValuePairs.Add(new NameValuePair { Name = "OneDrive Upload", Value = Convert.ToString(tests.OneDriveUpload) });
+                    nameValuePairs.Add(new NameValuePair { Name = "OneDrive Upload", Value = Convert.ToString(tests.OneDriveUploadThreshold) });
                 if (tests.OneDriveDownload)
-                    nameValuePairs.Add(new NameValuePair { Name = "OneDrive Download", Value = Convert.ToString(tests.OneDriveDownload) });
+                    nameValuePairs.Add(new NameValuePair { Name = "OneDrive Download", Value = Convert.ToString(tests.OneDriveDownloadThreshold) });
                 if (tests.SMTP)
                     nameValuePairs.Add(new NameValuePair { Name = "SMTP" });
                 if (tests.AutoDiscovery)
@@ -7954,9 +7959,15 @@ namespace VitalSigns.API.Controllers
                         {
                             ServerEventsModel eventModel = new ServerEventsModel();
                             eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
-                            var eventMatser = eventsMasterRepository.Collection.AsQueryable().FirstOrDefault(x => x.NotificationList.Contains(notificationId));
-                            if (eventMatser != null)
-                                eventModel.EventType = eventMatser.EventType;
+                            var eventMaster = eventsMasterRepository.Collection.Find(x => x.NotificationList.Contains(notificationId) && x.DeviceType == server.DeviceType).ToList();
+                            if (eventMaster != null)
+                            {
+                                foreach (var eventm in eventMaster)
+                                {
+                                    eventModel.EventType += eventm.EventType + ",";
+                                }
+                                eventModel.EventType = eventModel.EventType.Substring(0, eventModel.EventType.Length - 1);
+                            }
                             notificationsRepository = new Repository<Notifications>(ConnectionString);
                             var notifiname = notificationsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == notificationId);
                             if (notifiname != null)
