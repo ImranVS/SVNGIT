@@ -13,10 +13,11 @@ declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/services/components/service-events-tab.component.html',
-    providers: [WidgetService]
+    //providers: [WidgetService]
 })
 export class ServiceEventsTab extends WidgetController implements OnInit {
     deviceId: any;
+    serviceId: string;
     widgets: WidgetContract[];
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
@@ -25,8 +26,14 @@ export class ServiceEventsTab extends WidgetController implements OnInit {
 
     ngOnInit() {
         this.route.params.subscribe(params => {
-            this.deviceId = params['service'];
-
+            if (params['service'])
+                this.deviceId = params['service'];
+            else {
+                if (this.serviceId) {
+                    var res = this.serviceId.split(';');
+                    this.deviceId = res[0];
+                }
+            }
         });
         this.widgets = [
             {

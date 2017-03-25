@@ -14,7 +14,8 @@ import * as helpers from '../../../core/services/helpers/helpers';
     providers: [
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper
+        helpers.DateTimeHelper,
+        helpers.GridTooltip
     ]
 })
 
@@ -26,30 +27,21 @@ export class ServerEvents implements OnInit {
 
     constructor(
         private dataProvider: RESTService,
-        private formBuilder: FormBuilder, private route: ActivatedRoute, private datetimeHelpers: helpers.DateTimeHelper) {
+        private formBuilder: FormBuilder, private route: ActivatedRoute, private datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip) { }
 
+    ngOnInit() {
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
 
         });
-        //this.dataProvider.get('/Configurator/get_server_maintenancedata/' + this.deviceId + '')
-        //    .subscribe(
-        //    response => {
-        //        this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-        //        this.data.pageSize = 10;
+        this.dataProvider.get('/Configurator/' + this.deviceId + '/events')
+            .subscribe(
+            response => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
+                this.data.pageSize = 10;
 
-        //    });
-
-
-    }
-
-
-    //////////////////////////////////////////////////
-    //When implemented, please make sure to have the data use local datetime via....
-    //this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
-    //////////////////////////////////////////////////
-    ngOnInit() {
-
+            });
+        this.toolTip.getTooltip(this.flex, 0, 1);
     }
 
     get pageSize(): number {

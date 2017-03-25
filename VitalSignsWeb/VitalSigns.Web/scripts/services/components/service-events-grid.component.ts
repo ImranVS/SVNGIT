@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit, ViewChild} from '@angular/core';
+﻿import { Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../core/widgets';
@@ -25,10 +25,11 @@ declare var injectSVG: any;
         helpers.GridTooltip
     ]
 })
-export class ServiceEventsGrid implements OnInit {
+export class ServiceEventsGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
     deviceId: any;
+    serviceId: string;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
 
@@ -47,10 +48,23 @@ export class ServiceEventsGrid implements OnInit {
     }
 
     ngOnInit() {
-        this.route.params.subscribe(params => {
-            this.deviceId = params['service'];
-
-        });
+        var serviceId = this.widgetService.getProperty('serviceId');
+        if (serviceId) {
+            var res = serviceId.split(';');
+            this.deviceId = res[0];
+        }
+        else {
+            this.route.params.subscribe(params => {
+                if (params['service'])
+                    this.deviceId = params['service'];
+                else {
+                    if (this.serviceId) {
+                        var res = this.serviceId.split(';');
+                        this.deviceId = res[0];
+                    }
+                }
+            });
+        }    
         this.service.get('/dashboard/' + this.deviceId + '/notifications')
             .subscribe(
             (response) => {

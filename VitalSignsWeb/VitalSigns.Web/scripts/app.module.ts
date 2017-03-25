@@ -120,7 +120,7 @@ import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/travele
 import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websphere-response-times.component';
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
-
+import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 
 @NgModule({
@@ -231,6 +231,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         WebSphereResponseTimes,
         WebSphereActiveThreads,
         WebSphereCurrentHeapSize,
+        Office365UptimeReport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
