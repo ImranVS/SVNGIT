@@ -1386,7 +1386,9 @@ Public Class VitalSignsAlertService
                 Historytable.Columns.Add("DateTimeAlertCleared")
                 Historytable.Columns.Add("DateTimeOfAlert")
 
-                filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.ElemMatch(Of NotificationsSent)(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Exists(Function(k) k.EventDismissedSent, False)),
+                'filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.ElemMatch(Of NotificationsSent)(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Exists(Function(k) k.EventDismissedSent, False)),
+                '                                                     repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, True))
+                filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
                                                                      repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, True))
                 eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsCreated.Length > 0 Then
@@ -1470,7 +1472,7 @@ Public Class VitalSignsAlertService
                                             ADefOut.EventName = AHist.EventName
                                             ADefOut.ServerType = ADef.ServerType
                                             ADefOut.ServerName = AHist.ServerName
-                                            ADefOut.SendTo = ADef.SendTo
+                                            'ADefOut.SendTo = ADef.SendTo
                                             ADefOut.SendTo = AHist.SendTo
                                             ADefOut.CopyTo = AHist.CopyTo
                                             ADefOut.BlindCopyTo = AHist.BlindCopyTo
@@ -1550,6 +1552,10 @@ Public Class VitalSignsAlertService
                                         End If
                                         count += 1
                                     Next
+                                Else
+                                    SendTo = ADef.SendTo
+                                    CC = ADef.CopyTo
+                                    BCC = ADef.BlindCopyTo
                                 End If
                                 SMSTo = ADef.SMSTo
                                 ScriptName = ADef.ScriptName
@@ -2058,6 +2064,8 @@ Public Class VitalSignsAlertService
             If eventsCreated.Length > 0 Then
                 notificationsArr = eventsCreated(0).NotificationsSent.ToArray()
                 For i As Integer = 0 To notificationsArr.Length - 1
+                    WriteServiceHistoryEntry(Now.ToString & " AlertID: " & AlertID & ", SentTo: " & SentTo & ", CcdTo: " & CcdTo & ", BccdTo: " & BccdTo & ", id: " & id, LogLevel.Verbose)
+                    WriteServiceHistoryEntry(Now.ToString & " notificationsArr(i).NotificationSentTo: " & notificationsArr(i).NotificationSentTo & ", notificationsArr(i).NotificationCcdTo: " & notificationsArr(i).NotificationCcdTo & ", notificationsArr(i).NotificationBccdTo: " & notificationsArr(i).NotificationBccdTo, LogLevel.Verbose)
                     If notificationsArr(i).NotificationSentTo = SentTo And notificationsArr(i).NotificationCcdTo = CcdTo And
                         notificationsArr(i).NotificationBccdTo = BccdTo Then
                         notificationsArr(i).EventDismissedSent = strdt
@@ -2065,8 +2073,8 @@ Public Class VitalSignsAlertService
                     End If
                 Next
                 repoEventsDetected.Replace(eventsCreated(0))
+                WriteServiceHistoryEntry(Now.ToString & " Updated the events_detected collection, the notifications_sent.event_dismissed_sent value for " & id, LogLevel.Normal)
             End If
-            WriteServiceHistoryEntry(Now.ToString & " Updated the events_detected collection, the notifications_sent.event_dismissed_sent value for " & id, LogLevel.Normal)
         Catch ex As ApplicationException
             WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating a document with id: " & id & " , sentto: " & SentTo & "," & CcdTo & "," & BccdTo & " in the events_detected collection: " & ex.Message, LogLevel.Normal)
         End Try
