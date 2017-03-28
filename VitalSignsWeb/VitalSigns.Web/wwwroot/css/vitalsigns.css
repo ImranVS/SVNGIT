@@ -1103,3 +1103,10 @@ form.ng-touched.ng-invalid {
         display: none;
     }
 }
+
+.wj-flexgrid .wj-cell.wj-group.wj-aggregate-row:not(.wj-state-selected):not(.wj-state-multi-selected) {
+    background-color: #ffee85;
+}
+.wj-flexgrid .wj-cell.wj-group.wj-aggregate-row {
+    font-weight: bold;
+}
