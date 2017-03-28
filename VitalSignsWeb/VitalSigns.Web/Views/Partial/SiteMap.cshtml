@@ -22,7 +22,19 @@
 
                     @foreach (var l2Node in l1Node.Nodes)
                     {
-                        <li><a [routerLink]="this.urlHelpers.getUrlPath('@l2Node.Url')" [queryParams]="this.urlHelpers.getUrlQueryParams('@l2Node.Url')">@l2Node.Title</a></li>
+                        @if (l2Node.Url.Substring(0, 4) == "http")
+                        {
+                            <li>
+                                <a href='@l2Node.Url'>@l2Node.Title</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a [routerLink]="this.urlHelpers.getUrlPath('@l2Node.Url')" [queryParams]="this.urlHelpers.getUrlQueryParams('@l2Node.Url')">@l2Node.Title</a>
+                            </li>
+                        }
+
                     }
 
                 }
