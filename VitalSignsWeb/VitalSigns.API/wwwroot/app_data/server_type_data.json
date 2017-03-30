@@ -302,7 +302,7 @@
   },
   {
     "server_type": "Office365",
-    "icon": "/img/servers/Paintbrush.svg",
+    "icon": "/img/servers/Office365.svg",
     "tabs": [
       {
         "tab_id": 1,
