@@ -390,6 +390,10 @@ Public Class VitalSignsAlertService
         Dim PAuth As Boolean = False
         Dim PSSL As Boolean = False
         Dim tempObj As Object
+        Dim connString As String = GetDBConnection()
+        Dim repoSettings As New Repository(Of NameValue)(connString)
+        Dim filterSettings As FilterDefinition(Of NameValue)
+        Dim settings() As NameValue
 
         WriteServiceHistoryEntry(Now.ToString & " The Service Worker Thread is starting up. ", LogLevel.Normal)
         ' Periodically check if the service is stopping. 
@@ -397,26 +401,18 @@ Public Class VitalSignsAlertService
         Do While Not Me.Stopping
             ' Perform main service function here... 
             '1/6/2014 NS added a check to see if the alerting service should be sending alerts
-            Dim alertson As Boolean
-            alertson = True
+            Dim alertson As Boolean = True
 
-            'Try
-            '    '1/6/2014 NS added a check to see if the alerting service should be sending alerts
-            '    '12/16/2014 NS modified for VSPLUS-1267
-            '    Dim sqlstm As String = "SELECT svalue FROM Settings WHERE sname = 'AlertsOn'"
-            '    'Dim DA2 As New SqlDataAdapter(sqlstm, con)
-            '    'Dim DS2 As New DataSet
-            '    'DA2.Fill(DS2, "svalue")
-            '    'Dim dtmail As DataTable = DS2.Tables(0)
-            '    WriteServiceHistoryEntry(Now.ToString & " ServiceWorkerThreadNew - trying to get AlertsOn from the Settings table", LogLevel.Verbose)
-            '    Dim dtmail As DataTable = myAdapter.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sqlstm)
-            '    If dtmail.Rows.Count > 0 Then
-            '        alertson = Convert.ToBoolean(dtmail.Rows(0)("svalue").ToString())
-            '    End If
-
-            'Catch ex As Exception
-            '    WriteServiceHistoryEntry(Now.ToString & " Error ServiceWorkerThread when getting the value of AlertsOn from the Settings table: " & ex.Message, LogLevel.Normal)
-            'End Try
+            Try
+                filterSettings = repoSettings.Filter.Eq(Function(j) j.Name, "AlertsOn")
+                settings = repoSettings.Find(filterSettings).ToArray()
+                If Not IsNothing(settings) Then
+                    alertson = Convert.ToBoolean(settings(0).Value.ToString())
+                End If
+                WriteServiceHistoryEntry(Now.ToString & " The AlertsOn value is " & alertson & ".", LogLevel.Normal)
+            Catch ex As Exception
+                WriteServiceHistoryEntry(Now.ToString & " Error in ServiceWorkerThreadNew when getting the value of AlertsOn from the name_value collection: " & ex.Message, LogLevel.Normal)
+            End Try
 
             '1/6/2014 NS added - we only want to send alerts if the flag is enabled, otherwise, continue with clearing and keep checking
             If (alertson) Then
