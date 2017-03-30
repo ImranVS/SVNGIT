@@ -115,6 +115,7 @@ import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websp
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
+import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
 import { NotYetImplemented } from './not-yet-implemented.component';
@@ -547,6 +548,10 @@ const appRoutes: Routes = [
                     {
                         path: 'office365uptime',
                         component: Office365UptimeReport
+                    },
+                    {
+                        path: 'mobiledevicessummaryos',
+                        component: MobileDevicesSummaryOS
                     }
                 ]
             },

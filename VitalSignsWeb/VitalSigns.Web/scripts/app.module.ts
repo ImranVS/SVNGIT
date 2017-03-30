@@ -121,6 +121,7 @@ import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websp
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
+import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 
 @NgModule({
@@ -232,6 +233,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         WebSphereActiveThreads,
         WebSphereCurrentHeapSize,
         Office365UptimeReport,
+        MobileDevicesSummaryOS,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
