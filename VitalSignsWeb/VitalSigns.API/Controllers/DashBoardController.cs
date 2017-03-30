@@ -352,14 +352,14 @@ namespace VitalSigns.API.Controllers
                                                Value = x.value
                                            });
             Serie serie = new Serie();
-            serie.Title = "Mobile devices OS for all Servers";
+            serie.Title = "OS Count";
             serie.Segments = result.ToList();
 
             List<Serie> series = new List<Serie>();
             series.Add(serie);
 
             Chart chart = new Chart();
-            chart.Title = "Mobile devices OS for all Servers";
+            chart.Title = "OS Count";
             chart.Series = series;
             Response = Common.CreateResponse(chart);
             return Response;

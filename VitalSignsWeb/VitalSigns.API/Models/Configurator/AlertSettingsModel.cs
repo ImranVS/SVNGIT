@@ -100,5 +100,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("number_of_recurrences")]
         public int NumberOfRecurrences { get; set; }
 
+        [JsonProperty("alerts_on")]
+        public bool AlertsOn { get; set; }
     }
 }

@@ -4154,7 +4154,8 @@ namespace VitalSigns.API.Controllers
                         new NameValue { Name = "EnableSNMPTraps",Value=(alertSettings.EnableSNMPTraps?"True":"False")},
                         new NameValue {Name = "HostName", Value= alertSettings.HostName},
                         new NameValue { Name = "AlertAboutRecurrencesOnly",Value=Convert.ToString(alertSettings.AlertAboutRecurrencesOnly)},
-                        new NameValue {Name = "NumberOfRecurrences", Value= alertSettings.NumberOfRecurrences.ToString()}
+                        new NameValue {Name = "NumberOfRecurrences", Value= alertSettings.NumberOfRecurrences.ToString()},
+                        new NameValue {Name = "AlertsOn", Value= alertSettings.AlertsOn.ToString()}
                     };
                         var result = Common.SaveNameValues(alertData);
                         eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
@@ -4237,6 +4238,7 @@ namespace VitalSigns.API.Controllers
             var hostName = result.Where(x => x.Name == "HostName").Select(x => x.Value).FirstOrDefault();
             var alertAboutRecurrencesOnly = result.Where(x => x.Name == "AlertAboutRecurrencesOnly").Select(x => x.Value).FirstOrDefault();
             var numberOfRecurrences = result.Where(x => x.Name == "NumberOfRecurrences").Select(x => x.Value).FirstOrDefault();
+            var alertsOn = result.Where(x => x.Name == "AlertsOn").Select(x => x.Value).FirstOrDefault();
             return Common.CreateResponse(new AlertSettingsModel
             {
                 PrimaryHostName = primaryHostName,
@@ -4269,8 +4271,9 @@ namespace VitalSigns.API.Controllers
 
                 HostName = hostName,
                 AlertAboutRecurrencesOnly = Convert.ToBoolean(alertAboutRecurrencesOnly),
-                NumberOfRecurrences = Convert.ToInt32(numberOfRecurrences)
+                NumberOfRecurrences = Convert.ToInt32(numberOfRecurrences),
 
+                AlertsOn = Convert.ToBoolean(alertsOn)  
             });
         }
 
