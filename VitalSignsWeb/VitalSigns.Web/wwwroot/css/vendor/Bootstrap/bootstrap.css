@@ -3284,6 +3284,9 @@ fieldset[disabled] a.btn {
   background-color: #e6e6e6;
   border-color: #adadad;
 }
+.btn-default.btn-on.active{background-color: #5BB75B !important;color: white !important;}
+.btn-default.btn-off.active{background-color: #DA4F49 !important;color: white !important;}
+
 .btn-default:active,
 .btn-default.active,
 .open > .dropdown-toggle.btn-default {
