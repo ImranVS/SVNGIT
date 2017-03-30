@@ -25,6 +25,10 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @ViewChildren('primary_pwd') primary_pwd;
     @ViewChildren('secondary_pwd') secondary_pwd;
+    @ViewChildren('alertsOn') alerts_on;
+    @ViewChildren('alertsOff') alerts_off;
+    @ViewChildren('alertOnLabel') alerts_on_label;
+    @ViewChildren('alertOffLabel') alerts_off_label;
     insertMode: boolean = false;
     alertSettings: FormGroup;
     errorMessage: string;
@@ -34,6 +38,7 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
     recurrencesChecked: boolean;
     persistentChecked: boolean;
     limitsChecked: boolean;
+    alertsOn: boolean;
     selected_events: string[] = [];
     visibility: boolean = false;
     data: wijmo.collections.CollectionView;
@@ -74,7 +79,8 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
             'enable_SNMP_traps': [''],
             'host_name': [''],
             'alert_about_recurrences_only': [''],
-            'number_of_recurrences': ['']
+            'number_of_recurrences': [''],
+            'alerts_on': ['']
         });
     }
     ngOnInit() {
@@ -92,6 +98,19 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
             this.recurrencesChecked = alertobject['alert_about_recurrences_only'];
             this.persistentChecked = alertobject['enable_persistent_alerting'];
             this.limitsChecked = alertobject['enable_alert_limits'];
+            //The code below sets the bootstrap switch to on or off based on the AlertsOn setting in the name_value collection.
+            //Since the switch element is custom, re-setting the CSS is necessary to present the state (on/off) correctly.
+            this.alertsOn = alertobject['alerts_on'];
+            this.alerts_on.first.nativeElement.checked = this.alertsOn;
+            this.alerts_off.first.nativeElement.checked = !this.alertsOn;
+            if (this.alertsOn) {
+                this.alerts_on_label.first.nativeElement.className = "btn btn-default btn-on btn-sm active";
+                this.alerts_off_label.first.nativeElement.className = "btn btn-default btn-off btn-sm";
+            }
+            else {
+                this.alerts_off_label.first.nativeElement.className = "btn btn-default btn-off btn-sm active";
+                this.alerts_on_label.first.nativeElement.className = "btn btn-default btn-on btn-sm";
+            }
         });
         this.dataProvider.get('/configurator/events_master_list')
             .subscribe(
@@ -136,6 +155,7 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
         this.errorMessage = "";
         this.successMessage = "";
         this.refreshCheckedEvents();
+        this.alertSettings.value.alerts_on = this.alertsOn;
         var alert_settings = this.alertSettings.value;
         var selected_events = this.selected_events;
         if (this.selected_events.length == 0 && this.recurrencesChecked) {
@@ -258,5 +278,10 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
                 });
             dialog.hide();
         }
+    }
+
+    setOn(on: boolean) {
+        this.alertsOn = on;
+
     }
 }

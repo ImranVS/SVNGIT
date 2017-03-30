@@ -147,6 +147,22 @@
 
         <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
             <div class="panel panel-default">
+                <div class="panel-heading">Alerts On/Off</div>
+                <div class="panel-body">
+                    <div class="btn-group" id="status" data-toggle="buttons">
+                        <label #alertOnLabel class="btn btn-default btn-on btn-sm" (click)="setOn(true)">
+                            <input type="radio" formControlName="alerts_on" id="alertsOn" #alertsOn>ON
+                        </label>
+                        <label #alertOffLabel class="btn btn-default btn-off btn-sm" (click)="setOn(false)">
+                            <input type="radio" formControlName="alerts_on" id="alertsOff" #alertsOff>OFF
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
+            <div class="panel panel-default">
                 <div class="panel-heading">SNMP Listener</div>
                 <div class="panel-body">
                     <div class="funkyradio">
