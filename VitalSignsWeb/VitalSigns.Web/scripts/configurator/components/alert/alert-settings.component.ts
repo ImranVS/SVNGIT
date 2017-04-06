@@ -169,7 +169,12 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
                 response => {
                     //this.successMessage = response.message;
                     //this.message.toggleVisibility(false, this.successMessage);
-                    this.appComponentService.showSuccessMessage(response.message);
+                    if (response.status == "Success") {
+                        this.appComponentService.showSuccessMessage(response.message);
+                    }
+                    else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
                 },
                 (error) => {
                     this.errorMessage = <any>error;
