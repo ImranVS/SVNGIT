@@ -71,10 +71,10 @@ namespace VitalSigns.API.Models
         public bool EnablePersistentAlerting { get; set; }
 
         [JsonProperty("alert_interval")]
-        public int AlertInterval { get; set; }
+        public string AlertInterval { get; set; }
 
         [JsonProperty("alert_duration")]
-        public int AlertDuration { get; set; }
+        public string AlertDuration { get; set; }
 
         //[JsonProperty("e_mail")]
         //public string EMail { get; set; }

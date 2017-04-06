@@ -4091,7 +4091,7 @@ namespace VitalSigns.API.Controllers
                                 bytepwd = bytepwd.Substring(0, n);
                                 var alertData = new List<NameValue> { new NameValue { Name = "Primarypwd", Value = bytepwd } };
                                 var result = Common.SaveNameValues(alertData);
-                                Response = Common.CreateResponse(true, "Success", "Password was successully updated");
+                                Response = Common.CreateResponse(true, "Success", "Password was successfully updated");
                             }
                         }
                         catch (Exception exception)
@@ -4117,7 +4117,7 @@ namespace VitalSigns.API.Controllers
                                 bytepwd = bytepwd.Substring(0, n);
                                 var alertData = new List<NameValue> { new NameValue { Name = "SecondaryPwd", Value = bytepwd } };
                                 var result = Common.SaveNameValues(alertData);
-                                Response = Common.CreateResponse(true, "Success", "Password was successully updated");
+                                Response = Common.CreateResponse(true, "Success", "Password was successfully updated");
                             }
                         }
                         catch (Exception exception)
@@ -4172,7 +4172,7 @@ namespace VitalSigns.API.Controllers
                             }
                         }
 
-                        Response = Common.CreateResponse(true, "OK", "Alert settings were successully updated.");
+                        Response = Common.CreateResponse(true, "Success", "Alert settings were successully updated.");
                     }
                     catch (Exception exception)
                     {
@@ -4261,8 +4261,8 @@ namespace VitalSigns.API.Controllers
                 SmsForm = smsForm,
 
                 EnablePersistentAlerting = Convert.ToBoolean(enablePersistentAlerting),
-                AlertInterval = Convert.ToInt32(alertInterval),
-                AlertDuration = Convert.ToInt32(alertDuration),
+                AlertInterval = alertInterval,
+                AlertDuration = alertDuration,
                 //EMail = email,
                 EnableAlertLimits = Convert.ToBoolean(enableAlertLimits),
                 TotalMaximumAlertsPerDay = Convert.ToInt32(totalMaximumAlertsPerDay),
