@@ -403,30 +403,31 @@ Public Class RegistryHandler
     Function ReadFromRegistry(ByVal KeyName As String) As Object
         Dim objXML As New XMLOperation()
         Dim strValue As Object
+        Dim adapter As New VSAdaptor()
 
         strValue = objXML.ReadSettingsSQL(KeyName)
 
         If strValue.ToString.Length > 0 Then
             Return strValue
-
         Else
-            Dim aKey As RegistryKey
-            ' aKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software\Max Secure Anti Virus Plus")
-            aKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software\MZLSoft")
-            If aKey Is Nothing Then
-                aKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE\Wow6432Node\MZLSoft")
-            End If
-            strValue = aKey.GetValue(KeyName)
-            'Creates a setting in xml file
-            'objXML.WriteToXML(KeyName, strValue)
-            objXML.WriteSettingsSQL(KeyName, strValue)
             Try
-                'Deletes Registry key
-                'aKey.DeleteSubKey(KeyName)
+                Dim aKey As RegistryKey
+                ' aKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software\Max Secure Anti Virus Plus")
+                aKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software\MZLSoft")
+                If aKey Is Nothing Then
+                    aKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE\Wow6432Node\MZLSoft")
+                End If
+                strValue = aKey.GetValue(KeyName)
+                'Creates a setting in xml file
+                'objXML.WriteToXML(KeyName, strValue)
+                If Not strValue Is Nothing Then
+                    objXML.WriteSettingsSQL(KeyName, strValue)
+                End If
             Catch ex As Exception
-                Dim adapter As VSAdaptor
-                adapter.WriteLogEntry(DateTime.Now.ToString + " Failed to read from Registry")
+                adapter.WriteLogEntry(DateTime.Now.ToString + " Failed to read a value for " & KeyName & " from Registry - " & ex.Message, VSAdaptor.LogLevel.Verbose)
+                strValue = ""
             End Try
+
             Return strValue
         End If
     End Function
