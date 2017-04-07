@@ -72,15 +72,19 @@ Public Class Alertdll
         Dim repoEventsMaster As New Repository(Of EventsMaster)(connString)
         Dim repoOutages As New Repository(Of Outages)(connString)
         Dim repoServers As New Repository(Of Server)(connString)
-        Dim filterServers As MongoDB.Driver.FilterDefinition(Of Server)
-        Dim filterEventsMaster As MongoDB.Driver.FilterDefinition(Of EventsMaster)
-        Dim filterEventsDetected As MongoDB.Driver.FilterDefinition(Of EventsDetected)
-        Dim updateEventsDetected As MongoDB.Driver.UpdateDefinition(Of EventsDetected)
+        Dim repoServersOther As New Repository(Of ServerOther)(connString)
+        Dim filterServers As FilterDefinition(Of Server)
+        Dim filterServersOther As FilterDefinition(Of ServerOther)
+        Dim filterEventsMaster As FilterDefinition(Of EventsMaster)
+        Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
+        Dim updateEventsDetected As UpdateDefinition(Of EventsDetected)
         Dim eventsMasterEntity() As EventsMaster
         Dim eventsDetectedEntity() As EventsDetected
         Dim repeatEventsEntity() As EventsDetected
         Dim servers() As Server
+        Dim serversother() As ServerOther
         Dim deviceId As String = ""
+        Dim dt As DateTime?
 
         qalert = True
         AlertsRepeatOn = False
@@ -89,21 +93,23 @@ Public Class Alertdll
         Try
             '12/17/2014 NS modified for VSPLUS-1267
 
-            AlertsRepeatOn = Boolean.Parse(getSettings("AlertsRepeatOn"))
+            AlertsRepeatOn = Boolean.Parse(getSettings("AlertAboutRecurrencesOnly"))
+            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " AlertAboutRecurrencesOnly is:  " & AlertsRepeatOn)
         Catch ex As Exception
-            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error getting AlertsRepeatOn option from the Settings table:  " & ex.ToString)
-            WriteAuditEntry(Now.ToString & " Error getting AlertsRepeatOn option from the Settings table:  " & ex.ToString)
+            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error getting AlertAboutRecurrencesOnly option from the name_value collection:  " & ex.ToString)
+            WriteAuditEntry(Now.ToString & " Error getting AlertAboutRecurrencesOnly option from the name_value collection:  " & ex.ToString)
         End Try
         '2. If the flag is set, check whether the current event type is set for repeat occurrence alert
         If AlertsRepeatOn Then
             Try
                 '12/17/2014 NS modified for VSPLUS-1267
-                AlertsRepeatOccurrences = Convert.ToInt32(getSettings("AlertsRepeatOccurrences"))
+                AlertsRepeatOccurrences = Convert.ToInt32(getSettings("NumberOfRecurrences"))
+                WriteDeviceHistoryEntry("All", "Alerts", NowTime & " AlertsRepeatOccurrences is:  " & AlertsRepeatOccurrences)
             Catch ex As Exception
-                WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error getting AlertsRepeatOccurrences option from the Settings table:  " & ex.ToString)
-                WriteAuditEntry(Now.ToString & " Error getting AlertsRepeatOccurrences option from the Settings table:  " & ex.ToString)
+                WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error getting NumberOfRecurrences option from the name_value collection:  " & ex.ToString)
+                WriteAuditEntry(Now.ToString & " Error getting NumberOfRecurrences option from the name_value collection:  " & ex.ToString)
             End Try
-            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " AlertsRepeatOn flag is set. Checking if an alert is due to be queued for " & DeviceType & "/" & DeviceName & " " & AlertType)
+            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " AlertAboutRecurrencesOnly flag is set. Checking if an alert is due to be queued for " & DeviceType & "/" & DeviceName & " " & AlertType)
             Try
                 filterEventsMaster = repoEventsMaster.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
                 repoEventsMaster.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
@@ -112,10 +118,11 @@ Public Class Alertdll
                 If eventsMasterEntity.Count > 0 Then
                     'Find all events that match the Event Type, Device Type, and Device Name that have been detected within the last hour
                     'that have the NotificationOnRepeat flag set to true in the EventsMaster collection
+                    dt = Now().AddSeconds(-3600)
                     filterEventsDetected = repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed, False) And
                         repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
                         repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
-                        repoEventsDetected.Filter.Gte(Of DateTime)(Function(i) i.EventDetected, Now().AddSeconds(-3600)) And
+                        repoEventsDetected.Filter.Gte(Of DateTime?)(Function(i) i.EventDetected, dt) And
                         (repoEventsDetected.Filter.Exists(Function(i) i.NodeName, False) Or repoEventsDetected.Filter.Eq(Function(i) i.NodeName, GetNodeName()))
 
 
@@ -138,7 +145,7 @@ Public Class Alertdll
                                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.EventType, AlertType) And
                                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType) And
                                 repoEventsDetected.Filter.Eq(Of String)(Function(i) i.Device, DeviceName) And
-                                repoEventsDetected.Filter.Lt(Of DateTime)(Function(i) i.EventDetected, Now().AddSeconds(-3600)) And
+                                repoEventsDetected.Filter.Lt(Of DateTime)(Function(i) i.EventDetected, dt) And
                                 (repoEventsDetected.Filter.Exists(Function(i) i.NodeName, False) Or repoEventsDetected.Filter.Eq(Function(i) i.NodeName, GetNodeName()))
 
                             updateEventsDetected = repoEventsDetected.Updater.Set(Function(i) i.EventRepeatCount, 0)
@@ -149,8 +156,8 @@ Public Class Alertdll
                     End If
                 End If
             Catch ex As Exception
-                WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error getting AlertOnRepeat value from the EventsMaster table for " & AlertType & " for " & DeviceType & ":  " & ex.ToString)
-                WriteAuditEntry(Now.ToString & " Error getting AlertOnRepeat value from the EventsMaster table for " & AlertType & " for " & DeviceType & ":  " & ex.ToString)
+                WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error getting AlertOnRepeat value from the events_master collection for " & AlertType & " for " & DeviceType & ":  " & ex.ToString)
+                WriteAuditEntry(Now.ToString & " Error getting AlertOnRepeat value from the events_master collection for " & AlertType & " for " & DeviceType & ":  " & ex.ToString)
             End Try
         End If
         '3. If the AlertsRepeatOn flag is off/false or there are documents in the EventsDetected collection that have the repeat
@@ -166,26 +173,34 @@ Public Class Alertdll
                     (repoEventsDetected.Filter.Exists(Function(i) i.NodeName, False) Or repoEventsDetected.Filter.Eq(Function(i) i.NodeName, GetNodeName()))
                 eventsDetectedEntity = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsDetectedEntity.Count = 0 Then
+                    'Only one of the queries will return a device_id, depending on the device type
                     'Get device_id from the server collection to insert the value into events_detected
                     filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Function(j) j.DeviceName, DeviceName),
                                                            repoServers.Filter.Eq(Function(j) j.DeviceType, DeviceType))
                     servers = repoServers.Find(filterServers).ToArray()
-                    If servers.Length > 0 Then
-                        deviceId = servers(0).Id.ToString()
-                    End If
-
-                    Dim entity As New EventsDetected With {.DeviceId = deviceId, .Device = DeviceName, .DeviceType = DeviceType, .EventType = AlertType, .EventDetected = Now, .Details = Details}
-                    If (Enums.Utility.getEnumFromDescription(Of Enums.ServerType)(DeviceType).getCrossNodeScanning()) Then
-                        entity.NodeName = GetNodeName()
-                    End If
-                    repoEventsDetected.Insert(entity)
-                    If AlertType = "Not Responding" Then
-                        '6/15/2016 NS added
-                        'OUTAGES
-                        WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update started: " & DeviceType & "/" & DeviceName & " " & AlertType)
-                        Dim outages As New Outages With {.DeviceId = deviceId, .DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
-                        repoOutages.Insert(outages)
-                        WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                    'Get device_id from the server_other collection to insert the value into events_detected
+                    filterServersOther = repoServersOther.Filter.And(repoServersOther.Filter.Eq(Function(j) j.Name, DeviceName),
+                                                           repoServersOther.Filter.Eq(Function(j) j.Type, DeviceType))
+                    serversother = repoServersOther.Find(filterServersOther).ToArray()
+                    If servers.Length > 0 Or serversother.Length > 0 Then
+                        If servers.Length > 0 Then
+                            deviceId = servers(0).Id.ToString()
+                        ElseIf serversother.Length > 0 Then
+                            deviceId = serversother(0).Id.ToString()
+                        End If
+                        Dim entity As New EventsDetected With {.DeviceId = deviceId, .Device = DeviceName, .DeviceType = DeviceType, .EventType = AlertType, .EventDetected = Now, .Details = Details}
+                        If (Enums.Utility.getEnumFromDescription(Of Enums.ServerType)(DeviceType).getCrossNodeScanning()) Then
+                            entity.NodeName = GetNodeName()
+                        End If
+                        repoEventsDetected.Insert(entity)
+                        If AlertType = "Not Responding" Then
+                            '6/15/2016 NS added
+                            'OUTAGES
+                            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update started: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                            Dim outages As New Outages With {.DeviceId = deviceId, .DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
+                            repoOutages.Insert(outages)
+                            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                        End If
                     End If
                 Else
                     If (AlertType = "Dead Mail" Or AlertType = "Pending Mail" Or AlertType = "Held Mail") Then
