@@ -917,6 +917,7 @@ Public Class VitalSignsAlertService
         Dim alertDateCurrent As Date
         Dim alertDateCreated As Date
         Dim noNewRecipients As Boolean
+        Dim nowTime As Date
 
         SendTo = ""
         CC = ""
@@ -928,7 +929,7 @@ Public Class VitalSignsAlertService
         persistentInterval = 0
         Try
             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get PersistentAlertInterval from the name_value collection", LogLevel.Verbose)
-            tempVal = getSettings("PersistentAlertInterval")
+            tempVal = getSettings("AlertInterval")
             If tempVal <> "" Then
                 persistentInterval = Convert.ToInt32(tempVal)
             End If
@@ -938,9 +939,11 @@ Public Class VitalSignsAlertService
         persistentDuration = 0
         Try
             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to get PersistentAlertDuration from the name_value collection", LogLevel.Verbose)
-            tempVal = getSettings("PersistentAlertDuration")
+            tempVal = getSettings("AlertDuration")
             If tempVal <> "" Then
-                persistentDuration = Convert.ToInt32(tempVal)
+                If IsNumeric(tempVal) Then
+                    persistentDuration = Convert.ToInt32(tempVal)
+                End If
             End If
         Catch ex As Exception
             WriteServiceHistoryEntry(Now.ToString & " Error getting Persistent Alert Duration from the name_value collection:  " & ex.ToString, LogLevel.Normal)
@@ -1007,9 +1010,11 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification: processing persistent notifications. ", LogLevel.Verbose)
                                     alertDateCurrent = Convert.ToDateTime(dtmail.Rows(dtmail.Rows.Count - 1)("AlertCreatedDateTime").ToString())
                                     alertDateCurrent = alertDateCurrent.AddMinutes(persistentInterval)
+                                    nowTime = Now
+                                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification: persistentDuration: " & persistentDuration & ", alertDateCurrent: " & alertDateCurrent & ", nowTime: " & nowTime, LogLevel.Verbose)
                                     '8.1.2 If persistent alerting is unlimited, we don't care about the original alert creation date
                                     If persistentDuration = 0 Then
-                                        If Now < alertDateCurrent Then
+                                        If nowTime < alertDateCurrent Then
                                             dontNeedToSend = True
                                         Else
                                             resend = True
@@ -1018,7 +1023,8 @@ Public Class VitalSignsAlertService
                                     Else
                                         alertDateCreated = Convert.ToDateTime(ADef.DateCreated)
                                         alertDateCreated = alertDateCreated.AddHours(persistentDuration)
-                                        If Now > alertDateCreated Or Now < alertDateCurrent Then
+                                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification: persistentDuration: " & persistentDuration & ", alertDateCreated: " & alertDateCreated & ", nowTime: " & nowTime, LogLevel.Verbose)
+                                        If nowTime > alertDateCreated Or nowTime < alertDateCurrent Then
                                             dontNeedToSend = True
                                         Else
                                             resend = True
