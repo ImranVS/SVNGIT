@@ -73,6 +73,15 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                             }
                         }
                     }
+                    else {
+                        var val2 = this.formObject.event_ids.filter((record) => record == item.id);
+                        if (val2.length != 0) {
+                            var ind2 = this.formObject.event_ids.indexOf(val2[0]);
+                            if (ind2 != -1) {
+                                this.formObject.is_selected_event[ind2] = item.is_selected_event;
+                            }
+                        }
+                    } 
                 }
             }
         }
@@ -106,7 +115,16 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                                 this.flex.collectionView.currentItem.is_selected_hour[ind2] = item.is_selected_hour;
                             }
                         }
-                    }  
+                    } 
+                    else {
+                        var val2 = this.formObject.business_hours_ids.filter((record) => record == item.id);
+                        if (val2.length != 0) {
+                            var ind2 = this.formObject.business_hours_ids.indexOf(val2[0]);
+                            if (ind2 != -1) {
+                                this.formObject.is_selected_hour[ind2] = item.is_selected_hour;
+                            }
+                        }      
+                    } 
                 }
             }
         }
@@ -131,6 +149,15 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                             }
                         }
                     }
+                    else {
+                        var val2 = this.formObject.business_hours_ids.filter((record) => record == item.id);
+                        if (val2.length != 0) {
+                            var ind2 = this.formObject.business_hours_ids.indexOf(val2[0]);
+                            if (ind2 != -1) {
+                                this.formObject.is_selected_hour[ind2] = item.is_selected_hour;
+                            }
+                        }
+                    } 
                 }
             }
         }
