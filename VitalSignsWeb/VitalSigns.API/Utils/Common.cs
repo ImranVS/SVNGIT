@@ -181,7 +181,9 @@ namespace VitalSigns.API
             string strEncryptedPassword = "";
             string Password = "";
             byte[] myPass;
-            
+            string[] str1;
+            byte[] bstr1;
+
             VSFramework.TripleDES mySecrets = new VSFramework.TripleDES();
 
             try
@@ -194,20 +196,27 @@ namespace VitalSigns.API
                 port = Convert.ToInt32(list.Where(x => x.Name == "PrimaryPort").First().Value);
                 SSL = Convert.ToBoolean(list.Where(x => x.Name == "PrimarySSL").First().Value);
                 emailUserId = list.Where(x => x.Name == "PrimaryUserId").First().Value;
-                emailPassword = list.Where(x => x.Name == "Primarypwd").First().Value;
-                //3/2/2017 NS modified for VSPLUS-3250
-                //Password decoded
-                strEncryptedPassword = emailPassword;
-                string[] str1 = strEncryptedPassword.Split(',');
-                byte[] bstr1 = new byte[str1.Length];
-                for (int i=0; i < str1.Length; i++)
+                if (list.Find(x => x.Name == "Primarypwd") != null)
                 {
-                    bstr1[i] = Convert.ToByte(str1[i]);
-                }
-                myPass = bstr1;
-                if (strEncryptedPassword != null)
-                {
-                    Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
+                    emailPassword = list.Where(x => x.Name == "Primarypwd").First().Value;
+                    //3/2/2017 NS modified for VSPLUS-3250
+                    //Password decoded
+                    strEncryptedPassword = emailPassword;
+                    str1 = strEncryptedPassword.Split(',');
+                    bstr1 = new byte[str1.Length];
+                    for (int i = 0; i < str1.Length; i++)
+                    {
+                        bstr1[i] = Convert.ToByte(str1[i]);
+                    }
+                    myPass = bstr1;
+                    if (strEncryptedPassword != null)
+                    {
+                        Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
+                    }
+                    else
+                    {
+                        Password = "";
+                    }
                 }
                 else
                 {
@@ -231,20 +240,27 @@ namespace VitalSigns.API
                 port = Convert.ToInt32(list.Where(x => x.Name == "SecondaryPort").First().Value);
                 SSL = Convert.ToBoolean(list.Where(x => x.Name == "SecondarySSL").First().Value);
                 emailUserId = list.Where(x => x.Name == "SecondaryUserId").First().Value;
-                emailPassword = list.Where(x => x.Name == "SecondaryPwd").First().Value;
-                //3/2/2017 NS modified for VSPLUS-3250
-                //Password decoded
-                strEncryptedPassword = emailPassword;
-                str1 = strEncryptedPassword.Split(',');
-                bstr1 = new byte[str1.Length - 1];
-                for (int i = 0; i < str1.Length; i++)
+                if (list.Find(x => x.Name == "SecondaryPwd") != null)
                 {
-                    bstr1[i] = Convert.ToByte(str1[i]);
-                }
-                myPass = bstr1;
-                if (strEncryptedPassword != null)
-                {
-                    Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
+                    emailPassword = list.Where(x => x.Name == "SecondaryPwd").First().Value;
+                    //3/2/2017 NS modified for VSPLUS-3250
+                    //Password decoded
+                    strEncryptedPassword = emailPassword;
+                    str1 = strEncryptedPassword.Split(',');
+                    bstr1 = new byte[str1.Length - 1];
+                    for (int i = 0; i < str1.Length; i++)
+                    {
+                        bstr1[i] = Convert.ToByte(str1[i]);
+                    }
+                    myPass = bstr1;
+                    if (strEncryptedPassword != null)
+                    {
+                        Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
+                    }
+                    else
+                    {
+                        Password = "";
+                    }
                 }
                 else
                 {
