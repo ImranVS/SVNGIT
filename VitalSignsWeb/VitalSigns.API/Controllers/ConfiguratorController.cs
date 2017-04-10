@@ -2330,9 +2330,12 @@ namespace VitalSigns.API.Controllers
                                 }
                                 if (datatype == "ObjectId")
                                 {
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
+                                    if (value != "" && value != null)
+                                    {
+                                        UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
                                         .Set(field, ObjectId.Parse(value));
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                        var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                    }
                                 }
                             }   
                         }
