@@ -102,17 +102,17 @@ namespace VSNext.Mongo.Repository
 
         public virtual IEnumerable<T> Find(Expression<Func<T, bool>> filter)
         {
-            return ConvertDateTimes(Query(filter).ToEnumerable());
+            return ConvertDateTimes(Query(filter).ToEnumerable().Select(x => (Object)x)).Select(x => (T)x);
         }
 
         public virtual IEnumerable<T> Find(FilterDefinition<T> filter)
         {
-            return ConvertDateTimes(Query(filter).ToEnumerable());
+            return ConvertDateTimes(Query(filter).ToEnumerable().Select(x => (Object)x)).Select(x => (T)x);
         }
 
         public virtual IEnumerable<T> Find(FilterDefinition<T> filter, ProjectionDefinition<T> projection)
         {
-            return ConvertDateTimes(Query(filter).Project<T>(projection).ToEnumerable());
+            return ConvertDateTimes(Query(filter).Project<T>(projection).ToEnumerable().Select(x => (Object)x)).Select(x => (T)x);
         }
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> filter, int pageIndex, int size)
@@ -128,13 +128,13 @@ namespace VSNext.Mongo.Repository
         public virtual IEnumerable<T> Find(Expression<Func<T, bool>> filter, Expression<Func<T, object>> order, int pageIndex, int size, bool isDescending)
         {
             var query = Query(filter).Skip(pageIndex * size).Limit(size);
-            return ConvertDateTimes((isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable());
+            return ConvertDateTimes((isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable().Select(x => (Object)x)).Select(x => (T)x);
         }
 
         public virtual IEnumerable<T> Find(FilterDefinition<T> filter, Expression<Func<T, object>> order, int pageIndex, int size, bool isDescending)
         {
             var query = Query(filter).Skip(pageIndex * size).Limit(size);
-            return ConvertDateTimes((isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable());
+            return ConvertDateTimes((isDescending ? query.SortByDescending(order) : query.SortBy(order)).ToEnumerable().Select(x => (Object)x)).Select(x => (T)x);
         }
 
         public virtual string Insert(T entity)
@@ -250,26 +250,52 @@ namespace VSNext.Mongo.Repository
 
         #region SupportingClasses
 
-        private IEnumerable<T> ConvertDateTimes(IEnumerable<T> entities)
+        private IEnumerable<Object> ConvertDateTimes(IEnumerable<Object> entities)
         {
             //return entities;
             if (!isService) return entities;
+            bool a = entities.Any();
+            bool b = entities == null;
             if (entities.Count() == 0)
                 return entities;
-            System.Reflection.PropertyInfo[] properties = entities.First().GetType().GetProperties().Where(i => ((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null).ToArray();
-            List<T> listOfEntities = entities.ToList();
-            foreach(T entity in listOfEntities)
+
+            //core of this is new function
+            //make it deal more with objects
+
+
+
+            System.Reflection.PropertyInfo[] properties = entities.First().GetType().GetProperties().Where(i => (((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null) || i.PropertyType.Namespace == "System.Collections.Generic").ToArray();
+            var g = entities.First().GetType().GetProperties();
+            List<Object> listOfEntities = entities.ToList();
+            foreach(Object entity in listOfEntities)
             {
                 foreach(System.Reflection.PropertyInfo prop in properties)
                 {
-
-                    DateTime? dt = (DateTime?)(prop.GetValue(entity));
-                    if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                    if (prop.PropertyType.Namespace == "System.Collections.Generic")
                     {
-                        prop.SetValue(entity, dt.Value.Add(dateTimeOffset));
+                        try
+                        {
+                            //working!!!! ?
+                            var val =  prop.GetValue(entity) as System.Collections.IEnumerable;
+                            if (val != null)
+                            {
+                                var valEnumerable = val.Cast<Object>().AsEnumerable();
+                                ConvertDateTimes(valEnumerable);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                        }
                     }
-                    DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
-                    
+                    else
+                    {
+                        DateTime? dt = (DateTime?)(prop.GetValue(entity));
+                        if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                        {
+                            prop.SetValue(entity, dt.Value.Add(dateTimeOffset));
+                        }
+                        DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
+                    }
                 }
             }
             return listOfEntities;
