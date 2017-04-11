@@ -7557,7 +7557,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Trying to navigate to the log file directory has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
@@ -7629,7 +7629,7 @@ namespace VitalSigns.API.Controllers
                     var getloglevel = nameValueRepository.Collection.AsQueryable().Where(x => x.Name == "Log Level").Select(x => x.Value).FirstOrDefault();
                     if (!string.IsNullOrEmpty(getloglevel))
                     {
-                        var updateDefination = nameValueRepository.Updater.Set(p => p.Name, loglevel);
+                        var updateDefination = nameValueRepository.Updater.Set(p => p.Value, loglevel);
                         var filterDefination = Builders<NameValue>.Filter.Where(p => p.Name == "Log Level");
 
                         var update = nameValueRepository.Update(filterDefination, updateDefination);
