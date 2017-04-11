@@ -37,13 +37,125 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
             }
         });
         var url = "";
+        var urluptimehourly = "";
+        var urluptimedaily = "";
         if (this.nodeName) {
             url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]`;
         }
         else {
             url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@null,IMAP@null,SMTP@null]&operation=HOURLY&isChart=true&getNode=true`;
+            urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@null,Services.HourlyUpTimePercent.Exchange@null,Services.HourlyUpTimePercent.OneDrive@null,Services.HourlyUpTimePercent.SharePoint@null]&operation=HOURLY&isChart=true&getNode=true`;
+            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness,Services.HourlyUpTimePercent.Exchange,Services.HourlyUpTimePercent.OneDrive,Services.HourlyUpTimePercent.SharePoint]`;
         }
         this.widgets = [
+            {
+                id: 'upTimeHourly',
+                title: 'Today\'s availability',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-4',
+                settings: {
+                    url: urluptimehourly,
+                    dateformat: 'time',
+                    chart: {
+                        chart: {
+                            renderTo: 'upTimeHourly',
+                            type: 'line',
+                            height: 340
+                        },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            categories: []
+                        },
+                        yAxis: {
+                            min: 0,
+                            endOnTick: false,
+                            allowDecimals: false,
+                            title: {
+                                enabled: true,
+                                text: 'percent'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
+                            }
+                        },
+                        legend: {
+                            enabled: true
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+            {
+                id: 'upTimeDaily',
+                title: 'This week\'s availability',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-4',
+                settings: {
+                    url: urluptimedaily,
+                    dateformat: 'date',
+                    chart: {
+                        chart: {
+                            renderTo: 'upTimeDaily',
+                            type: 'line',
+                            height: 340
+                        },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            categories: []
+                        },
+                        yAxis: {
+                            min: 0,
+                            endOnTick: false,
+                            allowDecimals: false,
+                            title: {
+                                enabled: true,
+                                text: 'percent'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                groupPadding: 0.1,
+                                borderWidth: 0
+                            },
+                            series: {
+                                pointPadding: 0
+                            }
+                        },
+                        legend: {
+                            enabled: true
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
             {
                 id: 'mailServices',
                 title: 'Mail services',
