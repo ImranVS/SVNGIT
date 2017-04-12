@@ -60,6 +60,7 @@
     <Compile Include="BusinessHours.cs" />
     <Compile Include="ConsoleCommands.cs" />
     <Compile Include="ConsolidationResults.cs" />
+    <Compile Include="StatsTranslations.cs" />
     <Compile Include="DominoServerTasks.cs" />
     <Compile Include="DeviceAttributes.cs" />
     <Compile Include="Credentials.cs" />
