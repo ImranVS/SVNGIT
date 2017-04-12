@@ -91,7 +91,7 @@ export class Logs implements OnInit, AfterViewChecked {
     applySetting(nameValue: any) {       
         if (this.emailid == null)
         {
-            this.appComponentService.showErrorMessage("Please enter email address .");
+            this.appComponentService.showErrorMessage("Please enter an e-mail address");
         }
         else {
             this.postData = {
