@@ -1,5 +1,4 @@
-﻿
-import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+﻿import { Component, OnInit, EventEmitter, Input, Output, ViewChild, AfterViewInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
@@ -39,7 +38,7 @@ export class Nodes extends GridBase {
     firstrowid: string;
     id: string;
     locations: string;
-    
+    checkedDevices: any;
 
     constructor(service: RESTService, private formBuilder: FormBuilder, appComponentService: AppComponentService, protected datetimeHelpers: helpers.DateTimeHelper) {
         super(service, appComponentService);
@@ -127,9 +126,9 @@ export class Nodes extends GridBase {
                 }
             });
     }
-    changeInDevices(server: string) {
-
-        this.devices = server;
+    changeInDevices(devices: any) {
+        this.devices = devices;
+        this.checkedDevices = devices;
     }
 
     onItemsSourceChanged() {

@@ -182,7 +182,7 @@ data.pageIndex + 1 | number
             <button type="button" class="btn btn-success" (click)="applySetting()">Assign Nodes</button>
             <div>&nbsp;</div>
             <div>
-                <server-location-list (checkedDevices)="changeInDevices($event)" [(isVisible)]="visibility" [(deviceType)]="currentDeviceType"></server-location-list>
+                <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="currentDeviceType"></server-location-list>
             </div>
             <wj-popup class="modal-content col-sm-6" #frmDialog>
 
