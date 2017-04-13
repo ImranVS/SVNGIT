@@ -40,7 +40,7 @@ Public Class AlertDefinition
         intx = ax.AlertKey
         inty = ay.AlertKey
 
-        Return intx > inty
+        Return intx.CompareTo(inty) 'The old version of the code when working with int alert keys used intx > inty comparison. When working with strings, need to use CompareTo
     End Function
 
     Private _AlertKey As String
@@ -437,7 +437,7 @@ Public Class VitalSignsAlertService
             If (alertson) Then
                 Try
                     WriteServiceHistoryEntry(Now.ToString & " ServiceWorkerThreadNew - trying to process alerts", LogLevel.Verbose)
-                    '4/4/2017 NS commented out the emergency alert piece
+                    '4/4/2017 NS commented out the emergency alert piece for VSPLUS-3539
                     'If Not myRegistry Is Nothing Then
                     '    WriteServiceHistoryEntry(Now.ToString & " ServiceWorkerThreadNew - got myRegistry object", LogLevel.Verbose)
                     '    tempObj = myRegistry.ReadFromRegistry("Alert Emergency Contacts")
@@ -749,7 +749,6 @@ Public Class VitalSignsAlertService
                     Dim ADefSort As New AlertDefinition()
                     Array.Sort(ADefArr, ADefSort)
                     For i As Integer = 0 To ADefArr.Length - 1
-                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification ADefArr(i).AlertKey " & i & " " & ADefArr(i).AlertKey, LogLevel.Verbose)
                         If keyList.Contains(ADefArr(i).AlertKey) Then
                             ReDim Preserve ADefArrOut(c)
                             ADefArrOut(c) = ADefArr(i)
@@ -757,6 +756,7 @@ Public Class VitalSignsAlertService
                         Else
                             If c > 0 Then
                                 If ADefArrOut(c - 1).AlertKey.ToString <> "" Then
+                                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification: trying to add item #" & c & ", key " & ADefArrOut(c - 1).AlertKey & ", i " & i & ", item " & ADefArr(i).AlertKey, LogLevel.Verbose)
                                     AlertDict.Add(ADefArrOut(c - 1).AlertKey, ADefArrOut)
                                 End If
                             End If
@@ -768,7 +768,7 @@ Public Class VitalSignsAlertService
                         End If
                     Next
                     If ADefArrOut(c - 1).AlertKey.ToString <> "" Then
-                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification ADefArrOut(c - 1).AlertKey " & ADefArrOut(c - 1).AlertKey, LogLevel.Verbose)
+                        WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification: trying to add " & ADefArrOut(c - 1).AlertKey, LogLevel.Verbose)
                         AlertDict.Add(ADefArrOut(c - 1).AlertKey, ADefArrOut)
                     End If
                 End If
