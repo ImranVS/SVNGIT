@@ -38,11 +38,11 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
         this.widgets = [
             {
                 id: 'managersNonManagers',
-                title: 'Managers/Non Managers',
+                title: 'Manager/No Managers',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_MANAGERS,NUM_OF_PROFILES_WITH_NO_MANAGER]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
+                    url: `/services/summarystats?statName=[NUM_OF_PROFILES_WITH_MANAGER,NUM_OF_PROFILES_WITH_NO_MANAGER]&deviceid=${this.serviceId}&startDate=${displayDate}&endDate=${displayDate}`,
                     dateformat: "date",
                     chart: {
                         chart: {
