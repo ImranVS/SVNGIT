@@ -628,7 +628,7 @@ namespace VitalSigns.API.Controllers
         [HttpGet("statistics")]
         public APIResponse GetDailyStat(string deviceId, string statName, string operation, bool isChart = false, bool getNode = false)
         {
-
+            UtilsController uc = new UtilsController();
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
             statusRepository = new Repository<Status>(ConnectionString);
             try
@@ -666,7 +666,6 @@ namespace VitalSigns.API.Controllers
                         List<Segment> segments = new List<Segment>();
                         Serie serie = new Serie();
                         Chart chart = new Chart();
-
                         switch (operation.ToUpper())
                         {
                             case "SUM":
@@ -676,7 +675,7 @@ namespace VitalSigns.API.Controllers
                                               .GroupBy(row => row.StatName)
                                               .Select(grp => new
                                               {
-                                                  StatName = grp.Key,
+                                                  StatName = uc.GetUserFriendlyStatName(grp.Key),
                                                   Value = grp.Sum(x => x.StatValue),
                                                   DeviceId = deviceId
                                               }).ToList();
@@ -693,7 +692,7 @@ namespace VitalSigns.API.Controllers
                                           .GroupBy(row => row.DeviceName)
                                           .Select(grp => new
                                           {
-                                              Label = grp.Key,
+                                              Label = uc.GetUserFriendlyStatName(grp.Key),
                                               Value = grp.Average(x => x.StatValue)
                                           }).ToList();
                                     foreach (var item in statsAvgData)
@@ -721,7 +720,7 @@ namespace VitalSigns.API.Controllers
                                           .GroupBy(row => row.DeviceName)
                                           .Select(grp => new
                                           {
-                                              StatName = grp.Key,
+                                              StatName = uc.GetUserFriendlyStatName(grp.Key),
                                               Value = grp.Sum(x => x.StatValue),
                                               DeviceId = deviceId
                                           }).ToList();
@@ -736,7 +735,7 @@ namespace VitalSigns.API.Controllers
                                        .GroupBy(row => row.StatName)
                                        .Select(grp => new
                                        {
-                                           StatName = grp.Key,
+                                           StatName = uc.GetUserFriendlyStatName(grp.Key),
                                            Value = grp.Count(),
                                            DeviceId = deviceId
                                        }).ToList();
@@ -778,7 +777,7 @@ namespace VitalSigns.API.Controllers
                                         {
 
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = item.Value });
-                                            serie.Title = name;
+                                            serie.Title = uc.GetUserFriendlyStatName(name);
                                             serie.Segments = segments;
                                         }
                                         else if (item != null && output != null && statNames.Length > 1)
@@ -786,14 +785,14 @@ namespace VitalSigns.API.Controllers
                                             foreach (var statvalue in output)
                                             {
                                                 segments.Add(new Segment { Label = displayTime, Value = statvalue.Value });
-                                                serie.Title = name;
+                                                serie.Title = uc.GetUserFriendlyStatName(name);
                                                 serie.Segments = segments;
                                             }
                                         }
                                         else
                                         {
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
-                                            serie.Title = name;
+                                            serie.Title = uc.GetUserFriendlyStatName(name);
                                             serie.Segments = segments;
                                         }
                                     }
@@ -801,7 +800,7 @@ namespace VitalSigns.API.Controllers
                                 }
 
                                 chart = new Chart();
-                                chart.Title = statName;
+                                chart.Title = uc.GetUserFriendlyStatName(statName);
                                 chart.Series = series;
                                 Response = Common.CreateResponse(chart);
                                 break;
@@ -841,7 +840,7 @@ namespace VitalSigns.API.Controllers
                                               .GroupBy(row => row.StatName)
                                               .Select(grp => new
                                               {
-                                                  StatName = grp.Key,
+                                                  StatName = uc.GetUserFriendlyStatName(grp.Key),
                                                   Value = grp.Sum(x => x.StatValue),
                                                   DeviceId = deviceId
                                               }).ToList();
@@ -859,7 +858,7 @@ namespace VitalSigns.API.Controllers
                                           .GroupBy(row => row.StatName)
                                           .Select(grp => new
                                           {
-                                              StatName = grp.Key,
+                                              StatName = uc.GetUserFriendlyStatName(grp.Key),
                                               Value = grp.Average(x => x.StatValue),
                                               DeviceId = deviceId
                                           }).ToList();
@@ -872,7 +871,7 @@ namespace VitalSigns.API.Controllers
                                        .GroupBy(row => row.StatName)
                                        .Select(grp => new
                                        {
-                                           StatName = grp.Key,
+                                           StatName = uc.GetUserFriendlyStatName(grp.Key),
                                            Value = grp.Count(),
                                            DeviceId = deviceId
                                        }).ToList();
@@ -924,7 +923,7 @@ namespace VitalSigns.API.Controllers
                                         {
 
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = item.Value });
-                                            serie.Title = name;
+                                            serie.Title = uc.GetUserFriendlyStatName(name);
                                             serie.Segments = segments;
                                         }
                                         else if (item != null && output != null && statNames.Length > 1)
@@ -932,7 +931,7 @@ namespace VitalSigns.API.Controllers
                                             foreach (var statvalue in output)
                                             {
                                                 segments.Add(new Segment { Label = displayTime, Value = statvalue.Value });
-                                                serie.Title = name;
+                                                serie.Title = uc.GetUserFriendlyStatName(name);
                                                 serie.Segments = segments;
                                             }
                                         }
@@ -940,14 +939,14 @@ namespace VitalSigns.API.Controllers
                                         {
                                             // TimeSpan timespan = new TimeSpan(hour);
                                             segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
-                                            serie.Title = name;
+                                            serie.Title = uc.GetUserFriendlyStatName(name);
                                             serie.Segments = segments;
                                         }
                                     }
                                     series.Add(serie);
                                 }
                                 Chart chart = new Chart();
-                                chart.Title = statName;
+                                chart.Title = uc.GetUserFriendlyStatName(statName);
                                 chart.Series = series;
                                 Response = Common.CreateResponse(chart);
                                 break;
@@ -973,6 +972,7 @@ namespace VitalSigns.API.Controllers
         [HttpGet("summarystats")]
         public APIResponse GetSummaryStat(string deviceId, string statName, string seriesTitle = "", string startDate = "", string endDate = "", bool isChart = true, string regex = "")
         {
+            UtilsController uc = new UtilsController();
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
                 startDate = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
@@ -1110,7 +1110,7 @@ namespace VitalSigns.API.Controllers
                         {
                             segments.Add(new Segment()
                             {
-                                Label = item.StatName,
+                                Label = uc.GetUserFriendlyStatName(item.StatName),
                                 Value = item.Value
                             });
                         }
@@ -1143,7 +1143,7 @@ namespace VitalSigns.API.Controllers
                                     segments.Add(new Segment { Label = statdate.ToString(), Value = item.Value });
                                     if (string.IsNullOrEmpty(seriesTitle))
                                     {
-                                        serie.Title = name.ToString(); 
+                                        serie.Title = uc.GetUserFriendlyStatName(name.ToString()); 
                                     }
                                     else
                                     {
@@ -1158,7 +1158,7 @@ namespace VitalSigns.API.Controllers
                                         segments.Add(new Segment { Label = statdate, Value = statvalue.Value });
                                         if (string.IsNullOrEmpty(seriesTitle))
                                         {
-                                            serie.Title = name.ToString();
+                                            serie.Title = uc.GetUserFriendlyStatName(name.ToString());
                                         }
                                         else
                                         {
@@ -1172,7 +1172,7 @@ namespace VitalSigns.API.Controllers
                                     segments.Add(new Segment { Label = statdate.ToString(), Value = 0 });
                                     if (string.IsNullOrEmpty(seriesTitle))
                                     {
-                                        serie.Title = name.ToString();
+                                        serie.Title = uc.GetUserFriendlyStatName(name.ToString());
                                     }
                                     else
                                     {
@@ -1189,7 +1189,7 @@ namespace VitalSigns.API.Controllers
 
 
                     Chart chart = new Chart();
-                    chart.Title = statName;
+                    chart.Title = uc.GetUserFriendlyStatName(statName);
                     chart.Series = series;
                     Response = Common.CreateResponse(chart);
 
