@@ -3,10 +3,9 @@ import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
-
-
 import {RESTService} from '../../../core/services';
 import {AppComponentService} from '../../../core/services';
+
 @Component({
     selector: 'servder-form',
     templateUrl: '/app/configurator/components/serverSettings/server-settings-locations-credentials-businesshours.component.html',
@@ -17,7 +16,6 @@ import {AppComponentService} from '../../../core/services';
     ]
 })
 export class ServerLocations implements OnInit, AfterViewInit {
-
     @ViewChildren('name') inputName; 
     errorMessage: any;
     deviceLocationData: any;
@@ -26,7 +24,7 @@ export class ServerLocations implements OnInit, AfterViewInit {
     serverLocationsBusinessHoursCredentialsForm: FormGroup;
     selectedSetting: any;
     selectedSettingValue: any;
-    devices: string;
+    devices: string = "";
     checkedDevices: any;
     selectedLocation: string=null;
     selectedCredential: string = null;
@@ -37,13 +35,10 @@ export class ServerLocations implements OnInit, AfterViewInit {
         private dataProvider: RESTService,
         private formBuilder: FormBuilder,
         appComponentService: AppComponentService) {
-
         this.serverLocationsBusinessHoursCredentialsForm = this.formBuilder.group({
             'setting': [''],
             'value': [''],
             'devices': ['']
-           
-
         });
         this.appComponentService = appComponentService;
    }

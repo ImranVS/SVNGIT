@@ -25,7 +25,7 @@ export class ServerDiskSettings implements OnInit {
     diskSettingsForm: FormGroup;
     selectedDiskSetting: any;
     selectedDiskSettingValue: any;
-    devices: string;
+    devices: string = "";
     checkedDevices: any;
     diskByPercentage: string;
     diskByGB: string;

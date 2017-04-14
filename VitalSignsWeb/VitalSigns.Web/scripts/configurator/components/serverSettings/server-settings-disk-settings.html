@@ -72,7 +72,8 @@
 <div class="panel panel-default" *ngIf="selectedDiskSetting">
     <div class="panel-heading">Servers</div>
     <div class="panel-body">
+        <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
         <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceTypes)]="selectedDeviceTypes"></server-location-list>
     </div>
 </div>
-<button type="button" class="btn btn-primary" *ngIf="selectedDiskSetting" (click)="applySetting(diskSettingsForm.value)">Apply</button>
+<button type="button" class="btn btn-primary" [disabled]="!(devices.length>0)" *ngIf="selectedDiskSetting" (click)="applySetting(diskSettingsForm.value)">Apply</button>
