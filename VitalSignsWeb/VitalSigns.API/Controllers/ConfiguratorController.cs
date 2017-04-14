@@ -4445,7 +4445,7 @@ namespace VitalSigns.API.Controllers
 
                 var notifications = notificationsRepository.Collection.AsQueryable().ToList();
 
-                var eventsList = eventsMasterRepository.Find(_ => true).OrderBy(x => x.DeviceType).ToList();
+                var eventsList = eventsMasterRepository.Find(_ => true).OrderBy(x => x.EventType).OrderBy(x => x.DeviceType).ToList();
                 foreach (var eventItem in eventsList)
                 {
                     result_events.Add(new EventDefinition
