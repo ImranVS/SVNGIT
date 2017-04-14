@@ -98,7 +98,7 @@ export class ServiceDetails implements OnInit {
                     this.deviceName = response.data.name;
                     this.deviceId = response.data.id;
 
-                    jQuery('#selectedServerIcon SVG').remove();
+                    jQuery('#selectedServerIcon svg').remove();
                     jQuery('#selectedServerIcon .helper').after(`<img class="svgInject" src="${this.service.icon}" title="${this.service.name}" alt="${this.service.name}" />`);
 
                     injectSVG();

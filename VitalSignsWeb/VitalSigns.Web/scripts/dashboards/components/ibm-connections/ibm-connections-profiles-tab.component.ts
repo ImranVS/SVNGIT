@@ -38,7 +38,7 @@ export class IBMConnectionsProfilesTab extends WidgetController implements OnIni
         this.widgets = [
             {
                 id: 'managersNonManagers',
-                title: 'Manager/No Managers',
+                title: 'Manager/No Manager',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
