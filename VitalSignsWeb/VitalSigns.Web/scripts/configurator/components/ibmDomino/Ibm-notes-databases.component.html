@@ -132,7 +132,8 @@ data.pageIndex + 1 | number
                                                     <div class="form-group col-sm-12">
                                                         <label for="scan_interval" class="control-label col-sm-6">Scan Interval</label>
                                                         <div class="col-sm-3">
-                                                            <input type="number" value="2" class="form-control" id="scan_interval" required name="scan_interval" [(ngModel)]="currentEditItem.scan_interval">
+                                                            <input type="number" value="2" class="form-control" id="scan_interval" required name="scan_interval" [(ngModel)]="currentEditItem.scan_interval"
+                                                                   onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                         </div>
                                                         <div class="control-label col-sm-1">
                                                             minutes
@@ -144,7 +145,8 @@ data.pageIndex + 1 | number
                                                     <div class="form-group col-sm-12">
                                                         <label for="retry_interval" class="control-label col-sm-6">Retry Interval</label>
                                                         <div class="col-sm-3">
-                                                            <input type="number" class="form-control" id="retry_interval" required name="retry_interval" [(ngModel)]="currentEditItem.retry_interval">
+                                                            <input type="number" class="form-control" id="retry_interval" required name="retry_interval" [(ngModel)]="currentEditItem.retry_interval"
+                                                                   onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                         </div>
                                                         <div class="control-label col-sm-1">
                                                             minutes
@@ -155,7 +157,8 @@ data.pageIndex + 1 | number
                                                     <div class="form-group col-sm-12">
                                                         <label for="off_hours_scan_interval" class="control-label col-sm-6">Off-Hours Scan Interval</label>
                                                         <div class="col-sm-3">
-                                                            <input type="number" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval">
+                                                            <input type="number" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval" [(ngModel)]="currentEditItem.off_hours_scan_interval" 
+                                                                   onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                         </div>
                                                         <div class="control-label col-sm-1">
                                                             minutes
@@ -195,7 +198,8 @@ data.pageIndex + 1 | number
                                                     <div class="form-group col-sm-6">
                                                         <div class="col-sm-5"></div>
                                                         <div class="col-sm-2">
-                                                            <input type="number" class="form-control" id="trigger_value" required name="trigger_value" [(ngModel)]="currentEditItem.trigger_value">
+                                                            <input type="number" class="form-control" id="trigger_value" required name="trigger_value" [(ngModel)]="currentEditItem.trigger_value"
+                                                                   onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                         </div>
                                                         <div *ngIf="currentEditItem.trigger_type == 'Document Count'">
                                                             <label for="trigger_value" class="col-sm-5">documents</label>

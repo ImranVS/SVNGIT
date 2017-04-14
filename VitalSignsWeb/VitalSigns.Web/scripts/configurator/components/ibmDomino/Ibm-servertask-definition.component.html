@@ -123,7 +123,8 @@ data.pageIndex + 1 | number
                                                 <div class="form-group col-sm-12">
                                                     <label for="retry_count" class="control-label col-sm-5">Retry Count</label>
                                                     <div class="col-sm-7">
-                                                        <input type="number" min="0" class="form-control" id="retry_count" name="retry_count" required [(ngModel)]="currentEditItem.retry_count">
+                                                        <input type="number" min="0" class="form-control" id="retry_count" name="retry_count" required [(ngModel)]="currentEditItem.retry_count"
+                                                               onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
                                                     </div>
                                                 </div>
                                             </div>
@@ -161,7 +162,8 @@ data.pageIndex + 1 | number
                                                 <div class="form-group col-sm-12">
                                                     <label for="max_busy_time" class="control-label col-sm-4">Maximum Run Time</label>
                                                     <div class="col-sm-5">
-                                                        <input type="number" min="0" class="form-control" id="max_busy_time" name="max_busy_time" required [(ngModel)]="currentEditItem.max_busy_time">
+                                                        <input type="number" min="0" class="form-control" id="max_busy_time" name="max_busy_time" required [(ngModel)]="currentEditItem.max_busy_time"
+                                                               onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
                                                     </div>
                                                     <div class="control-label  col-sm-2">minutes</div>
                                                 </div>

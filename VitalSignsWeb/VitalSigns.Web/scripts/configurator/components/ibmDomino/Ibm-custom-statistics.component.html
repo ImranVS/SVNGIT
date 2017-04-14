@@ -139,7 +139,8 @@ data.pageIndex + 1 | number
                                                     <input type="number" class="form-control" id="yellow_threshold" name="yellow_threshold" [(ngModel)]="currentEditItem.yellow_threshold" />
                                                 </div>
                                                 <div class="col-sm-2">
-                                                    <input type="number" class="form-control" id="times_in_a_row" name="times_in_a_row" [(ngModel)]="currentEditItem.times_in_a_row" />
+                                                    <input type="number" class="form-control" id="times_in_a_row" name="times_in_a_row" [(ngModel)]="currentEditItem.times_in_a_row" 
+                                                           onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                 </div>
                                                 <label for="times_in_a_row" class="control-label col-sm-2">times in a row</label>
                                             </div>
@@ -151,7 +152,8 @@ data.pageIndex + 1 | number
                                                     <input type="text" class="form-control" name="string_value" [(ngModel)]="currentEditItem.yellow_threshold" />
                                                 </div>
                                                 <div class="col-sm-2">
-                                                    <input type="number" class="form-control" name="string_times_in_a_row" [(ngModel)]="currentEditItem.times_in_a_row" />
+                                                    <input type="number" class="form-control" name="string_times_in_a_row" [(ngModel)]="currentEditItem.times_in_a_row" 
+                                                           onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                 </div>
                                                 <label for="times_in_a_row" class="control-label col-sm-2">times in a row</label>
                                             </div>

@@ -36,9 +36,9 @@ export class CustomStatistics extends GridBase implements OnInit {
             (error) => this.errorMessage = <any>error
             );
     }
-    changeInDevices(devices: string) {
+    changeInDevices(devices: any) {
         this.devices = devices;
-
+        this.checkedDevices = devices;
     }
 
     ngOnInit() {
