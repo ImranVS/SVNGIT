@@ -27,9 +27,11 @@ import {ServersLocationService} from './serverattributes-view.service';
 export class DominoServerTasks implements OnInit  {  
     protected service: RESTService;
     protected appComponentService: AppComponentService;
+    checkedDevices: any;
     devices: string = "";
     attributes: string[] = [];
-    currentDeviceType:string="Domino"
+    currentDeviceType: string = "Domino";
+    selectedDeviceType: string = "Domino";
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     currentForm: FormGroup;
@@ -61,8 +63,7 @@ export class DominoServerTasks implements OnInit  {
     }
 
     ngOnInit() {
-       
- this.service.get('/Configurator/get_domino_server_tasks')
+        this.service.get('/Configurator/get_domino_server_tasks')
             .subscribe(
             response => {
                 if (response.status == "Success") {
@@ -77,8 +78,9 @@ export class DominoServerTasks implements OnInit  {
                 this.appComponentService.showErrorMessage(errorMessage);
             });
     } 
-    changeInDevices(devices: string) {
+    changeInDevices(devices: any) {
         this.devices = devices;
+        this.checkedDevices = devices;
     }
 
     applySetting() {

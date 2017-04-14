@@ -27,6 +27,7 @@ export class ServerLocations implements OnInit, AfterViewInit {
     selectedSetting: any;
     selectedSettingValue: any;
     devices: string;
+    checkedDevices: any;
     selectedLocation: string=null;
     selectedCredential: string = null;
     selectedBusinessHour: string = null;
@@ -94,8 +95,9 @@ export class ServerLocations implements OnInit, AfterViewInit {
 
 
     }
-    changeInDevices(server: string) {
-        this.devices = server;
+    changeInDevices(devices: any) {
+        this.devices = devices;
+        this.checkedDevices = devices;
     }
    
 }

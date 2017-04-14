@@ -1,6 +1,5 @@
-﻿import {Component, OnInit, AfterViewInit, ViewChild,Output, EventEmitter} from '@angular/core';
+﻿import {Component, OnInit, AfterViewInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
-import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {GridBase} from '../../../core/gridBase';
 import {RESTService} from '../../../core/services';
@@ -8,7 +7,6 @@ import {DiskSttingsValue} from '../../models/server-disk-settings';
 import {AppComponentService} from '../../../core/services';
 import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
 @Component({
-    selector: 'servder-form',
     templateUrl: '/app/configurator/components/serverSettings/server-settings-disk-settings.html',
     providers: [
         HttpModule,
@@ -28,6 +26,7 @@ export class ServerDiskSettings implements OnInit {
     selectedDiskSetting: any;
     selectedDiskSettingValue: any;
     devices: string;
+    checkedDevices: any;
     diskByPercentage: string;
     diskByGB: string;
     selectedDisks: string;
@@ -36,6 +35,7 @@ export class ServerDiskSettings implements OnInit {
     diskValues: any;
     protected appComponentService: AppComponentService;
     deviceTypes: string = "Domino,Exchange,Active Directory,Windows";
+    selectedDeviceTypes: string = "Domino,Exchange,Active Directory,Windows";
     thresholdTypes: string[];
     formObject: any = {
         id: null,
@@ -169,8 +169,9 @@ export class ServerDiskSettings implements OnInit {
                 }
             });
     }
-    changeInDevices(server: string) {
-        this.devices = server;
+    changeInDevices(devices: any) {
+        this.devices = devices;
+        this.checkedDevices = devices;
     }
     get pageSize(): number {
         return this.data.pageSize;

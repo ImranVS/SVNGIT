@@ -1,12 +1,10 @@
-﻿<div class="widgetWrapper">
-    <div class="widgetTitle">
-        Domino Server Tasks
-    </div>
-    <div class="widgetContent">
-        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column"  [frozenColumns]="1"
+﻿<div class="panel panel-default">
+    <div class="panel-heading">Domino Server Tasks</div>
+    <div class="panel-body">
+        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1"
                       (selectionChanged)="selectionChangedHandler()">
             <wj-flex-grid-filter></wj-flex-grid-filter>
-        
+
             <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="100" contenteditable="true">
                 <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                     <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" />
@@ -55,19 +53,13 @@ data.pageIndex + 1 | number
             </wj-menu>
         </div>
     </div>
-    <div class="widgetTitle">
-        Servers
-    </div>
-    <div class="widgetContent">
-        <div>
-            <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
-            <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceType)]="currentDeviceType"></server-location-list>
-
-            <button type="button" class="btn btn-success" (click)="applySetting()" [disabled]="!(devices.length>0)">Add Tasks</button>
-            <button type="button" class="btn btn-success" (click)="removeSetting()">Remove Tasks</button>
-
-        </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Domino Servers</div>
+    <div class="panel-body">
+        <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
+        <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceType)]="selectedDeviceType"></server-location-list>
     </div>
 </div>
-
-
+<button type="button" class="btn btn-success" (click)="applySetting()" [disabled]="!(devices.length>0)">Add Tasks</button>
+<button type="button" class="btn btn-success" (click)="removeSetting()" [disabled]="!(devices.length>0)">Remove Tasks</button>
