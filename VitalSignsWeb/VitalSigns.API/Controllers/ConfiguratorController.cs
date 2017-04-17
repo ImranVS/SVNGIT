@@ -1440,14 +1440,8 @@ namespace VitalSigns.API.Controllers
                     IsRestartASAP = false,
                     IsResartLater = false,
                     IsDisallow = false
-
-
-
-                }).ToList();
-
-
+                }).OrderBy(x => x.TaskName).ToList();
                 Response = Common.CreateResponse(result);
-
             }
             catch (Exception exception)
             {
